@@ -1,8 +1,10 @@
+#!/usr/bin/python3
+
 import sys
 import os
 import argparse
 
-import parser.parser
+from parser.parser import parse_CFG
 
 
 def parse_args():    
@@ -13,7 +15,7 @@ def parse_args():
 
     group.add_argument("-s",  "--source",    type=str, help="local source file name.")
 
-
+    args = parser.parse_args()
 
 
 if __name__ == "__main__":
@@ -22,5 +24,5 @@ if __name__ == "__main__":
     print("Green Main")
     parse_args()
 
-    parser.parse_CFG(args.source)
+    parse_CFG(args.source)
     
