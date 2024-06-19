@@ -76,3 +76,42 @@ class CFGBlock:
         #We do not store the direction as itgenerates a loop
         elif type_block == "MainExit":
             self._jump_type = "mainExit"
+            self._jump_to = exit_info[0]
+
+    def get_as_json(self):
+        block_json = {}
+        block_json["id"] = self.block_id
+
+        instructions_json = []
+        for i in self.instructions:
+            i_json = i.get_as_json()
+            instructions_json.append(i_json)
+
+        block_json["instructions"] = instructions_json
+        
+        blocks_json["exit"] = self.block_id+"Exit"
+        blocks_json["type"] = "BasicBlock"
+
+        if self._jump_type == "conditional":
+            jump_block = {}
+            jump_block["id"] = self.block_id+"Exit"
+            jump_block["instructions"] = []
+            jump_block["type"] = "ConditionalJump"
+            jump_block["exit"] = [self._falls_to, self._jump_to]
+            jump_block["cond"] = self.instructions[-1].get_out_args()
+
+        elif self._jump_type == "unconditional":
+            jump_block = {}
+            jump_block["id"] = self.block_id+"Exit"
+            jump_block["instructions"] = []
+            jump_block["type"] = "Jump"
+            jump_block["exit"] = [self._jump_to]
+
+        elif self._jump_type == "mainExit":
+            jump_block = {}
+            jump_block["id"] = self.block_id+"Exit"
+            jump_block["instructions"] = []
+            jump_block["type"] = "MainExit"
+            jump_block["exit"] = [self._jump_to]
+
+        return block_json, jump_block

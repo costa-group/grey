@@ -27,3 +27,27 @@ class CFG:
 
     def get_block(self, block_id):
         return self.blocks[block_id]
+
+
+
+    def get_as_json(self):
+        json_cfg = {}
+        json_cfg["nodeType"] = self.nodeType
+
+        json_blocks = []
+        for block in self.blocks:
+            json_block, json_jump_block = block.get_as_json()
+            json_blocks.append(json_block)
+            json_blocks.append(json_jump_block)
+
+        json_obj = {}
+        json_obj["blocks"] = json_blocks
+        json_obj["name"] = self.objectCFG["name"] 
+        
+        json_cfg["object"] = json_obj
+        json_cfg["subObjects"] = self.subObjects
+
+        return json_cfg
+
+    def __str__(self):
+        return self.get_as_json()
