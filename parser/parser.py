@@ -3,7 +3,7 @@ from typing import Union, Dict, Any
 from parser.cfg import CFG
 from parser.cfg_block import CFGBlock
 from parser.cfg_instruction import CFGInstruction
-import utils_parser
+import parser.utils_parser
 
 def parse_instruction(ins_json: Dict[str,Any]) -> CFGInstruction:
     in_arg = ins_json.get("in",-1)
@@ -42,7 +42,7 @@ def parse_block(block_json: Dict[str,Any]) -> CFGBlock:
 
 
     
-def parse_CFG(input_file: src):
+def parse_CFG(input_file: str):
     json_dict = json.load(input_file)
 
     noteType = json_dict.get("nodeType")
