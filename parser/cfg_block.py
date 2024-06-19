@@ -115,3 +115,9 @@ class CFGBlock:
             jump_block["exit"] = [self._jump_to]
 
         return block_json, jump_block
+
+
+    def build_spec(self):
+        spec = {}
+
+        return spec

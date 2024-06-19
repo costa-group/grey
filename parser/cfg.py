@@ -29,7 +29,15 @@ class CFG:
         return self.blocks[block_id]
 
 
+    def build_spec_for_blocks(self):
+        list_spec = []
+        for b in self.blocks:
+            spec = b.build_spec()
+            list_spec.append(spec)
 
+        return list_spec
+
+    
     def get_as_json(self):
         json_cfg = {}
         json_cfg["nodeType"] = self.nodeType
