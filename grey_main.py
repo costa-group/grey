@@ -27,7 +27,7 @@ if __name__ == "__main__":
 
     x = dtimer()
     
-    parse_CFG(args.source)
+    cfg = parse_CFG(args.source)
 
     y = dtimer()
 
