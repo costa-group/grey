@@ -6,33 +6,23 @@ class CFGBlock:
     Class for representing a cfg block
     """
     
-    def __init__(self, cname : str, identifier : str, name : str):
-        self.contract_name = cname
+    def __init__(self, identifier : str, instructions: List[CFGInstruction], type_block: str):
         self.block_id = identifier
-        self.block_name = name
-        self._instructions = []
+        self._instructions = instructions
         # minimum size of the source stack
         self.source_stack = 0
-        self._jump_type = None
+        self._jump_type = type_block
         self._jump_to = None
         self._falls_to = None
 
         
-    def get_contract_name(self) -> str:
-        return self.contract_name
-
     @property
     def block_id(self) -> int:
         return self.block_id
 
-
-    @property
-    def block_name(self) -> str:
-        return self.block_name
-
     @property
     def instructions(self) -> List[CFGInstruction]:
-        return self.contract_name
+        return self._instructions
 
     @property
     def source_stack(self) -> int:
@@ -49,7 +39,6 @@ class CFGBlock:
     @property
     def falls_to(self) -> str:
         return self._falls_to
-
 
     @instructions.setter
     def instructions(self, new_instructions: List[CFGInstruction]) -> None:
@@ -82,3 +71,17 @@ class CFGBlock:
     @property
     def length(self) -> int:
         return len(self._instructions)
+
+    def set_jump_info(self, type_block: str, exit_info: List[str]) -> None:
+        if type_block == "ConditionalJump":
+            self._jump_type = "conditional"
+            self._falls_to = exit_info[0]
+            self._jump_to = exit_info[1]
+        elif type_block == "Jump":
+            self._jump_type = "unconditional"
+            self._jump_to = exit_info[0]
+        elif type_block == "":
+            self._jump_type = "terminal"
+        #We do not store the direction as itgenerates a loop
+        elif type_block == "MainExit":
+            self._jump_type = "mainExit"
