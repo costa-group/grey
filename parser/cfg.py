@@ -11,7 +11,7 @@ class CFG:
         self.subObjects = {}
 
     def add_block(self, block: CFGBlock)-> None:
-        block_id = block.block_id()
+        block_id = block.get_block_id()
 
         if block_id in self.blocks:
             print("WARNING: You are overwritting an existing block")
@@ -19,7 +19,7 @@ class CFG:
         self.blocks[block_id] = block
 
     def add_object_name(self, name: str) -> None:
-        self.obecjtCFG["name"] = name
+        self.objectCFG["name"] = name
 
 
     def add_subobjects(self, subobjects):

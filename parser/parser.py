@@ -3,14 +3,14 @@ from typing import Union, Dict, Any
 from parser.cfg import CFG
 from parser.cfg_block import CFGBlock
 from parser.cfg_instruction import CFGInstruction
-import parser.utils_parser
+from parser.utils_parser import check_instruction_validity, check_block_validity
 
 def parse_instruction(ins_json: Dict[str,Any]) -> CFGInstruction:
     in_arg = ins_json.get("in",-1)
     op = ins_json.get("op", -1)
     out_arg = ins_json.get("out", -1)
     
-    utils.check_instruction_validity(in_arg, op, out_arg)
+    check_instruction_validity(in_arg, op, out_arg)
 
     instruction = CFGInstruction(op,in_arg,out_arg)
     
@@ -29,7 +29,7 @@ def parse_block(block_json: Dict[str,Any]) -> CFGBlock:
     block_exit = block_json.get("exit", -1)
     block_type = block_json.get("type", -1)
     
-    utils.check_block_validity(block_id, block_instructions, block_exit, block_type)
+    check_block_validity(block_id, block_instructions, block_exit, block_type)
 
     list_cfg_instructions = []
     for instructions in block_instructions:
@@ -43,9 +43,10 @@ def parse_block(block_json: Dict[str,Any]) -> CFGBlock:
 
     
 def parse_CFG(input_file: str):
-    json_dict = json.load(input_file)
+    json_file = open(input_file, "r")
+    json_dict = json.load(json_file)
 
-    noteType = json_dict.get("nodeType")
+    nodeType = json_dict.get("nodeType")
     
     cfg = CFG(input_file,nodeType)
     
@@ -63,21 +64,23 @@ def parse_CFG(input_file: str):
         raise Exception("[ERROR]: JSON file does not contain blocks")
 
     for bl in blocks_list:
-        block_id, new_block, block_exit = parse_cfg_block(bl)
+        block_id, new_block, block_exit = parse_block(bl)
 
-        if block_id.find("Exit") != -1:
-            prev_block_id = block_id.strip("Exit")[0]
+        pos = block_id.find("Exit") 
+        if pos != -1:
+            
+            prev_block_id = block_id[:pos]
             prev_block = cfg.get_block(prev_block_id)
 
-            prev_block.set_jump_info(new_block.jump_type, block_exit)
+            prev_block.set_jump_info(new_block.get_jump_type(), block_exit)
             
         else:
-            cfg.add_block(bl)
+            cfg.add_block(new_block)
 
-
-    subObjects = json_dict.get("subObjects",False)
-
-    if not subObjects:
+    subObjects = json_dict.get("subObjects",-1)
+    
+    if subObjects == -1:
         raise Exception("[ERROR]: JSON file does not contain key subObjects")
 
+    cfg.add_subobjects(subObjects)
     

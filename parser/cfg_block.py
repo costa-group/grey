@@ -16,32 +16,25 @@ class CFGBlock:
         self._falls_to = None
 
         
-    @property
-    def block_id(self) -> int:
+    def get_block_id(self) -> str:
         return self.block_id
-
-    @property
-    def instructions(self) -> List[CFGInstruction]:
+        
+    def get_instructions(self) -> List[CFGInstruction]:
         return self._instructions
 
-    @property
-    def source_stack(self) -> int:
+    def get_source_stack(self) -> int:
         return self.source_stack
-
-    @property
-    def jump_type(self) -> str:
+   
+    def get_jump_type(self) -> str:
         return self._jump_type
 
-    @property
-    def jump_to(self) -> str:
+    def get_jump_to(self) -> str:
         return self._jump_to
 
-    @property
-    def falls_to(self) -> str:
+    def get_falls_to(self) -> str:
         return self._falls_to
 
-    @instructions.setter
-    def instructions(self, new_instructions: List[CFGInstruction]) -> None:
+    def set_instructions(self, new_instructions: List[CFGInstruction]) -> None:
         self._instructions = new_instructions
 
         # Then we update the source stack size
@@ -53,23 +46,21 @@ class CFGBlock:
         # TODO
         #self.source_stack = utils.compute_stack_size(map(lambda x: x.disasm, self.instructions_to_optimize_bytecode()))
 
-    @jump_type.setter
-    def jump_type(self, t : str) -> None:
+
+    def set_jump_type(self, t : str) -> None:
         if t not in ["conditional","unconditional","terminal", "falls_to"]:
             raise Exception("Wrong jump type")
         else:
             self._jump_type = t
     
-    @jump_to.setter
-    def jump_to(self, blockId : str) -> None:
+    def set_jump_to(self, blockId : str) -> None:
         self._jump_to = blockId
 
-    @falls_to.setter
-    def falls_to(self, blockId :str) -> None:
+    def set_falls_to(self, blockId :str) -> None:
         self._falls_to = blockId
 
-    @property
-    def length(self) -> int:
+        
+    def set_length(self) -> int:
         return len(self._instructions)
 
     def set_jump_info(self, type_block: str, exit_info: List[str]) -> None:
