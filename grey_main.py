@@ -3,6 +3,7 @@
 import sys
 import os
 import argparse
+from timeit import default_timer as dtimer
 
 from parser.parser import parse_CFG
 
@@ -24,5 +25,10 @@ if __name__ == "__main__":
     print("Green Main")
     parse_args()
 
-    parse_CFG(args.source)
+    x = dtimer()
     
+    parse_CFG(args.source)
+
+    y = dtimer()
+
+    print("CFG Parser: "+str(y-x)+"s")
