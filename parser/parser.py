@@ -83,4 +83,5 @@ def parse_CFG(input_file: str):
         raise Exception("[ERROR]: JSON file does not contain key subObjects")
 
     cfg.add_subobjects(subObjects)
-    
+
+    return cfg
