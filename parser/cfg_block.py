@@ -180,6 +180,13 @@ class CFGBlock:
         spec["tgt_ws"] = output_stack
         spec["user_instrs"] = uninter_functions
         spec["variables"] = self._get_vars_spec(uninter_functions)
+
+        #They are not used in greedy algorithm
+        spec["init_progr_len"] = 0
+        spec["max_progr_len"] = 0
+        spec["min_length_instrs"] = 0 
+        spec["min_length_bounds"] = 0
+        spec["min_length"] = 0
         
         return spec
 
