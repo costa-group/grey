@@ -120,6 +120,20 @@ class CFGInstruction:
 
     def get_op_name(self):
         return self.op
+
+    def get_instruction_representation(self):
+        outs = ""
+        if self.out_args != []:
+            outs = ",".join(self.out_args)
+            outs+= " = "
+
+        inps = ""
+        if self.in_args !=[]:
+            inps = ",".join(self.in_args)
+            
+        instr = outs+self.op+"("+inps+")"
+
+        return instr
     
     def __str__(self):
         self.get_as_json()
