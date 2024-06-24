@@ -1,6 +1,6 @@
 from typing import List
-from utils import process_opcode, get_ins_size, is_commutative
-import opcodes
+from parser.utils_parser import process_opcode, get_ins_size, is_commutative
+import parser.opcodes as opcodes
 
 class CFGInstruction:
     def __init__(self, op : str, in_args: List[str], out_args: List[str]):
@@ -28,8 +28,10 @@ class CFGInstruction:
 
     def build_push_spec(self, val, idx, out_idx):
 
-        value = int(val,16)
+        obj = {}
         
+        value = int(val,16)
+    
         obj["id"] = "PUSH_"+str(idx) if value != 0 else "PUSH0_"+str(idx)
         obj["opcode"] = process_opcode(str(opcodes.get_opcode("PUSH")[0])) if value != 0  else process_opcode(str(opcodes.get_opcode("PUSH0")[0]))
         obj["disasm"] = "PUSH" if value != 0 else "PUSH0"
@@ -63,7 +65,7 @@ class CFGInstruction:
             inp_var = inp
 
             if inp.startswith("0x"):
-                func = uninter_functions.get(("PUSH",[inp]),-1)
+                func = map_instructions.get(("PUSH",tuple([inp])),-1)
                 if func != -1:
                     inp_var = func["outpt_sk"][0]
                 else:
@@ -72,7 +74,7 @@ class CFGInstruction:
                     
                     push_ins = self.build_push_spec(inp,inst_idx,out_idx)
 
-                    map_instructions[("PUSH",[inp])] = push_ins
+                    map_instructions[("PUSH",tuple([inp]))] = push_ins
                     
                     new_out = out_idx+1
                     instructions.append(push_ins)
@@ -86,7 +88,7 @@ class CFGInstruction:
         instr_spec["id"] = op_name+"_"+str(idx)
         instr_spec["opcode"] = process_opcode(str(opcodes.get_opcode(op_name)[0]))
         instr_spec["disasm"] = op_name
-        instr_spec["inpt_sk"] = self.input_args
+        instr_spec["inpt_sk"] = input_args
         instr_spec["outpt_sk"] = self.out_args
         instr_spec["gas"] = opcodes.get_ins_cost(op_name)
         instr_spec["commutative"] = is_commutative(op_name)
@@ -100,7 +102,7 @@ class CFGInstruction:
             instr_spec["mem_var"] = ["sto"+str(inst_idx)]
         
 
-        map_instructions[(op_name,self.input_args)] = instr_spec
+        map_instructions[(op_name,tuple(self.in_args))] = instr_spec
         
         instructions.append(instr_spec)
 

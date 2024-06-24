@@ -31,7 +31,31 @@ def process_opcode(result):
     if (int(op_val,16)<12):
         op_val = "0"+str(op_val)
     return op_val
+
+
+# Number encoding size following the implementation in Solidity compiler:
+# https://github.com/ethereum/solidity/blob/develop/libsolutil/Numeric.h
+def number_encoding_size(number):
+    i = 0
     
+    if number < 0 :
+        number = (2**256)+number
+
+
+    while number != 0:
+        i += 1
+        number = number >> 8
+    return i
+
+# Number of bytes necessary to encode an int value
+def get_num_bytes_int(val):
+    return max(1, number_encoding_size(val))
+
+
+# Number of bytes necessary to encode a hex value. Matches the x in PUSHx opcodes
+def get_push_number_hex(val):
+    return get_num_bytes_int(int(val, 16))
+
 
 # Taken directly from https://github.com/ethereum/solidity/blob/develop/libevmasm/AssemblyItem.cpp
 # Address length: maximum address a tag can appear. By default, 2 (check https://eips.ethereum.org/EIPS/eip-3860)
@@ -70,10 +94,10 @@ def is_commutative(op):
     return op in ["ADD","MUL","EQ","AND","OR","XOR"]
 
 
-def is_in_input_stack(var, instructons):
+def is_in_input_stack(var, instructions):
     candidate = any(filter(lambda x: var in x.get_out_args(),instructions))
-    return candidates
+    return candidate
 
-def is_in_output_stack(var, instructons):
+def is_in_output_stack(var, instructions):
     candidate = any(filter(lambda x: var in x.get_in_args(),instructions))
-    return not candidates
+    return not candidate

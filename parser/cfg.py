@@ -32,7 +32,8 @@ class CFG:
     def build_spec_for_blocks(self):
         list_spec = []
         for b in self.blocks:
-            spec = b.build_spec()
+            block = self.blocks[b]
+            spec = block.build_spec()
             list_spec.append(spec)
 
         return list_spec

@@ -1,5 +1,7 @@
 from parser.cfg_instruction import CFGInstruction
-from utils import is_in_input_stack, is_in_output_stack
+from parser.utils_parser import is_in_input_stack, is_in_output_stack
+import parser.constants as constants
+
 
 from typing import List
 
@@ -85,7 +87,7 @@ class CFGBlock:
         block_json["id"] = self.block_id
 
         instructions_json = []
-        for i in self.instructions:
+        for i in self._instructions:
             i_json = i.get_as_json()
             instructions_json.append(i_json)
 
@@ -100,7 +102,7 @@ class CFGBlock:
             jump_block["instructions"] = []
             jump_block["type"] = "ConditionalJump"
             jump_block["exit"] = [self._falls_to, self._jump_to]
-            jump_block["cond"] = self.instructions[-1].get_out_args()
+            jump_block["cond"] = self._instructions[-1].get_out_args()
 
         elif self._jump_type == "unconditional":
             jump_block = {}
@@ -123,14 +125,16 @@ class CFGBlock:
     def _get_vars_spec(self, uninter_instructions):
         vars_spec = set()
 
-        for i in uinter_instructions:
+        for i in uninter_instructions:
             all_vars = i["inpt_sk"]+i["outpt_sk"]
             for a in all_vars:
                 vars_spec.add(a)
 
         return list(vars_spec)
-    
-    def build_spec(self):
+
+
+
+    def _build_spec_for_block(self, instructions):
         spec = {}
 
         uninter_functions = []
@@ -138,18 +142,17 @@ class CFGBlock:
         instrs_idx = {}
         out_idx = 0
 
-
         input_stack = []
         output_stack = []
         
         i = 0
         
-        for i in range(len(self.instructions)):
+        for i in range(len(instructions)):
             #Check if it has been already created
 
-            ins = self.instructions[i]
+            ins = instructions[i]
             
-            ins_spec = map_instructions.get((ins.get_op_name().upper(),ins.get_in_args()), None)
+            ins_spec = map_instructions.get((ins.get_op_name().upper(),tuple(ins.get_in_args())), None)
 
             if ins_spec == None:
             #if not
@@ -159,23 +162,50 @@ class CFGBlock:
 
                 for i_arg in ins.get_in_args():
                     if not i_arg.startswith("0x"):
-                        member = is_in_input_stack(i_arg,self.instrutions[:i])
+                        member = is_in_input_stack(i_arg,instructions[:i])
 
                         if member:
                             input_stack.append(i_arg)
 
 
-                for o_agr in  ins.get_out_agrs():
-                    member = is_in_output_stack(o_arg, self.instructions[i+1:])
+                for o_arg in  ins.get_out_args():
+                    member = is_in_output_stack(o_arg, instructions[i+1:])
                     if member:
                         output_stack = [o_arg]+output_stack
 
 
 
-        spec["original_instrs"] = self.instructions
+        spec["original_instrs"] = instructions
         spec["src_ws"] = input_stack
         spec["tgt_ws"] = output_stack
         spec["user_instrs"] = uninter_functions
         spec["variables"] = self._get_vars_spec(uninter_functions)
         
         return spec
+
+        
+    
+    def build_spec(self):
+        ins_seq = []
+
+        specifications = {}
+
+        cont = 0
+        
+        i = 0
+        for i in range(len(self._instructions)):
+            ins = self._instructions[i]
+            if ins.get_op_name().upper() in constants.split_block:
+                if  ins_seq != []:
+                    r = self._build_spec_for_block(ins_seq)
+                    specifications["block"+str(self.block_id)+"_"+str(cont)] = r
+                    cont +=1
+                    ins_seq = []
+            else:
+                ins_seq.append(ins)
+
+        r = self._build_spec_for_block(ins_seq)
+        specifications["block"+str(self.block_id)+"_"+str(cont)] = r
+        
+        return specifications
+        

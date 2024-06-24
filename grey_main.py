@@ -32,3 +32,6 @@ if __name__ == "__main__":
     y = dtimer()
 
     print("CFG Parser: "+str(y-x)+"s")
+
+    results = cfg.build_spec_for_blocks()
+    print(results)
