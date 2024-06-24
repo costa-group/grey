@@ -15,6 +15,9 @@ class CFGBlock:
         self._jump_to = None
         self._falls_to = None
 
+        self.uninterpreted_functions = []
+        self.instrs_idx = {}
+
         
     def get_block_id(self) -> str:
         return self.block_id
@@ -119,6 +122,8 @@ class CFGBlock:
 
     def build_spec(self):
         spec = {}
+
+        for i 
 
         
         
