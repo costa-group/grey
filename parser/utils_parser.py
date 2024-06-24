@@ -68,3 +68,12 @@ def get_ins_size(op_name, val = None, address_length = 2):
 
 def is_commutative(op):
     return op in ["ADD","MUL","EQ","AND","OR","XOR"]
+
+
+def is_in_input_stack(var, instructons):
+    candidate = any(filter(lambda x: var in x.get_out_args(),instructions))
+    return candidates
+
+def is_in_output_stack(var, instructons):
+    candidate = any(filter(lambda x: var in x.get_in_args(),instructions))
+    return not candidates

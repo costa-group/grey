@@ -1,4 +1,6 @@
 from parser.cfg_instruction import CFGInstruction
+from utils import is_in_input_stack, is_in_output_stack
+
 from typing import List
 
 class CFGBlock:
@@ -14,9 +16,6 @@ class CFGBlock:
         self._jump_type = type_block
         self._jump_to = None
         self._falls_to = None
-
-        self.uninterpreted_functions = []
-        self.instrs_idx = {}
 
         
     def get_block_id(self) -> str:
@@ -118,13 +117,65 @@ class CFGBlock:
             jump_block["exit"] = [self._jump_to]
 
         return block_json, jump_block
+    
 
 
+    def _get_vars_spec(self, uninter_instructions):
+        vars_spec = set()
+
+        for i in uinter_instructions:
+            all_vars = i["inpt_sk"]+i["outpt_sk"]
+            for a in all_vars:
+                vars_spec.add(a)
+
+        return list(vars_spec)
+    
     def build_spec(self):
         spec = {}
 
-        for i 
+        uninter_functions = []
+        map_instructions = {}
+        instrs_idx = {}
+        out_idx = 0
 
+
+        input_stack = []
+        output_stack = []
         
+        i = 0
+        
+        for i in range(len(self.instructions)):
+            #Check if it has been already created
+
+            ins = self.instructions[i]
+            
+            ins_spec = map_instructions.get((ins.get_op_name().upper(),ins.get_in_args()), None)
+
+            if ins_spec == None:
+            #if not
+                result, out_idx = ins.build_spec(out_idx,instrs_idx, map_instructions)
+
+                uninter_functions+=result
+
+                for i_arg in ins.get_in_args():
+                    if not i_arg.startswith("0x"):
+                        member = is_in_input_stack(i_arg,self.instrutions[:i])
+
+                        if member:
+                            input_stack.append(i_arg)
+
+
+                for o_agr in  ins.get_out_agrs():
+                    member = is_in_output_stack(o_arg, self.instructions[i+1:])
+                    if member:
+                        output_stack = [o_arg]+output_stack
+
+
+
+        spec["original_instrs"] = self.instructions
+        spec["src_ws"] = input_stack
+        spec["tgt_ws"] = output_stack
+        spec["user_instrs"] = uninter_functions
+        spec["variables"] = self._get_vars_spec(uninter_functions)
         
         return spec
