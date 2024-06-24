@@ -175,7 +175,7 @@ class CFGBlock:
 
 
 
-        spec["original_instrs"] = instructions
+        spec["original_instrs"] = list(map(lambda x: x.get_instruction_representation(),instructions))
         spec["src_ws"] = input_stack
         spec["tgt_ws"] = output_stack
         spec["user_instrs"] = uninter_functions
