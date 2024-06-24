@@ -149,13 +149,13 @@ class CFGBlock:
         
         for i in range(len(instructions)):
             #Check if it has been already created
-
+            
             ins = instructions[i]
             
             ins_spec = map_instructions.get((ins.get_op_name().upper(),tuple(ins.get_in_args())), None)
 
             if ins_spec == None:
-            #if not
+                #if not
                 result, out_idx = ins.build_spec(out_idx,instrs_idx, map_instructions)
 
                 uninter_functions+=result
@@ -181,6 +181,9 @@ class CFGBlock:
         spec["user_instrs"] = uninter_functions
         spec["variables"] = self._get_vars_spec(uninter_functions)
 
+        spec["memdep"] = []
+        spec["stodep"] = []
+        
         #They are not used in greedy algorithm
         spec["init_progr_len"] = 0
         spec["max_progr_len"] = 0
@@ -207,12 +210,16 @@ class CFGBlock:
                     r = self._build_spec_for_block(ins_seq)
                     specifications["block"+str(self.block_id)+"_"+str(cont)] = r
                     cont +=1
+                    print("block"+str(self.block_id)+"_"+str(cont))
+                    print(r)
+                    print("******************")
                     ins_seq = []
             else:
                 ins_seq.append(ins)
 
         r = self._build_spec_for_block(ins_seq)
         specifications["block"+str(self.block_id)+"_"+str(cont)] = r
-        
+        print("block"+str(self.block_id)+"_"+str(cont))
+        print(r)
         return specifications
         

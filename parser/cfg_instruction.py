@@ -54,6 +54,8 @@ class CFGInstruction:
 
         op_name = self.op.upper()
 
+        new_out = out_idx
+        
         try:
             opcodes.get_opcode(op_name)
         except:
@@ -66,17 +68,19 @@ class CFGInstruction:
 
             if inp.startswith("0x"):
                 func = map_instructions.get(("PUSH",tuple([inp])),-1)
+                
                 if func != -1:
                     inp_var = func["outpt_sk"][0]
                 else:
-                    inst_idx = instrs_idx.get(op_name, 0)
-                    instrs_idx[op_name] = inst_idx+1
+                    push_name = "PUSH" if int(inp,16) != 0 else "PUSH0"
+                    inst_idx = instrs_idx.get(push_name, 0)
+                    instrs_idx[push_name] = inst_idx+1
                     
-                    push_ins = self.build_push_spec(inp,inst_idx,out_idx)
+                    push_ins = self.build_push_spec(inp,inst_idx,new_out)
 
                     map_instructions[("PUSH",tuple([inp]))] = push_ins
                     
-                    new_out = out_idx+1
+                    new_out +=1
                     instructions.append(push_ins)
                     inp_var = push_ins["outpt_sk"][0]
                     
