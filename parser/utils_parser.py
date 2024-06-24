@@ -95,9 +95,15 @@ def is_commutative(op):
 
 
 def is_in_input_stack(var, instructions):
-    candidate = any(filter(lambda x: var in x.get_out_args(),instructions))
+    if instructions == []:
+        return True
+
+    candidate = any(filter(lambda x: var not in x.get_out_args(),instructions))
     return candidate
 
 def is_in_output_stack(var, instructions):
+    if instructions == []:
+        return True
+
     candidate = any(filter(lambda x: var in x.get_in_args(),instructions))
     return not candidate
