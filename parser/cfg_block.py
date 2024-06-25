@@ -1,7 +1,7 @@
 from parser.cfg_instruction import CFGInstruction
 from parser.utils_parser import is_in_input_stack, is_in_output_stack
 import parser.constants as constants
-
+import json
 
 from typing import List
 
@@ -93,8 +93,8 @@ class CFGBlock:
 
         block_json["instructions"] = instructions_json
         
-        blocks_json["exit"] = self.block_id+"Exit"
-        blocks_json["type"] = "BasicBlock"
+        block_json["exit"] = self.block_id+"Exit"
+        block_json["type"] = "BasicBlock"
 
         if self._jump_type == "conditional":
             jump_block = {}
@@ -175,7 +175,7 @@ class CFGBlock:
 
 
 
-        spec["original_instrs"] = list(map(lambda x: x.get_instruction_representation(),instructions))
+        spec["original_instrs"] = '\n'.join(list(map(lambda x: x.get_instruction_representation(),instructions)))
         spec["src_ws"] = input_stack
         spec["tgt_ws"] = output_stack
         spec["user_instrs"] = uninter_functions
@@ -190,7 +190,7 @@ class CFGBlock:
         spec["min_length_instrs"] = 0 
         spec["min_length_bounds"] = 0
         spec["min_length"] = 0
-        spec["rules"] = False
+        spec["rules"] = ""
         
         return spec
 
@@ -212,7 +212,7 @@ class CFGBlock:
                     specifications["block"+str(self.block_id)+"_"+str(cont)] = r
                     cont +=1
                     print("block"+str(self.block_id)+"_"+str(cont))
-                    print(r)
+                    print(json.dumps(r, indent=4))
                     print("******************")
                     ins_seq = []
             else:
@@ -221,6 +221,6 @@ class CFGBlock:
         r = self._build_spec_for_block(ins_seq)
         specifications["block"+str(self.block_id)+"_"+str(cont)] = r
         print("block"+str(self.block_id)+"_"+str(cont))
-        print(r)
+        print(json.dumps(r, indent=4))
         return specifications
         
