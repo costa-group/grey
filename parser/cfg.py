@@ -1,12 +1,12 @@
 from parser.cfg_block import CFGBlock
-
+from typing import Dict
 
 class CFG:
     def __init__(self, file_name: str, nodeType : str):
         self.file_name = file_name
         self.nodeType = nodeType
         self.objectCFG = {}
-        self.blocks = {}
+        self.blocks : Dict[str, CFGBlock] = {}
         self.objectCFG["blocks"] = self.blocks
         self.subObjects = {}
 
