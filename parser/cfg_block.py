@@ -181,8 +181,8 @@ class CFGBlock:
         spec["user_instrs"] = uninter_functions
         spec["variables"] = self._get_vars_spec(uninter_functions)
 
-        spec["memdep"] = []
-        spec["stodep"] = []
+        spec["memory_dependences"] = []
+        spec["storage_dependences"] = []
         
         #They are not used in greedy algorithm
         spec["init_progr_len"] = 0
@@ -190,6 +190,7 @@ class CFGBlock:
         spec["min_length_instrs"] = 0 
         spec["min_length_bounds"] = 0
         spec["min_length"] = 0
+        spec["rules"] = False
         
         return spec
 
