@@ -9,7 +9,7 @@ def parse_instruction(ins_json: Dict[str,Any]) -> CFGInstruction:
     in_arg = ins_json.get("in",-1)
     op = ins_json.get("op", -1)
     out_arg = ins_json.get("out", -1)
-    
+    print(ins_json)
     check_instruction_validity(in_arg, op, out_arg)
 
     instruction = CFGInstruction(op,in_arg,out_arg)
@@ -22,6 +22,10 @@ def parse_instruction(ins_json: Dict[str,Any]) -> CFGInstruction:
     return instruction
 
 
+def parse_assignment(assignment: Dict[str, Any], assignment_dict: Dict[str, str]) -> None:
+    for in_var, out_var in zip(assignment["in"], assignment["out"]):
+        assignment_dict[out_var] = in_var 
+
 def parse_block(block_json: Dict[str,Any]) -> CFGBlock:
 
     block_id = block_json.get("id", -1)
@@ -32,11 +36,15 @@ def parse_block(block_json: Dict[str,Any]) -> CFGBlock:
     check_block_validity(block_id, block_instructions, block_exit, block_type)
 
     list_cfg_instructions = []
+    assignment_dict = dict()
     for instructions in block_instructions:
-        cfg_instruction =parse_instruction(instructions)
-        list_cfg_instructions.append(cfg_instruction)
+        if "assignment" in instructions:
+            parse_assignment(instructions, assignment_dict)
+        else:
+            cfg_instruction =parse_instruction(instructions)
+            list_cfg_instructions.append(cfg_instruction)
 
-    block = CFGBlock(block_id,list_cfg_instructions, block_type)
+    block = CFGBlock(block_id,list_cfg_instructions, block_type, assignment_dict)
 
     return block_id, block, block_exit
 
