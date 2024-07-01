@@ -59,7 +59,7 @@ class CFGInstruction:
         try:
             opcodes.get_opcode(op_name)
         except:
-            raise Exception("[ERROR]: Opcode name not found")
+            raise Exception("[ERROR]: Opcode name not found " + op_name)
 
 
         input_args = []
