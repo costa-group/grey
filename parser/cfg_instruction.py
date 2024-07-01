@@ -5,8 +5,8 @@ import parser.opcodes as opcodes
 class CFGInstruction:
     def __init__(self, op : str, in_args: List[str], out_args: List[str]):
         self.op = op
-        self.in_args = in_args
-        self.out_args = out_args
+        self.in_args = in_args[::-1]
+        self.out_args = out_args[::-1]
         self.builtin_args = None
         
     def set_builtin_args(self, builtin: List[str]) -> None:
