@@ -1,0 +1,10 @@
+[project]
+version = "0.1.0"
+dependencies = [
+    "pandas",
+    "networkx",
+    "coverage",
+    "pytest",
+]
+name = "grey"
+readme = "README.md"
