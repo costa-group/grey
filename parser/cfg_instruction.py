@@ -14,17 +14,12 @@ class CFGInstruction:
 
 
     def get_as_json(self):
-        instruction = {}
+        instruction = {"in": self.in_args, "out": self.out_args, "op": self.op}
 
-        instruction["in"] = self.in_args
-        instruction["out"] = self. out_args
-        instruction["op"] = self.op
-
-        if self.builtin_args == None:
-            instruction["builtinArgs"] = self.builtin_agrs
+        if self.builtin_args is not None:
+            instruction["builtinArgs"] = self.builtin_args
 
         return instruction
-
 
     def build_push_spec(self, val, idx, out_idx):
 
@@ -59,7 +54,7 @@ class CFGInstruction:
         try:
             opcodes.get_opcode(op_name)
         except:
-            raise Exception("[ERROR]: Opcode name not found")
+            raise Exception("[ERROR]: Opcode name not found " + op_name)
 
 
         input_args = []

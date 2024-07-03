@@ -3,14 +3,14 @@ from parser.utils_parser import is_in_input_stack, is_in_output_stack
 import parser.constants as constants
 import json
 
-from typing import List
+from typing import List, Dict
 
 class CFGBlock:
     """
     Class for representing a cfg block
     """
     
-    def __init__(self, identifier : str, instructions: List[CFGInstruction], type_block: str):
+    def __init__(self, identifier : str, instructions: List[CFGInstruction], type_block: str, assignment_dict: Dict[str, str]):
         self.block_id = identifier
         self._instructions = instructions
         # minimum size of the source stack
@@ -18,6 +18,7 @@ class CFGBlock:
         self._jump_type = type_block
         self._jump_to = None
         self._falls_to = None
+        self.assignment_dict = assignment_dict
 
         
     def get_block_id(self) -> str:
