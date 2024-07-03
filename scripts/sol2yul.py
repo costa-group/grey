@@ -13,10 +13,8 @@ import subprocess
 import shlex
 import logging
 from pathlib import Path
-import pandas as pd
 from typing import Dict, Any
 import tempfile
-import traceback
 
 
 VIA_IR_ENABLED = True
@@ -60,8 +58,7 @@ def compile_source_code(source_code_plain: str, contract_address: str, optimizat
     with open(tmp_file, 'w') as f:
         f.write(source_code_plain)
 
-    optimization_flags = "--via-ir" if VIA_IR_ENABLED else ""
-    command = f"solc --combined-json asm --optimize {optimization_flags} --pretty-json {tmp_file}"
+    command = f"./solc-new --yul-cfg-json --optimize --pretty-json {tmp_file}"
     output, error = run_command(command)
     # print(command)
 
@@ -95,7 +92,7 @@ def compile_json_input(source_code_dict: Dict[str, Any], contract_address: str, 
     with open(tmp_file, 'w') as f:
         f.write(json.dumps(source_code_dict))
 
-    command = f"solc --standard-json {tmp_file}"
+    command = f"./solc-new --standard-json {tmp_file}"
     output, error = run_command(command)
     # print(command)
 
@@ -170,11 +167,10 @@ def compile_multiple_sources(source_code_dict: Dict[str, Dict[str, str]], contra
         logging.error(f"Contract {deployed_contract} has not been found in any of the sol files")
 
     old_path = os.getcwd()
-
+    shutil.copy("solc-new", tmp_folder)
     os.chdir(tmp_folder)
 
-    optimization_flags = "--via-ir" if VIA_IR_ENABLED else ""
-    command = f"solc --combined-json asm --optimize {optimization_flags} --pretty-json {contract_to_compile}"
+    command = f"./solc-new --yul-cfg-json --optimize --pretty-json {contract_to_compile}"
     output, error = run_command(command)
     os.chdir(old_path)
 
@@ -198,30 +194,29 @@ def compile_from_etherscan_json(etherscan_info: Dict, resulting_file: Path, addr
     # Skip if version <= 0.8.*
     compiler_version = etherscan_info[0]["CompilerVersion"]
     if "v0.8" not in compiler_version:
-        logging.log(f"Skipped {address}. Compiler version: {compiler_version}")
+        logging.log(1, f"Skipped {address}. Compiler version: {compiler_version}")
         return
 
     version_output, _ = run_command("solc --version")
     version_to_optimize = extract_version_from_output(version_output)
 
     source_code = change_pragma(etherscan_info[0]["SourceCode"], version_to_optimize)
-    executable = get_executable(compiler_version)
     main_contract = etherscan_info[0]["ContractName"]
     is_optimized = True if int(etherscan_info[0]["OptimizationUsed"]) == 1 else False
     n_runs = int(etherscan_info[0]["Runs"])
 
     try:
         code_dict = json.loads(source_code[1:-1])
-        logging.log(f"Json input {address}")
+        logging.log(1, f"Json input {address}")
         compile_json_input(code_dict, address, version_to_optimize, resulting_file)
     except Exception as e:
         try:
             code_dict = json.loads(source_code)
-            logging.log(f"Multi sol input {address}")
+            logging.log(1, f"Multi sol input {address}")
             compile_multiple_sources(code_dict, address, is_optimized, n_runs, main_contract, resulting_file)
 
         except Exception as e:
-            logging.log(f"Single sol input {address}")
+            logging.log(1, f"Single sol input {address}")
             compile_source_code(source_code, address, is_optimized, n_runs, resulting_file)
 
 
@@ -245,4 +240,5 @@ def compile_files_from_folders():
 
 
 if __name__ == "__main__":
+    logging.basicConfig(level=1)
     compile_files_from_folders()
