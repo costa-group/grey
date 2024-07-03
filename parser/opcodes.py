@@ -238,6 +238,14 @@ def get_opcode(opcode):
     raise ValueError('Bad Opcode ' + opcode)
 
 
+def exists_opcode(op_name: str) -> bool:
+    try:
+        get_opcode(op_name)
+    except:
+        return False
+    return True
+
+
 def get_ins_cost(opcode, params=None, already=False, store_changed_original_value=False):
     if opcode in Wzero:
         return GCOST["Gzero"]
