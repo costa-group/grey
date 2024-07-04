@@ -56,11 +56,12 @@ def parse_CFG(input_file: str):
     nodeType = json_dict.get("type","YulCFG")
     
     cfg = CFG(input_file,nodeType)
-    
-    obj = json_dict.get("object", False)
-    
-    if not obj:
-        raise Exception ("[ERROR]: JSON file does not contain the key object")
+
+    # The contract key corresponds to the key that is neither type nor subobjects
+    # For yul blocks, it is "object"
+    object_keys = [key for key in json_dict if key not in ["type", "subObjects"]]
+    assert len(object_keys) == 1, "[ERROR]: JSON file does not contain a valid key for the code"
+    obj = json_dict.get(object_keys[0], False)
 
     obj_name = obj.get("name")
     cfg.add_object_name(obj_name)
