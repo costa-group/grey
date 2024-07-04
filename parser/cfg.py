@@ -1,5 +1,17 @@
+import json
+from pathlib import Path
 from parser.cfg_block import CFGBlock
-from typing import Dict
+from typing import Dict, List
+
+
+def store_sfs_json(blocks: List[Dict], final_path: Path) -> None:
+    """
+    Stores all SFS from the list of blocks in the corresponding folder
+    """
+    for i, block in enumerate(blocks):
+        file_to_store = final_path.joinpath(f"block_{i}.json")
+        with open(file_to_store, 'w') as f:
+            json.dump(block, f, indent=4)
 
 class CFG:
     def __init__(self, file_name: str, nodeType : str):
