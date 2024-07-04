@@ -135,11 +135,14 @@ class CFGBlock:
 
 
 
-    def _build_spec_for_block(self, instructions):
+    def _build_spec_for_block(self, instructions, map_instructions: Dict):
+        """
+        Builds the specification for a block. "map_instructions" is passed as an argument
+        to reuse declarations from other blocks, as we might have split the corresponding basic block
+        """
         spec = {}
 
         uninter_functions = []
-        map_instructions = {}
         instrs_idx = {}
         out_idx = 0
 
@@ -217,7 +220,7 @@ class CFGBlock:
     
     def build_spec(self):
         ins_seq = []
-
+        map_instructions = {}
         specifications = {}
 
         cont = 0
@@ -227,7 +230,7 @@ class CFGBlock:
             ins = self._instructions[i]
             if ins.get_op_name().upper() in constants.split_block:
                 if  ins_seq != []:
-                    r = self._build_spec_for_block(ins_seq)
+                    r = self._build_spec_for_block(ins_seq, map_instructions)
                     specifications["block"+str(self.block_id)+"_"+str(cont)] = r
                     cont +=1
                     print("block"+str(self.block_id)+"_"+str(cont))
@@ -237,7 +240,7 @@ class CFGBlock:
             else:
                 ins_seq.append(ins)
 
-        r = self._build_spec_for_block(ins_seq)
+        r = self._build_spec_for_block(ins_seq, map_instructions)
         specifications["block"+str(self.block_id)+"_"+str(cont)] = r
         print("block"+str(self.block_id)+"_"+str(cont))
         print(json.dumps(r, indent=4))
