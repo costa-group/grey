@@ -51,7 +51,7 @@ def build_push_spec(val, idx, out_idx):
 
 def build_verbatim_spec(function_name: str, input_args: List[str], output_args: List[str], builting_args: List[str]):
     """
-    Generates the specification of a custom function
+    Generates the specification of a verbatim
     """
     obj = {}
 
@@ -70,6 +70,30 @@ def build_verbatim_spec(function_name: str, input_args: List[str], output_args: 
     obj["size"] = len(builting_args[0]) // 2 # Assuming builtin args contain the corresponding bytecode
 
     return obj
+
+
+def build_custom_function_spec(function_name: str, input_args: List[str], output_args: List[str], builting_args: List[str]):
+    """
+    Generates the specification of a custom function
+    """
+    obj = {}
+
+    # The function name is of the form 'verbatim_<n>i_<m>o("<data>", ...)'
+    # (see "verbatim" in https://docs.soliditylang.org/en/latest/yul.html)
+    # Hence, different functions can have the same function name
+    obj["id"] = function_name
+    obj["opcode"] = function_name
+    obj["disasm"] = function_name
+    obj["inpt_sk"] = input_args
+    obj["outpt_sk"] = output_args
+    obj["gas"] = 100 # Random value for gas, as it is unknown
+    obj["commutative"] = False
+    obj["push"] = False
+    obj["storage"] = True # Assuming it must be performed always
+    obj["size"] = 5 # Assuming builtin args contain the corresponding bytecode
+
+    return obj
+
 
 
 class CFGInstruction:
@@ -128,7 +152,8 @@ class CFGInstruction:
         elif opcodes.exists_opcode(op_name):
             instr_spec = build_instr_spec(op_name, idx, input_args, self.out_args)
         else:
-            raise ValueError("[ERROR]: Opcode name not found " + op_name)
+            # TODO: separate wrong opcodes from custom functions
+            instr_spec = build_custom_function_spec(op_name, input_args, self.out_args, self.builtin_args)
 
         instrs_idx[op_name] = idx+1
         map_instructions[(op_name,tuple(self.in_args))] = instr_spec
