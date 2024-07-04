@@ -24,7 +24,7 @@ def parse_instruction(ins_json: Dict[str,Any]) -> CFGInstruction:
 
 def parse_assignment(assignment: Dict[str, Any], assignment_dict: Dict[str, str]) -> None:
     for in_var, out_var in zip(assignment["in"], assignment["out"]):
-        assignment_dict[out_var] = in_var 
+        assignment_dict[out_var] = in_var
 
 def parse_block(block_json: Dict[str,Any]) -> CFGBlock:
 
@@ -54,7 +54,7 @@ def parse_CFG(input_file: str):
     json_file = open(input_file, "r")
     json_dict = json.load(json_file)
 
-    nodeType = json_dict.get("nodeType")
+    nodeType = json_dict.get("type","YulCFG")
     
     cfg = CFG(input_file,nodeType)
     
