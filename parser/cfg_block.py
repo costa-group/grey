@@ -193,9 +193,8 @@ class CFGBlock:
                     if member:
                         output_stack = [o_arg]+output_stack
 
-
-
-        spec["original_instrs"] = '\n'.join(list(map(lambda x: x.get_instruction_representation(),instructions)))
+        spec["original_instrs"] = ""
+        spec["yul_expressions"] = '\n'.join(list(map(lambda x: x.get_instruction_representation(),instructions)))
         spec["src_ws"] = input_stack
         spec["tgt_ws"] = output_stack
         spec["user_instrs"] = uninter_functions
