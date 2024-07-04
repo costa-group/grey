@@ -105,7 +105,9 @@ opcodes = {
     "PUSH data": [0x00,0,1], #Yul opcode. Assembly Item: PushData
     "PUSHSIZE": [0x00,0,1], #Yul opcode. Assembly Item: PushProgramSize
     "PUSHIMMUTABLE": [0x00,0,1], #Yul opcode. Assembly Item:PushImmutable
-    "---END---": [0x00, 0, 0]
+    "---END---": [0x00, 0, 0],
+    "DATASIZE": [0x00, 0, 1],
+    "DATAOFFSET": [0x00, 0, 1],
 }
 
 # Opcodes that have a blank character in their name are put together in our representation
