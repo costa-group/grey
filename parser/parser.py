@@ -9,7 +9,6 @@ def parse_instruction(ins_json: Dict[str,Any]) -> CFGInstruction:
     in_arg = ins_json.get("in",-1)
     op = ins_json.get("op", -1)
     out_arg = ins_json.get("out", -1)
-    print(ins_json)
     check_instruction_validity(in_arg, op, out_arg)
 
     instruction = CFGInstruction(op,in_arg,out_arg)
@@ -85,6 +84,10 @@ def parse_CFG(input_file: str):
         else:
             cfg.add_block(new_block)
 
+
+    obj_functions = obj.get("functions", {})
+
+            
     subObjects = json_dict.get("subObjects",-1)
     
     if subObjects == -1:
