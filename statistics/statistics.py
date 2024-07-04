@@ -1,0 +1,8 @@
+from typing import Dict, List
+
+def generate_statistics_info(solution_found: List[str], optimization_outcome: str, greedy_time: float,
+                             original_sfs: Dict) -> Dict:
+    csv_row = {"original_instrs": original_sfs["yul_expressions"]}
+    csv_row.update(**{"solution_found": ' '.join(solution_found) if solution_found is not None else "",
+                      "optimization_outcome": optimization_outcome, "time": greedy_time})
+    return csv_row
