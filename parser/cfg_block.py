@@ -148,9 +148,6 @@ class CFGBlock:
 
         input_stack = []
         output_stack = []
-        
-        i = 0
-
 
         for assigment in self.assignment_dict:
             in_val = self.assignment_dict.get(assigment)
@@ -160,15 +157,11 @@ class CFGBlock:
                     push_name = "PUSH" if int(in_val,16) != 0 else "PUSH0"
                     inst_idx = instrs_idx.get(push_name, 0)
                     instrs_idx[push_name] = inst_idx+1
-                    
-                    push_ins = build_push_spec(in_val,inst_idx,assigment)
+                    push_ins = build_push_spec(in_val,inst_idx,in_val)
 
                     map_instructions[("PUSH",tuple([in_val]))] = push_ins
                     
                     uninter_functions.append(push_ins)
-                    
-                    
-
         
         for i in range(len(instructions)):
             #Check if it has been already created
@@ -177,9 +170,8 @@ class CFGBlock:
             
             ins_spec = map_instructions.get((ins.get_op_name().upper(),tuple(ins.get_in_args())), None)
 
-            if ins_spec == None:
-                #if not
-                result, out_idx = ins.build_spec(out_idx,instrs_idx, map_instructions)
+            if ins_spec is None:
+                result, out_idx = ins.build_spec(out_idx,instrs_idx, map_instructions, self.assignment_dict)
 
                 uninter_functions+=result
 

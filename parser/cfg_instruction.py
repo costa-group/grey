@@ -1,7 +1,7 @@
 """
 Module for representing and building the instructions that appear in the CFG
 """
-from typing import List
+from typing import List, Dict
 from parser.utils_parser import process_opcode, get_ins_size, is_commutative
 import parser.opcodes as opcodes
 
@@ -115,7 +115,7 @@ class CFGInstruction:
 
         return instruction
         
-    def build_spec(self, out_idx, instrs_idx, map_instructions):
+    def build_spec(self, out_idx, instrs_idx, map_instructions, assignments: Dict[str, str]):
         instructions = []
         new_out = out_idx
 
@@ -123,7 +123,9 @@ class CFGInstruction:
         for inp in self.in_args:
             inp_var = inp
 
-            if inp.startswith("0x"):
+            if inp.startswith("0x") or inp in assignments:
+                # Retrieve the corresponding value
+                inp = assignments.get(inp, inp)
                 func = map_instructions.get(("PUSH",tuple([inp])),-1)
                 
                 if func != -1:
@@ -140,7 +142,7 @@ class CFGInstruction:
                     new_out +=1
                     instructions.append(push_ins)
                     inp_var = push_ins["outpt_sk"][0]
-                    
+
             input_args.append(inp_var)
 
         op_name = self.op.upper()
