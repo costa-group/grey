@@ -18,7 +18,7 @@ def parse_args():
     parser = argparse.ArgumentParser(description="GREEN Project")
 
     parser.add_argument("-s",  "--source",    type=str, help="local source file name.")
-    parser.add_argument("-o",  "--folder",    type=str, help="Dir to store the results.")
+    parser.add_argument("-o",  "--folder",    type=str, help="Dir to store the results.", default="/tmp/grey/")
     parser.add_argument("-g", "--greedy", action="store_true", help="Enables the greedy algorithm")
 
     args = parser.parse_args()
@@ -40,7 +40,9 @@ if __name__ == "__main__":
 
     results = cfg.build_spec_for_blocks()
     final_dir = Path(args.folder)
+    
     final_dir.mkdir(exist_ok=True, parents=True)
+
     store_sfs_json(results, final_dir)
 
     if args.greedy:
