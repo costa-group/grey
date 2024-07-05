@@ -107,3 +107,8 @@ def is_in_output_stack(var, instructions):
 
     candidate = any(filter(lambda x: var in x.get_in_args(),instructions))
     return not candidate
+
+
+def is_assigment_var_used(var, instructions):
+    candidates = list(filter(lambda x: var in x["inpt_sk"],instructions))
+    return len(candidates) != 0 #If it is !=0 means that the var generated in the assignment is used in the block

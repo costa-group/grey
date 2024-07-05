@@ -125,24 +125,28 @@ class CFGInstruction:
 
             if inp.startswith("0x") or inp in assignments:
                 # Retrieve the corresponding value
-                inp = assignments.get(inp, inp)
-                func = map_instructions.get(("PUSH",tuple([inp])),-1)
+                inp_value = assignments.get(inp, inp)
+                func = map_instructions.get(("PUSH",tuple([inp_value])),-1)
                 
                 if func != -1:
                     inp_var = func["outpt_sk"][0]
                 else:
-                    push_name = "PUSH" if int(inp,16) != 0 else "PUSH0"
-                    inst_idx = instrs_idx.get(push_name, 0)
-                    instrs_idx[push_name] = inst_idx+1
+                    if inp.startswith("0x"):
+                        push_name = "PUSH" if int(inp_value,16) != 0 else "PUSH0"
+                        inst_idx = instrs_idx.get(push_name, 0)
+                        instrs_idx[push_name] = inst_idx+1
                     
-                    push_ins = build_push_spec(inp,inst_idx,new_out)
+                        push_ins = build_push_spec(inp_value,inst_idx,new_out)
 
-                    map_instructions[("PUSH",tuple([inp]))] = push_ins
+                        map_instructions[("PUSH",tuple([inp_value]))] = push_ins
                     
-                    new_out +=1
-                    instructions.append(push_ins)
-                    inp_var = push_ins["outpt_sk"][0]
+                        new_out +=1
+                        instructions.append(push_ins)
+                        inp_var = push_ins["outpt_sk"][0]
 
+                    elif inp in assignments:
+                        inp_var = inp
+                        
             input_args.append(inp_var)
 
         op_name = self.op.upper()

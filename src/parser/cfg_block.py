@@ -1,5 +1,5 @@
 from parser.cfg_instruction import CFGInstruction, build_push_spec
-from parser.utils_parser import is_in_input_stack, is_in_output_stack
+from parser.utils_parser import is_in_input_stack, is_in_output_stack, is_assigment_var_used
 import parser.constants as constants
 import json
 
@@ -149,19 +149,6 @@ class CFGBlock:
         input_stack = []
         output_stack = []
 
-        for assigment in self.assignment_dict:
-            in_val = self.assignment_dict.get(assigment)
-            if in_val.startswith("0x"): #It is a push value
-                func = map_instructions.get(("PUSH",tuple([in_val])),-1)
-                if func == -1:
-                    push_name = "PUSH" if int(in_val,16) != 0 else "PUSH0"
-                    inst_idx = instrs_idx.get(push_name, 0)
-                    instrs_idx[push_name] = inst_idx+1
-                    push_ins = build_push_spec(in_val,inst_idx,in_val)
-
-                    map_instructions[("PUSH",tuple([in_val]))] = push_ins
-                    
-                    uninter_functions.append(push_ins)
         
         for i in range(len(instructions)):
             #Check if it has been already created
@@ -188,6 +175,28 @@ class CFGBlock:
                     if member:
                         output_stack = [o_arg]+output_stack
 
+
+
+        for assigment in self.assignment_dict:
+
+            is_used = is_assigment_var_used(assigment, uninter_functions)
+            
+            if is_used:
+
+                in_val = self.assignment_dict.get(assigment)
+                if in_val.startswith("0x"): #It is a push value
+                    func = map_instructions.get(("PUSH",tuple([in_val])),-1)
+                    if func == -1:
+                        push_name = "PUSH" if int(in_val,16) != 0 else "PUSH0"
+                        inst_idx = instrs_idx.get(push_name, 0)
+                        instrs_idx[push_name] = inst_idx+1
+                        push_ins = build_push_spec(in_val,inst_idx,assigment)
+
+                        map_instructions[("PUSH",tuple([in_val]))] = push_ins
+                    
+                        uninter_functions.append(push_ins)
+
+                        
         spec["original_instrs"] = ""
         spec["yul_expressions"] = '\n'.join(list(map(lambda x: x.get_instruction_representation(),instructions)))
         spec["src_ws"] = input_stack
