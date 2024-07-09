@@ -16,8 +16,11 @@ from pathlib import Path
 from typing import Dict, Any
 import tempfile
 
-
+# Optimization with via-ir enabled
 VIA_IR_ENABLED = True
+
+# Solc version
+solc_version = "./solc-new"
 
 
 def run_command(cmd):
@@ -58,7 +61,7 @@ def compile_source_code(source_code_plain: str, contract_address: str, optimizat
     with open(tmp_file, 'w') as f:
         f.write(source_code_plain)
 
-    command = f"./solc-new --yul-cfg-json --optimize --pretty-json {tmp_file}"
+    command = f"{solc_version} --yul-cfg-json --optimize --pretty-json {tmp_file}"
     output, error = run_command(command)
     # print(command)
 
@@ -80,7 +83,7 @@ def compile_json_input(source_code_dict: Dict[str, Any], contract_address: str, 
     optimization_settings = {"enabled": True}
 
     # Output selection is legacyAssembly
-    output_selection = {'*': {'*': ['evm.legacyAssembly']}}
+    output_selection = {'*': {'*': ['yulCFGJson']}}
 
     source_code_dict["settings"]["optimizer"] = optimization_settings
     source_code_dict["settings"]["outputSelection"] = output_selection
@@ -92,10 +95,8 @@ def compile_json_input(source_code_dict: Dict[str, Any], contract_address: str, 
     with open(tmp_file, 'w') as f:
         f.write(json.dumps(source_code_dict))
 
-    command = f"./solc-new --standard-json {tmp_file}"
+    command = f"{solc_version} --standard-json {tmp_file}"
     output, error = run_command(command)
-    # print(command)
-
     output_dict = json.loads(output)
 
     # with open(Path(file_path).parent.joinpath("extended.json"), 'w') as f:
@@ -111,32 +112,22 @@ def compile_json_input(source_code_dict: Dict[str, Any], contract_address: str, 
             logging.warning(f"Warning in Contract {contract_address}")
             logging.warning(error)
 
-        final_json_asm = {}
+        # Produce a json file for each contract
+        for filename in output_dict["contracts"]:
+            current_file = output_dict["contracts"][filename]
+            for contract_name in current_file:
+                yul_cfg_current = current_file[contract_name]["yulCFGJson"]
 
-        final_json_asm_contracts = {}
-        # Modify the format to match --combined-json asm format
-        for contract in output_dict["contracts"]:
-            current_contract = output_dict["contracts"][contract]
-            for subcontract, subcontract_info in current_contract.items():
-                subcontract_name = f"{contract}:{subcontract}"
-                info = subcontract_info["evm"]["legacyAssembly"]
 
-                # Info can be either none or a dict following the same structure as the usual asm format
-                asm_info = {} if info is None else {"asm": info}
+                if yul_cfg_current is not None:
+                    # Modify file path to include the concrete contract name
+                    file_with_no_extension = Path(file_path.name).stem
+                    parent = file_path.parent
+                    resulting_file = parent.joinpath(file_with_no_extension + f"_{contract_name}.json")
 
-                final_json_asm_contracts[subcontract_name] = asm_info
-            # contract_name = current_contract.values()[0]
-
-        final_json_asm["version"] = version
-        final_json_asm["contracts"] = final_json_asm_contracts
-
-        # Store directly the output from solc
-        # with open(file_path, 'w') as f:
-        #     f.write(output)
-
-        # Store the output following the asm format
-        with open(file_path, 'w') as f:
-            json.dump(final_json_asm, f, indent=4)
+                    # Store the output following the asm format
+                    with open(resulting_file, 'w') as f:
+                        json.dump(yul_cfg_current, f, indent=4)
 
     os.close(fd)
     os.remove(tmp_file)
@@ -170,7 +161,7 @@ def compile_multiple_sources(source_code_dict: Dict[str, Dict[str, str]], contra
     shutil.copy("solc-new", tmp_folder)
     os.chdir(tmp_folder)
 
-    command = f"./solc-new --yul-cfg-json --optimize --pretty-json {contract_to_compile}"
+    command = f"{solc_version} --yul-cfg-json --optimize --pretty-json {contract_to_compile}"
     output, error = run_command(command)
     os.chdir(old_path)
 
