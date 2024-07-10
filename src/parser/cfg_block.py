@@ -19,7 +19,7 @@ class CFGBlock:
         self._jump_to = None
         self._falls_to = None
         self.assignment_dict = assignment_dict
-
+        self.is_function_call = False
         
     def get_block_id(self) -> str:
         return self.block_id
@@ -39,6 +39,12 @@ class CFGBlock:
     def get_falls_to(self) -> str:
         return self._falls_to
 
+    def is_function_call(self) -> bool:
+        return self.is_function_call
+
+    def set_function_call(self, v) -> None:
+        self.is_function_call = v
+    
     def set_instructions(self, new_instructions: List[CFGInstruction]) -> None:
         self._instructions = new_instructions
 

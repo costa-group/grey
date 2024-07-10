@@ -46,6 +46,9 @@ def parse_block(block_json: Dict[str,Any]) -> CFGBlock:
 
     block = CFGBlock(block_id,list_cfg_instructions, block_type, assignment_dict)
 
+    if block_type == "FunctionCall":
+        block.set_function_call(True)
+    
     return block_id, block, block_exit
 
 def parse_object(object_name, json_object) -> CFGObject:
