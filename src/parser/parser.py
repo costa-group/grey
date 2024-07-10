@@ -1,6 +1,7 @@
 import json
 from typing import Union, Dict, Any
 from parser.cfg import CFG
+from parser.cfg_object import CFGObject
 from parser.cfg_block import CFGBlock
 from parser.cfg_instruction import CFGInstruction
 from parser.utils_parser import check_instruction_validity, check_block_validity
@@ -47,7 +48,29 @@ def parse_block(block_json: Dict[str,Any]) -> CFGBlock:
 
     return block_id, block, block_exit
 
+def parse_object(object_name, json_object) -> CFGObject:
+    blocks_list = json_object.get("blocks",False)
 
+    if not blocks_list:
+        raise Exception("[ERROR]: JSON file does not contain blocks")
+
+    cfg_object = CFGObject(object_name)
+    
+    for bl in blocks_list:
+        block_id, new_block, block_exit = parse_block(bl)
+
+        pos = block_id.find("Exit") 
+        if pos != -1:
+            
+            prev_block_id = block_id[:pos]
+            prev_block = cfg_object.get_block(prev_block_id)
+
+            prev_block.set_jump_info(new_block.get_jump_type(), block_exit)
+            
+        else:
+            cfg_object.add_block(new_block)
+
+    return cfg_object
     
 def parse_CFG(input_file: str):
     json_file = open(input_file, "r")
@@ -60,33 +83,19 @@ def parse_CFG(input_file: str):
     # The contract key corresponds to the key that is neither type nor subobjects
     # For yul blocks, it is "object"
     object_keys = [key for key in json_dict if key not in ["type", "subObjects"]]
-    assert len(object_keys) == 1, "[ERROR]: JSON file does not contain a valid key for the code"
-    obj = json_dict.get(object_keys[0], False)
-
-    obj_name = obj.get("name")
-    cfg.add_object_name(obj_name)
+    assert len(object_keys) >= 1, "[ERROR]: JSON file does not contain a valid key for the code"
     
-    blocks_list = obj.get("blocks",False)
+    for obj in object_keys:
+        json_object = json_dict.get(obj,False)
+        cfg_object = parse_object(obj,json_object)
+        cfg.add_object(obj,cfg_object)
 
-    if not blocks_list:
-        raise Exception("[ERROR]: JSON file does not contain blocks")
-
-    for bl in blocks_list:
-        block_id, new_block, block_exit = parse_block(bl)
-
-        pos = block_id.find("Exit") 
-        if pos != -1:
-            
-            prev_block_id = block_id[:pos]
-            prev_block = cfg.get_block(prev_block_id)
-
-            prev_block.set_jump_info(new_block.get_jump_type(), block_exit)
-            
-        else:
-            cfg.add_block(new_block)
+        obj_functions = json_object.get("functions", {})
+    # obj_name = obj.get("name")
+    # cfg.add_object_name(obj_name)
+    
 
 
-    obj_functions = obj.get("functions", {})
 
             
     subObjects = json_dict.get("subObjects",-1)

@@ -1,5 +1,6 @@
 import json
 from pathlib import Path
+from parser.cfg_object import CFGObject
 from parser.cfg_block import CFGBlock
 from typing import Dict, List
 
@@ -17,38 +18,27 @@ class CFG:
     def __init__(self, file_name: str, nodeType : str):
         self.file_name = file_name
         self.nodeType = nodeType
-        self.objectCFG = {}
-        self.blocks : Dict[str, CFGBlock] = {}
-        self.objectCFG["blocks"] = self.blocks
+        self.objectCFG : Dict[str, CFGObject] = {}
         self.subObjects = {}
-
-    def add_block(self, block: CFGBlock)-> None:
-        block_id = block.get_block_id()
-
-        if block_id in self.blocks:
-            print("WARNING: You are overwritting an existing block")
-
-        self.blocks[block_id] = block
-
-    def add_object_name(self, name: str) -> None:
-        self.objectCFG["name"] = name
-
 
     def add_subobjects(self, subobjects):
         self.subObjects = subobjects
 
-    def get_block(self, block_id):
-        return self.blocks[block_id]
+
+    def add_object(self, name:str, cfg_object: CFGObject) -> None:
+        self.objectCFG[name] = cfg_object
 
 
-    def build_spec_for_blocks(self):
-        list_spec = []
-        for b in self.blocks:
-            block = self.blocks[b]
-            spec = block.build_spec()
-            list_spec.append(spec)
+    def get_object(self, name:str) -> CFGObject:
+        return self.objectCFG[name]
 
-        return list_spec
+
+    def build_spec_for_objects(self):
+        object_dict = {}
+        for o in self.objectCFG:
+            specs = self.objectCFG[o].build_spec_for_blocks()
+            object_dict[o] = specs
+        return object_dict
 
     
     def get_as_json(self):
