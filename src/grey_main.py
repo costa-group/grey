@@ -38,20 +38,22 @@ if __name__ == "__main__":
 
     print("CFG Parser: "+str(y-x)+"s")
 
-    results = cfg.build_spec_for_blocks()
+    result_objects = cfg.build_spec_for_objects()
     final_dir = Path(args.folder)
-    
+
     final_dir.mkdir(exist_ok=True, parents=True)
 
-    store_sfs_json(results, final_dir)
+    for obj in result_objects:
+        results = result_objects[obj]
+        store_sfs_json(results, final_dir)
 
-    if args.greedy:
-        csv_rows = []
-        for sfs_dict_list in results:
-            for sfs_dict_name in sfs_dict_list:
-                sfs_dict = sfs_dict_list[sfs_dict_name]
-                outcome, time, solution_found = greedy_standalone(sfs_dict)
-                csv_row = generate_statistics_info(solution_found, outcome, time, sfs_dict)
-                csv_rows.append(csv_row)
-        df = pd.DataFrame(csv_rows)
-        df.to_csv("outcome.csv")
+        if args.greedy:
+            csv_rows = []
+            for sfs_dict_list in results:
+                for sfs_dict_name in sfs_dict_list:
+                    sfs_dict = sfs_dict_list[sfs_dict_name]
+                    outcome, time, solution_found = greedy_standalone(sfs_dict)
+                    csv_row = generate_statistics_info(solution_found, outcome, time, sfs_dict)
+                    csv_rows.append(csv_row)
+            df = pd.DataFrame(csv_rows)
+            df.to_csv("outcome.csv")
