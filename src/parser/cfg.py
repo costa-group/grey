@@ -14,9 +14,9 @@ def store_sfs_json(blocks: List[Dict], final_path: Path) -> None:
         with open(file_to_store, 'w') as f:
             json.dump(block, f, indent=4)
 
+
 class CFG:
-    def __init__(self, file_name: str, nodeType : str):
-        self.file_name = file_name
+    def __init__(self, nodeType: str):
         self.nodeType = nodeType
         self.objectCFG : Dict[str, CFGObject] = {}
         self.subObjects = {}
@@ -24,14 +24,11 @@ class CFG:
     def add_subobjects(self, subobjects):
         self.subObjects = subobjects
 
-
     def add_object(self, name:str, cfg_object: CFGObject) -> None:
         self.objectCFG[name] = cfg_object
 
-
     def get_object(self, name:str) -> CFGObject:
         return self.objectCFG[name]
-
 
     def build_spec_for_objects(self):
         object_dict = {}
@@ -40,7 +37,6 @@ class CFG:
             object_dict[o] = specs
         return object_dict
 
-    
     def get_as_json(self):
         json_cfg = {}
         json_cfg["nodeType"] = self.nodeType
