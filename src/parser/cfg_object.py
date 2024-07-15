@@ -20,12 +20,12 @@ class CFGObject:
         self.blocks[block_id] = block
 
     def add_function(self, function:CFGFunction) -> None:
-        function_id = function.get_function_id()
+        function_name = function.get_name()
 
-        if function_id in self.functions:
+        if function_name in self.functions:
             print("WARNING: You are overwritting an existing function")
 
-        self.functions[function_id] = function
+        self.functions[function_name] = function
 
     def get_block(self, block_id):
         return self.blocks[block_id]
@@ -45,11 +45,11 @@ class CFGObject:
         return list_spec
 
     def build_spec_for_functions(self):
-        list_spec = []
+        list_spec = {}
         for f in self.functions:
             function = self.functions[f]
             spec_list = function.build_spec()
-            list_spec.append(spec_list) #It's a list of lists
+            list_spec[f] = spec_list
 
         return list_spec
 
