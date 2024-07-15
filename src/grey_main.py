@@ -38,7 +38,8 @@ if __name__ == "__main__":
 
     print("CFG Parser: "+str(y-x)+"s")
 
-    result_objects = cfg.build_spec_for_objects()
+    result_objects, results_functions = cfg.build_spec_for_objects()
+
     final_dir = Path(args.folder)
 
     final_dir.mkdir(exist_ok=True, parents=True)

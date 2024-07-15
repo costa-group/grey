@@ -35,10 +35,14 @@ class CFG:
 
     def build_spec_for_objects(self):
         object_dict = {}
+        functions_dict = {}
         for o in self.objectCFG:
             specs = self.objectCFG[o].build_spec_for_blocks()
             object_dict[o] = specs
-        return object_dict
+
+            functions_dict[o] = self.objectCFG[o].build_spec_for_functions()
+            
+        return object_dict, functions_dict
 
     
     def get_as_json(self):
