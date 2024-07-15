@@ -84,7 +84,7 @@ class CFGBlock:
             self._jump_to = exit_info[0]
         elif type_block == "":
             self._jump_type = "terminal"
-        #We do not store the direction as itgenerates a loop
+            #We do not store the direction as itgenerates a loop
         elif type_block == "MainExit":
             self._jump_type = "mainExit"
             self._jump_to = exit_info[0]
