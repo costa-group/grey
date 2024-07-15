@@ -34,6 +34,9 @@ class CFGObject:
     def get_function(self, function_id):
         return self.functions[function_id]
 
+
+    def get_terminal_blocks(self) -> List[str]:
+        return list(lambda x: x.get_jump_type() == "terminal", self.blocks.values())
     
     def build_spec_for_blocks(self):
         list_spec = []
