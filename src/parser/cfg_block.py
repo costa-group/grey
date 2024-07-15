@@ -53,7 +53,7 @@ class CFGBlock:
         #self.source_stack = utils.compute_stack_size(map(lambda x: x.disasm, self.instructions_to_optimize_bytecode()))
 
     def add_instruction(self, new_instr: CFGInstruction) -> None:
-        self._instructions.add(new_instr)
+        self._instructions.append(new_instr)
         # TODO
         #self.source_stack = utils.compute_stack_size(map(lambda x: x.disasm, self.instructions_to_optimize_bytecode()))
 
@@ -103,8 +103,9 @@ class CFGBlock:
         block_json["exit"] = self.block_id+"Exit"
         block_json["type"] = "BasicBlock"
 
+        jump_block = {}
+
         if self._jump_type == "conditional":
-            jump_block = {}
             jump_block["id"] = self.block_id+"Exit"
             jump_block["instructions"] = []
             jump_block["type"] = "ConditionalJump"
@@ -112,22 +113,18 @@ class CFGBlock:
             jump_block["cond"] = self._instructions[-1].get_out_args()
 
         elif self._jump_type == "unconditional":
-            jump_block = {}
             jump_block["id"] = self.block_id+"Exit"
             jump_block["instructions"] = []
             jump_block["type"] = "Jump"
             jump_block["exit"] = [self._jump_to]
 
         elif self._jump_type == "mainExit":
-            jump_block = {}
             jump_block["id"] = self.block_id+"Exit"
             jump_block["instructions"] = []
             jump_block["type"] = "MainExit"
             jump_block["exit"] = [self._jump_to]
 
         return block_json, jump_block
-    
-
 
     def _get_vars_spec(self, uninter_instructions):
         vars_spec = set()

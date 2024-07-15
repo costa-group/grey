@@ -7,6 +7,7 @@ from parser.cfg_block import CFGBlock
 from parser.cfg_instruction import CFGInstruction
 from parser.utils_parser import check_instruction_validity, check_block_validity
 
+
 def parse_instruction(ins_json: Dict[str,Any]) -> CFGInstruction:
     in_arg = ins_json.get("in",-1)
     op = ins_json.get("op", -1)
@@ -26,6 +27,7 @@ def parse_instruction(ins_json: Dict[str,Any]) -> CFGInstruction:
 def parse_assignment(assignment: Dict[str, Any], assignment_dict: Dict[str, str]) -> None:
     for in_var, out_var in zip(assignment["in"], assignment["out"]):
         assignment_dict[out_var] = in_var
+
 
 def parse_block(block_json: Dict[str,Any]) -> CFGBlock:
 
@@ -103,14 +105,11 @@ def parse_object(object_name, json_object) -> CFGObject:
             cfg_object.add_block(new_block)
 
     return cfg_object
-    
-def parse_CFG(input_file: str):
-    json_file = open(input_file, "r")
-    json_dict = json.load(json_file)
 
+def parser_CFG_from_JSON(json_dict: Dict):
     nodeType = json_dict.get("type","YulCFG")
     
-    cfg = CFG(input_file,nodeType)
+    cfg = CFG(nodeType)
 
     # The contract key corresponds to the key that is neither type nor subobjects
     # For yul blocks, it is "object"
@@ -128,12 +127,8 @@ def parse_CFG(input_file: str):
             cfg_object.add_function(obj_function)
     # obj_name = obj.get("name")
     # cfg.add_object_name(obj_name)
-    
 
-
-
-            
-    subObjects = json_dict.get("subObjects",-1)
+    subObjects = json_dict.get("subObjects", -1)
     
     if subObjects == -1:
         raise Exception("[ERROR]: JSON file does not contain key subObjects")
@@ -141,3 +136,9 @@ def parse_CFG(input_file: str):
     cfg.add_subobjects(subObjects)
 
     return cfg
+
+
+def parse_CFG(input_file: str):
+    with open(input_file, "r") as f:
+        json_dict = json.load(f)
+    return parser_CFG_from_JSON(json_dict)
