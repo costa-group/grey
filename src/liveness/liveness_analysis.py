@@ -37,7 +37,7 @@ def construct_analysis_info(cfg: CFG):
     cfg_info = dict()
     for object_id, subobject in cfg.objectCFG.items():
         block_list = subobject.blocks
-        block_info = {block_id: LivenessBlockInfo(block) for block_id, block in block_list.get_block_dict()}
+        block_info = {block_id: LivenessBlockInfo(block) for block_id, block in block_list.get_block_dict().items()}
         terminal_blocks = block_list.get_terminal_blocks()
         cfg_info[subobject.name] = {"block_info": block_info, "terminal_blocks": terminal_blocks}
     logging.debug("Suboject" + str(cfg_info))

@@ -14,7 +14,7 @@ class CFGBlockList:
     """
 
     def __init__(self):
-        self.blocks = {}
+        self.blocks: Dict[str, CFGBlock] = {}
         self.graph = None
 
     def add_block(self, block: CFGBlock) -> None:
@@ -75,3 +75,8 @@ class CFGBlockList:
 
         return json_blocks
 
+    def __repr__(self):
+        text_repr = []
+        for block_id, block in self.blocks.items():
+            text_repr.append(' '.join([str(block_id), str(block.get_instructions())]))
+        return '\n'.join(text_repr)

@@ -8,7 +8,7 @@ from typing import Dict, List
 class CFGObject:
     def __init__(self, name, blocks):
         self.name = name
-        self.blocks: CFGBlockList = CFGBlockList()
+        self.blocks: CFGBlockList = blocks
         self.functions: Dict[str, CFGFunction] = {}
 
     def add_function(self, function:CFGFunction) -> None:
@@ -38,7 +38,7 @@ class CFGObject:
         return list_spec
 
     def get_as_json(self):
-        pass
+        return {"name": self.name}
 
-    def __str__(self):
-        return self.get_as_json()
+    def __repr__(self):
+        return json.dumps(self.get_as_json())
