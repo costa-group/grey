@@ -128,6 +128,7 @@ class CFGBlock:
             jump_block["type"] = "MainExit"
             jump_block["exit"] = [self._jump_to]
 
+        block_json["comes_from"] = self._comes_from
         return block_json, jump_block
 
     def _get_vars_spec(self, uninter_instructions):
@@ -252,5 +253,5 @@ class CFGBlock:
         print(json.dumps(r, indent=4))
         return specifications
         
-    def __str__(self):
+    def __repr__(self):
         return json.dumps(self.get_as_json())

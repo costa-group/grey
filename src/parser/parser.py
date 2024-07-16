@@ -1,3 +1,4 @@
+import collections
 import json
 from typing import Union, Dict, Any, List, Tuple
 from parser.cfg import CFG
@@ -63,6 +64,7 @@ def parser_block_list(blocks: List[Dict[str, Any]]):
     """
     block_list = CFGBlockList()
     exit_blocks = []
+    comes_from = collections.defaultdict(lambda: [])
     for b in blocks:
         block_id, new_block, block_exit = parse_block(b)
 
@@ -73,12 +75,22 @@ def parser_block_list(blocks: List[Dict[str, Any]]):
             prev_block = block_list.get_block(prev_block_id)
 
             prev_block.set_jump_info(new_block.get_jump_type(), block_exit)
-            new_block.add_comes_from(prev_block.block_id)
+
+            # Annotate comes from
+            for succ_block in block_exit:
+                comes_from[succ_block].append(prev_block_id)
 
             exit_blocks.append(prev_block_id)
 
         else:
             block_list.add_block(new_block)
+
+    # Update comes_from from the dictionary
+    for block_id in comes_from:
+        for predecessor in comes_from[block_id]:
+            # TODO: Ask why last block references itself
+            if block_id != predecessor:
+                block_list.get_block(block_id).add_comes_from(predecessor)
 
     return block_list, exit_blocks
 
