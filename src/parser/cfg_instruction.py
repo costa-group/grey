@@ -1,6 +1,7 @@
 """
 Module for representing and building the instructions that appear in the CFG
 """
+import json
 from typing import List, Dict
 from parser.utils_parser import process_opcode, get_ins_size, is_commutative
 import parser.opcodes as opcodes
@@ -95,7 +96,6 @@ def build_custom_function_spec(function_name: str, input_args: List[str], output
     return obj
 
 
-
 class CFGInstruction:
     def __init__(self, op : str, in_args: List[str], out_args: List[str]):
         self.op = op
@@ -105,7 +105,6 @@ class CFGInstruction:
         
     def set_builtin_args(self, builtin: List[str]) -> None:
         self.builtin_args = builtin
-
 
     def get_as_json(self):
         instruction = {"in": self.in_args, "out": self.out_args, "op": self.op}
@@ -191,8 +190,5 @@ class CFGInstruction:
 
         return instr
     
-    def __str__(self):
-        self.get_as_json()
-
-
-        
+    def __repr__(self):
+        return json.dumps(self.get_as_json())

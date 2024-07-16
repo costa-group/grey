@@ -1,11 +1,14 @@
 import json
-from typing import Union, Dict, Any
+from typing import Union, Dict, Any, List, Tuple
 from parser.cfg import CFG
+from parser.cfg_block_list import CFGBlockList
 from parser.cfg_object import CFGObject
 from parser.cfg_function import CFGFunction
 from parser.cfg_block import CFGBlock
 from parser.cfg_instruction import CFGInstruction
 from parser.utils_parser import check_instruction_validity, check_block_validity
+
+block_id_T = str
 
 
 def parse_instruction(ins_json: Dict[str,Any]) -> CFGInstruction:
@@ -29,8 +32,7 @@ def parse_assignment(assignment: Dict[str, Any], assignment_dict: Dict[str, str]
         assignment_dict[out_var] = in_var
 
 
-def parse_block(block_json: Dict[str,Any]) -> CFGBlock:
-
+def parse_block(block_json: Dict[str,Any]) -> Tuple[block_id_T, CFGBlock, block_id_T]:
     block_id = block_json.get("id", -1)
     block_instructions = block_json.get("instructions", -1)
     block_exit = block_json.get("exit", -1)
@@ -44,41 +46,54 @@ def parse_block(block_json: Dict[str,Any]) -> CFGBlock:
         if "assignment" in instructions:
             parse_assignment(instructions, assignment_dict)
         else:
-            cfg_instruction =parse_instruction(instructions) if block_type != "FunctionReturn" else []
+            cfg_instruction = parse_instruction(instructions) if block_type != "FunctionReturn" else []
             list_cfg_instructions.append(cfg_instruction)
 
-    block = CFGBlock(block_id,list_cfg_instructions, block_type, assignment_dict)
+    block = CFGBlock(block_id, list_cfg_instructions, block_type, assignment_dict)
 
     if block_type == "FunctionCall":
         block.set_function_call(True)
     
     return block_id, block, block_exit
 
-def parse_function(function_name, function_json):
-    
-    args = function_json.get("arguments",-1)
-    ret_vals = function_json.get("returns",-1)
-    entry_point = function_json.get("entry",-1)
-    
-    cfg_function = CFGFunction(function_name,args,ret_vals,entry_point)
 
-    blocks = function_json.get("blocks",-1)
+def parser_block_list(blocks: List[Dict[str, Any]]):
+    """
+    Returns the list of blocks parsed and the ids that correspond to Exit blocks
+    """
+    block_list = CFGBlockList()
+    exit_blocks = []
     for b in blocks:
         block_id, new_block, block_exit = parse_block(b)
 
-        pos = block_id.find("Exit") 
+        pos = block_id.find("Exit")
         if pos != -1:
-            
+
             prev_block_id = block_id[:pos]
-            prev_block = cfg_function.get_block(prev_block_id)
+            prev_block = block_list.get_block(prev_block_id)
 
             prev_block.set_jump_info(new_block.get_jump_type(), block_exit)
+            new_block.add_comes_from(prev_block.block_id)
 
-            cfg_function.add_exit_point(prev_block_id)
-            
+            exit_blocks.append(prev_block_id)
+
         else:
-            cfg_function.add_block(new_block)
+            block_list.add_block(new_block)
 
+    return block_list, exit_blocks
+
+
+def parse_function(function_name, function_json):
+    
+    args = function_json.get("arguments", -1)
+    ret_vals = function_json.get("returns", -1)
+    entry_point = function_json.get("entry", -1)
+
+    blocks = function_json.get("blocks", -1)
+    cfg_block_list, exit_points = parser_block_list(blocks)
+
+    cfg_function = CFGFunction(function_name, args, ret_vals, entry_point, cfg_block_list)
+    cfg_function.exits = exit_points
     return cfg_function
     
 
@@ -88,23 +103,11 @@ def parse_object(object_name, json_object) -> CFGObject:
     if not blocks_list:
         raise Exception("[ERROR]: JSON file does not contain blocks")
 
-    cfg_object = CFGObject(object_name)
-    
-    for bl in blocks_list:
-        block_id, new_block, block_exit = parse_block(bl)
-
-        pos = block_id.find("Exit") 
-        if pos != -1:
-            
-            prev_block_id = block_id[:pos]
-            prev_block = cfg_object.get_block(prev_block_id)
-
-            prev_block.set_jump_info(new_block.get_jump_type(), block_exit)
-            
-        else:
-            cfg_object.add_block(new_block)
+    cfg_block_list, _ = parser_block_list(blocks_list)
+    cfg_object = CFGObject(object_name, cfg_block_list)
 
     return cfg_object
+
 
 def parser_CFG_from_JSON(json_dict: Dict):
     nodeType = json_dict.get("type","YulCFG")
@@ -123,7 +126,7 @@ def parser_CFG_from_JSON(json_dict: Dict):
 
         json_functions = json_object.get("functions", {})
         for f in json_functions:
-            obj_function =parse_function(f,json_functions[f])
+            obj_function = parse_function(f, json_functions[f])
             cfg_object.add_function(obj_function)
     # obj_name = obj.get("name")
     # cfg.add_object_name(obj_name)

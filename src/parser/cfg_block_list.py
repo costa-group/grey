@@ -1,0 +1,77 @@
+"""
+Module that contains the necessary methods for a set of blocks that correspond to the same subobject
+(either for cfg objects or functions)
+"""
+
+from typing import List, Dict, Any
+import networkx
+from parser.cfg_block import CFGBlock
+
+
+class CFGBlockList:
+    """
+    Object that manages a list of blocks that connected
+    """
+
+    def __init__(self):
+        self.blocks = {}
+        self.graph = None
+
+    def add_block(self, block: CFGBlock) -> None:
+        block_id = block.get_block_id()
+
+        if block_id in self.blocks:
+            if block_id in self.blocks:
+                print("WARNING: You are overwritting an existing block")
+        self.graph = None
+        self.blocks[block_id] = block
+
+    def get_block(self, block_id: str):
+        return self.blocks[block_id]
+
+    def get_block_dict(self):
+        return self.blocks
+
+    def get_terminal_blocks(self) -> List[str]:
+        """
+        Terminal blocks are either mainExit and terminal blocks
+        """
+        return [block.block_id for block in self.blocks.values() if block.get_jump_type() in ["mainExit", "terminal"]]
+
+    def build_spec(self):
+        """
+        Build specs from blocks
+        """
+        list_spec = []
+        for b in self.blocks:
+            block = self.blocks[b]
+            spec = block.build_spec()
+            list_spec.append(spec)
+
+        return list_spec
+
+    def to_graph(self) -> networkx.DiGraph:
+        """
+        Creates a networkx.DiGraph from the blocks information
+        """
+        if self.graph is None:
+            graph = networkx.DiGraph(self.blocks)
+            for block_id, block in self.blocks.items():
+                for successor in [block.get_jump_to(), block.get_falls_to()]:
+                    if successor is not None:
+                        graph.add_edge(block_id, successor)
+            return graph
+        return self.graph
+
+    def to_json(self) -> List[Dict[str, Any]]:
+        """
+        List of dicts for each block
+        """
+        json_blocks = []
+        for block in self.blocks.values():
+            json_block, json_jump_block = block.get_as_json()
+            json_blocks.append(json_block)
+            json_blocks.append(json_jump_block)
+
+        return json_blocks
+

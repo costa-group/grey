@@ -20,6 +20,7 @@ class CFGBlock:
         self._falls_to = None
         self.assignment_dict = assignment_dict
         self.is_function_call = False
+        self._comes_from = []
         
     def get_block_id(self) -> str:
         return self.block_id
@@ -57,6 +58,11 @@ class CFGBlock:
         # TODO
         #self.source_stack = utils.compute_stack_size(map(lambda x: x.disasm, self.instructions_to_optimize_bytecode()))
 
+    def add_comes_from(self, block_id: str):
+        self._comes_from.append(block_id)
+
+    def get_comes_from(self) -> List[str]:
+        return self._comes_from
 
     def set_jump_type(self, t : str) -> None:
         if t not in ["conditional","unconditional","terminal", "falls_to"]:
@@ -70,7 +76,6 @@ class CFGBlock:
     def set_falls_to(self, blockId :str) -> None:
         self._falls_to = blockId
 
-        
     def set_length(self) -> int:
         return len(self._instructions)
 
@@ -135,8 +140,6 @@ class CFGBlock:
                 vars_spec.add(a)
 
         return list(vars_spec)
-
-
 
     def _build_spec_for_block(self, instructions, map_instructions: Dict):
         """
@@ -250,3 +253,5 @@ class CFGBlock:
         print(json.dumps(r, indent=4))
         return specifications
         
+    def __str__(self):
+        return json.dumps(self.get_as_json())
