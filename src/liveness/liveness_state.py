@@ -25,8 +25,10 @@ class LivenessBlockInfo(AbstractBlockInfo):
     def __init__(self, basic_block: CFGBlock):
         super().__init__()
         self._id = basic_block.block_id
-        self._jumps_to = basic_block.get_jump_to()
-        self._falls_to = basic_block.get_falls_to()
+        self._successors = [possible_successor for possible_successor
+                            in [basic_block.get_jump_to(), basic_block.get_falls_to()]
+                            if possible_successor is not None]
+        print(self._id, basic_block.get_jump_to(), basic_block.get_falls_to())
         self._block_type = basic_block.get_jump_type()
         self._comes_from = basic_block.get_comes_from()
         self.uses, self.defines = _uses_defines_from_instructions(basic_block.get_instructions())
@@ -39,12 +41,8 @@ class LivenessBlockInfo(AbstractBlockInfo):
         return self._id
 
     @property
-    def jumps_to(self) -> Any:
-        return self._jumps_to
-
-    @property
-    def falls_to(self) -> Any:
-        return self._jumps_to
+    def successors(self) -> Any:
+        return self._successors
 
     @property
     def block_type(self) -> Any:
@@ -55,8 +53,7 @@ class LivenessBlockInfo(AbstractBlockInfo):
         return self._comes_from
 
     def __repr__(self):
-        text_repr = [f"Block id: {self._id}", f"Block type: {self.block_type}",
-                     f"Jumps to: {self.jumps_to}", f"Falls to: {self.falls_to}",
+        text_repr = [f"Block id: {self._id}", f"Block type: {self.block_type}", f"Successors: {self.successors}",
                      f"Propagated variables: {self.propagated_variables}"]
         return '\n'.join(text_repr)
 

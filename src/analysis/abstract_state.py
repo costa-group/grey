@@ -3,8 +3,9 @@ Module that implements an AbstractState and an AbstractAnalysisInfo in order to 
 fixpoint analysis.
 """
 
-from typing import Any
+from typing import Any, Iterable
 from abc import ABC, abstractmethod
+import pygraphviz as pgv
 
 
 class AbstractBlockInfo(ABC):
@@ -20,12 +21,7 @@ class AbstractBlockInfo(ABC):
 
     @property
     @abstractmethod
-    def jumps_to(self) -> Any:
-        raise NotImplementedError
-
-    @property
-    @abstractmethod
-    def falls_to(self) -> Any:
+    def successors(self) -> Any:
         raise NotImplementedError
 
     @property
@@ -37,6 +33,17 @@ class AbstractBlockInfo(ABC):
     @abstractmethod
     def block_type(self) -> Any:
         raise NotImplementedError
+
+
+def digraph_from_block_info(block_info: Iterable[AbstractBlockInfo]) -> pgv.AGraph:
+    """
+    Generates a DiGraph considering the information from successors
+    """
+    graph = pgv.AGraph()
+    for block in block_info:
+        for successor in block.successors:
+            graph.add_edge(block.block_id, successor)
+    return graph
 
 
 class AbstractState(ABC):

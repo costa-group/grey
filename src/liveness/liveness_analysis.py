@@ -2,10 +2,12 @@ import logging
 from typing import Dict, List, Any
 
 from analysis.fixpoint_analysis import BlockAnalysisInfo, BackwardsAnalysis
+from analysis.abstract_state import digraph_from_block_info
 from liveness.liveness_state import LivenessState, LivenessBlockInfo
 from parser.cfg import CFG
 from parser.parser import parser_CFG_from_JSON
 import networkx
+import pygraphviz as pgv
 
 
 class LivenessAnalysisInfo(BlockAnalysisInfo):
@@ -20,7 +22,8 @@ class LivenessAnalysisInfo(BlockAnalysisInfo):
         # If the output state is None, we need to propagate the information from the block and the input state
         if self.output_state is None:
             output_state = LivenessState()
-            output_state.live_vars = self.input_state.live_vars.union(self.block_info.propagated_variables)
+            output_state.live_vars = self.block_info.uses.union(
+                self.input_state.live_vars.difference(self.block_info.defines))
             self.output_state = output_state
 
         # Otherwise, the information from the block is already propagated
@@ -28,7 +31,8 @@ class LivenessAnalysisInfo(BlockAnalysisInfo):
             self.output_state.lub(self.input_state)
 
     def __repr__(self):
-        text_repr_list = [f"Input state: {self.input_state}", f"Output state: {self.output_state}", f"Block info: {self.block_info}"]
+        text_repr_list = [f"Input state: {self.input_state}", f"Output state: {self.output_state}",
+                          f"Block info: {self.block_info}"]
         return '\n'.join(text_repr_list)
 
 
@@ -44,7 +48,8 @@ def construct_analysis_info(cfg: CFG):
     return cfg_info
 
 
-def liveness_analysis_from_vertices(vertices: Dict[str, LivenessBlockInfo], initial_blocks: List[str]) -> BackwardsAnalysis:
+def liveness_analysis_from_vertices(vertices: Dict[str, LivenessBlockInfo],
+                                    initial_blocks: List[str]) -> BackwardsAnalysis:
     liveness_analysis = BackwardsAnalysis(vertices, initial_blocks, LivenessState(), LivenessAnalysisInfo)
     liveness_analysis.analyze()
     return liveness_analysis
@@ -74,28 +79,32 @@ def dot_from_analysis(cfg: CFG):
     cfg_info = construct_analysis_info(cfg)
     results = perform_liveness_analysis_from_cfg_info(cfg_info)
     for component_name, liveness in results.items():
-        cfg_info_suboject = cfg_info[component_name]
-        print("CFG info", cfg_info)
-        print("Liveness", liveness)
+        cfg_info_suboject = cfg_info[component_name]["block_info"]
+        pgv_graph = digraph_from_block_info(cfg_info_suboject.values())
+
+        for block_live, live_vars in liveness.items():
+            n = pgv_graph.get_node(block_live)
+            n.attr["label"] = f"{block_live}\n{live_vars}"
+
+        pgv_graph.write("prueba.dot")
 
 
 if __name__ == "__main__":
     if_json = {"object": {"blocks": [{"exit": "Block0Exit", "id": "Block0",
                                       "instructions": [{"in": ["0x0101", "0x01"], "op": "sstore", "out": []},
-                                                       {"in": ["0x00"], "op": "calldataload", "out": ["_27"]}],
+                                                       {"in": ["0x00"], "op": "calldataload", "out": ["_4"]}],
                                       "type": "BuiltinCall"},
-                                     {"cond": ["_27"], "exit": ["Block1", "Block2"], "id": "Block0Exit",
-                                      "instructions": [],
-                                      "type": "ConditionalJump"},
-                                     {"exit": "Block1Exit", "id": "Block1", "instructions": [
-                                         {"in": ["0x03", "0x03"], "op": "sstore", "out": []}],
+                                     {"cond": ["_4"], "exit": ["Block1", "Block2"], "id": "Block0Exit",
+                                      "instructions": [], "type": "ConditionalJump"},
+                                     {"exit": "Block1Exit", "id": "Block1",
+                                      "instructions": [{"in": ["0x03", "0x03"], "op": "sstore", "out": []}],
                                       "type": "BuiltinCall"},
-                                     {"exit": ["Block1"], "id": "Block1Exit", "instructions": [],
-                                      "type": "MainExit"},
+                                     {"exit": ["Block1"], "id": "Block1Exit", "instructions": [], "type": "MainExit"},
                                      {"exit": "Block2Exit", "id": "Block2",
                                       "instructions": [{"in": ["0x0202", "0x02"], "op": "sstore", "out": []}],
                                       "type": "BuiltinCall"},
                                      {"exit": ["Block1"], "id": "Block2Exit", "instructions": [], "type": "Jump"}],
                           "functions": {}}, "subObjects": {}, "type": "Object"}
+
     if_cfg = parser_CFG_from_JSON(if_json)
     dot_from_analysis(if_cfg)

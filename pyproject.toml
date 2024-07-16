@@ -5,6 +5,9 @@ dependencies = [
     "networkx",
     "coverage",
     "pytest",
+    "matplotlib",
+    "setuptools",
+    "pygraphviz"
 ]
 name = "grey"
 readme = "README.md"

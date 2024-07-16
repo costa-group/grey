@@ -92,7 +92,6 @@ class CFGBlock:
             #We do not store the direction as itgenerates a loop
         elif type_block == "MainExit":
             self._jump_type = "mainExit"
-            self._jump_to = exit_info[0]
 
     def get_as_json(self):
         block_json = {}
