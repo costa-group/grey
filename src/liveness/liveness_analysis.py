@@ -105,6 +105,8 @@ if __name__ == "__main__":
                                       "type": "BuiltinCall"},
                                      {"exit": ["Block1"], "id": "Block2Exit", "instructions": [], "type": "Jump"}],
                           "functions": {}}, "subObjects": {}, "type": "Object"}
+    # logging.basicConfig()
+    # logging.getLogger().setLevel(logging.DEBUG)
 
     if_cfg = parser_CFG_from_JSON(if_json)
     dot_from_analysis(if_cfg)

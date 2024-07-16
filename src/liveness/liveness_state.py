@@ -15,7 +15,7 @@ def _uses_defines_from_instructions(instructions: List[CFGInstruction]) -> Tuple
     """
     uses, defines = set(), set()
     for instruction in instructions:
-        uses.update(instruction.in_args)
+        uses.update([element for element in instruction.in_args if not element.startswith("0x")])
         defines.update(instruction.out_args)
     return uses, defines
 
@@ -28,7 +28,7 @@ class LivenessBlockInfo(AbstractBlockInfo):
         self._successors = [possible_successor for possible_successor
                             in [basic_block.get_jump_to(), basic_block.get_falls_to()]
                             if possible_successor is not None]
-        print(self._id, basic_block.get_jump_to(), basic_block.get_falls_to())
+
         self._block_type = basic_block.get_jump_type()
         self._comes_from = basic_block.get_comes_from()
         self.uses, self.defines = _uses_defines_from_instructions(basic_block.get_instructions())

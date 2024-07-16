@@ -114,8 +114,10 @@ class BackwardsAnalysis:
         logging.debug("Process JUMPS")
         logging.debug("Input State: " + str(input_state))
         basic_block = self.vertices[block_id]
-
+        logging.debug("COMES " + str(basic_block.comes_from))
         for previous_block in basic_block.comes_from:
+            logging.debug(f"Comes from {previous_block}")
+
             if self.blocks_info.get(previous_block) is None:
                 self.pending.append(previous_block)
                 # print("************")
