@@ -28,6 +28,7 @@ class LivenessBlockInfo(AbstractBlockInfo):
         self._jumps_to = basic_block.get_jump_to()
         self._falls_to = basic_block.get_falls_to()
         self._block_type = basic_block.get_jump_type()
+        self._comes_from = basic_block.get_comes_from()
         self.uses, self.defines = _uses_defines_from_instructions(basic_block.get_instructions())
 
         # Variables that need to be propagated
@@ -48,6 +49,10 @@ class LivenessBlockInfo(AbstractBlockInfo):
     @property
     def block_type(self) -> Any:
         return self._block_type
+
+    @property
+    def comes_from(self) -> Any:
+        return self._comes_from
 
     def __repr__(self):
         text_repr = [f"Block id: {self._id}", f"Block type: {self.block_type}",

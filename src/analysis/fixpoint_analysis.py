@@ -8,7 +8,7 @@ https://github.com/costa-group/EthIR/blob/fea70e305801258c3ec50b47e1251237063d3f
 
 import logging
 from analysis.abstract_state import AbstractState, AbstractBlockInfo
-from typing import Dict, List, Any, Optional
+from typing import Dict, List, Any, Optional, Type
 from abc import ABC, abstractmethod
 from parser.cfg_block import CFGBlock
 
@@ -77,16 +77,20 @@ class BlockAnalysisInfo(ABC):
         return textual_repr
 
 
-class Analysis:
+class BackwardsAnalysis:
 
-    def __init__(self, vertices: Dict[block_id_T, block_T], initial_block: block_id_T, initial_state: state_T,
+    def __init__(self, vertices: Dict[block_id_T, block_T], initial_blocks: List[block_id_T], initial_state: state_T,
                  analysis_info_constructor):
         self.vertices = vertices
-        self.pending = [initial_block]
+        self.pending = initial_blocks
         self.constructor = analysis_info_constructor
 
+        logging.debug("Vertices" + str(self.vertices))
+        logging.debug("Pending" + str(self.pending))
+
         # Info from the analysis for each block
-        self.blocks_info: Dict[block_id_T, BlockAnalysisInfo] = {initial_block: analysis_info_constructor(vertices[initial_block], initial_state)}
+        self.blocks_info: Dict[block_id_T, BlockAnalysisInfo] = \
+            {block: analysis_info_constructor(vertices[block], initial_state) for block in initial_blocks}
 
     def analyze(self):
         while len(self.pending) > 0:
@@ -105,42 +109,34 @@ class Analysis:
 
     def process_jumps(self, block_id: block_id_T, input_state: state_T):
         """
-        Propagates the information according to the blocks and the input state
+        Propagates the information according to the blocks and the input state considering all blocks in comes from
         """
         logging.debug("Process JUMPS")
         logging.debug("Input State: " + str(input_state))
         basic_block = self.vertices[block_id]
 
-        if basic_block.block_type == "terminal" or basic_block.block_type == "mainExit":
-            return 
-
-        jump_target = basic_block.jumps_to
-
-        if jump_target != 0 and jump_target != -1:
-            if self.blocks_info.get(jump_target) is None:
-                self.pending.append(jump_target)
+        for previous_block in basic_block.comes_from:
+            if self.blocks_info.get(previous_block) is None:
+                self.pending.append(previous_block)
                 # print("************")
                 # print(block_id)
                 # print(jump_target)
                 # print(self.vertices[block_id].display())
-                self.blocks_info[jump_target] = self.constructor(self.vertices[jump_target], input_state)
+                self.blocks_info[previous_block] = self.constructor(self.vertices[previous_block], input_state)
 
-            elif self.blocks_info.get(jump_target).revisit_block(input_state):
+            elif self.blocks_info.get(previous_block).revisit_block(input_state):
                 #print("REVISITING BLOCK!!! " + str(jump_target))
-                self.pending.append(jump_target)
-
-        jump_target = basic_block.falls_to
-
-        if jump_target is not None:
-            if self.blocks_info.get(jump_target) is None:
-                self.pending.append(jump_target)
-                self.blocks_info[jump_target] = self.constructor(self.vertices[jump_target], input_state)
-
-            elif self.blocks_info.get(jump_target).revisit_block(input_state):
-                self.pending.append(jump_target)
+                self.pending.append(previous_block)
 
     def get_analysis_results(self):
         return self.blocks_info
+
+    def print_analysis_results(self):
+        text_repr = []
+        for block_id, block in self.blocks_info.items():
+            text_repr.append("Block id " + block_id)
+            text_repr.append(str(block))
+        return '\n'.join(text_repr)
 
     def get_block_results(self, block_id):
         if str(block_id).find("_") == -1:

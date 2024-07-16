@@ -30,6 +30,11 @@ class AbstractBlockInfo(ABC):
 
     @property
     @abstractmethod
+    def comes_from(self) -> Any:
+        raise NotImplementedError
+
+    @property
+    @abstractmethod
     def block_type(self) -> Any:
         raise NotImplementedError
 
