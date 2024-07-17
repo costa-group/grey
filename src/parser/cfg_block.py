@@ -80,19 +80,25 @@ class CFGBlock:
         return len(self._instructions)
 
     def set_jump_info(self, type_block: str, exit_info: List[str]) -> None:
-        if type_block == "ConditionalJump":
+        if type_block in ["ConditionalJump"]:
             self._jump_type = "conditional"
             self._falls_to = exit_info[0]
             self._jump_to = exit_info[1]
-        elif type_block == "Jump":
+        elif type_block in ["Jump"]:
             self._jump_type = "unconditional"
             self._jump_to = exit_info[0]
-        elif type_block == "":
-            self._jump_type = "terminal"
+        elif type_block in ["Terminated"]:
             #We do not store the direction as itgenerates a loop
-        elif type_block == "MainExit":
+            self._jump_type = "terminal"
+        elif type_block in [""]:
+            #It corresponds to falls_to blocks
+            self._jump_type = "falls_to"
+        elif type_block in ["MainExit"]:
             self._jump_type = "mainExit"
-
+        elif type_block in ["FunctionReturn"]:
+            self._jump_type = "FunctionReturn"
+        
+            
     def get_as_json(self):
         block_json = {}
         block_json["id"] = self.block_id
@@ -252,6 +258,17 @@ class CFGBlock:
         print("block"+str(self.block_id)+"_"+str(cont))
         print(json.dumps(r, indent=4))
         return specifications
+
+
+    def __str__(self):
+
+        s = "BlockID: " + self.block_id+ "\n"
+        s += "Type: " + self._jump_type+ "\n"
+        s += "Jump to: " + str(self._jump_to) + "\n"
+        s += "Falls to: " + str(self._falls_to) + "\n"
+        s += "Comes_from: " + str(self._comes_from) + "\n"
+        s += "Instructions: " + str(self._instructions) + "\n"
+        return s
         
     def __repr__(self):
         return json.dumps(self.get_as_json())
