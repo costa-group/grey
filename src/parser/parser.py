@@ -40,7 +40,7 @@ def parse_block(block_json: Dict[str,Any]) -> Tuple[block_id_T, CFGBlock, block_
     block_type = block_json.get("type", "")
     
     check_block_validity(block_id, block_instructions, block_exit, block_type)
-
+    
     list_cfg_instructions = []
     assignment_dict = dict()
     for instructions in block_instructions:
@@ -51,7 +51,7 @@ def parse_block(block_json: Dict[str,Any]) -> Tuple[block_id_T, CFGBlock, block_
             list_cfg_instructions.append(cfg_instruction)
 
     block = CFGBlock(block_id, list_cfg_instructions, block_type, assignment_dict)
-
+   
     if block_type == "FunctionCall":
         block.set_function_call(True)
     
@@ -75,12 +75,13 @@ def parser_block_list(blocks: List[Dict[str, Any]]):
             prev_block = block_list.get_block(prev_block_id)
 
             prev_block.set_jump_info(new_block.get_jump_type(), block_exit)
-
+            
             # Annotate comes from
             for succ_block in block_exit:
                 comes_from[succ_block].append(prev_block_id)
 
-            exit_blocks.append(prev_block_id)
+            if prev_block.get_jump_type() == "terminal": 
+                exit_blocks.append(prev_block_id)
 
         else:
             block_list.add_block(new_block)
