@@ -6,11 +6,14 @@ import argparse
 from pathlib import Path
 from timeit import default_timer as dtimer
 import pandas as pd
+import logging
 
 from parser.parser import parse_CFG
 from parser.cfg import store_sfs_json
 from greedy.greedy import greedy_standalone
 from statistics.statistics import generate_statistics_info
+from liveness.liveness_analysis import dot_from_analysis
+
 
 def parse_args():    
     global args
@@ -37,6 +40,8 @@ if __name__ == "__main__":
     y = dtimer()
 
     print("CFG Parser: "+str(y-x)+"s")
+
+    dot_from_analysis(cfg)
 
     result_objects, results_functions = cfg.build_spec_for_objects()
 

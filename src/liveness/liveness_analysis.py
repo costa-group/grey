@@ -86,7 +86,7 @@ def dot_from_analysis(cfg: CFG):
             n = pgv_graph.get_node(block_live)
             n.attr["label"] = f"{block_live}\n{live_vars}"
 
-        pgv_graph.write("prueba.dot")
+        pgv_graph.write(f"{component_name}.dot")
 
 
 if __name__ == "__main__":
