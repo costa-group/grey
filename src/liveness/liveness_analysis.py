@@ -58,7 +58,7 @@ def construct_analysis_info(cfg: CFG):
 
         # We also consider the information per function
         for function_name, cfg_function in cfg_object.functions.items():
-            cfg_info[function_name] = construct_analysis_info_from_cfgblocklist(block_list)
+            cfg_info[function_name] = construct_analysis_info_from_cfgblocklist(cfg_function.blocks)
 
     # TODO: handle subobjects as well
     return cfg_info

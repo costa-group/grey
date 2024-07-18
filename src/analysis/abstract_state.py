@@ -41,6 +41,7 @@ def digraph_from_block_info(block_info: Iterable[AbstractBlockInfo]) -> pgv.AGra
     """
     graph = pgv.AGraph()
     for block in block_info:
+        graph.add_node(block.block_id)
         for successor in block.successors:
             graph.add_edge(block.block_id, successor)
     return graph
