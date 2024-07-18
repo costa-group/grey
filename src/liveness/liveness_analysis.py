@@ -4,6 +4,7 @@ from typing import Dict, List, Any
 from analysis.fixpoint_analysis import BlockAnalysisInfo, BackwardsAnalysis
 from analysis.abstract_state import digraph_from_block_info
 from liveness.liveness_state import LivenessState, LivenessBlockInfo
+from parser.cfg_block_list import CFGBlockList
 from parser.cfg import CFG
 from parser.parser import parser_CFG_from_JSON
 import networkx
@@ -36,15 +37,30 @@ class LivenessAnalysisInfo(BlockAnalysisInfo):
         return '\n'.join(text_repr_list)
 
 
+def construct_analysis_info_from_cfgblocklist(block_list: CFGBlockList) -> Dict[str, Any]:
+    """
+    Constructs the info needed for the liveness analysis from a given set of blocks.
+    This information consists of a dict with two entries: "block_info", that contains the information needed per
+    block and "terminal_blocks", which contain the list of terminal block ids
+    """
+    block_info = {block_id: LivenessBlockInfo(block) for block_id, block in block_list.get_block_dict().items()}
+    terminal_blocks = block_list.get_terminal_blocks()
+    return {"block_info": block_info, "terminal_blocks": terminal_blocks}
+
+
 def construct_analysis_info(cfg: CFG):
-    # TODO: decide how to construct the vertices for each subobject
     cfg_info = dict()
-    for object_id, subobject in cfg.objectCFG.items():
-        block_list = subobject.blocks
-        block_info = {block_id: LivenessBlockInfo(block) for block_id, block in block_list.get_block_dict().items()}
-        terminal_blocks = block_list.get_terminal_blocks()
-        cfg_info[subobject.name] = {"block_info": block_info, "terminal_blocks": terminal_blocks}
-    logging.debug("Suboject" + str(cfg_info))
+
+    # Construct the cfg information for the blocks in the objects
+    for object_id, cfg_object in cfg.objectCFG.items():
+        block_list = cfg_object.blocks
+        cfg_info[object_id] = construct_analysis_info_from_cfgblocklist(block_list)
+
+        # We also consider the information per function
+        for function_name, cfg_function in cfg_object.functions.items():
+            cfg_info[function_name] = construct_analysis_info_from_cfgblocklist(block_list)
+
+    # TODO: handle subobjects as well
     return cfg_info
 
 
