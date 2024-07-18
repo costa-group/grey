@@ -36,7 +36,8 @@ class CFGBlockList:
         """
         Terminal blocks are either mainExit and terminal blocks
         """
-        return [block.block_id for block in self.blocks.values() if block.get_jump_type() in ["mainExit", "terminal"]]
+        return [block.block_id for block in self.blocks.values() if block.get_jump_type() in
+                ["mainExit", "terminal", "FunctionReturn"]]
 
     def build_spec(self):
         """
