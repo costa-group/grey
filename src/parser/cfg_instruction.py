@@ -40,7 +40,7 @@ def build_push_spec(val, idx, out_idx):
     obj["disasm"] = "PUSH" if value != 0 else "PUSH0"
     obj["inpt_sk"] = []
     obj["value"] = [value]
-    obj["outpt_sk"] = [str(out_idx)]
+    obj["outpt_sk"] = ["s"+str(out_idx)]
     obj["gas"] = opcodes.get_ins_cost("PUSH") if value != 0 else opcodes.get_ins_cost("PUSH0")
     obj["commutative"] = False
     obj["push"] = True
