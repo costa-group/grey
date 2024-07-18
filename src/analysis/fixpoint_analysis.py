@@ -38,20 +38,23 @@ class BlockAnalysisInfo(ABC):
     def get_output_state(self) -> state_T:
         return self.output_state  
 
-    def revisit_block(self, input_state: state_T):
+    def revisit_block(self, current_state: state_T):
         """
         Evaluates if a block need to be revisited or not
         """
         logging.debug("Comparing...")
-        logging.debug("Current input state: " + str(self))
-        logging.debug("Compared state: " + str(input_state))
-        leq = input_state.leq(self.input_state)
+        logging.debug("Stored state: " + str(self))
+        logging.debug("Current state: " + str(current_state))
+
+        # If the state being considered is leq than the one
+        # currently stored, then we return False
+        leq = current_state.leq(self.input_state)
         logging.debug("Result: " + str(leq))
 
         if leq:
             return False
 
-        self.input_state.lub(input_state)
+        self.input_state.lub(current_state)
         return True
 
     @abstractmethod

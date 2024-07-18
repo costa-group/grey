@@ -15,7 +15,9 @@ def _uses_defines_from_instructions(instructions: List[CFGInstruction]) -> Tuple
     """
     uses, defines = set(), set()
     for instruction in instructions:
-        uses.update([element for element in instruction.in_args if not element.startswith("0x")])
+        # For computing the uses, we cannot include variables that have been defined in the same block
+        uses.update([element for element in instruction.in_args if not element.startswith("0x")
+                     and element not in defines])
         defines.update(instruction.out_args)
     return uses, defines
 
@@ -32,6 +34,7 @@ class LivenessBlockInfo(AbstractBlockInfo):
         self._block_type = basic_block.get_jump_type()
         self._comes_from = basic_block.get_comes_from()
         self.uses, self.defines = _uses_defines_from_instructions(basic_block.get_instructions())
+        self._instructions = basic_block.get_instructions()
 
         # Variables that need to be propagated
         self.propagated_variables = self.uses.difference(self.defines)
