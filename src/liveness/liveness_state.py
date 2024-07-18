@@ -15,7 +15,9 @@ def _uses_defines_from_instructions(instructions: List[CFGInstruction]) -> Tuple
     """
     uses, defines = set(), set()
     for instruction in instructions:
-        uses.update([element for element in instruction.in_args if not element.startswith("0x")])
+        # For computing the uses, we cannot include variables that have been defined in the same block
+        uses.update([element for element in instruction.in_args if not element.startswith("0x")
+                     and element not in defines])
         defines.update(instruction.out_args)
     return uses, defines
 
