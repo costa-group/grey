@@ -189,6 +189,9 @@ class CFGInstruction:
         instr = outs+self.op+"("+inps+")"
 
         return instr
-    
+
+    def dot_repr(self):
+        return self.get_instruction_representation()
+
     def __repr__(self):
         return json.dumps(self.get_as_json())

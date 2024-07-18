@@ -31,6 +31,12 @@ class LivenessAnalysisInfo(BlockAnalysisInfo):
         else:
             self.output_state.lub(self.input_state)
 
+    def dot_repr(self):
+        instr_repr = '\n'.join([instr.dot_repr() for instr in self.block_info._instructions]) \
+            if len(self.block_info._instructions) > 0 else "[]"
+        text_repr_list = [f"{self.output_state}", instr_repr, f"{self.input_state}"]
+        return '\n'.join(text_repr_list)
+
     def __repr__(self):
         text_repr_list = [f"Input state: {self.input_state}", f"Output state: {self.output_state}",
                           f"Block info: {self.block_info}"]
@@ -100,7 +106,7 @@ def dot_from_analysis(cfg: CFG):
 
         for block_live, live_vars in liveness.items():
             n = pgv_graph.get_node(block_live)
-            n.attr["label"] = f"{block_live}\n{live_vars}"
+            n.attr["label"] = live_vars.dot_repr()
 
         pgv_graph.write(f"{component_name}.dot")
 

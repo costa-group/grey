@@ -32,6 +32,7 @@ class LivenessBlockInfo(AbstractBlockInfo):
         self._block_type = basic_block.get_jump_type()
         self._comes_from = basic_block.get_comes_from()
         self.uses, self.defines = _uses_defines_from_instructions(basic_block.get_instructions())
+        self._instructions = basic_block.get_instructions()
 
         # Variables that need to be propagated
         self.propagated_variables = self.uses.difference(self.defines)
