@@ -55,6 +55,10 @@ def construct_analysis_info_from_cfgblocklist(block_list: CFGBlockList) -> Dict[
 
 
 def construct_analysis_info(cfg: CFG):
+    """
+    Constructs the info needed for the liveness analysis for all the code in a CFG: the main blocks, the functions
+    inside and the CFG stored in the subObject field
+    """
     cfg_info = dict()
 
     # Construct the cfg information for the blocks in the objects
@@ -66,7 +70,12 @@ def construct_analysis_info(cfg: CFG):
         for function_name, cfg_function in cfg_object.functions.items():
             cfg_info[function_name] = construct_analysis_info_from_cfgblocklist(cfg_function.blocks)
 
-    # TODO: handle subobjects as well
+        subobject = cfg.get_subobject()
+
+        if subobject is not None:
+            subobject_cfg_info = construct_analysis_info(subobject)
+            cfg_info.update(subobject_cfg_info)
+
     return cfg_info
 
 
