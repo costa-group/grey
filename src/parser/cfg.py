@@ -19,16 +19,19 @@ class CFG:
     def __init__(self, nodeType: str):
         self.nodeType = nodeType
         self.objectCFG : Dict[str, CFGObject] = {}
-        self.subObjects = {}
-
-    def add_subobjects(self, subobjects):
-        self.subObjects = subobjects
+        self.subObjects : CFG = None
 
     def add_object(self, name:str, cfg_object: CFGObject) -> None:
         self.objectCFG[name] = cfg_object
 
     def get_object(self, name:str) -> CFGObject:
         return self.objectCFG[name]
+
+    def set_subobject(self, subobject: 'CFG'):
+        self.subObjects = subobject
+
+    def get_subobject(self) -> 'CFG':
+        return self.subObjects
 
     def build_spec_for_objects(self):
         object_dict = {}

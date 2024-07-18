@@ -120,8 +120,8 @@ def parse_object(object_name, json_object) -> CFGObject:
     cfg_object = CFGObject(object_name, cfg_block_list)
 
     return cfg_object
-
-
+    
+    
 def parser_CFG_from_JSON(json_dict: Dict):
     nodeType = json_dict.get("type","YulCFG")
     
@@ -149,7 +149,9 @@ def parser_CFG_from_JSON(json_dict: Dict):
     if subObjects == -1:
         raise Exception("[ERROR]: JSON file does not contain key subObjects")
 
-    cfg.add_subobjects(subObjects)
+    if subObjects != {}:
+        sub = parser_CFG_from_JSON(subObjects)
+        cfg.set_subobject(sub)
 
     return cfg
 
