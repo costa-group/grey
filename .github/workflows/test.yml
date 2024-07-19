@@ -22,7 +22,10 @@ jobs:
         python-version: ["3.12"]  
     
     # Steps represent a sequence of tasks that will be executed as part of the job        
-    steps:  
+    steps:
+      - name: Set up Graphviz installation
+        run: | 
+           apt-get install -y graphviz-dev
       - uses: actions/checkout@v4
       - name: Set up Python ${{ matrix.python-version }}  
         uses: actions/setup-python@v4  
