@@ -1,16 +1,13 @@
 import copy
 import logging
 from typing import Dict, List, Union, Any
+from pathlib import Path
 
 from analysis.fixpoint_analysis import BlockAnalysisInfo, BackwardsAnalysis
 from analysis.abstract_state import digraph_from_block_info
 from liveness.liveness_state import LivenessState, LivenessBlockInfo
 from parser.cfg_block_list import CFGBlockList
 from parser.cfg import CFG
-from parser.parser import parser_CFG_from_JSON
-import copy
-import networkx
-import pygraphviz as pgv
 
 
 # The information from the CFG consists of a dict with two keys:
@@ -115,12 +112,18 @@ def perform_liveness_analysis_from_cfg_info(cfg_info: Dict[str, cfg_info_T]) -> 
 
 
 def perform_liveness_analysis(cfg: CFG) -> Dict[str, Dict[str, LivenessAnalysisInfo]]:
+    """
+    Returns the information from the liveness analysis
+    """
     cfg_info = construct_analysis_info(cfg)
-    logging.debug("CFG Info" + str(cfg_info))
     return perform_liveness_analysis_from_cfg_info(cfg_info)
 
 
-def dot_from_analysis(cfg: CFG) -> None:
+def dot_from_analysis(cfg: CFG, final_dir: Path = Path(".")) -> Dict[str, Dict[str, LivenessAnalysisInfo]]:
+    """
+    Returns the information from the liveness analysis and also stores a dot file for each analyzed structure
+    in "final_dir"
+    """
     cfg_info = construct_analysis_info(cfg)
     results = perform_liveness_analysis_from_cfg_info(cfg_info)
     for component_name, liveness in results.items():
@@ -131,27 +134,5 @@ def dot_from_analysis(cfg: CFG) -> None:
             n = pgv_graph.get_node(block_live)
             n.attr["label"] = live_vars.dot_repr()
 
-        pgv_graph.write(f"{component_name}.dot")
-
-
-if __name__ == "__main__":
-    if_json = {"object": {"blocks": [{"exit": "Block0Exit", "id": "Block0",
-                                      "instructions": [{"in": ["0x0101", "0x01"], "op": "sstore", "out": []},
-                                                       {"in": ["0x00"], "op": "calldataload", "out": ["_4"]}],
-                                      "type": "BuiltinCall"},
-                                     {"cond": ["_4"], "exit": ["Block1", "Block2"], "id": "Block0Exit",
-                                      "instructions": [], "type": "ConditionalJump"},
-                                     {"exit": "Block1Exit", "id": "Block1",
-                                      "instructions": [{"in": ["0x03", "0x03"], "op": "sstore", "out": []}],
-                                      "type": "BuiltinCall"},
-                                     {"exit": ["Block1"], "id": "Block1Exit", "instructions": [], "type": "MainExit"},
-                                     {"exit": "Block2Exit", "id": "Block2",
-                                      "instructions": [{"in": ["0x0202", "0x02"], "op": "sstore", "out": []}],
-                                      "type": "BuiltinCall"},
-                                     {"exit": ["Block1"], "id": "Block2Exit", "instructions": [], "type": "Jump"}],
-                          "functions": {}}, "subObjects": {}, "type": "Object"}
-    # logging.basicConfig()
-    # logging.getLogger().setLevel(logging.DEBUG)
-
-    if_cfg = parser_CFG_from_JSON(if_json)
-    dot_from_analysis(if_cfg)
+        pgv_graph.write(final_dir.joinpath(f"{component_name}.dot"))
+    return results
