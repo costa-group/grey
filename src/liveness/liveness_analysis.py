@@ -1,3 +1,4 @@
+import copy
 import logging
 from typing import Dict, List, Any
 
@@ -7,6 +8,7 @@ from liveness.liveness_state import LivenessState, LivenessBlockInfo
 from parser.cfg_block_list import CFGBlockList
 from parser.cfg import CFG
 from parser.parser import parser_CFG_from_JSON
+import copy
 import networkx
 import pygraphviz as pgv
 
@@ -17,7 +19,8 @@ class LivenessAnalysisInfo(BlockAnalysisInfo):
     """
 
     def __init__(self, block_info: LivenessBlockInfo, input_state: LivenessState):
-        super().__init__(block_info, input_state)
+        # We need to copy the input state given, as it corresponds to the output state of a given previous state
+        super().__init__(block_info,  copy.deepcopy(input_state))
 
     def propagate_information(self):
         # If the output state is None, we need to propagate the information from the block and the input state
@@ -29,12 +32,12 @@ class LivenessAnalysisInfo(BlockAnalysisInfo):
 
         # Otherwise, the information from the block is already propagated
         else:
-            self.output_state.lub(self.input_state)
+            self.output_state.live_vars = self.block_info.uses.union(self.input_state.live_vars.difference(self.block_info.defines))
 
     def dot_repr(self):
         instr_repr = '\n'.join([instr.dot_repr() for instr in self.block_info._instructions]) \
             if len(self.block_info._instructions) > 0 else "[]"
-        text_repr_list = [f"{self.output_state}", instr_repr, f"{self.input_state}"]
+        text_repr_list = [f"{self.block_info.block_id}:", f"{self.output_state}", instr_repr, f"{self.input_state}"]
         return '\n'.join(text_repr_list)
 
     def __repr__(self):

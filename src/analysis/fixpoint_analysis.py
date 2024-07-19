@@ -43,7 +43,8 @@ class BlockAnalysisInfo(ABC):
         Evaluates if a block need to be revisited or not
         """
         logging.debug("Comparing...")
-        logging.debug("Stored state: " + str(self))
+        logging.debug(f"Block name: {self.block_info.block_id}")
+        logging.debug("Stored state: " + str(self.input_state))
         logging.debug("Current state: " + str(current_state))
 
         # If the state being considered is leq than the one
@@ -51,11 +52,10 @@ class BlockAnalysisInfo(ABC):
         leq = current_state.leq(self.input_state)
         logging.debug("Result: " + str(leq))
 
-        if leq:
-            return False
+        return not leq
 
+    def propagate_state(self, current_state: state_T):
         self.input_state.lub(current_state)
-        return True
 
     @abstractmethod
     def propagate_information(self):
@@ -88,9 +88,6 @@ class BackwardsAnalysis:
         self.pending = initial_blocks
         self.constructor = analysis_info_constructor
 
-        logging.debug("Vertices" + str(self.vertices))
-        logging.debug("Pending" + str(self.pending))
-
         # Info from the analysis for each block
         self.blocks_info: Dict[block_id_T, BlockAnalysisInfo] = \
             {block: analysis_info_constructor(vertices[block], initial_state) for block in initial_blocks}
@@ -98,6 +95,7 @@ class BackwardsAnalysis:
     def analyze(self):
         while len(self.pending) > 0:
             block_id = self.pending.pop()
+            logging.debug(f"Processing {block_id}")
 
             # Process the block
             block_info = self.blocks_info[block_id]
@@ -120,17 +118,17 @@ class BackwardsAnalysis:
         logging.debug("COMES " + str(basic_block.comes_from))
         for previous_block in basic_block.comes_from:
             logging.debug(f"Comes from {previous_block}")
+            previous_block_info = self.blocks_info.get(previous_block)
 
-            if self.blocks_info.get(previous_block) is None:
+            # We create the corresponding information
+            if previous_block_info is None:
                 self.pending.append(previous_block)
-                # print("************")
-                # print(block_id)
-                # print(jump_target)
-                # print(self.vertices[block_id].display())
                 self.blocks_info[previous_block] = self.constructor(self.vertices[previous_block], input_state)
 
-            elif self.blocks_info.get(previous_block).revisit_block(input_state):
-                #print("REVISITING BLOCK!!! " + str(jump_target))
+            # If we decide to revisit the block, we propagate the state and
+            # then include it as part of the pending blocks
+            elif previous_block_info.revisit_block(input_state):
+                previous_block_info.propagate_state(input_state)
                 self.pending.append(previous_block)
 
     def get_analysis_results(self):

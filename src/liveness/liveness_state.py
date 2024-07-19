@@ -71,7 +71,7 @@ class LivenessState(AbstractState):
         self.live_vars = set()
 
     def lub(self, state: 'LivenessState') -> None:
-        self.live_vars.union(state.live_vars)
+        self.live_vars.update(state.live_vars)
 
     def leq(self, state: 'LivenessState') -> bool:
         return self.live_vars.issubset(state.live_vars)
