@@ -25,7 +25,7 @@ jobs:
     steps:
       - name: Set up Graphviz installation
         run: | 
-           apt-get install -y graphviz-dev
+           sudo apt-get install -y graphviz-dev
       - uses: actions/checkout@v4
       - name: Set up Python ${{ matrix.python-version }}  
         uses: actions/setup-python@v4  
