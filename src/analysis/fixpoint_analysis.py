@@ -38,7 +38,7 @@ class BlockAnalysisInfo(ABC):
     def get_output_state(self) -> state_T:
         return self.output_state  
 
-    def revisit_block(self, current_state: state_T):
+    def revisit_block(self, current_state: state_T) -> bool:
         """
         Evaluates if a block need to be revisited or not
         """
@@ -54,18 +54,18 @@ class BlockAnalysisInfo(ABC):
 
         return not leq
 
-    def propagate_state(self, current_state: state_T):
+    def propagate_state(self, current_state: state_T) -> None:
         self.input_state.lub(current_state)
 
     @abstractmethod
-    def propagate_information(self):
+    def propagate_information(self) -> None:
         """
         For a more efficient implementation, we consider propagate information as an abstract
         method. This way, we don't need to create and destroy an output state each time it is updated
         """
         raise NotImplementedError
 
-    def process_block(self):
+    def process_block(self) -> None:
         # We start with the initial state of the block
         current_state = self.input_state
         id_block = self.block_info.block_id
@@ -92,7 +92,7 @@ class BackwardsAnalysis:
         self.blocks_info: Dict[block_id_T, BlockAnalysisInfo] = \
             {block: analysis_info_constructor(vertices[block], initial_state) for block in initial_blocks}
 
-    def analyze(self):
+    def analyze(self) -> None:
         while len(self.pending) > 0:
             block_id = self.pending.pop()
             logging.debug(f"Processing {block_id}")
@@ -108,7 +108,7 @@ class BackwardsAnalysis:
             # Propagates the information
             self.process_jumps(block_id, output_state)
 
-    def process_jumps(self, block_id: block_id_T, input_state: state_T):
+    def process_jumps(self, block_id: block_id_T, input_state: state_T) -> None:
         """
         Propagates the information according to the blocks and the input state considering all blocks in comes from
         """
@@ -131,20 +131,15 @@ class BackwardsAnalysis:
                 previous_block_info.propagate_state(input_state)
                 self.pending.append(previous_block)
 
-    def get_analysis_results(self):
+    def get_analysis_results(self) -> Dict[block_id_T, BlockAnalysisInfo]:
         return self.blocks_info
 
-    def print_analysis_results(self):
+    def print_analysis_results(self) -> str:
         text_repr = []
         for block_id, block in self.blocks_info.items():
             text_repr.append("Block id " + block_id)
             text_repr.append(str(block))
         return '\n'.join(text_repr)
-
-    def get_block_results(self, block_id):
-        if str(block_id).find("_") == -1:
-            block_id = int(block_id)
-        return self.blocks_info[block_id]
 
     def __repr__(self): 
         for id_ in self.blocks_info:
