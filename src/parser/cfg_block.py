@@ -179,7 +179,10 @@ class CFGBlock:
             ins_spec = map_instructions.get((ins.get_op_name().upper(),tuple(ins.get_in_args())), None)
 
             if ins_spec is None:
-                result, out_idx = ins.build_spec(out_idx,instrs_idx, map_instructions, self.assignment_dict)
+                if ins.get_op_name().startswith("assignment"):
+                    result, out_idx = ins.build_spec_assigment(out_idx, instrs_idx, map_instructions) 
+                else:
+                    result, out_idx = ins.build_spec(out_idx, instrs_idx, map_instructions)
 
                 uninter_functions+=result
 
@@ -198,27 +201,27 @@ class CFGBlock:
 
 
 
-        for assigment in self.assignment_dict:
+        # for assigment in self.assignment_dict:
 
-            is_used = is_assigment_var_used(assigment, uninter_functions)
+        #     is_used = is_assigment_var_used(assigment, uninter_functions)
             
-            # if is_used:
+        #     # if is_used:
 
-            in_val = self.assignment_dict.get(assigment)
-            if in_val.startswith("0x"): #It is a push value
-                func = map_instructions.get(("PUSH",tuple([in_val])),-1)
-                if func == -1:
-                    push_name = "PUSH" if int(in_val,16) != 0 else "PUSH0"
-                    inst_idx = instrs_idx.get(push_name, 0)
-                    instrs_idx[push_name] = inst_idx+1
-                    push_ins = build_push_spec(in_val,inst_idx,assigment)
+        #     in_val = self.assignment_dict.get(assigment)
+        #     if in_val.startswith("0x"): #It is a push value
+        #         func = map_instructions.get(("PUSH",tuple([in_val])),-1)
+        #         if func == -1:
+        #             push_name = "PUSH" if int(in_val,16) != 0 else "PUSH0"
+        #             inst_idx = instrs_idx.get(push_name, 0)
+        #             instrs_idx[push_name] = inst_idx+1
+        #             push_ins = build_push_spec(in_val,inst_idx,assigment)
 
-                    map_instructions[("PUSH",tuple([in_val]))] = push_ins
+        #             map_instructions[("PUSH",tuple([in_val]))] = push_ins
                     
-                    uninter_functions.append(push_ins)
+        #             uninter_functions.append(push_ins)
 
-            if not is_used:
-                output_stack.insert(0,assigment)
+        #     if not is_used:
+        #         output_stack.insert(0,assigment)
                         
         spec["original_instrs"] = ""
         spec["yul_expressions"] = '\n'.join(list(map(lambda x: x.get_instruction_representation(),instructions)))
