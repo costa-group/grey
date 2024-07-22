@@ -19,6 +19,10 @@ class CFGObject:
 
         self.functions[function_name] = function
 
+    def add_functions(self, functions_list:List[CFGFunction]) -> None:
+        for f in functions_list:
+            self.add_function(f)
+        
     def get_block(self, block_id):
         return self.blocks.get_block(block_id)
 
@@ -28,6 +32,17 @@ class CFGObject:
     def build_spec_for_blocks(self):
         return self.blocks.build_spec()
 
+    #It marks those blocks in self.blocks that have a function call stored in functions
+    def identify_function_calls_in_blocks(self):
+        blocks_dict = self.blocks.get_block_dict()
+        for bl in blocks_dict:
+            blocks_dict[bl].process_function_calls(self.functions)
+
+        for f in self.functions:
+            f_blocks = self.functions[f].get_blocks_dict()
+            for bl in f_blocks:
+                f_blocks[bl].process_function_calls(self.functions)
+    
     def build_spec_for_functions(self):
         list_spec = {}
         for f in self.functions:
