@@ -5,7 +5,7 @@ fixpoint analysis.
 
 from typing import Any, Iterable
 from abc import ABC, abstractmethod
-import pygraphviz as pgv
+import networkx as nx
 
 
 class AbstractBlockInfo(ABC):
@@ -35,11 +35,11 @@ class AbstractBlockInfo(ABC):
         raise NotImplementedError
 
 
-def digraph_from_block_info(block_info: Iterable[AbstractBlockInfo]) -> pgv.AGraph:
+def digraph_from_block_info(block_info: Iterable[AbstractBlockInfo]) -> nx.DiGraph:
     """
     Generates a DiGraph considering the information from successors
     """
-    graph = pgv.AGraph(directed=True)
+    graph = nx.DiGraph()
     for block in block_info:
         graph.add_node(block.block_id)
         for successor in block.successors:

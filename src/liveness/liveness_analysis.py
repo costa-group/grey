@@ -1,5 +1,6 @@
 import copy
 import logging
+import networkx as nx
 from typing import Dict, List, Union, Any
 from pathlib import Path
 
@@ -128,11 +129,12 @@ def dot_from_analysis(cfg: CFG, final_dir: Path = Path(".")) -> Dict[str, Dict[s
     results = perform_liveness_analysis_from_cfg_info(cfg_info)
     for component_name, liveness in results.items():
         cfg_info_suboject = cfg_info[component_name]["block_info"]
-        pgv_graph = digraph_from_block_info(cfg_info_suboject.values())
+        digraph = digraph_from_block_info(cfg_info_suboject.values())
 
+        renaming_dict = dict()
         for block_live, live_vars in liveness.items():
-            n = pgv_graph.get_node(block_live)
-            n.attr["label"] = live_vars.dot_repr()
+            renaming_dict[block_live] = live_vars.dot_repr()
+        renamed_digraph = nx.relabel_nodes(digraph, renaming_dict)
 
-        pgv_graph.write(final_dir.joinpath(f"{component_name}.dot"))
+        nx.nx_agraph.write_dot(renamed_digraph, final_dir.joinpath(f"{component_name}.dot"))
     return results
