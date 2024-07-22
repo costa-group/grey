@@ -1,4 +1,4 @@
-
+from typing import List
 
 def check_block_validity(block_id, block_instructions, block_exit, block_type):
     if block_id == -1:
@@ -24,6 +24,15 @@ def check_instruction_validity(in_args, op, out_args):
 
     if out_args == -1:
         raise Exception("[ERROR]: instruction does not contain out argument")
+
+
+def check_assignment_validity(in_args: List[str], assignments: List[str], out_args: List[str]):
+    """
+    Check that there is the same number of elements in fields in_args, assignments and out_args
+    """
+    if len(in_args) != len(assignments) or len(assignments) != len(out_args):
+        raise Exception("[ERROR]: Assignment must contain the same number of elements for all its fields")
+
 
 def process_opcode(result):
     op_val = hex(int(result))[2:]

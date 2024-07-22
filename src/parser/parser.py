@@ -7,7 +7,7 @@ from parser.cfg_object import CFGObject
 from parser.cfg_function import CFGFunction
 from parser.cfg_block import CFGBlock
 from parser.cfg_instruction import CFGInstruction
-from parser.utils_parser import check_instruction_validity, check_block_validity
+from parser.utils_parser import check_instruction_validity, check_block_validity, check_assignment_validity
 
 block_id_T = str
 
@@ -28,9 +28,25 @@ def parse_instruction(ins_json: Dict[str,Any]) -> CFGInstruction:
     return instruction
 
 
-def parse_assignment(assignment: Dict[str, Any], assignment_dict: Dict[str, str]) -> None:
-    for in_var, out_var in zip(assignment["in"], assignment["out"]):
+def parse_assignment(assignment: Dict[str, Any], assignment_dict: Dict[str, str]) -> CFGInstruction:
+    """
+    Assignments are handled differently than other instructions, as they have no op field and (theoretically)
+    multiple assignments can be made at the same time. An instruction is generated per assignment
+    """
+    in_args = assignment.get("in", -1)
+    assignment_args = assignment.get("assignment", -1)
+    out_args = assignment.get("out", -1)
+
+    check_assignment_validity(in_args, assignment_args, out_args)
+
+    # Assignments are combined into a single instruction, maintaining the original format
+    instruction = CFGInstruction("assignments", in_args, out_args)
+
+    # Extend the assignment dict with the corresponding information
+    for in_var, out_var in zip(in_args, out_args):
         assignment_dict[out_var] = in_var
+
+    return instruction
 
 
 def parse_block(block_json: Dict[str,Any]) -> Tuple[block_id_T, CFGBlock, block_id_T]:
@@ -43,11 +59,11 @@ def parse_block(block_json: Dict[str,Any]) -> Tuple[block_id_T, CFGBlock, block_
     
     list_cfg_instructions = []
     assignment_dict = dict()
-    for instructions in block_instructions:
-        if "assignment" in instructions:
-            parse_assignment(instructions, assignment_dict)
+    for instruction in block_instructions:
+        if "assignment" in instruction:
+            list_cfg_instructions.append(parse_assignment(instruction, assignment_dict))
         else:
-            cfg_instruction = parse_instruction(instructions) if block_type != "FunctionReturn" else []
+            cfg_instruction = parse_instruction(instruction) if block_type != "FunctionReturn" else []
             list_cfg_instructions.append(cfg_instruction)
 
     block = CFGBlock(block_id, list_cfg_instructions, block_type, assignment_dict)

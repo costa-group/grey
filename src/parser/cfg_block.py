@@ -30,6 +30,9 @@ class CFGBlock:
     def get_instructions(self) -> List[CFGInstruction]:
         return self._instructions
 
+    def get_instructions_to_compute(self) -> List[CFGInstruction]:
+        return [instruction for instruction in self._instructions if instruction.must_be_computed()]
+
     def get_source_stack(self) -> int:
         return self.source_stack
    

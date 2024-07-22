@@ -97,11 +97,20 @@ def build_custom_function_spec(function_name: str, input_args: List[str], output
 
 
 class CFGInstruction:
-    def __init__(self, op : str, in_args: List[str], out_args: List[str]):
+    def __init__(self, op: str, in_args: List[str], out_args: List[str]):
         self.op = op
         self.in_args = in_args[::-1]
         self.out_args = out_args[::-1]
         self.builtin_args = None
+        self.assignments = None
+
+    def must_be_computed(self):
+        """
+        Check whether an instruction must be computed (i.e. added as part of the opertions fed into the greedy
+        algorithm) or not. Instructions that must not be computed include assignments (as they are propagated directly)
+        and functionReturns
+        """
+        return self.op != "assignments"
         
     def set_builtin_args(self, builtin: List[str]) -> None:
         self.builtin_args = builtin
@@ -111,6 +120,9 @@ class CFGInstruction:
 
         if self.builtin_args is not None:
             instruction["builtinArgs"] = self.builtin_args
+
+        if self.assignments is not None:
+            instruction["assignment"] = self.assignments
 
         return instruction
         
