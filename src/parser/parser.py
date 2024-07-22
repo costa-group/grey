@@ -141,6 +141,8 @@ def parser_CFG_from_JSON(json_dict: Dict):
         for f in json_functions:
             obj_function = parse_function(f, json_functions[f])
             cfg_object.add_function(obj_function)
+
+        cfg_object.identify_function_calls_in_blocks()
     # obj_name = obj.get("name")
     # cfg.add_object_name(obj_name)
 
