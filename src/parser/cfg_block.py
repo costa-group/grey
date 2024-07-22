@@ -21,6 +21,8 @@ class CFGBlock:
         self.assignment_dict = assignment_dict
         self.is_function_call = False
         self._comes_from = []
+        self.function_calls = []
+
         
     def get_block_id(self) -> str:
         return self.block_id
@@ -97,7 +99,11 @@ class CFGBlock:
             self._jump_type = "terminal"
         elif type_block in ["FunctionReturn"]:
             self._jump_type = "FunctionReturn"
-        
+
+    def process_function_calls(self, function_ids):
+        op_names = map(lambda x: x.get_op_name(), self._instructions)
+        calls = filter(lambda x: x in function_ids, op_names)
+        self.function_calls = list(calls)
             
     def get_as_json(self):
         block_json = {}
