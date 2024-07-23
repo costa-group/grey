@@ -50,15 +50,13 @@ def build_push_spec(val, idx, out_idx, out_args = None):
     return obj
 
 
-def build_pushtag_spec(idx, out_idx, tag_value):
+def build_pushtag_spec(out_idx, tag_value):
     """
     Generates the specification of a PUSH tag instruction
     """
     obj = {}
 
-    value = int(val, 16)
-
-    obj["id"] = "PUSH [tag]" + str(idx)
+    obj["id"] = "PUSHTAG_" + str(tag_value)
     obj["opcode"] = process_opcode(str(opcodes.get_opcode("PUSH [tag]")[0]))
     obj["disasm"] = "PUSH [tag]"
     obj["inpt_sk"] = []
