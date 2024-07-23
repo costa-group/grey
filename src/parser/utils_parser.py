@@ -121,3 +121,27 @@ def is_in_output_stack(var, instructions):
 def is_assigment_var_used(var, instructions):
     candidates = list(filter(lambda x: var in x["inpt_sk"],instructions))
     return len(candidates) != 0 #If it is !=0 means that the var generated in the assignment is used in the block
+
+
+def get_empty_spec():
+    spec = {}
+    
+    spec["original_instrs"] = ""
+    spec["yul_expressions"] = ""
+    spec["src_ws"] = []
+    spec["tgt_ws"] = []
+    spec["user_instrs"] = []
+    spec["variables"] = []
+    
+    spec["memory_dependences"] = []
+    spec["storage_dependences"] = []
+    
+    #They are not used in greedy algorithm
+    spec["init_progr_len"] = 0
+    spec["max_progr_len"] = 0
+    spec["min_length_instrs"] = 0 
+    spec["min_length_bounds"] = 0
+    spec["min_length"] = 0
+    spec["rules"] = ""
+
+    return spec
