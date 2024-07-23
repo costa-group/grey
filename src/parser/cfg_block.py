@@ -251,10 +251,41 @@ class CFGBlock:
         return spec, new_out_idx
 
         
-    
-    def build_spec(self):
+    def _include_function_call_tags(self,ins, out_idx, block_spec):
         global function_tags
         global tag_idx
+
+        in_tag, out_tag = function_tags.get(ins.get_op_name(), (-1,-1))
+        if in_tag == -1 and out_tag == -1:
+            in_tag_instr = build_pushtag_spec(out_idx, tag_idx)
+            tag_idx+=1
+            out_idx+=1
+
+            out_tag_instr = build_pushtag_spec(out_idx, tag_idx)
+            tag_idx+=1
+
+            function_tags[ins.get_op_name()] = (tag_idx-2, tag_idx-1)
+            
+            block_spec["user_instrs"]+=[in_tag_instr,out_tag_instr]
+
+            #It adds the out jump label after the arguments of the function
+            num_funct_arguments = len(ins.get_in_args())
+            block_spec["tgt_ws"] = block_spec["tgt_ws"][:num_funct_arguments]+out_tag_instr["outpt_sk"]+block_spec["tgt_ws"][num_funct_arguments:]
+
+            #It adds at top of the stack de input jump label
+            block_spec["tgt_ws"] = in_tag_instr["outpt_sk"]+block_spec["tgt_ws"]
+
+            
+            #It adds in variables the new identifier for the in and out jump label
+            block_spec["variables"]+=in_tag_instr["outpt_sk"]+ out_tag_instr["outpt_sk"]
+
+            block_spec["yul_expressions"]+="\n"+ins.get_instruction_representation()
+            
+        return block_spec
+        
+    
+    def build_spec(self):
+
         
         ins_seq = []
         map_instructions = {}
@@ -282,35 +313,11 @@ class CFGBlock:
                     cont+=1
 
                 if ins.get_op_name() in self.function_calls:
-                    in_tag, out_tag = function_tags.get(ins.get_op_name(), (-1,-1))
-                    if in_tag == -1 and out_tag == -1:
-                        in_tag_instr = build_pushtag_spec(out_idx, tag_idx)
-                        tag_idx+=1
-                        out_idx+=1
-
-                        out_tag_instr = build_pushtag_spec(out_idx, tag_idx)
-                        tag_idx+=1
-
-                        function_tags[ins.get_op_name()] = (tag_idx-2, tag_idx-1)
-
-                        r["user_instrs"]+=[in_tag_instr,out_tag_instr]
-
-                        #It adds the out jump label after the arguments of the function
-                        num_funct_arguments = len(ins.get_in_args())
-                        r["tgt_ws"] = r["tgt_ws"][:num_funct_arguments]+out_tag_instr["outpt_sk"]+r["tgt_ws"][num_funct_arguments:]
-
-                        #It adds at top of the stack de input jump label
-                        r["tgt_ws"] = in_tag_instr["outpt_sk"]+r["tgt_ws"]
-
-                            
-                        #It adds in variables the new identifier for the in and out jump label
-                        r["variables"]+=in_tag_instr["outpt_sk"]+ out_tag_instr["outpt_sk"]
-
-                        r["yul_expressions"]+="\n"+ins.get_instruction_representation()
+                    r = self._include_function_call_tags(ins,out_idx,r)
                         
-                        specifications["block"+str(self.block_id)+"_"+str(cont-1)] = r
-                        print("block"+str(self.block_id)+"_"+str(cont-1))
-                        print(json.dumps(r, indent=4))
+                    specifications["block"+str(self.block_id)+"_"+str(cont-1)] = r
+                    print("block"+str(self.block_id)+"_"+str(cont-1))
+                    print(json.dumps(r, indent=4))
 
                         
                 #We reset the seq of instructions and the out_idx for next block
