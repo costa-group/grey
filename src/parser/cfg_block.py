@@ -256,30 +256,34 @@ class CFGBlock:
         global tag_idx
 
         in_tag, out_tag = function_tags.get(ins.get_op_name(), (-1,-1))
+
         if in_tag == -1 and out_tag == -1:
-            in_tag_instr = build_pushtag_spec(out_idx, tag_idx)
-            tag_idx+=1
-            out_idx+=1
-
-            out_tag_instr = build_pushtag_spec(out_idx, tag_idx)
-            tag_idx+=1
-
-            function_tags[ins.get_op_name()] = (tag_idx-2, tag_idx-1)
+            out_tag = tag_idx
+            in_tag = tag_idx+1
+            tag_idx+=2
             
-            block_spec["user_instrs"]+=[in_tag_instr,out_tag_instr]
+            function_tags[ins.get_op_name()] = (in_tag, out_tag)
+            
+        in_tag_instr = build_pushtag_spec(out_idx, in_tag)
+        out_idx+=1
 
-            #It adds the out jump label after the arguments of the function
-            num_funct_arguments = len(ins.get_in_args())
-            block_spec["tgt_ws"] = block_spec["tgt_ws"][:num_funct_arguments]+out_tag_instr["outpt_sk"]+block_spec["tgt_ws"][num_funct_arguments:]
+        out_tag_instr = build_pushtag_spec(out_idx, out_tag)
 
-            #It adds at top of the stack de input jump label
-            block_spec["tgt_ws"] = in_tag_instr["outpt_sk"]+block_spec["tgt_ws"]
+        block_spec["user_instrs"]+=[in_tag_instr,out_tag_instr]
+
+        #It adds the out jump label after the arguments of the function
+        num_funct_arguments = len(ins.get_in_args())
+        block_spec["tgt_ws"] = block_spec["tgt_ws"][:num_funct_arguments]+out_tag_instr["outpt_sk"]+block_spec["tgt_ws"][num_funct_arguments:]
+
+        #It adds at top of the stack de input jump label
+        block_spec["tgt_ws"] = in_tag_instr["outpt_sk"]+block_spec["tgt_ws"]
 
             
-            #It adds in variables the new identifier for the in and out jump label
-            block_spec["variables"]+=in_tag_instr["outpt_sk"]+ out_tag_instr["outpt_sk"]
+        #It adds in variables the new identifier for the in and out jump label
+        block_spec["variables"]+=in_tag_instr["outpt_sk"]+ out_tag_instr["outpt_sk"]
 
-            block_spec["yul_expressions"]+="\n"+ins.get_instruction_representation()
+        block_spec["yul_expressions"]+="\n"+ins.get_instruction_representation()
+
             
         return block_spec
         
