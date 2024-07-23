@@ -50,6 +50,31 @@ def build_push_spec(val, idx, out_idx, out_args = None):
     return obj
 
 
+def build_pushtag_spec(idx, out_idx, tag_value):
+    """
+    Generates the specification of a PUSH tag instruction
+    """
+    obj = {}
+
+    value = int(val, 16)
+
+    obj["id"] = "PUSH [tag]" + str(idx)
+    obj["opcode"] = process_opcode(str(opcodes.get_opcode("PUSH [tag]")[0]))
+    obj["disasm"] = "PUSH [tag]"
+    obj["inpt_sk"] = []
+    obj["value"] = [tag_value]
+    obj["outpt_sk"] = ["s"+str(out_idx)]
+    obj["gas"] = opcodes.get_ins_cost("PUSH [tag]")
+    obj["commutative"] = False
+    obj["push"] = True
+    obj["storage"] = False  # It is true only for MSTORE and SSTORE
+    obj["size"] = get_ins_size("PUSH [tag]")
+
+    return obj
+
+
+
+
 def build_verbatim_spec(function_name: str, input_args: List[str], output_args: List[str], builting_args: List[str]):
     """
     Generates the specification of a verbatim
