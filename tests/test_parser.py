@@ -88,7 +88,7 @@ class TestCFGInstruction:
         cfg_instr = CFGInstruction(verbatim_cfg_json["op"], verbatim_cfg_json["in"], verbatim_cfg_json["out"])
         cfg_instr.builtin_args = verbatim_cfg_json["builtinArgs"]
 
-        generated_sfs_json, new_out = cfg_instr.build_spec('0', dict(), dict(), dict())
+        generated_sfs_json, new_out = cfg_instr.build_spec('0', dict(), dict())
         compare_sfs_json(expected_sfs_json, generated_sfs_json[0])
 
     def test_build_instr_spec(self):
