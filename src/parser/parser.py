@@ -151,12 +151,15 @@ def parser_CFG_from_JSON(json_dict: Dict):
     for obj in object_keys:
         json_object = json_dict.get(obj,False)
         cfg_object = parse_object(obj,json_object)
-        cfg.add_object(obj,cfg_object)
 
         json_functions = json_object.get("functions", {})
         for f in json_functions:
             obj_function = parse_function(f, json_functions[f])
             cfg_object.add_function(obj_function)
+
+        # Important: add the object already initialized with the functions, so that we can construct
+        # link the corresponding block lists in the CFG
+        cfg.add_object(obj, cfg_object)
 
         cfg_object.identify_function_calls_in_blocks()
     # obj_name = obj.get("name")

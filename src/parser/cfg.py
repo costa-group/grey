@@ -1,8 +1,8 @@
 import json
 from pathlib import Path
 from parser.cfg_object import CFGObject
-from parser.cfg_block import CFGBlock
-from typing import Dict, List
+from parser.cfg_block_list import CFGBlockList
+from typing import Dict, List, Optional
 
 
 def store_sfs_json(blocks: List[Dict], final_path: Path) -> None:
@@ -18,17 +18,29 @@ def store_sfs_json(blocks: List[Dict], final_path: Path) -> None:
 class CFG:
     def __init__(self, nodeType: str):
         self.nodeType = nodeType
-        self.objectCFG : Dict[str, CFGObject] = {}
-        self.subObjects : CFG = None
+        self.objectCFG: Dict[str, CFGObject] = {}
+        self.subObjects: Optional[CFG] = None
 
-    def add_object(self, name:str, cfg_object: CFGObject) -> None:
+        # Points each object/function/subobject name to its block list
+        self.block_list: Dict[str, CFGBlockList] = {}
+
+    def add_object(self, name: str, cfg_object: CFGObject) -> None:
         self.objectCFG[name] = cfg_object
+
+        # Once an object is stored, we keep a dictionary with all the blocklists and the name
+        # of the corresponding structure
+        self.block_list[name] = cfg_object.blocks
+        for function_name, cfg_function in cfg_object.functions.items():
+            self.block_list[function_name] = cfg_function.blocks
 
     def get_object(self, name:str) -> CFGObject:
         return self.objectCFG[name]
 
     def set_subobject(self, subobject: 'CFG'):
         self.subObjects = subobject
+
+        # Add all the definitions in the subobject
+        self.block_list.update(subobject.block_list)
 
     def get_subobject(self) -> 'CFG':
         return self.subObjects
@@ -41,7 +53,12 @@ class CFG:
             object_dict[o] = specs
 
             functions_dict[o] = self.objectCFG[o].build_spec_for_functions()
-            
+
+        if self.subObjects is not None:
+            subobject_dict, subfunction_dict = self.subObjects.build_spec_for_objects()
+            object_dict.update(subobject_dict)
+            functions_dict.update(subfunction_dict)
+
         return object_dict, functions_dict
 
     def get_as_json(self):

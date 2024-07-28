@@ -16,9 +16,14 @@ class CFGBlockList:
     def __init__(self):
         self.blocks: Dict[str, CFGBlock] = {}
         self.graph = None
+        self.start_block = None
 
     def add_block(self, block: CFGBlock) -> None:
         block_id = block.get_block_id()
+
+        # Assuming the first block corresponds to the entry point
+        if not self.blocks:
+            self.start_block = block_id
 
         if block_id in self.blocks:
             if block_id in self.blocks:
