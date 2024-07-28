@@ -1,9 +1,15 @@
-from parser.cfg_instruction import CFGInstruction, build_push_spec
-from parser.utils_parser import is_in_input_stack, is_in_output_stack, is_assigment_var_used
+from parser.cfg_instruction import CFGInstruction, build_push_spec, build_pushtag_spec
+from parser.utils_parser import is_in_input_stack, is_in_output_stack, is_assigment_var_used, get_empty_spec
 import parser.constants as constants
 import json
 
 from typing import List, Dict
+
+global tag_idx
+tag_idx = 0
+
+global function_tags
+function_tags = {}
 
 class CFGBlock:
     """
@@ -21,7 +27,7 @@ class CFGBlock:
         self.assignment_dict = assignment_dict
         self.is_function_call = False
         self._comes_from = []
-        self.function_calls = []
+        self.function_calls = set()
 
         
     def get_block_id(self) -> str:
@@ -106,7 +112,7 @@ class CFGBlock:
     def process_function_calls(self, function_ids):
         op_names = map(lambda x: x.get_op_name(), self._instructions)
         calls = filter(lambda x: x in function_ids, op_names)
-        self.function_calls = list(calls)
+        self.function_calls = set(calls)
             
     def get_as_json(self):
         block_json = {}
@@ -156,16 +162,17 @@ class CFGBlock:
 
         return list(vars_spec)
 
-    def _build_spec_for_block(self, instructions, map_instructions: Dict):
+    def _build_spec_for_block(self, instructions, map_instructions: Dict, out_idx):
         """
         Builds the specification for a block. "map_instructions" is passed as an argument
         to reuse declarations from other blocks, as we might have split the corresponding basic block
         """
+        
         spec = {}
 
         uninter_functions = []
         instrs_idx = {}
-        out_idx = 0
+        new_out_idx = out_idx
 
         input_stack = []
         output_stack = []
@@ -179,7 +186,10 @@ class CFGBlock:
             ins_spec = map_instructions.get((ins.get_op_name().upper(),tuple(ins.get_in_args())), None)
 
             if ins_spec is None:
-                result, out_idx = ins.build_spec(out_idx,instrs_idx, map_instructions, self.assignment_dict)
+                if ins.get_op_name().startswith("assignment"):
+                    result, new_out_idx = ins.build_spec_assigment(new_out_idx, instrs_idx, map_instructions) 
+                else:
+                    result, new_out_idx = ins.build_spec(new_out_idx, instrs_idx, map_instructions)
 
                 uninter_functions+=result
 
@@ -198,27 +208,27 @@ class CFGBlock:
 
 
 
-        for assigment in self.assignment_dict:
+        # for assigment in self.assignment_dict:
 
-            is_used = is_assigment_var_used(assigment, uninter_functions)
+        #     is_used = is_assigment_var_used(assigment, uninter_functions)
             
-            # if is_used:
+        #     # if is_used:
 
-            in_val = self.assignment_dict.get(assigment)
-            if in_val.startswith("0x"): #It is a push value
-                func = map_instructions.get(("PUSH",tuple([in_val])),-1)
-                if func == -1:
-                    push_name = "PUSH" if int(in_val,16) != 0 else "PUSH0"
-                    inst_idx = instrs_idx.get(push_name, 0)
-                    instrs_idx[push_name] = inst_idx+1
-                    push_ins = build_push_spec(in_val,inst_idx,assigment)
+        #     in_val = self.assignment_dict.get(assigment)
+        #     if in_val.startswith("0x"): #It is a push value
+        #         func = map_instructions.get(("PUSH",tuple([in_val])),-1)
+        #         if func == -1:
+        #             push_name = "PUSH" if int(in_val,16) != 0 else "PUSH0"
+        #             inst_idx = instrs_idx.get(push_name, 0)
+        #             instrs_idx[push_name] = inst_idx+1
+        #             push_ins = build_push_spec(in_val,inst_idx,assigment)
 
-                    map_instructions[("PUSH",tuple([in_val]))] = push_ins
+        #             map_instructions[("PUSH",tuple([in_val]))] = push_ins
                     
-                    uninter_functions.append(push_ins)
+        #             uninter_functions.append(push_ins)
 
-            if not is_used:
-                output_stack.insert(0,assigment)
+        #     if not is_used:
+        #         output_stack.insert(0,assigment)
                         
         spec["original_instrs"] = ""
         spec["yul_expressions"] = '\n'.join(list(map(lambda x: x.get_instruction_representation(),instructions)))
@@ -238,36 +248,96 @@ class CFGBlock:
         spec["min_length"] = 0
         spec["rules"] = ""
         
-        return spec
+        return spec, new_out_idx
 
+        
+    def _include_function_call_tags(self,ins, out_idx, block_spec):
+        global function_tags
+        global tag_idx
+
+        in_tag, out_tag = function_tags.get(ins.get_op_name(), (-1,-1))
+
+        if in_tag == -1 and out_tag == -1:
+            out_tag = tag_idx
+            in_tag = tag_idx+1
+            tag_idx+=2
+            
+            function_tags[ins.get_op_name()] = (in_tag, out_tag)
+            
+        in_tag_instr = build_pushtag_spec(out_idx, in_tag)
+        out_idx+=1
+
+        out_tag_instr = build_pushtag_spec(out_idx, out_tag)
+
+        block_spec["user_instrs"]+=[in_tag_instr,out_tag_instr]
+
+        #It adds the out jump label after the arguments of the function
+        num_funct_arguments = len(ins.get_in_args())
+        block_spec["tgt_ws"] = block_spec["tgt_ws"][:num_funct_arguments]+out_tag_instr["outpt_sk"]+block_spec["tgt_ws"][num_funct_arguments:]
+
+        #It adds at top of the stack de input jump label
+        block_spec["tgt_ws"] = in_tag_instr["outpt_sk"]+block_spec["tgt_ws"]
+
+            
+        #It adds in variables the new identifier for the in and out jump label
+        block_spec["variables"]+=in_tag_instr["outpt_sk"]+ out_tag_instr["outpt_sk"]
+
+        block_spec["yul_expressions"]+="\n"+ins.get_instruction_representation()
+
+            
+        return block_spec
         
     
     def build_spec(self):
+
+        
         ins_seq = []
         map_instructions = {}
         specifications = {}
 
         cont = 0
+
+        out_idx = 0
         
         i = 0
+
         for i in range(len(self._instructions)):
             ins = self._instructions[i]
-            if ins.get_op_name().upper() in constants.split_block:
+            if ins.get_op_name().upper() in constants.split_block or ins.get_op_name() in self.function_calls:
                 if  ins_seq != []:
-                    r = self._build_spec_for_block(ins_seq, map_instructions)
+                    r, out_idx = self._build_spec_for_block(ins_seq, map_instructions, out_idx)
                     specifications["block"+str(self.block_id)+"_"+str(cont)] = r
                     cont +=1
-                    print("block"+str(self.block_id)+"_"+str(cont))
+                    if not ins.get_op_name() in self.function_calls: 
+                        print("block"+str(self.block_id)+"_"+str(cont))
+                        print(json.dumps(r, indent=4))
+
+                else:
+                    r = get_empty_spec()
+                    cont+=1
+
+                if ins.get_op_name() in self.function_calls:
+                    r = self._include_function_call_tags(ins,out_idx,r)
+                        
+                    specifications["block"+str(self.block_id)+"_"+str(cont-1)] = r
+                    print("block"+str(self.block_id)+"_"+str(cont-1))
                     print(json.dumps(r, indent=4))
-                    print("******************")
-                    ins_seq = []
+
+                        
+                #We reset the seq of instructions and the out_idx for next block
+                ins_seq = []
+                out_idx = 0
+                map_instructions = {}
+                            
             else:
                 ins_seq.append(ins)
 
-        r = self._build_spec_for_block(ins_seq, map_instructions)
-        specifications["block"+str(self.block_id)+"_"+str(cont)] = r
-        print("block"+str(self.block_id)+"_"+str(cont))
-        print(json.dumps(r, indent=4))
+        if ins_seq != []:
+            r, out_idx = self._build_spec_for_block(ins_seq, map_instructions, out_idx)
+            specifications["block"+str(self.block_id)+"_"+str(cont)] = r
+            print("block"+str(self.block_id)+"_"+str(cont))
+            print(json.dumps(r, indent=4))
+            
         return specifications
 
 

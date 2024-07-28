@@ -26,7 +26,7 @@ def build_instr_spec(op_name: str, idx: int, input_args: List[str], out_args: Li
     return instr_spec
 
 
-def build_push_spec(val, idx, out_idx):
+def build_push_spec(val, idx, out_idx, out_args = None):
     """
     Generates the specification of a PUSH instruction from the introduced value
     """
@@ -40,7 +40,7 @@ def build_push_spec(val, idx, out_idx):
     obj["disasm"] = "PUSH" if value != 0 else "PUSH0"
     obj["inpt_sk"] = []
     obj["value"] = [value]
-    obj["outpt_sk"] = ["s"+str(out_idx)]
+    obj["outpt_sk"] = ["s"+str(out_idx)] if out_args == None else out_args
     obj["gas"] = opcodes.get_ins_cost("PUSH") if value != 0 else opcodes.get_ins_cost("PUSH0")
     obj["commutative"] = False
     obj["push"] = True
@@ -48,6 +48,29 @@ def build_push_spec(val, idx, out_idx):
     obj["size"] = get_ins_size("PUSH", value)
 
     return obj
+
+
+def build_pushtag_spec(out_idx, tag_value):
+    """
+    Generates the specification of a PUSH tag instruction
+    """
+    obj = {}
+
+    obj["id"] = "PUSHTAG_" + str(tag_value)
+    obj["opcode"] = process_opcode(str(opcodes.get_opcode("PUSH [tag]")[0]))
+    obj["disasm"] = "PUSH [tag]"
+    obj["inpt_sk"] = []
+    obj["value"] = [tag_value]
+    obj["outpt_sk"] = ["s"+str(out_idx)]
+    obj["gas"] = opcodes.get_ins_cost("PUSH [tag]")
+    obj["commutative"] = False
+    obj["push"] = True
+    obj["storage"] = False  # It is true only for MSTORE and SSTORE
+    obj["size"] = get_ins_size("PUSH [tag]")
+
+    return obj
+
+
 
 
 def build_verbatim_spec(function_name: str, input_args: List[str], output_args: List[str], builting_args: List[str]):
@@ -125,18 +148,56 @@ class CFGInstruction:
             instruction["assignment"] = self.assignments
 
         return instruction
+
+
+    def build_spec_assigment(self, out_idx, instrs_idx, map_instructions):
+        """
+        An assigment instruction is translated into a push opcode
+        """
+
+        assert(len(self.in_args) == 1, "[ERROR]: An assignment only has one argument")
         
-    def build_spec(self, out_idx, instrs_idx, map_instructions, assignments: Dict[str, str]):
         instructions = []
         new_out = out_idx
+        
+        input_args = []
+        
+        inp = self.in_args[0]
+        
+        func = map_instructions.get(("PUSH",tuple([inp])),-1)
+                
+        if func != -1:
+            inp_var = func["outpt_sk"][0]
+        else:
+            
+            push_name = "PUSH" if int(inp,16) != 0 else "PUSH0"
+            inst_idx = instrs_idx.get(push_name, 0)
+            instrs_idx[push_name] = inst_idx+1
+                    
+            push_ins = build_push_spec(inp,inst_idx,new_out, self.out_args)
 
+            map_instructions[("PUSH",tuple([inp]))] = push_ins
+                    
+            new_out +=1
+            instructions.append(push_ins)
+            inp_var = push_ins["outpt_sk"][0]
+            
+        return instructions, new_out
+
+
+    
+    # def build_spec(self, out_idx, instrs_idx, map_instructions, assignments: Dict[str, str]):
+    def build_spec(self, out_idx, instrs_idx, map_instructions):
+        instructions = []
+        new_out = out_idx
+        
         input_args = []
         for inp in self.in_args:
             inp_var = inp
 
-            if inp.startswith("0x") or inp in assignments:
+            if inp.startswith("0x"):
                 # Retrieve the corresponding value
-                inp_value = assignments.get(inp, inp)
+                inp_value = inp
                 func = map_instructions.get(("PUSH",tuple([inp_value])),-1)
                 
                 if func != -1:
