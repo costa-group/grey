@@ -285,11 +285,36 @@ class CFGBlock:
         block_spec["yul_expressions"]+="\n"+ins.get_instruction_representation()
 
             
-        return block_spec
-        
-    
-    def build_spec(self):
+        return block_spec, out_idx
 
+    def _include_jump_tag(self, block_spec, out_idx, block_tags_dict, block_tag_idx):
+
+        tag_idx = block_tags_dict.get(self._jump_to, block_tag_idx)
+        
+        if self._jump_to not in block_tags_dict:
+            block_tags_dict[self._jump_to] = block_tag_idx
+            idx = block_tag_idx+1
+
+        else:
+            idx = block_tag_idx
+
+
+        tag_instr = build_pushtag_spec(out_idx, tag_idx)
+        out_idx+=1
+
+        block_spec["user_instrs"].append(tag_instr)
+
+        #It adds on top of the stack the jump label
+        block_spec["tgt_ws"] = tag_instr["outpt_sk"]+block_spec["tgt_ws"]
+            
+        #It adds in variables the new identifier for  jump label
+        block_spec["variables"]+=tag_instr["outpt_sk"]
+
+        return block_spec, out_idx, block_tag_idx
+        
+        
+        
+    def build_spec(self, block_tags_dict, block_tag_idx):
         
         ins_seq = []
         map_instructions = {}
@@ -317,7 +342,7 @@ class CFGBlock:
                     cont+=1
 
                 if ins.get_op_name() in self.function_calls:
-                    r = self._include_function_call_tags(ins,out_idx,r)
+                    r, out_idx = self._include_function_call_tags(ins,out_idx,r)
                         
                     specifications["block"+str(self.block_id)+"_"+str(cont-1)] = r
                     print("block"+str(self.block_id)+"_"+str(cont-1))
@@ -331,14 +356,25 @@ class CFGBlock:
                             
             else:
                 ins_seq.append(ins)
-
+                
         if ins_seq != []:
             r, out_idx = self._build_spec_for_block(ins_seq, map_instructions, out_idx)
             specifications["block"+str(self.block_id)+"_"+str(cont)] = r
+            if not self._jump_type in ["conditional","unconditional"]:
+                print("block"+str(self.block_id)+"_"+str(cont))
+                print(json.dumps(r, indent=4))
+                
+        else:
+            r = get_empty_spec()
+            cont+=1
+
+        if self._jump_type in ["conditional","unconditional"]:
+            r, out_idx, block_tag_idx = self._include_jump_tag(r,out_idx, block_tags_dict, block_tag_idx)
+            specifications["block"+str(self.block_id)+"_"+str(cont)] = r
             print("block"+str(self.block_id)+"_"+str(cont))
             print(json.dumps(r, indent=4))
-            
-        return specifications
+
+        return specifications, block_tag_idx
 
 
     def __str__(self):

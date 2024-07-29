@@ -16,6 +16,7 @@ class CFGBlockList:
     def __init__(self):
         self.blocks: Dict[str, CFGBlock] = {}
         self.graph = None
+        self.block_tags_dict = {}
 
     def add_block(self, block: CFGBlock) -> None:
         block_id = block.get_block_id()
@@ -39,17 +40,17 @@ class CFGBlockList:
         return [block.block_id for block in self.blocks.values() if block.get_jump_type() in
                 ["mainExit", "terminal", "FunctionReturn"]]
 
-    def build_spec(self):
+    def build_spec(self, block_tag_idx):
         """
         Build specs from blocks
         """
         list_spec = []
         for b in self.blocks:
             block = self.blocks[b]
-            spec = block.build_spec()
+            spec, block_tag_idx  = block.build_spec(self.block_tags_dict, block_tag_idx)
             list_spec.append(spec)
 
-        return list_spec
+        return list_spec, block_tag_idx
 
     def to_graph(self) -> networkx.DiGraph:
         """
