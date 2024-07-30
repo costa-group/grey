@@ -1,7 +1,7 @@
 """
-Module that contains useful methods for traversing graphs
+Module that contains useful methods for traversing nx.graphs
 """
-from typing import Tuple, List
+from typing import Tuple, List, Dict, Any
 import networkx as nx
 
 
@@ -38,3 +38,14 @@ def condense_to_dag(g: nx.Graph) -> Tuple[nx.DiGraph, List[List]]:
             dag.add_edge(scc_map[u], scc_map[v])
 
     return dag, sccs
+
+
+def information_on_graph(g: Any, new_name_dict: Dict[str, str]):
+    """
+    Generate a graph that includes the information stored in new_name_dict as nodes.
+    Hence, it prints the corresponding information when the dot file is generated
+    """
+    renaming_dict = dict()
+    for block_name, information_repr in new_name_dict.items():
+        renaming_dict[block_name] = information_repr
+    return nx.relabel_nodes(g, renaming_dict)

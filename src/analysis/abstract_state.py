@@ -21,12 +21,12 @@ class AbstractBlockInfo(ABC):
 
     @property
     @abstractmethod
-    def successors(self) -> Any:
+    def successors(self) -> Iterable:
         raise NotImplementedError
 
     @property
     @abstractmethod
-    def comes_from(self) -> Any:
+    def comes_from(self) -> Iterable:
         raise NotImplementedError
 
     @property
