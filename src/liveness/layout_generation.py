@@ -4,9 +4,11 @@ In this case, we build different heuristics to choose the best layout transforma
 As there are heuristics that can be based on the results of preceeding blocks with the greedy algorithm,
 in this module the greedy algorithm itself is invoked
 """
+import heapq
 from typing import Dict, List, Type, Any
 import networkx as nx
 from pathlib import Path
+
 
 from parser.cfg_block_list import CFGBlockList
 from parser.cfg_block import CFGBlock
@@ -31,30 +33,36 @@ def construct_code_from_block(block: CFGBlock, input_stack: List[str], output_st
     return block_json
 
 
-def determine_stacks_in_block(block: CFGBlock, liveness_info: Dict[str, Any],
-                              variable_depth: Dict[str, int],
-                              generated_stacks: Dict[str, Dict[str, List[str]]]):
-    """
-    Generates the corresponding input and output stack in the considered block according to the liveness info
-    """
-    pass
-
-
 def construct_code_from_block_list(block_list: CFGBlockList, liveness_info: Dict[str, Any],
-                                   block_order: List[str]):
+                                   depth_dict: Dict[str, int], start: str):
     """
     Naive implementation: just traverse the blocks and generate the src and tgt information according to the liveness
     information. In order to keep the stacks coherent, we traverse them according to the dominance tree
     """
     input_stacks = dict()
     output_stacks = dict()
-    for block_name in block_order:
+    traversed = set()
+
+    pending_blocks = []
+    heapq.heappush(pending_blocks, (0, 0, start))
+
+    while pending_blocks:
+
+        _, real_depth, block_name = heapq.heappop(pending_blocks)
+
+        if block_name in traversed:
+            continue
+
+        traversed.add(block_name)
 
         # Retrieve the block
         current_block = block_list.get_block(block_name)
-        comes_from_blocks = current_block.get_comes_from()
 
-        # Thanks to the order we have chosen, the blocks
+        successors = [possible_successor for possible_successor in
+                      [current_block.get_jump_to(), current_block.get_falls_to()] if possible_successor is not None]
+        for successor in successors:
+            if successor not in traversed:
+                heapq.heappush(pending_blocks, (depth_dict[successor], real_depth + 1, successor))
 
 
 def compute_variable_depth(liveness_info: Dict[str, LivenessAnalysisInfo], topological_order: List) -> Dict[str, Dict[str, int]]:
@@ -100,6 +108,13 @@ def compute_variable_depth(liveness_info: Dict[str, LivenessAnalysisInfo], topol
         variable_depth_in[node] = current_variable_depth_in
 
     return variable_depth_out
+
+
+def compute_block_level(dominance_tree: nx.DiGraph, start: str)-> Dict[str, int]:
+    """
+    Computes the block level according to the dominance tree
+    """
+    return nx.shortest_path_length(dominance_tree, start)
 
 
 def unification_block_tuples(block_info: Dict[str, Any]):
@@ -158,7 +173,8 @@ class LayoutGeneration:
         """
         Builds the layout of the blocks from the given representation
         """
-        pass
+        construct_code_from_block_list(self._block_list, self._liveness_info,
+                                       compute_block_level(self._dominance_tree, self._start), self._start)
 
 
 def layout_generation(cfg: CFG, final_dir: Path = Path(".")) -> Dict[str, Dict[str, LivenessAnalysisInfo]]:
@@ -172,7 +188,13 @@ def layout_generation(cfg: CFG, final_dir: Path = Path(".")) -> Dict[str, Dict[s
         cfg_info_suboject = cfg_info[component_name]["block_info"]
         digraph = digraph_from_block_info(cfg_info_suboject.values())
 
-        LayoutGeneration(component_name, cfg.block_list[component_name], liveness,
-                         final_dir.joinpath(f"{component_name}_dominated.dot"), digraph).build_layout()
+        if len(digraph) == 1:
+            continue
+
+        print("NODES", digraph.nodes)
+
+        layout = LayoutGeneration(component_name, cfg.block_list[component_name], liveness,
+                                  final_dir.joinpath(f"{component_name}_dominated.dot"), digraph)
+        layout.build_layout()
 
     return results
