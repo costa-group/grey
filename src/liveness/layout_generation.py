@@ -63,34 +63,43 @@ def compute_variable_depth(liveness_info: Dict[str, LivenessAnalysisInfo], topol
     determining in which order the blocks can be traversed
     TODO: improve the efficiency
     """
-    variable_depth = dict()
+    variable_depth_out = dict()
+    variable_depth_in = dict()
+    max_depth = len(topological_order) + 1
 
     for node in reversed(topological_order):
         block_info = liveness_info[node].block_info
 
-        current_variable_depth = dict()
+        current_variable_depth_out = dict()
+
+        # Initialize variables in the live_in set to len(topological_order) + 1
+        for input_variable in liveness_info[node].output_state.live_vars:
+            current_variable_depth_out[input_variable] = max_depth
 
         # For each successor, compute the variable depth information and update the corresponding map
         for succ_node in block_info.successors:
 
             # The succesor node might not be analyzed yet if there is a cycle. We just ignore it,
             # as we will visit it later
-            previous_variable_depth = variable_depth.get(succ_node, dict())
+            previous_variable_depth = variable_depth_in.get(succ_node, dict())
 
             for variable, depth in previous_variable_depth.items():
                 # Update the depth if it already appears in the dict
-                if variable in current_variable_depth:
-                    current_variable_depth[variable] = min(current_variable_depth[variable], depth) + 1
+                if variable in current_variable_depth_out:
+                    current_variable_depth_out[variable] = min(current_variable_depth_out[variable], depth + 1)
                 else:
-                    current_variable_depth[variable] = depth + 1
+                    current_variable_depth_out[variable] = depth + 1
+
+        current_variable_depth_in = current_variable_depth_out.copy()
 
         # Finally, we update the corresponding variables that are defined and used in the blocks
         for used_variable in block_info.uses:
-            current_variable_depth[used_variable] = 0
+            current_variable_depth_in[used_variable] = 0
 
-        variable_depth[node] = current_variable_depth
+        variable_depth_out[node] = current_variable_depth_out
+        variable_depth_in[node] = current_variable_depth_in
 
-    return variable_depth
+    return variable_depth_out
 
 
 def unification_block_tuples(block_info: Dict[str, Any]):
