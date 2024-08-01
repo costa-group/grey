@@ -19,6 +19,13 @@ from liveness.liveness_analysis import LivenessAnalysisInfo, construct_analysis_
     perform_liveness_analysis_from_cfg_info
 
 
+def unify_input_stacks(predecessor_stacks: List[List[str]], variable_depth_info: Dict[str, int]) -> List[str]:
+    """
+    Unifies the given stacks, according to the information already provided in variable depth info
+    """
+    pass
+
+
 def unify_stacks(predecessor_stacks: List[List[str]], variable_depth_info: Dict[str, int]) -> List[str]:
     """
     Unifies the given stacks, according to the information already provided in variable depth info
@@ -38,7 +45,7 @@ def construct_code_from_block(block: CFGBlock, liveness_info: Dict[str, Any], va
     predecessor_stacks = [output_stacks[predecessor] for predecessor in block.get_comes_from() if predecessor in output_stacks]
     input_stack = unify_stacks(predecessor_stacks, variable_depth_info)
 
-    output_stack = unify_stacks([liveness_info[block.block_id].output_state.live_vars], variable_depth_info)
+    output_stack = unify_stacks([liveness_info[block.block_id].input_state.live_vars], variable_depth_info)
     # We build the corresponding specification
     block_json = {}
 
@@ -112,7 +119,7 @@ def compute_variable_depth(liveness_info: Dict[str, LivenessAnalysisInfo], topol
         current_variable_depth_out = dict()
 
         # Initialize variables in the live_in set to len(topological_order) + 1
-        for input_variable in liveness_info[node].output_state.live_vars:
+        for input_variable in liveness_info[node].input_state.live_vars:
             current_variable_depth_out[input_variable] = max_depth
 
         # For each successor, compute the variable depth information and update the corresponding map
