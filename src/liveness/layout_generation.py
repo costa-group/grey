@@ -42,12 +42,18 @@ def construct_code_from_block(block: CFGBlock, liveness_info: Dict[str, Any], va
     Constructs the specification for a given block, according to the input and output stacks
     """
     # First we retrieve the output stacks from the previous blocks
-    predecessor_stacks = [output_stacks[predecessor] for predecessor in block.get_comes_from() if predecessor in output_stacks]
+    # For the initial block, we consider the input stack from the liveness information
+    if block.get_comes_from():
+        predecessor_stacks = [output_stacks[predecessor] for predecessor in block.get_comes_from()
+                              if predecessor in output_stacks]
+    else:
+        predecessor_stacks = [liveness_info[block.block_id].output_state.live_vars]
+
     input_stack = unify_stacks(predecessor_stacks, variable_depth_info)
 
     output_stack = unify_stacks([liveness_info[block.block_id].input_state.live_vars], variable_depth_info)
     # We build the corresponding specification
-    block_json = block.build_spec()
+    block_json = {}
 
     # Modify the specification to update the input stack and output stack fields
     block_json["src_ws"] = input_stack
@@ -119,7 +125,7 @@ def compute_variable_depth(liveness_info: Dict[str, LivenessAnalysisInfo], topol
         current_variable_depth_out = dict()
 
         # Initialize variables in the live_in set to len(topological_order) + 1
-        for input_variable in liveness_info[node].input_state.live_vars:
+        for input_variable in liveness_info[node].output_state.live_vars:
             current_variable_depth_out[input_variable] = max_depth
 
         # For each successor, compute the variable depth information and update the corresponding map
