@@ -5,12 +5,12 @@ from parser.cfg_block_list import CFGBlockList
 from typing import Dict, List, Optional
 
 
-def store_sfs_json(blocks: List[Dict], final_path: Path) -> None:
+def store_sfs_json(blocks: Dict[str, Dict], final_path: Path) -> None:
     """
     Stores all SFS from the list of blocks in the corresponding folder
     """
-    for i, block in enumerate(blocks):
-        file_to_store = final_path.joinpath(f"block_{i}.json")
+    for block_name, block in blocks.items():
+        file_to_store = final_path.joinpath(block_name + ".json")
         with open(file_to_store, 'w') as f:
             json.dump(block, f, indent=4)
 

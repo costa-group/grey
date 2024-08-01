@@ -8,7 +8,7 @@ from parser.cfg import store_sfs_json
 from greedy.greedy import greedy_standalone
 from statistics.statistics import generate_statistics_info
 from liveness.liveness_analysis import dot_from_analysis, perform_liveness_analysis
-
+from liveness.layout_generation import layout_generation
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="GREEN Project")
@@ -40,27 +40,29 @@ def main():
 
     final_dir.mkdir(exist_ok=True, parents=True)
 
+    dot_file_dir = final_dir.joinpath("liveness")
+    dot_file_dir.mkdir(exist_ok=True, parents=True)
+
     if args.visualize:
-        dot_file_dir = final_dir.joinpath("liveness")
-        dot_file_dir.mkdir(exist_ok=True, parents=True)
         liveness_info = dot_from_analysis(cfg, dot_file_dir)
     else:
         liveness_info = perform_liveness_analysis(cfg)
 
-    result_objects, results_functions = cfg.build_spec_for_objects()
+    jsons = layout_generation(cfg, dot_file_dir)
+    sfs_final_dir = final_dir.joinpath("sfs")
+    sfs_final_dir.mkdir(exist_ok=True, parents=True)
 
-    for obj in result_objects:
-        results = result_objects[obj]
-        store_sfs_json(results, final_dir)
+    for component_name, sfs_dict in jsons.items():
+        store_sfs_json(sfs_dict, sfs_final_dir)
 
-        if args.greedy:
-            csv_rows = []
-            for sfs_dict_list in results:
-                for sfs_dict_name in sfs_dict_list:
-                    sfs_dict = sfs_dict_list[sfs_dict_name]
-                    outcome, time, solution_found = greedy_standalone(sfs_dict)
-                    csv_row = generate_statistics_info(solution_found, outcome, time, sfs_dict)
-                    csv_rows.append(csv_row)
-            df = pd.DataFrame(csv_rows)
-            df.to_csv("outcome.csv")
+        # if args.greedy:
+        #     csv_rows = []
+        #     for sfs_dict_list in results:
+        #         for sfs_dict_name in sfs_dict_list:
+        #             sfs_dict = sfs_dict_list[sfs_dict_name]
+        #             outcome, time, solution_found = greedy_standalone(sfs_dict)
+        #             csv_row = generate_statistics_info(solution_found, outcome, time, sfs_dict)
+        #             csv_rows.append(csv_row)
+        #     df = pd.DataFrame(csv_rows)
+        #     df.to_csv("outcome.csv")
 

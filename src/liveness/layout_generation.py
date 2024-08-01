@@ -224,15 +224,18 @@ class LayoutGeneration:
                                                                for block_name, block in self._block_list.blocks.items()})
         print(Path(self._dir.parent).joinpath(self._dir.name + "_stacks.dot"))
         nx.nx_agraph.write_dot(renamed_graph, Path(self._dir.parent).joinpath(self._dir.name + "_stacks.dot"))
+        return json_info
 
 
-def layout_generation(cfg: CFG, final_dir: Path = Path(".")) -> Dict[str, Dict[str, LivenessAnalysisInfo]]:
+def layout_generation(cfg: CFG, final_dir: Path = Path(".")) -> Dict[str, Dict[str, Any]]:
     """
     Returns the information from the liveness analysis and also stores a dot file for each analyzed structure
     in "final_dir"
     """
     cfg_info = construct_analysis_info(cfg)
     results = perform_liveness_analysis_from_cfg_info(cfg_info)
+    jsons = dict()
+
     for component_name, liveness in results.items():
         cfg_info_suboject = cfg_info[component_name]["block_info"]
         digraph = digraph_from_block_info(cfg_info_suboject.values())
@@ -244,6 +247,6 @@ def layout_generation(cfg: CFG, final_dir: Path = Path(".")) -> Dict[str, Dict[s
 
         layout = LayoutGeneration(component_name, cfg.block_list[component_name], liveness,
                                   final_dir.joinpath(f"{component_name}_dominated.dot"), digraph)
-        layout.build_layout()
+        jsons[component_name] = layout.build_layout()
 
-    return results
+    return jsons
