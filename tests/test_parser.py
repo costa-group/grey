@@ -1,6 +1,6 @@
 import pytest
 from typing import Dict
-from parser.cfg import CFGBlock
+from parser.cfg_block import CFGBlock
 from parser.cfg_instruction import build_instr_spec, build_verbatim_spec, build_push_spec, CFGInstruction
 
 class TestCFG:
