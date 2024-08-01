@@ -5,7 +5,7 @@ As there are heuristics that can be based on the results of preceeding blocks wi
 in this module the greedy algorithm itself is invoked
 """
 import heapq
-from typing import Dict, List, Type, Any
+from typing import Dict, List, Type, Any, Set
 import networkx as nx
 from pathlib import Path
 
@@ -19,9 +19,9 @@ from liveness.liveness_analysis import LivenessAnalysisInfo, construct_analysis_
     perform_liveness_analysis_from_cfg_info
 
 
-def unify_input_stacks(predecessor_stacks: List[List[str]], variable_depth_info: Dict[str, int]) -> List[str]:
+def output_stack_layout(input_stack: List[List[str]], live_vars: Set[str], variable_depth_info: Dict[str, int]) -> List[str]:
     """
-    Unifies the given stacks, according to the information already provided in variable depth info
+    Generates the output stack layout, according to the variables in live vars and the information from the input stack
     """
     pass
 
@@ -34,79 +34,6 @@ def unify_stacks(predecessor_stacks: List[List[str]], variable_depth_info: Dict[
     max_depth = max(variable_depth_info.values()) + 1 if len(variable_depth_info) > 0 else -1
     pairs = [(variable_depth_info.get(stack_elem, max_depth), stack_elem) for stack_elem in needed_elements]
     return [elem[1] for elem in sorted(pairs)]
-
-
-def construct_code_from_block(block: CFGBlock, liveness_info: Dict[str, Any], variable_depth_info: Dict[str, int],
-                              input_stacks: Dict[str, List[str]], output_stacks: Dict[str, List[str]]):
-    """
-    Constructs the specification for a given block, according to the input and output stacks
-    """
-    # First we retrieve the output stacks from the previous blocks
-    # For the initial block, we consider the input stack from the liveness information
-    if block.get_comes_from():
-        predecessor_stacks = [output_stacks[predecessor] for predecessor in block.get_comes_from()
-                              if predecessor in output_stacks]
-    else:
-        predecessor_stacks = [liveness_info[block.block_id].output_state.live_vars]
-
-    input_stack = unify_stacks(predecessor_stacks, variable_depth_info)
-
-    output_stack = unify_stacks([liveness_info[block.block_id].input_state.live_vars], variable_depth_info)
-    # We build the corresponding specification
-    block_json = {}
-
-    # Modify the specification to update the input stack and output stack fields
-    block_json["src_ws"] = input_stack
-    block_json["tgt_ws"] = output_stack
-
-    # TODO: temporal hack to output the input and output stacks
-    block.input_stack = input_stack
-    block.output_stack = output_stack
-
-    input_stacks[block.block_id] = input_stack
-    output_stacks[block.block_id] = output_stack
-
-    return block_json
-
-
-def construct_code_from_block_list(block_list: CFGBlockList, liveness_info: Dict[str, Any], depth_dict: Dict[str, int],
-                                   variable_depth_dict: Dict[str, Dict[str, int]], start: str):
-    """
-    Naive implementation: just traverse the blocks and generate the src and tgt information according to the liveness
-    information. In order to keep the stacks coherent, we traverse them according to the dominance tree
-    """
-    input_stacks = dict()
-    output_stacks = dict()
-    traversed = set()
-    json_info = dict()
-
-    pending_blocks = []
-    heapq.heappush(pending_blocks, (0, 0, start))
-
-    while pending_blocks:
-
-        _, real_depth, block_name = heapq.heappop(pending_blocks)
-
-        if block_name in traversed:
-            continue
-
-        traversed.add(block_name)
-
-        # Retrieve the block
-        current_block = block_list.get_block(block_name)
-
-        block_specification = construct_code_from_block(current_block, liveness_info, variable_depth_dict[block_name],
-                                                        input_stacks, output_stacks)
-
-        json_info[block_name] = block_specification
-
-        successors = [possible_successor for possible_successor in
-                      [current_block.get_jump_to(), current_block.get_falls_to()] if possible_successor is not None]
-        for successor in successors:
-            if successor not in traversed:
-                heapq.heappush(pending_blocks, (depth_dict[successor], real_depth + 1, successor))
-
-    return json_info
 
 
 def compute_variable_depth(liveness_info: Dict[str, LivenessAnalysisInfo], topological_order: List) -> Dict[str, Dict[str, int]]:
@@ -218,13 +145,89 @@ class LayoutGeneration:
         # Guess: we need to traverse the code following the dominance tree in topological order
         # This is because in the dominance tree together with the SSA, all the nodes
 
+        self._block_depth = compute_block_level(self._dominance_tree, self._start)
+
+    def _construct_code_from_block(self, block: CFGBlock, input_stacks: Dict[str, List[str]],
+                                   output_stacks: Dict[str, List[str]]):
+        """
+        Constructs the specification for a given block, according to the input and output stacks
+        """
+        # First we retrieve the output stacks from the previous blocks
+        # For the initial block, we consider the input stack from the liveness information
+
+        # The stack from comes_from stacks must be equal
+        if block.get_comes_from():
+            predecessor_stacks = [output_stacks[predecessor] for predecessor in block.get_comes_from()
+                                  if predecessor in output_stacks]
+            input_stack = predecessor_stacks[0]
+            for i in range(1, len(predecessor_stacks)):
+                # Check they match
+                assert predecessor_stacks[i] == input_stack, f"ERROR when unifying stacks for block {block.block_id}"
+        else:
+            input_stack = unify_stacks([self._liveness_info[block.block_id].output_state.live_vars],
+                                       self._variable_order[block.block_id])
+
+        output_stack = unify_stacks([self._liveness_info[block.block_id].input_state.live_vars],
+                                    self._variable_order[block.block_id])
+
+        # We build the corresponding specification
+        block_json = {}
+
+        # Modify the specification to update the input stack and output stack fields
+        block_json["src_ws"] = input_stack
+        block_json["tgt_ws"] = output_stack
+
+        # TODO: temporal hack to output the input and output stacks
+        block.input_stack = input_stack
+        block.output_stack = output_stack
+
+        input_stacks[block.block_id] = input_stack
+        output_stacks[block.block_id] = output_stack
+
+        return block_json
+
+    def _construct_code_from_block_list(self):
+        """
+        Naive implementation: just traverse the blocks and generate the src and tgt information according to the liveness
+        information. In order to keep the stacks coherent, we traverse them according to the dominance tree
+        """
+        input_stacks = dict()
+        output_stacks = dict()
+        traversed = set()
+        json_info = dict()
+
+        pending_blocks = []
+        heapq.heappush(pending_blocks, (0, 0, self._start))
+
+        while pending_blocks:
+
+            _, real_depth, block_name = heapq.heappop(pending_blocks)
+
+            if block_name in traversed:
+                continue
+
+            traversed.add(block_name)
+
+            # Retrieve the block
+            current_block = self._block_list.get_block(block_name)
+
+            block_specification = self._construct_code_from_block(current_block, input_stacks, output_stacks)
+
+            json_info[block_name] = block_specification
+
+            successors = [possible_successor for possible_successor in
+                          [current_block.get_jump_to(), current_block.get_falls_to()] if possible_successor is not None]
+            for successor in successors:
+                if successor not in traversed:
+                    heapq.heappush(pending_blocks, (self._block_depth[successor], real_depth + 1, successor))
+
+        return json_info
+
     def build_layout(self):
         """
         Builds the layout of the blocks from the given representation
         """
-        json_info = construct_code_from_block_list(self._block_list, self._liveness_info,
-                                                   compute_block_level(self._dominance_tree, self._start),
-                                                   self._variable_order, self._start)
+        json_info = self._construct_code_from_block_list()
 
         renamed_graph = information_on_graph(self._cfg_graph, {block_name: print_stacks(block_name, block)
                                                                for block_name, block in self._block_list.blocks.items()})
