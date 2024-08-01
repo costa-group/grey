@@ -47,7 +47,7 @@ def construct_code_from_block(block: CFGBlock, liveness_info: Dict[str, Any], va
 
     output_stack = unify_stacks([liveness_info[block.block_id].input_state.live_vars], variable_depth_info)
     # We build the corresponding specification
-    block_json = {}
+    block_json = block.build_spec()
 
     # Modify the specification to update the input stack and output stack fields
     block_json["src_ws"] = input_stack
@@ -222,7 +222,7 @@ class LayoutGeneration:
 
         renamed_graph = information_on_graph(self._cfg_graph, {block_name: print_stacks(block_name, block)
                                                                for block_name, block in self._block_list.blocks.items()})
-        print(Path(self._dir.parent).joinpath(self._dir.name + "_stacks.dot"))
+
         nx.nx_agraph.write_dot(renamed_graph, Path(self._dir.parent).joinpath(self._dir.name + "_stacks.dot"))
         return json_info
 
