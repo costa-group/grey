@@ -170,3 +170,38 @@ def get_expression(var, instructions):
     
     return [new_instruction.get_op_name(),sub_expression]
 
+
+def is_member_recursive(val, exp):
+    if len(exp) == 1:
+        return val in exp
+
+    else:
+        result = False
+        for x in exp[1]:
+            result = result or is_member_recursive(val, x)
+        result = result and x[0] in ["add","mul","sub","div"]
+        return result
+
+def are_dependent_accesses(exp1, exp2):
+    val1 = exp1[0]
+    val2 = exp2[0]
+
+    print(exp1)
+    print(exp2)
+    
+    if val1 == "inf" or val2 == "inf":
+        return True
+    elif val1.startswith("0x") and val2.startswith("0x"): #constants
+        return val1==val2
+    elif len(val1) == len(val2) and len(val1) == 1: #variables
+        return val1 == val2
+    elif len(val1) == 1 and len(val2) >1 : #One expression is contained in the other
+        return not is_member_recursive(val1, val2)
+    elif len(val1) > 1 and len(val2) == 1:
+        return not is_member_recursive(val2, val1)
+    else:
+        return True
+
+
+def overlap(idx1, offset1, idx2, offset2):
+    return idx1 <= idx2 < idx1 + offset1 or idx2 <= idx1 < idx2 + offset2
