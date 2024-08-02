@@ -19,11 +19,39 @@ from liveness.liveness_analysis import LivenessAnalysisInfo, construct_analysis_
     perform_liveness_analysis_from_cfg_info
 
 
-def output_stack_layout(input_stack: List[List[str]], live_vars: Set[str], variable_depth_info: Dict[str, int]) -> List[str]:
+def output_stack_layout(input_stack: List[str], live_vars: Set[str], variable_depth_info: Dict[str, int]) -> List[str]:
     """
     Generates the output stack layout, according to the variables in live vars and the information from the input stack
     """
-    pass
+
+    # We keep the variables in the input stack in the same order if they appear in the variable vars (so that we
+    # don't need to move them elsewhere). It might contain None variables if the corresponding variables are consumed
+    output_stack = [var_ if var_ in live_vars else None for var_ in input_stack]
+    vars_to_place = live_vars.difference(set(output_stack))
+
+    # Sort the vars to place according to the variable depth info order in reversed order
+    vars_to_place_sorted = sorted(vars_to_place, key=lambda x: -variable_depth_info[x])
+
+    # Try to place the variables in reversed order
+    i, j = len(output_stack)-1, 0
+
+    while i >= 0 and j < len(vars_to_place_sorted):
+        if output_stack[i] is None:
+            output_stack[i] = vars_to_place_sorted[j]
+            j += 1
+        i -= 1
+
+    # First exit condition: all variables have been placed in between. Hence, I have to insert the remaining
+    # elements at the beginning
+    if i == -1:
+        output_stack = list(reversed(vars_to_place_sorted[j:])) + output_stack
+
+    # Second condition: all variables have been placed in between. There can be some None values in between that
+    # must be removed
+    else:
+        output_stack = [var_ for var_ in output_stack if var_ is not None]
+
+    return output_stack
 
 
 def unify_stacks(predecessor_stacks: List[List[str]], variable_depth_info: Dict[str, int]) -> List[str]:
@@ -88,17 +116,24 @@ def compute_block_level(dominance_tree: nx.DiGraph, start: str) -> Dict[str, int
     return nx.shortest_path_length(dominance_tree, start)
 
 
-def unification_block_tuples(block_info: Dict[str, Any]):
+def unification_block_dict(block_info: Dict[str, Any]) -> Dict[str, str]:
     """
     Given the CFG, it finds those blocks that must unify their corresponding output stacks, due to jumping to the same
     block
     """
-    unification_tuples = []
+    unification_dict = dict()
     for block_name, information in block_info.items():
         comes_from = information.block_info.comes_from
         if len(comes_from) > 1:
-            unification_tuples.append([*comes_from])
-    return unification_tuples
+
+            # Assertions at this level
+            assert len(comes_from) == 2, f"{block_name} Block with more than two parents: {comes_from}"
+            assert comes_from[0] not in unification_dict, f"{comes_from[0]} already traversed (i.e. has more than one brother)"
+            assert comes_from[1] not in unification_dict, f"{comes_from[1]} already traversed (i.e. has more than one brother)"
+            unification_dict[comes_from[0]] = comes_from[1]
+            unification_dict[comes_from[1]] = comes_from[0]
+
+    return unification_dict
 
 
 def var_order_repr(block_name: str, var_info: Dict[str, int]):
@@ -146,29 +181,36 @@ class LayoutGeneration:
         # This is because in the dominance tree together with the SSA, all the nodes
 
         self._block_depth = compute_block_level(self._dominance_tree, self._start)
+        self._unification_dict = unification_block_dict(liveness_info)
 
     def _construct_code_from_block(self, block: CFGBlock, input_stacks: Dict[str, List[str]],
                                    output_stacks: Dict[str, List[str]]):
         """
         Constructs the specification for a given block, according to the input and output stacks
         """
-        # First we retrieve the output stacks from the previous blocks
-        # For the initial block, we consider the input stack from the liveness information
-
+        block_id = block.block_id
+        liveness_info = self._liveness_info[block_id]
+        comes_from = block.get_comes_from()
         # The stack from comes_from stacks must be equal
-        if block.get_comes_from():
-            predecessor_stacks = [output_stacks[predecessor] for predecessor in block.get_comes_from()
+        if comes_from:
+            predecessor_stacks = [output_stacks[predecessor] for predecessor in comes_from
                                   if predecessor in output_stacks]
             input_stack = predecessor_stacks[0]
             for i in range(1, len(predecessor_stacks)):
                 # Check they match
-                assert predecessor_stacks[i] == input_stack, f"ERROR when unifying stacks for block {block.block_id}"
+                assert predecessor_stacks[i] == input_stack, f"ERROR when unifying stacks for block {block_id}"
         else:
-            input_stack = unify_stacks([self._liveness_info[block.block_id].output_state.live_vars],
-                                       self._variable_order[block.block_id])
+            input_stack = unify_stacks([liveness_info.output_state.live_vars],
+                                       self._variable_order[block_id])
 
-        output_stack = unify_stacks([self._liveness_info[block.block_id].input_state.live_vars],
-                                    self._variable_order[block.block_id])
+        # If the current block belongs to the unification tuples and its brother block has already been assigned
+        # a stack, we need to se the same stack
+        brother = self._unification_dict.get(block_id, None)
+        if brother is not None and brother in output_stacks:
+            output_stack = output_stacks[brother]
+        else:
+            output_stack = output_stack_layout(input_stack, liveness_info.input_state.live_vars,
+                                               self._variable_order[block_id])
 
         # We build the corresponding specification
         block_json = {}
