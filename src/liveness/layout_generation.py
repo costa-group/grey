@@ -9,7 +9,6 @@ from typing import Dict, List, Type, Any, Set
 import networkx as nx
 from pathlib import Path
 
-
 from parser.cfg_block_list import CFGBlockList
 from parser.cfg_block import CFGBlock
 from parser.cfg import CFG
@@ -33,7 +32,7 @@ def output_stack_layout(input_stack: List[str], live_vars: Set[str], variable_de
     vars_to_place_sorted = sorted(vars_to_place, key=lambda x: -variable_depth_info[x])
 
     # Try to place the variables in reversed order
-    i, j = len(output_stack)-1, 0
+    i, j = len(output_stack) - 1, 0
 
     while i >= 0 and j < len(vars_to_place_sorted):
         if output_stack[i] is None:
@@ -64,7 +63,8 @@ def unify_stacks(predecessor_stacks: List[List[str]], variable_depth_info: Dict[
     return [elem[1] for elem in sorted(pairs)]
 
 
-def compute_variable_depth(liveness_info: Dict[str, LivenessAnalysisInfo], topological_order: List) -> Dict[str, Dict[str, int]]:
+def compute_variable_depth(liveness_info: Dict[str, LivenessAnalysisInfo], topological_order: List) -> Dict[
+    str, Dict[str, int]]:
     """
     For each variable at every point in the CFG, returns the corresponding depth. Useful for
     determining in which order the blocks can be traversed
@@ -116,7 +116,7 @@ def compute_block_level(dominance_tree: nx.DiGraph, start: str) -> Dict[str, int
     return nx.shortest_path_length(dominance_tree, start)
 
 
-def unification_block_dict(block_info: Dict[str, Any]) -> Dict[str, str]:
+def unification_block_dict(block_info: Dict[str, Any]) -> Dict[str, List[str]]:
     """
     Given the CFG, it finds those blocks that must unify their corresponding output stacks, due to jumping to the same
     block
@@ -124,16 +124,41 @@ def unification_block_dict(block_info: Dict[str, Any]) -> Dict[str, str]:
     unification_dict = dict()
     for block_name, information in block_info.items():
         comes_from = information.block_info.comes_from
-        if len(comes_from) > 1:
 
-            # Assertions at this level
-            assert len(comes_from) == 2, f"{block_name} Block with more than two parents: {comes_from}"
-            assert comes_from[0] not in unification_dict, f"{comes_from[0]} already traversed (i.e. has more than one brother)"
-            assert comes_from[1] not in unification_dict, f"{comes_from[1]} already traversed (i.e. has more than one brother)"
-            unification_dict[comes_from[0]] = comes_from[1]
-            unification_dict[comes_from[1]] = comes_from[0]
+        # Comes from can have more than two blocks
+        if len(comes_from) > 1:
+            comes_from_set = set(comes_from)
+            for predecessor_block in comes_from:
+                unification_dict[predecessor_block] = list(comes_from_set.difference(predecessor_block))
 
     return unification_dict
+
+
+def unify_stacks_brothers(input_stack: List[str], live_vars: Set[str],
+                          others_live_vars_list: List[Set[str]], variable_depth_info: Dict[str, int]) -> List[
+    List[str]]:
+    """
+    Given the input stack from one of the brothers, its corresponding list of vars list, the live vars from other
+    variables and the variable depth info for the initial block, returns an output stack for every one of them
+    in the same order as others_live_vars_list is provided
+    """
+    all_var_elements = live_vars.union(*others_live_vars_list)
+
+    # Extend the variable depth info with the variables that are not in the initial set
+    max_value = max(variable_depth_info.values()) if variable_depth_info else 0 + 1
+
+    combined_variable_depth_info = variable_depth_info.copy()
+    for variables in all_var_elements.difference(variable_depth_info):
+        combined_variable_depth_info[variables] = max_value
+
+    # Construct the output stack for the initial block
+    output_stacks = [output_stack_layout(input_stack, all_var_elements, variable_depth_info)]
+
+    # Construct the remaining output stacks, considering the order of the first generated output stacks
+    for live_vars in others_live_vars_list:
+        output_stacks.append([variable if variable in live_vars else "bottom" for variable in output_stacks[0]])
+
+    return output_stacks
 
 
 def var_order_repr(block_name: str, var_info: Dict[str, int]):
@@ -198,17 +223,37 @@ class LayoutGeneration:
             input_stack = predecessor_stacks[0]
             for i in range(1, len(predecessor_stacks)):
                 # Check they match
-                assert predecessor_stacks[i] == input_stack, f"ERROR when unifying stacks for block {block_id}"
+                assert len(predecessor_stacks[i]) == len(input_stack) and \
+                       all(elem1 == elem2 or elem1 == "bottom" for elem1, elem2 in
+                           zip(predecessor_stacks[i], input_stack)), \
+                    f"ERROR when unifying stacks for block {block_id}: {predecessor_stacks[i]} != {input_stack}"
         else:
-            input_stack = unify_stacks([liveness_info.output_state.live_vars],
-                                       self._variable_order[block_id])
+            input_stack = output_stack_layout([], liveness_info.output_state.live_vars,
+                                              self._variable_order[block_id])
 
-        # If the current block belongs to the unification tuples and its brother block has already been assigned
-        # a stack, we need to se the same stack
-        brother = self._unification_dict.get(block_id, None)
-        if brother is not None and brother in output_stacks:
-            output_stack = output_stacks[brother]
-        else:
+        # If the current block belongs to the unification tuples and a brother block has already been assigned
+        # a stack, we need to assign the same stack
+        brothers = self._unification_dict.get(block_id, None)
+        output_stack = None
+        if brothers is not None:
+
+            # If one of the brothers was assigned previously, the corresponding id is already assigned as well
+            if block_id in output_stacks:
+                output_stack = output_stacks[block_id]
+
+            # We need to determine a stack that is the combination of the previous ones
+            else:
+                print(input_stack, block_id)
+                # We unify the stacks according the first reached block
+                output_stacks_unified = unify_stacks_brothers(input_stack, liveness_info.input_state.live_vars,
+                                                              [self._liveness_info[brother].input_state.live_vars
+                                                               for brother in brothers], self._variable_order[block_id])
+                # We assign all the output stacks that have been unified
+                output_stack = output_stacks_unified[0]
+                for i, brother in enumerate(brothers):
+                    output_stacks[brother] = output_stacks_unified[i + 1]
+
+        if output_stack is None:
             output_stack = output_stack_layout(input_stack, liveness_info.input_state.live_vars,
                                                self._variable_order[block_id])
 
@@ -272,7 +317,8 @@ class LayoutGeneration:
         json_info = self._construct_code_from_block_list()
 
         renamed_graph = information_on_graph(self._cfg_graph, {block_name: print_stacks(block_name, block)
-                                                               for block_name, block in self._block_list.blocks.items()})
+                                                               for block_name, block in
+                                                               self._block_list.blocks.items()})
 
         nx.nx_agraph.write_dot(renamed_graph, Path(self._dir.parent).joinpath(self._dir.name + "_stacks.dot"))
         return json_info
@@ -293,7 +339,7 @@ def layout_generation(cfg: CFG, final_dir: Path = Path(".")) -> Dict[str, Dict[s
 
         if len(digraph) == 1:
             continue
-
+        print(component_name)
         print("NODES", digraph.nodes)
 
         layout = LayoutGeneration(component_name, cfg.block_list[component_name], liveness,
