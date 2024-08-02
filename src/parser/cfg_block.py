@@ -1,9 +1,10 @@
 from parser.cfg_instruction import CFGInstruction, build_push_spec, build_pushtag_spec
-from parser.utils_parser import is_in_input_stack, is_in_output_stack, is_assigment_var_used, get_empty_spec
+from parser.utils_parser import is_in_input_stack, is_in_output_stack, is_assigment_var_used, get_empty_spec, get_expression, are_dependent_accesses
 import parser.constants as constants
 import json
+import networkx as nx
 
-from typing import List, Dict
+from typing import List, Dict, Tuple
 
 global tag_idx
 tag_idx = 0
@@ -28,6 +29,8 @@ class CFGBlock:
         self.is_function_call = False
         self._comes_from = []
         self.function_calls = set()
+        self.sto_dep = []
+        self.mem_dep = []
 
         
     def get_block_id(self) -> str:
@@ -113,7 +116,45 @@ class CFGBlock:
         op_names = map(lambda x: x.get_op_name(), self._instructions)
         calls = filter(lambda x: x in function_ids, op_names)
         self.function_calls = set(calls)
-            
+
+
+    def process_dependences(self, instructions):
+
+        sto_dep = self._compute_storage_dependences(instructions)
+        sto_dep = self._simplify_dependences(sto_dep)
+        
+        # mem_dep = self._compute_storage_dependences()
+        # mem_dep = self._simplify_dependences(mem_dep)
+        return sto_dep #, mem_dep
+        
+    def _compute_storage_dependences(self,instructions):
+        sto_ins = []
+        print(instructions)
+        for i in range(len(instructions)):
+            ins = instructions[i]
+            if ins.get_op_name() in ["sload","sstore"]:
+                v = ins.get_in_args()[0]
+                input_val = get_expression(v, instructions[:i])
+                sto_ins.append((i,input_val))
+            elif ins.get_op_name() in ["call","delegatecall","staticcall","callcode"]:
+                sto_ins.append((i,["inf"]))
+                
+        deps = [(sto_ins[i][0],j[0]) for i in range(len(sto_ins)) for j in sto_ins[i+1:] if are_dependent_accesses(sto_ins[i][1],j[1])]
+        print("DEPS: "+str(deps))
+        print("******")
+        return deps
+                                
+    def _compute_memory_dependences(self, instructions):
+        for i in len(instructions):
+            ins = instructions[i]
+            if ins.get_op_name() in ["keccak256", "mload", "mstore", "codecopy","extcodecopy","returndatacopy","mstore8","mcopy","log0","log1","log2","log3","log4","create","create2","call","delegatecall","staticcall","callcode"]:
+                pass
+
+    def _simplify_dependences(self, deps: List[Tuple[int, int]]) -> List[Tuple[int, int]]:
+        dg = nx.DiGraph(deps)
+        tr = nx.transitive_reduction(dg)
+        return list(tr.edges)
+                            
     def get_as_json(self):
         block_json = {}
         block_json["id"] = self.block_id
@@ -331,12 +372,19 @@ class CFGBlock:
             if ins.get_op_name().upper() in constants.split_block or ins.get_op_name() in self.function_calls:
                 if  ins_seq != []:
                     r, out_idx = self._build_spec_for_block(ins_seq, map_instructions, out_idx)
+
+                    sto_deps = self._process_dependences(ins_seq)
+                    r["storage_dependences"] = sto_deps
+                    # r["memory_dependences"] = mem_deps
+
                     specifications["block"+str(self.block_id)+"_"+str(cont)] = r
                     cont +=1
+                    
                     if not ins.get_op_name() in self.function_calls: 
                         print("block"+str(self.block_id)+"_"+str(cont))
                         print(json.dumps(r, indent=4))
 
+                        
                 else:
                     r = get_empty_spec()
                     cont+=1
@@ -347,6 +395,7 @@ class CFGBlock:
                     specifications["block"+str(self.block_id)+"_"+str(cont-1)] = r
                     print("block"+str(self.block_id)+"_"+str(cont-1))
                     print(json.dumps(r, indent=4))
+
 
                         
                 #We reset the seq of instructions and the out_idx for next block
@@ -359,7 +408,13 @@ class CFGBlock:
                 
         if ins_seq != []:
             r, out_idx = self._build_spec_for_block(ins_seq, map_instructions, out_idx)
+            
+            sto_deps = self._process_dependences(ins_seq)
+            r["storage_dependences"] = sto_deps
+            # r["memory_dependences"] = mem_deps
+
             specifications["block"+str(self.block_id)+"_"+str(cont)] = r
+
             if not self._jump_type in ["conditional","unconditional"]:
                 print("block"+str(self.block_id)+"_"+str(cont))
                 print(json.dumps(r, indent=4))
