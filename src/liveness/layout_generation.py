@@ -202,7 +202,7 @@ class LayoutGeneration:
 
         renamed_graph = information_on_graph(self._cfg_graph, {name: var_order_repr(name, assignments)
                                                                for name, assignments in self._variable_order.items()})
-        nx.nx_agraph.write_dot(renamed_graph, Path(name.parent).joinpath(name.name + "_vars.dot"))
+        nx.nx_agraph.write_dot(renamed_graph, Path(name.parent).joinpath(name.stem + "_vars.dot"))
         self._dir = name
         # Guess: we need to traverse the code following the dominance tree in topological order
         # This is because in the dominance tree together with the SSA, all the nodes
@@ -341,7 +341,7 @@ class LayoutGeneration:
                                                                for block_name, block in
                                                                self._block_list.blocks.items()})
 
-        nx.nx_agraph.write_dot(renamed_graph, Path(self._dir.parent).joinpath(self._dir.name + "_stacks.dot"))
+        nx.nx_agraph.write_dot(renamed_graph, Path(self._dir.parent).joinpath(self._dir.stem + "_stacks.dot"))
         return json_info
 
 
