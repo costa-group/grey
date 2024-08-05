@@ -163,6 +163,14 @@ def unify_stacks_brothers(input_stack: List[str], live_vars_list: List[Set[str]]
     return combined_output_stack, output_stacks
 
 
+def joined_stack(combined_output_stack: List[str], live_vars: Set[str]):
+    """
+    Detects which elements must be bottom in the joined stack from several predecessor blocks. In order to
+    do so, it assigns to 'bottom' the values that are not in the live-in set
+    """
+    return [stack_element if stack_element in live_vars else "bottom" for stack_element in combined_output_stack]
+
+
 def var_order_repr(block_name: str, var_info: Dict[str, int]):
     """
     Str representation of a block name and the information on variables
@@ -227,12 +235,12 @@ class LayoutGeneration:
 
             if len(predecessor_stacks) > 1:
                 combined_stack_id = '_'.join(sorted(comes_from))
-                input_stack = combined_stacks[combined_stack_id]
+                input_stack = joined_stack(combined_stacks[combined_stack_id], liveness_info.output_state.live_vars)
 
                 for i in range(len(predecessor_stacks)):
                     # Check they match
                     assert len(predecessor_stacks[i]) == len(input_stack) and \
-                           all(elem1 == elem2 or elem1 == "bottom" for elem1, elem2 in
+                           all(elem1 == elem2 or elem1 == "bottom" or elem2 == "bottom" for elem1, elem2 in
                                zip(predecessor_stacks[i], input_stack)), \
                         f"ERROR when unifying stacks for block {block_id}: {predecessor_stacks[i]} != {input_stack}"
 
