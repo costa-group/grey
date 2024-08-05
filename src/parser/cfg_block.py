@@ -128,7 +128,7 @@ class CFGBlock:
 
     def _compute_storage_dependences(self,instructions):
         sto_ins = []
-        print(instructions)
+        # print(instructions)
         for i in range(len(instructions)):
             ins = instructions[i]
             if ins.get_op_name() in ["sload","sstore"]:
@@ -139,8 +139,8 @@ class CFGBlock:
                 sto_ins.append((i,["inf"]))
 
         deps = [(sto_ins[i][0],j[0]) for i in range(len(sto_ins)) for j in sto_ins[i+1:] if are_dependent_accesses(sto_ins[i][1],j[1])]
-        print("DEPS: "+str(deps))
-        print("******")
+        # print("DEPS: "+str(deps))
+        # print("******")
         return deps
 
     def _compute_memory_dependences(self, instructions):
@@ -327,44 +327,36 @@ class CFGBlock:
 
         return block_spec, out_idx
 
-    def _include_jump_tag(self, block_spec, out_idx, block_tags_dict, block_tag_idx):
-
+    def _include_jump_tag(self, block_spec: Dict, out_idx: int, block_tags_dict: Dict, block_tag_idx: int) -> \
+            Tuple[Dict, int, int]:
         tag_idx = block_tags_dict.get(self._jump_to, block_tag_idx)
 
         if self._jump_to not in block_tags_dict:
             block_tags_dict[self._jump_to] = block_tag_idx
-            idx = block_tag_idx+1
-
-        else:
-            idx = block_tag_idx
-
+            block_tag_idx += 1
 
         tag_instr = build_pushtag_spec(out_idx, tag_idx)
-        out_idx+=1
+        out_idx += 1
 
         block_spec["user_instrs"].append(tag_instr)
 
-        #It adds on top of the stack the jump label
-        block_spec["tgt_ws"] = tag_instr["outpt_sk"]+block_spec["tgt_ws"]
+        # It adds on top of the stack the jump label
+        block_spec["tgt_ws"] = tag_instr["outpt_sk"] + block_spec["tgt_ws"]
 
-        #It adds in variables the new identifier for  jump label
-        block_spec["variables"]+=tag_instr["outpt_sk"]
+        # It adds in variables the new identifier for jump label
+        block_spec["variables"] += tag_instr["outpt_sk"]
 
         return block_spec, out_idx, block_tag_idx
 
-
-
-    def build_spec(self, block_tags_dict, block_tag_idx):
+    def build_spec(self, block_tags_dict: Dict, block_tag_idx: int):
 
         ins_seq = []
         map_instructions = {}
         specifications = {}
 
         cont = 0
-
         out_idx = 0
-
-        i = 0
+        print("BLOCK TAG", block_tag_idx)
 
         for i in range(len(self._instructions)):
             ins = self._instructions[i]
@@ -381,7 +373,7 @@ class CFGBlock:
 
                     if not ins.get_op_name() in self.function_calls:
                         print("block"+str(self.block_id)+"_"+str(cont))
-                        print(json.dumps(r, indent=4))
+                        # print(json.dumps(r, indent=4))
 
 
                 else:
@@ -392,8 +384,8 @@ class CFGBlock:
                     r, out_idx = self._include_function_call_tags(ins,out_idx,r)
 
                     specifications["block"+str(self.block_id)+"_"+str(cont-1)] = r
-                    print("block"+str(self.block_id)+"_"+str(cont-1))
-                    print(json.dumps(r, indent=4))
+                    # print("block"+str(self.block_id)+"_"+str(cont-1))
+                    # print(json.dumps(r, indent=4))
 
 
 
@@ -415,8 +407,9 @@ class CFGBlock:
             specifications["block"+str(self.block_id)+"_"+str(cont)] = r
 
             if not self._jump_type in ["conditional","unconditional"]:
-                print("block"+str(self.block_id)+"_"+str(cont))
-                print(json.dumps(r, indent=4))
+                pass
+                # print("block"+str(self.block_id)+"_"+str(cont))
+                # print(json.dumps(r, indent=4))
 
         else:
             r = get_empty_spec()
@@ -425,8 +418,8 @@ class CFGBlock:
         if self._jump_type in ["conditional","unconditional"]:
             r, out_idx, block_tag_idx = self._include_jump_tag(r,out_idx, block_tags_dict, block_tag_idx)
             specifications["block"+str(self.block_id)+"_"+str(cont)] = r
-            print("block"+str(self.block_id)+"_"+str(cont))
-            print(json.dumps(r, indent=4))
+            # print("block"+str(self.block_id)+"_"+str(cont))
+            # print(json.dumps(r, indent=4))
 
         return specifications, block_tag_idx
 
