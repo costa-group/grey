@@ -159,16 +159,13 @@ class CFGInstruction:
         
         instructions = []
         new_out = out_idx
-        
-        input_args = []
-        
+
         inp = self.in_args[0]
         
         func = map_instructions.get(("PUSH",tuple([inp])),-1)
                 
-        if func != -1:
-            inp_var = func["outpt_sk"][0]
-        else:
+        # Only consider constants here, other assignments are just ignored
+        if func == -1 and inp.startswith("0x"):
             
             push_name = "PUSH" if int(inp,16) != 0 else "PUSH0"
             inst_idx = instrs_idx.get(push_name, 0)
@@ -177,11 +174,9 @@ class CFGInstruction:
             push_ins = build_push_spec(inp,inst_idx,new_out, self.out_args)
 
             map_instructions[("PUSH",tuple([inp]))] = push_ins
-                    
             new_out +=1
             instructions.append(push_ins)
-            inp_var = push_ins["outpt_sk"][0]
-            
+
         return instructions, new_out
 
 
@@ -216,7 +211,7 @@ class CFGInstruction:
                         instructions.append(push_ins)
                         inp_var = push_ins["outpt_sk"][0]
 
-                    elif inp in assignments:
+                    elif inp in self.assignments:
                         inp_var = inp
                         
             input_args.append(inp_var)
