@@ -16,7 +16,7 @@ class CFGBlock:
     """
     Class for representing a cfg block
     """
-    
+
     def __init__(self, identifier : str, instructions: List[CFGInstruction], type_block: str, assignment_dict: Dict[str, str]):
         self.block_id = identifier
         self._instructions = instructions
@@ -32,10 +32,10 @@ class CFGBlock:
         self.sto_dep = []
         self.mem_dep = []
 
-        
+
     def get_block_id(self) -> str:
         return self.block_id
-        
+
     def get_instructions(self) -> List[CFGInstruction]:
         return self._instructions
 
@@ -44,7 +44,7 @@ class CFGBlock:
 
     def get_source_stack(self) -> int:
         return self.source_stack
-   
+
     def get_jump_type(self) -> str:
         return self._jump_type
 
@@ -59,7 +59,7 @@ class CFGBlock:
 
     def set_function_call(self, v) -> None:
         self.is_function_call = v
-    
+
     def set_instructions(self, new_instructions: List[CFGInstruction]) -> None:
         self._instructions = new_instructions
 
@@ -83,7 +83,7 @@ class CFGBlock:
             raise Exception("Wrong jump type")
         else:
             self._jump_type = t
-    
+
     def set_jump_to(self, blockId : str) -> None:
         self._jump_to = blockId
 
@@ -117,16 +117,15 @@ class CFGBlock:
         calls = filter(lambda x: x in function_ids, op_names)
         self.function_calls = set(calls)
 
-
-    def process_dependences(self, instructions):
+    def _process_dependences(self, instructions):
 
         sto_dep = self._compute_storage_dependences(instructions)
         sto_dep = self._simplify_dependences(sto_dep)
-        
+
         # mem_dep = self._compute_storage_dependences()
         # mem_dep = self._simplify_dependences(mem_dep)
         return sto_dep #, mem_dep
-        
+
     def _compute_storage_dependences(self,instructions):
         sto_ins = []
         print(instructions)
@@ -138,12 +137,12 @@ class CFGBlock:
                 sto_ins.append((i,input_val))
             elif ins.get_op_name() in ["call","delegatecall","staticcall","callcode"]:
                 sto_ins.append((i,["inf"]))
-                
+
         deps = [(sto_ins[i][0],j[0]) for i in range(len(sto_ins)) for j in sto_ins[i+1:] if are_dependent_accesses(sto_ins[i][1],j[1])]
         print("DEPS: "+str(deps))
         print("******")
         return deps
-                                
+
     def _compute_memory_dependences(self, instructions):
         for i in len(instructions):
             ins = instructions[i]
@@ -154,7 +153,7 @@ class CFGBlock:
         dg = nx.DiGraph(deps)
         tr = nx.transitive_reduction(dg)
         return list(tr.edges)
-                            
+
     def get_as_json(self):
         block_json = {}
         block_json["id"] = self.block_id
@@ -165,7 +164,7 @@ class CFGBlock:
             instructions_json.append(i_json)
 
         block_json["instructions"] = instructions_json
-        
+
         block_json["exit"] = self.block_id+"Exit"
         block_json["type"] = "BasicBlock"
 
@@ -208,7 +207,7 @@ class CFGBlock:
         Builds the specification for a block. "map_instructions" is passed as an argument
         to reuse declarations from other blocks, as we might have split the corresponding basic block
         """
-        
+
         spec = {}
 
         uninter_functions = []
@@ -218,17 +217,17 @@ class CFGBlock:
         input_stack = []
         output_stack = []
 
-        
+
         for i in range(len(instructions)):
             #Check if it has been already created
-            
+
             ins = instructions[i]
-            
+
             ins_spec = map_instructions.get((ins.get_op_name().upper(),tuple(ins.get_in_args())), None)
 
             if ins_spec is None:
                 if ins.get_op_name().startswith("assignment"):
-                    result, new_out_idx = ins.build_spec_assigment(new_out_idx, instrs_idx, map_instructions) 
+                    result, new_out_idx = ins.build_spec_assigment(new_out_idx, instrs_idx, map_instructions)
                 else:
                     result, new_out_idx = ins.build_spec(new_out_idx, instrs_idx, map_instructions)
 
@@ -252,7 +251,7 @@ class CFGBlock:
         # for assigment in self.assignment_dict:
 
         #     is_used = is_assigment_var_used(assigment, uninter_functions)
-            
+
         #     # if is_used:
 
         #     in_val = self.assignment_dict.get(assigment)
@@ -265,12 +264,12 @@ class CFGBlock:
         #             push_ins = build_push_spec(in_val,inst_idx,assigment)
 
         #             map_instructions[("PUSH",tuple([in_val]))] = push_ins
-                    
+
         #             uninter_functions.append(push_ins)
 
         #     if not is_used:
         #         output_stack.insert(0,assigment)
-                        
+
         spec["original_instrs"] = ""
         spec["yul_expressions"] = '\n'.join(list(map(lambda x: x.get_instruction_representation(),instructions)))
         spec["src_ws"] = input_stack
@@ -280,18 +279,18 @@ class CFGBlock:
 
         spec["memory_dependences"] = []
         spec["storage_dependences"] = []
-        
+
         #They are not used in greedy algorithm
         spec["init_progr_len"] = 0
         spec["max_progr_len"] = 0
-        spec["min_length_instrs"] = 0 
+        spec["min_length_instrs"] = 0
         spec["min_length_bounds"] = 0
         spec["min_length"] = 0
         spec["rules"] = ""
-        
+
         return spec, new_out_idx
 
-        
+
     def _include_function_call_tags(self,ins, out_idx, block_spec):
         global function_tags
         global tag_idx
@@ -302,9 +301,9 @@ class CFGBlock:
             out_tag = tag_idx
             in_tag = tag_idx+1
             tag_idx+=2
-            
+
             function_tags[ins.get_op_name()] = (in_tag, out_tag)
-            
+
         in_tag_instr = build_pushtag_spec(out_idx, in_tag)
         out_idx+=1
 
@@ -319,19 +318,19 @@ class CFGBlock:
         #It adds at top of the stack de input jump label
         block_spec["tgt_ws"] = in_tag_instr["outpt_sk"]+block_spec["tgt_ws"]
 
-            
+
         #It adds in variables the new identifier for the in and out jump label
         block_spec["variables"]+=in_tag_instr["outpt_sk"]+ out_tag_instr["outpt_sk"]
 
         block_spec["yul_expressions"]+="\n"+ins.get_instruction_representation()
 
-            
+
         return block_spec, out_idx
 
     def _include_jump_tag(self, block_spec, out_idx, block_tags_dict, block_tag_idx):
 
         tag_idx = block_tags_dict.get(self._jump_to, block_tag_idx)
-        
+
         if self._jump_to not in block_tags_dict:
             block_tags_dict[self._jump_to] = block_tag_idx
             idx = block_tag_idx+1
@@ -347,16 +346,16 @@ class CFGBlock:
 
         #It adds on top of the stack the jump label
         block_spec["tgt_ws"] = tag_instr["outpt_sk"]+block_spec["tgt_ws"]
-            
+
         #It adds in variables the new identifier for  jump label
         block_spec["variables"]+=tag_instr["outpt_sk"]
 
         return block_spec, out_idx, block_tag_idx
-        
-        
-        
+
+
+
     def build_spec(self, block_tags_dict, block_tag_idx):
-        
+
         ins_seq = []
         map_instructions = {}
         specifications = {}
@@ -364,7 +363,7 @@ class CFGBlock:
         cont = 0
 
         out_idx = 0
-        
+
         i = 0
 
         for i in range(len(self._instructions)):
@@ -379,36 +378,36 @@ class CFGBlock:
 
                     specifications["block"+str(self.block_id)+"_"+str(cont)] = r
                     cont +=1
-                    
-                    if not ins.get_op_name() in self.function_calls: 
+
+                    if not ins.get_op_name() in self.function_calls:
                         print("block"+str(self.block_id)+"_"+str(cont))
                         print(json.dumps(r, indent=4))
 
-                        
+
                 else:
                     r = get_empty_spec()
                     cont+=1
 
                 if ins.get_op_name() in self.function_calls:
                     r, out_idx = self._include_function_call_tags(ins,out_idx,r)
-                        
+
                     specifications["block"+str(self.block_id)+"_"+str(cont-1)] = r
                     print("block"+str(self.block_id)+"_"+str(cont-1))
                     print(json.dumps(r, indent=4))
 
 
-                        
+
                 #We reset the seq of instructions and the out_idx for next block
                 ins_seq = []
                 out_idx = 0
                 map_instructions = {}
-                            
+
             else:
                 ins_seq.append(ins)
-                
+
         if ins_seq != []:
             r, out_idx = self._build_spec_for_block(ins_seq, map_instructions, out_idx)
-            
+
             sto_deps = self._process_dependences(ins_seq)
             r["storage_dependences"] = sto_deps
             # r["memory_dependences"] = mem_deps
@@ -418,7 +417,7 @@ class CFGBlock:
             if not self._jump_type in ["conditional","unconditional"]:
                 print("block"+str(self.block_id)+"_"+str(cont))
                 print(json.dumps(r, indent=4))
-                
+
         else:
             r = get_empty_spec()
             cont+=1
@@ -441,6 +440,6 @@ class CFGBlock:
         s += "Comes_from: " + str(self._comes_from) + "\n"
         s += "Instructions: " + str(self._instructions) + "\n"
         return s
-        
+
     def __repr__(self):
         return json.dumps(self.get_as_json())
