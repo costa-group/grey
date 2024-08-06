@@ -202,6 +202,7 @@ class LayoutGeneration:
 
         immediate_dominators = nx.immediate_dominators(self._cfg_graph, self._start)
         self._dominance_tree = nx.DiGraph([v, u] for u, v in immediate_dominators.items() if u != self._start)
+        self._dominance_tree.add_node(self._start)
 
         nx.nx_agraph.write_dot(self._dominance_tree, name)
         self._block_order = list(nx.topological_sort(self._dominance_tree))
@@ -371,9 +372,6 @@ def layout_generation(cfg: CFG, final_dir: Path = Path(".")) -> Dict[str, Dict[s
     for component_name, liveness in results.items():
         cfg_info_suboject = cfg_info[component_name]["block_info"]
         digraph = digraph_from_block_info(cfg_info_suboject.values())
-
-        if len(digraph) == 1:
-            continue
 
         layout = LayoutGeneration(component_name, cfg.block_list[component_name], liveness,
                                   final_dir.joinpath(f"{component_name}_dominated.dot"), digraph)
