@@ -298,8 +298,16 @@ class LayoutGeneration:
         self._tags_idx = new_tag_idx
 
         # Modify the specification to update the input stack and output stack fields
-        block_json["src_ws"] = input_stack
-        block_json["tgt_ws"] = output_stack
+        if len(block_json) > 1:
+            # The original block has been split in several fragments
+            # TODO: reconstruct input and output stacks
+            for subblock_name in block_json:
+                block_json[subblock_name]["src_ws"] = input_stack
+                block_json[subblock_name]["tgt_ws"] = output_stack
+        else:
+            for subblock_name in block_json:
+                block_json[subblock_name]["src_ws"] = input_stack
+                block_json[subblock_name]["tgt_ws"] = output_stack
 
         # TODO: temporal hack to output the input and output stacks
         block.input_stack = input_stack
@@ -335,7 +343,7 @@ class LayoutGeneration:
 
             block_specification = self._construct_code_from_block(current_block, input_stacks, output_stacks, combined_stacks)
 
-            json_info[block_name] = block_specification
+            json_info.update(block_specification)
 
             successors = [possible_successor for possible_successor in
                           [current_block.get_jump_to(), current_block.get_falls_to()] if possible_successor is not None]
@@ -376,7 +384,8 @@ def layout_generation(cfg: CFG, final_dir: Path = Path(".")) -> Dict[str, Dict[s
         layout = LayoutGeneration(component_name, cfg.block_list[component_name], liveness,
                                   final_dir.joinpath(f"{component_name}_dominated.dot"), digraph)
         layout._tags_idx = tag_idx
-        jsons[component_name] = layout.build_layout()
+        layout_blocks = layout.build_layout()
+        jsons.update(layout_blocks)
 
         # Update the target idx with the one in the layout object
         tag_idx = layout._tags_idx

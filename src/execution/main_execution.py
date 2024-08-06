@@ -48,21 +48,21 @@ def main():
     else:
         liveness_info = perform_liveness_analysis(cfg)
 
+    x = dtimer()
     jsons = layout_generation(cfg, dot_file_dir)
     sfs_final_dir = final_dir.joinpath("sfs")
     sfs_final_dir.mkdir(exist_ok=True, parents=True)
+    y = dtimer()
 
-    for component_name, sfs_dict in jsons.items():
-        store_sfs_json(sfs_dict, sfs_final_dir)
+    print("Layout generation: " + str(y - x) + "s")
 
-        # if args.greedy:
-        #     csv_rows = []
-        #     for sfs_dict_list in results:
-        #         for sfs_dict_name in sfs_dict_list:
-        #             sfs_dict = sfs_dict_list[sfs_dict_name]
-        #             outcome, time, solution_found = greedy_standalone(sfs_dict)
-        #             csv_row = generate_statistics_info(solution_found, outcome, time, sfs_dict)
-        #             csv_rows.append(csv_row)
-        #     df = pd.DataFrame(csv_rows)
-        #     df.to_csv("outcome.csv")
+    if args.greedy:
+        csv_rows = []
+        for block_name, sfs in jsons.items():
+            store_sfs_json(sfs, sfs_final_dir)
 
+            outcome, time, solution_found = greedy_standalone(sfs)
+            csv_row = generate_statistics_info(block_name, solution_found, outcome, time, sfs)
+            csv_rows.append(csv_row)
+        df = pd.DataFrame(csv_rows)
+        df.to_csv("outcome.csv")
