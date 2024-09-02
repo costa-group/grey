@@ -63,14 +63,18 @@ def parse_block(block_json: Dict[str,Any]) -> Tuple[block_id_T, CFGBlock, block_
         if "assignment" in instruction:
             list_cfg_instructions.append(parse_assignment(instruction, assignment_dict))
         else:
-            cfg_instruction = parse_instruction(instruction) if block_type != "FunctionReturn" else []
-            list_cfg_instructions.append(cfg_instruction)
+            if block_type != "FunctionReturn":
+                cfg_instruction = parse_instruction(instruction)
+                list_cfg_instructions.append(cfg_instruction)
 
+        
     block = CFGBlock(block_id, list_cfg_instructions, block_type, assignment_dict)
    
     if block_type == "FunctionCall":
         block.set_function_call(True)
-    
+
+    # block._process_dependences(block._instructions)
+        
     return block_id, block, block_exit
 
 
