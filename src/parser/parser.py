@@ -49,7 +49,7 @@ def parse_assignment(assignment: Dict[str, Any], assignment_dict: Dict[str, str]
     return instruction
 
 
-def parse_block(block_json: Dict[str,Any]) -> Tuple[block_id_T, CFGBlock, block_id_T]:
+def parse_block(block_json: Dict[str,Any]) -> Tuple[block_id_T, CFGBlock, Dict]:
     block_id = block_json.get("id", -1)
     block_instructions = block_json.get("instructions", -1)
     block_exit = block_json.get("exit", -1)
@@ -83,24 +83,16 @@ def parser_block_list(blocks: List[Dict[str, Any]]):
     comes_from = collections.defaultdict(lambda: [])
     for b in blocks:
         block_id, new_block, block_exit = parse_block(b)
+        new_block.set_jump_info(block_exit)
 
-        pos = block_id.find("Exit")
-        if pos != -1:
+        # Annotate comes from
+        for succ_block in block_exit["targets"]:
+            comes_from[succ_block].append(block_id)
 
-            prev_block_id = block_id[:pos]
-            prev_block = block_list.get_block(prev_block_id)
+        if new_block.get_jump_type() == "terminal":
+            exit_blocks.append(block_id)
 
-            prev_block.set_jump_info(new_block.get_jump_type(), block_exit)
-            
-            # Annotate comes from
-            for succ_block in block_exit:
-                comes_from[succ_block].append(prev_block_id)
-
-            if prev_block.get_jump_type() == "terminal": 
-                exit_blocks.append(prev_block_id)
-
-        else:
-            block_list.add_block(new_block)
+        block_list.add_block(new_block)
 
     # Update comes_from from the dictionary
     for block_id in comes_from:

@@ -4,7 +4,7 @@ import parser.constants as constants
 import json
 import networkx as nx
 
-from typing import List, Dict, Tuple
+from typing import List, Dict, Tuple, Any
 
 global tag_idx
 tag_idx = 0
@@ -31,7 +31,7 @@ class CFGBlock:
         self.function_calls = set()
         self.sto_dep = []
         self.mem_dep = []
-
+        self._cond_value = None
 
     def get_block_id(self) -> str:
         return self.block_id
@@ -93,14 +93,17 @@ class CFGBlock:
     def set_length(self) -> int:
         return len(self._instructions)
 
-    def set_jump_info(self, type_block: str, exit_info: List[str]) -> None:
+    def set_jump_info(self, exit_info: Dict[str, Any]) -> None:
+        type_block = exit_info["type"]
+        targets = exit_info["targets"]
         if type_block in ["ConditionalJump"]:
             self._jump_type = "conditional"
-            self._falls_to = exit_info[0]
-            self._jump_to = exit_info[1]
+            self._cond_value = exit_info["cond"]
+            self._falls_to = targets[0]
+            self._jump_to = targets[1]
         elif type_block in ["Jump"]:
             self._jump_type = "unconditional"
-            self._jump_to = exit_info[0]
+            self._jump_to = targets[0]
         elif type_block in ["Terminated"]:
             #We do not store the direction as itgenerates a loop
             self._jump_type = "terminal"
