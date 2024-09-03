@@ -72,14 +72,17 @@ class CFGBlock:
         # TODO
         #self.source_stack = utils.compute_stack_size(map(lambda x: x.disasm, self.instructions_to_optimize_bytecode()))
 
-    def add_comes_from(self, block_id: str):
+    def add_comes_from(self, block_id: str) -> None:
         self._comes_from.append(block_id)
 
     def get_comes_from(self) -> List[str]:
         return self._comes_from
 
+    def set_comes_from(self, new_comes_from: List[str]) -> None:
+        self._comes_from = new_comes_from
+
     def set_jump_type(self, t : str) -> None:
-        if t not in ["conditional","unconditional","terminal", "falls_to"]:
+        if t not in ["conditional","unconditional","terminal", "falls_to", "sub_block"]:
             raise Exception("Wrong jump type")
         else:
             self._jump_type = t
