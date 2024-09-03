@@ -31,6 +31,7 @@ class CFGBlock:
         self.function_calls = set()
         self.sto_dep = []
         self.mem_dep = []
+        self.output_var_idx = 0
 
 
     def get_block_id(self) -> str:
@@ -117,6 +118,24 @@ class CFGBlock:
         calls = filter(lambda x: x in function_ids, op_names)
         self.function_calls = set(calls)
 
+    def check_validity_arguments(self):
+        '''
+        It checks for each instruction in the block that there is not
+        any previous instruction that uses as input argument the variable
+        that is generating as output (there is not aliasing).
+        '''
+
+        for i in range(len(self._instructions)):
+            instr = self._instructions[i]
+            out_var = instr.get_out_args()
+            if len(out_var) > 0:
+                out_var_set = set(out_var)
+                pred_inputs = map(lambda x: set(x.get_in_args()).intersection(out_var_set),self._instructions[:i+1])
+                candidates = list(filter(lambda x: x != set(), pred_inputs))
+                if len(candidates) != 0:
+                    print("[WARNING]: Aliasing between variables!")
+                    
+        
     def _process_dependences(self, instructions, map_positions):
 
         sto_dep = self._compute_storage_dependences(instructions)
@@ -416,7 +435,6 @@ class CFGBlock:
                         print("block"+str(self.block_id)+"_"+str(cont))
                         # print(json.dumps(r, indent=4))
 
-
                 else:
                     r = get_empty_spec()
                     cont+=1
@@ -447,10 +465,11 @@ class CFGBlock:
 
             specifications["block"+str(self.block_id)+"_"+str(cont)] = r
 
+            #Just to print information if it is not a jump
             if not self._jump_type in ["conditional","unconditional"]:
-                pass
-                # print("block"+str(self.block_id)+"_"+str(cont))
-                # print(json.dumps(r, indent=4))
+                print("block"+str(self.block_id)+"_"+str(cont))
+                print(json.dumps(r, indent=4))
+                
 
         else:
             r = get_empty_spec()
@@ -459,8 +478,8 @@ class CFGBlock:
         if self._jump_type in ["conditional","unconditional"]:
             r, out_idx, block_tag_idx = self._include_jump_tag(r,out_idx, block_tags_dict, block_tag_idx)
             specifications["block"+str(self.block_id)+"_"+str(cont)] = r
-            # print("block"+str(self.block_id)+"_"+str(cont))
-            # print(json.dumps(r, indent=4))
+            print("block"+str(self.block_id)+"_"+str(cont))
+            print(json.dumps(r, indent=4))
 
         return specifications, block_tag_idx
 

@@ -69,7 +69,9 @@ def parse_block(block_json: Dict[str,Any]) -> Tuple[block_id_T, CFGBlock, block_
 
         
     block = CFGBlock(block_id, list_cfg_instructions, block_type, assignment_dict)
-   
+
+    block.check_validity_arguments()
+    
     if block_type == "FunctionCall":
         block.set_function_call(True)
 
