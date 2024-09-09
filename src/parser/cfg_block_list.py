@@ -45,15 +45,16 @@ class CFGBlockList:
         return [block.block_id for block in self.blocks.values() if block.get_jump_type() in
                 ["mainExit", "terminal", "FunctionReturn"]]
 
-    def build_spec(self, block_tag_idx):
+    def build_spec(self, block_tag_idx, return_function_element = 0):
         """
         Build specs from blocks
         """
-        list_spec = []
+        list_spec = {}
         for b in self.blocks:
             block = self.blocks[b]
             spec, block_tag_idx  = block.build_spec(self.block_tags_dict, block_tag_idx)
-            list_spec.append(spec)
+                
+            list_spec = list_spec | spec
 
         return list_spec, block_tag_idx
 
