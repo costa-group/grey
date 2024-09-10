@@ -32,8 +32,22 @@ class CFGBlock:
         self.function_calls = set()
         self.sto_dep = []
         self.mem_dep = []
-        self._cond_value = None
+
+        # Stack elements that must be placed in a specific order in the stack after performing
+        self._final_stack_elements: List[str] = []
         self.output_var_idx = 0
+
+    @property
+    def final_stack_elements(self) -> List[str]:
+        """
+        Stack elements that must be placed in a specific order in the stack after performing the operations
+        in the block. It can be either the condition of a JUMPI or when invoking a function just after a sub block
+        """
+        return self._final_stack_elements
+
+    @final_stack_elements.setter
+    def final_stack_elements(self, value: List[str]):
+        self._final_stack_elements = value
 
     def get_block_id(self) -> str:
         return self.block_id
@@ -84,7 +98,7 @@ class CFGBlock:
         self._comes_from = new_comes_from
 
     def set_jump_type(self, t : str) -> None:
-        if t not in ["conditional","unconditional","terminal", "falls_to", "sub_block"]:
+        if t not in ["conditional","unconditional","terminal", "falls_to", "sub_block", "split_instruction_block"]:
             raise Exception("Wrong jump type")
         else:
             self._jump_type = t
@@ -103,7 +117,7 @@ class CFGBlock:
         targets = exit_info["targets"]
         if type_block in ["ConditionalJump"]:
             self._jump_type = "conditional"
-            self._cond_value = exit_info["cond"]
+            self._final_stack_elements = exit_info["cond"]
             self._falls_to = targets[0]
             self._jump_to = targets[1]
         elif type_block in ["Jump"]:

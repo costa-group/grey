@@ -14,17 +14,24 @@ def sub_block_name(block: CFGBlock, sub_block_idx: int) -> str:
     return f"{block.block_id}_{sub_block_idx}"
 
 
-def initialize_sub_blocks(initial_block: CFGBlock, sub_blocks_instrs: List[List[CFGInstruction]]) -> List[CFGBlock]:
+def initialize_sub_blocks(initial_block: CFGBlock, sub_blocks_instrs: List[Tuple[List[CFGInstruction], bool]]) -> List[CFGBlock]:
     """
     Given the initial block and the instructions that form the corresponding sub-blocks, generates a
-    CFG block for each sub-block
+    CFG block for each sub-block and updates the jump and output stack information from these blocks
     """
     cfg_sub_blocks = []
     comes_from = initial_block.get_comes_from()
 
-    for sub_block_idx, sub_block_instrs in enumerate(sub_blocks_instrs):
+    for sub_block_idx, (sub_block_instrs, split_instruction_sub_block) in enumerate(sub_blocks_instrs):
         new_sub_block_idx = sub_block_name(initial_block, sub_block_idx)
-        new_sub_block_type = "sub_block" if sub_block_idx != len(sub_block_instrs) - 1 else initial_block.get_jump_type()
+
+        # Determine the jump type according to whether it is a initial block or a call to a function
+        if sub_block_idx != len(sub_block_instrs) - 1:
+            # Current sub block does not correspond to the last one
+            new_sub_block_type = "split_instruction" if split_instruction_sub_block else "sub_block"
+        else:
+            new_sub_block_type = initial_block.get_jump_type()
+
         new_cfg_sub_block = CFGBlock(new_sub_block_idx, sub_block_instrs, new_sub_block_type,
                                      initial_block.assignment_dict)
 
@@ -36,18 +43,26 @@ def initialize_sub_blocks(initial_block: CFGBlock, sub_blocks_instrs: List[List[
         comes_from = [new_sub_block_idx]
 
     # After generating the sequence of sub blocks, we need to update the jumps to and falls to connect the sub blocks
+    # and the final stack values
     current_falls_to = initial_block.get_falls_to()
     current_jumps_to = initial_block.get_jump_to()
-    current_jump_type = initial_block.get_jump_type()
+    current_stack_values = initial_block.final_stack_elements
 
     for cfg_sub_block in reversed(cfg_sub_blocks):
         cfg_sub_block.set_falls_to(current_falls_to)
         cfg_sub_block.set_jump_to(current_jumps_to)
-        cfg_sub_block.set_jump_type(current_jump_type)
+        cfg_sub_block.final_stack_elements = current_stack_values
 
         current_falls_to = cfg_sub_block.block_id
         current_jumps_to = None
-        current_jump_type = "sub_block"
+
+        # The final stack elements correspond to the arguments in the call to functions (if any)
+        if cfg_sub_block.get_jump_type() == "split_instruction":
+            # For split instructions, we need to force the previous block to place the arguments in the correct order
+            # TODO: check whether arguments must be reversed or not
+            current_stack_values = cfg_sub_block.get_instructions_to_compute()[0].get_in_args()
+        else:
+            current_stack_values = []
 
     return cfg_sub_blocks
 
@@ -97,16 +112,20 @@ def compute_sub_block_list(block_list: CFGBlockList) -> CFGBlockList:
     for block_name, cfg_block in block_list.blocks.items():
         instructions = cfg_block.get_instructions()
 
-        # Traverse the instructions to determine if there are multiple sub-blocks
-        sub_block_instructions = []
+        # Traverse the instructions to determine if there are multiple sub-blocks and whether the block corresponds to
+        # a call to a function or an instruction that cannot be processed
+        sub_block_instructions: List[Tuple[List[CFGInstruction], bool]] = []
         current_sub_block = []
         for instr in instructions:
             if instr.get_op_name().upper() in constants.split_block or instr.get_op_name() in cfg_block.function_calls:
 
                 # If there is at least a instruction, consider the corresponding sub-block
                 if current_sub_block:
-                    sub_block_instructions.append(current_sub_block)
+                    sub_block_instructions.append((current_sub_block, False))
                     current_sub_block = []
+
+                # Include in an isolated sub block the split instruction
+                sub_block_instructions.append(([instr], True))
 
             else:
                 current_sub_block.append(instr)
@@ -114,11 +133,13 @@ def compute_sub_block_list(block_list: CFGBlockList) -> CFGBlockList:
         # Finally, consider the remaining instructions
 
         if current_sub_block:
-            sub_block_instructions.append(current_sub_block)
+            sub_block_instructions.append((current_sub_block, False))
 
         # If there is at least two sub-blocks, then we need to generate the new blocks
         if len(sub_block_instructions) > 1:
-            modified_blocks[block_name] = (sub_block_name(cfg_block, 0), sub_block_name(cfg_block, len(sub_block_instructions) - 1))
+            modified_blocks[block_name] = (sub_block_name(cfg_block, 0),
+                                           sub_block_name(cfg_block, len(sub_block_instructions) - 1))
+
             sub_block_list = initialize_sub_blocks(cfg_block, sub_block_instructions)
             for sub_block in sub_block_list:
                 new_block_list.add_block(sub_block)
