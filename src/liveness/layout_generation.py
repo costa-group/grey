@@ -6,7 +6,7 @@ in this module the greedy algorithm itself is invoked
 """
 import heapq
 import itertools
-from typing import Dict, List, Type, Any, Set, Tuple
+from typing import Dict, List, Type, Any, Set, Tuple, Optional
 import networkx as nx
 from pathlib import Path
 
@@ -179,15 +179,15 @@ def var_order_repr(block_name: str, var_info: Dict[str, int]):
     return '\n'.join(text_format)
 
 
-def print_stacks(block_name: str, block: CFGBlock):
-    text_format = [f"{block_name}:", f"Src: {block.input_stack}", f"Tgt: {block.output_stack}"]
+def print_stacks(block_name: str, json_dict: Dict[str, Any]):
+    text_format = [f"{block_name}:", f"Src: {json_dict[block_name]['src_ws']}", f"Tgt: {json_dict[block_name]['tgt_ws']}"]
     return '\n'.join(text_format)
 
 
 class LayoutGeneration:
 
     def __init__(self, object_id, block_list: CFGBlockList, liveness_info: Dict[str, LivenessAnalysisInfo], name: Path,
-                 cfg_graph: nx.Graph = None):
+                 cfg_graph: Optional[nx.Graph] = None):
         self._id = object_id
         self._block_list = block_list
         self._liveness_info = liveness_info
@@ -309,10 +309,6 @@ class LayoutGeneration:
                 block_json[subblock_name]["src_ws"] = input_stack
                 block_json[subblock_name]["tgt_ws"] = output_stack
 
-        # TODO: temporal hack to output the input and output stacks
-        block.input_stack = input_stack
-        block.output_stack = output_stack
-
         return block_json
 
     def _construct_code_from_block_list(self):
@@ -341,8 +337,8 @@ class LayoutGeneration:
             # Retrieve the block
             current_block = self._block_list.get_block(block_name)
 
-            block_specification = self._construct_code_from_block(current_block, input_stacks, output_stacks, combined_stacks)
-
+            block_specification = self._construct_code_from_block(current_block, input_stacks,
+                                                                  output_stacks, combined_stacks)
             json_info.update(block_specification)
 
             successors = [possible_successor for possible_successor in
@@ -359,9 +355,9 @@ class LayoutGeneration:
         """
         json_info = self._construct_code_from_block_list()
 
-        renamed_graph = information_on_graph(self._cfg_graph, {block_name: print_stacks(block_name, block)
-                                                               for block_name, block in
-                                                               self._block_list.blocks.items()})
+        renamed_graph = information_on_graph(self._cfg_graph, {block_name: print_stacks(block_name, json_info[block_name])
+                                                               for block_name in
+                                                               self._block_list.blocks})
 
         nx.nx_agraph.write_dot(renamed_graph, Path(self._dir.parent).joinpath(self._dir.stem + "_stacks.dot"))
         return json_info

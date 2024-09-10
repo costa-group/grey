@@ -3,6 +3,7 @@ from pathlib import Path
 from timeit import default_timer as dtimer
 import pandas as pd
 
+from parser.optimizable_block_list import compute_sub_block_cfg
 from parser.parser import parse_CFG
 from parser.cfg import store_sfs_json
 from greedy.greedy import greedy_standalone
@@ -43,13 +44,13 @@ def main():
     dot_file_dir = final_dir.joinpath("liveness")
     dot_file_dir.mkdir(exist_ok=True, parents=True)
 
+    sub_block_cfg = compute_sub_block_cfg(cfg)
+
     if args.visualize:
-        liveness_info = dot_from_analysis(cfg, dot_file_dir)
-    else:
-        liveness_info = perform_liveness_analysis(cfg)
+        liveness_info = dot_from_analysis(sub_block_cfg, dot_file_dir)
 
     x = dtimer()
-    jsons = layout_generation(cfg, dot_file_dir)
+    jsons = layout_generation(sub_block_cfg, dot_file_dir)
     sfs_final_dir = final_dir.joinpath("sfs")
     sfs_final_dir.mkdir(exist_ok=True, parents=True)
     y = dtimer()
@@ -59,10 +60,11 @@ def main():
     if args.greedy:
         csv_rows = []
         for block_name, sfs in jsons.items():
-            store_sfs_json(sfs, sfs_final_dir)
+            store_sfs_json(block_name, sfs, sfs_final_dir)
 
             outcome, time, solution_found = greedy_standalone(sfs)
             csv_row = generate_statistics_info(block_name, solution_found, outcome, time, sfs)
             csv_rows.append(csv_row)
+
         df = pd.DataFrame(csv_rows)
         df.to_csv("outcome.csv")
