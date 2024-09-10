@@ -428,12 +428,12 @@ class CFGBlock:
                     r["storage_dependences"] = sto_deps
                     r["memory_dependences"] = mem_deps
 
-                    specifications["block"+str(self.block_id)+"_"+str(cont)] = r
+                    specifications[str(self.block_id)+"_"+str(cont)] = r
                     cont +=1
 
                     if not ins.get_op_name() in self.function_calls:
-                        print("block"+str(self.block_id)+"_"+str(cont))
-                        # print(json.dumps(r, indent=4))
+                        print(str(self.block_id)+"_"+str(cont))
+                        print(json.dumps(r, indent=4))
 
                 else:
                     r = get_empty_spec()
@@ -442,9 +442,9 @@ class CFGBlock:
                 if ins.get_op_name() in self.function_calls:
                     r, out_idx = self._include_function_call_tags(ins,out_idx,r)
 
-                    specifications["block"+str(self.block_id)+"_"+str(cont-1)] = r
-                    # print("block"+str(self.block_id)+"_"+str(cont-1))
-                    # print(json.dumps(r, indent=4))
+                    specifications[str(self.block_id)+"_"+str(cont-1)] = r
+                    print(str(self.block_id)+"_"+str(cont-1))
+                    print(json.dumps(r, indent=4))
 
 
 
@@ -463,11 +463,11 @@ class CFGBlock:
             r["storage_dependences"] = sto_deps
             r["memory_dependences"] = mem_deps
 
-            specifications["block"+str(self.block_id)+"_"+str(cont)] = r
+            specifications[str(self.block_id)+"_"+str(cont)] = r
 
             #Just to print information if it is not a jump
             if not self._jump_type in ["conditional","unconditional"]:
-                print("block"+str(self.block_id)+"_"+str(cont))
+                print(str(self.block_id)+"_"+str(cont))
                 print(json.dumps(r, indent=4))
                 
 
@@ -477,8 +477,8 @@ class CFGBlock:
 
         if self._jump_type in ["conditional","unconditional"]:
             r, out_idx, block_tag_idx = self._include_jump_tag(r,out_idx, block_tags_dict, block_tag_idx)
-            specifications["block"+str(self.block_id)+"_"+str(cont)] = r
-            print("block"+str(self.block_id)+"_"+str(cont))
+            specifications[str(self.block_id)+"_"+str(cont)] = r
+            print(str(self.block_id)+"_"+str(cont))
             print(json.dumps(r, indent=4))
 
         return specifications, block_tag_idx

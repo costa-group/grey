@@ -49,13 +49,15 @@ def parse_assignment(assignment: Dict[str, Any], assignment_dict: Dict[str, str]
     return instruction
 
 
-def parse_block(block_json: Dict[str,Any]) -> Tuple[block_id_T, CFGBlock, block_id_T]:
+def parse_block(object_name: str, block_json: Dict[str,Any]) -> Tuple[block_id_T, CFGBlock, block_id_T]:
     block_id = block_json.get("id", -1)
     block_instructions = block_json.get("instructions", -1)
     block_exit = block_json.get("exit", -1)
     block_type = block_json.get("type", "")
+
+    block_exit_identifiers = list(map(lambda x: object_name+"_"+x, block_exit))
     
-    check_block_validity(block_id, block_instructions, block_exit, block_type)
+    check_block_validity(block_id, block_instructions, block_exit_identifiers, block_type)
     
     list_cfg_instructions = []
     assignment_dict = dict()
@@ -67,8 +69,8 @@ def parse_block(block_json: Dict[str,Any]) -> Tuple[block_id_T, CFGBlock, block_
                 cfg_instruction = parse_instruction(instruction)
                 list_cfg_instructions.append(cfg_instruction)
 
-        
-    block = CFGBlock(block_id, list_cfg_instructions, block_type, assignment_dict)
+    block_identifier = object_name+"_"+block_id
+    block = CFGBlock(block_identifier, list_cfg_instructions, block_type, assignment_dict)
 
     block.check_validity_arguments()
     
@@ -77,10 +79,10 @@ def parse_block(block_json: Dict[str,Any]) -> Tuple[block_id_T, CFGBlock, block_
 
     # block._process_dependences(block._instructions)
         
-    return block_id, block, block_exit
+    return block_id, block, block_exit_identifiers
 
 
-def parser_block_list(blocks: List[Dict[str, Any]]):
+def parser_block_list(object_name: str, blocks: List[Dict[str, Any]]):
     """
     Returns the list of blocks parsed and the ids that correspond to Exit blocks
     """
@@ -88,22 +90,23 @@ def parser_block_list(blocks: List[Dict[str, Any]]):
     exit_blocks = []
     comes_from = collections.defaultdict(lambda: [])
     for b in blocks:
-        block_id, new_block, block_exit = parse_block(b)
+        block_id, new_block, block_exit = parse_block(object_name, b)
 
         pos = block_id.find("Exit")
         if pos != -1:
 
             prev_block_id = block_id[:pos]
-            prev_block = block_list.get_block(prev_block_id)
+            prev_block_identifier = object_name+"_"+prev_block_id
+            prev_block = block_list.get_block(prev_block_identifier)
 
             prev_block.set_jump_info(new_block.get_jump_type(), block_exit)
             
             # Annotate comes from
             for succ_block in block_exit:
-                comes_from[succ_block].append(prev_block_id)
+                comes_from[succ_block].append(prev_block_identifier)
 
             if prev_block.get_jump_type() == "terminal": 
-                exit_blocks.append(prev_block_id)
+                exit_blocks.append(prev_block_identifier)
 
         else:
             block_list.add_block(new_block)
@@ -125,7 +128,7 @@ def parse_function(function_name, function_json):
     entry_point = function_json.get("entry", -1)
 
     blocks = function_json.get("blocks", -1)
-    cfg_block_list, exit_points = parser_block_list(blocks)
+    cfg_block_list, exit_points = parser_block_list(function_name, blocks)
 
     cfg_function = CFGFunction(function_name, args, ret_vals, entry_point, cfg_block_list)
     cfg_function.exits = exit_points
@@ -138,7 +141,7 @@ def parse_object(object_name, json_object) -> CFGObject:
     if not blocks_list:
         raise Exception("[ERROR]: JSON file does not contain blocks")
 
-    cfg_block_list, _ = parser_block_list(blocks_list)
+    cfg_block_list, _ = parser_block_list(object_name, blocks_list)
     cfg_object = CFGObject(object_name, cfg_block_list)
 
     return cfg_object
