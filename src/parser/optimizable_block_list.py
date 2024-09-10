@@ -21,6 +21,7 @@ def initialize_sub_blocks(initial_block: CFGBlock, sub_blocks_instrs: List[List[
     """
     cfg_sub_blocks = []
     comes_from = initial_block.get_comes_from()
+
     for sub_block_idx, sub_block_instrs in enumerate(sub_blocks_instrs):
         new_sub_block_idx = sub_block_name(initial_block, sub_block_idx)
         new_sub_block_type = "sub_block" if sub_block_idx != len(sub_block_instrs) - 1 else initial_block.get_jump_type()
@@ -33,6 +34,21 @@ def initialize_sub_blocks(initial_block: CFGBlock, sub_blocks_instrs: List[List[
 
         cfg_sub_blocks.append(new_cfg_sub_block)
         comes_from = [new_sub_block_idx]
+
+    # After generating the sequence of sub blocks, we need to update the jumps to and falls to connect the sub blocks
+    current_falls_to = initial_block.get_falls_to()
+    current_jumps_to = initial_block.get_jump_to()
+    current_jump_type = initial_block.get_jump_type()
+
+    for cfg_sub_block in reversed(cfg_sub_blocks):
+        cfg_sub_block.set_falls_to(current_falls_to)
+        cfg_sub_block.set_jump_to(current_jumps_to)
+        cfg_sub_block.set_jump_type(current_jump_type)
+
+        current_falls_to = cfg_sub_block.block_id
+        current_jumps_to = None
+        current_jump_type = "sub_block"
+
     return cfg_sub_blocks
 
 
