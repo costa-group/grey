@@ -12,6 +12,13 @@ from parser.utils_parser import check_instruction_validity, check_block_validity
 block_id_T = str
 
 
+def generate_block_name(object_name: str, block_id: block_id_T) -> block_id_T:
+    """
+    Block name used to identify the blocks
+    """
+    return '_'.join([object_name, block_id])
+
+
 def parse_instruction(ins_json: Dict[str,Any]) -> CFGInstruction:
     in_arg = ins_json.get("in",-1)
     op = ins_json.get("op", -1)
@@ -49,15 +56,15 @@ def parse_assignment(assignment: Dict[str, Any], assignment_dict: Dict[str, str]
     return instruction
 
 
-def parse_block(object_name: str, block_json: Dict[str,Any]) -> Tuple[block_id_T, CFGBlock, block_id_T]:
+def parse_block(object_name: str, block_json: Dict[str,Any]) -> Tuple[block_id_T, CFGBlock, Dict]:
     block_id = block_json.get("id", -1)
     block_instructions = block_json.get("instructions", -1)
     block_exit = block_json.get("exit", -1)
     block_type = block_json.get("type", "")
 
-    block_exit_identifiers = list(map(lambda x: object_name+"_"+x, block_exit))
-    
-    check_block_validity(block_id, block_instructions, block_exit_identifiers, block_type)
+    # Modify the block exit targets with the new information
+    block_exit["targets"] = [generate_block_name(object_name, target) for target in block_exit["targets"]]
+    check_block_validity(block_id, block_instructions, block_exit, block_type)
     
     list_cfg_instructions = []
     assignment_dict = dict()
@@ -65,11 +72,10 @@ def parse_block(object_name: str, block_json: Dict[str,Any]) -> Tuple[block_id_T
         if "assignment" in instruction:
             list_cfg_instructions.append(parse_assignment(instruction, assignment_dict))
         else:
-            if block_type != "FunctionReturn":
-                cfg_instruction = parse_instruction(instruction)
-                list_cfg_instructions.append(cfg_instruction)
+            cfg_instruction = parse_instruction(instruction) if block_type != "FunctionReturn" else []
+            list_cfg_instructions.append(cfg_instruction)
 
-    block_identifier = object_name+"_"+block_id
+    block_identifier = generate_block_name(object_name, block_id)
     block = CFGBlock(block_identifier, list_cfg_instructions, block_type, assignment_dict)
 
     block.check_validity_arguments()
@@ -79,7 +85,7 @@ def parse_block(object_name: str, block_json: Dict[str,Any]) -> Tuple[block_id_T
 
     # block._process_dependences(block._instructions)
         
-    return block_id, block, block_exit_identifiers
+    return block_identifier, block, block_exit
 
 
 def parser_block_list(object_name: str, blocks: List[Dict[str, Any]]):
@@ -91,25 +97,33 @@ def parser_block_list(object_name: str, blocks: List[Dict[str, Any]]):
     comes_from = collections.defaultdict(lambda: [])
     for b in blocks:
         block_id, new_block, block_exit = parse_block(object_name, b)
+        new_block.set_jump_info(block_exit)
 
-        pos = block_id.find("Exit")
-        if pos != -1:
+        # Annotate comes from
+        for succ_block in block_exit["targets"]:
+            comes_from[succ_block].append(block_id)
 
-            prev_block_id = block_id[:pos]
-            prev_block_identifier = object_name+"_"+prev_block_id
-            prev_block = block_list.get_block(prev_block_identifier)
+        if new_block.get_jump_type() == "terminal":
+            exit_blocks.append(block_id)
 
-            prev_block.set_jump_info(new_block.get_jump_type(), block_exit)
-            
-            # Annotate comes from
-            for succ_block in block_exit:
-                comes_from[succ_block].append(prev_block_identifier)
-
-            if prev_block.get_jump_type() == "terminal": 
-                exit_blocks.append(prev_block_identifier)
-
-        else:
-            block_list.add_block(new_block)
+        block_list.add_block(new_block)
+# =======
+#             prev_block_id = block_id[:pos]
+#             prev_block_identifier = object_name+"_"+prev_block_id
+#             prev_block = block_list.get_block(prev_block_identifier)
+#
+#             prev_block.set_jump_info(new_block.get_jump_type(), block_exit)
+#
+#             # Annotate comes from
+#             for succ_block in block_exit:
+#                 comes_from[succ_block].append(prev_block_identifier)
+#
+#             if prev_block.get_jump_type() == "terminal":
+#                 exit_blocks.append(prev_block_identifier)
+#
+#         else:
+#             block_list.add_block(new_block)
+# >>>>>>> main
 
     # Update comes_from from the dictionary
     for block_id in comes_from:

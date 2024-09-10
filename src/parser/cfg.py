@@ -2,17 +2,16 @@ import json
 from pathlib import Path
 from parser.cfg_object import CFGObject
 from parser.cfg_block_list import CFGBlockList
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Callable
 
 
-def store_sfs_json(blocks: Dict[str, Dict], final_path: Path) -> None:
+def store_sfs_json(block_name: str, block: Dict[str, Dict], final_path: Path) -> None:
     """
     Stores all SFS from the list of blocks in the corresponding folder
     """
-    for block_name, block in blocks.items():
-        file_to_store = final_path.joinpath(block_name + ".json")
-        with open(file_to_store, 'w') as f:
-            json.dump(block, f, indent=4)
+    file_to_store = final_path.joinpath(block_name + ".json")
+    with open(file_to_store, 'w') as f:
+        json.dump(block, f, indent=4)
 
 
 class CFG:
@@ -78,6 +77,43 @@ class CFG:
         json_cfg["subObjects"] = self.subObjects
 
         return json_cfg
+
+    def cfg_block_list(self) -> List[CFGBlockList]:
+        """
+        Returns the list of all blocks inside the same object, function and subobjects
+        """
+        block_list = []
+        for object_id, cfg_object in self.objectCFG.items():
+            block_list.append(cfg_object.blocks)
+
+            # We also consider the information per function
+            for function_name, cfg_function in cfg_object.functions.items():
+                block_list.append(cfg_function.blocks)
+
+            subobject = self.get_subobject()
+
+            if subobject is not None:
+                block_list.extend(subobject.cfg_block_list())
+
+        return block_list
+
+    def modify_cfg_block_list(self, f: Callable[[CFGBlockList], CFGBlockList]) -> None:
+        """
+        Applies a given function to all CFG lists inside the object
+        """
+        for object_id, cfg_object in self.objectCFG.items():
+            cfg_object.blocks = f(cfg_object.blocks)
+            self.block_list[object_id] = cfg_object.blocks
+
+            # We also consider the information per function
+            for function_name, cfg_function in cfg_object.functions.items():
+                cfg_function.blocks = f(cfg_function.blocks)
+                self.block_list[function_name] = cfg_function.blocks
+
+            subobject = self.get_subobject()
+
+            if subobject is not None:
+                self.modify_cfg_block_list(f)
 
     def __repr__(self):
         return str(self.get_as_json())

@@ -1,10 +1,11 @@
 from parser.cfg_instruction import CFGInstruction, build_push_spec, build_pushtag_spec
-from parser.utils_parser import is_in_input_stack, is_in_output_stack, is_assigment_var_used, get_empty_spec, get_expression, are_dependent_accesses, replace_pos_instrsid, generate_dep
+from parser.utils_parser import is_in_input_stack, is_in_output_stack, are_dependent_interval, get_empty_spec, \
+    get_expression, are_dependent_accesses, replace_pos_instrsid, generate_dep, get_interval
 import parser.constants as constants
 import json
 import networkx as nx
 
-from typing import List, Dict, Tuple
+from typing import List, Dict, Tuple, Any
 
 global tag_idx
 tag_idx = 0
@@ -31,8 +32,8 @@ class CFGBlock:
         self.function_calls = set()
         self.sto_dep = []
         self.mem_dep = []
+        self._cond_value = None
         self.output_var_idx = 0
-
 
     def get_block_id(self) -> str:
         return self.block_id
@@ -73,14 +74,17 @@ class CFGBlock:
         # TODO
         #self.source_stack = utils.compute_stack_size(map(lambda x: x.disasm, self.instructions_to_optimize_bytecode()))
 
-    def add_comes_from(self, block_id: str):
+    def add_comes_from(self, block_id: str) -> None:
         self._comes_from.append(block_id)
 
     def get_comes_from(self) -> List[str]:
         return self._comes_from
 
+    def set_comes_from(self, new_comes_from: List[str]) -> None:
+        self._comes_from = new_comes_from
+
     def set_jump_type(self, t : str) -> None:
-        if t not in ["conditional","unconditional","terminal", "falls_to"]:
+        if t not in ["conditional","unconditional","terminal", "falls_to", "sub_block"]:
             raise Exception("Wrong jump type")
         else:
             self._jump_type = t
@@ -94,14 +98,17 @@ class CFGBlock:
     def set_length(self) -> int:
         return len(self._instructions)
 
-    def set_jump_info(self, type_block: str, exit_info: List[str]) -> None:
+    def set_jump_info(self, exit_info: Dict[str, Any]) -> None:
+        type_block = exit_info["type"]
+        targets = exit_info["targets"]
         if type_block in ["ConditionalJump"]:
             self._jump_type = "conditional"
-            self._falls_to = exit_info[0]
-            self._jump_to = exit_info[1]
+            self._cond_value = exit_info["cond"]
+            self._falls_to = targets[0]
+            self._jump_to = targets[1]
         elif type_block in ["Jump"]:
             self._jump_type = "unconditional"
-            self._jump_to = exit_info[0]
+            self._jump_to = targets[0]
         elif type_block in ["Terminated"]:
             #We do not store the direction as itgenerates a loop
             self._jump_type = "terminal"
@@ -181,7 +188,7 @@ class CFGBlock:
             elif  ins.get_op_name() in mem_instrs_offset:
                 values  = ins.get_in_args()
 
-                interval_args = utils.get_interval(ins.get_op_name(),values)
+                interval_args = get_interval(ins.get_op_name(),values)
 
                 if ins.get_op_name() not in ["call","callcode","delegatecall","staticcall"]:
                     input_vals = list(map(lambda x: get_expression(x, instructions[:i]), interval_args))
