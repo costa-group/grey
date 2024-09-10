@@ -110,6 +110,12 @@ def compute_sub_block_list(block_list: CFGBlockList) -> CFGBlockList:
             new_block_list.add_block(cfg_block)
 
     update_edges_cfg(new_block_list, modified_blocks)
+
+    # Finally, we update the initial start block with the new format
+    modified_start_block = modified_blocks.get(block_list.start_block, None)
+    if modified_start_block is not None:
+        new_block_list.start_block = modified_start_block[0]
+
     return new_block_list
 
 

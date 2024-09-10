@@ -103,10 +103,12 @@ class CFG:
         """
         for object_id, cfg_object in self.objectCFG.items():
             cfg_object.blocks = f(cfg_object.blocks)
+            self.block_list[object_id] = cfg_object.blocks
 
             # We also consider the information per function
             for function_name, cfg_function in cfg_object.functions.items():
                 cfg_function.blocks = f(cfg_function.blocks)
+                self.block_list[function_name] = cfg_function.blocks
 
             subobject = self.get_subobject()
 
