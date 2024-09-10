@@ -1,5 +1,6 @@
 from parser.cfg_instruction import CFGInstruction, build_push_spec, build_pushtag_spec
-from parser.utils_parser import is_in_input_stack, is_in_output_stack, is_assigment_var_used, get_empty_spec, get_expression, are_dependent_accesses
+from parser.utils_parser import is_in_input_stack, is_in_output_stack, are_dependent_interval, get_empty_spec, \
+    get_expression, are_dependent_accesses, replace_pos_instrsid, generate_dep, get_interval
 import parser.constants as constants
 import json
 import networkx as nx
@@ -32,6 +33,7 @@ class CFGBlock:
         self.sto_dep = []
         self.mem_dep = []
         self._cond_value = None
+        self.output_var_idx = 0
 
     def get_block_id(self) -> str:
         return self.block_id
@@ -123,14 +125,34 @@ class CFGBlock:
         calls = filter(lambda x: x in function_ids, op_names)
         self.function_calls = set(calls)
 
-    def _process_dependences(self, instructions):
+    def check_validity_arguments(self):
+        '''
+        It checks for each instruction in the block that there is not
+        any previous instruction that uses as input argument the variable
+        that is generating as output (there is not aliasing).
+        '''
+
+        for i in range(len(self._instructions)):
+            instr = self._instructions[i]
+            out_var = instr.get_out_args()
+            if len(out_var) > 0:
+                out_var_set = set(out_var)
+                pred_inputs = map(lambda x: set(x.get_in_args()).intersection(out_var_set),self._instructions[:i+1])
+                candidates = list(filter(lambda x: x != set(), pred_inputs))
+                if len(candidates) != 0:
+                    print("[WARNING]: Aliasing between variables!")
+                    
+        
+    def _process_dependences(self, instructions, map_positions):
 
         sto_dep = self._compute_storage_dependences(instructions)
         sto_dep = self._simplify_dependences(sto_dep)
+        sto_deps = replace_pos_instrsid(sto_dep, map_positions)
 
-        # mem_dep = self._compute_storage_dependences()
-        # mem_dep = self._simplify_dependences(mem_dep)
-        return sto_dep #, mem_dep
+        mem_dep = self._compute_memory_dependences(instructions)
+        mem_dep = self._simplify_dependences(mem_dep)
+        mem_deps = replace_pos_instrsid(mem_dep, map_positions)
+        return sto_deps, mem_deps
 
     def _compute_storage_dependences(self,instructions):
         sto_ins = []
@@ -140,20 +162,53 @@ class CFGBlock:
             if ins.get_op_name() in ["sload","sstore"]:
                 v = ins.get_in_args()[0]
                 input_val = get_expression(v, instructions[:i])
-                sto_ins.append((i,input_val))
+                sto_ins.append([i,input_val,ins.get_type_mem_op()])
             elif ins.get_op_name() in ["call","delegatecall","staticcall","callcode"]:
-                sto_ins.append((i,["inf"]))
+                sto_ins.append([i,["inf"],"write"])
 
-        deps = [(sto_ins[i][0],j[0]) for i in range(len(sto_ins)) for j in sto_ins[i+1:] if are_dependent_accesses(sto_ins[i][1],j[1])]
+        deps = [[sto_ins[i][0],j[0]] for i in range(len(sto_ins)) for j in sto_ins[i+1:] if are_dependent_accesses(sto_ins[i][1],j[1]) and generate_dep(sto_ins[i][2], j[2])]
         # print("DEPS: "+str(deps))
         # print("******")
         return deps
 
     def _compute_memory_dependences(self, instructions):
-        for i in len(instructions):
+        mem_ins = []
+
+        mem_instrs_access = ["mload", "mstore", "mstore8"]
+        mem_instrs_offset = ["keccak256", "codecopy","extcodecopy","calldatacopy","returndatacopy","mcopy","log0","log1","log2","log3","log4","create","create2","call","delegatecall","staticcall","callcode"]
+        
+        for i in range(len(instructions)):
             ins = instructions[i]
-            if ins.get_op_name() in ["keccak256", "mload", "mstore", "codecopy","extcodecopy","returndatacopy","mstore8","mcopy","log0","log1","log2","log3","log4","create","create2","call","delegatecall","staticcall","callcode"]:
-                pass
+            if ins.get_op_name() in mem_instrs_access:
+                v = ins.get_in_args()[0]
+                input_val = get_expression(v, instructions[:i])
+                interval = [input_val, ["0x20"]]
+                mem_ins.append([i,interval,ins.get_type_mem_op()])
+
+            elif  ins.get_op_name() in mem_instrs_offset:
+                values  = ins.get_in_args()
+
+                interval_args = get_interval(ins.get_op_name(),values)
+
+                if ins.get_op_name() not in ["call","callcode","delegatecall","staticcall"]:
+                    input_vals = list(map(lambda x: get_expression(x, instructions[:i]), interval_args))
+                    interval = [input_vals[0],input_vals[1]]
+                    mem_ins.append([i,interval,ins.get_type_mem_op()])
+                
+                else:
+                    
+                    input_vals = list(map(lambda x: get_expression(x, instructions[:i]), interval_args[0]))
+                    interval = [input_vals[0],input_vals[1]]
+                    mem_ins.append([i,interval,"read"])
+                
+                    input_vals = list(map(lambda x: get_expression(x, instructions[:i]), interval_args[1]))
+                    interval = [input_vals[0],input_vals[1]]
+                    mem_ins.append([i,interval, "write"])
+
+        deps = [[mem_ins[i][0],j[0]] for i in range(len(mem_ins)) for j in mem_ins[i+1:] if are_dependent_interval(mem_ins[i][1],j[1]) and generate_dep(mem_ins[i][2], j[2])]
+        # print("DEPS: "+str(deps))
+        # print("******")
+        return deps
 
     def _simplify_dependences(self, deps: List[Tuple[int, int]]) -> List[Tuple[int, int]]:
         dg = nx.DiGraph(deps)
@@ -223,6 +278,8 @@ class CFGBlock:
         input_stack = []
         output_stack = []
 
+        map_positions_instructions = {}
+
 
         for i in range(len(instructions)):
             #Check if it has been already created
@@ -239,6 +296,8 @@ class CFGBlock:
 
                 uninter_functions+=result
 
+                map_positions_instructions[i] = result[-1]["id"]
+                
                 for i_arg in ins.get_in_args():
                     if not i_arg.startswith("0x") and i_arg not in self.assignment_dict:
                         member = is_in_input_stack(i_arg,instructions[:i])
@@ -294,7 +353,7 @@ class CFGBlock:
         spec["min_length"] = 0
         spec["rules"] = ""
 
-        return spec, new_out_idx
+        return spec, new_out_idx, map_positions_instructions
 
 
     def _include_function_call_tags(self,ins, out_idx, block_spec):
@@ -362,25 +421,26 @@ class CFGBlock:
 
         cont = 0
         out_idx = 0
-        print("BLOCK TAG", block_tag_idx)
-
+        # print("BLOCK TAG", block_tag_idx)
+        # print(self._instructions)
+        
         for i in range(len(self._instructions)):
             ins = self._instructions[i]
             if ins.get_op_name().upper() in constants.split_block or ins.get_op_name() in self.function_calls:
                 if  ins_seq != []:
-                    r, out_idx = self._build_spec_for_block(ins_seq, map_instructions, out_idx)
+                    r, out_idx, map_positions = self._build_spec_for_block(ins_seq, map_instructions, out_idx)
 
-                    sto_deps = self._process_dependences(ins_seq)
+                    sto_deps, mem_deps = self._process_dependences(ins_seq, map_positions)
+
                     r["storage_dependences"] = sto_deps
-                    # r["memory_dependences"] = mem_deps
+                    r["memory_dependences"] = mem_deps
 
-                    specifications["block"+str(self.block_id)+"_"+str(cont)] = r
+                    specifications[str(self.block_id)+"_"+str(cont)] = r
                     cont +=1
 
                     if not ins.get_op_name() in self.function_calls:
-                        print("block"+str(self.block_id)+"_"+str(cont))
-                        # print(json.dumps(r, indent=4))
-
+                        print(str(self.block_id)+"_"+str(cont))
+                        print(json.dumps(r, indent=4))
 
                 else:
                     r = get_empty_spec()
@@ -389,9 +449,9 @@ class CFGBlock:
                 if ins.get_op_name() in self.function_calls:
                     r, out_idx = self._include_function_call_tags(ins,out_idx,r)
 
-                    specifications["block"+str(self.block_id)+"_"+str(cont-1)] = r
-                    # print("block"+str(self.block_id)+"_"+str(cont-1))
-                    # print(json.dumps(r, indent=4))
+                    specifications[str(self.block_id)+"_"+str(cont-1)] = r
+                    print(str(self.block_id)+"_"+str(cont-1))
+                    print(json.dumps(r, indent=4))
 
 
 
@@ -404,18 +464,19 @@ class CFGBlock:
                 ins_seq.append(ins)
 
         if ins_seq != []:
-            r, out_idx = self._build_spec_for_block(ins_seq, map_instructions, out_idx)
+            r, out_idx, map_positions = self._build_spec_for_block(ins_seq, map_instructions, out_idx)
 
-            sto_deps = self._process_dependences(ins_seq)
+            sto_deps, mem_deps = self._process_dependences(ins_seq, map_positions)
             r["storage_dependences"] = sto_deps
-            # r["memory_dependences"] = mem_deps
+            r["memory_dependences"] = mem_deps
 
-            specifications["block"+str(self.block_id)+"_"+str(cont)] = r
+            specifications[str(self.block_id)+"_"+str(cont)] = r
 
+            #Just to print information if it is not a jump
             if not self._jump_type in ["conditional","unconditional"]:
-                pass
-                # print("block"+str(self.block_id)+"_"+str(cont))
-                # print(json.dumps(r, indent=4))
+                print(str(self.block_id)+"_"+str(cont))
+                print(json.dumps(r, indent=4))
+                
 
         else:
             r = get_empty_spec()
@@ -423,9 +484,9 @@ class CFGBlock:
 
         if self._jump_type in ["conditional","unconditional"]:
             r, out_idx, block_tag_idx = self._include_jump_tag(r,out_idx, block_tags_dict, block_tag_idx)
-            specifications["block"+str(self.block_id)+"_"+str(cont)] = r
-            # print("block"+str(self.block_id)+"_"+str(cont))
-            # print(json.dumps(r, indent=4))
+            specifications[str(self.block_id)+"_"+str(cont)] = r
+            print(str(self.block_id)+"_"+str(cont))
+            print(json.dumps(r, indent=4))
 
         return specifications, block_tag_idx
 

@@ -37,5 +37,5 @@ class CFGFunction:
             self.exits.append(block_id)
 
     def build_spec(self, block_tag_idx):
-        list_spec, block_tag_idx = self.blocks.build_spec(block_tag_idx) 
-        return list_spec, block_tag_idx
+        dict_spec, block_tag_idx = self.blocks.build_spec(block_tag_idx) 
+        return dict_spec, block_tag_idx
