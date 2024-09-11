@@ -54,7 +54,7 @@ class CFGBlockList:
             block = self.blocks[b]
             spec, block_tag_idx  = block.build_spec(self.block_tags_dict, block_tag_idx)
                 
-            list_spec = list_spec | spec
+            list_spec[b.get_block_id()] = spec
 
         return list_spec, block_tag_idx
 

@@ -277,9 +277,9 @@ class CFGBlock:
 
         return list(vars_spec)
 
-    def _build_spec_for_block(self, instructions, map_instructions: Dict, out_idx):
+    def _build_spec_for_sequence(self, instructions, map_instructions: Dict, out_idx):
         """
-        Builds the specification for a block. "map_instructions" is passed as an argument
+        Builds the specification for a sequence of instructions. "map_instructions" is passed as an argument
         to reuse declarations from other blocks, as we might have split the corresponding basic block
         """
 
@@ -427,84 +427,110 @@ class CFGBlock:
 
         return block_spec, out_idx, block_tag_idx
 
-    def build_spec(self, block_tags_dict: Dict, block_tag_idx: int):
+    # def build_spec(self, block_tags_dict: Dict, block_tag_idx: int):
 
-        ins_seq = []
-        map_instructions = {}
-        specifications = {}
+    #     ins_seq = []
+    #     map_instructions = {}
+    #     specifications = {}
 
-        cont = 0
-        out_idx = 0
-        # print("BLOCK TAG", block_tag_idx)
-        # print(self._instructions)
+    #     cont = 0
+    #     out_idx = 0
+    #     # print("BLOCK TAG", block_tag_idx)
+    #     # print(self._instructions)
         
-        for i in range(len(self._instructions)):
-            ins = self._instructions[i]
-            if ins.get_op_name().upper() in constants.split_block or ins.get_op_name() in self.function_calls:
-                if  ins_seq != []:
-                    r, out_idx, map_positions = self._build_spec_for_block(ins_seq, map_instructions, out_idx)
+    #     for i in range(len(self._instructions)):
+    #         ins = self._instructions[i]
+    #         if ins.get_op_name().upper() in constants.split_block or ins.get_op_name() in self.function_calls:
+    #             if  ins_seq != []:
+    #                 r, out_idx, map_positions = self._build_spec_for_block(ins_seq, map_instructions, out_idx)
 
-                    sto_deps, mem_deps = self._process_dependences(ins_seq, map_positions)
+    #                 sto_deps, mem_deps = self._process_dependences(ins_seq, map_positions)
 
-                    r["storage_dependences"] = sto_deps
-                    r["memory_dependences"] = mem_deps
+    #                 r["storage_dependences"] = sto_deps
+    #                 r["memory_dependences"] = mem_deps
 
-                    specifications[str(self.block_id)+"_"+str(cont)] = r
-                    cont +=1
+    #                 specifications[str(self.block_id)+"_"+str(cont)] = r
+    #                 cont +=1
 
-                    if not ins.get_op_name() in self.function_calls:
-                        print(str(self.block_id)+"_"+str(cont))
-                        print(json.dumps(r, indent=4))
+    #                 if not ins.get_op_name() in self.function_calls:
+    #                     print(str(self.block_id)+"_"+str(cont))
+    #                     print(json.dumps(r, indent=4))
 
-                else:
-                    r = get_empty_spec()
-                    cont+=1
+    #             else:
+    #                 r = get_empty_spec()
+    #                 cont+=1
 
-                if ins.get_op_name() in self.function_calls:
-                    r, out_idx = self._include_function_call_tags(ins,out_idx,r)
+    #             if ins.get_op_name() in self.function_calls:
+    #                 r, out_idx = self._include_function_call_tags(ins,out_idx,r)
 
-                    specifications[str(self.block_id)+"_"+str(cont-1)] = r
-                    print(str(self.block_id)+"_"+str(cont-1))
-                    print(json.dumps(r, indent=4))
+    #                 specifications[str(self.block_id)+"_"+str(cont-1)] = r
+    #                 print(str(self.block_id)+"_"+str(cont-1))
+    #                 print(json.dumps(r, indent=4))
 
 
 
-                #We reset the seq of instructions and the out_idx for next block
-                ins_seq = []
-                out_idx = 0
-                map_instructions = {}
+    #             #We reset the seq of instructions and the out_idx for next block
+    #             ins_seq = []
+    #             out_idx = 0
+    #             map_instructions = {}
 
-            else:
-                ins_seq.append(ins)
+    #         else:
+    #             ins_seq.append(ins)
 
-        if ins_seq != []:
-            r, out_idx, map_positions = self._build_spec_for_block(ins_seq, map_instructions, out_idx)
+    #     if ins_seq != []:
+    #         r, out_idx, map_positions = self._build_spec_for_block(ins_seq, map_instructions, out_idx)
 
-            sto_deps, mem_deps = self._process_dependences(ins_seq, map_positions)
-            r["storage_dependences"] = sto_deps
-            r["memory_dependences"] = mem_deps
+    #         sto_deps, mem_deps = self._process_dependences(ins_seq, map_positions)
+    #         r["storage_dependences"] = sto_deps
+    #         r["memory_dependences"] = mem_deps
 
-            specifications[str(self.block_id)+"_"+str(cont)] = r
+    #         specifications[str(self.block_id)+"_"+str(cont)] = r
 
-            #Just to print information if it is not a jump
-            if not self._jump_type in ["conditional","unconditional"]:
-                print(str(self.block_id)+"_"+str(cont))
-                print(json.dumps(r, indent=4))
+    #         #Just to print information if it is not a jump
+    #         if not self._jump_type in ["conditional","unconditional"]:
+    #             print(str(self.block_id)+"_"+str(cont))
+    #             print(json.dumps(r, indent=4))
                 
 
-        else:
-            r = get_empty_spec()
-            cont+=1
+    #     else:
+    #         r = get_empty_spec()
+    #         cont+=1
 
-        if self._jump_type in ["conditional","unconditional"]:
-            r, out_idx, block_tag_idx = self._include_jump_tag(r,out_idx, block_tags_dict, block_tag_idx)
-            specifications[str(self.block_id)+"_"+str(cont)] = r
+    #     if self._jump_type in ["conditional","unconditional"]:
+    #         r, out_idx, block_tag_idx = self._include_jump_tag(r,out_idx, block_tags_dict, block_tag_idx)
+    #         specifications[str(self.block_id)+"_"+str(cont)] = r
+    #         print(str(self.block_id)+"_"+str(cont))
+    #         print(json.dumps(r, indent=4))
+
+    #     return specifications, block_tag_idx
+
+
+    def build_spec(self, block_tags_dict: Dict, block_tag_idx: int):
+
+        map_instructions = {}
+        
+        out_idx = 0
+
+        spec, out_idx, map_positions = self._build_spec_for_sequence(self._instructions, map_instructions, out_idx)
+
+        sto_deps, mem_deps = self._process_dependences(self._instructions, map_positions)
+        spec["storage_dependences"] = sto_deps
+        spec["memory_dependences"] = mem_deps
+
+
+        #Just to print information if it is not a jump
+        if not self._jump_type in ["conditional","unconditional"]:
             print(str(self.block_id)+"_"+str(cont))
-            print(json.dumps(r, indent=4))
+            print(json.dumps(spec, indent=4))
+                
+        if self._jump_type in ["conditional","unconditional"]:
+            spec, out_idx, block_tag_idx = self._include_jump_tag(spec,out_idx, block_tags_dict, block_tag_idx)
+            print(str(self.block_id)+"_"+str(cont))
+            print(json.dumps(spec, indent=4))
 
-        return specifications, block_tag_idx
+        return spec, block_tag_idx
 
-
+    
     def __str__(self):
 
         s = "BlockID: " + self.block_id+ "\n"
