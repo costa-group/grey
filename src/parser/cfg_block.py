@@ -177,8 +177,8 @@ class CFGBlock:
                 v = ins.get_in_args()[0]
                 input_val = get_expression(v, instructions[:i])
                 sto_ins.append([i,input_val,ins.get_type_mem_op()])
-            elif ins.get_op_name() in ["call","delegatecall","staticcall","callcode"]:
-                sto_ins.append([i,["inf"],"write"])
+            #elif ins.get_op_name() in ["call","delegatecall","staticcall","callcode"]:
+            #    sto_ins.append([i,["inf"],"write"])
 
         deps = [[sto_ins[i][0],j[0]] for i in range(len(sto_ins)) for j in sto_ins[i+1:] if are_dependent_accesses(sto_ins[i][1],j[1]) and generate_dep(sto_ins[i][2], j[2])]
         # print("DEPS: "+str(deps))
@@ -189,7 +189,7 @@ class CFGBlock:
         mem_ins = []
 
         mem_instrs_access = ["mload", "mstore", "mstore8"]
-        mem_instrs_offset = ["keccak256", "codecopy","extcodecopy","calldatacopy","returndatacopy","mcopy","log0","log1","log2","log3","log4","create","create2","call","delegatecall","staticcall","callcode"]
+        mem_instrs_offset = ["keccak256"]#, "codecopy","extcodecopy","calldatacopy","returndatacopy","mcopy","log0","log1","log2","log3","log4","create","create2","call","delegatecall","staticcall","callcode"]
         
         for i in range(len(instructions)):
             ins = instructions[i]
@@ -209,15 +209,15 @@ class CFGBlock:
                     interval = [input_vals[0],input_vals[1]]
                     mem_ins.append([i,interval,ins.get_type_mem_op()])
                 
-                else:
+                # else:
                     
-                    input_vals = list(map(lambda x: get_expression(x, instructions[:i]), interval_args[0]))
-                    interval = [input_vals[0],input_vals[1]]
-                    mem_ins.append([i,interval,"read"])
+                #     input_vals = list(map(lambda x: get_expression(x, instructions[:i]), interval_args[0]))
+                #     interval = [input_vals[0],input_vals[1]]
+                #     mem_ins.append([i,interval,"read"])
                 
-                    input_vals = list(map(lambda x: get_expression(x, instructions[:i]), interval_args[1]))
-                    interval = [input_vals[0],input_vals[1]]
-                    mem_ins.append([i,interval, "write"])
+                #     input_vals = list(map(lambda x: get_expression(x, instructions[:i]), interval_args[1]))
+                #     interval = [input_vals[0],input_vals[1]]
+                #     mem_ins.append([i,interval, "write"])
 
         deps = [[mem_ins[i][0],j[0]] for i in range(len(mem_ins)) for j in mem_ins[i+1:] if are_dependent_interval(mem_ins[i][1],j[1]) and generate_dep(mem_ins[i][2], j[2])]
         # print("DEPS: "+str(deps))
