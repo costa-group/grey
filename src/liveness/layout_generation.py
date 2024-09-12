@@ -294,7 +294,7 @@ class LayoutGeneration:
             output_stacks[block_id] = output_stack
 
         # We build the corresponding specification
-        block_json, new_tag_idx = block.build_spec(self._tags_dict, self._tags_idx)
+        block_json, out_idx, new_tag_idx = block.build_spec(self._tags_dict, self._tags_idx)
         self._tags_idx = new_tag_idx
 
         # Modify the specification to update the input stack and output stack fields
