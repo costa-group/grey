@@ -50,10 +50,13 @@ class CFGBlockList:
         Build specs from blocks
         """
         list_spec = {}
-        for b in self.blocks:
+
+        valid_blocks = filter(lambda x: x.get_jump_type() != "split_instruction_block", self.blocks)
+        
+        for b in valid_blocks:
             block = self.blocks[b]
             spec, block_tag_idx  = block.build_spec(self.block_tags_dict, block_tag_idx)
-                
+            
             list_spec[b.get_block_id()] = spec
 
         return list_spec, block_tag_idx
