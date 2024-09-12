@@ -5,8 +5,8 @@ Module that contains the necessary methods for a set of blocks that correspond t
 
 from typing import List, Dict, Any
 import networkx
-from parser.cfg_block import CFGBlock
-
+from parser.cfg_block import CFGBlock, include_function_call_tags
+import parser.constants
 
 class CFGBlockList:
     """
@@ -55,7 +55,17 @@ class CFGBlockList:
         
         for b in valid_blocks:
             block = self.blocks[b]
-            spec, block_tag_idx  = block.build_spec(self.block_tags_dict, block_tag_idx)
+            spec, out_idx, block_tag_idx  = block.build_spec(self.block_tags_dict, block_tag_idx)
+
+            if b.get_jump_type() == "sub_block":
+                split_block = self.blocks[b.get_falls_to()]
+
+                split_instr = split_block.get_instructions()[0]
+                #It only has one instruction
+
+                if split_instr.get_op() not in constants.split_block:
+                    #It is a call to a function
+                    spec, out_idx = include_function_call_tags(split_instr, out_idx, spec)
             
             list_spec[b.get_block_id()] = spec
 
