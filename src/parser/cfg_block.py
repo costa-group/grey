@@ -13,6 +13,46 @@ tag_idx = 0
 global function_tags
 function_tags = {}
 
+
+
+def include_function_call_tags(ins, out_idx, block_spec):
+    global function_tags
+    global tag_idx
+
+    in_tag, out_tag = function_tags.get(ins.get_op_name(), (-1,-1))
+
+    if in_tag == -1 and out_tag == -1:
+        out_tag = tag_idx
+        in_tag = tag_idx+1
+        tag_idx+=2
+
+        function_tags[ins.get_op_name()] = (in_tag, out_tag)
+
+    in_tag_instr = build_pushtag_spec(out_idx, in_tag)
+    out_idx+=1
+
+    out_tag_instr = build_pushtag_spec(out_idx, out_tag)
+
+    block_spec["user_instrs"]+=[in_tag_instr,out_tag_instr]
+
+    #It adds the out jump label after the arguments of the function
+    num_funct_arguments = len(ins.get_in_args())
+    block_spec["tgt_ws"] = block_spec["tgt_ws"][:num_funct_arguments]+out_tag_instr["outpt_sk"]+block_spec["tgt_ws"][num_funct_arguments:]
+
+    #It adds at top of the stack de input jump label
+    block_spec["tgt_ws"] = in_tag_instr["outpt_sk"]+block_spec["tgt_ws"]
+
+
+    #It adds in variables the new identifier for the in and out jump label
+    block_spec["variables"]+=in_tag_instr["outpt_sk"]+ out_tag_instr["outpt_sk"]
+
+    block_spec["yul_expressions"]+="\n"+ins.get_instruction_representation()
+
+    return block_spec, out_idx
+
+
+
+
 class CFGBlock:
     """
     Class for representing a cfg block
@@ -369,43 +409,6 @@ class CFGBlock:
 
         return spec, new_out_idx, map_positions_instructions
 
-
-    def _include_function_call_tags(self,ins, out_idx, block_spec):
-        global function_tags
-        global tag_idx
-
-        in_tag, out_tag = function_tags.get(ins.get_op_name(), (-1,-1))
-
-        if in_tag == -1 and out_tag == -1:
-            out_tag = tag_idx
-            in_tag = tag_idx+1
-            tag_idx+=2
-
-            function_tags[ins.get_op_name()] = (in_tag, out_tag)
-
-        in_tag_instr = build_pushtag_spec(out_idx, in_tag)
-        out_idx+=1
-
-        out_tag_instr = build_pushtag_spec(out_idx, out_tag)
-
-        block_spec["user_instrs"]+=[in_tag_instr,out_tag_instr]
-
-        #It adds the out jump label after the arguments of the function
-        num_funct_arguments = len(ins.get_in_args())
-        block_spec["tgt_ws"] = block_spec["tgt_ws"][:num_funct_arguments]+out_tag_instr["outpt_sk"]+block_spec["tgt_ws"][num_funct_arguments:]
-
-        #It adds at top of the stack de input jump label
-        block_spec["tgt_ws"] = in_tag_instr["outpt_sk"]+block_spec["tgt_ws"]
-
-
-        #It adds in variables the new identifier for the in and out jump label
-        block_spec["variables"]+=in_tag_instr["outpt_sk"]+ out_tag_instr["outpt_sk"]
-
-        block_spec["yul_expressions"]+="\n"+ins.get_instruction_representation()
-
-
-        return block_spec, out_idx
-
     def _include_jump_tag(self, block_spec: Dict, out_idx: int, block_tags_dict: Dict, block_tag_idx: int) -> \
             Tuple[Dict, int, int]:
         tag_idx = block_tags_dict.get(self._jump_to, block_tag_idx)
@@ -520,15 +523,15 @@ class CFGBlock:
 
         #Just to print information if it is not a jump
         if not self._jump_type in ["conditional","unconditional"]:
-            print(str(self.block_id)+"_"+str(cont))
+            print(str(self.block_id))
             print(json.dumps(spec, indent=4))
                 
         if self._jump_type in ["conditional","unconditional"]:
             spec, out_idx, block_tag_idx = self._include_jump_tag(spec,out_idx, block_tags_dict, block_tag_idx)
-            print(str(self.block_id)+"_"+str(cont))
+            print(str(self.block_id))
             print(json.dumps(spec, indent=4))
 
-        return spec, block_tag_idx
+        return spec, out_idx, block_tag_idx
 
     
     def __str__(self):
