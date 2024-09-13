@@ -180,7 +180,7 @@ def var_order_repr(block_name: str, var_info: Dict[str, int]):
 
 
 def print_stacks(block_name: str, json_dict: Dict[str, Any]):
-    text_format = [f"{block_name}:", f"Src: {json_dict[block_name]['src_ws']}", f"Tgt: {json_dict[block_name]['tgt_ws']}"]
+    text_format = [f"{block_name}:", f"Src: {json_dict['src_ws']}", f"Tgt: {json_dict['tgt_ws']}"]
     return '\n'.join(text_format)
 
 
@@ -252,7 +252,8 @@ class LayoutGeneration:
             else:
                 input_stack = output_stacks[comes_from[0]]
         else:
-            input_stack = output_stack_layout([], liveness_info.output_state.live_vars,
+            # We introduce the necessary args in the generation of the first output stack layout
+            input_stack = output_stack_layout(block.final_stack_elements, liveness_info.output_state.live_vars,
                                               self._variable_order[block_id])
 
         input_stacks[block.block_id] = input_stack
@@ -297,17 +298,8 @@ class LayoutGeneration:
         block_json, out_idx, new_tag_idx = block.build_spec(self._tags_dict, self._tags_idx)
         self._tags_idx = new_tag_idx
 
-        # Modify the specification to update the input stack and output stack fields
-        if len(block_json) > 1:
-            # The original block has been split in several fragments
-            # TODO: reconstruct input and output stacks
-            for subblock_name in block_json:
-                block_json[subblock_name]["src_ws"] = input_stack
-                block_json[subblock_name]["tgt_ws"] = output_stack
-        else:
-            for subblock_name in block_json:
-                block_json[subblock_name]["src_ws"] = input_stack
-                block_json[subblock_name]["tgt_ws"] = output_stack
+        block_json["src_ws"] = input_stack
+        block_json["tgt_ws"] = output_stack
 
         return block_json
 
@@ -339,7 +331,7 @@ class LayoutGeneration:
 
             block_specification = self._construct_code_from_block(current_block, input_stacks,
                                                                   output_stacks, combined_stacks)
-            json_info.update(block_specification)
+            json_info[block_name] = block_specification
 
             successors = [possible_successor for possible_successor in
                           [current_block.get_jump_to(), current_block.get_falls_to()] if possible_successor is not None]

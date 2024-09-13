@@ -507,8 +507,7 @@ class CFGBlock:
 
     #     return specifications, block_tag_idx
 
-
-    def build_spec(self, block_tags_dict: Dict, block_tag_idx: int):
+    def build_spec(self, block_tags_dict: Dict, block_tag_idx: int) -> Dict[str, Any]:
 
         map_instructions = {}
         
