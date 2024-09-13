@@ -179,8 +179,13 @@ def var_order_repr(block_name: str, var_info: Dict[str, int]):
     return '\n'.join(text_format)
 
 
-def print_stacks(block_name: str, json_dict: Dict[str, Any]):
+def print_json_instr(instr: Dict[str, Any]) -> str:
+    return ', '.join([f"Opcode {instr['disasm']}", f"Input args: {instr['inpt_sk']}", f"Output args: {instr['outpt_sk']}"])
+
+
+def print_stacks(block_name: str, json_dict: Dict[str, Any]) -> str:
     text_format = [f"{block_name}:", f"Src: {json_dict['src_ws']}", f"Tgt: {json_dict['tgt_ws']}"]
+    text_format += [print_json_instr(instr) for instr in json_dict["user_instrs"]]
     return '\n'.join(text_format)
 
 
