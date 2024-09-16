@@ -361,35 +361,26 @@ class CFGBlock:
                         if member:
                             input_stack.append(i_arg)
 
-
                 for o_arg in  ins.get_out_args():
                     member = is_in_output_stack(o_arg, instructions[i+1:])
                     if member:
                         output_stack = [o_arg]+output_stack
 
+        # Assignments might be generated from phi functions
+        for out_val, in_val in self.assignment_dict.items():
+            # if is_used:
 
+            if in_val.startswith("0x"): #It is a push value
+                func = map_instructions.get(("PUSH", tuple([in_val])), -1)
+                if func == -1:
+                    push_name = "PUSH" if int(in_val,16) != 0 else "PUSH0"
+                    inst_idx = instrs_idx.get(push_name, 0)
+                    instrs_idx[push_name] = inst_idx+1
+                    push_ins = build_push_spec(in_val, inst_idx, [out_val])
 
-        # for assigment in self.assignment_dict:
+                    map_instructions[("PUSH",tuple([in_val]))] = push_ins
 
-        #     is_used = is_assigment_var_used(assigment, uninter_functions)
-
-        #     # if is_used:
-
-        #     in_val = self.assignment_dict.get(assigment)
-        #     if in_val.startswith("0x"): #It is a push value
-        #         func = map_instructions.get(("PUSH",tuple([in_val])),-1)
-        #         if func == -1:
-        #             push_name = "PUSH" if int(in_val,16) != 0 else "PUSH0"
-        #             inst_idx = instrs_idx.get(push_name, 0)
-        #             instrs_idx[push_name] = inst_idx+1
-        #             push_ins = build_push_spec(in_val,inst_idx,assigment)
-
-        #             map_instructions[("PUSH",tuple([in_val]))] = push_ins
-
-        #             uninter_functions.append(push_ins)
-
-        #     if not is_used:
-        #         output_stack.insert(0,assigment)
+                    uninter_functions.append(push_ins)
 
         spec["original_instrs"] = ""
         spec["yul_expressions"] = '\n'.join(list(map(lambda x: x.get_instruction_representation(),instructions)))

@@ -56,7 +56,7 @@ def parse_assignment(assignment: Dict[str, Any], assignment_dict: Dict[str, str]
     return instruction
 
 
-def process_block_entry(block_json: Dict[str, Any], phi_instr: Dict[str, Any]) -> Dict[str, str]:
+def process_block_entry(block_json: Dict[str, Any], phi_instr: Dict[str, Any]) -> Dict[str, Tuple[str, str]]:
     """
     Given a block and a Phi instruction, generates a dict that links each of the predecessor blocks and the
     corresponding value
@@ -67,10 +67,13 @@ def process_block_entry(block_json: Dict[str, Any], phi_instr: Dict[str, Any]) -
 
     block_entry_values = phi_instr["in"]
 
-    return {entry: value for entry, value in zip(block_entry, block_entry_values)}
+    # Assumption: phi instructions just have one value
+    output_value = phi_instr["out"][0]
+
+    return {entry: (input_value, output_value) for entry, input_value in zip(block_entry, block_entry_values)}
 
 
-def parse_block(object_name: str, block_json: Dict[str,Any]) -> Tuple[block_id_T, CFGBlock, Dict, Dict[str, str]]:
+def parse_block(object_name: str, block_json: Dict[str,Any]) -> Tuple[block_id_T, CFGBlock, Dict, Dict[str, Tuple[str, str]]]:
     block_id = block_json.get("id", -1)
     block_instructions = block_json.get("instructions", -1)
     block_exit = block_json.get("exit", -1)
@@ -88,7 +91,9 @@ def parse_block(object_name: str, block_json: Dict[str,Any]) -> Tuple[block_id_T
             list_cfg_instructions.append(parse_assignment(instruction, assignment_dict))
         # We handle Phi functions separately
         elif instruction["op"] == "PhiFunction":
-            entry_dict.update(process_block_entry(block_json, instruction))
+            # Beware: we need to keep the same name we are using to identify the blocks
+            entry_dict.update((generate_block_name(object_name, entry), values)
+                              for entry, values in process_block_entry(block_json, instruction).items())
 
         else:
             cfg_instruction = parse_instruction(instruction) if block_type != "FunctionReturn" else []
@@ -105,6 +110,30 @@ def parse_block(object_name: str, block_json: Dict[str,Any]) -> Tuple[block_id_T
     # block._process_dependences(block._instructions)
         
     return block_identifier, block, block_exit, entry_dict
+
+
+def update_comes_from(block_list: CFGBlockList, comes_from: Dict[str, List[str]]) -> None:
+    """
+    Update comes_from fields in the blocks from the block list using the information from the dictionary
+    """
+    for block_id in comes_from:
+        for predecessor in comes_from[block_id]:
+            # TODO: Ask why last block references itself
+            if block_id != predecessor:
+                block_list.get_block(block_id).add_comes_from(predecessor)
+
+
+def update_assignments_from_phi_functions(block_list: CFGBlockList, phi_function_dict: Dict[str, Tuple[str, str]]) -> None:
+    """
+    Given the list of blocks and the phi functions that appear in any of those blocks, introduces the values
+    that are constants from the phi function in the corresponding block as part of the assignments
+    """
+    for block_id, (input_value, output_value) in phi_function_dict.items():
+        block = block_list.get_block(block_id)
+
+        # We update the assignments of constants
+        if input_value.startswith("0x"):
+            block.assignment_dict[output_value] = input_value
 
 
 def parser_block_list(object_name: str, blocks: List[Dict[str, Any]]):
@@ -128,12 +157,9 @@ def parser_block_list(object_name: str, blocks: List[Dict[str, Any]]):
         block_list.add_block(new_block)
         block_list.entry_dict.update(block_entries)
 
-    # Update comes_from from the dictionary
-    for block_id in comes_from:
-        for predecessor in comes_from[block_id]:
-            # TODO: Ask why last block references itself
-            if block_id != predecessor:
-                block_list.get_block(block_id).add_comes_from(predecessor)
+    # We need to update some fields in the blocks using the previously gathered information
+    update_comes_from(block_list, comes_from)
+    update_assignments_from_phi_functions(block_list, block_list.entry_dict)
 
     return block_list, exit_blocks
 

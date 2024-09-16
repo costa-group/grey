@@ -9,7 +9,8 @@ from typing import Dict, List, Tuple, Set, Any
 var_T = str
 
 
-def _uses_defines_from_instructions(instructions: List[CFGInstruction]) -> Tuple[Set[var_T], Set[var_T]]:
+def _uses_defines_from_instructions(instructions: List[CFGInstruction],
+                                    assignment_dict: Dict[str, str]) -> Tuple[Set[var_T], Set[var_T]]:
     """
     Generates uses and defines sets with the variables that are used and defined in the set of instructions, resp.
     """
@@ -19,6 +20,13 @@ def _uses_defines_from_instructions(instructions: List[CFGInstruction]) -> Tuple
         uses.update([element for element in instruction.in_args if not element.startswith("0x")
                      and element not in defines])
         defines.update(instruction.out_args)
+
+    # We also need to consider the assignment dict
+    for out_arg, in_arg in assignment_dict.items():
+        if not in_arg.startswith("0x"):
+            uses.add(in_arg)
+        defines.add(out_arg)
+
     return uses, defines
 
 
@@ -33,8 +41,10 @@ class LivenessBlockInfo(AbstractBlockInfo):
 
         self._block_type = basic_block.get_jump_type()
         self._comes_from = basic_block.get_comes_from()
-        self.uses, self.defines = _uses_defines_from_instructions(basic_block.get_instructions())
+        self.uses, self.defines = _uses_defines_from_instructions(basic_block.get_instructions(),
+                                                                  basic_block.assignment_dict)
         self._instructions = basic_block.get_instructions()
+        self._assignment_dict = basic_block.assignment_dict
 
         # Variables that need to be propagated
         self.propagated_variables = self.uses.difference(self.defines)

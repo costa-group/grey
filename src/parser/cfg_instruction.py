@@ -26,7 +26,7 @@ def build_instr_spec(op_name: str, idx: int, input_args: List[str], out_args: Li
     return instr_spec
 
 
-def build_push_spec(val, idx, out_idx, out_args = None):
+def build_push_spec(val, idx, out_args: List[str]):
     """
     Generates the specification of a PUSH instruction from the introduced value
     """
@@ -40,7 +40,7 @@ def build_push_spec(val, idx, out_idx, out_args = None):
     obj["disasm"] = "PUSH" if value != 0 else "PUSH0"
     obj["inpt_sk"] = []
     obj["value"] = [value]
-    obj["outpt_sk"] = ["s"+str(out_idx)] if out_args == None else out_args
+    obj["outpt_sk"] = out_args
     obj["gas"] = opcodes.get_ins_cost("PUSH") if value != 0 else opcodes.get_ins_cost("PUSH0")
     obj["commutative"] = False
     obj["push"] = True
@@ -148,38 +148,6 @@ class CFGInstruction:
             instruction["assignment"] = self.assignments
 
         return instruction
-
-
-    def build_spec_assigment(self, out_idx, instrs_idx, map_instructions):
-        """
-        An assigment instruction is translated into a push opcode
-        """
-
-        assert(len(self.in_args) == 1, "[ERROR]: An assignment only has one argument")
-        
-        instructions = []
-        new_out = out_idx
-
-        inp = self.in_args[0]
-        
-        func = map_instructions.get(("PUSH",tuple([inp])),-1)
-                
-        # Only consider constants here, other assignments are just ignored
-        if func == -1 and inp.startswith("0x"):
-            
-            push_name = "PUSH" if int(inp,16) != 0 else "PUSH0"
-            inst_idx = instrs_idx.get(push_name, 0)
-            instrs_idx[push_name] = inst_idx+1
-                    
-            push_ins = build_push_spec(inp,inst_idx,new_out, self.out_args)
-
-            map_instructions[("PUSH",tuple([inp]))] = push_ins
-            new_out +=1
-            instructions.append(push_ins)
-
-        return instructions, new_out
-
-
     
     # def build_spec(self, out_idx, instrs_idx, map_instructions, assignments: Dict[str, str]):
     def build_spec(self, out_idx, instrs_idx, map_instructions):
@@ -203,7 +171,7 @@ class CFGInstruction:
                         inst_idx = instrs_idx.get(push_name, 0)
                         instrs_idx[push_name] = inst_idx+1
                     
-                        push_ins = build_push_spec(inp_value,inst_idx,new_out)
+                        push_ins = build_push_spec(inp_value,inst_idx, [f"s{new_out}"])
 
                         map_instructions[("PUSH",tuple([inp_value]))] = push_ins
                     

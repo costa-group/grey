@@ -40,9 +40,13 @@ class LivenessAnalysisInfo(BlockAnalysisInfo):
             self.output_state.live_vars = self.block_info.uses.union(self.input_state.live_vars.difference(self.block_info.defines))
 
     def dot_repr(self) -> str:
-        instr_repr = '\n'.join([instr.dot_repr() for instr in self.block_info._instructions]) \
-            if len(self.block_info._instructions) > 0 else "[]"
-        text_repr_list = [f"{self.block_info.block_id}:", f"{self.output_state}", instr_repr, f"{self.input_state}"]
+        instr_repr = '\n'.join([instr.dot_repr() for instr in self.block_info._instructions])
+        assignment_repr = '\n'.join([f"{out_value} = {in_value}"
+                                     for out_value, in_value in self.block_info._assignment_dict.items()])
+
+        combined_repr = assignment_repr + instr_repr if assignment_repr != "" or instr_repr != "" else "[]"
+
+        text_repr_list = [f"{self.block_info.block_id}:", f"{self.output_state}", combined_repr, f"{self.input_state}"]
         return '\n'.join(text_repr_list)
 
     def __repr__(self) -> str:
