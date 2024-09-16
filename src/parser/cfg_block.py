@@ -1,3 +1,5 @@
+import logging
+
 from parser.cfg_instruction import CFGInstruction, build_push_spec, build_pushtag_spec
 from parser.utils_parser import is_in_input_stack, is_in_output_stack, are_dependent_interval, get_empty_spec, \
     get_expression, are_dependent_accesses, replace_pos_instrsid, generate_dep, get_interval
@@ -522,13 +524,13 @@ class CFGBlock:
 
         #Just to print information if it is not a jump
         if not self._jump_type in ["conditional","unconditional"]:
-            print(str(self.block_id))
-            print(json.dumps(spec, indent=4))
+            logging.debug(f"Building Spec of block {self.block_id}...")
+            logging.debug(json.dumps(spec, indent=4))
                 
         if self._jump_type in ["conditional","unconditional"]:
             spec, out_idx, block_tag_idx = self._include_jump_tag(spec,out_idx, block_tags_dict, block_tag_idx)
-            print(str(self.block_id))
-            print(json.dumps(spec, indent=4))
+            logging.debug(f"Building Spec of block {self.block_id}...")
+            logging.debug(json.dumps(spec, indent=4))
 
         return spec, out_idx, block_tag_idx
 
