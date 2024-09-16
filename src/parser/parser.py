@@ -56,7 +56,21 @@ def parse_assignment(assignment: Dict[str, Any], assignment_dict: Dict[str, str]
     return instruction
 
 
-def parse_block(object_name: str, block_json: Dict[str,Any]) -> Tuple[block_id_T, CFGBlock, Dict]:
+def process_block_entry(block_json: Dict[str, Any], phi_instr: Dict[str, Any]) -> Dict[str, str]:
+    """
+    Given a block and a Phi instruction, generates a dict that links each of the predecessor blocks and the
+    corresponding value
+    """
+    # If there is a PhiFunction, there is an entry field
+    block_entry = block_json["entries"]
+    # Stores the entries and the corresponding values in a dict, as it can affect other blocks
+
+    block_entry_values = phi_instr["in"]
+
+    return {entry: value for entry, value in zip(block_entry, block_entry_values)}
+
+
+def parse_block(object_name: str, block_json: Dict[str,Any]) -> Tuple[block_id_T, CFGBlock, Dict, Dict[str, str]]:
     block_id = block_json.get("id", -1)
     block_instructions = block_json.get("instructions", -1)
     block_exit = block_json.get("exit", -1)
@@ -68,9 +82,14 @@ def parse_block(object_name: str, block_json: Dict[str,Any]) -> Tuple[block_id_T
     
     list_cfg_instructions = []
     assignment_dict = dict()
+    entry_dict = dict()
     for instruction in block_instructions:
         if "assignment" in instruction:
             list_cfg_instructions.append(parse_assignment(instruction, assignment_dict))
+        # We handle Phi functions separately
+        elif instruction["op"] == "PhiFunction":
+            entry_dict.update(process_block_entry(block_json, instruction))
+
         else:
             cfg_instruction = parse_instruction(instruction) if block_type != "FunctionReturn" else []
             list_cfg_instructions.append(cfg_instruction)
@@ -85,7 +104,7 @@ def parse_block(object_name: str, block_json: Dict[str,Any]) -> Tuple[block_id_T
 
     # block._process_dependences(block._instructions)
         
-    return block_identifier, block, block_exit
+    return block_identifier, block, block_exit, entry_dict
 
 
 def parser_block_list(object_name: str, blocks: List[Dict[str, Any]]):
@@ -96,7 +115,7 @@ def parser_block_list(object_name: str, blocks: List[Dict[str, Any]]):
     exit_blocks = []
     comes_from = collections.defaultdict(lambda: [])
     for b in blocks:
-        block_id, new_block, block_exit = parse_block(object_name, b)
+        block_id, new_block, block_exit, block_entries = parse_block(object_name, b)
         new_block.set_jump_info(block_exit)
 
         # Annotate comes from
@@ -107,23 +126,7 @@ def parser_block_list(object_name: str, blocks: List[Dict[str, Any]]):
             exit_blocks.append(block_id)
 
         block_list.add_block(new_block)
-# =======
-#             prev_block_id = block_id[:pos]
-#             prev_block_identifier = object_name+"_"+prev_block_id
-#             prev_block = block_list.get_block(prev_block_identifier)
-#
-#             prev_block.set_jump_info(new_block.get_jump_type(), block_exit)
-#
-#             # Annotate comes from
-#             for succ_block in block_exit:
-#                 comes_from[succ_block].append(prev_block_identifier)
-#
-#             if prev_block.get_jump_type() == "terminal":
-#                 exit_blocks.append(prev_block_identifier)
-#
-#         else:
-#             block_list.add_block(new_block)
-# >>>>>>> main
+        block_list.entry_dict.update(block_entries)
 
     # Update comes_from from the dictionary
     for block_id in comes_from:

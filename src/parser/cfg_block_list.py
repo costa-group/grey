@@ -8,6 +8,7 @@ import networkx
 from parser.cfg_block import CFGBlock, include_function_call_tags
 import parser.constants
 
+
 class CFGBlockList:
     """
     Object that manages a list of blocks that connected
@@ -18,6 +19,7 @@ class CFGBlockList:
         self.graph = None
         self.start_block = None
         self.block_tags_dict = {}
+        self.entry_dict: Dict[str, str] = dict()
 
     def add_block(self, block: CFGBlock) -> None:
         block_id = block.get_block_id()
