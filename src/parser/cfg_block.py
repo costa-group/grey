@@ -159,7 +159,7 @@ class CFGBlock:
         targets = exit_info["targets"]
         if type_block in ["ConditionalJump"]:
             self._jump_type = "conditional"
-            self._final_stack_elements = exit_info["cond"]
+            self._final_stack_elements = [exit_info["cond"]]
             self._falls_to = targets[0]
             self._jump_to = targets[1]
         elif type_block in ["Jump"]:

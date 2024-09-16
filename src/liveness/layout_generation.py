@@ -19,14 +19,16 @@ from liveness.liveness_analysis import LivenessAnalysisInfo, construct_analysis_
     perform_liveness_analysis_from_cfg_info
 
 
-def output_stack_layout(input_stack: List[str], live_vars: Set[str], variable_depth_info: Dict[str, int]) -> List[str]:
+def output_stack_layout(input_stack: List[str], final_stack_elements: List[str],
+                        live_vars: Set[str], variable_depth_info: Dict[str, int]) -> List[str]:
     """
-    Generates the output stack layout, according to the variables in live vars and the information from the input stack
+    Generates the output stack layout, according to the variables in live vars, the variables that must
+    appear at the top of the stack and the information from the input stack
     """
 
     # We keep the variables in the input stack in the same order if they appear in the variable vars (so that we
     # don't need to move them elsewhere). It might contain None variables if the corresponding variables are consumed
-    output_stack = [var_ if var_ in live_vars else None for var_ in input_stack]
+    output_stack = final_stack_elements + [var_ if var_ in live_vars else None for var_ in input_stack]
     vars_to_place = live_vars.difference(set(output_stack))
 
     # Sort the vars to place according to the variable depth info order in reversed order
@@ -137,12 +139,13 @@ def unification_block_dict(block_info: Dict[str, Any]) -> Dict[str, List[str]]:
     return unification_dict
 
 
-def unify_stacks_brothers(input_stack: List[str], live_vars_list: List[Set[str]], variable_depth_info: Dict[str, int]) \
+def unify_stacks_brothers(input_stack: List[str], final_stack_elements: List[str],
+                          live_vars_list: List[Set[str]], variable_depth_info: Dict[str, int]) \
         -> Tuple[List[str], List[List[str]]]:
     """
-    Given the input stack from one of the brothers, its corresponding list of vars list, the live vars from other
-    variables and the variable depth info for the initial block, returns an output stack for every one of them
-    in the same order as others_live_vars_list is provided
+    Given the input stack from one of the brothers, the values that must be placed at the top of the stack,
+    the list of variables that are live, the variable depth info for the initial block, returns an output
+    stack for every one of them in the same order as others_live_vars_list is provided
     """
     all_var_elements = set().union(*live_vars_list)
 
@@ -154,7 +157,7 @@ def unify_stacks_brothers(input_stack: List[str], live_vars_list: List[Set[str]]
         combined_variable_depth_info[variables] = max_value
 
     # Construct the output stack with all the joined variable elements
-    combined_output_stack = output_stack_layout(input_stack, all_var_elements, variable_depth_info)
+    combined_output_stack = output_stack_layout(input_stack, final_stack_elements, all_var_elements, variable_depth_info)
 
     # Construct the remaining output stacks, considering the order of the first generated output stacks
     output_stacks = [[variable if variable in live_vars else "bottom" for variable in combined_output_stack]
@@ -258,7 +261,7 @@ class LayoutGeneration:
                 input_stack = output_stacks[comes_from[0]]
         else:
             # We introduce the necessary args in the generation of the first output stack layout
-            input_stack = output_stack_layout(block.final_stack_elements, liveness_info.output_state.live_vars,
+            input_stack = output_stack_layout([], block.final_stack_elements, liveness_info.output_state.live_vars,
                                               self._variable_order[block_id])
 
         input_stacks[block.block_id] = input_stack
@@ -280,7 +283,11 @@ class LayoutGeneration:
                 elements_to_unify = [block_id, *brothers]
 
                 # We unify the stacks according the first reached block
-                combined_output_stack, output_stacks_unified = unify_stacks_brothers(input_stack, [self._liveness_info[block_id].input_state.live_vars for block_id in elements_to_unify],
+                combined_liveness_info = [self._liveness_info[block_id].input_state.live_vars
+                                          for block_id in elements_to_unify]
+
+                combined_output_stack, output_stacks_unified = unify_stacks_brothers(input_stack, block.final_stack_elements,
+                                                                                     combined_liveness_info,
                                                                                      self._variable_order[block_id])
 
                 # We assign all the output stacks that have been unified
@@ -294,7 +301,7 @@ class LayoutGeneration:
                     output_stacks[brother] = output_stacks_unified[i]
 
         if output_stack is None:
-            output_stack = output_stack_layout(input_stack, liveness_info.input_state.live_vars,
+            output_stack = output_stack_layout(input_stack, block.final_stack_elements, liveness_info.input_state.live_vars,
                                                self._variable_order[block_id])
             # We store the output stack in the dict, as we have built a new element
             output_stacks[block_id] = output_stack
