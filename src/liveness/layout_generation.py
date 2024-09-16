@@ -307,11 +307,8 @@ class LayoutGeneration:
             output_stacks[block_id] = output_stack
 
         # We build the corresponding specification
-        block_json, out_idx, new_tag_idx = block.build_spec(self._tags_dict, self._tags_idx)
+        block_json, out_idx, new_tag_idx = block.build_spec(self._tags_dict, self._tags_idx, input_stack, output_stack)
         self._tags_idx = new_tag_idx
-
-        block_json["src_ws"] = input_stack
-        block_json["tgt_ws"] = output_stack
 
         return block_json
 

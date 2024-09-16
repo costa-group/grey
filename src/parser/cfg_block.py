@@ -509,13 +509,16 @@ class CFGBlock:
 
     #     return specifications, block_tag_idx
 
-    def build_spec(self, block_tags_dict: Dict, block_tag_idx: int) -> Dict[str, Any]:
+    def build_spec(self, block_tags_dict: Dict, block_tag_idx: int, initial_stack: List[str],
+                   final_stack: List[str]) -> Tuple[Dict[str, Any], int, int]:
 
         map_instructions = {}
         
         out_idx = 0
 
         spec, out_idx, map_positions = self._build_spec_for_sequence(self._instructions, map_instructions, out_idx)
+        spec["src_ws"] = initial_stack
+        spec["tgt_ws"] = final_stack
 
         sto_deps, mem_deps = self._process_dependences(self._instructions, map_positions)
         spec["storage_dependences"] = sto_deps
