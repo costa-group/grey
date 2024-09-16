@@ -44,7 +44,8 @@ class LivenessAnalysisInfo(BlockAnalysisInfo):
         assignment_repr = '\n'.join([f"{out_value} = {in_value}"
                                      for out_value, in_value in self.block_info._assignment_dict.items()])
 
-        combined_repr = assignment_repr + instr_repr if assignment_repr != "" or instr_repr != "" else "[]"
+        combined_repr = '\n'.join(repr_ for repr_ in [assignment_repr, instr_repr] if repr_ != "") \
+            if assignment_repr != "" or instr_repr != "" else "[]"
 
         text_repr_list = [f"{self.block_info.block_id}:", f"{self.output_state}", combined_repr, f"{self.input_state}"]
         return '\n'.join(text_repr_list)

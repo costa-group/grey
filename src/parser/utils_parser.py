@@ -85,7 +85,7 @@ def get_ins_size(op_name, val = None, address_length = 2):
         return 1 + get_num_bytes_int(val)
     elif op_name == "PUSH #[$]" or op_name == "PUSHSIZE":
         return 1 + 4
-    elif op_name == "PUSH [tag]" or op_name == "PUSH data" or op_name == "PUSH [$]":
+    elif op_name == "PUSH [TAG]" or op_name == "PUSH data" or op_name == "PUSH [$]":
         return 1 + address_length
     elif op_name == "PUSHLIB" or op_name == "PUSHDEPLOYADDRESS":
         return 1 + 20

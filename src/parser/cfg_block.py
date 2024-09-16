@@ -154,17 +154,35 @@ class CFGBlock:
     def set_length(self) -> int:
         return len(self._instructions)
 
+    def _process_instructions_from_jump(self):
+        # Add a PUSH tag instruction as part of the assignment dict
+        self._instructions.insert(0, CFGInstruction("PUSH [TAG]", [], [self._jump_to]))
+
+        # Add a JUMP instruction
+        self._instructions.append(CFGInstruction("JUMP", [self._jump_to], []))
+
+    def _process_instructions_from_jumpi(self, condition: str):
+        # Add a PUSH tag instruction as part of the assignment dict
+        self._instructions.insert(0, CFGInstruction("PUSH [TAG]", [], [self._jump_to]))
+
+        # Add a JUMPI instruction
+        self._instructions.append(CFGInstruction("JUMPI", [self._jump_to, condition], []))
+
     def set_jump_info(self, exit_info: Dict[str, Any]) -> None:
         type_block = exit_info["type"]
         targets = exit_info["targets"]
         if type_block in ["ConditionalJump"]:
             self._jump_type = "conditional"
-            self._final_stack_elements = [exit_info["cond"]]
             self._falls_to = targets[0]
             self._jump_to = targets[1]
+            self._process_instructions_from_jumpi(exit_info["cond"])
+
         elif type_block in ["Jump"]:
             self._jump_type = "unconditional"
             self._jump_to = targets[0]
+            # Add to the instructions a JUMP
+            self._process_instructions_from_jump()
+
         elif type_block in ["Terminated"]:
             #We do not store the direction as itgenerates a loop
             self._jump_type = "terminal"
@@ -319,7 +337,8 @@ class CFGBlock:
 
         return list(vars_spec)
 
-    def _build_spec_for_sequence(self, instructions, map_instructions: Dict, out_idx):
+    def _build_spec_for_sequence(self, instructions, map_instructions: Dict, out_idx,
+                                 initial_stack: List[str], final_stack: List[str]):
         """
         Builds the specification for a sequence of instructions. "map_instructions" is passed as an argument
         to reuse declarations from other blocks, as we might have split the corresponding basic block
@@ -331,16 +350,19 @@ class CFGBlock:
         instrs_idx = {}
         new_out_idx = out_idx
 
-        input_stack = []
-        output_stack = []
-
         map_positions_instructions = {}
 
+        jump_instr = None
 
         for i in range(len(instructions)):
             #Check if it has been already created
 
             ins = instructions[i]
+
+            # Ignore JUMP instructions
+            if ins.get_op_name().startswith("JUMP"):
+                jump_instr = ins
+                continue
 
             ins_spec = map_instructions.get((ins.get_op_name().upper(),tuple(ins.get_in_args())), None)
 
@@ -353,18 +375,6 @@ class CFGBlock:
                 uninter_functions+=result
 
                 map_positions_instructions[i] = result[-1]["id"]
-                
-                for i_arg in ins.get_in_args():
-                    if not i_arg.startswith("0x") and i_arg not in self.assignment_dict:
-                        member = is_in_input_stack(i_arg,instructions[:i])
-
-                        if member:
-                            input_stack.append(i_arg)
-
-                for o_arg in  ins.get_out_args():
-                    member = is_in_output_stack(o_arg, instructions[i+1:])
-                    if member:
-                        output_stack = [o_arg]+output_stack
 
         # Assignments might be generated from phi functions
         for out_val, in_val in self.assignment_dict.items():
@@ -384,8 +394,10 @@ class CFGBlock:
 
         spec["original_instrs"] = ""
         spec["yul_expressions"] = '\n'.join(list(map(lambda x: x.get_instruction_representation(),instructions)))
-        spec["src_ws"] = input_stack
-        spec["tgt_ws"] = output_stack
+        spec["src_ws"] = initial_stack
+
+        # If we have applied either JUMP or JUMPI, we have to add the stack elements before jumping
+        spec["tgt_ws"] = jump_instr.get_in_args() + final_stack if jump_instr is not None else final_stack
         spec["user_instrs"] = uninter_functions
         spec["variables"] = self._get_vars_spec(uninter_functions)
 
@@ -507,9 +519,8 @@ class CFGBlock:
         
         out_idx = 0
 
-        spec, out_idx, map_positions = self._build_spec_for_sequence(self._instructions, map_instructions, out_idx)
-        spec["src_ws"] = initial_stack
-        spec["tgt_ws"] = final_stack
+        spec, out_idx, map_positions = self._build_spec_for_sequence(self._instructions, map_instructions,
+                                                                     out_idx, initial_stack, final_stack)
 
         sto_deps, mem_deps = self._process_dependences(self._instructions, map_positions)
         spec["storage_dependences"] = sto_deps

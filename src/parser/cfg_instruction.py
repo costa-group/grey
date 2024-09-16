@@ -57,16 +57,16 @@ def build_pushtag_spec(out_idx, tag_value):
     obj = {}
 
     obj["id"] = "PUSHTAG_" + str(tag_value)
-    obj["opcode"] = process_opcode(str(opcodes.get_opcode("PUSH [tag]")[0]))
-    obj["disasm"] = "PUSH [tag]"
+    obj["opcode"] = process_opcode(str(opcodes.get_opcode("PUSH [TAG]")[0]))
+    obj["disasm"] = "PUSH [TAG]"
     obj["inpt_sk"] = []
     obj["value"] = [tag_value]
     obj["outpt_sk"] = ["s"+str(out_idx)]
-    obj["gas"] = opcodes.get_ins_cost("PUSH [tag]")
+    obj["gas"] = opcodes.get_ins_cost("PUSH [TAG]")
     obj["commutative"] = False
     obj["push"] = True
     obj["storage"] = False  # It is true only for MSTORE and SSTORE
-    obj["size"] = get_ins_size("PUSH [tag]")
+    obj["size"] = get_ins_size("PUSH [TAG]")
 
     return obj
 

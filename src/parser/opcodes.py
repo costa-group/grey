@@ -97,7 +97,7 @@ opcodes = {
     "SUICIDE": [0xff, 1, 0],
     # See https://github.com/ethereum/solidity/blob/develop/libevmasm/Assembly.cpp for more information
     "ASSIGNIMMUTABLE": [0x00,2,0], #Yul opcode. Assembly Item: AssignImmutable
-    "PUSH [tag]": [0x00,0,1], #Yul opcode. Assembly Item: PushTag
+    "PUSH [TAG]": [0x00,0,1], #Yul opcode. Assembly Item: PushTag
     "PUSHLIB": [0x00,0,1], #Yul opcode. Assembly Item: PushLib
     "PUSH #[$]": [0x00,0,1], #Yul opcode. Assembly Item: PushSubSize
     "PUSH [$]": [0x00,0,1], #Yul opcode. Assembly Item: PushSub
@@ -112,7 +112,7 @@ opcodes = {
 
 # Opcodes that have a blank character in their name are put together in our representation
 encoding_functor_name = {
-    "PUSH [tag]": "PUSHTAG" , #Yul opcode. Assembly Item: PushTag
+    "PUSH [TAG]": "PUSHTAG" , #Yul opcode. Assembly Item: PushTag
     "PUSH #[$]": "PUSHSUBSIZE", #Yul opcode. Assembly Item: PushSubSize
     "PUSH [$]": "PUSHSUB" , #Yul opcode. Assembly Item: PushSub
     "PUSH data": "PUSHDATA", #Yul opcode. Assembly Item: PushData
@@ -120,7 +120,7 @@ encoding_functor_name = {
 
 # Opcodes that have a blank character in their name are put together in our representation
 opcode_internal_representation_to_assembly_item = {
-    "PUSHTAG": "PUSH [tag]", #Yul opcode. Assembly Item: PushTag
+    "PUSHTAG": "PUSH [TAG]", #Yul opcode. Assembly Item: PushTag
     "PUSH#[$]": "PUSH #[$]", #Yul opcode. Assembly Item: PushSubSize
     "PUSH[$]": "PUSH [$]", #Yul opcode. Assembly Item: PushSub
     "PUSHDATA": "PUSH data", #Yul opcode. Assembly Item: PushData
