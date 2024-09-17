@@ -166,7 +166,7 @@ class CFGBlock:
         self._instructions.insert(0, CFGInstruction("PUSH [TAG]", [], [self._jump_to]))
 
         # Add a JUMPI instruction
-        self._instructions.append(CFGInstruction("JUMPI", [self._jump_to, condition], []))
+        self._instructions.append(CFGInstruction("JUMPI", [condition, self._jump_to], []))
 
     def set_jump_info(self, exit_info: Dict[str, Any]) -> None:
         type_block = exit_info["type"]
@@ -534,11 +534,6 @@ class CFGBlock:
 
         #Just to print information if it is not a jump
         if not self._jump_type in ["conditional","unconditional"]:
-            logging.debug(f"Building Spec of block {self.block_id}...")
-            logging.debug(json.dumps(spec, indent=4))
-                
-        if self._jump_type in ["conditional","unconditional"]:
-            spec, out_idx, block_tag_idx = self._include_jump_tag(spec,out_idx, block_tags_dict, block_tag_idx)
             logging.debug(f"Building Spec of block {self.block_id}...")
             logging.debug(json.dumps(spec, indent=4))
 
