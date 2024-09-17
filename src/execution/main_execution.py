@@ -62,9 +62,9 @@ def main():
         for block_name, sfs in jsons.items():
             store_sfs_json(block_name, sfs, sfs_final_dir)
 
-            outcome, time, solution_found = greedy_standalone(sfs)
-            csv_row = generate_statistics_info(block_name, solution_found, outcome, time, sfs)
+            _, time, solution_found = greedy_standalone(sfs)
+            csv_row = generate_statistics_info(block_name, solution_found, time, sfs)
             csv_rows.append(csv_row)
 
         df = pd.DataFrame(csv_rows)
-        df.to_csv("outcome.csv")
+        df.to_csv(final_dir.joinpath("statistics.csv"))

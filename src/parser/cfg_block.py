@@ -392,8 +392,13 @@ class CFGBlock:
 
                     uninter_functions.append(push_ins)
 
+        instr_repr = '\n'.join([instr.get_instruction_representation() for instr in self._instructions])
+        assignment_repr = '\n'.join([f"{out_value} = {in_value}" for out_value, in_value in self.assignment_dict.items()])
+
+        combined_repr = '\n'.join(repr_ for repr_ in [assignment_repr, instr_repr] if repr_ != "")
+
         spec["original_instrs"] = ""
-        spec["yul_expressions"] = '\n'.join(list(map(lambda x: x.get_instruction_representation(),instructions)))
+        spec["yul_expressions"] = combined_repr
         spec["src_ws"] = initial_stack
 
         # If we have applied either JUMP or JUMPI, we have to add the stack elements before jumping
