@@ -7,7 +7,7 @@ from parser.optimizable_block_list import compute_sub_block_cfg
 from parser.parser import parse_CFG
 from parser.cfg import store_sfs_json
 from greedy.greedy import greedy_standalone
-from statistics.statistics import generate_statistics_info
+from solution_generation.statistics import generate_statistics_info
 from liveness.liveness_analysis import dot_from_analysis, perform_liveness_analysis
 from liveness.layout_generation import layout_generation
 
