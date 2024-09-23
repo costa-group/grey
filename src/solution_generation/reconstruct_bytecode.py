@@ -54,3 +54,6 @@ def asm_from_ids(sms: SMS_T, id_seq: List[str]) -> List[ASM_bytecode_T]:
     """
     instr_id_to_instr = {instr['id']: instr for instr in sms['user_instrs']}
     return id_seq_to_asm_bytecode(instr_id_to_instr, id_seq)
+
+# Combine information from the greedy algorithm and the CFG
+
