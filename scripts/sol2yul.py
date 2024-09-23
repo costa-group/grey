@@ -79,6 +79,31 @@ def compile_source_code(source_code_plain: str, contract_address: str, optimizat
     os.remove(tmp_file)
 
 
+def yul_close_compilation_settings() -> Dict:
+    """
+    Configuration to use in order test that the Yul code matches the one from the JSON representation
+    """
+    return {
+            "enabled": True,
+            "details": {
+                "peephole": False,
+                "inliner": False,
+                "jumpdestRemover": False,
+                "orderLiterals": False,
+                "deduplicate": False,
+                "cse": False,
+                "constantOptimizer": False
+            }
+    }
+
+
+def default_optimization_settings() -> Dict:
+    """
+    Default values for te optimizer field
+    """
+    return {"enabled": True}
+
+
 def compile_json_input(source_code_dict: Dict[str, Any], contract_address: str, version: str, file_path: Path):
     optimization_settings = {"enabled": True}
 
@@ -211,13 +236,9 @@ def compile_from_etherscan_json(etherscan_info: Dict, resulting_file: Path, addr
             compile_source_code(source_code, address, is_optimized, n_runs, resulting_file)
 
 
-def compile_files_from_folders():
-    initial_folder, final_folder = Path(sys.argv[1]), Path(sys.argv[2])
-
+def compile_files_from_folders(initial_folder: Path, final_folder: Path) -> None:
     # Create repo (even if exists)
     final_folder.mkdir(parents=True, exist_ok=True)
-
-    error_files = []
 
     for i, etherscan_json_file in enumerate(glob.glob(str(initial_folder.joinpath("*.json")))):
         address = Path(Path(etherscan_json_file).name).stem
@@ -232,4 +253,5 @@ def compile_files_from_folders():
 
 if __name__ == "__main__":
     logging.basicConfig(level=1)
-    compile_files_from_folders()
+    initial_dir, final_dir = Path(sys.argv[1]), Path(sys.argv[2])
+    compile_files_from_folders(initial_dir, final_dir)
