@@ -264,7 +264,7 @@ class CFGInstruction:
         elif self.op == "memoryguard":
             self.translate_memoryguard()
         elif self.op == "datasize":
-            self.tanslate_datasize()
+            self.translate_datasize()
         elif self.op == "dataoffset":
             self.translate_dataoffset()
         elif self.op == "datacopy":
