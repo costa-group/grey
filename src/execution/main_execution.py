@@ -28,25 +28,7 @@ def parse_args() -> argparse.Namespace:
     return args
 
 
-def main():
-    print("Green Main")
-    args = parse_args()
-
-    x = dtimer()
-
-    cfg = parse_CFG(args.source, args.builtin)
-
-    y = dtimer()
-
-    print("CFG Parser: "+str(y-x)+"s")
-
-    final_dir = Path(args.folder)
-
-    final_dir.mkdir(exist_ok=True, parents=True)
-
-    dot_file_dir = final_dir.joinpath("liveness")
-    dot_file_dir.mkdir(exist_ok=True, parents=True)
-
+def analyze_single_cfg(cfg,dot_file_dir,args):
     sub_block_cfg = compute_sub_block_cfg(cfg)
 
     if args.visualize:
@@ -73,6 +55,31 @@ def main():
             csv_rows.append(csv_row)
 
         # Generate complete asm from CFG object + dict
-
+        
         df = pd.DataFrame(csv_rows)
         df.to_csv(final_dir.joinpath("statistics.csv"))
+
+
+def main():
+    print("Green Main")
+    args = parse_args()
+
+    x = dtimer()
+
+    cfgs = parse_CFG(args.source, args.builtin)
+
+    y = dtimer()
+
+    print("CFG Parser: "+str(y-x)+"s")
+
+    final_dir = Path(args.folder)
+
+    final_dir.mkdir(exist_ok=True, parents=True)
+
+    dot_file_dir = final_dir.joinpath("liveness")
+    dot_file_dir.mkdir(exist_ok=True, parents=True)
+
+    for i in cfgs:
+        cfg = cfgs[i]
+        analyze_single_cfg(cfg,dot_file_dir,args)
+            
