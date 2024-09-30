@@ -1,4 +1,5 @@
 from typing import List
+import json
 
 def check_block_validity(block_id, block_instructions, block_exit, block_type):
     if block_id == -1:
@@ -280,6 +281,6 @@ def split_json(input_file):
                     json_st = json.loads(content)
                     json_structs.append(json_st)
                 except json.JSONDecodeError:
-                    print(f"Error when decoding: {}")
+                    print(f"Error when decoding: {content}")
 
     return json_structs

@@ -7,7 +7,7 @@ from parser.cfg_object import CFGObject
 from parser.cfg_function import CFGFunction
 from parser.cfg_block import CFGBlock
 from parser.cfg_instruction import CFGInstruction
-from parser.utils_parser import check_instruction_validity, check_block_validity, check_assignment_validity
+from parser.utils_parser import check_instruction_validity, check_block_validity, check_assignment_validity, split_json
 
 block_id_T = str
 
@@ -230,11 +230,17 @@ def parser_CFG_from_JSON(json_dict: Dict, built_in_op: bool):
     if subObjects != {}:
         sub = parser_CFG_from_JSON(subObjects, built_in_op)
         cfg.set_subobject(sub)
-
+        
     return cfg
 
 
 def parse_CFG(input_file: str, built_in_op = False):
-    with open(input_file, "r") as f:
-        json_dict = json.load(f)
-    return parser_CFG_from_JSON(json_dict, built_in_op)
+    jsons = split_json(input_file)
+
+    cfg_dicts = {}
+    for i in range(len(jsons)):
+        json_dict = jsons[i]
+        cfg = parser_CFG_from_JSON(json_dict, built_in_op)
+        cfg_dicts[i] = cfg
+
+    return cfg_dicts
