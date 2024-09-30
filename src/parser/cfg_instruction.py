@@ -189,19 +189,21 @@ class CFGInstruction:
         op_name = self.op.upper()
         idx = instrs_idx.get(op_name, 0)
 
-        if "VERBATIM" in op_name:
-            # Here we need to reverse the arguments
-            instr_spec = build_verbatim_spec(op_name, input_args, self.out_args, self.builtin_args)
-        elif opcodes.exists_opcode(op_name):
-            instr_spec = build_instr_spec(op_name, idx, input_args, self.out_args)
-        else:
-            # TODO: separate wrong opcodes from custom functions
-            instr_spec = build_custom_function_spec(op_name, input_args, self.out_args, self.builtin_args)
-
-        instrs_idx[op_name] = idx+1
-        map_instructions[(op_name,tuple(self.in_args))] = instr_spec
+        if op_name != "PUSH":
         
-        instructions.append(instr_spec)
+            if "VERBATIM" in op_name:
+                # Here we need to reverse the arguments
+                instr_spec = build_verbatim_spec(op_name, input_args, self.out_args, self.builtin_args)
+            elif opcodes.exists_opcode(op_name):
+                instr_spec = build_instr_spec(op_name, idx, input_args, self.out_args)
+            else:
+                # TODO: separate wrong opcodes from custom functions
+                instr_spec = build_custom_function_spec(op_name, input_args, self.out_args, self.builtin_args)
+
+            instrs_idx[op_name] = idx+1
+            map_instructions[(op_name,tuple(self.in_args))] = instr_spec
+        
+            instructions.append(instr_spec)
 
         return instructions, new_out
 
@@ -233,7 +235,8 @@ class CFGInstruction:
 
 
     def translate_memoryguard(self) :
-        self.op = "assignment"
+        #It is trabslated as a push directly
+        self.op = "push"
         
         
     def translate_datasize(self) :
