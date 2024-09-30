@@ -8,11 +8,11 @@ from global_params.types import SMS_T, ASM_bytecode_T
 
 
 def asm_from_op_info(op: str, value: Optional[Union[int, str]] = None,
-                     jump_type: Optional[str] = None) -> ASM_bytecode_T:
+                     jump_type: Optional[str] = None, source: Optional[int] = -1) -> ASM_bytecode_T:
     """
     JSON asm initialized with default values
     """
-    default_asm = {"name": op, "value": value, "begin": -1, "end": -1, "source": -1}
+    default_asm = {"name": op, "value": value, "begin": -1, "end": -1, "source": source}
     if jump_type is not None:
         default_asm["jumpType"] = jump_type
     return default_asm
@@ -40,6 +40,14 @@ def id_to_asm_bytecode(uf_instrs: Dict[str, Dict[str, Any]], instr_id: str) -> A
         # The id is the instruction itself (SWAPx, DUPx, ...)
         return asm_from_op_info(instr_id)
 
+def asm_metaop(name: str, value: Optional[int] = None, source: Optional[int] = -1) -> ASM_bytecode_T:
+    asm = {"name": name, "begin": -1, "end": -1, "source": source}
+
+    if value != None:
+        asm["value"] = value
+    
+    return asm
+    
 
 def id_seq_to_asm_bytecode(uf_instrs: Dict[str, Dict[str, Any]], id_seq: List[str]) -> List[ASM_bytecode_T]:
     """
@@ -55,5 +63,28 @@ def asm_from_ids(sms: SMS_T, id_seq: List[str]) -> List[ASM_bytecode_T]:
     instr_id_to_instr = {instr['id']: instr for instr in sms['user_instrs']}
     return id_seq_to_asm_bytecode(instr_id_to_instr, id_seq)
 
-# Combine information from the greedy algorithm and the CFG
 
+
+
+def traverse_cfg(cfg_object):
+    block_list = cfg_object.get_block_list()
+    blocks = block_list.get_blocks_dict()
+
+    next_block = []
+    while next_block != []:
+        pass
+    
+
+# Combine information from the greedy algorithm and the CFG
+def asm_from_cfg(cfg, asm_dicts):   
+    objects_cfg = cfg.get_objects()
+    subObjects = cfg.get_subobject().get_objects()
+
+    json_object = {}
+    for obj_name in objects_cfg.keys():
+        obj = objects_cfg[obj_name]
+
+        asm = traverse_cfg(obj)
+
+        
+    return json_object
