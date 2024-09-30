@@ -31,11 +31,13 @@ def parse_args() -> argparse.Namespace:
 def analyze_single_cfg(cfg,final_dir,dot_file_dir,args):
     sub_block_cfg = compute_sub_block_cfg(cfg)
 
+  
     if args.visualize:
         liveness_info = dot_from_analysis(sub_block_cfg, dot_file_dir)
 
     x = dtimer()
     jsons = layout_generation(sub_block_cfg, dot_file_dir)
+
     sfs_final_dir = final_dir.joinpath("sfs")
     sfs_final_dir.mkdir(exist_ok=True, parents=True)
     y = dtimer()
@@ -43,6 +45,9 @@ def analyze_single_cfg(cfg,final_dir,dot_file_dir,args):
     print("Layout generation: " + str(y - x) + "s")
 
     block_name2asm = dict()
+
+    json_asm_contract = {}
+
     if args.greedy:
         csv_rows = []
         for block_name, sfs in jsons.items():
@@ -55,10 +60,13 @@ def analyze_single_cfg(cfg,final_dir,dot_file_dir,args):
 
         # Generate complete asm from CFG object + dict
         
+        json_asm_contract = asm_from_cfg(sub_block_cfg,block_name2asm)
         
         df = pd.DataFrame(csv_rows)
         df.to_csv(final_dir.joinpath("statistics.csv"))
 
+    return json_asm_contract
+        
 
 def main():
     print("Green Main")
@@ -79,7 +87,14 @@ def main():
     dot_file_dir = final_dir.joinpath("liveness")
     dot_file_dir.mkdir(exist_ok=True, parents=True)
 
+    asm_output = {}
+    
     for i in cfgs:
         cfg = cfgs[i]
-        analyze_single_cfg(cfg,final_dir,dot_file_dir,args)
-            
+        json_asm_contract = analyze_single_cfg(cfg,final_dir,dot_file_dir,args)
+
+        asm_output = asm_output | json_asm_contract
+
+    asm_contracts = {}
+    asm_contracts["contracts"] = asm_output
+    # asm_contracts["version"] = #TODO Call to solc version
