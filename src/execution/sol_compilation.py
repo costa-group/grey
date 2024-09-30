@@ -175,7 +175,7 @@ class EtherscanCompilation:
         Compiles a file from the multi sol representation
         """
         compilation = EtherscanCompilation(final_file, solc_executable)
-        compilation.flags = "-yul-cfg-json --optimize"
+        compilation.flags = "--yul-cfg-json --optimize"
         return compilation.compile_multiple_sources(multi_sol_info, deployed_contract)
 
     @staticmethod
@@ -228,7 +228,7 @@ class EtherscanCompilation:
         output_dict = json.loads(output)
         return output_dict, error
 
-    def _process_json_output(self, output_dict: Dict, error: str):
+    def _process_json_output(self, output_dict: Dict, error: str) -> bool:
         """
         Process the output generated from the json input
         """
@@ -236,6 +236,7 @@ class EtherscanCompilation:
         # (see https://docs.soliditylang.org/en/v0.8.17/using-the-compiler.html)
         if "errors" in output_dict and any(error_msg["severity"] == "error" for error_msg in output_dict["errors"]):
             logging.error(f"Errors: {output_dict['errors']}")
+            return False
         else:
             if error != "":
                 logging.warning(error)
@@ -251,8 +252,9 @@ class EtherscanCompilation:
                         # Store the output following the asm format
                         with open(self._final_file, 'w') as f:
                             json.dump(yul_cfg_current, f, indent=4)
+        return True
 
-    def compile_json_input(self, json_input: Dict, deployed_contract: Optional[str] = None) -> Dict[str, Any]:
+    def compile_json_input(self, json_input: Dict, deployed_contract: Optional[str] = None) -> Optional[Dict[str, Any]]:
         # Change the settings from the json input
         json_input["settings"] = self._json_input_set_settings()
 
@@ -263,13 +265,16 @@ class EtherscanCompilation:
             # Write JSON in a file
             f.write(json.dumps(json_input))
 
-            # Compile it using the corresponding options
-            output_dict, error = self._compile_json_input(tmp_file)
-
-            # Then we process the output and generate the corresponding file
-            self._process_json_output(output_dict, error)
+        # Compile it using the corresponding options
+        output_dict, error = self._compile_json_input(tmp_file)
 
         os.remove(tmp_file)
+        # Then we process the output and generate the corresponding file
+        correct_compilation = self._process_json_output(output_dict, error)
+
+        if not correct_compilation:
+            return None
+
         return output_dict
 
     # Methods for compiling using the command line
@@ -278,37 +283,43 @@ class EtherscanCompilation:
         output, error = run_command(command)
         return output, error
 
-    def _process_sol_command(self, output: str, error: str) -> None:
+    def _process_sol_command(self, output: str, error: str) -> bool:
         if "Error:" in error:
             logging.error(f"Errors compiling contract: {error}")
+            return False
         else:
             if error != "":
                 logging.warning(f"Warning in Contract")
                 logging.warning(error)
             with open(self._final_file, 'w') as f:
                 f.write(output)
+        return True
 
-    def compile_single_sol_file(self, sol_file: str) -> str:
+    def compile_single_sol_file(self, sol_file: str) -> Tuple[bool, str]:
         """
         Compiles a single sol file using the file name
         """
         sol_output, error = self._compile_sol_command(sol_file)
-        self._process_sol_command(sol_output, error)
-        return sol_output
+        correct_compilation = self._process_sol_command(sol_output, error)
+        return correct_compilation, sol_output
 
-    def compile_sol_file_from_code(self, source_code_plain: str, deployed_contract: Optional[str] = None) -> Dict[str, Any]:
+    def compile_sol_file_from_code(self, source_code_plain: str, deployed_contract: Optional[str] = None) -> Optional[Dict[str, Any]]:
         """
         Compiles a single sol file from its textual representation and returns the output
         """
         fd, tmp_file = tempfile.mkstemp()
         with os.fdopen(fd, 'w') as f:
             f.write(source_code_plain)
-        output = self.compile_single_sol_file(tmp_file)
+        correct_compilation, output = self.compile_single_sol_file(tmp_file)
         os.remove(tmp_file)
+
+        if not correct_compilation:
+            return None
+
         return process_sol_yul_cfg(output, deployed_contract)
 
     def compile_multiple_sources(self, source_code_dict: Dict[str, Dict[str, str]],
-                                 deployed_contract: Optional[str] = None) -> Dict[str, Any]:
+                                 deployed_contract: Optional[str] = None) -> Optional[Dict[str, Any]]:
         """
         Computes multiple sol files using the multi file representation from Etherscan
         """
@@ -327,9 +338,13 @@ class EtherscanCompilation:
         output_sol, error = self._compile_sol_command(main_sol_file)
         os.chdir(old_path)
 
-        # print(command)
-        self._process_sol_command(output_sol, error)
         shutil.rmtree(tmp_dir)
+        # print(command)
+        correct_compilation = self._process_sol_command(output_sol, error)
+
+        if not correct_compilation:
+            return dict()
+
         return process_sol_yul_cfg(output_sol, deployed_contract)
 
 
@@ -350,10 +365,11 @@ def extract_info_from_etherscan(etherscan_info: List[Dict]) -> List[Dict]:
 
 
 def compile_from_etherscan_json(etherscan_info: List[Dict], resulting_file: Path, address: str,
-                                solc_executable: str = "solc") -> Dict[str, Any]:
+                                solc_executable: str = "solc") -> Optional[Dict[str, Any]]:
     """
     Given a file in etherscan format, compiles it in any of the three formats
-    and returns the generated output as a dict with a key for each contract
+    and returns the generated output as a dict with a key for each contract.
+    If the compilation failed, returns None
     """
     # Skip if version <= 0.8.*
     etherscan_dict = extract_info_from_etherscan(etherscan_info)
@@ -383,7 +399,7 @@ def compile_from_etherscan_json(etherscan_info: List[Dict], resulting_file: Path
             try:
                 code_dict = json.loads(source_code)
                 logging.log(1, f"Multi sol input {address}")
-                return EtherscanCompilation.compile_multiple_sources(code_dict, main_contract, resulting_file, solc_executable)
+                return EtherscanCompilation.from_multi_sol(code_dict, main_contract, resulting_file, solc_executable)
 
             except Exception as e:
                 logging.log(1, f"Single sol input {address}")
