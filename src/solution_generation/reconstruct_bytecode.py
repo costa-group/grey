@@ -66,14 +66,40 @@ def asm_from_ids(sms: SMS_T, id_seq: List[str]) -> List[ASM_bytecode_T]:
 
 
 
-def traverse_cfg(cfg_object):
+def traverse_cfg(cfg_object, asm_dicts):
     block_list = cfg_object.get_block_list()
     blocks = block_list.get_blocks_dict()
 
-    next_block = []
-    while next_block != []:
-        pass
+    init_block = blocks[list(blockskeys())[0]]
+
+    assert(init_block.get_block_id().find("Block0") != -1)
     
+    pending_blocks = [init_block]
+    asm_instructions = []
+    while pending_blocks != []:
+        next_block = pendin_blocks.pop(0)
+        block_id = next_block.get_block_id()
+
+        asm_block = asm_dicts.get(block_id, None)
+        if None:
+            #It should be a functions that is not handled
+            pass
+        else:
+            asm_instructions+=asm_block
+
+        if next_block.get_jump_type() == "conditional":
+            asm_jumpi = asm_metaop("JUMPI")
+            asm_instructions.append(asm_jumpi)
+
+            jump_to = next_block.get_jump_to()
+            falls_to = next_block.get_falls_to()
+
+            if falls_to not in blocks or jump_to not in blocks:
+                raise Exception(["ERROR:..."])
+            else:
+                pending_blocks.append(blocks[falls_to])
+                pending_blocks.append(blocks[jumps_to])
+                
 
 # Combine information from the greedy algorithm and the CFG
 def asm_from_cfg(cfg, asm_dicts):   
@@ -84,7 +110,7 @@ def asm_from_cfg(cfg, asm_dicts):
     for obj_name in objects_cfg.keys():
         obj = objects_cfg[obj_name]
 
-        asm = traverse_cfg(obj)
-
+        asm = traverse_cfg(obj,asm_dicts)
+        
         
     return json_object
