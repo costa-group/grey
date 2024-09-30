@@ -21,7 +21,7 @@ class CFGFunction:
         return self.arguments
 
     def get_blocks_dict(self):
-        return self.blocks.get_block_dict()
+        return self.blocks.get_blocks_dict()
     
     def get_exit_points(self):
         return self.exits

@@ -28,6 +28,9 @@ class CFGObject:
     def get_block(self, block_id):
         return self.blocks.get_block(block_id)
 
+    def get_block_list(self):
+        return self.blocks
+    
     def get_function(self, function_id):
         return self.functions[function_id]
 
@@ -37,7 +40,7 @@ class CFGObject:
 
     #It marks those blocks in self.blocks that have a function call stored in functions
     def identify_function_calls_in_blocks(self):
-        blocks_dict = self.blocks.get_block_dict()
+        blocks_dict = self.blocks.get_blocks_dict()
         for bl in blocks_dict:
             blocks_dict[bl].process_function_calls(self.functions)
 

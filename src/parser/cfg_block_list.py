@@ -37,7 +37,7 @@ class CFGBlockList:
     def get_block(self, block_id: str):
         return self.blocks[block_id]
 
-    def get_block_dict(self):
+    def get_blocks_dict(self):
         return self.blocks
 
     def get_terminal_blocks(self) -> List[str]:
