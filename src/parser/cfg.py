@@ -35,6 +35,9 @@ class CFG:
     def get_object(self, name:str) -> CFGObject:
         return self.objectCFG[name]
 
+    def get_objects(self) -> Dict[str, CFGObject]:
+        return self.objectCFG
+    
     def set_subobject(self, subobject: 'CFG'):
         self.subObjects = subobject
 
