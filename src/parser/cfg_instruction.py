@@ -124,9 +124,11 @@ class CFGInstruction:
         self.op = op
         self.in_args = in_args[::-1]
         self.out_args = out_args[::-1]
+        self.builtin_op = None
         self.builtin_args = None
         self.assignments = None
-
+        
+        
     def must_be_computed(self):
         """
         Check whether an instruction must be computed (i.e. added as part of the opertions fed into the greedy
@@ -216,6 +218,65 @@ class CFGInstruction:
             return "write"
         else:
             return None
+
+    def get_builtin_op(self):
+        return self.builtin_op
+        
+
+    """
+    Module to translate the special builtins in Yul to the corresponding assembly JSON.
+    See "https://notes.ethereum.org/znem65ljTKaoL11xOWv-Ew" for an explanation on the different translations
+    """
+
+    def translate_linkersymbol(self) :
+        self.op = "pushlib"
+
+
+    def translate_memoryguard(self) :
+        self.op = "assignment"
+        
+        
+    def translate_datasize(self) :
+        self.op = "push#[$]"
+
+
+    def translate_dataoffset(self) :
+        self.op = "push[$]"
+
+    def translate_datacopy(self) :
+        self.op = "codecopy"
+
+    def translate_setimmutable(self) :
+        #It is treated as a special mstore in gasol.
+        self.op = "assignimmutable"
+
+    def translate_loadimmutable(self) :
+       self.op = "pushimmutable"
+
+    def translate_built_in_function(self):
+        self.builtin_op = self.op
+        
+        if self.op == "linkersymbol":
+            self.translate_linkersymbol()
+        elif self.op == "memoryguard":
+            self.translate_memoryguard()
+        elif self.op == "datasize":
+            self.tanslate_datasize()
+        elif self.op == "dataoffset":
+            self.translate_dataoffset()
+        elif self.op == "datacopy":
+            self.translate_datacopy()
+        elif self.op == "setimmutable":
+            self.translate_setimmutable()
+        elif self.op == "loadimmutable":
+            self.translate_loadimmutable()
+        else:
+            raise Exception("[ERROR]: Built-in function is not recognized")
+        
+    def translate_opcode(self):
+        if self.op in ["linkersymbol","memoryguard", "datasize", "dataoffset", "datacopy", "setimmutable", "loadimmutable"]:
+            self.translate_built_in_function()
+            
         
     def get_op_name(self):
         return self.op

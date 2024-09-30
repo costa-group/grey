@@ -32,6 +32,7 @@ def parse_instruction(ins_json: Dict[str,Any]) -> CFGInstruction:
     if builtinargs != -1:
         instruction.set_builtin_args(builtinargs)
 
+    
     return instruction
 
 
@@ -229,7 +230,7 @@ def parser_CFG_from_JSON(json_dict: Dict):
     return cfg
 
 
-def parse_CFG(input_file: str):
+def parse_CFG(input_file: str, built_in_op = False):
     with open(input_file, "r") as f:
         json_dict = json.load(f)
     return parser_CFG_from_JSON(json_dict)
