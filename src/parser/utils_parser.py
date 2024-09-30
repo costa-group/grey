@@ -255,3 +255,31 @@ def generate_dep(t_ins1, t_ins2):
     else:
         return False
     
+
+#It returns all the jsons stored in one file as separate dictionaries
+def split_json(input_file):
+    with open(input_file, 'r') as f:
+        lines = f.read()
+
+    json_structs = []
+    ini = 0
+    level = 0
+
+    for i, char in enumerate(lines):
+        if char == '{':
+            if level == 0:
+                ini = i  # Init of new JSON
+            level += 1
+        elif char == '}':
+            level-= 1
+            if level == 0:
+                # New JSON found
+                content = lines[ini:i+1]
+                content = content.replace("'", '"')
+                try:
+                    json_st = json.loads(content)
+                    json_structs.append(json_st)
+                except json.JSONDecodeError:
+                    print(f"Error when decoding: {}")
+
+    return json_structs
