@@ -74,7 +74,7 @@ def process_block_entry(block_json: Dict[str, Any], phi_instr: Dict[str, Any]) -
     return {entry: (input_value, output_value) for entry, input_value in zip(block_entry, block_entry_values)}
 
 
-def parse_block(object_name: str, block_json: Dict[str,Any]) -> Tuple[block_id_T, CFGBlock, Dict, Dict[str, Tuple[str, str]]]:
+def parse_block(object_name: str, block_json: Dict[str,Any], built_in_op: bool) -> Tuple[block_id_T, CFGBlock, Dict, Dict[str, Tuple[str, str]]]:
     block_id = block_json.get("id", -1)
     block_instructions = block_json.get("instructions", -1)
     block_exit = block_json.get("exit", -1)
@@ -98,6 +98,10 @@ def parse_block(object_name: str, block_json: Dict[str,Any]) -> Tuple[block_id_T
 
         else:
             cfg_instruction = parse_instruction(instruction) if block_type != "FunctionReturn" else []
+
+            if not built_in_op and cfg_instruction != []:
+                cfg_instruction.translate_opcode()
+
             list_cfg_instructions.append(cfg_instruction)
 
     block_identifier = generate_block_name(object_name, block_id)
@@ -137,7 +141,7 @@ def update_assignments_from_phi_functions(block_list: CFGBlockList, phi_function
             block.assignment_dict[output_value] = input_value
 
 
-def parser_block_list(object_name: str, blocks: List[Dict[str, Any]]):
+def parser_block_list(object_name: str, blocks: List[Dict[str, Any]], built_in_op : bool):
     """
     Returns the list of blocks parsed and the ids that correspond to Exit blocks
     """
@@ -145,7 +149,7 @@ def parser_block_list(object_name: str, blocks: List[Dict[str, Any]]):
     exit_blocks = []
     comes_from = collections.defaultdict(lambda: [])
     for b in blocks:
-        block_id, new_block, block_exit, block_entries = parse_block(object_name, b)
+        block_id, new_block, block_exit, block_entries = parse_block(object_name, b, built_in_op)
         new_block.set_jump_info(block_exit)
 
         # Annotate comes from
@@ -165,33 +169,33 @@ def parser_block_list(object_name: str, blocks: List[Dict[str, Any]]):
     return block_list, exit_blocks
 
 
-def parse_function(function_name, function_json):
+def parse_function(function_name: str, function_json: Dict[str,Any], built_in_op: bool):
     
     args = function_json.get("arguments", -1)
     ret_vals = function_json.get("returns", -1)
     entry_point = function_json.get("entry", -1)
 
     blocks = function_json.get("blocks", -1)
-    cfg_block_list, exit_points = parser_block_list(function_name, blocks)
+    cfg_block_list, exit_points = parser_block_list(function_name, blocks, built_in_op)
 
     cfg_function = CFGFunction(function_name, args, ret_vals, entry_point, cfg_block_list)
     cfg_function.exits = exit_points
     return cfg_function
     
 
-def parse_object(object_name, json_object) -> CFGObject:
+def parse_object(object_name: str, json_object: Dict[str,Any], built_in_op: bool) -> CFGObject:
     blocks_list = json_object.get("blocks",False)
 
     if not blocks_list:
         raise Exception("[ERROR]: JSON file does not contain blocks")
 
-    cfg_block_list, _ = parser_block_list(object_name, blocks_list)
+    cfg_block_list, _ = parser_block_list(object_name, blocks_list, built_in_op)
     cfg_object = CFGObject(object_name, cfg_block_list)
 
     return cfg_object
     
     
-def parser_CFG_from_JSON(json_dict: Dict):
+def parser_CFG_from_JSON(json_dict: Dict, built_in_op: bool):
     nodeType = json_dict.get("type","YulCFG")
     
     cfg = CFG(nodeType)
@@ -203,11 +207,11 @@ def parser_CFG_from_JSON(json_dict: Dict):
     
     for obj in object_keys:
         json_object = json_dict.get(obj,False)
-        cfg_object = parse_object(obj,json_object)
+        cfg_object = parse_object(obj,json_object, built_in_op)
 
         json_functions = json_object.get("functions", {})
         for f in json_functions:
-            obj_function = parse_function(f, json_functions[f])
+            obj_function = parse_function(f, json_functions[f], built_in_op)
             cfg_object.add_function(obj_function)
 
         # Important: add the object already initialized with the functions, so that we can construct
@@ -224,7 +228,7 @@ def parser_CFG_from_JSON(json_dict: Dict):
         raise Exception("[ERROR]: JSON file does not contain key subObjects")
 
     if subObjects != {}:
-        sub = parser_CFG_from_JSON(subObjects)
+        sub = parser_CFG_from_JSON(subObjects, built_in_op)
         cfg.set_subobject(sub)
 
     return cfg
@@ -233,4 +237,4 @@ def parser_CFG_from_JSON(json_dict: Dict):
 def parse_CFG(input_file: str, built_in_op = False):
     with open(input_file, "r") as f:
         json_dict = json.load(f)
-    return parser_CFG_from_JSON(json_dict)
+    return parser_CFG_from_JSON(json_dict, built_in_op)

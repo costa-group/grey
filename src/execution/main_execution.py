@@ -19,6 +19,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("-s",  "--source",    type=str, help="local source file name.")
     parser.add_argument("-o",  "--folder",    type=str, help="Dir to store the results.", default="/tmp/grey/")
     parser.add_argument("-g", "--greedy", action="store_true", help="Enables the greedy algorithm")
+    parser.add_argument("-bt", "--builtin-ops", action="store_true", dest = "builtin", help="Keeps the original builtin opcodes")
     parser.add_argument("-v", "--visualize", action="store_true", dest="visualize",
                         help="Generates a dot file for each object in the JSON, "
                              "showcasing the results from the liveness analysis")
@@ -33,7 +34,7 @@ def main():
 
     x = dtimer()
 
-    cfg = parse_CFG(args.source)
+    cfg = parse_CFG(args.source, args.builtin)
 
     y = dtimer()
 
