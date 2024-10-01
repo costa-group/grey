@@ -12,9 +12,13 @@ def asm_from_op_info(op: str, value: Optional[Union[int, str]] = None,
     """
     JSON asm initialized with default values
     """
-    default_asm = {"name": op, "value": value, "begin": -1, "end": -1, "source": source}
+    default_asm = {"name": op, "begin": -1, "end": -1, "source": source}
+    if value != None:
+        default_asm["value"] = value
+
     if jump_type is not None:
         default_asm["jumpType"] = jump_type
+
     return default_asm
 
 
@@ -39,16 +43,7 @@ def id_to_asm_bytecode(uf_instrs: Dict[str, Dict[str, Any]], instr_id: str) -> A
     else:
         # The id is the instruction itself (SWAPx, DUPx, ...)
         return asm_from_op_info(instr_id)
-
-def asm_metaop(name: str, value: Optional[int] = None, source: Optional[int] = -1) -> ASM_bytecode_T:
-    asm = {"name": name, "begin": -1, "end": -1, "source": source}
-
-    if value != None:
-        asm["value"] = value
     
-    return asm
-    
-
 def id_seq_to_asm_bytecode(uf_instrs: Dict[str, Dict[str, Any]], id_seq: List[str]) -> List[ASM_bytecode_T]:
     """
     Converts a sequence of ids from the greedy algorithm to assembly bytecode
@@ -88,7 +83,7 @@ def traverse_cfg(cfg_object, asm_dicts):
             asm_instructions+=asm_block
 
         if next_block.get_jump_type() == "conditional":
-            asm_jumpi = asm_metaop("JUMPI")
+            asm_jumpi = asm_from_op_info("JUMPI")
             asm_instructions.append(asm_jumpi)
 
             jump_to = next_block.get_jump_to()
