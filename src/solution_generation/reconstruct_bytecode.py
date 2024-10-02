@@ -13,6 +13,7 @@ def asm_from_op_info(op: str, value: Optional[Union[int, str]] = None,
     JSON asm initialized with default values
     """
     default_asm = {"name": op, "begin": -1, "end": -1, "source": source}
+
     if value != None:
         default_asm["value"] = value
 
@@ -59,6 +60,50 @@ def asm_from_ids(sms: SMS_T, id_seq: List[str]) -> List[ASM_bytecode_T]:
     return id_seq_to_asm_bytecode(instr_id_to_instr, id_seq)
 
 
+def asm_for_split_instruction_block(block):
+    assert(block.get_jump_type() == "split_instruction_block","[ERROR]: It is not a split_instruction_block")
+
+    instruction_list = block.get_instructions()
+    assert(len(split_list) == 1, "[ERROR]: Split list should contain only one element")
+    split_ins = split_list[0]
+    asm_ins = asm_from_op_info(split_ins.get_op_name().upper())
+    asm_subblock = [asm_ins] 
+
+    return asm_subblock
+
+def generate_asm_split_blocks(init_block_id, blocks, asm_dicts):
+
+    asm_block = []
+
+    block = blocks[init_block_id]
+    block_id = init_block_id
+    
+    jump_type = block.get_jump_type()
+    while jump_type in ["sub_block","split_instruction_block"]:
+
+        if jump_type == "sub_block":
+            asm_subblock = asm_dicts.get(block_id, None)
+            assert(asm_subblock != None, "[ERROR]: subblock should contain an asm block")
+
+        elif jump_type == "split_intruction_block":
+            asm_subblock = asm_for_split_instruction_block(block)
+        else:
+            raise Exception("[ERROR]: Jump type can only be subblock or split_intruction")
+
+        asm_block+=asm_subblock
+        block_id = block.get_falls_to()
+        block = blocks[block_id]
+
+        jump_type = block.get_jump_type()
+        
+    #We translate last block
+    asm_subblock = asm_dicts.get(block_id, None)
+    if asm_subblock == None:
+        asm_subblock = asm_for_split_instruction_block(block)
+        
+    asm_block+=asm_subblock
+    
+    return block, asm_block
 
 
 def traverse_cfg(cfg_object, asm_dicts):
@@ -70,32 +115,95 @@ def traverse_cfg(cfg_object, asm_dicts):
     assert(init_block.get_block_id().find("Block0") != -1)
     
     pending_blocks = [init_block]
+    visited = []
+
+    #It is used to know where we have to insert the asm instructions when we have a falls_to
+    #It simulates the asm_instructions list with the identifiers of the blocks
+    init_pos_dict = []
+
     asm_instructions = []
+    
     while pending_blocks != []:
-        next_block = pendin_blocks.pop(0)
+        next_block = pending_blocks.pop()
+        
         block_id = next_block.get_block_id()
+        visited.append(block_id)
 
-        asm_block = asm_dicts.get(block_id, None)
-        if None:
-            #It should be a functions that is not handled
-            pass
+        #If the block has been split we regenerate the whole block together
+        #next block contains the last block of the sequence
+        if next_block.get_jump_type() in ["sub_block","split_instruction_block"]:
+            next_block, asm_block = generate_asm_split_blocks(block_id, blocks, asm_dicts)
         else:
-            asm_instructions+=asm_block
-
-        if next_block.get_jump_type() == "conditional":
+            asm_block = asm_dicts.get(block_id, None)
+            
+        jump_type = next_block.get_jump_type()
+        if jump_type == "conditional":
             asm_jumpi = asm_from_op_info("JUMPI")
+            asm_instructions+=asm_block
             asm_instructions.append(asm_jumpi)
 
+            init_pos_dict+=[block_id]*(len(asm_block)+1)
+            
             jump_to = next_block.get_jump_to()
             falls_to = next_block.get_falls_to()
 
             if falls_to not in blocks or jump_to not in blocks:
-                raise Exception(["ERROR:..."])
-            else:
-                pending_blocks.append(blocks[falls_to])
-                pending_blocks.append(blocks[jumps_to])
-                
+                raise Exception("[ERROR]:...")
 
+            if jumps_to not in visited:
+                pending_blocks.append(blocks[jumps_to])
+            
+            if falls_to not in visited:
+                pending_blocks.append(blocks[falls_to])
+
+
+        elif jump_type == "unconditional":
+            asm_instructions+=asm_block
+            asm_jump = asm_from_op_info("JUMP")
+            asm_instructions.append(asm_jump)
+            init_pos_dict+=[block_id]*(len(asm_block)+1)
+            
+            jump_to = next_block.get_jump_to()
+
+            if jump_to not in blocks:
+                raise Exception("[ERROR]:...")
+
+            if jumps_to not in visited:
+                pending_blocks.append(blocks[jumps_to])
+
+        elif jump_type == "sub_block" or jump_type == "split_instruction_block":
+            raise Exception("[ERROR]: It should have been considered previously")
+
+        elif jump_type == "falls_to":
+            falls_to = next_block.get_falls_to()
+            try:
+                #It means that the block has been analyzed previously
+                pos = init_pos_dict.index(falls_to)
+                assert(falls_to in visited,"[ERROR]: Falls_to block should be in visited list when generating asm output")
+                asm_instructions = asm_instructions[:pos]+asm_block+asm_instructions[pos:]
+                init_pos_dict = init_pos_dict[:pos]+[block_id]*len(asm_block)+init_pos_dict[pos:]
+                
+            except ValueError:
+                asm_instructions+=asm_block
+                init_pos_dict+=[block_id]*len(asm_block)
+
+                pending_blocks.append(blocks_falls_to)
+                
+                
+        elif jump_type == "terminal":
+            asm_instructions+=asm_block
+            init_pos_dict+=[block_id]*len(asm_block)
+
+        else:
+            raise Exception("[ERROR]: Unknown jump type when generating asm output")
+            
+        visited.append(block_id)
+
+    return asm_instructions
+
+
+
+        
 # Combine information from the greedy algorithm and the CFG
 def asm_from_cfg(cfg, asm_dicts):   
     objects_cfg = cfg.get_objects()
