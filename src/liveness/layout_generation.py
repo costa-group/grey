@@ -387,4 +387,4 @@ def layout_generation(cfg: CFG, final_dir: Path = Path(".")) -> Dict[str, Dict[s
         # Update the target idx with the one in the layout object
         tag_idx = layout._tags_idx
 
-    return jsons
+    return jsons, layout._tags_dict
