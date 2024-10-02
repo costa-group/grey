@@ -28,7 +28,7 @@ def initialize_sub_blocks(initial_block: CFGBlock, sub_blocks_instrs: List[Tuple
         # Determine the jump type according to whether it is a initial block or a call to a function
         if sub_block_idx != len(sub_blocks_instrs) - 1:
             # Current sub block does not correspond to the last one
-            new_sub_block_type = "split_instruction" if split_instruction_sub_block else "sub_block"
+            new_sub_block_type = "split_instruction_block" if split_instruction_sub_block else "sub_block"
         else:
             new_sub_block_type = initial_block.get_jump_type()
 
@@ -56,7 +56,7 @@ def initialize_sub_blocks(initial_block: CFGBlock, sub_blocks_instrs: List[Tuple
         current_jumps_to = None
 
         # The final stack elements correspond to the arguments in the call to functions (if any)
-        if cfg_sub_block.get_jump_type() == "split_instruction":
+        if cfg_sub_block.get_jump_type() == "split_instruction_block":
             # For split instructions, we need to force the previous block to place the arguments in the correct order
             # TODO: check whether arguments must be reversed or not
             current_stack_values = cfg_sub_block.get_instructions_to_compute()[0].get_in_args()
