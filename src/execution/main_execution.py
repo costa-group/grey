@@ -36,7 +36,7 @@ def analyze_single_cfg(cfg,final_dir,dot_file_dir,args):
         liveness_info = dot_from_analysis(sub_block_cfg, dot_file_dir)
 
     x = dtimer()
-    jsons = layout_generation(sub_block_cfg, dot_file_dir)
+    jsons, tags_dict = layout_generation(sub_block_cfg, dot_file_dir)
 
     sfs_final_dir = final_dir.joinpath("sfs")
     sfs_final_dir.mkdir(exist_ok=True, parents=True)
@@ -60,7 +60,7 @@ def analyze_single_cfg(cfg,final_dir,dot_file_dir,args):
 
         # Generate complete asm from CFG object + dict
         
-        json_asm_contract = asm_from_cfg(sub_block_cfg,block_name2asm)
+        json_asm_contract = asm_from_cfg(sub_block_cfg,block_name2asm, tags_dict)
         
         df = pd.DataFrame(csv_rows)
         df.to_csv(final_dir.joinpath("statistics.csv"))
