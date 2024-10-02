@@ -119,7 +119,7 @@ def generate_jumpdest_asm(jump_to, asm_instructions, asm_pos_dict):
 
 
 
-def traverse_cfg(cfg_object, asm_dicts):
+def traverse_cfg(cfg_object, asm_dicts, tags_dict):
     block_list = cfg_object.get_block_list()
     blocks = block_list.get_blocks_dict()
 
@@ -232,7 +232,7 @@ def traverse_cfg(cfg_object, asm_dicts):
 
         
 # Combine information from the greedy algorithm and the CFG
-def asm_from_cfg(cfg, asm_dicts):   
+def asm_from_cfg(cfg, asm_dicts, tags_dict):   
     objects_cfg = cfg.get_objects()
     subObjects = cfg.get_subobject().get_objects()
 
@@ -240,7 +240,7 @@ def asm_from_cfg(cfg, asm_dicts):
     for obj_name in objects_cfg.keys():
         obj = objects_cfg[obj_name]
 
-        asm = traverse_cfg(obj,asm_dicts)
+        asm = traverse_cfg(obj,asm_dicts,tags_dict)
         
         
     return json_object
