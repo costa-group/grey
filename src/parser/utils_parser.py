@@ -1,5 +1,6 @@
-from typing import List
+from typing import List, Dict, Any
 import json
+
 
 def check_block_validity(block_id, block_instructions, block_exit, block_type):
     if block_id == -1:
@@ -13,7 +14,6 @@ def check_block_validity(block_id, block_instructions, block_exit, block_type):
 
     if block_type == -1:
         raise Exception("[ERROR]: Input block does not contain an identifier")
-
 
     
 def check_instruction_validity(in_args, op, out_args):
@@ -257,16 +257,22 @@ def generate_dep(t_ins1, t_ins2):
         return False
     
 
-#It returns all the jsons stored in one file as separate dictionaries
-def split_json(input_file):
+def split_json(input_file: str) -> Dict[str, Any]:
+    """
+    It returns all the jsons stored in one file as separate dictionaries
+    """
     with open(input_file, 'r') as f:
         lines = f.read()
 
-    json_structs = []
+    json_structs = {}
     ini = 0
     level = 0
 
     for i, char in enumerate(lines):
+        # Ignore continue lines
+        if any(char == line_skip for line_skip in ["null", ""]):
+            continue
+
         if char == '{':
             if level == 0:
                 ini = i  # Init of new JSON
@@ -279,7 +285,7 @@ def split_json(input_file):
                 content = content.replace("'", '"')
                 try:
                     json_st = json.loads(content)
-                    json_structs.append(json_st)
+                    json_structs[str(i)] = json_st
                 except json.JSONDecodeError:
                     print(f"Error when decoding: {content}")
 

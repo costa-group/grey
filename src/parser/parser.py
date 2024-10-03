@@ -1,6 +1,7 @@
 import collections
 import json
 from typing import Union, Dict, Any, List, Tuple
+from global_params.types import Yul_CFG_T
 from parser.cfg import CFG
 from parser.cfg_block_list import CFGBlockList
 from parser.cfg_object import CFGObject
@@ -234,13 +235,13 @@ def parser_CFG_from_JSON(json_dict: Dict, built_in_op: bool):
     return cfg
 
 
-def parse_CFG(input_file: str, built_in_op = False):
-    jsons = split_json(input_file)
-
+def parse_CFG_from_json_dict(json_dict: Dict[str, Yul_CFG_T], built_in_op=False):
+    """
+    Given a dictionary of Yul CFG jsons, generates a CFG for each JSON
+    """
     cfg_dicts = {}
-    for i in range(len(jsons)):
-        json_dict = jsons[i]
+    for cfg_name, json_dict in json_dict.items():
         cfg = parser_CFG_from_JSON(json_dict, built_in_op)
-        cfg_dicts[i] = cfg
+        cfg_dicts[cfg_name] = cfg
 
     return cfg_dicts

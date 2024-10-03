@@ -1,11 +1,16 @@
 import argparse
+import json
+from typing import Dict, Any, Optional
 from pathlib import Path
 from timeit import default_timer as dtimer
 import pandas as pd
 
+from parser.utils_parser import split_json
+from global_params.types import Yul_CFG_T
 from parser.optimizable_block_list import compute_sub_block_cfg
-from parser.parser import parse_CFG
+from parser.parser import parse_CFG_from_json_dict
 from parser.cfg import store_sfs_json, CFG
+from execution.sol_compilation import SolidityCompilation
 from greedy.greedy import greedy_standalone
 from solution_generation.statistics import generate_statistics_info
 from solution_generation.reconstruct_bytecode import asm_from_ids, asm_from_cfg
@@ -24,8 +29,9 @@ def parse_args() -> argparse.Namespace:
                                help="Sets the input format: a sol file, the standard-json input or a Yul CFG JSON."
                                     "By default, it assumes the Yul CFG.", choices=["sol", "standard-json", "yul-cfg"],
                                default="yul-cfg")
-    input_options.add_argument("-c", "--contract", type=str, help="Specify which contract must be synthesized. If"
-                                                                  "no contract is specified, all contracts synthesized.")
+    input_options.add_argument("-c", "--contract", type=str, dest="contract",
+                               help="Specify which contract must be synthesized. "
+                                    "If no contract is specified, all contracts synthesized.")
 
     output_options = parser.add_argument_group("Output Options")
     output_options.add_argument("-o", "--folder", type=str, help="Dir to store the results.", default="/tmp/grey/")
@@ -40,6 +46,24 @@ def parse_args() -> argparse.Namespace:
 
     args = parser.parse_args()
     return args
+
+
+def yul_cfg_dict_from_format(input_format: str, filename: str, contract: Optional[str]) -> Dict[str, Yul_CFG_T]:
+    """
+    Returns a dict of the Yul CFG JSONS that are generated from the compilation of a contract
+    """
+    if input_format == "yul-cfg":
+        # We assume there can be multiple JSONS inside a single file
+        return split_json(filename)
+    elif input_format == "sol":
+        return SolidityCompilation.from_single_solidity_code(filename, contract)
+    elif input_format == "json":
+        # First load the input file
+        with open(filename, 'r') as f:
+            input_contract = json.load(f)
+        return SolidityCompilation.from_json_input(input_contract, contract)
+    else:
+        raise ValueError(f"Input format {input_format} not recognized.")
 
 
 def analyze_single_cfg(cfg: CFG, final_dir: Path, dot_file_dir: Path, args: argparse.Namespace):
@@ -86,8 +110,8 @@ def main():
     args = parse_args()
 
     x = dtimer()
-
-    cfgs = parse_CFG(args.source, args.builtin)
+    json_dict = yul_cfg_dict_from_format(args.input_format, args.source, args.contract)
+    cfgs = parse_CFG_from_json_dict(json_dict, args.builtin)
 
     y = dtimer()
 

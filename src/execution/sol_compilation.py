@@ -12,9 +12,10 @@ import re
 import subprocess
 import shlex
 import logging
+import tempfile
 from pathlib import Path
 from typing import Dict, Any, Tuple, List, Optional
-import tempfile
+from global_params.types import Yul_CFG_T
 
 
 def run_command(cmd):
@@ -74,7 +75,7 @@ def default_optimization_settings() -> Dict:
     return {"enabled": True}
 
 
-def process_sol_yul_cfg(compiler_output: str, deployed_contract: Optional[str]) -> Dict[str, Any]:
+def process_sol_yul_cfg(compiler_output: str, deployed_contract: Optional[str]) -> Dict[str, Yul_CFG_T]:
     """
     Given the compiler output, extracts the yul cfg JSON (format with only the yul JSON enabled)
     """
@@ -89,10 +90,15 @@ def process_sol_yul_cfg(compiler_output: str, deployed_contract: Optional[str]) 
 
             # For None contracts, we retrieve all the values
             if deployed_contract is None:
-                default_dict.update(json_dict)
+                # Assume the json only contains two contracts: one for the deployment code
+                # and the other with the runtime
+
+                contract_name = [contract for contract in json_dict.keys() if "deployed" not in contract][0]
+                default_dict[contract_name] = json_dict
+
             # Search for the yul object that contains the contract as a key
             elif any(deployed_contract in contract for contract in json_dict.keys()):
-                return json_dict
+                return {deployed_contract: json_dict}
 
     if deployed_contract is not None:
         raise ValueError(f"{deployed_contract} not found in the compiler output")
@@ -100,7 +106,7 @@ def process_sol_yul_cfg(compiler_output: str, deployed_contract: Optional[str]) 
     return default_dict
 
 
-def process_sol_yul_cfg_multiple(compiler_output: str) -> Dict[str, Dict[str, Any]]:
+def process_sol_yul_cfg_multiple(compiler_output: str) -> Dict[str, Yul_CFG_T]:
 
     # For now, we assume only the yul cfg option is enabled
     yul_cfg_regex = r"\n======= (.*?) =======\n(.*?)\n"
@@ -160,7 +166,7 @@ class SolidityCompilation:
 
     @staticmethod
     def from_single_solidity_code(sol_file: str, deployed_contract: Optional[str] = None,
-                                  final_file: Optional[str] = None, solc_executable: str = "solc") -> Dict[str, Any]:
+                                  final_file: Optional[str] = None, solc_executable: str = "solc") -> Optional[Dict[str, Yul_CFG_T]]:
         """
         Compiles a single sol file
         """
@@ -170,7 +176,7 @@ class SolidityCompilation:
 
     @staticmethod
     def from_multi_sol(multi_sol_info: Dict[str, Any], deployed_contract: str,
-                       final_file: Optional[str] = None, solc_executable: str = "solc") -> Dict[str, Any]:
+                       final_file: Optional[str] = None, solc_executable: str = "solc") -> Optional[Dict[str, Yul_CFG_T]]:
         """
         Compiles a file from the multi sol representation
         """
@@ -180,7 +186,7 @@ class SolidityCompilation:
 
     @staticmethod
     def from_json_input(json_input: Dict[str, Any], deployed_contract: Optional[str] = None, final_file: Optional[str] = None,
-                        solc_executable: str = "solc") -> Dict[str, Any]:
+                        solc_executable: str = "solc") -> Optional[Dict[str, Yul_CFG_T]]:
         """
         Compiles a file in the JSON input representation
         """
@@ -254,7 +260,7 @@ class SolidityCompilation:
                             json.dump(yul_cfg_current, f, indent=4)
         return True
 
-    def compile_json_input(self, json_input: Dict, deployed_contract: Optional[str] = None) -> Optional[Dict[str, Any]]:
+    def compile_json_input(self, json_input: Dict, deployed_contract: Optional[str] = None) -> Optional[Dict[str, Yul_CFG_T]]:
         # Change the settings from the json input
         json_input["settings"] = self._json_input_set_settings()
 
@@ -304,7 +310,7 @@ class SolidityCompilation:
         correct_compilation = self._process_sol_command(sol_output, error)
         return correct_compilation, sol_output
 
-    def compile_sol_file_from_code(self, source_code_plain: str, deployed_contract: Optional[str] = None) -> Optional[Dict[str, Any]]:
+    def compile_sol_file_from_code(self, source_code_plain: str, deployed_contract: Optional[str] = None) -> Optional[Dict[str, Yul_CFG_T]]:
         """
         Compiles a single sol file from its textual representation and returns the output
         """
@@ -320,7 +326,7 @@ class SolidityCompilation:
         return process_sol_yul_cfg(output, deployed_contract)
 
     def compile_multiple_sources(self, source_code_dict: Dict[str, Dict[str, str]],
-                                 deployed_contract: Optional[str] = None) -> Optional[Dict[str, Any]]:
+                                 deployed_contract: Optional[str] = None) -> Optional[Dict[str, Yul_CFG_T]]:
         """
         Computes multiple sol files using the multi file representation from Etherscan
         """
