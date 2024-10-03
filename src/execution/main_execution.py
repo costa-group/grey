@@ -32,6 +32,8 @@ def parse_args() -> argparse.Namespace:
     input_options.add_argument("-c", "--contract", type=str, dest="contract",
                                help="Specify which contract must be synthesized. "
                                     "If no contract is specified, all contracts synthesized.")
+    input_options.add_argument("-solc", "--solc", type=str, dest="solc_executable", default="solc",
+                               help="Solc executable. By default, it assumes it can invoke 'solc'")
 
     output_options = parser.add_argument_group("Output Options")
     output_options.add_argument("-o", "--folder", type=str, help="Dir to store the results.", default="/tmp/grey/")
@@ -48,7 +50,8 @@ def parse_args() -> argparse.Namespace:
     return args
 
 
-def yul_cfg_dict_from_format(input_format: str, filename: str, contract: Optional[str]) -> Dict[str, Yul_CFG_T]:
+def yul_cfg_dict_from_format(input_format: str, filename: str, contract: Optional[str],
+                             solc_executable: str = "solc") -> Dict[str, Yul_CFG_T]:
     """
     Returns a dict of the Yul CFG JSONS that are generated from the compilation of a contract
     """
@@ -56,12 +59,12 @@ def yul_cfg_dict_from_format(input_format: str, filename: str, contract: Optiona
         # We assume there can be multiple JSONS inside a single file
         return split_json(filename)
     elif input_format == "sol":
-        return SolidityCompilation.from_single_solidity_code(filename, contract)
-    elif input_format == "json":
+        return SolidityCompilation.from_single_solidity_code(filename, contract, solc_executable=solc_executable)
+    elif input_format == "standard-json":
         # First load the input file
         with open(filename, 'r') as f:
             input_contract = json.load(f)
-        return SolidityCompilation.from_json_input(input_contract, contract)
+        return SolidityCompilation.from_json_input(input_contract, contract, solc_executable=solc_executable)
     else:
         raise ValueError(f"Input format {input_format} not recognized.")
 
@@ -97,8 +100,7 @@ def analyze_single_cfg(cfg: CFG, final_dir: Path, dot_file_dir: Path, args: argp
 
         # Generate complete asm from CFG object + dict
         
-        json_asm_contract = asm_from_cfg(sub_block_cfg,block_name2asm, tags_dict)
-        
+        # json_asm_contract = asm_from_cfg(sub_block_cfg,block_name2asm, tags_dict)
         df = pd.DataFrame(csv_rows)
         df.to_csv(final_dir.joinpath("statistics.csv"))
 
@@ -110,7 +112,10 @@ def main():
     args = parse_args()
 
     x = dtimer()
-    json_dict = yul_cfg_dict_from_format(args.input_format, args.source, args.contract)
+    json_dict = yul_cfg_dict_from_format(args.input_format, args.source,
+                                         args.contract, args.solc_executable)
+    with open('intermediate.json', 'w') as f:
+        json.dump(json_dict, f)
     cfgs = parse_CFG_from_json_dict(json_dict, args.builtin)
 
     y = dtimer()
