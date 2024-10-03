@@ -5,11 +5,11 @@ import pandas as pd
 
 from parser.optimizable_block_list import compute_sub_block_cfg
 from parser.parser import parse_CFG
-from parser.cfg import store_sfs_json
+from parser.cfg import store_sfs_json, CFG
 from greedy.greedy import greedy_standalone
 from solution_generation.statistics import generate_statistics_info
-from solution_generation.reconstruct_bytecode import asm_from_ids
-from liveness.liveness_analysis import dot_from_analysis, perform_liveness_analysis
+from solution_generation.reconstruct_bytecode import asm_from_ids, asm_from_cfg
+from liveness.liveness_analysis import dot_from_analysis
 from liveness.layout_generation import layout_generation
 
 
@@ -19,7 +19,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("-s",  "--source",    type=str, help="local source file name.")
     parser.add_argument("-o",  "--folder",    type=str, help="Dir to store the results.", default="/tmp/grey/")
     parser.add_argument("-g", "--greedy", action="store_true", help="Enables the greedy algorithm")
-    parser.add_argument("-bt", "--builtin-ops", action="store_true", dest = "builtin", help="Keeps the original builtin opcodes")
+    parser.add_argument("-bt", "--builtin-ops", action="store_true", dest = "builtin",
+                        help="Keeps the original builtin opcodes")
     parser.add_argument("-v", "--visualize", action="store_true", dest="visualize",
                         help="Generates a dot file for each object in the JSON, "
                              "showcasing the results from the liveness analysis")
@@ -28,10 +29,9 @@ def parse_args() -> argparse.Namespace:
     return args
 
 
-def analyze_single_cfg(cfg,final_dir,dot_file_dir,args):
+def analyze_single_cfg(cfg: CFG, final_dir: Path, dot_file_dir: Path, args: argparse.Namespace):
     sub_block_cfg = compute_sub_block_cfg(cfg)
 
-  
     if args.visualize:
         liveness_info = dot_from_analysis(sub_block_cfg, dot_file_dir)
 
@@ -95,6 +95,5 @@ def main():
 
         asm_output = asm_output | json_asm_contract
 
-    asm_contracts = {}
-    asm_contracts["contracts"] = asm_output
+    asm_contracts = {"contracts": asm_output}
     # asm_contracts["version"] = #TODO Call to solc version
