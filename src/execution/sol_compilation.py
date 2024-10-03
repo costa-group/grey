@@ -234,31 +234,36 @@ class SolidityCompilation:
         output_dict = json.loads(output)
         return output_dict, error
 
-    def _process_json_output(self, output_dict: Dict, error: str) -> bool:
+    def _process_json_output(self, output_dict: Dict, error: str, deployed_contract: Optional[str]) -> Tuple[bool, Dict[str, Yul_CFG_T]]:
         """
-        Process the output generated from the json input
+        Process the output generated from the json input and returns a dict for each yul file
         """
         # Check no field errors appear when parsing as a json and one of the messages is indeed an error
         # (see https://docs.soliditylang.org/en/v0.8.17/using-the-compiler.html)
         if "errors" in output_dict and any(error_msg["severity"] == "error" for error_msg in output_dict["errors"]):
             logging.error(f"Errors: {output_dict['errors']}")
-            return False
+            return False, dict()
         else:
             if error != "":
                 logging.warning(error)
 
+            json_dict = dict()
             # Produce a json file for each contract
             for filename in output_dict["contracts"]:
                 current_file = output_dict["contracts"][filename]
                 for contract_name in current_file:
                     yul_cfg_current = current_file[contract_name]["yulCFGJson"]
 
-                    if yul_cfg_current is not None and self._final_file is not None:
+                    if yul_cfg_current is not None:
+                        json_dict[contract_name] = yul_cfg_current
+                        # Only store the contract that matches the specification
+                        if self._final_file is not None and deployed_contract is not None \
+                                and contract_name == deployed_contract:
 
-                        # Store the output following the asm format
-                        with open(self._final_file, 'w') as f:
-                            json.dump(yul_cfg_current, f, indent=4)
-        return True
+                            # Store the output following the asm format
+                            with open(self._final_file, 'w') as f:
+                                json.dump(yul_cfg_current, f, indent=4)
+        return True, json_dict
 
     def compile_json_input(self, json_input: Dict, deployed_contract: Optional[str] = None) -> Optional[Dict[str, Yul_CFG_T]]:
         # Change the settings from the json input
@@ -276,12 +281,12 @@ class SolidityCompilation:
 
         os.remove(tmp_file)
         # Then we process the output and generate the corresponding file
-        correct_compilation = self._process_json_output(output_dict, error)
+        correct_compilation, yul_cfg_dict = self._process_json_output(output_dict, error, deployed_contract)
 
         if not correct_compilation:
             return None
 
-        return output_dict
+        return yul_cfg_dict
 
     # Methods for compiling using the command line
     def _compile_sol_command(self, sol_file: str):
