@@ -18,7 +18,14 @@ def parse_args() -> argparse.Namespace:
 
     input_options = parser.add_argument_group("Input Options")
 
-    input_options.add_argument("-s",  "--source",    type=str, help="local source file name.")
+    input_options.add_argument("-s",  "--source", type=str, help="Local source file name. By default, it assumes the"
+                                                                 "Yul CFG JSON format", required=True)
+    input_options.add_argument("-if", "--input-format", dest="input_format", type=str,
+                               help="Sets the input format: a sol file, the standard-json input or a Yul CFG JSON."
+                                    "By default, it assumes the Yul CFG.", choices=["sol", "standard-json", "yul-cfg"],
+                               default="yul-cfg")
+    input_options.add_argument("-c", "--contract", type=str, help="Specify which contract must be synthesized. If"
+                                                                  "no contract is specified, all contracts synthesized.")
 
     output_options = parser.add_argument_group("Output Options")
     output_options.add_argument("-o", "--folder", type=str, help="Dir to store the results.", default="/tmp/grey/")
