@@ -142,13 +142,13 @@ def extract_files_from_multisol_repr(source_code_dict: Dict[str, Dict[str, str]]
     return contract_to_compile
 
 
-class EtherscanCompilation:
+class SolidityCompilation:
     """
-    Compiler from different files in Etherscan
+    Compiler from different formats of the solc compiler that are also supported by Etherscan
     """
 
-    def __init__(self, final_file: str, solc_command: str):
-        self._final_file: Path = Path(final_file)
+    def __init__(self, final_file: Optional[str], solc_command: str):
+        self._final_file: Optional[Path] = Path(final_file) if final_file is not None else None
         self.flags: str = ""
 
         # Command to invoke the solc compiler
@@ -159,32 +159,32 @@ class EtherscanCompilation:
         self._yul_setting = False
 
     @staticmethod
-    def from_single_solidity_code(sol_file: str, deployed_contract: Optional[str],
-                                  final_file: str, solc_executable: str = "solc") -> Dict[str, Any]:
+    def from_single_solidity_code(sol_file: str, deployed_contract: Optional[str] = None,
+                                  final_file: Optional[str] = None, solc_executable: str = "solc") -> Dict[str, Any]:
         """
         Compiles a single sol file
         """
-        compilation = EtherscanCompilation(final_file, solc_executable)
+        compilation = SolidityCompilation(final_file, solc_executable)
         compilation.flags = "--yul-cfg-json --optimize"
         return compilation.compile_sol_file_from_code(sol_file, deployed_contract)
 
     @staticmethod
     def from_multi_sol(multi_sol_info: Dict[str, Any], deployed_contract: str,
-                       final_file: str, solc_executable: str = "solc") -> Dict[str, Any]:
+                       final_file: Optional[str] = None, solc_executable: str = "solc") -> Dict[str, Any]:
         """
         Compiles a file from the multi sol representation
         """
-        compilation = EtherscanCompilation(final_file, solc_executable)
+        compilation = SolidityCompilation(final_file, solc_executable)
         compilation.flags = "--yul-cfg-json --optimize"
         return compilation.compile_multiple_sources(multi_sol_info, deployed_contract)
 
     @staticmethod
-    def from_json_input(json_input: Dict[str, Any], deployed_contract: Optional[str], final_file: str,
+    def from_json_input(json_input: Dict[str, Any], deployed_contract: Optional[str] = None, final_file: Optional[str] = None,
                         solc_executable: str = "solc") -> Dict[str, Any]:
         """
         Compiles a file in the JSON input representation
         """
-        compilation = EtherscanCompilation(final_file, solc_executable)
+        compilation = SolidityCompilation(final_file, solc_executable)
         compilation.flags = "--standard-json"
         return compilation.compile_json_input(json_input, deployed_contract)
 
@@ -247,7 +247,7 @@ class EtherscanCompilation:
                 for contract_name in current_file:
                     yul_cfg_current = current_file[contract_name]["yulCFGJson"]
 
-                    if yul_cfg_current is not None:
+                    if yul_cfg_current is not None and self._final_file is not None:
 
                         # Store the output following the asm format
                         with open(self._final_file, 'w') as f:
@@ -291,8 +291,9 @@ class EtherscanCompilation:
             if error != "":
                 logging.warning(f"Warning in Contract")
                 logging.warning(error)
-            with open(self._final_file, 'w') as f:
-                f.write(output)
+            if self._final_file is not None:
+                with open(self._final_file, 'w') as f:
+                    f.write(output)
         return True
 
     def compile_single_sol_file(self, sol_file: str) -> Tuple[bool, str]:
@@ -393,17 +394,17 @@ def compile_from_etherscan_json(etherscan_info: List[Dict], resulting_file: Path
         try:
             code_dict = json.loads(source_code[1:-1])
             logging.log(1, f"Json input {address}")
-            return EtherscanCompilation.from_json_input(code_dict, main_contract, resulting_file, solc_executable)
+            return SolidityCompilation.from_json_input(code_dict, main_contract, resulting_file, solc_executable)
 
         except Exception as e:
             try:
                 code_dict = json.loads(source_code)
                 logging.log(1, f"Multi sol input {address}")
-                return EtherscanCompilation.from_multi_sol(code_dict, main_contract, resulting_file, solc_executable)
+                return SolidityCompilation.from_multi_sol(code_dict, main_contract, resulting_file, solc_executable)
 
             except Exception as e:
                 logging.log(1, f"Single sol input {address}")
-                return EtherscanCompilation.from_single_solidity_code(source_code, main_contract, resulting_file, solc_executable)
+                return SolidityCompilation.from_single_solidity_code(source_code, main_contract, resulting_file, solc_executable)
 
 
 def compile_files_from_folders(initial_folder: Path, final_folder: Path, solc_executable: str = "solc") -> None:
