@@ -116,7 +116,7 @@ class CFG:
             subobject = self.get_subobject()
 
             if subobject is not None:
-                self.modify_cfg_block_list(f)
+                subobject.modify_cfg_block_list(f)
 
     def __repr__(self):
         return str(self.get_as_json())
