@@ -106,19 +106,6 @@ def generate_asm_split_blocks(init_block_id, blocks, asm_dicts):
     return block, asm_block
 
 
-def generate_jumpdest_asm(jump_to, asm_instructions, asm_pos_dict):
-    #Add jumpdest
-    pos = init_pos_dict.index(jump_to)
-    asm_first_ins = asm_instructions[pos]
-    op = asm_fisrt_ins_asm["name"]
-    if op != "JUMPDEST":
-        am_jumpdets = asm_from_op_info("JUMPDEST")
-        asm_instructions = asm_instructions[:pos]+[asm_jumpdest]+asm_instructions[pos:]
-        init_pos_dict= asm_pos_dict[:pos]+[jump_to]+asm_pos_dict[pos:]
-                
-
-
-
 def traverse_cfg(cfg_object, asm_dicts, tags_dict):
     block_list = cfg_object.get_block_list()
     blocks = block_list.get_blocks_dict()
@@ -133,10 +120,7 @@ def traverse_cfg(cfg_object, asm_dicts, tags_dict):
     #It is used to know where we have to insert the asm instructions when we have a falls_to
     #It simulates the asm_instructions list with the identifiers of the blocks
     init_pos_dict = []
-
-    #It contains the blocks that have to concatenate a jumpdest at the begining of the block
-    jumpdest = []
-    
+   
     asm_instructions = []
     
     while pending_blocks != []:
@@ -152,9 +136,10 @@ def traverse_cfg(cfg_object, asm_dicts, tags_dict):
         else:
             asm_block = asm_dicts.get(block_id, None)
 
-        if block_id in jumpdest:
+        if block_id in tags_dict:
+            tag_asm = asm_from_op_info("tag",str(tags_dict[block_id]))
             jumpdest_asm = asm_from_op_info("JUMPDEST")
-            asm_block.insert(0,jumpdest_asm)
+            asm_block = [tag_asm,jumpdest_asm]+asm_block
             
         jump_type = next_block.get_jump_type()
         if jump_type == "conditional":
@@ -172,9 +157,6 @@ def traverse_cfg(cfg_object, asm_dicts, tags_dict):
 
             if jumps_to not in visited:
                 pending_blocks.append(blocks[jump_to])
-                jumpdest.append(jump_to)
-            else:
-                generate_jumpdest_asm(jump_to, asm_instructions, init_pos_dict)
                 
             if falls_to not in visited:
                 pending_blocks.append(blocks[falls_to])
@@ -193,10 +175,6 @@ def traverse_cfg(cfg_object, asm_dicts, tags_dict):
 
             if jumps_to not in visited:
                 pending_blocks.append(blocks[jump_to])
-                jumpdest.append(jump_to)
-
-            else:
-                generate_jumpdest_asm(jump_to, asm_instructions, init_pos_dict)
                 
         elif jump_type == "sub_block" or jump_type == "split_instruction_block":
             raise Exception("[ERROR]: It should have been considered previously")
@@ -215,8 +193,7 @@ def traverse_cfg(cfg_object, asm_dicts, tags_dict):
                 init_pos_dict+=[block_id]*len(asm_block)
 
                 pending_blocks.append(blocks_falls_to)
-                
-                
+                          
         elif jump_type == "terminal":
             asm_instructions+=asm_block
             init_pos_dict+=[block_id]*len(asm_block)
