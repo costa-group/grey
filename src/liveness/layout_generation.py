@@ -10,6 +10,7 @@ from typing import Dict, List, Type, Any, Set, Tuple, Optional
 import networkx as nx
 from pathlib import Path
 
+from global_params.types import SMS_T
 from parser.cfg_block_list import CFGBlockList
 from parser.cfg_block import CFGBlock
 from parser.cfg import CFG
@@ -194,7 +195,7 @@ def print_stacks(block_name: str, json_dict: Dict[str, Any]) -> str:
 
 class LayoutGeneration:
 
-    def __init__(self, object_id, block_list: CFGBlockList, liveness_info: Dict[str, LivenessAnalysisInfo], name: Path,
+    def __init__(self, object_id: str, block_list: CFGBlockList, liveness_info: Dict[str, LivenessAnalysisInfo], name: Path,
                  cfg_graph: Optional[nx.Graph] = None):
         self._id = object_id
         self._block_list = block_list
@@ -364,7 +365,7 @@ class LayoutGeneration:
         return json_info
 
 
-def layout_generation(cfg: CFG, final_dir: Path = Path(".")) -> Dict[str, Dict[str, Any]]:
+def layout_generation(cfg: CFG, final_dir: Path = Path(".")) -> Tuple[Dict[str, SMS_T], Dict[str, int]]:
     """
     Returns the information from the liveness analysis and also stores a dot file for each analyzed structure
     in "final_dir"
@@ -373,6 +374,7 @@ def layout_generation(cfg: CFG, final_dir: Path = Path(".")) -> Dict[str, Dict[s
     results = perform_liveness_analysis_from_cfg_info(cfg_info)
     jsons = dict()
     tag_idx = 0
+    tags_dict = dict()
 
     for component_name, liveness in results.items():
         cfg_info_suboject = cfg_info[component_name]["block_info"]
@@ -387,4 +389,7 @@ def layout_generation(cfg: CFG, final_dir: Path = Path(".")) -> Dict[str, Dict[s
         # Update the target idx with the one in the layout object
         tag_idx = layout._tags_idx
 
-    return jsons, layout._tags_dict
+        # Store the assigned tags in the dict
+        tags_dict.update(layout._tags_dict)
+
+    return jsons, tags_dict
