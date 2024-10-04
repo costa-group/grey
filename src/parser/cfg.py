@@ -72,10 +72,8 @@ class CFG:
             json_block = block.get_as_json()
             json_blocks.append(json_block)
 
-        json_obj = {}
-        json_obj["blocks"] = json_blocks
-        json_obj["name"] = self.objectCFG.get("name", "object")
-        
+        json_obj = {"blocks": json_blocks, "name": self.objectCFG.get("name", "object")}
+
         json_cfg["object"] = json_obj
         json_cfg["subObjects"] = self.subObjects
 
@@ -105,18 +103,23 @@ class CFG:
         Applies a given function to all CFG lists inside the object
         """
         for object_id, cfg_object in self.objectCFG.items():
-            cfg_object.blocks = f(cfg_object.blocks)
-            self.block_list[object_id] = cfg_object.blocks
+            modified_block_list = f(cfg_object.blocks)
+            cfg_object.blocks = modified_block_list
+            self.block_list[object_id] = modified_block_list
 
             # We also consider the information per function
             for function_name, cfg_function in cfg_object.functions.items():
-                cfg_function.blocks = f(cfg_function.blocks)
-                self.block_list[function_name] = cfg_function.blocks
+                modified_block_list = f(cfg_function.blocks)
+                cfg_function.blocks = modified_block_list
+                self.block_list[function_name] = modified_block_list
 
             subobject = self.get_subobject()
 
             if subobject is not None:
                 subobject.modify_cfg_block_list(f)
+
+                # Modify the block list with the information from the subobject
+                self.block_list.update(subobject.block_list)
 
     def __repr__(self):
         return str(self.get_as_json())
