@@ -240,11 +240,11 @@ class CFGInstruction:
         
         
     def translate_datasize(self) :
-        self.op = "push#[$]"
+        self.op = "push #[$]"
 
 
     def translate_dataoffset(self) :
-        self.op = "push[$]"
+        self.op = "push [$]"
 
     def translate_datacopy(self) :
         self.op = "codecopy"
