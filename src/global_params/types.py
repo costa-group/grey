@@ -9,3 +9,5 @@ ASM_bytecode_T = Dict[str, Union[int, str]]
 SMS_T = Dict[str, Any]
 
 Yul_CFG_T = Dict[str, Any]
+
+ASM_contract_T = Dict[str, Any]

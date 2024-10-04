@@ -100,7 +100,7 @@ def analyze_single_cfg(cfg: CFG, final_dir: Path, dot_file_dir: Path, args: argp
 
         # Generate complete asm from CFG object + dict
         
-        # json_asm_contract = asm_from_cfg(sub_block_cfg,block_name2asm, tags_dict)
+        json_asm_contract = asm_from_cfg(sub_block_cfg,block_name2asm, tags_dict, args.source)
         df = pd.DataFrame(csv_rows)
         df.to_csv(final_dir.joinpath("statistics.csv"))
 

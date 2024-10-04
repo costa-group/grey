@@ -2,7 +2,8 @@
 Module that contains the methods for reconstructing the bytecode in different formats
 """
 from typing import Dict, Any, List, Optional, Union
-from global_params.types import SMS_T, ASM_bytecode_T
+from global_params.types import SMS_T, ASM_bytecode_T, ASM_contract_T
+from parser.cfg import CFG
 
 # Solution ids to EVM assembly
 
@@ -14,7 +15,7 @@ def asm_from_op_info(op: str, value: Optional[Union[int, str]] = None,
     """
     default_asm = {"name": op, "begin": -1, "end": -1, "source": source}
 
-    if value != None:
+    if value is not None:
         default_asm["value"] = value
 
     if jump_type is not None:
@@ -206,10 +207,9 @@ def traverse_cfg(cfg_object, asm_dicts, tags_dict):
     return asm_instructions
 
 
-
-        
 # Combine information from the greedy algorithm and the CFG
-def asm_from_cfg(cfg, asm_dicts, tags_dict, args):   
+def asm_from_cfg(cfg: CFG, asm_dicts: Dict[str, List[ASM_bytecode_T]], tags_dict: Dict,
+                 filename: str) -> ASM_contract_T:
     objects_cfg = cfg.get_objects()
     subObjects = cfg.get_subobject().get_objects()
 
@@ -217,24 +217,24 @@ def asm_from_cfg(cfg, asm_dicts, tags_dict, args):
     for obj_name in objects_cfg.keys():
         obj = objects_cfg[obj_name]
 
-        asm = traverse_cfg(obj,asm_dicts,tags_dict)
-        json_asm = {".code":asm}
+        asm = traverse_cfg(obj, asm_dicts, tags_dict)
+        json_asm = {".code": asm}
 
         deployed_obj = obj_name+"_deployed"
         if deployed_obj in subObjects:
             subobj = subObjects[deployed_obj]
-            asm_subobj = traverse_cfg(subobj,asm_dicts,tags_dict)
+            asm_subobj = traverse_cfg(subobj, asm_dicts, tags_dict)
 
             aux_data = "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
             subobj_asm_code = {".auxdata":aux_data, ".code": asm_subobj}
 
             #TODO: Comprobar el 0
-            json_asm_subobj = {"0":subobj_asm_code}
+            json_asm_subobj = {"0": subobj_asm_code}
 
             json_asm[".data"] = json_asm_subobj
 
-        json_asm["sourceList"] = [args.source]
+        json_asm["sourceList"] = [filename]
         
-        json_object[args.source+":"+obj_name] = json_asm 
+        json_object[filename +":"+obj_name] = json_asm
         
     return json_object
