@@ -209,7 +209,7 @@ def traverse_cfg(cfg_object, asm_dicts, tags_dict):
 
         
 # Combine information from the greedy algorithm and the CFG
-def asm_from_cfg(cfg, asm_dicts, tags_dict):   
+def asm_from_cfg(cfg, asm_dicts, tags_dict, args):   
     objects_cfg = cfg.get_objects()
     subObjects = cfg.get_subobject().get_objects()
 
@@ -218,6 +218,23 @@ def asm_from_cfg(cfg, asm_dicts, tags_dict):
         obj = objects_cfg[obj_name]
 
         asm = traverse_cfg(obj,asm_dicts,tags_dict)
+        json_asm = {".code":asm}
+
+        deployed_obj = obj_name+"_deployed"
+        if deployed_obj in subObjects:
+            subobj = subObjects[deployed_obj]
+            asm_subobj = traverse_cfg(subobj,asm_dicts,tags_dict)
+
+            aux_data = "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+            subobj_asm_code = {".auxdata":aux_data, ".code": asm_subobj}
+
+            #TODO: Comprobar el 0
+            json_asm_subobj = {"0":subobj_asm_code}
+
+            json_asm[".data"] = json_asm_subobj
+
+        json_asm["sourceList"] = [args.source]
         
+        json_object[args.source+":"+obj_name] = json_asm 
         
     return json_object
