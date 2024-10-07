@@ -91,23 +91,23 @@ def generate_asm_split_blocks(init_block_id, blocks, asm_dicts):
             asm_subblock = asm_dicts.get(block_id, None)
             assert asm_subblock is not None, "[ERROR]: subblock should contain an asm block"
 
-        elif jump_type == "split_intruction_block":
+        elif jump_type == "split_instruction_block":
             asm_subblock = asm_for_split_instruction_block(block)
         else:
             raise Exception("[ERROR]: Jump type can only be subblock or split_intruction")
 
-        asm_block+=asm_subblock
+        asm_block += asm_subblock
         block_id = block.get_falls_to()
         block = blocks[block_id]
 
         jump_type = block.get_jump_type()
         
-    #We translate last block
+    # We translate the last block
     asm_subblock = asm_dicts.get(block_id, None)
-    if asm_subblock == None:
+    if asm_subblock is None:
         asm_subblock = asm_for_split_instruction_block(block)
         
-    asm_block+=asm_subblock
+    asm_block += asm_subblock
     
     return block, asm_block
 
