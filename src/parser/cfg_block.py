@@ -364,6 +364,23 @@ class CFGBlock:
                 jump_instr = ins
                 continue
 
+            # TODO: temporal fix for PUSH instructions obtained through translating "memoryguard"
+            elif ins.get_op_name() == "push":
+                in_val = int(ins.builtin_args[0])
+                str_in_val = hex(in_val)
+                push_name = "PUSH" if in_val != 0 else "PUSH0"
+                inst_idx = instrs_idx.get(push_name, 0)
+                instrs_idx[push_name] = inst_idx + 1
+                push_ins = build_push_spec(str_in_val, inst_idx, [ins.get_out_args()[0]])
+
+                map_instructions[("PUSH", tuple([str_in_val]))] = push_ins
+
+                uninter_functions.append(push_ins)
+
+                map_positions_instructions[i] = push_ins["id"]
+
+                continue
+
             ins_spec = map_instructions.get((ins.get_op_name().upper(),tuple(ins.get_in_args())), None)
 
             if ins_spec is None:
