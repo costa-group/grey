@@ -3,6 +3,12 @@ Module that contains the declaration of common types used throughout the project
 """
 from typing import Dict, Union, Any
 
+# Type for the id of instructions in the SMS
+instr_id_T = str
+
+# Id for block ids
+block_id_T = str
+
 ASM_bytecode_T = Dict[str, Union[int, str]]
 
 # SMS refers to the JSON representation of a block, with the initial and final stacks and the operations
