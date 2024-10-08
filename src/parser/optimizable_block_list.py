@@ -34,6 +34,9 @@ def initialize_sub_blocks(initial_block: CFGBlock, sub_blocks_instrs: List[Tuple
 
         new_cfg_sub_block = CFGBlock(new_sub_block_idx, sub_block_instrs, new_sub_block_type,
                                      initial_block.assignment_dict)
+
+        new_cfg_sub_block.process_function_calls(initial_block.function_calls)
+
         # We need to update the comes from value
         for block_id in comes_from:
             new_cfg_sub_block.add_comes_from(block_id)
