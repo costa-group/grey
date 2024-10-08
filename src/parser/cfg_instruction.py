@@ -2,12 +2,12 @@
 Module for representing and building the instructions that appear in the CFG
 """
 import json
-from typing import List, Dict
+from typing import List, Dict, Optional
 from parser.utils_parser import process_opcode, get_ins_size, is_commutative
 import parser.opcodes as opcodes
 
 
-def build_instr_spec(op_name: str, idx: int, input_args: List[str], out_args: List[str]):
+def build_instr_spec(op_name: str, idx: int, input_args: List[str], out_args: List[str], value: Optional[str]= None):
     """
     Generates the specification of a function from the opcode name
     """
@@ -23,6 +23,9 @@ def build_instr_spec(op_name: str, idx: int, input_args: List[str], out_args: Li
     instr_spec["storage"] = True if op_name in ["MSTORE", "SSTORE"] else False  # It is true only for MSTORE and SSTORE
     instr_spec["size"] = get_ins_size(op_name)
 
+    if value != None:
+        instr_spec["value"] = value
+
     return instr_spec
 
 
@@ -35,8 +38,7 @@ def build_push_spec(val, idx, out_args: List[str]):
     value = int(val, 16)
 
     obj["id"] = "PUSH_" + str(idx) if value != 0 else "PUSH0_" + str(idx)
-    obj["opcode"] = process_opcode(str(opcodes.get_opcode("PUSH")[0])) if value != 0 else process_opcode(
-        str(opcodes.get_opcode("PUSH0")[0]))
+    obj["opcode"] = process_opcode(str(opcodes.get_opcode("PUSH")[0])) if value != 0 else process_opcode(str(opcodes.get_opcode("PUSH0")[0]))
     obj["disasm"] = "PUSH" if value != 0 else "PUSH0"
     obj["inpt_sk"] = []
     obj["value"] = [value]
@@ -126,6 +128,7 @@ class CFGInstruction:
         self.out_args = out_args[::-1]
         self.builtin_op = None
         self.builtin_args = None
+        self.translate_builtin_args = None
         self.assignments = None
         
         
@@ -195,7 +198,10 @@ class CFGInstruction:
                 # Here we need to reverse the arguments
                 instr_spec = build_verbatim_spec(op_name, input_args, self.out_args, self.builtin_args)
             elif opcodes.exists_opcode(op_name):
-                instr_spec = build_instr_spec(op_name, idx, input_args, self.out_args)
+                if self.op in ["pushlib", "push #[$]", "push [$]"]:
+                    instr_spec = build_instr_spec(op_name, idx, input_args, self.out_args, self.translate_builtin_args)
+                else:
+                    instr_spec = build_instr_spec(op_name, idx, input_args, self.out_args)
             else:
                 # TODO: separate wrong opcodes from custom functions
                 instr_spec = build_custom_function_spec(op_name, input_args, self.out_args, self.builtin_args)
@@ -232,6 +238,7 @@ class CFGInstruction:
 
     def translate_linkersymbol(self) :
         self.op = "pushlib"
+        self.translate_builtin_args = list(self.builtin_args)
 
 
     def translate_memoryguard(self) :
@@ -239,12 +246,27 @@ class CFGInstruction:
         self.op = "push"
         
         
-    def translate_datasize(self) :
+    def translate_datasize(self, subobjects_keys: List[str]) :
         self.op = "push #[$]"
 
+        builtin_val = self.builtin_args[0]
+        try:
+            pos = subobjects_keys.index(builtin_val)
+            self.translate_builtin_args = ["{0:064X}".format(pos)]
+        except:
+            raise Exception("[ERROR]: Identifier not found in subobjects keys")
 
-    def translate_dataoffset(self) :
+
+    def translate_dataoffset(self, subobjects_keys: List[str]) :
         self.op = "push [$]"
+
+        builtin_val = self.builtin_args[0]
+        try:
+            pos = subobjects_keys.index(builtin_val)
+            self.translate_builtin_args = ["{0:064X}".format(pos)]
+        except:
+            raise Exception("[ERROR]: Identifier not found in subobjects keys")
+        
 
     def translate_datacopy(self) :
         self.op = "codecopy"
@@ -256,7 +278,7 @@ class CFGInstruction:
     def translate_loadimmutable(self) :
        self.op = "pushimmutable"
 
-    def translate_built_in_function(self):
+    def translate_built_in_function(self, subobjects_keys: List[str]):
         self.builtin_op = self.op
         
         if self.op == "linkersymbol":
@@ -264,9 +286,9 @@ class CFGInstruction:
         elif self.op == "memoryguard":
             self.translate_memoryguard()
         elif self.op == "datasize":
-            self.translate_datasize()
+            self.translate_datasize(subobjects_keys)
         elif self.op == "dataoffset":
-            self.translate_dataoffset()
+            self.translate_dataoffset(subobjects_keys)
         elif self.op == "datacopy":
             self.translate_datacopy()
         elif self.op == "setimmutable":
@@ -276,9 +298,9 @@ class CFGInstruction:
         else:
             raise Exception("[ERROR]: Built-in function is not recognized")
         
-    def translate_opcode(self):
+    def translate_opcode(self, subobjects_keys: List[str]):
         if self.op in ["linkersymbol","memoryguard", "datasize", "dataoffset", "datacopy", "setimmutable", "loadimmutable"]:
-            self.translate_built_in_function()
+            self.translate_built_in_function(subobjects_keys)
             
         
     def get_op_name(self):

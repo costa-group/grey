@@ -75,7 +75,7 @@ def process_block_entry(block_json: Dict[str, Any], phi_instr: Dict[str, Any]) -
     return {entry: (input_value, output_value) for entry, input_value in zip(block_entry, block_entry_values)}
 
 
-def parse_block(object_name: str, block_json: Dict[str,Any], built_in_op: bool) -> Tuple[block_id_T, CFGBlock, Dict, Dict[str, Tuple[str, str]]]:
+def parse_block(object_name: str, block_json: Dict[str,Any], built_in_op: bool, subobjects_keys: List[str]) -> Tuple[block_id_T, CFGBlock, Dict, Dict[str, Tuple[str, str]]]:
     block_id = block_json.get("id", -1)
     block_instructions = block_json.get("instructions", -1)
     block_exit = block_json.get("exit", -1)
@@ -101,7 +101,7 @@ def parse_block(object_name: str, block_json: Dict[str,Any], built_in_op: bool) 
             cfg_instruction = parse_instruction(instruction) if block_type != "FunctionReturn" else []
 
             if not built_in_op and cfg_instruction != []:
-                cfg_instruction.translate_opcode()
+                cfg_instruction.translate_opcode(subobjects_keys)
 
             list_cfg_instructions.append(cfg_instruction)
 
@@ -142,7 +142,7 @@ def update_assignments_from_phi_functions(block_list: CFGBlockList, phi_function
             block.assignment_dict[output_value] = input_value
 
 
-def parser_block_list(object_name: str, blocks: List[Dict[str, Any]], built_in_op : bool):
+def parser_block_list(object_name: str, blocks: List[Dict[str, Any]], built_in_op : bool, subobjects_keys : List[str]):
     """
     Returns the list of blocks parsed and the ids that correspond to Exit blocks
     """
@@ -150,7 +150,7 @@ def parser_block_list(object_name: str, blocks: List[Dict[str, Any]], built_in_o
     exit_blocks = []
     comes_from = collections.defaultdict(lambda: [])
     for b in blocks:
-        block_id, new_block, block_exit, block_entries = parse_block(object_name, b, built_in_op)
+        block_id, new_block, block_exit, block_entries = parse_block(object_name, b, built_in_op, subobjects_keys)
         new_block.set_jump_info(block_exit)
 
         # Annotate comes from
@@ -170,27 +170,27 @@ def parser_block_list(object_name: str, blocks: List[Dict[str, Any]], built_in_o
     return block_list, exit_blocks
 
 
-def parse_function(function_name: str, function_json: Dict[str,Any], built_in_op: bool):
+def parse_function(function_name: str, function_json: Dict[str,Any], built_in_op: bool, subobjects_keys: List[str]):
     
     args = function_json.get("arguments", -1)
     ret_vals = function_json.get("returns", -1)
     entry_point = function_json.get("entry", -1)
 
     blocks = function_json.get("blocks", -1)
-    cfg_block_list, exit_points = parser_block_list(function_name, blocks, built_in_op)
+    cfg_block_list, exit_points = parser_block_list(function_name, blocks, built_in_op, subobjects_keys)
 
     cfg_function = CFGFunction(function_name, args, ret_vals, entry_point, cfg_block_list)
     cfg_function.exits = exit_points
     return cfg_function
     
 
-def parse_object(object_name: str, json_object: Dict[str,Any], built_in_op: bool) -> CFGObject:
+def parse_object(object_name: str, json_object: Dict[str,Any], built_in_op: bool, subobjects_keys: List[str]) -> CFGObject:
     blocks_list = json_object.get("blocks",False)
 
     if not blocks_list:
         raise Exception("[ERROR]: JSON file does not contain blocks")
 
-    cfg_block_list, _ = parser_block_list(object_name, blocks_list, built_in_op)
+    cfg_block_list, _ = parser_block_list(object_name, blocks_list, built_in_op, subobjects_keys)
     cfg_object = CFGObject(object_name, cfg_block_list)
 
     return cfg_object
@@ -204,15 +204,18 @@ def parser_CFG_from_JSON(json_dict: Dict, built_in_op: bool):
     # The contract key corresponds to the key that is neither type nor subobjects
     # For yul blocks, it is "object"
     object_keys = [key for key in json_dict if key not in ["type", "subObjects"]]
+
+    subobjects_keys = [key for key in json_dict.get("subObjects") if key not in ["type", "subObjects"]] if json_dict.get("subObjects",{}) != {} else []
+    
     assert len(object_keys) >= 1, "[ERROR]: JSON file does not contain a valid key for the code"
     
     for obj in object_keys:
         json_object = json_dict.get(obj,False)
-        cfg_object = parse_object(obj,json_object, built_in_op)
+        cfg_object = parse_object(obj,json_object, built_in_op, subobjects_keys)
 
         json_functions = json_object.get("functions", {})
         for f in json_functions:
-            obj_function = parse_function(f, json_functions[f], built_in_op)
+            obj_function = parse_function(f, json_functions[f], built_in_op, subobjects_keys)
             cfg_object.add_function(obj_function)
 
         # Important: add the object already initialized with the functions, so that we can construct
