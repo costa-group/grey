@@ -206,16 +206,18 @@ def parser_CFG_from_JSON(json_dict: Dict, built_in_op: bool):
     object_keys = [key for key in json_dict if key not in ["type", "subObjects"]]
 
     subobjects_keys = [key for key in json_dict.get("subObjects") if key not in ["type", "subObjects"]] if json_dict.get("subObjects",{}) != {} else []
+
+    obj_json_keys = object_keys+subobjects_keys
     
     assert len(object_keys) >= 1, "[ERROR]: JSON file does not contain a valid key for the code"
     
     for obj in object_keys:
         json_object = json_dict.get(obj,False)
-        cfg_object = parse_object(obj,json_object, built_in_op, subobjects_keys)
+        cfg_object = parse_object(obj,json_object, built_in_op, obj_json_keys)
 
         json_functions = json_object.get("functions", {})
         for f in json_functions:
-            obj_function = parse_function(f, json_functions[f], built_in_op, subobjects_keys)
+            obj_function = parse_function(f, json_functions[f], built_in_op, obj_json_keys)
             cfg_object.add_function(obj_function)
 
         # Important: add the object already initialized with the functions, so that we can construct
