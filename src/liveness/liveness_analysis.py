@@ -143,7 +143,7 @@ def dot_from_analysis(cfg: CFG, final_dir: Path = Path(".")) -> Dict[str, Dict[s
             renaming_dict[block_live] = live_vars.dot_repr()
         renamed_digraph = nx.relabel_nodes(digraph, renaming_dict)
 
-        short_component_name = shorten_name(short_component_name)
+        short_component_name = shorten_name(component_name)
 
         nx.nx_agraph.write_dot(renamed_digraph, final_dir.joinpath(f"{short_component_name}.dot"))
 

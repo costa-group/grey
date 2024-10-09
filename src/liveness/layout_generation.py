@@ -393,7 +393,7 @@ def layout_generation(cfg: CFG, final_dir: Path = Path(".")) -> Tuple[Dict[str, 
         cfg_info_suboject = cfg_info[component_name]["block_info"]
         digraph = digraph_from_block_info(cfg_info_suboject.values())
 
-        short_component_name = shorten_name(short_component_name)
+        short_component_name = shorten_name(component_name)
 
         layout = LayoutGeneration(component_name, cfg.block_list[component_name], liveness,
                                   final_dir.joinpath(f"{short_component_name}_dominated.dot"), digraph)
