@@ -367,11 +367,11 @@ class LayoutGeneration:
 
         # Skip blocks with split instructions in the JSON information. We must remove
         # then at this point because their specification is needed to generate the "_stacks" dot file
-        split_blocks = set(block_name for block_name, block in self._block_list.blocks.items()
-                           if block.get_jump_type() == "split_instruction_block")
+        non_split_blocks = set(block_name for block_name, block in self._block_list.blocks.items()
+                               if block.get_jump_type() != "split_instruction_block")
 
         json_info = {json_name: sfs for json_name, sfs in json_info.items()
-                     if any(json_name in split_block for split_block in split_blocks)}
+                     if any(json_name in split_block for split_block in non_split_blocks)}
 
         return json_info
 
