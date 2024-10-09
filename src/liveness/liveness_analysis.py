@@ -8,6 +8,7 @@ from analysis.fixpoint_analysis import BlockAnalysisInfo, BackwardsAnalysis
 from analysis.abstract_state import digraph_from_block_info
 from liveness.liveness_state import LivenessState, LivenessBlockInfo
 from graphs.algorithms import condense_to_dag
+from parser.utils_parser import shorten_name
 from parser.cfg_block_list import CFGBlockList
 from parser.cfg import CFG
 
@@ -142,7 +143,9 @@ def dot_from_analysis(cfg: CFG, final_dir: Path = Path(".")) -> Dict[str, Dict[s
             renaming_dict[block_live] = live_vars.dot_repr()
         renamed_digraph = nx.relabel_nodes(digraph, renaming_dict)
 
-        nx.nx_agraph.write_dot(renamed_digraph, final_dir.joinpath(f"{component_name}.dot"))
+        short_component_name = shorten_name(short_component_name)
+
+        nx.nx_agraph.write_dot(renamed_digraph, final_dir.joinpath(f"{short_component_name}.dot"))
 
         condensed_digraph, sccs = condense_to_dag(renamed_digraph)
 
@@ -152,6 +155,6 @@ def dot_from_analysis(cfg: CFG, final_dir: Path = Path(".")) -> Dict[str, Dict[s
 
         renamed_condensed_digraph = nx.relabel_nodes(condensed_digraph, renamed_condensed_dict)
 
-        nx.nx_agraph.write_dot(renamed_condensed_digraph, final_dir.joinpath(f"{component_name}_condensed.dot"))
+        nx.nx_agraph.write_dot(renamed_condensed_digraph, final_dir.joinpath(f"{short_component_name}_condensed.dot"))
 
     return results

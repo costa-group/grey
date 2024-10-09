@@ -14,6 +14,7 @@ from global_params.types import SMS_T
 from parser.cfg_block_list import CFGBlockList
 from parser.cfg_block import CFGBlock
 from parser.cfg import CFG
+from parser.utils_parser import shorten_name
 from analysis.abstract_state import digraph_from_block_info
 from graphs.algorithms import condense_to_dag, information_on_graph
 from liveness.liveness_analysis import LivenessAnalysisInfo, construct_analysis_info, \
@@ -29,7 +30,7 @@ def output_stack_layout(input_stack: List[str], final_stack_elements: List[str],
 
     # We keep the variables in the input stack in the same order if they appear in the variable vars (so that we
     # don't need to move them elsewhere). It might contain None variables if the corresponding variables are consumed
-    output_stack = final_stack_elements + [var_ if var_ in live_vars else None for var_ in input_stack]
+    output_stack = final_stack_elements + [var_ if var_ in live_vars and var_ not in final_stack_elements else None for var_ in input_stack]
     vars_to_place = live_vars.difference(set(output_stack))
 
     # Sort the vars to place according to the variable depth info order in reversed order
@@ -392,8 +393,10 @@ def layout_generation(cfg: CFG, final_dir: Path = Path(".")) -> Tuple[Dict[str, 
         cfg_info_suboject = cfg_info[component_name]["block_info"]
         digraph = digraph_from_block_info(cfg_info_suboject.values())
 
+        short_component_name = shorten_name(short_component_name)
+
         layout = LayoutGeneration(component_name, cfg.block_list[component_name], liveness,
-                                  final_dir.joinpath(f"{component_name}_dominated.dot"), digraph)
+                                  final_dir.joinpath(f"{short_component_name}_dominated.dot"), digraph)
         layout._tags_idx = tag_idx
         layout_blocks = layout.build_layout()
         jsons.update(layout_blocks)

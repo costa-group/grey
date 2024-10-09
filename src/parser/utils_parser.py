@@ -290,3 +290,10 @@ def split_json(input_file: str) -> Dict[str, Any]:
                     print(f"Error when decoding: {content}")
 
     return json_structs
+
+
+def shorten_name(name: str, separator: str = "$") -> str:
+    """
+    Shortens a name using a separator. Useful for avoiding errors when storing names too long
+    """
+    return name if len(name) < 100 else (name.split(separator)[0] + "_shortened")

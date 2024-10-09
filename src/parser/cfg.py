@@ -2,6 +2,7 @@ import json
 from pathlib import Path
 from parser.cfg_object import CFGObject
 from parser.cfg_block_list import CFGBlockList
+from parser.utils_parser import shorten_name
 from typing import Dict, List, Optional, Callable
 
 
@@ -9,7 +10,9 @@ def store_sfs_json(block_name: str, block: Dict[str, Dict], final_path: Path) ->
     """
     Stores all SFS from the list of blocks in the corresponding folder
     """
-    file_to_store = final_path.joinpath(block_name + ".json")
+    short_block_name = shorten_name(block_name)
+
+    file_to_store = final_path.joinpath(short_block_name + ".json")
     with open(file_to_store, 'w') as f:
         json.dump(block, f, indent=4)
 

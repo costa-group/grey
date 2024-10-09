@@ -23,6 +23,9 @@ block_id_T = str
 # How dependencies among instructions are represented
 dependencies_T = List[List[instr_id_T]]
 
+# How instructions are represented in the SFS
+instr_JSON_T = Dict[str, Any]
+
 ASM_bytecode_T = Dict[str, Union[int, str]]
 
 # SMS refers to the JSON representation of a block, with the initial and final stacks and the operations

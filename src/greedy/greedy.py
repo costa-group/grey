@@ -15,7 +15,7 @@ instr_T = Dict[str, Any]
 var_instr_map_T = Dict[var_T, instr_T]
 opid_instr_map_T = Dict[var_T, instr_T]
 
-VERBOSE = 2
+VERBOSE = 0
 
 
 def get_ops_map(instructions: List[Dict[str, Any]], op: id_T) -> Dict[var_T, id_T]:
@@ -1661,7 +1661,7 @@ class SMSgreedy:
         return True
 
 
-def greedy_from_json(json_data: Dict[str, Any], verb=True) -> Tuple[
+def greedy_from_json(json_data: Dict[str, Any], verb=False) -> Tuple[
     Dict[str, Any], SMSgreedy, List[str], List[str], int]:
     encoding = SMSgreedy(json_data.copy())
     # print(encoding._var_instr_map)
