@@ -341,6 +341,10 @@ class LayoutGeneration:
 
             block_specification = self._construct_code_from_block(current_block, input_stacks,
                                                                   output_stacks, combined_stacks)
+
+            if block_name == "fun__checkOnERC721Received_1776_Block3_1":
+                print("HOLA")
+
             json_info[block_name] = block_specification
 
             successors = [possible_successor for possible_successor in
@@ -371,7 +375,7 @@ class LayoutGeneration:
                                if block.get_jump_type() != "split_instruction_block")
 
         json_info = {json_name: sfs for json_name, sfs in json_info.items()
-                     if any(json_name in split_block for split_block in non_split_blocks)}
+                     if any(json_name == split_block for split_block in non_split_blocks)}
 
         return json_info
 
