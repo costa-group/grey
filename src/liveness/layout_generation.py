@@ -30,7 +30,21 @@ def output_stack_layout(input_stack: List[str], final_stack_elements: List[str],
 
     # We keep the variables in the input stack in the same order if they appear in the variable vars (so that we
     # don't need to move them elsewhere). It might contain None variables if the corresponding variables are consumed
-    output_stack = final_stack_elements + [var_ if var_ in live_vars and var_ not in final_stack_elements else None for var_ in input_stack]
+    # Variables can appear repeated in the input stack due to splitting in several instructions. Hence, we just want
+    # to keep a copy of each variable, the one that is deepest in the stack.
+    reversed_stack_relative_order = []
+    already_introduced = set()
+    for var_ in reversed(input_stack):
+        if var_ in live_vars and var_ not in already_introduced:
+            reversed_stack_relative_order.append(var_)
+            already_introduced.add(var_)
+        else:
+            reversed_stack_relative_order.append(None)
+
+    # We undo the reversed traversal
+    relative_order = list(reversed(reversed_stack_relative_order))
+
+    output_stack = final_stack_elements + relative_order
     vars_to_place = live_vars.difference(set(output_stack))
 
     # Sort the vars to place according to the variable depth info order in reversed order
