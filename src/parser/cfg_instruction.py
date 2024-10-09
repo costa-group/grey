@@ -29,7 +29,7 @@ def build_instr_spec(op_name: str, idx: int, input_args: List[str], out_args: Li
     return instr_spec
 
 
-def build_push_spec(val, idx, out_args: List[str]):
+def build_push_spec(val: str, idx: int, out_args: List[str]):
     """
     Generates the specification of a PUSH instruction from the introduced value
     """
@@ -192,24 +192,28 @@ class CFGInstruction:
         op_name = self.op.upper()
         idx = instrs_idx.get(op_name, 0)
 
-        if op_name != "PUSH":
         
-            if "VERBATIM" in op_name:
-                # Here we need to reverse the arguments
-                instr_spec = build_verbatim_spec(op_name, input_args, self.out_args, self.builtin_args)
-            elif opcodes.exists_opcode(op_name):
-                if self.op in ["pushlib", "push #[$]", "push [$]"]:
-                    instr_spec = build_instr_spec(op_name, idx, input_args, self.out_args, self.translate_builtin_args)
-                else:
-                    instr_spec = build_instr_spec(op_name, idx, input_args, self.out_args)
+        if "VERBATIM" in op_name:
+            # Here we need to reverse the arguments
+            instr_spec = build_verbatim_spec(op_name, input_args, self.out_args, self.get_builtin_args())
+        elif opcodes.exists_opcode(op_name):
+            if self.op in ["pushlib", "push #[$]", "push [$]"]:
+                instr_spec = build_instr_spec(op_name, idx, input_args, self.out_args, self.get_builtin_args())
+            elif self.op == "push":
+                instr_spec = build_push_spec(self.get_builtin_args()[0], idx, self.out_args) 
             else:
-                # TODO: separate wrong opcodes from custom functions
-                instr_spec = build_custom_function_spec(op_name, input_args, self.out_args, self.builtin_args)
+                instr_spec = build_instr_spec(op_name, idx, input_args, self.out_args)
+        else:
+            # TODO: separate wrong opcodes from custom functions
+            instr_spec = build_custom_function_spec(op_name, input_args, self.out_args, self.get_builtin_args())
 
-            instrs_idx[op_name] = idx+1
+        instrs_idx[op_name] = idx+1
+
+        if self.op.startswith("push"):
+            map_instructions[(op_name,tuple(self.get_builtin_args()))] = instr_spec
+        else:
             map_instructions[(op_name,tuple(self.in_args))] = instr_spec
-        
-            instructions.append(instr_spec)
+        instructions.append(instr_spec)
 
         return instructions, new_out
 
@@ -229,7 +233,16 @@ class CFGInstruction:
 
     def get_builtin_op(self):
         return self.builtin_op
-        
+
+    def get_builtin_args(self):
+        if self.translate_builtin_args != None:
+            return self.translate_builtin_args
+
+        if self.builtin_args != None:
+            return self.builtin_args
+
+        return None
+    
 
     """
     Module to translate the special builtins in Yul to the corresponding assembly JSON.
@@ -245,6 +258,7 @@ class CFGInstruction:
     def translate_memoryguard(self) :
         #It is trabslated as a push directly
         self.op = "push"
+        self.translate_builtin_args = self.builtin_args
         
         
     def translate_datasize(self, subobjects_keys: List[str]) :
