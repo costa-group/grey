@@ -75,7 +75,7 @@ def process_block_entry(block_json: Dict[str, Any], phi_instr: Dict[str, Any]) -
     return {entry: (input_value, output_value) for entry, input_value in zip(block_entry, block_entry_values)}
 
 
-def parse_block(object_name: str, block_json: Dict[str,Any], built_in_op: bool, subobjects_keys: List[str]) -> Tuple[block_id_T, CFGBlock, Dict, Dict[str, Tuple[str, str]]]:
+def parse_block(object_name: str, block_json: Dict[str,Any], built_in_op: bool, objects_keys: List[str]) -> Tuple[block_id_T, CFGBlock, Dict, Dict[str, Tuple[str, str]]]:
     block_id = block_json.get("id", -1)
     block_instructions = block_json.get("instructions", -1)
     block_exit = block_json.get("exit", -1)
@@ -101,7 +101,7 @@ def parse_block(object_name: str, block_json: Dict[str,Any], built_in_op: bool, 
             cfg_instruction = parse_instruction(instruction) if block_type != "FunctionReturn" else []
 
             if not built_in_op and cfg_instruction != []:
-                cfg_instruction.translate_opcode(subobjects_keys)
+                cfg_instruction.translate_opcode(objects_keys)
 
             list_cfg_instructions.append(cfg_instruction)
 
@@ -142,7 +142,7 @@ def update_assignments_from_phi_functions(block_list: CFGBlockList, phi_function
             block.assignment_dict[output_value] = input_value
 
 
-def parser_block_list(object_name: str, blocks: List[Dict[str, Any]], built_in_op : bool, subobjects_keys : List[str]):
+def parser_block_list(object_name: str, blocks: List[Dict[str, Any]], built_in_op : bool, objects_keys : List[str]):
     """
     Returns the list of blocks parsed and the ids that correspond to Exit blocks
     """
@@ -150,7 +150,7 @@ def parser_block_list(object_name: str, blocks: List[Dict[str, Any]], built_in_o
     exit_blocks = []
     comes_from = collections.defaultdict(lambda: [])
     for b in blocks:
-        block_id, new_block, block_exit, block_entries = parse_block(object_name, b, built_in_op, subobjects_keys)
+        block_id, new_block, block_exit, block_entries = parse_block(object_name, b, built_in_op, objects_keys)
         new_block.set_jump_info(block_exit)
 
         # Annotate comes from
@@ -170,27 +170,27 @@ def parser_block_list(object_name: str, blocks: List[Dict[str, Any]], built_in_o
     return block_list, exit_blocks
 
 
-def parse_function(function_name: str, function_json: Dict[str,Any], built_in_op: bool, subobjects_keys: List[str]):
+def parse_function(function_name: str, function_json: Dict[str,Any], built_in_op: bool, objects_keys: List[str]):
     
     args = function_json.get("arguments", -1)
     ret_vals = function_json.get("returns", -1)
     entry_point = function_json.get("entry", -1)
 
     blocks = function_json.get("blocks", -1)
-    cfg_block_list, exit_points = parser_block_list(function_name, blocks, built_in_op, subobjects_keys)
+    cfg_block_list, exit_points = parser_block_list(function_name, blocks, built_in_op, objects_keys)
 
     cfg_function = CFGFunction(function_name, args, ret_vals, entry_point, cfg_block_list)
     cfg_function.exits = exit_points
     return cfg_function
     
 
-def parse_object(object_name: str, json_object: Dict[str,Any], built_in_op: bool, subobjects_keys: List[str]) -> CFGObject:
+def parse_object(object_name: str, json_object: Dict[str,Any], built_in_op: bool, objects_keys: List[str]) -> CFGObject:
     blocks_list = json_object.get("blocks",False)
 
     if not blocks_list:
         raise Exception("[ERROR]: JSON file does not contain blocks")
 
-    cfg_block_list, _ = parser_block_list(object_name, blocks_list, built_in_op, subobjects_keys)
+    cfg_block_list, _ = parser_block_list(object_name, blocks_list, built_in_op, objects_keys)
     cfg_object = CFGObject(object_name, cfg_block_list)
 
     return cfg_object
