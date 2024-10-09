@@ -344,7 +344,9 @@ class LayoutGeneration:
             json_info[block_name] = block_specification
 
             successors = [possible_successor for possible_successor in
-                          [current_block.get_jump_to(), current_block.get_falls_to()] if possible_successor is not None]
+                          [current_block.get_jump_to(), current_block.get_falls_to()]
+                          if possible_successor is not None]
+
             for successor in successors:
                 if successor not in traversed:
                     heapq.heappush(pending_blocks, (self._block_depth[successor], real_depth + 1, successor))
@@ -362,6 +364,15 @@ class LayoutGeneration:
                                                                self._block_list.blocks})
 
         nx.nx_agraph.write_dot(renamed_graph, Path(self._dir.parent).joinpath(self._dir.stem + "_stacks.dot"))
+
+        # Skip blocks with split instructions in the JSON information. We must remove
+        # then at this point because their specification is needed to generate the "_stacks" dot file
+        split_blocks = set(block_name for block_name, block in self._block_list.blocks.items()
+                           if block.get_jump_type() == "split_instruction_block")
+
+        json_info = {json_name: sfs for json_name, sfs in json_info.items()
+                     if any(json_name in split_block for split_block in split_blocks)}
+
         return json_info
 
 
