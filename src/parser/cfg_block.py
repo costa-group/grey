@@ -559,8 +559,14 @@ class CFGBlock:
 
         out_idx = 0
 
+        # If there is a bottom value in the final stack, then we introduce it as part of the assignments and
+        # then we pop it
+        if "bottom" in final_stack:
+            self.assignment_dict["bottom"] = "0x00"
+
         spec, out_idx, map_positions = self._build_spec_for_sequence(self._instructions, map_instructions,
                                                                      out_idx, initial_stack, final_stack)
+        self.assignment_dict.pop("bottom", None)
 
         sto_deps, mem_deps = self._process_dependences(self._instructions, map_positions)
         spec["storage_dependences"] = sto_deps
