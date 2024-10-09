@@ -384,24 +384,27 @@ class CFGBlock:
                 jump_instr = ins
                 continue
 
-            # TODO: temporal fix for PUSH instructions obtained through translating "memoryguard"
-            elif ins.get_op_name() == "push":
-                in_val = int(ins.builtin_args[0])
-                str_in_val = hex(in_val)
-                push_name = "PUSH" if in_val != 0 else "PUSH0"
-                inst_idx = instrs_idx.get(push_name, 0)
-                instrs_idx[push_name] = inst_idx + 1
-                push_ins = build_push_spec(str_in_val, inst_idx, [ins.get_out_args()[0]])
+            # # TODO: temporal fix for PUSH instructions obtained through translating "memoryguard"
+            # elif ins.get_op_name() == "push":
+            #     in_val = int(ins.builtin_args[0])
+            #     str_in_val = hex(in_val)
+            #     push_name = "PUSH" if in_val != 0 else "PUSH0"
+            #     inst_idx = instrs_idx.get(push_name, 0)
+            #     instrs_idx[push_name] = inst_idx + 1
+            #     push_ins = build_push_spec(str_in_val, inst_idx, [ins.get_out_args()[0]])
 
-                map_instructions[("PUSH", tuple([str_in_val]))] = push_ins
+            #     map_instructions[("PUSH", tuple([str_in_val]))] = push_ins
 
-                uninter_functions.append(push_ins)
+            #     uninter_functions.append(push_ins)
 
-                map_positions_instructions[i] = push_ins["id"]
+            #     map_positions_instructions[i] = push_ins["id"]
 
-                continue
+            #     continue
 
-            ins_spec = map_instructions.get((ins.get_op_name().upper(), tuple(ins.get_in_args())), None)
+            if ins.get_op_name().startswith("push"):
+                ins_spec = map_instructions.get((ins.get_op_name().upper(), tuple(ins.get_builtin_args())), None)
+            else:
+                ins_spec = map_instructions.get((ins.get_op_name().upper(), tuple(ins.get_in_args())), None)
 
             if ins_spec is None:
                 result, new_out_idx = ins.build_spec(new_out_idx, instrs_idx, map_instructions)
@@ -409,7 +412,21 @@ class CFGBlock:
                 uninter_functions += result
 
                 map_positions_instructions[i] = result[-1]["id"]
+                
+            elif ins.get_op_name() == "push": #it is a push value that has been already created. If it comes from a memoryguard we have to rename the previous instructions to the output of the memoryguard
+                out_var_list = ins_spec["outpt_sk"]
+                new_out_var_list = ins.get_out_args()
 
+                ins_spec["outpt_sk"] = new_out_var_list
+
+                out_var = out_var_list[0]
+                new_out_var = new_out_var_list[0]
+                
+                candidate_instructions = filter(lambda x: out_var in x["inpt_sk"],uninter_functions)
+                for uninter in candidate_instructions:
+                    pos = uninter["inpt_sk"].index(out_var)
+                    uninter["inpt_sk"][pos] = new_out_var
+                
         assignment2stack_var = dict()
         # Assignments might be generated from phi functions
         for out_val, in_val in self.assignment_dict.items():
