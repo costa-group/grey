@@ -427,13 +427,10 @@ class CFGBlock:
                     pos = uninter["inpt_sk"].index(out_var)
                     uninter["inpt_sk"][pos] = new_out_var
 
-        # If we have applied either JUMP or JUMPI, we have to add the stack elements before jumping
-        final_stack_values = (jump_instr.get_in_args() + final_stack) if jump_instr is not None else final_stack
-
         # If there is a bottom value in the final stack, then we introduce it as part of the assignments and
         # then we pop it. Same for constant values in the final stack
         assignments_out_to_remove = set()
-        for stack_value in final_stack_values:
+        for stack_value in final_stack:
             if stack_value == "bottom" or stack_value.startswith("0x"):
                 self.assignment_dict[stack_value] = "0x00" if stack_value == "bottom" else stack_value
                 assignments_out_to_remove.add(stack_value)
@@ -475,7 +472,7 @@ class CFGBlock:
 
         # Some of the final stack values can correspond to constant values already assigned, so we need to
         # unify the format with the corresponding representative stack variable
-        spec["tgt_ws"] = [assignment2stack_var.get(stack_value, stack_value) for stack_value in final_stack_values]
+        spec["tgt_ws"] = [assignment2stack_var.get(stack_value, stack_value) for stack_value in final_stack]
 
         spec["user_instrs"] = uninter_functions
         spec["variables"] = self._get_vars_spec(uninter_functions)
