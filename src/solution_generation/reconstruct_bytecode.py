@@ -141,7 +141,7 @@ def traverse_cfg(cfg_object, asm_dicts, tags_dict):
             next_block, asm_block = generate_asm_split_blocks(block_id, blocks, asm_dicts)
         else:
             asm_block = asm_dicts.get(block_id, None)
-
+            
         if block_id in tags_dict:
             tag_asm = asm_from_op_info("tag",str(tags_dict[block_id]))
             jumpdest_asm = asm_from_op_info("JUMPDEST")
@@ -218,7 +218,7 @@ def traverse_cfg(cfg_object, asm_dicts, tags_dict):
 def asm_from_cfg(cfg: CFG, asm_dicts: Dict[str, List[ASM_bytecode_T]], tags_dict: Dict,
                  filename: str) -> ASM_contract_T:
     objects_cfg = cfg.get_objects()
-    subObjects = cfg.get_subobject().get_objects()
+    subobjects = cfg.get_subobject().get_objects()
 
     json_object = {}
     for obj_name in objects_cfg.keys():
@@ -227,18 +227,18 @@ def asm_from_cfg(cfg: CFG, asm_dicts: Dict[str, List[ASM_bytecode_T]], tags_dict
         asm = traverse_cfg(obj, asm_dicts, tags_dict)
         json_asm = {".code": asm}
 
-        deployed_obj = obj_name+"_deployed"
-        if deployed_obj in subObjects:
-            subobj = subObjects[deployed_obj]
+        json_asm_subobjects = {}
+        for idx, deployed_obj in enumerate(subobjects):
+            subobj = subobjects[deployed_obj]
             asm_subobj = traverse_cfg(subobj, asm_dicts, tags_dict)
 
             aux_data = "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
             subobj_asm_code = {".auxdata":aux_data, ".code": asm_subobj}
 
             #TODO: Comprobar el 0
-            json_asm_subobj = {"0": subobj_asm_code}
+            json_asm_subobjects[str(idx)]= subobj_asm_code
 
-            json_asm[".data"] = json_asm_subobj
+        json_asm[".data"] = json_asm_subobjects
 
         json_asm["sourceList"] = [filename]
         
