@@ -197,7 +197,7 @@ class CFGInstruction:
             # Here we need to reverse the arguments
             instr_spec = build_verbatim_spec(op_name, input_args, self.out_args, self.get_builtin_args())
         elif opcodes.exists_opcode(op_name):
-            if self.op in ["pushlib", "push #[$]", "push [$]"]:
+            if self.op in ["pushlib", "push #[$]", "push [$]", "pushimmutable", "assignimmutable"]:
                 instr_spec = build_instr_spec(op_name, idx, input_args, self.out_args, self.get_builtin_args())
             elif self.op == "push":
                 instr_spec = build_push_spec(self.get_builtin_args()[0], idx, self.out_args) 
@@ -289,9 +289,11 @@ class CFGInstruction:
     def translate_setimmutable(self) :
         #It is treated as a special mstore in gasol.
         self.op = "assignimmutable"
+        self.translate_builtin_args = [0] # self.builtin_args
 
     def translate_loadimmutable(self) :
        self.op = "pushimmutable"
+       self.translate_builtin_args = [0] # self.builtin_args
 
     def translate_built_in_function(self, subobjects_keys: List[str]):
         self.builtin_op = self.op
