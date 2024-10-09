@@ -404,15 +404,13 @@ class CFGBlock:
             ins_spec = map_instructions.get((ins.get_op_name().upper(), tuple(ins.get_in_args())), None)
 
             if ins_spec is None:
-                if ins.get_op_name().startswith("assignment"):
-                    result, new_out_idx = ins.build_spec_assigment(new_out_idx, instrs_idx, map_instructions)
-                else:
-                    result, new_out_idx = ins.build_spec(new_out_idx, instrs_idx, map_instructions)
+                result, new_out_idx = ins.build_spec(new_out_idx, instrs_idx, map_instructions)
 
                 uninter_functions += result
 
                 map_positions_instructions[i] = result[-1]["id"]
 
+        assignment2stack_var = dict()
         # Assignments might be generated from phi functions
         for out_val, in_val in self.assignment_dict.items():
             # if is_used:
@@ -428,6 +426,9 @@ class CFGBlock:
                     map_instructions[("PUSH", tuple([in_val]))] = push_ins
 
                     uninter_functions.append(push_ins)
+                    assignment2stack_var[out_val] = out_val
+                else:
+                    assignment2stack_var[out_val] = func["outpt_sk"][0]
 
         instr_repr = '\n'.join([instr.get_instruction_representation() for instr in self._instructions])
         assignment_repr = '\n'.join(
@@ -440,7 +441,12 @@ class CFGBlock:
         spec["src_ws"] = initial_stack
 
         # If we have applied either JUMP or JUMPI, we have to add the stack elements before jumping
-        spec["tgt_ws"] = jump_instr.get_in_args() + final_stack if jump_instr is not None else final_stack
+        stack_values = (jump_instr.get_in_args() + final_stack) if jump_instr is not None else final_stack
+
+        # Some of the final stack values can correspond to constant values already assigned, so we need to
+        # unify the format with the corresponding representative stack variable
+        spec["tgt_ws"] = [assignment2stack_var.get(stack_value, stack_value) for stack_value in stack_values]
+
         spec["user_instrs"] = uninter_functions
         spec["variables"] = self._get_vars_spec(uninter_functions)
 
@@ -560,13 +566,20 @@ class CFGBlock:
         out_idx = 0
 
         # If there is a bottom value in the final stack, then we introduce it as part of the assignments and
-        # then we pop it
-        if "bottom" in final_stack:
-            self.assignment_dict["bottom"] = "0x00"
+        # then we pop it. Same for constant values in the final stack
+        assignments_out_to_remove = set()
+        for stack_value in final_stack:
+            if stack_value == "bottom" or stack_value.startswith("0x"):
+                self.assignment_dict[stack_value] = "0x00" if stack_value == "bottom" else stack_value
+                assignments_out_to_remove.add(stack_value)
 
         spec, out_idx, map_positions = self._build_spec_for_sequence(self._instructions, map_instructions,
                                                                      out_idx, initial_stack, final_stack)
-        self.assignment_dict.pop("bottom", None)
+
+        # After constructing the specification, we remove the auxiliary values we have introduced in the
+        # assignment dict
+        for assignment_out in assignments_out_to_remove:
+            self.assignment_dict.pop(assignment_out, None)
 
         sto_deps, mem_deps = self._process_dependences(self._instructions, map_positions)
         spec["storage_dependences"] = sto_deps
