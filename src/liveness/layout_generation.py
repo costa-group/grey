@@ -21,57 +21,6 @@ from liveness.liveness_analysis import LivenessAnalysisInfo, construct_analysis_
     perform_liveness_analysis_from_cfg_info
 
 
-def output_stack_layout(input_stack: List[str], final_stack_elements: List[str],
-                        live_vars: Set[str], variable_depth_info: Dict[str, int]) -> List[str]:
-    """
-    Generates the output stack layout, according to the variables in live vars, the variables that must
-    appear at the top of the stack and the information from the input stack
-    """
-
-    # We keep the variables in the input stack in the same order if they appear in the variable vars (so that we
-    # don't need to move them elsewhere). It might contain None variables if the corresponding variables are consumed
-    # Variables can appear repeated in the input stack due to splitting in several instructions. Hence, we just want
-    # to keep a copy of each variable, the one that is deepest in the stack.
-    reversed_stack_relative_order = []
-    already_introduced = set()
-    for var_ in reversed(input_stack):
-        if var_ in live_vars and var_ not in already_introduced:
-            reversed_stack_relative_order.append(var_)
-            already_introduced.add(var_)
-        else:
-            reversed_stack_relative_order.append(None)
-
-    # We undo the reversed traversal
-    relative_order = list(reversed(reversed_stack_relative_order))
-
-    output_stack = final_stack_elements + relative_order
-    vars_to_place = live_vars.difference(set(output_stack))
-
-    # Sort the vars to place according to the variable depth info order in reversed order
-    vars_to_place_sorted = sorted(vars_to_place, key=lambda x: -variable_depth_info[x])
-
-    # Try to place the variables in reversed order
-    i, j = len(output_stack) - 1, 0
-
-    while i >= 0 and j < len(vars_to_place_sorted):
-        if output_stack[i] is None:
-            output_stack[i] = vars_to_place_sorted[j]
-            j += 1
-        i -= 1
-
-    # First exit condition: all variables have been placed in between. Hence, I have to insert the remaining
-    # elements at the beginning
-    if i == -1:
-        output_stack = list(reversed(vars_to_place_sorted[j:])) + output_stack
-
-    # Second condition: all variables have been placed in between. There can be some None values in between that
-    # must be removed
-    else:
-        output_stack = [var_ for var_ in output_stack if var_ is not None]
-
-    return output_stack
-
-
 def unify_stacks(predecessor_stacks: List[List[str]], variable_depth_info: Dict[str, int]) -> List[str]:
     """
     Unifies the given stacks, according to the information already provided in variable depth info
@@ -153,6 +102,57 @@ def unification_block_dict(block_info: Dict[str, Any]) -> Dict[str, List[str]]:
                 comes_from_set.add(predecessor_block)
 
     return unification_dict
+
+
+def output_stack_layout(input_stack: List[str], final_stack_elements: List[str],
+                        live_vars: Set[str], variable_depth_info: Dict[str, int]) -> List[str]:
+    """
+    Generates the output stack layout, according to the variables in live vars, the variables that must
+    appear at the top of the stack and the information from the input stack
+    """
+
+    # We keep the variables in the input stack in the same order if they appear in the variable vars (so that we
+    # don't need to move them elsewhere). It might contain None variables if the corresponding variables are consumed
+    # Variables can appear repeated in the input stack due to splitting in several instructions. Hence, we just want
+    # to keep a copy of each variable, the one that is deepest in the stack.
+    reversed_stack_relative_order = []
+    already_introduced = set()
+    for var_ in reversed(input_stack):
+        if var_ in live_vars and var_ not in already_introduced:
+            reversed_stack_relative_order.append(var_)
+            already_introduced.add(var_)
+        else:
+            reversed_stack_relative_order.append(None)
+
+    # We undo the reversed traversal
+    relative_order = list(reversed(reversed_stack_relative_order))
+
+    output_stack = final_stack_elements + relative_order
+    vars_to_place = live_vars.difference(set(output_stack))
+
+    # Sort the vars to place according to the variable depth info order in reversed order
+    vars_to_place_sorted = sorted(vars_to_place, key=lambda x: -variable_depth_info[x])
+
+    # Try to place the variables in reversed order
+    i, j = len(output_stack) - 1, 0
+
+    while i >= 0 and j < len(vars_to_place_sorted):
+        if output_stack[i] is None:
+            output_stack[i] = vars_to_place_sorted[j]
+            j += 1
+        i -= 1
+
+    # First exit condition: all variables have been placed in between. Hence, I have to insert the remaining
+    # elements at the beginning
+    if i == -1:
+        output_stack = list(reversed(vars_to_place_sorted[j:])) + output_stack
+
+    # Second condition: all variables have been placed in between. There can be some None values in between that
+    # must be removed
+    else:
+        output_stack = [var_ for var_ in output_stack if var_ is not None]
+
+    return output_stack
 
 
 def unify_stacks_brothers(input_stack: List[str], final_stack_elements: List[str],
