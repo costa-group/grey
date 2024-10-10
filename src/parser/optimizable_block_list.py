@@ -48,23 +48,23 @@ def initialize_sub_blocks(initial_block: CFGBlock, sub_blocks_instrs: List[Tuple
     # and the final stack values
     current_falls_to = initial_block.get_falls_to()
     current_jumps_to = initial_block.get_jump_to()
-    current_stack_values = initial_block.final_stack_elements
 
     for cfg_sub_block in reversed(cfg_sub_blocks):
+
+        # All the blocks except the last one fall into this category
+        if cfg_sub_block.get_jump_type() == "split_instruction_block":
+            # The last values of the stack corresponds to the values introduced by the final value
+            current_stack_values = cfg_sub_block.get_instructions_to_compute()[-1].get_out_args()
+            # Initially we keep the stack elements from the original block
+        else:
+            current_stack_values = initial_block.final_stack_elements
+
         cfg_sub_block.set_falls_to(current_falls_to)
         cfg_sub_block.set_jump_to(current_jumps_to)
         cfg_sub_block.final_stack_elements = current_stack_values
         
         current_falls_to = cfg_sub_block.block_id
         current_jumps_to = None
-
-        # The final stack elements correspond to the arguments in the call to functions (if any)
-        if cfg_sub_block.get_jump_type() == "split_instruction_block":
-            # For split instructions, we need to force the previous block to place the arguments in the correct order
-            # TODO: check whether arguments must be reversed or not
-            current_stack_values = cfg_sub_block.get_instructions_to_compute()[0].get_in_args()
-        else:
-            current_stack_values = []
 
     return cfg_sub_blocks
 
@@ -121,16 +121,10 @@ def compute_sub_block_list(block_list: CFGBlockList) -> CFGBlockList:
         
         for instr in instructions:
             if instr.get_op_name().upper() in constants.split_block or instr.get_op_name() in cfg_block.function_calls:
-
-                
-                # If there is at least a instruction, consider the corresponding sub-block
-                if current_sub_block:
-                    sub_block_instructions.append((current_sub_block, False))
-                    current_sub_block = []
-
-                # Include in an isolated sub block the split instruction
-                sub_block_instructions.append(([instr], True))
-
+                # Sub blocks contain a split instruction or a function call as the last instruction
+                current_sub_block.append(instr)
+                sub_block_instructions.append((current_sub_block, True))
+                current_sub_block = []
             else:
                 current_sub_block.append(instr)
 

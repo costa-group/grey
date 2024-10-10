@@ -1,3 +1,4 @@
+import itertools
 import logging
 
 from global_params.types import instr_id_T, dependencies_T
@@ -7,8 +8,9 @@ from parser.utils_parser import is_in_input_stack, is_in_output_stack, are_depen
 import parser.constants as constants
 import json
 import networkx as nx
+from parser.constants import split_block
 
-from typing import List, Dict, Tuple, Any
+from typing import List, Dict, Tuple, Any, Set
 
 global tag_idx
 tag_idx = 0
@@ -372,34 +374,20 @@ class CFGBlock:
 
         map_positions_instructions = {}
 
-        jump_instr = None
+        unprocessed_instr = None
 
         for i in range(len(instructions)):
             # Check if it has been already created
 
             ins = instructions[i]
 
-            # Ignore JUMP instructions
-            if ins.get_op_name().startswith("JUMP"):
-                jump_instr = ins
+            # Ignore JUMP instructions and other instructions that cannot be processed
+            # THERE SHOULD BE AT MOST ONE! and it always corresponds to the last instruction
+            if any(ins.get_op_name() == split_instr for split_instr in
+                   itertools.chain(split_block, self.function_calls, "JUMP", "JUMPI")):
+
+                unprocessed_instr = ins
                 continue
-
-            # # TODO: temporal fix for PUSH instructions obtained through translating "memoryguard"
-            # elif ins.get_op_name() == "push":
-            #     in_val = int(ins.builtin_args[0])
-            #     str_in_val = hex(in_val)
-            #     push_name = "PUSH" if in_val != 0 else "PUSH0"
-            #     inst_idx = instrs_idx.get(push_name, 0)
-            #     instrs_idx[push_name] = inst_idx + 1
-            #     push_ins = build_push_spec(str_in_val, inst_idx, [ins.get_out_args()[0]])
-
-            #     map_instructions[("PUSH", tuple([str_in_val]))] = push_ins
-
-            #     uninter_functions.append(push_ins)
-
-            #     map_positions_instructions[i] = push_ins["id"]
-
-            #     continue
 
             if ins.get_op_name().startswith("push"):
                 ins_spec = map_instructions.get((ins.get_op_name().upper(), tuple(ins.get_builtin_args())), None)
@@ -412,8 +400,10 @@ class CFGBlock:
                 uninter_functions += result
 
                 map_positions_instructions[i] = result[-1]["id"]
-                
-            elif ins.get_op_name() == "push": #it is a push value that has been already created. If it comes from a memoryguard we have to rename the previous instructions to the output of the memoryguard
+
+            # it is a push value that has been already created. If it comes from a memoryguard,
+            # we have to rename the previous instructions to the output of the memoryguard
+            elif ins.get_op_name() == "push":
                 out_var_list = ins_spec["outpt_sk"]
                 new_out_var_list = ins.get_out_args()
 
@@ -427,9 +417,21 @@ class CFGBlock:
                     pos = uninter["inpt_sk"].index(out_var)
                     uninter["inpt_sk"][pos] = new_out_var
 
-        # As JUMP instructions are not considered as part of the SFS, we must remove the corresponding values
-        # from the final stack
-        final_stack_bef_jump = (jump_instr.get_in_args() if jump_instr is not None else []) + final_stack
+        # We must remove the final output variable from the unprocessed instruction and
+        # add the inputs from that instruction
+        if unprocessed_instr is not None:
+            unprocess_out = unprocessed_instr.get_out_args()
+            assert unprocess_out == final_stack[:len(unprocess_out)], \
+                f"Stack elements from the instruction {unprocessed_instr.get_op_name()} " \
+                f"do not match the ones from the final stack.\nFinal stack: {final_stack}." \
+                f"\nStack elements produced by the instruction: {unprocess_out}"
+
+            # As the unprocessed instruction is not considered as part of the SFS,
+            # we must remove the corresponding values from the final stack
+            final_stack_bef_jump = unprocessed_instr.get_in_args() + final_stack[len(unprocess_out):]
+
+        else:
+            final_stack_bef_jump = final_stack
 
         # If there is a bottom value in the final stack, then we introduce it as part of the assignments and
         # then we pop it. Same for constant values in the final stack
@@ -596,8 +598,8 @@ class CFGBlock:
 
         out_idx = 0
 
-        spec, out_idx, map_positions = self._build_spec_for_sequence(self._instructions, map_instructions,
-                                                                     out_idx, initial_stack, final_stack)
+        spec, out_idx, map_positions = self._build_spec_for_sequence(self._instructions, map_instructions, out_idx,
+                                                                     initial_stack, final_stack)
 
         sto_deps, mem_deps = self._process_dependences(self._instructions, map_positions)
         spec["storage_dependences"] = sto_deps
