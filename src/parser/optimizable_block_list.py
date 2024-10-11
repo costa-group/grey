@@ -28,7 +28,7 @@ def initialize_sub_blocks(initial_block: CFGBlock, sub_blocks_instrs: List[Tuple
         # Determine the jump type according to whether it is a initial block or a call to a function
         if sub_block_idx != len(sub_blocks_instrs) - 1:
             # Current sub block does not correspond to the last one
-            new_sub_block_type = "split_instruction_block" if split_instruction_sub_block else "sub_block"
+            new_sub_block_type = "sub_block"
         else:
             new_sub_block_type = initial_block.get_jump_type()
 
@@ -52,7 +52,7 @@ def initialize_sub_blocks(initial_block: CFGBlock, sub_blocks_instrs: List[Tuple
     for cfg_sub_block in reversed(cfg_sub_blocks):
 
         # All the blocks except the last one fall into this category
-        if cfg_sub_block.get_jump_type() == "split_instruction_block":
+        if cfg_sub_block.get_jump_type() == "sub_block":
             # The last values of the stack corresponds to the values introduced by the final value
             current_stack_values = cfg_sub_block.get_instructions_to_compute()[-1].get_out_args()
             # Initially we keep the stack elements from the original block

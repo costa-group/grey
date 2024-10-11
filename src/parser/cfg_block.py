@@ -138,7 +138,7 @@ class CFGBlock:
         self._comes_from = new_comes_from
 
     def set_jump_type(self, t: str) -> None:
-        if t not in ["conditional", "unconditional", "terminal", "falls_to", "sub_block", "split_instruction_block"]:
+        if t not in ["conditional", "unconditional", "terminal", "falls_to", "sub_block"]:
             raise Exception("Wrong jump type")
         else:
             self._jump_type = t
