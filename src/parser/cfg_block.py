@@ -1,3 +1,4 @@
+import itertools
 import logging
 
 from global_params.types import instr_id_T, dependencies_T
@@ -7,8 +8,9 @@ from parser.utils_parser import is_in_input_stack, is_in_output_stack, are_depen
 import parser.constants as constants
 import json
 import networkx as nx
+from parser.constants import split_block
 
-from typing import List, Dict, Tuple, Any
+from typing import List, Dict, Tuple, Any, Set, Optional
 
 global tag_idx
 tag_idx = 0
@@ -63,6 +65,12 @@ class CFGBlock:
                  assignment_dict: Dict[str, str]):
         self.block_id = identifier
         self._instructions = instructions
+
+        # Split instruction is recognized as the last instruction
+        # As we don't have information on the function calls, we assign it to None and then
+        # identify it once we set the function calls
+        self._split_instruction = None
+
         # minimum size of the source stack
         self.source_stack = 0
         self._jump_type = type_block
@@ -72,8 +80,6 @@ class CFGBlock:
         self.is_function_call = False
         self._comes_from = []
         self.function_calls = set()
-        self.sto_dep = []
-        self.mem_dep = []
 
         # Stack elements that must be placed in a specific order in the stack after performing
         self._final_stack_elements: List[str] = []
@@ -90,6 +96,10 @@ class CFGBlock:
     @final_stack_elements.setter
     def final_stack_elements(self, value: List[str]):
         self._final_stack_elements = value
+
+    @property
+    def split_instruction(self) -> Optional[CFGInstruction]:
+        return self._split_instruction
 
     def get_block_id(self) -> str:
         return self.block_id
@@ -118,18 +128,6 @@ class CFGBlock:
     def set_function_call(self, v) -> None:
         self.is_function_call = v
 
-    def set_instructions(self, new_instructions: List[CFGInstruction]) -> None:
-        self._instructions = new_instructions
-
-        # Then we update the source stack size
-        # TODO
-        # self.source_stack = utils.compute_stack_size(map(lambda x: x.disasm, self.instructions_to_optimize_bytecode()))
-
-    def add_instruction(self, new_instr: CFGInstruction) -> None:
-        self._instructions.append(new_instr)
-        # TODO
-        # self.source_stack = utils.compute_stack_size(map(lambda x: x.disasm, self.instructions_to_optimize_bytecode()))
-
     def add_comes_from(self, block_id: str) -> None:
         self._comes_from.append(block_id)
 
@@ -140,7 +138,7 @@ class CFGBlock:
         self._comes_from = new_comes_from
 
     def set_jump_type(self, t: str) -> None:
-        if t not in ["conditional", "unconditional", "terminal", "falls_to", "sub_block", "split_instruction_block"]:
+        if t not in ["conditional", "unconditional", "terminal", "falls_to", "sub_block"]:
             raise Exception("Wrong jump type")
         else:
             self._jump_type = t
@@ -198,6 +196,22 @@ class CFGBlock:
         op_names = map(lambda x: x.get_op_name(), self._instructions)
         calls = filter(lambda x: x in function_ids, op_names)
         self.function_calls = set(calls)
+
+        # Finally, we identify the possible split instruction using the now generated information
+        if len(self._instructions) > 0 and \
+                self._instructions[-1].get_op_name() in itertools.chain(split_block, self.function_calls, "JUMP", "JUMPI"):
+            self._split_instruction = self._instructions[-1]
+
+    @property
+    def instructions_to_synthesize(self) -> List[CFGInstruction]:
+        if self.split_instruction is not None:
+            return self._instructions[:-1]
+        else:
+            return self._instructions
+
+    @instructions_to_synthesize.setter
+    def instructions_to_synthesize(self, value):
+        raise NotImplementedError("The instructions for the greedy algorithm cannot be assigned")
 
     def check_validity_arguments(self):
         """
@@ -372,35 +386,11 @@ class CFGBlock:
 
         map_positions_instructions = {}
 
-        jump_instr = None
+        unprocessed_instr = None
 
-        for i in range(len(instructions)):
+        for i, ins in enumerate(instructions):
+
             # Check if it has been already created
-
-            ins = instructions[i]
-
-            # Ignore JUMP instructions
-            if ins.get_op_name().startswith("JUMP"):
-                jump_instr = ins
-                continue
-
-            # # TODO: temporal fix for PUSH instructions obtained through translating "memoryguard"
-            # elif ins.get_op_name() == "push":
-            #     in_val = int(ins.builtin_args[0])
-            #     str_in_val = hex(in_val)
-            #     push_name = "PUSH" if in_val != 0 else "PUSH0"
-            #     inst_idx = instrs_idx.get(push_name, 0)
-            #     instrs_idx[push_name] = inst_idx + 1
-            #     push_ins = build_push_spec(str_in_val, inst_idx, [ins.get_out_args()[0]])
-
-            #     map_instructions[("PUSH", tuple([str_in_val]))] = push_ins
-
-            #     uninter_functions.append(push_ins)
-
-            #     map_positions_instructions[i] = push_ins["id"]
-
-            #     continue
-
             if ins.get_op_name().startswith("push"):
                 ins_spec = map_instructions.get((ins.get_op_name().upper(), tuple(ins.get_builtin_args())), None)
             else:
@@ -412,8 +402,10 @@ class CFGBlock:
                 uninter_functions += result
 
                 map_positions_instructions[i] = result[-1]["id"]
-                
-            elif ins.get_op_name() == "push": #it is a push value that has been already created. If it comes from a memoryguard we have to rename the previous instructions to the output of the memoryguard
+
+            # it is a push value that has been already created. If it comes from a memoryguard,
+            # we have to rename the previous instructions to the output of the memoryguard
+            elif ins.get_op_name() == "push":
                 out_var_list = ins_spec["outpt_sk"]
                 new_out_var_list = ins.get_out_args()
 
@@ -427,9 +419,21 @@ class CFGBlock:
                     pos = uninter["inpt_sk"].index(out_var)
                     uninter["inpt_sk"][pos] = new_out_var
 
-        # As JUMP instructions are not considered as part of the SFS, we must remove the corresponding values
-        # from the final stack
-        final_stack_bef_jump = (jump_instr.get_in_args() if jump_instr is not None else []) + final_stack
+        # We must remove the final output variable from the unprocessed instruction and
+        # add the inputs from that instruction
+        if self.split_instruction is not None:
+            unprocess_out = self.split_instruction.get_out_args()
+            assert unprocess_out == final_stack[:len(unprocess_out)], \
+                f"Stack elements from the instruction {self.split_instruction.get_op_name()} " \
+                f"do not match the ones from the final stack.\nFinal stack: {final_stack}." \
+                f"\nStack elements produced by the instruction: {unprocess_out}"
+
+            # As the unprocessed instruction is not considered as part of the SFS,
+            # we must remove the corresponding values from the final stack
+            final_stack_bef_jump = self.split_instruction.get_in_args() + final_stack[len(unprocess_out):]
+
+        else:
+            final_stack_bef_jump = final_stack
 
         # If there is a bottom value in the final stack, then we introduce it as part of the assignments and
         # then we pop it. Same for constant values in the final stack
@@ -596,8 +600,8 @@ class CFGBlock:
 
         out_idx = 0
 
-        spec, out_idx, map_positions = self._build_spec_for_sequence(self._instructions, map_instructions,
-                                                                     out_idx, initial_stack, final_stack)
+        spec, out_idx, map_positions = self._build_spec_for_sequence(self.instructions_to_synthesize, map_instructions, out_idx,
+                                                                     initial_stack, final_stack)
 
         sto_deps, mem_deps = self._process_dependences(self._instructions, map_positions)
         spec["storage_dependences"] = sto_deps
