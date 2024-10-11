@@ -1,6 +1,6 @@
 import collections
 import json
-from typing import Union, Dict, Any, List, Tuple
+from typing import Union, Dict, Any, List, Tuple, Set
 from global_params.types import Yul_CFG_T
 from parser.cfg import CFG
 from parser.cfg_block_list import CFGBlockList
@@ -75,7 +75,8 @@ def process_block_entry(block_json: Dict[str, Any], phi_instr: Dict[str, Any]) -
     return {entry: (input_value, output_value) for entry, input_value in zip(block_entry, block_entry_values)}
 
 
-def parse_block(object_name: str, block_json: Dict[str,Any], built_in_op: bool, objects_keys: List[str]) -> Tuple[block_id_T, CFGBlock, Dict, Dict[str, Tuple[str, str]]]:
+def parse_block(object_name: str, block_json: Dict[str,Any], function_calls: Set[str],
+                built_in_op: bool, objects_keys: List[str]) -> Tuple[block_id_T, CFGBlock, Dict, Dict[str, Tuple[str, str]]]:
     block_id = block_json.get("id", -1)
     block_instructions = block_json.get("instructions", -1)
     block_exit = block_json.get("exit", -1)
@@ -107,6 +108,7 @@ def parse_block(object_name: str, block_json: Dict[str,Any], built_in_op: bool, 
 
     block_identifier = generate_block_name(object_name, block_id)
     block = CFGBlock(block_identifier, list_cfg_instructions, block_type, assignment_dict)
+    block.process_function_calls(function_calls)
 
     block.check_validity_arguments()
     
@@ -142,7 +144,7 @@ def update_assignments_from_phi_functions(block_list: CFGBlockList, phi_function
             block.assignment_dict[output_value] = input_value
 
 
-def parser_block_list(object_name: str, blocks: List[Dict[str, Any]], built_in_op : bool, objects_keys : List[str]):
+def parser_block_list(object_name: str, blocks: List[Dict[str, Any]], function_calls: Set[str], built_in_op : bool, objects_keys : List[str]):
     """
     Returns the list of blocks parsed and the ids that correspond to Exit blocks
     """
@@ -150,7 +152,7 @@ def parser_block_list(object_name: str, blocks: List[Dict[str, Any]], built_in_o
     exit_blocks = []
     comes_from = collections.defaultdict(lambda: [])
     for b in blocks:
-        block_id, new_block, block_exit, block_entries = parse_block(object_name, b, built_in_op, objects_keys)
+        block_id, new_block, block_exit, block_entries = parse_block(object_name, b, function_calls, built_in_op, objects_keys)
         new_block.set_jump_info(block_exit)
 
         # Annotate comes from
@@ -170,27 +172,27 @@ def parser_block_list(object_name: str, blocks: List[Dict[str, Any]], built_in_o
     return block_list, exit_blocks
 
 
-def parse_function(function_name: str, function_json: Dict[str,Any], built_in_op: bool, objects_keys: List[str]):
+def parse_function(function_name: str, function_json: Dict[str,Any], function_calls: Set[str], built_in_op: bool, objects_keys: List[str]):
     
     args = function_json.get("arguments", -1)
     ret_vals = function_json.get("returns", -1)
     entry_point = function_json.get("entry", -1)
 
     blocks = function_json.get("blocks", -1)
-    cfg_block_list, exit_points = parser_block_list(function_name, blocks, built_in_op, objects_keys)
+    cfg_block_list, exit_points = parser_block_list(function_name, blocks, function_calls, built_in_op, objects_keys)
 
     cfg_function = CFGFunction(function_name, args, ret_vals, entry_point, cfg_block_list)
     cfg_function.exits = exit_points
     return cfg_function
     
 
-def parse_object(object_name: str, json_object: Dict[str,Any], built_in_op: bool, objects_keys: List[str]) -> CFGObject:
-    blocks_list = json_object.get("blocks",False)
+def parse_object(object_name: str, json_object: Dict[str,Any], function_calls: Set[str], built_in_op: bool, objects_keys: List[str]) -> CFGObject:
+    blocks_list = json_object.get("blocks", None)
 
-    if not blocks_list:
+    if blocks_list is None:
         raise Exception("[ERROR]: JSON file does not contain blocks")
 
-    cfg_block_list, _ = parser_block_list(object_name, blocks_list, built_in_op, objects_keys)
+    cfg_block_list, _ = parser_block_list(object_name, blocks_list, function_calls, built_in_op, objects_keys)
     cfg_object = CFGObject(object_name, cfg_block_list)
 
     return cfg_object
@@ -213,11 +215,12 @@ def parser_CFG_from_JSON(json_dict: Dict, built_in_op: bool):
     
     for obj in object_keys:
         json_object = json_dict.get(obj,False)
-        cfg_object = parse_object(obj,json_object, built_in_op, obj_json_keys)
-
         json_functions = json_object.get("functions", {})
+
+        cfg_object = parse_object(obj,json_object, json_functions, built_in_op, obj_json_keys)
+
         for f in json_functions:
-            obj_function = parse_function(f, json_functions[f], built_in_op, obj_json_keys)
+            obj_function = parse_function(f, json_functions[f], json_functions, built_in_op, obj_json_keys)
             cfg_object.add_function(obj_function)
 
         # Important: add the object already initialized with the functions, so that we can construct
