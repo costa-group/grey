@@ -125,34 +125,34 @@ def output_stack_layout(input_stack: List[str], final_stack_elements: List[str],
             reversed_stack_relative_order.append(None)
 
     # We undo the reversed traversal
-    relative_order = list(reversed(reversed_stack_relative_order))
+    bottom_output_stack = list(reversed(reversed_stack_relative_order))
 
-    output_stack = final_stack_elements + relative_order
-    vars_to_place = live_vars.difference(set(output_stack))
+    vars_to_place = live_vars.difference(set(final_stack_elements + bottom_output_stack))
 
     # Sort the vars to place according to the variable depth info order in reversed order
     vars_to_place_sorted = sorted(vars_to_place, key=lambda x: -variable_depth_info[x])
 
     # Try to place the variables in reversed order
-    i, j = len(output_stack) - 1, 0
+    i, j = len(bottom_output_stack) - 1, 0
 
     while i >= 0 and j < len(vars_to_place_sorted):
-        if output_stack[i] is None:
-            output_stack[i] = vars_to_place_sorted[j]
+        if bottom_output_stack[i] is None:
+            bottom_output_stack[i] = vars_to_place_sorted[j]
             j += 1
         i -= 1
 
     # First exit condition: all variables have been placed in between. Hence, I have to insert the remaining
     # elements at the beginning
     if i == -1:
-        output_stack = list(reversed(vars_to_place_sorted[j:])) + output_stack
+        bottom_output_stack = list(reversed(vars_to_place_sorted[j:])) + bottom_output_stack
 
     # Second condition: all variables have been placed in between. There can be some None values in between that
     # must be removed
     else:
-        output_stack = [var_ for var_ in output_stack if var_ is not None]
+        bottom_output_stack = [var_ for var_ in bottom_output_stack if var_ is not None]
 
-    return output_stack
+    # The final stack elements must appear in the top of the stack
+    return final_stack_elements + bottom_output_stack
 
 
 def unify_stacks_brothers(input_stack: List[str], final_stack_elements: List[str],
@@ -255,6 +255,9 @@ class LayoutGeneration:
         block_id = block.block_id
         liveness_info = self._liveness_info[block_id]
         comes_from = block.get_comes_from()
+
+        if block.block_id.startswith("abi_decode_available_length_t_string_memory_ptr_fromMemory"):
+            print("HOLA")
 
         # Computing input stack...
         # The stack from comes_from stacks must be equal
@@ -397,6 +400,7 @@ def layout_generation(cfg: CFG, final_dir: Path = Path(".")) -> Tuple[Dict[str, 
     tags_dict = dict()
 
     for component_name, liveness in results.items():
+        print(component_name)
         cfg_info_suboject = cfg_info[component_name]["block_info"]
         digraph = digraph_from_block_info(cfg_info_suboject.values())
 
