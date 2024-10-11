@@ -10,7 +10,7 @@ import json
 import networkx as nx
 from parser.constants import split_block
 
-from typing import List, Dict, Tuple, Any, Set
+from typing import List, Dict, Tuple, Any, Set, Optional
 
 global tag_idx
 tag_idx = 0
@@ -65,6 +65,12 @@ class CFGBlock:
                  assignment_dict: Dict[str, str]):
         self.block_id = identifier
         self._instructions = instructions
+
+        # Split instruction is recognized as the last instruction
+        # As we don't have information on the function calls, we assign it to None and then
+        # identify it once we set the function calls
+        self._split_instruction = None
+
         # minimum size of the source stack
         self.source_stack = 0
         self._jump_type = type_block
@@ -74,8 +80,6 @@ class CFGBlock:
         self.is_function_call = False
         self._comes_from = []
         self.function_calls = set()
-        self.sto_dep = []
-        self.mem_dep = []
 
         # Stack elements that must be placed in a specific order in the stack after performing
         self._final_stack_elements: List[str] = []
@@ -92,6 +96,10 @@ class CFGBlock:
     @final_stack_elements.setter
     def final_stack_elements(self, value: List[str]):
         self._final_stack_elements = value
+
+    @property
+    def split_instruction(self) -> Optional[CFGInstruction]:
+        return self._split_instruction
 
     def get_block_id(self) -> str:
         return self.block_id
@@ -119,18 +127,6 @@ class CFGBlock:
 
     def set_function_call(self, v) -> None:
         self.is_function_call = v
-
-    def set_instructions(self, new_instructions: List[CFGInstruction]) -> None:
-        self._instructions = new_instructions
-
-        # Then we update the source stack size
-        # TODO
-        # self.source_stack = utils.compute_stack_size(map(lambda x: x.disasm, self.instructions_to_optimize_bytecode()))
-
-    def add_instruction(self, new_instr: CFGInstruction) -> None:
-        self._instructions.append(new_instr)
-        # TODO
-        # self.source_stack = utils.compute_stack_size(map(lambda x: x.disasm, self.instructions_to_optimize_bytecode()))
 
     def add_comes_from(self, block_id: str) -> None:
         self._comes_from.append(block_id)
@@ -200,6 +196,22 @@ class CFGBlock:
         op_names = map(lambda x: x.get_op_name(), self._instructions)
         calls = filter(lambda x: x in function_ids, op_names)
         self.function_calls = set(calls)
+
+        # Finally, we identify the possible split instruction using the now generated information
+        if len(self._instructions) > 0 and \
+                self._instructions[-1].get_op_name() in itertools.chain(split_block, self.function_calls, "JUMP", "JUMPI"):
+            self._split_instruction = self._instructions[-1]
+
+    @property
+    def instructions_to_synthesize(self) -> List[CFGInstruction]:
+        if self.split_instruction is not None:
+            return self._instructions[:-1]
+        else:
+            return self._instructions
+
+    @instructions_to_synthesize.setter
+    def instructions_to_synthesize(self, value):
+        raise NotImplementedError("The instructions for the greedy algorithm cannot be assigned")
 
     def check_validity_arguments(self):
         """
