@@ -383,9 +383,7 @@ class CFGBlock:
 
             # Ignore JUMP instructions and other instructions that cannot be processed
             # THERE SHOULD BE AT MOST ONE! and it always corresponds to the last instruction
-            if any(ins.get_op_name() == split_instr for split_instr in
-                   itertools.chain(split_block, self.function_calls, "JUMP", "JUMPI")):
-
+            if ins.get_op_name() in itertools.chain(split_block, self.function_calls, "JUMP", "JUMPI"):
                 unprocessed_instr = ins
                 continue
 

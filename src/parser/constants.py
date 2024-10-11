@@ -1,4 +1,5 @@
-split_block = {"LOG0","LOG1","LOG2","LOG3","LOG4","CALLDATACOPY","CODECOPY","EXTCODECOPY","RETURNDATACOPY",
-               "CALL","STATICCALL","DELEGATECALL","CREATE","CREATE2","ASSIGNIMMUTABLE", "GAS", "DATACOPY"}
+split_block = {'calldatacopy', 'create', 'codecopy', 'call', 'log4', 'gas', 'delegatecall', 'extcodecopy', 'create2',
+               'assignimmutable', 'returndatacopy', 'log2', 'log1', 'log3', 'log0', 'datacopy', 'staticcall'}
+
 
 # split_block = {"ASSIGNIMMUTABLE", "GAS", "MEMORYGUARD", "DATACOPY"}

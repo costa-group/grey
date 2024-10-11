@@ -1,7 +1,7 @@
 """
 Module that generates a list of sub-blocks to optimize using the greedy algorithm from the given ones
 """
-
+import itertools
 from copy import deepcopy
 from typing import List, Dict, Tuple
 from parser.cfg_instruction import CFGInstruction
@@ -118,9 +118,9 @@ def compute_sub_block_list(block_list: CFGBlockList) -> CFGBlockList:
         # a call to a function or an instruction that cannot be processed
         sub_block_instructions: List[Tuple[List[CFGInstruction], bool]] = []
         current_sub_block = []
-        
+
         for instr in instructions:
-            if instr.get_op_name().upper() in constants.split_block or instr.get_op_name() in cfg_block.function_calls:
+            if instr.get_op_name() in itertools.chain(constants.split_block, cfg_block.function_calls, "JUMP", "JUMPI"):
                 # Sub blocks contain a split instruction or a function call as the last instruction
                 current_sub_block.append(instr)
                 sub_block_instructions.append((current_sub_block, True))
