@@ -388,17 +388,9 @@ class CFGBlock:
 
         unprocessed_instr = None
 
-        for i in range(len(instructions)):
+        for i, ins in enumerate(instructions):
+
             # Check if it has been already created
-
-            ins = instructions[i]
-
-            # Ignore JUMP instructions and other instructions that cannot be processed
-            # THERE SHOULD BE AT MOST ONE! and it always corresponds to the last instruction
-            if ins.get_op_name() in itertools.chain(split_block, self.function_calls, "JUMP", "JUMPI"):
-                unprocessed_instr = ins
-                continue
-
             if ins.get_op_name().startswith("push"):
                 ins_spec = map_instructions.get((ins.get_op_name().upper(), tuple(ins.get_builtin_args())), None)
             else:
@@ -429,16 +421,16 @@ class CFGBlock:
 
         # We must remove the final output variable from the unprocessed instruction and
         # add the inputs from that instruction
-        if unprocessed_instr is not None:
-            unprocess_out = unprocessed_instr.get_out_args()
+        if self.split_instruction is not None:
+            unprocess_out = self.split_instruction.get_out_args()
             assert unprocess_out == final_stack[:len(unprocess_out)], \
-                f"Stack elements from the instruction {unprocessed_instr.get_op_name()} " \
+                f"Stack elements from the instruction {self.split_instruction.get_op_name()} " \
                 f"do not match the ones from the final stack.\nFinal stack: {final_stack}." \
                 f"\nStack elements produced by the instruction: {unprocess_out}"
 
             # As the unprocessed instruction is not considered as part of the SFS,
             # we must remove the corresponding values from the final stack
-            final_stack_bef_jump = unprocessed_instr.get_in_args() + final_stack[len(unprocess_out):]
+            final_stack_bef_jump = self.split_instruction.get_in_args() + final_stack[len(unprocess_out):]
 
         else:
             final_stack_bef_jump = final_stack
@@ -608,7 +600,7 @@ class CFGBlock:
 
         out_idx = 0
 
-        spec, out_idx, map_positions = self._build_spec_for_sequence(self._instructions, map_instructions, out_idx,
+        spec, out_idx, map_positions = self._build_spec_for_sequence(self.instructions_to_synthesize, map_instructions, out_idx,
                                                                      initial_stack, final_stack)
 
         sto_deps, mem_deps = self._process_dependences(self._instructions, map_positions)
