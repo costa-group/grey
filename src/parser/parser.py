@@ -83,7 +83,7 @@ def parse_block(object_name: str, block_json: Dict[str,Any], function_calls: Set
     block_type = block_json.get("type", "")
 
     # Modify the block exit targets with the new information
-    block_exit["targets"] = [generate_block_name(object_name, target) for target in block_exit["targets"]]
+    block_exit["targets"] = [generate_block_name(object_name, target) for target in block_exit.get("targets", [])]
     check_block_validity(block_id, block_instructions, block_exit, block_type)
     
     list_cfg_instructions = []
@@ -108,6 +108,7 @@ def parse_block(object_name: str, block_json: Dict[str,Any], function_calls: Set
 
     block_identifier = generate_block_name(object_name, block_id)
     block = CFGBlock(block_identifier, list_cfg_instructions, block_type, assignment_dict)
+    block.set_jump_info(block_exit)
     block.process_function_calls(function_calls)
 
     block.check_validity_arguments()
@@ -153,7 +154,6 @@ def parser_block_list(object_name: str, blocks: List[Dict[str, Any]], function_c
     comes_from = collections.defaultdict(lambda: [])
     for b in blocks:
         block_id, new_block, block_exit, block_entries = parse_block(object_name, b, function_calls, built_in_op, objects_keys)
-        new_block.set_jump_info(block_exit)
 
         # Annotate comes from
         for succ_block in block_exit["targets"]:

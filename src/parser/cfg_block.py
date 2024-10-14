@@ -9,7 +9,7 @@ import parser.constants as constants
 import json
 import networkx as nx
 from parser.constants import split_block
-
+from enum import Enum, auto
 from typing import List, Dict, Tuple, Any, Set, Optional
 
 global tag_idx
@@ -17,6 +17,17 @@ tag_idx = 0
 
 global function_tags
 function_tags = {}
+
+
+class JumpTypes(Enum):
+    """
+    Class to represent the different types of exits associated to a block
+    """
+    CONDITIONAL = auto()
+    UNCONDITIONAL = auto()
+    TERMINATED = auto()
+    MAIN_EXIT = auto()
+    FUNCTION_EXIT = auto()
 
 
 def include_function_call_tags(ins, out_idx, block_spec):
@@ -168,14 +179,15 @@ class CFGBlock:
 
     def set_jump_info(self, exit_info: Dict[str, Any]) -> None:
         type_block = exit_info["type"]
-        targets = exit_info["targets"]
         if type_block in ["ConditionalJump"]:
+            targets = exit_info["targets"]
             self._jump_type = "conditional"
             self._falls_to = targets[0]
             self._jump_to = targets[1]
             self._process_instructions_from_jumpi(exit_info["cond"])
 
         elif type_block in ["Jump"]:
+            targets = exit_info["targets"]
             self._jump_type = "unconditional"
             self._jump_to = targets[0]
             # Add to the instructions a JUMP
