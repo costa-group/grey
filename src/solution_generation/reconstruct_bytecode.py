@@ -63,15 +63,14 @@ def asm_from_ids(sms: SMS_T, id_seq: List[str]) -> List[ASM_bytecode_T]:
     return id_seq_to_asm_bytecode(instr_id_to_instr, id_seq)
 
 
-def asm_for_split_instruction_block(block: CFGBlock) -> List[ASM_bytecode_T]:
+def asm_for_split_instruction(block: CFGBlock) -> List[ASM_bytecode_T]:
     """
     Reconstructs the assembly from a block with a single split instruction
     """
-    assert block.get_jump_type() == "split_instruction_block", "[ERROR]: It is not a split_instruction_block"
 
-    instruction_list = block.get_instructions()
-    assert len(instruction_list) == 1, "[ERROR]: Split list should contain only one element"
-    split_ins = instruction_list[0]
+    assert block.split_instruction != None, "[ERROR]: split_instructions has to contain a value in a subblock"
+    
+    split_ins = block.split_instruction
     asm_ins = asm_from_op_info(split_ins.get_op_name().upper())
     asm_subblock = [asm_ins] 
 
@@ -85,32 +84,53 @@ def generate_asm_split_blocks(init_block_id, blocks, asm_dicts):
     block_id = init_block_id
     
     jump_type = block.get_jump_type()
-    while jump_type in ["sub_block","split_instruction_block"]:
+    while jump_type in ["sub_block"]:
 
         if jump_type == "sub_block":
-            asm_subblock = asm_dicts.get(block_id, None)
-            assert asm_subblock is not None, "[ERROR]: subblock should contain an asm block"
+            asm_subblock = asm_dicts.get(block_id, [])
+            asm_last = asm_for_split_instruction(block)
 
-        elif jump_type == "split_instruction_block":
-            asm_subblock = asm_for_split_instruction_block(block)
         else:
-            raise Exception("[ERROR]: Jump type can only be subblock or split_intruction")
+            raise Exception("[ERROR]: Jump type can only be subblock")
 
-        asm_block += asm_subblock
+        asm_block+=asm_subblock+asm_last
         block_id = block.get_falls_to()
         block = blocks[block_id]
 
         jump_type = block.get_jump_type()
         
     # We translate the last block
-    asm_subblock = asm_dicts.get(block_id, None)
-    if asm_subblock is None:
-        asm_subblock = asm_for_split_instruction_block(block)
+    asm_subblock = asm_dicts.get(block_id, [])
+
+    #Split instruction contains both jumps and not handled instructions
+    if block.split_instruction != None:
+        asm_last = asm_for_split_instruction_block(block)
+    else:
+        asm_last = []
         
-    asm_block += asm_subblock
+    asm_block += asm_subblock+asm_last
     
     return block, asm_block
 
+
+def locate_fallsto_block(block_id,fallsto_id,pos_dict,visited,asm_instructions, asm_block, pending_blocks):
+     
+     try:
+         #It means that the block has been analyzed previously
+         pos = pos_dict.index(fallsto_id)
+         assert fallsto_id in visited, \
+             "[ERROR]: Falls_to block should be in visited list when generating asm output"
+
+         asm_instructions = asm_instructions[:pos]+asm_block+asm_instructions[pos:]
+         pos_dict = pos_dict[:pos]+[block_id]*len(asm_block)+pos_dict[pos:]
+                
+     except ValueError:
+         asm_instructions += asm_block
+         pos_dict += [block_id]*len(asm_block)
+
+         pending_blocks.append(falls_to)
+
+    return pos_dict, asm_instructions
 
 def traverse_cfg(cfg_object, asm_dicts, tags_dict):
     block_list = cfg_object.get_block_list()
@@ -137,10 +157,20 @@ def traverse_cfg(cfg_object, asm_dicts, tags_dict):
 
         #If the block has been split we regenerate the whole block together
         #next block contains the last block of the sequence
-        if next_block.get_jump_type() in ["sub_block","split_instruction_block"]:
+        if next_block.get_jump_type() in ["sub_block"]:
             next_block, asm_block = generate_asm_split_blocks(block_id, blocks, asm_dicts)
         else:
             asm_block = asm_dicts.get(block_id, None)
+
+            if next_block.split_instruction != None:
+                asm_last = asm_for_split_instruction(next_block)
+            else:
+                #if it is a falls_to or terminal split_instruction is None
+                #Otherwise it is jump or jumpi
+                asm_last = []
+
+            asm_block+=asm_last
+            
             
         if block_id in tags_dict:
             tag_asm = asm_from_op_info("tag",str(tags_dict[block_id]))
@@ -149,30 +179,23 @@ def traverse_cfg(cfg_object, asm_dicts, tags_dict):
             
         jump_type = next_block.get_jump_type()
         if jump_type == "conditional":
-            asm_jumpi = asm_from_op_info("JUMPI")
-            asm_instructions+=asm_block
-            asm_instructions.append(asm_jumpi)
-
-            init_pos_dict+=[block_id]*(len(asm_block)+1)
             
             jump_to = next_block.get_jump_to()
             falls_to = next_block.get_falls_to()
 
             if falls_to not in blocks or jump_to not in blocks:
                 raise Exception("[ERROR]:...")
-
+            
             if jump_to not in visited:
                 pending_blocks.append(blocks[jump_to])
-                
-            if falls_to not in visited:
-                pending_blocks.append(blocks[falls_to])
 
+            #It checks if falls_to is in visited or not
+            init_pos_dict, asm_instructions = locate_fallsto_block(block_id,falls_to,init_pos_dict,visited,asm_instructions, asm_block, pending_blocks)
+                
 
         elif jump_type == "unconditional":
             asm_instructions+=asm_block
-            asm_jump = asm_from_op_info("JUMP")
-            asm_instructions.append(asm_jump)
-            init_pos_dict+=[block_id]*(len(asm_block)+1)
+            init_pos_dict+=[block_id]*len(asm_block)
             
             jump_to = next_block.get_jump_to()
 
@@ -182,25 +205,12 @@ def traverse_cfg(cfg_object, asm_dicts, tags_dict):
             if jump_to not in visited:
                 pending_blocks.append(blocks[jump_to])
                 
-        elif jump_type == "sub_block" or jump_type == "split_instruction_block":
+        elif jump_type == "sub_block":
             raise Exception("[ERROR]: It should have been considered previously")
 
         elif jump_type == "falls_to":
             falls_to = next_block.get_falls_to()
-            try:
-                #It means that the block has been analyzed previously
-                pos = init_pos_dict.index(falls_to)
-                assert falls_to in visited, \
-                    "[ERROR]: Falls_to block should be in visited list when generating asm output"
-
-                asm_instructions = asm_instructions[:pos]+asm_block+asm_instructions[pos:]
-                init_pos_dict = init_pos_dict[:pos]+[block_id]*len(asm_block)+init_pos_dict[pos:]
-                
-            except ValueError:
-                asm_instructions += asm_block
-                init_pos_dict += [block_id]*len(asm_block)
-
-                pending_blocks.append(falls_to)
+            init_pos_dict, asm_instructions = locate_fallsto_block(block_id,falls_to,init_pos_dict,visited,asm_instructions, asm_block, pending_blocks)
                           
         elif jump_type == "terminal":
             asm_instructions += asm_block
