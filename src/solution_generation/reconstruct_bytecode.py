@@ -113,22 +113,23 @@ def generate_asm_split_blocks(init_block_id, blocks, asm_dicts):
     return block, asm_block
 
 
-def locate_fallsto_block(block_id,fallsto_id,pos_dict,visited,asm_instructions, asm_block, pending_blocks):
-     
-     try:
-         #It means that the block has been analyzed previously
-         pos = pos_dict.index(fallsto_id)
-         assert fallsto_id in visited, \
-             "[ERROR]: Falls_to block should be in visited list when generating asm output"
+def locate_fallsto_block(block_id,fallsto_block,pos_dict,visited,asm_instructions, asm_block, pending_blocks):
 
-         asm_instructions = asm_instructions[:pos]+asm_block+asm_instructions[pos:]
-         pos_dict = pos_dict[:pos]+[block_id]*len(asm_block)+pos_dict[pos:]
+    fallsto_id = fallsto_block.get_block_id()
+    try:
+        #It means that the block has been analyzed previously
+        pos = pos_dict.index(fallsto_id)
+        assert fallsto_id in visited, \
+            "[ERROR]: Falls_to block should be in visited list when generating asm output"
+
+        asm_instructions = asm_instructions[:pos]+asm_block+asm_instructions[pos:]
+        pos_dict = pos_dict[:pos]+[block_id]*len(asm_block)+pos_dict[pos:]
                 
-     except ValueError:
-         asm_instructions += asm_block
-         pos_dict += [block_id]*len(asm_block)
+    except ValueError:
+        asm_instructions += asm_block
+        pos_dict += [block_id]*len(asm_block)
 
-         pending_blocks.append(falls_to)
+        pending_blocks.append(fallsto_block)
 
     return pos_dict, asm_instructions
 
@@ -190,7 +191,7 @@ def traverse_cfg(cfg_object, asm_dicts, tags_dict):
                 pending_blocks.append(blocks[jump_to])
 
             #It checks if falls_to is in visited or not
-            init_pos_dict, asm_instructions = locate_fallsto_block(block_id,falls_to,init_pos_dict,visited,asm_instructions, asm_block, pending_blocks)
+            init_pos_dict, asm_instructions = locate_fallsto_block(block_id,blocks[falls_to],init_pos_dict,visited,asm_instructions, asm_block, pending_blocks)
                 
 
         elif jump_type == "unconditional":
@@ -210,7 +211,7 @@ def traverse_cfg(cfg_object, asm_dicts, tags_dict):
 
         elif jump_type == "falls_to":
             falls_to = next_block.get_falls_to()
-            init_pos_dict, asm_instructions = locate_fallsto_block(block_id,falls_to,init_pos_dict,visited,asm_instructions, asm_block, pending_blocks)
+            init_pos_dict, asm_instructions = locate_fallsto_block(block_id,blocks[falls_to],init_pos_dict,visited,asm_instructions, asm_block, pending_blocks)
                           
         elif jump_type == "terminal":
             asm_instructions += asm_block
