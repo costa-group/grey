@@ -20,6 +20,9 @@ instr_id_T = str
 # Id for block ids
 block_id_T = str
 
+# A component correspond to the name of either a object or function in the CFG
+component_name_T = str
+
 # How dependencies among instructions are represented
 dependencies_T = List[List[instr_id_T]]
 

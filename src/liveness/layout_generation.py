@@ -10,7 +10,7 @@ from typing import Dict, List, Type, Any, Set, Tuple, Optional
 import networkx as nx
 from pathlib import Path
 
-from global_params.types import SMS_T
+from global_params.types import SMS_T, component_name_T, var_id_T
 from parser.cfg_block_list import CFGBlockList
 from parser.cfg_block import CFGBlock
 from parser.cfg import CFG
@@ -19,6 +19,7 @@ from analysis.abstract_state import digraph_from_block_info
 from graphs.algorithms import condense_to_dag, information_on_graph
 from liveness.liveness_analysis import LivenessAnalysisInfo, construct_analysis_info, \
     perform_liveness_analysis_from_cfg_info
+from liveness.utils import functions_inputs_from_components
 
 
 def unify_stacks(predecessor_stacks: List[List[str]], variable_depth_info: Dict[str, int]) -> List[str]:
@@ -210,11 +211,13 @@ def print_stacks(block_name: str, json_dict: Dict[str, Any]) -> str:
 
 class LayoutGeneration:
 
-    def __init__(self, object_id: str, block_list: CFGBlockList, liveness_info: Dict[str, LivenessAnalysisInfo], name: Path,
+    def __init__(self, object_id: str, block_list: CFGBlockList, liveness_info: Dict[str, LivenessAnalysisInfo],
+                 function_inputs: Dict[component_name_T, List[var_id_T]], name: Path,
                  cfg_graph: Optional[nx.Graph] = None):
-        self._id = object_id
+        self._component_id = object_id
         self._block_list = block_list
         self._liveness_info = liveness_info
+        self._function_inputs = function_inputs
 
         if cfg_graph is None:
             self._cfg_graph = digraph_from_block_info(liveness_analysis_state.block_info
@@ -256,9 +259,6 @@ class LayoutGeneration:
         liveness_info = self._liveness_info[block_id]
         comes_from = block.get_comes_from()
 
-        if block.block_id.startswith("abi_decode_available_length_t_string_memory_ptr_fromMemory"):
-            print("HOLA")
-
         # Computing input stack...
         # The stack from comes_from stacks must be equal
         if comes_from:
@@ -280,7 +280,9 @@ class LayoutGeneration:
                 input_stack = output_stacks[comes_from[0]]
         else:
             # We introduce the necessary args in the generation of the first output stack layout
-            input_stack = output_stack_layout([], block.final_stack_elements, liveness_info.output_state.live_vars,
+            # The stack elements we have to "force" a certain order correspond to the input parameters of
+            # the function
+            input_stack = output_stack_layout([], self._function_inputs[self._component_id], liveness_info.output_state.live_vars,
                                               self._variable_order[block_id])
 
         input_stacks[block.block_id] = input_stack
@@ -394,7 +396,9 @@ def layout_generation(cfg: CFG, final_dir: Path = Path(".")) -> Tuple[Dict[str, 
     in "final_dir"
     """
     cfg_info = construct_analysis_info(cfg)
+    component2inputs = functions_inputs_from_components(cfg)
     results = perform_liveness_analysis_from_cfg_info(cfg_info)
+
     jsons = dict()
     tag_idx = 0
     tags_dict = dict()
@@ -406,7 +410,7 @@ def layout_generation(cfg: CFG, final_dir: Path = Path(".")) -> Tuple[Dict[str, 
 
         short_component_name = shorten_name(component_name)
 
-        layout = LayoutGeneration(component_name, cfg.block_list[component_name], liveness,
+        layout = LayoutGeneration(component_name, cfg.block_list[component_name], liveness, component2inputs,
                                   final_dir.joinpath(f"{short_component_name}_dominated.dot"), digraph)
         layout._tags_idx = tag_idx
         layout_blocks = layout.build_layout()
