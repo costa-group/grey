@@ -1401,7 +1401,10 @@ class SMSgreedy:
                 assert (cstack.count(e) == self._final_stack.count(e))
             assert (0 in solved)
             i = 1
-            while i < len(cstack) - 1 and i in solved:
+
+            # If the element is equal to the topmost, it enters an infinite loop.
+            # Hence, we need to add an extra condition to ensure we don't choose the same element
+            while i < len(cstack) - 1 and (i in solved or cstack[0] == cstack[i]):
                 i += 1
             # print(i,cstack,self._final_stack,solved)
             assert (i not in solved)

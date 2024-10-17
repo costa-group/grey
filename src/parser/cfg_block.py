@@ -1,7 +1,7 @@
 import itertools
 import logging
 
-from global_params.types import instr_id_T, dependencies_T
+from global_params.types import instr_id_T, dependencies_T, var_id_T
 from parser.cfg_instruction import CFGInstruction, build_push_spec, build_pushtag_spec
 from parser.utils_parser import is_in_input_stack, is_in_output_stack, are_dependent_interval, get_empty_spec, \
     get_expression, are_dependent_accesses, replace_pos_instrsid, generate_dep, get_interval
@@ -177,6 +177,13 @@ class CFGBlock:
         # Add a JUMPI instruction
         self._instructions.append(CFGInstruction("JUMPI", [condition, self._jump_to], []))
 
+    def _process_instructions_from_function_return(self, values: List[var_id_T]):
+        """
+        Introduces an extra operation representing the application of a return function.
+        Hack which guarantees the liveness and layout analysis generate the correct stack
+        """
+        self._instructions.append(CFGInstruction("functionReturn", list(reversed(values)), []))
+
     def set_jump_info(self, exit_info: Dict[str, Any]) -> None:
         type_block = exit_info["type"]
         if type_block in ["ConditionalJump"]:
@@ -194,7 +201,7 @@ class CFGBlock:
             self._process_instructions_from_jump()
 
         elif type_block in ["Terminated"]:
-            # We do not store the direction as itgenerates a loop
+            # We do not store the direction as it generates a loop
             self._jump_type = "terminal"
         elif type_block in [""]:
             # It corresponds to falls_to blocks
@@ -203,6 +210,7 @@ class CFGBlock:
             self._jump_type = "terminal"
         elif type_block in ["FunctionReturn"]:
             self._jump_type = "FunctionReturn"
+            self._process_instructions_from_function_return(exit_info["returnValues"])
 
     def process_function_calls(self, function_ids):
         op_names = map(lambda x: x.get_op_name(), self._instructions)
@@ -240,7 +248,7 @@ class CFGBlock:
                 pred_inputs = map(lambda x: set(x.get_in_args()).intersection(out_var_set), self._instructions[:i + 1])
                 candidates = list(filter(lambda x: x != set(), pred_inputs))
                 if len(candidates) != 0:
-                    print("[WARNING]: Aliasing between variables!")
+                    logging.warning("[WARNING]: Aliasing between variables!")
 
     def _process_dependences(self, instructions: List[CFGInstruction],
                              map_positions: Dict[int, instr_id_T]) -> Tuple[dependencies_T, dependencies_T]:
