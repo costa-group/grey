@@ -75,13 +75,59 @@ def default_optimization_settings() -> Dict:
     return {"enabled": True}
 
 
+headers = {"asm": "EVM assembly:", "bin": "Binary:", "yul": "Yul Control Flow Graph:"}
+
+
+def process_contract_output(contract_output: str, representations: Optional[List[str]] = None) -> Dict[str, Any]:
+    """
+    Processes the solc output from a single contract, extracting all representations
+    """
+    output_selection = representations if representations is not None else list(headers.keys())
+    output_selection_dict = dict()
+    for output in output_selection:
+        info_re = re.compile(f"{headers[output]}\n(.*?)\n")
+        info_match = re.search(info_re, contract_output)
+        if info_match is not None:
+            output_selection_dict[output] = info_match.group(1) if output == "bin" else json.loads(info_match.group(1))
+        else:
+            raise ValueError(f"{output} info is not found in contract output: {contract_output}")
+    return output_selection_dict
+
+
+def process_sol_output(compiler_output: str, representations: Optional[List[str]] = None) -> Dict[str, Dict[str, Any]]:
+    """
+    Given the compiler output from solc and (optionally) output representations, extracts the information
+    of those output in a dict for every contract. If no output is specified, all the information possible is retrieved.
+    This function assumes the compiler output has no pretty-json enabled.
+    """
+    assert all(output_repr in headers for output_repr in representations), \
+        f"Unknown representation specified. Only {headers.keys()} are allowed"
+
+    contract_header = r"\n======= (.*?) =======\n"
+    split_representation = [output for output in re.split(contract_header, compiler_output) if output != ""]
+
+    # It returns first the contract name and then  the information
+    contracts_headers = [string for string in split_representation[::2]]
+    output_per_contract = [string for string in split_representation[1::2]]
+
+    assert len(output_per_contract) == len(contracts_headers), f"Number of identified contracts " \
+                                                               f"does not match the number of information processed"
+
+    contract_information = dict()
+    for output_contract, contract_name in zip(output_per_contract, contracts_headers):
+        contract_information[contract_name] = process_contract_output(output_contract, representations)
+
+    return contract_information
+
+
 def process_sol_yul_cfg(compiler_output: str, deployed_contract: Optional[str]) -> Dict[str, Yul_CFG_T]:
     """
+    DEPRECATED: old version of the yul cfg JSON output
     Given the compiler output, extracts the yul cfg JSON (format with only the yul JSON enabled)
     """
     # The yul_cfg information is preceded by no header, such as
     # Binary (for --bin), Contract JSON ABI (for --abi) or User Documentation (for --userdoc)
-    # TODO: ask for a fix
+
     default_dict = dict()
     compiler_lines = compiler_output.splitlines()
     for compiler_line in compiler_lines:
@@ -172,7 +218,7 @@ class SolidityCompilation:
         """
         compilation = SolidityCompilation(final_file, solc_executable)
         compilation.flags = "--yul-cfg-json --optimize"
-        return compilation.compile_sol_file_from_code(sol_file, deployed_contract)
+        return compilation.compile_single_sol_file(sol_file, deployed_contract)
 
     @staticmethod
     def from_multi_sol(multi_sol_info: Dict[str, Any], deployed_contract: str,
@@ -307,13 +353,26 @@ class SolidityCompilation:
                     f.write(output)
         return True
 
-    def compile_single_sol_file(self, sol_file: str) -> Tuple[bool, str]:
+    def compile_single_sol_file(self, sol_file: str, deployed_contract: Optional[str] = None) -> Optional[Dict[str, Yul_CFG_T]]:
         """
         Compiles a single sol file using the file name
         """
         sol_output, error = self._compile_sol_command(sol_file)
         correct_compilation = self._process_sol_command(sol_output, error)
-        return correct_compilation, sol_output
+
+        if not correct_compilation:
+            return None
+
+        # Returns a dict with all the information for each contract
+        output_dict = process_sol_output(sol_output, ["yul"])
+
+        # We filter the corresponding contract
+        if deployed_contract is not None:
+            for deployed_filename, output_info in output_dict.items():
+                if deployed_contract in deployed_filename:
+                    return {deployed_contract: output_info}
+        else:
+            return output_dict
 
     def compile_sol_file_from_code(self, source_code_plain: str, deployed_contract: Optional[str] = None) -> Optional[Dict[str, Yul_CFG_T]]:
         """
@@ -322,13 +381,10 @@ class SolidityCompilation:
         fd, tmp_file = tempfile.mkstemp()
         with os.fdopen(fd, 'w') as f:
             f.write(source_code_plain)
-        correct_compilation, output = self.compile_single_sol_file(tmp_file)
+        solution = self.compile_single_sol_file(tmp_file, deployed_contract)
         os.remove(tmp_file)
 
-        if not correct_compilation:
-            return None
-
-        return process_sol_yul_cfg(output, deployed_contract)
+        return solution
 
     def compile_multiple_sources(self, source_code_dict: Dict[str, Dict[str, str]],
                                  deployed_contract: Optional[str] = None) -> Optional[Dict[str, Yul_CFG_T]]:
