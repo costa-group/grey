@@ -370,9 +370,10 @@ class SolidityCompilation:
         if deployed_contract is not None:
             for deployed_filename, output_info in output_dict.items():
                 if deployed_contract in deployed_filename:
-                    return {deployed_contract: output_info}
+                    return {deployed_contract: output_info["yul"]}
         else:
-            return output_dict
+            # Only return yul information
+            return {contract_name: contract_info["yul"] for contract_name, contract_info in output_dict.items()}
 
     def compile_sol_file_from_code(self, source_code_plain: str, deployed_contract: Optional[str] = None) -> Optional[Dict[str, Yul_CFG_T]]:
         """
