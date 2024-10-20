@@ -19,7 +19,6 @@ from global_params.types import Yul_CFG_T
 
 
 def run_command(cmd):
-    print(cmd)
     solc_p = subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE,
                               stderr=subprocess.PIPE)
     outs, err = solc_p.communicate()
@@ -104,18 +103,22 @@ def process_sol_output(compiler_output: str, representations: Optional[List[str]
         f"Unknown representation specified. Only {headers.keys()} are allowed"
 
     contract_header = r"\n======= (.*?) =======\n"
-    split_representation = [output for output in re.split(contract_header, compiler_output) if output != ""]
+    split_representation = [output for output in re.split(contract_header, compiler_output)]
 
     # It returns first the contract name and then  the information
-    contracts_headers = [string for string in split_representation[::2]]
-    output_per_contract = [string for string in split_representation[1::2]]
+    # The first string is always empty, as the string starts with the pattern used for the split
+    contracts_headers = [string for string in split_representation[1::2]]
+    output_per_contract = [string for string in split_representation[2::2]]
 
     assert len(output_per_contract) == len(contracts_headers), f"Number of identified contracts " \
                                                                f"does not match the number of information processed"
 
     contract_information = dict()
     for output_contract, contract_name in zip(output_per_contract, contracts_headers):
-        contract_information[contract_name] = process_contract_output(output_contract, representations)
+
+        # Output contract can be empty for sol libraries and interfaces
+        if output_contract != "":
+            contract_information[contract_name] = process_contract_output(output_contract, representations)
 
     return contract_information
 
@@ -357,7 +360,27 @@ class SolidityCompilation:
         """
         Compiles a single sol file using the file name
         """
-        sol_output, error = self._compile_sol_command(sol_file)
+        # Change to the path in which we have generated the files
+        old_path = os.getcwd()
+
+        sol_folder = Path(sol_file).parent
+
+        erase_solc = False
+
+        # Copies the executable in the corresponding folder (if it is indeed an executable)
+        if Path(self._solc_command).is_file():
+            erase_solc = True
+            shutil.copy(self._solc_command, sol_folder)
+
+        os.chdir(sol_folder)
+        # As we have moved the executable to the corresponding folder, we just need to pass the file name with
+        # no parents dir
+        sol_output, error = self._compile_sol_command(Path(sol_file).name)
+        os.chdir(old_path)
+
+        if erase_solc:
+            os.remove(sol_folder.joinpath(self._solc_command))
+
         correct_compilation = self._process_sol_command(sol_output, error)
 
         if not correct_compilation:
