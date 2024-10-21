@@ -7,7 +7,8 @@ dependencies = [
     "pytest",
     "matplotlib",
     "setuptools",
-    "pygraphviz"
+    "pygraphviz",
+    "hypothesis"
 ]
 name = "grey"
 readme = "README.md"
