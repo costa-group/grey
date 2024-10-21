@@ -1,21 +1,23 @@
-from typing import Optional
+from typing import Optional, Tuple
 from parser.cfg_block_actions.actions_interface import BlockAction
+from parser.cfg_block_actions.utils import modify_comes_from, modify_successors
 from parser.cfg_block_list import CFGBlockList
 from parser.cfg_block import CFGBlock
-from parser.cfg_instruction import CFGInstruction
 from global_params.types import block_id_T
 
 
-def new_node_name(current_node: str) -> str:
+def split_blocks_ids(current_node: str) -> Tuple[str, str]:
     """
     Given a node, generates a new name for the resulting split
     """
     split_name = current_node.split("_")
-    if len(split_name) > 1:
-        split_name[1] = str(int(split_name[1]) + 1)
-        return '_'.join(split_name)
+
+    # If the last keyword corresponds to split + number, then we just add one to that number
+    if len(split_name) > 1 and split_name[-2] == "split":
+        split_name[-1] = str(int(split_name[-1]) + 1)
+        return current_node, '_'.join(split_name)
     else:
-        return current_node + "_1"
+        return current_node + "_split_0", current_node + "_split_1"
 
 
 class SplitBlock(BlockAction):
@@ -34,9 +36,7 @@ class SplitBlock(BlockAction):
         self._second_half: Optional[CFGBlock] = None
 
     def perform_action(self):
-        #
-        first_half_id = new_node_name(self._initial_id)
-        second_half_id = new_node_name(first_half_id)
+        first_half_id, second_half_id = split_blocks_ids(self._initial_id)
 
         # We reuse the block name, so we don't need to modify the previous blocks
         first_half = CFGBlock(first_half_id, self._cfg_block.get_instructions()[:self._instr_idx], "sub_block",
@@ -53,7 +53,7 @@ class SplitBlock(BlockAction):
         self._update_second_half()
 
         # Remove the initial block from the list of blocks
-        del self._cfg_block_list.blocks[self._initial_id]
+        self._cfg_block_list.blocks.pop(self._initial_id)
 
         # Include the newly generated blocks in the list
         self._cfg_block_list.add_block(first_half)
@@ -72,15 +72,9 @@ class SplitBlock(BlockAction):
         self._first_half.final_stack_elements = self._cfg_block.get_instructions()[self._instr_idx].get_in_args()
 
         # Finally, we update the information from the blocks that jumped (or fell) to the first one
+
         for pred_block_id in self._cfg_block.get_comes_from():
-            pred_block = self._cfg_block_list.blocks[pred_block_id]
-            if pred_block.get_jump_to():
-                pred_block.set_jump_to(self._first_half.block_id)
-            else:
-                falls_to = pred_block.get_falls_to()
-                assert falls_to == self._initial_id, \
-                    f"Incoherent CFG: the predecessor block {pred_block_id} must reach block {self._initial_id}"
-                pred_block.set_falls_to(self._first_half.block_id)
+            modify_successors(pred_block_id, self._initial_id, self._first_half.block_id, self._cfg_block_list)
 
     def _update_second_half(self):
         # We need to update the corresponding information
@@ -94,26 +88,17 @@ class SplitBlock(BlockAction):
         initial_falls_to = self._cfg_block.get_falls_to()
 
         if initial_jumps_to is not None:
-            self._modify_comes_from(initial_jumps_to, self._second_half.block_id)
+            modify_comes_from(initial_jumps_to, self._initial_id, self._second_half.block_id, self._cfg_block_list)
         if initial_falls_to is not None:
-            self._modify_comes_from(initial_falls_to, self._second_half.block_id)
+            modify_comes_from(initial_falls_to, self._initial_id, self._second_half.block_id, self._cfg_block_list)
 
-    def _modify_comes_from(self, block_id: block_id_T, new_pred_block_id: block_id_T):
-        """
-        Modifies the comes from the block id to replace the id of the initial block with the new one
-        """
-        block = self._cfg_block_list.blocks[block_id]
-        found_previous = False
-        comes_from = block.get_comes_from()
-        new_comes_from = []
-        for pred_block in comes_from:
-            if pred_block == self._initial_id:
-                found_previous = True
-                new_comes_from.append(new_pred_block_id)
-            else:
-                new_comes_from.append(pred_block)
-        block.set_comes_from(new_comes_from)
-        assert found_previous, f"Comes from list {comes_from} of {block_id} does not contain {self._initial_id}"
+    @property
+    def first_half(self) -> Optional[CFGBlock]:
+        return self._first_half
+
+    @property
+    def second_half(self) -> Optional[CFGBlock]:
+        return self._second_half
 
     def __str__(self):
         return f"SplitBlock {self._initial_id} at instruction with index {self._instr_idx}"

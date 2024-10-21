@@ -1,0 +1,37 @@
+from global_params.types import block_id_T
+from parser.cfg_block_list import CFGBlockList
+
+
+def modify_comes_from(block_to_modify: block_id_T, previous_pred_id: block_id_T,
+                      new_pred_id: block_id_T, cfg_block_list: CFGBlockList) -> None:
+    """
+    Modifies the comes from the block id to replace the id of the initial block with the new one in the block list
+    """
+    block = cfg_block_list.blocks[block_to_modify]
+    found_previous = False
+    comes_from = block.get_comes_from()
+    new_comes_from = []
+    for pred_block in comes_from:
+        if pred_block == previous_pred_id:
+            found_previous = True
+            new_comes_from.append(new_pred_id)
+        else:
+            new_comes_from.append(pred_block)
+    block.set_comes_from(new_comes_from)
+    assert found_previous, f"Comes from list {comes_from} of {block_to_modify} does not contain {previous_pred_id}"
+
+
+def modify_successors(block_to_modify: block_id_T, previous_successor_id: block_id_T,
+                      new_successor_id: block_id_T, cfg_block_list: CFGBlockList):
+    """
+    Modifies the successor "previous_successor_id" from block "block_to_modify" so that it falls to or jumps to
+    "new_successor_id" instead
+    """
+    pred_block = cfg_block_list.blocks[block_to_modify]
+    if pred_block.get_jump_to() == previous_successor_id:
+        pred_block.set_jump_to(new_successor_id)
+    else:
+        falls_to = pred_block.get_falls_to()
+        assert falls_to == previous_successor_id, \
+            f"Incoherent CFG: the predecessor block {block_to_modify} must reach block {previous_successor_id}"
+        pred_block.set_falls_to(new_successor_id)
