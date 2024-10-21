@@ -1,6 +1,7 @@
 """
 Module that contains the methods for reconstructing the bytecode in different formats
 """
+import json
 from typing import Dict, Any, List, Optional, Union
 from global_params.types import SMS_T, ASM_bytecode_T, ASM_contract_T
 from parser.cfg import CFG
@@ -230,8 +231,12 @@ def traverse_cfg(cfg_object, asm_dicts, tags_dict):
 def asm_from_cfg(cfg: CFG, asm_dicts: Dict[str, List[ASM_bytecode_T]], tags_dict: Dict,
                  filename: str) -> ASM_contract_T:
     objects_cfg = cfg.get_objects()
-    subobjects = cfg.get_subobject().get_objects()
 
+    if cfg.get_subobject() != None:
+        subobjects = cfg.get_subobject().get_objects()
+    else:
+        subobjects = []
+        
     json_object = {}
     for obj_name in objects_cfg.keys():
         obj = objects_cfg[obj_name]
