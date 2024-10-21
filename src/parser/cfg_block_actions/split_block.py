@@ -24,8 +24,9 @@ class SplitBlock(BlockAction):
     It needs the corresponding blocklist to update the fields correspondingly
     """
 
-    def __init__(self, cfg_instruction: CFGInstruction, cfg_block: CFGBlock, cfg_blocklist: CFGBlockList):
-        self._cfg_instruction: CFGInstruction = cfg_instruction
+    def __init__(self, instr_idx: int, cfg_block: CFGBlock, cfg_blocklist: CFGBlockList):
+        # We add one to the index so that it points to the initial instruction of the second half
+        self._instr_idx: int = instr_idx + 1
         self._cfg_block: Optional[CFGBlock] = cfg_block
         self._cfg_block_list: CFGBlockList = cfg_blocklist
         self._initial_id = self._cfg_block.block_id
@@ -33,20 +34,17 @@ class SplitBlock(BlockAction):
         self._second_half: Optional[CFGBlock] = None
 
     def perform_action(self):
-        # First we find the index of the instruction. It is included as part of the first split block
-        instr_idx = self._cfg_block.get_instructions().index(self._cfg_instruction) + 1
-
         #
         first_half_id = new_node_name(self._initial_id)
         second_half_id = new_node_name(first_half_id)
 
         # We reuse the block name, so we don't need to modify the previous blocks
-        first_half = CFGBlock(first_half_id, self._cfg_block.get_instructions()[:instr_idx], "sub_block",
+        first_half = CFGBlock(first_half_id, self._cfg_block.get_instructions()[:self._instr_idx], "sub_block",
                               self._cfg_block.assignment_dict)
         self._first_half = first_half
 
         # Then we generate the second half
-        second_half = CFGBlock(second_half_id, self._cfg_block.get_instructions()[instr_idx:],
+        second_half = CFGBlock(second_half_id, self._cfg_block.get_instructions()[self._instr_idx:],
                                self._cfg_block.get_jump_type(), self._cfg_block.assignment_dict)
         self._second_half = second_half
 
@@ -69,8 +67,9 @@ class SplitBlock(BlockAction):
         self._first_half.set_comes_from(self._cfg_block.get_comes_from())
         self._first_half.set_falls_to(self._second_half.block_id)
         self._first_half.set_jump_to(None)
+
         # We need to force the input arguments of the instruction we have use to split
-        self._first_half.final_stack_elements = self._cfg_instruction.get_in_args()
+        self._first_half.final_stack_elements = self._cfg_block.get_instructions()[self._instr_idx].get_in_args()
 
         # Finally, we update the information from the blocks that jumped (or fell) to the first one
         for pred_block_id in self._cfg_block.get_comes_from():
@@ -117,4 +116,4 @@ class SplitBlock(BlockAction):
         assert found_previous, f"Comes from list {comes_from} of {block_id} does not contain {self._initial_id}"
 
     def __str__(self):
-        return f"SplitBlock {self._initial_id} at instruction {self._cfg_instruction}"
+        return f"SplitBlock {self._initial_id} at instruction with index {self._instr_idx}"
