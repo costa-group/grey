@@ -5,6 +5,7 @@ from typing import Dict, Any, List, Optional, Union
 from global_params.types import SMS_T, ASM_bytecode_T, ASM_contract_T
 from parser.cfg import CFG
 from parser.cfg_block import CFGBlock
+from pathlib import Path
 
 # Solution ids to EVM assembly
 
@@ -104,7 +105,7 @@ def generate_asm_split_blocks(init_block_id, blocks, asm_dicts):
 
     #Split instruction contains both jumps and not handled instructions
     if block.split_instruction != None:
-        asm_last = asm_for_split_instruction_block(block)
+        asm_last = asm_for_split_instruction(block)
     else:
         asm_last = []
         
@@ -256,3 +257,9 @@ def asm_from_cfg(cfg: CFG, asm_dicts: Dict[str, List[ASM_bytecode_T]], tags_dict
         json_object[filename + ":" +obj_name] = json_asm
         
     return json_object
+
+
+def store_asm_output(asm_output_dir:Path , json_object: Dict[str,Any], object_name: str):
+    file_to_store = asm_output_dir.joinpath(object_name + "_asm.json")
+    with open(file_to_store, 'w') as f:
+        json.dump(json_object, f, indent=4)
