@@ -342,3 +342,7 @@ class CFGInstruction:
 
     def __repr__(self):
         return json.dumps(self.get_as_json())
+
+    def __eq__(self, other: 'CFGInstruction'):
+        return isinstance(other, CFGInstruction) and self.out_args == other.out_args and \
+            self.in_args == other.in_args and self.op == other.op
