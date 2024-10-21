@@ -13,7 +13,7 @@ from parser.cfg import store_sfs_json, CFG
 from execution.sol_compilation import SolidityCompilation
 from greedy.greedy import greedy_standalone
 from solution_generation.statistics import generate_statistics_info
-from solution_generation.reconstruct_bytecode import asm_from_ids, asm_from_cfg
+from solution_generation.reconstruct_bytecode import asm_from_ids, asm_from_cfg, store_asm_output
 from liveness.liveness_analysis import dot_from_analysis
 from liveness.layout_generation import layout_generation
 
@@ -99,8 +99,8 @@ def analyze_single_cfg(cfg: CFG, final_dir: Path, dot_file_dir: Path, args: argp
             csv_rows.append(csv_row)
 
         # Generate complete asm from CFG object + dict
-        
-        json_asm_contract = asm_from_cfg(sub_block_cfg,block_name2asm, tags_dict, args.source)
+
+        json_asm_contract = asm_from_cfg(sub_block_cfg, block_name2asm, tags_dict, args.source)
         df = pd.DataFrame(csv_rows)
         df.to_csv(final_dir.joinpath("statistics.csv"))
 
@@ -130,12 +130,19 @@ def main():
     dot_file_dir.mkdir(exist_ok=True, parents=True)
 
     asm_output = {}
+
+    asm_out_dir = final_dir.joinpath("asm_out_files")
+    asm_out_dir.mkdir(exist_ok=True, parents=True)
     
     for i in cfgs:
         cfg = cfgs[i]
         json_asm_contract = analyze_single_cfg(cfg,final_dir,dot_file_dir,args)
-
+        
         asm_output = asm_output | json_asm_contract
 
     asm_contracts = {"contracts": asm_output}
+
+    source_name = args.source.split(".")[0]
+    store_asm_output(asm_out_dir, asm_contracts, source_name.split("/")[-1])
+    
     # asm_contracts["version"] = #TODO Call to solc version
