@@ -123,6 +123,7 @@ class CFGBlock:
         Removes the instruction at position instr_index, updating the last split instruction if it affects
         the last instruction
         """
+        
         instr_idx = (len(self._instructions) + instr_idx) % len(self._instructions)
         if instr_idx >= len(self._instructions):
             raise ValueError("Attempting to remove an instruction index out of bounds")
@@ -234,7 +235,7 @@ class CFGBlock:
 
         # Finally, we identify the possible split instruction using the now generated information
         if len(self._instructions) > 0 and \
-                self._instructions[-1].get_op_name() in itertools.chain(split_block, self.function_calls, "JUMP", "JUMPI"):
+                self._instructions[-1].get_op_name() in itertools.chain(split_block, self.function_calls, ["JUMP","JUMPI"]):
             self._split_instruction = self._instructions[-1]
 
     @property
@@ -412,7 +413,7 @@ class CFGBlock:
         Builds the specification for a sequence of instructions. "map_instructions" is passed as an argument
         to reuse declarations from other blocks, as we might have split the corresponding basic block
         """
-
+        
         spec = {}
 
         uninter_functions = []
@@ -644,7 +645,7 @@ class CFGBlock:
 
     def build_spec(self, block_tags_dict: Dict, block_tag_idx: int, initial_stack: List[str],
                    final_stack: List[str]) -> Tuple[Dict[str, Any], int, int]:
-
+        
         map_instructions = {}
 
         out_idx = 0
