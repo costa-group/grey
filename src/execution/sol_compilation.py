@@ -368,7 +368,7 @@ class SolidityCompilation:
         erase_solc = False
 
         # Copies the executable in the corresponding folder (if it is indeed an executable)
-        if Path(self._solc_command).is_file():
+        if Path(self._solc_command).is_file() and not Path(sol_folder.joinpath(self._solc_command)).exists():
             erase_solc = True
             shutil.copy(self._solc_command, sol_folder)
 
@@ -422,8 +422,8 @@ class SolidityCompilation:
 
         # Change to the path in which we have generated the files
         old_path = os.getcwd()
-        # Copies the executable in the corresponding folder (if it is indeed an executable)
-        if Path(self._solc_command).is_file():
+        # Copies the executable in the corresponding folder (if it is indeed an executable and does not exist yet)
+        if Path(self._solc_command).is_file() and not Path(tmp_folder.joinpath(self._solc_command)).exists():
             shutil.copy(self._solc_command, tmp_folder)
 
         os.chdir(tmp_folder)

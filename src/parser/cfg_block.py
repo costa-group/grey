@@ -80,7 +80,8 @@ class CFGBlock:
         # Split instruction is recognized as the last instruction
         # As we don't have information on the function calls, we assign it to None and then
         # identify it once we set the function calls
-        self._split_instruction = None
+        self._split_instruction = instructions[-1] if len(instructions) > 0 and instructions[-1].get_op_name() \
+                                                      in itertools.chain(split_block, ["JUMP", "JUMPI"]) else None
 
         # minimum size of the source stack
         self.source_stack = 0
