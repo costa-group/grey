@@ -219,6 +219,10 @@ def traverse_cfg(cfg_object, asm_dicts, tags_dict):
             asm_instructions += asm_block
             init_pos_dict += [block_id]*len(asm_block)
 
+        elif jump_type == "mainExit":
+            asm_instructions+=asm_block+[asm_from_op_info("STOP")]
+            init_pos_dict += [block_id]*len(asm_block+1)
+            
         else:
             raise Exception("[ERROR]: Unknown jump type when generating asm output")
             
