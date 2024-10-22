@@ -182,14 +182,14 @@ class CFGBlock:
 
     def _process_instructions_from_jump(self):
         # Add a PUSH tag instruction as part of the assignment dict
-        self._instructions.insert(0, CFGInstruction("PUSH [TAG]", [], [self._jump_to]))
+        self._instructions.insert(0, CFGInstruction("PUSH [tag]", [], [self._jump_to]))
 
         # Add a JUMP instruction
         self._instructions.append(CFGInstruction("JUMP", [self._jump_to], []))
 
     def _process_instructions_from_jumpi(self, condition: str):
         # Add a PUSH tag instruction as part of the assignment dict
-        self._instructions.insert(0, CFGInstruction("PUSH [TAG]", [], [self._jump_to]))
+        self._instructions.insert(0, CFGInstruction("PUSH [tag]", [], [self._jump_to]))
 
         # Add a JUMPI instruction
         self._instructions.append(CFGInstruction("JUMPI", [condition, self._jump_to], []))
