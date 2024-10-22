@@ -4,6 +4,7 @@ Module that contains the necessary methods for a set of blocks that correspond t
 """
 
 from typing import List, Dict, Any, Tuple
+import logging
 import networkx
 from parser.cfg_block import CFGBlock, include_function_call_tags
 from parser.constants import split_block
@@ -29,8 +30,8 @@ class CFGBlockList:
             self.start_block = block_id
 
         if block_id in self.blocks:
-            if block_id in self.blocks:
-                print("WARNING: You are overwritting an existing block")
+            logging.warning("You are overwritting an existing block")
+
         self.graph = None
         self.blocks[block_id] = block
 
