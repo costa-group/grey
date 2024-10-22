@@ -4,7 +4,7 @@ import logging
 from global_params.types import instr_id_T, dependencies_T, var_id_T
 from parser.cfg_instruction import CFGInstruction, build_push_spec, build_pushtag_spec
 from parser.utils_parser import is_in_input_stack, is_in_output_stack, are_dependent_interval, get_empty_spec, \
-    get_expression, are_dependent_accesses, replace_pos_instrsid, generate_dep, get_interval
+    get_expression, are_dependent_accesses, replace_pos_instrsid, generate_dep, get_interval, replace_aliasing_spec
 import parser.constants as constants
 import json
 import networkx as nx
@@ -421,6 +421,9 @@ class CFGBlock:
 
         map_positions_instructions = {}
 
+        #Key is the original variable and the value is the one that we use
+        aliasing_dict = {}
+        
         unprocessed_instr = None
 
         for i, ins in enumerate(instructions):
@@ -440,7 +443,7 @@ class CFGBlock:
 
             # it is a push value that has been already created. If it comes from a memoryguard,
             # we have to rename the previous instructions to the output of the memoryguard
-            elif ins.get_op_name() == "push":
+            elif ins_spec != None and ins.get_op_name() == "push":
                 out_var_list = ins_spec["outpt_sk"]
                 new_out_var_list = ins.get_out_args()
 
@@ -454,6 +457,11 @@ class CFGBlock:
                     pos = uninter["inpt_sk"].index(out_var)
                     uninter["inpt_sk"][pos] = new_out_var
 
+            #ins_spec != None. We have to rename the aliasing information
+            else:
+                old_variable = ins.get_out_args()[0]
+                aliasing_dict[old_variable] = ins_spec["outpt_sk"][0]
+                
         # We must remove the final output variable from the unprocessed instruction and
         # add the inputs from that instruction
         if self.split_instruction is not None:
@@ -531,6 +539,12 @@ class CFGBlock:
         spec["min_length"] = 0
         spec["rules"] = ""
 
+        vars_list = spec["variables"]
+        tgt_stack = spec["tgt_ws"]
+        
+        if aliasing_dict != {}:
+            replace_aliasing_spec(aliasing_dict, uninter_functions, vars_list, tgt_stack)
+          
         return spec, new_out_idx, map_positions_instructions
 
     def _include_jump_tag(self, block_spec: Dict, out_idx: int, block_tags_dict: Dict, block_tag_idx: int) -> \

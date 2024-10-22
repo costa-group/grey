@@ -297,3 +297,20 @@ def shorten_name(name: str, separator: str = "$") -> str:
     Shortens a name using a separator. Useful for avoiding errors when storing names too long
     """
     return name if len(name) < 100 else (name.split(separator)[0] + "_shortened")
+
+
+def replace_aliasing_spec(aliasing_dict, specs, vars_list, tgt_stack):
+    
+    for instruction in specs:
+        input_vals = instruction["inpt_sk"]
+        new_input = list(map(lambda x: x.replace(x,aliasing_dict.get(x,x)),input_vals))
+
+        output_vals = instruction["outpt_sk"]
+        new_output = list(map(lambda x: x.replace(x,aliasing_dict.get(x,x)),output_vals_vals))
+
+        instruction["inpt_sk"] = new_input
+        instruction["outpt_sk"] = new_output
+
+        new_varlist = list(map(lambda x: x.replace(x,aliasing_dict.get(x,x)),vars_list))
+        new_tgt_stack = list(map(lambda x: x.replace(x,aliasing_dict.get(x,x)), tgt_stack))
+
