@@ -1,13 +1,14 @@
 from hypothesis import strategies as st
-from parser.cfg_block_actions.split_block import CFGInstruction
+from parser.cfg_instruction import CFGInstruction
 
 
 @st.composite
-def cfg_instruction_list(draw):
+def cfg_instruction_list(draw, min_value: int, max_value: int):
     """
-    Strategy to generate a list of CFG instructions with distinct output variables for each block
+    Strategy to generate a list of n in (min_size, max_size) CFG instructions
+    with distinct output variables for each block
     """
-    n = draw(st.integers(min_value=2, max_value=20))
+    n = draw(st.integers(min_value, max_value))
     ops = draw(st.lists(st.text(min_size=3, max_size=5), min_size=n, max_size=n))
 
     outs_already = set()
