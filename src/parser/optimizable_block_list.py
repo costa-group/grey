@@ -120,7 +120,7 @@ def compute_sub_block_list(block_list: CFGBlockList) -> CFGBlockList:
         current_sub_block = []
 
         for instr in instructions:
-            if instr.get_op_name() in itertools.chain(constants.split_block, cfg_block.function_calls, "JUMP", "JUMPI"):
+            if instr.get_op_name() in itertools.chain(constants.split_block, cfg_block.function_calls, ["JUMP","JUMPI"]):
                 # Sub blocks contain a split instruction or a function call as the last instruction
                 current_sub_block.append(instr)
                 sub_block_instructions.append((current_sub_block, True))
