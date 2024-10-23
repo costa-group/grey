@@ -80,7 +80,8 @@ class CFGBlockList:
         Creates a networkx.DiGraph from the blocks information
         """
         if self.graph is None:
-            graph = networkx.DiGraph(self.blocks)
+            graph = networkx.DiGraph()
+            graph.add_nodes_from(self.blocks.keys())
             for block_id, block in self.blocks.items():
                 for successor in [block.get_jump_to(), block.get_falls_to()]:
                     if successor is not None:
