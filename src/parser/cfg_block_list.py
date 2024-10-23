@@ -6,6 +6,7 @@ Module that contains the necessary methods for a set of blocks that correspond t
 from typing import List, Dict, Any, Tuple
 import logging
 import networkx
+from global_params.types import block_id_T
 from parser.cfg_block import CFGBlock, include_function_call_tags
 from parser.constants import split_block
 
@@ -15,11 +16,12 @@ class CFGBlockList:
     Object that manages a list of blocks that are connected through an object or function
     """
 
-    def __init__(self, name: str):
-        self.name: str = name
-        self.blocks: Dict[str, CFGBlock] = {}
+    def __init__(self, name: block_id_T):
+        self.name: block_id_T = name
+        self.blocks: Dict[block_id_T, CFGBlock] = {}
         self.graph = None
         self.start_block = None
+        self.terminal_blocks: List[block_id_T] = []
         self.block_tags_dict = {}
         self.entry_dict: Dict[str, Tuple[str, str]] = dict()
 
@@ -29,6 +31,10 @@ class CFGBlockList:
         # Assuming the first block corresponds to the entry point
         if not self.blocks:
             self.start_block = block_id
+
+        # The blocks that return in the CFG correspond to function returns and main exits
+        if block.get_jump_type() in ["FunctionReturn", "mainExit"]:
+            self.terminal_blocks.append(block_id)
 
         if block_id in self.blocks:
             logging.warning("You are overwritting an existing block")
