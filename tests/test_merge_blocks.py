@@ -17,7 +17,7 @@ class TestMergeBlocks:
         cfg_block_4 = CFGBlock("block_4", instructions[4*split_list_index:5*split_list_index], "terminal", dict())
         cfg_block_5 = CFGBlock("block_5", instructions[5*split_list_index:], "terminal", dict())
 
-        cfg_block_list = CFGBlockList()
+        cfg_block_list = CFGBlockList("object")
         cfg_block_list.add_block(cfg_block_0)
         cfg_block_list.add_block(cfg_block_1)
         cfg_block_list.add_block(cfg_block_2)

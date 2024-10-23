@@ -149,7 +149,7 @@ def parser_block_list(object_name: str, blocks: List[Dict[str, Any]], function_c
     """
     Returns the list of blocks parsed and the ids that correspond to Exit blocks
     """
-    block_list = CFGBlockList()
+    block_list = CFGBlockList(object_name)
     exit_blocks = []
     comes_from = collections.defaultdict(lambda: [])
     for b in blocks:

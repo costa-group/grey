@@ -12,10 +12,11 @@ from parser.constants import split_block
 
 class CFGBlockList:
     """
-    Object that manages a list of blocks that connected
+    Object that manages a list of blocks that are connected through an object or function
     """
 
-    def __init__(self):
+    def __init__(self, name: str):
+        self.name: str = name
         self.blocks: Dict[str, CFGBlock] = {}
         self.graph = None
         self.start_block = None
