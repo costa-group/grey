@@ -8,18 +8,6 @@ from parser.cfg_object import CFGObject
 from parser.cfg_block_actions.utils import modify_comes_from, modify_successors
 
 
-def new_node_name(current_node: str) -> str:
-    """
-    Given a node, generates a new name for the resulting split
-    """
-    split_name = current_node.split("_")
-    if len(split_name) > 1:
-        split_name[1] = str(int(split_name[1]) + 1)
-        return '_'.join(split_name)
-    else:
-        return current_node + "_1"
-
-
 class InlineFunction(BlockAction):
     """
     Action for performing inlining of a different block list into an existing one.
@@ -43,17 +31,20 @@ class InlineFunction(BlockAction):
         self._second_sub_block: Optional[CFGObject] = None
 
     def perform_action(self):
+        original_block_id = self._cfg_block.block_id
+
         # First we need to split the block in the function call, which is given by the instr position.
         # As a final check, we ensure the instruction in that position corresponds to the function name passed as
         # an argument
         assert self._cfg_block.get_instructions()[self._instr_position].get_op_name() == self._function_name, \
-            f"Expected function call {self._function_name} in position {self._instr_position}"
+            f"Expected function call {self._function_name} in position {self._instr_position} but got instead" \
+            f"{self._cfg_block.get_instructions()}"
 
         # Include the blocks from the function into the CFG block list
         for block in self._function_blocklist.blocks.values():
             self._cfg_blocklist.add_block(block)
 
-        function_start_id = self._cfg_function.entry
+        function_start_id = self._cfg_function.blocks.start_block
         function_exists_ids = self._cfg_function.exits
 
         # Even after splitting the blocks, we have to remove the first instruction
@@ -89,6 +80,10 @@ class InlineFunction(BlockAction):
         del self._function_blocklist
         del self._cfg_function
         self._cfg_object.functions.pop(self._function_name)
+
+        # Last step is to check whether the current block list updates the start block correctly
+        if self._cfg_blocklist.start_block == original_block_id:
+            self._cfg_blocklist.start_block = self.first_sub_block.block_id
 
     @property
     def first_sub_block(self) -> Optional[CFGBlock]:
