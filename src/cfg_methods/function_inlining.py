@@ -9,7 +9,8 @@ from parser.cfg_block_list import CFGBlockList
 from parser.cfg_object import CFGObject
 from parser.cfg import CFG
 from parser.cfg_block_actions.inline_function import InlineFunction
-
+import networkx as nx
+import matplotlib.pyplot as plt
 
 # For each time a function is invoked, we store the position of the instruction (int) in the
 # block (blok_id_T) that appears in the block list (block_list_id)
@@ -75,16 +76,11 @@ def inline_functions_cfg_object(cfg_object: CFGObject, function_call_info: funct
     # Same idea as before but for block lists (as we have joined them previously)
     block_list2current: Dict[block_list_id_T, block_list_id_T] = dict()
 
-    # Finally, for functions we have to apply the same logic, as we are removing some of them
-    function2current: Dict[function_name_T, function_name_T] = dict()
-
     for function_name, call_info in function_call_info.items():
 
         # Only consider blocks for inlining that have just one invocation
         if len(call_info) == 1:
             instr_pos, cfg_block_name, cfg_block_list_name = call_info[0]
-
-            current_function_name = function2current.get(function_name, function_name)
 
             # First we find in which block list the function block list is stored
             # As many substitutions can happen, we have to iterate recursively to find the most recent one
@@ -104,11 +100,14 @@ def inline_functions_cfg_object(cfg_object: CFGObject, function_call_info: funct
                                            cfg_block_list, function_name, cfg_object)
             inline_action.perform_action()
 
+            # nx.draw(cfg_block_list.to_graph(), with_labels=True)
+            # plt.show()
+
             # Finally, we have to update the information of both the block lists and blocks
             block_list2current[function_name] = current_block_list_name
-            block2current[cfg_block_name] = split_blocks[:position_index] + \
+            block2current[cfg_block_name] = split_blocks[:split_block_index] + \
                                             [inline_action.first_sub_block.block_id,
-                                             inline_action.second_sub_block.block_id] + split_blocks[position_index+1:]
+                                             inline_action.second_sub_block.block_id] + split_blocks[split_block_index+1:]
 
 
 def _determine_idx(instr_idx: int, split_block_names: List[block_id_T], cfg_block_list: CFGBlockList) \
