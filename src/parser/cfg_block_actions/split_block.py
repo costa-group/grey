@@ -10,14 +10,7 @@ def split_blocks_ids(current_node: str) -> Tuple[str, str]:
     """
     Given a node, generates a new name for the resulting split
     """
-    split_name = current_node.split("_")
-
-    # If the last keyword corresponds to split + number, then we just add one to that number
-    if len(split_name) > 1 and split_name[-2] == "split":
-        split_name[-1] = str(int(split_name[-1]) + 1)
-        return current_node, '_'.join(split_name)
-    else:
-        return current_node + "_split_0", current_node + "_split_1"
+    return current_node + "_split_0", current_node + "_split_1"
 
 
 class SplitBlock(BlockAction):

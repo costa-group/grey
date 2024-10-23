@@ -45,7 +45,7 @@ class InlineFunction(BlockAction):
             self._cfg_blocklist.add_block(block)
 
         function_start_id = self._cfg_function.blocks.start_block
-        function_exists_ids = self._cfg_function.exits
+        function_exists_ids = self._cfg_function.blocks.terminal_blocks
 
         # Even after splitting the blocks, we have to remove the first instruction
         # from the first block (the function call)
