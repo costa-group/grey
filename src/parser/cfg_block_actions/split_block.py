@@ -44,6 +44,7 @@ class SplitBlock(BlockAction):
         # We update the jump information of both halves
         self._update_first_half()
         self._update_second_half()
+        self._update_block_list_entries_and_exits(self._initial_id)
 
         # Remove the initial block from the list of blocks
         self._cfg_block_list.blocks.pop(self._initial_id)
@@ -84,6 +85,17 @@ class SplitBlock(BlockAction):
             modify_comes_from(initial_jumps_to, self._initial_id, self._second_half.block_id, self._cfg_block_list)
         if initial_falls_to is not None:
             modify_comes_from(initial_falls_to, self._initial_id, self._second_half.block_id, self._cfg_block_list)
+
+    def _update_block_list_entries_and_exits(self, original_block_id: block_id_T):
+        # Last step is to check whether the current block list updates the start block correctly
+        # If so, we replace it by the first half id
+        if self._cfg_block_list.start_block == original_block_id:
+            self._cfg_block_list.start_block = self._first_half.block_id
+
+        # The exit can be updated for the second half id
+        self._cfg_block_list.terminal_blocks = [exit_id if exit_id != original_block_id else self._second_half.block_id
+                                                for exit_id in self._cfg_block_list.terminal_blocks]
+
 
     @property
     def first_half(self) -> Optional[CFGBlock]:

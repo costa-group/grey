@@ -43,6 +43,6 @@ def modify_successors(block_to_modify: block_id_T, previous_successor_id: block_
         pred_block.set_jump_to(new_successor_id)
     else:
         falls_to = pred_block.get_falls_to()
-        assert falls_to == previous_successor_id, \
+        assert falls_to == previous_successor_id or previous_successor_id is None, \
             f"Incoherent CFG: the predecessor block {block_to_modify} must reach block {previous_successor_id}"
         pred_block.set_falls_to(new_successor_id)

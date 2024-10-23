@@ -66,5 +66,14 @@ class MergeBlocks(BlockAction):
         if falls_to_id is not None:
             modify_comes_from(falls_to_id, self._second_block_id, combined_block.block_id, self._cfg_blocklist)
 
+    def _update_block_list_entries_and_exits(self):
+        # We need to update the information from the start and final blocks with the new information
+        if self._cfg_blocklist.start_block == self._first_block_id:
+            self._cfg_blocklist.start_block = self._combined_block.block_id
+
+        # The exit can be updated for the second half id
+        self._cfg_blocklist.terminal_blocks = [exit_id if exit_id != self._second_block_id else self._combined_block.block_id
+                                                for exit_id in self._cfg_blocklist.terminal_blocks]
+
     def __str__(self):
         return f"MergeBlocks {self._first_block_id} and {self._second_block_id}"

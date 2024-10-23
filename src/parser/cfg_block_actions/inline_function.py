@@ -1,4 +1,5 @@
 from typing import Optional
+from global_params.types import block_id_T, function_name_T
 from parser.cfg_block_actions.actions_interface import BlockAction
 from parser.cfg_block_actions.split_block import SplitBlock
 from parser.cfg_block_list import CFGBlockList
@@ -23,7 +24,7 @@ class InlineFunction(BlockAction):
         self._instr_position: int = instr_position
         self._cfg_block: CFGBlock = cfg_block
         self._cfg_blocklist: CFGBlockList = cfg_blocklist
-        self._function_name: str = function_name
+        self._function_name: function_name_T = function_name
         self._cfg_function: CFGFunction = cfg_object.functions[function_name]
         self._function_blocklist: CFGBlockList = self._cfg_function.blocks
         self._cfg_object: CFGObject = cfg_object
@@ -80,10 +81,6 @@ class InlineFunction(BlockAction):
         del self._function_blocklist
         del self._cfg_function
         self._cfg_object.functions.pop(self._function_name)
-
-        # Last step is to check whether the current block list updates the start block correctly
-        if self._cfg_blocklist.start_block == original_block_id:
-            self._cfg_blocklist.start_block = self.first_sub_block.block_id
 
     @property
     def first_sub_block(self) -> Optional[CFGBlock]:
