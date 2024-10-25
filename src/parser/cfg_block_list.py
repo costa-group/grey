@@ -48,7 +48,10 @@ class CFGBlockList:
     def remove_block(self, block_id: block_id_T) -> None:
         if block_id not in self.blocks:
             raise ValueError(f"{block_id} does not appear in the block list {self.name}")
+        if block_id == self.start_block:
+            raise ValueError(f"Attempting to remove start block {block_id} in block list {self.name}")
         self.blocks.pop(block_id)
+        self.terminal_blocks = [terminal_block for terminal_block in self.terminal_blocks if terminal_block == block_id]
 
     def get_blocks_dict(self):
         return self.blocks
