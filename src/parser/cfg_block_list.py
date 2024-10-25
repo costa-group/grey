@@ -33,7 +33,7 @@ class CFGBlockList:
             self.start_block = block_id
 
         # The blocks that return in the CFG correspond to function returns and main exits
-        if block.get_jump_type() in ["FunctionReturn", "mainExit"]:
+        if block.get_jump_type() in ["FunctionReturn", "terminal", "mainExit"]:
             self.terminal_blocks.append(block_id)
 
         if block_id in self.blocks:
@@ -42,18 +42,16 @@ class CFGBlockList:
         self.graph = None
         self.blocks[block_id] = block
 
-    def get_block(self, block_id: str):
+    def get_block(self, block_id: block_id_T) -> CFGBlock:
         return self.blocks[block_id]
+
+    def remove_block(self, block_id: block_id_T) -> None:
+        if block_id not in self.blocks:
+            raise ValueError(f"{block_id} does not appear in the block list {self.name}")
+        self.blocks.pop(block_id)
 
     def get_blocks_dict(self):
         return self.blocks
-
-    def get_terminal_blocks(self) -> List[str]:
-        """
-        Terminal blocks are either mainExit and terminal blocks
-        """
-        return [block.block_id for block in self.blocks.values() if block.get_jump_type() in
-                ["mainExit", "terminal", "FunctionReturn"]]
 
     def build_spec(self, block_tag_idx, return_function_element = 0):
         """
