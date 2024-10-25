@@ -4,6 +4,7 @@ from parser.cfg_block_actions.utils import modify_comes_from, modify_successors
 from parser.cfg_block_list import CFGBlockList
 from parser.cfg_block import CFGBlock
 from global_params.types import block_id_T
+from analysis.cfg_validation import validate_block_list_comes_from
 
 
 def split_blocks_ids(current_node: str) -> Tuple[str, str]:
@@ -52,6 +53,8 @@ class SplitBlock(BlockAction):
         # Include the newly generated blocks in the list
         self._cfg_block_list.add_block(first_half)
         self._cfg_block_list.add_block(second_half)
+
+        # is_correct, reason = validate_block_list_comes_from(self._cfg_block_list)
 
         # We remove the old block (so no reference points to it)
         del self._cfg_block

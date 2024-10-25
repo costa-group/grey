@@ -5,6 +5,7 @@ from typing import Set, Dict, Tuple, List
 from collections import defaultdict
 from global_params.types import block_id_T, component_name_T, function_name_T, block_list_id_T
 from parser.cfg_block import CFGBlock
+from analysis.cfg_validation import validate_block_list_comes_from
 from parser.cfg_block_list import CFGBlockList
 from parser.cfg_object import CFGObject
 from parser.cfg import CFG
@@ -100,8 +101,8 @@ def inline_functions_cfg_object(cfg_object: CFGObject, function_call_info: funct
                                            cfg_block_list, function_name, cfg_object)
             inline_action.perform_action()
 
-            # nx.draw(cfg_block_list.to_graph(), with_labels=True)
-            # plt.show()
+            # Uncomment for validation
+            # is_correct, reason = validate_block_list_comes_from(cfg_block_list)
 
             # Finally, we have to update the information of both the block lists and blocks
             block_list2current[function_name] = current_block_list_name

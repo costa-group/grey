@@ -7,6 +7,7 @@ from parser.cfg_block import CFGBlock
 from parser.cfg_function import CFGFunction
 from parser.cfg_object import CFGObject
 from parser.cfg_block_actions.utils import modify_comes_from, modify_successors
+from analysis.cfg_validation import validate_block_list_comes_from
 
 
 class InlineFunction(BlockAction):
@@ -43,6 +44,12 @@ class InlineFunction(BlockAction):
 
         # Include the blocks from the function into the CFG block list
         for block in self._function_blocklist.blocks.values():
+
+            # Blocks that are introduced are no longer return functions. Hence, we need to modify them before
+            # adding to the block list so that they are not registered as terminal blocks
+            if block.get_jump_type() == "FunctionReturn":
+                block.set_jump_type("sub_block")
+
             self._cfg_blocklist.add_block(block)
 
         function_start_id = self._cfg_function.blocks.start_block
@@ -73,7 +80,12 @@ class InlineFunction(BlockAction):
         for exit_id in function_exists_ids:
             # Now the exit id must jump to the second sub_block
             modify_successors(exit_id, None, second_sub_block.block_id, self._cfg_blocklist)
-            self._cfg_blocklist.blocks[second_sub_block.block_id].add_comes_from(exit_id)
+
+            # Add the exit id if it doesn't appear yet
+            if exit_id not in self._cfg_blocklist.blocks[second_sub_block.block_id].get_comes_from():
+                self._cfg_blocklist.blocks[second_sub_block.block_id].add_comes_from(exit_id)
+
+        # is_correct, reason = validate_block_list_comes_from(self._cfg_blocklist)
 
         # Last step consists of removing the blocklist, the function and remove the function
         # from the corresponding object
