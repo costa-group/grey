@@ -10,7 +10,7 @@ def merged_block_id(block_id_1: block_id_T, block_id_2: block_id_T) -> block_id_
     """
     Given the two merged nodes, generates a new name for the resulting split
     """
-    return '_merged_'.join([block_id_1, block_id_2])
+    return block_id_1
 
 
 class MergeBlocks(BlockAction):
@@ -35,10 +35,10 @@ class MergeBlocks(BlockAction):
         combined_assignment_dict = self._first_block.assignment_dict | self._second_block.assignment_dict
 
         combined_block = CFGBlock(combined_block_id, combined_instrs, combined_jump_type, combined_assignment_dict)
-        self._update_cfg_edges(combined_block)
+        self._combined_block = combined_block
 
-        # Add the new block to the list of combined blocks
-        self._cfg_blocklist.add_block(combined_block)
+        self._update_cfg_edges()
+        self._update_block_list_entries_and_exits()
 
         # Remove the elements from the block lists and the references
         self._cfg_blocklist.blocks.pop(self._first_block_id)
@@ -47,7 +47,11 @@ class MergeBlocks(BlockAction):
         del self._first_block
         del self._second_block
 
-    def _update_cfg_edges(self, combined_block: CFGBlock):
+        # Add the new block to the list of combined blocks
+        self._cfg_blocklist.add_block(combined_block)
+
+
+    def _update_cfg_edges(self):
         """
         Updates the CFG in the block list with the information of the combined block
         """
@@ -55,16 +59,22 @@ class MergeBlocks(BlockAction):
         predecessor_ids = self._first_block.get_comes_from()
         jumps_to_id = self._second_block.get_jump_to()
         falls_to_id = self._second_block.get_falls_to()
+        combined_block_id = self._combined_block.block_id
 
         # Update the information from the predecessors of the first block
         for pred_block_id in predecessor_ids:
-            modify_successors(pred_block_id, self._first_block_id, combined_block.block_id, self._cfg_blocklist)
-        
+            modify_successors(pred_block_id, self._first_block_id, combined_block_id, self._cfg_blocklist)
+
+        # We retrieve the information from the first and second blocks
+        self._combined_block.set_comes_from(predecessor_ids)
+        self._combined_block.set_jump_to(jumps_to_id)
+        self._combined_block.set_falls_to(falls_to_id)
+
         # Update the "comes from" information from the successors of the first block
         if jumps_to_id is not None:
-            modify_comes_from(jumps_to_id, self._second_block_id, combined_block.block_id, self._cfg_blocklist)
+            modify_comes_from(jumps_to_id, self._second_block_id, combined_block_id, self._cfg_blocklist)
         if falls_to_id is not None:
-            modify_comes_from(falls_to_id, self._second_block_id, combined_block.block_id, self._cfg_blocklist)
+            modify_comes_from(falls_to_id, self._second_block_id, combined_block_id, self._cfg_blocklist)
 
     def _update_block_list_entries_and_exits(self):
         # We need to update the information from the start and final blocks with the new information
@@ -73,7 +83,7 @@ class MergeBlocks(BlockAction):
 
         # The exit can be updated for the second half id
         self._cfg_blocklist.terminal_blocks = [exit_id if exit_id != self._second_block_id else self._combined_block.block_id
-                                                for exit_id in self._cfg_blocklist.terminal_blocks]
+                                               for exit_id in self._cfg_blocklist.terminal_blocks]
 
     @property
     def combined_block(self) -> Optional[CFGBlock]:
