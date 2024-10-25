@@ -33,7 +33,7 @@ class CFGBlockList:
             self.start_block = block_id
 
         # The blocks that return in the CFG correspond to function returns and main exits
-        if block.get_jump_type() in ["FunctionReturn", "terminal", "mainExit"]:
+        if block.get_jump_type() in ["FunctionReturn", "mainExit"]:
             self.terminal_blocks.append(block_id)
 
         if block_id in self.blocks:
