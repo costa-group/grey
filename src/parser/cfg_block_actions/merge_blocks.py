@@ -75,5 +75,9 @@ class MergeBlocks(BlockAction):
         self._cfg_blocklist.terminal_blocks = [exit_id if exit_id != self._second_block_id else self._combined_block.block_id
                                                 for exit_id in self._cfg_blocklist.terminal_blocks]
 
+    @property
+    def combined_block(self) -> Optional[CFGBlock]:
+        return self._combined_block
+
     def __str__(self):
         return f"MergeBlocks {self._first_block_id} and {self._second_block_id}"
