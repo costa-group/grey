@@ -1,7 +1,7 @@
 import itertools
 import logging
 
-from global_params.types import instr_id_T, dependencies_T, var_id_T
+from global_params.types import instr_id_T, dependencies_T, var_id_T, block_id_T
 from parser.cfg_instruction import CFGInstruction, build_push_spec, build_pushtag_spec
 from parser.utils_parser import is_in_input_stack, is_in_output_stack, are_dependent_interval, get_empty_spec, \
     get_expression, are_dependent_accesses, replace_pos_instrsid, generate_dep, get_interval, replace_aliasing_spec
@@ -149,6 +149,10 @@ class CFGBlock:
 
     def get_falls_to(self) -> str:
         return self._falls_to
+
+    @property
+    def successors(self) -> List[block_id_T]:
+        return [next_block for next_block in [self._jump_to, self._falls_to] if next_block is not None]
 
     def is_function_call(self) -> bool:
         return self.is_function_call
