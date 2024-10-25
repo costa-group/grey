@@ -95,6 +95,20 @@ class CFGBlockList:
             return graph
         return self.graph
 
+    def to_graph_comes_from(self) -> networkx.DiGraph:
+        """
+        Creates a networkx.DiGraph from the comes_from
+        """
+        if self.graph is None:
+            graph = networkx.DiGraph()
+            graph.add_nodes_from(self.blocks.keys())
+            for block_id, block in self.blocks.items():
+                for predecessor in block.get_comes_from():
+                    graph.add_edge(predecessor, block_id)
+            return graph
+        return self.graph
+
+
     def to_json(self) -> List[Dict[str, Any]]:
         """
         List of dicts for each block
