@@ -47,8 +47,9 @@ class InlineFunction(BlockAction):
 
             # Blocks that are introduced are no longer return functions. Hence, we need to modify them before
             # adding to the block list so that they are not registered as terminal blocks
+            # (now they jump to the return block)
             if block.get_jump_type() == "FunctionReturn":
-                block.set_jump_type("sub_block")
+                block.set_jump_type("conditional")
 
             self._cfg_blocklist.add_block(block)
 
