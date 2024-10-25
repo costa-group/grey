@@ -10,6 +10,7 @@ from parser.cfg_block_list import CFGBlockList
 from parser.cfg_object import CFGObject
 from parser.cfg import CFG
 from parser.cfg_block_actions.inline_function import InlineFunction
+from cfg_methods.utils import union_find_search
 import networkx as nx
 import matplotlib.pyplot as plt
 
@@ -85,7 +86,7 @@ def inline_functions_cfg_object(cfg_object: CFGObject, function_call_info: funct
 
             # First we find in which block list the function block list is stored
             # As many substitutions can happen, we have to iterate recursively to find the most recent one
-            current_block_list_name = _find_current_block_list(cfg_block_list_name, block_list2current)
+            current_block_list_name = union_find_search(cfg_block_list_name, block_list2current)
             cfg_block_list = cfg_object.get_block_list(current_block_list_name)
 
             # Then we determine whether the function has been split
@@ -129,18 +130,3 @@ def _determine_idx(instr_idx: int, split_block_names: List[block_id_T], cfg_bloc
         instr_idx -= len(cfg_block.get_instructions()) + 1
         i += 1
     raise ValueError("Block not found")
-
-
-def _find_current_block_list(block_list_name: block_list_id_T,
-                             block_list2current: Dict[block_list_id_T, block_list_id_T]) -> block_id_T:
-    """
-    Following the idea of a union-find, determine which is to which block
-    list the current block is associated
-    """
-    next_block_list = block_list2current.get(block_list_name, block_list_name)
-    if next_block_list == block_list_name:
-        return block_list_name
-    else:
-        answer_block_list = _find_current_block_list(next_block_list, block_list2current)
-        block_list2current[block_list_name] = answer_block_list
-        return answer_block_list
