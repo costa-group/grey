@@ -28,6 +28,7 @@ class MergeBlocks(BlockAction):
         self._second_block_id: block_id_T = second_block.block_id
 
     def perform_action(self):
+        is_start_block = self._first_block_id == self._cfg_blocklist.start_block
         combined_instrs = self._first_block.get_instructions() + self._second_block.get_instructions()
         combined_block_id = merged_block_id(self._first_block_id, self._second_block_id)
         # We assume the jump type from the second block
@@ -38,18 +39,16 @@ class MergeBlocks(BlockAction):
         self._combined_block = combined_block
 
         self._update_cfg_edges()
-        self._update_block_list_entries_and_exits()
 
         # Remove the elements from the block lists and the references
-        self._cfg_blocklist.blocks.pop(self._first_block_id)
-        self._cfg_blocklist.blocks.pop(self._second_block_id)
+        self._cfg_blocklist.remove_block(self._first_block_id)
+        self._cfg_blocklist.remove_block(self._second_block_id)
 
         del self._first_block
         del self._second_block
 
         # Add the new block to the list of combined blocks
-        self._cfg_blocklist.add_block(combined_block)
-
+        self._cfg_blocklist.add_block(combined_block, is_start_block)
 
     def _update_cfg_edges(self):
         """
@@ -75,15 +74,6 @@ class MergeBlocks(BlockAction):
             modify_comes_from(jumps_to_id, self._second_block_id, combined_block_id, self._cfg_blocklist)
         if falls_to_id is not None:
             modify_comes_from(falls_to_id, self._second_block_id, combined_block_id, self._cfg_blocklist)
-
-    def _update_block_list_entries_and_exits(self):
-        # We need to update the information from the start and final blocks with the new information
-        if self._cfg_blocklist.start_block == self._first_block_id:
-            self._cfg_blocklist.start_block = self._combined_block.block_id
-
-        # The exit can be updated for the second half id
-        self._cfg_blocklist.terminal_blocks = [exit_id if exit_id != self._second_block_id else self._combined_block.block_id
-                                               for exit_id in self._cfg_blocklist.terminal_blocks]
 
     @property
     def combined_block(self) -> Optional[CFGBlock]:

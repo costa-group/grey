@@ -21,20 +21,39 @@ class CFGBlockList:
         self.blocks: Dict[block_id_T, CFGBlock] = {}
         self.graph = None
         self.start_block = None
-        self.terminal_blocks: List[block_id_T] = []
+        self._terminal_blocks: List[block_id_T] = []
+        self._function_return_blocks: List[block_id_T] = []
         self.block_tags_dict = {}
         self.entry_dict: Dict[str, Tuple[str, str]] = dict()
 
-    def add_block(self, block: CFGBlock) -> None:
+    @property
+    def terminal_blocks(self) -> List[block_id_T]:
+        return self._terminal_blocks
+
+    @property
+    def function_return_blocks(self) -> List[block_id_T]:
+        return self._function_return_blocks
+
+    def add_block(self, block: CFGBlock, is_start_block: bool = False) -> None:
+        """
+        Adds a block to the block list, updating the corresponding internal attributes accordingly.
+        The flag 'is_start_block' indicates whether the new added block corresponds to the start block,
+        assuming no start block is already assigned.
+        """
         block_id = block.get_block_id()
 
         # Assuming the first block corresponds to the entry point
-        if not self.blocks:
+        if not self.blocks or is_start_block:
+            assert self.start_block is None, f"Trying to set the start block of block list {self.name} to {block_id} " \
+                                             f"when already assigned to {self.start_block}"
             self.start_block = block_id
 
         # The blocks that return in the CFG correspond to function returns and main exits
-        if block.get_jump_type() in ["FunctionReturn", "mainExit"]:
-            self.terminal_blocks.append(block_id)
+        if block.get_jump_type() in ["FunctionReturn", "mainExit", "terminal"]:
+            self._terminal_blocks.append(block_id)
+
+            if block.get_jump_type() in ["FunctionReturn"]:
+                self._function_return_blocks.append(block_id)
 
         if block_id in self.blocks:
             logging.warning("You are overwritting an existing block")
@@ -48,10 +67,19 @@ class CFGBlockList:
     def remove_block(self, block_id: block_id_T) -> None:
         if block_id not in self.blocks:
             raise ValueError(f"{block_id} does not appear in the block list {self.name}")
+
         if block_id == self.start_block:
-            raise ValueError(f"Attempting to remove start block {block_id} in block list {self.name}")
+            self.start_block = None
+
         self.blocks.pop(block_id)
-        self.terminal_blocks = [terminal_block for terminal_block in self.terminal_blocks if terminal_block == block_id]
+
+        # Remove the corresponding terminal block
+        self._terminal_blocks = [terminal_block for terminal_block in self._terminal_blocks
+                                 if terminal_block != block_id]
+
+        # Same for function return
+        self._function_return_blocks = [return_block for return_block in self._function_return_blocks
+                                        if return_block != block_id]
 
     def get_blocks_dict(self):
         return self.blocks
