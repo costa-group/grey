@@ -245,13 +245,16 @@ def asm_from_cfg(cfg: CFG, asm_dicts: Dict[str, List[ASM_bytecode_T]], tags_dict
     for obj_name in objects_cfg.keys():
         obj = objects_cfg[obj_name]
 
-        asm = traverse_cfg(obj, asm_dicts, tags_dict)
+        tags = tags_dict[obj_name]
+        
+        asm = traverse_cfg(obj, asm_dicts, tags)
         json_asm = {".code": asm}
 
         json_asm_subobjects = {}
         for idx, deployed_obj in enumerate(subobjects):
             subobj = subobjects[deployed_obj]
-            asm_subobj = traverse_cfg(subobj, asm_dicts, tags_dict)
+            tags = tags_dict[deployed_obj]
+            asm_subobj = traverse_cfg(subobj, asm_dicts, tags)
 
             aux_data = "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
             subobj_asm_code = {".auxdata":aux_data, ".code": asm_subobj}
