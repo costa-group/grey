@@ -64,7 +64,7 @@ def construct_analysis_info_from_cfgblocklist(block_list: CFGBlockList) -> cfg_i
     block and "terminal_blocks", which contain the list of terminal block ids
     """
     block_info = {block_id: LivenessBlockInfo(block) for block_id, block in block_list.get_blocks_dict().items()}
-    terminal_blocks = block_list.terminal_blocks
+    terminal_blocks = block_list.terminal_blocks.copy()
     return {"block_info": block_info, "terminal_blocks": terminal_blocks}
 
 
