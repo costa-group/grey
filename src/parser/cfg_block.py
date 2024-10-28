@@ -119,7 +119,7 @@ class CFGBlock:
     def get_instructions(self) -> List[CFGInstruction]:
         return self._instructions
 
-    def remove_instruction(self, instr_idx: int) -> None:
+    def remove_instruction(self, instr_idx: int) -> CFGInstruction:
         """
         Removes the instruction at position instr_index, updating the last split instruction if it affects
         the last instruction
@@ -128,12 +128,14 @@ class CFGBlock:
         instr_idx = (len(self._instructions) + instr_idx) % len(self._instructions)
         if instr_idx >= len(self._instructions):
             raise ValueError("Attempting to remove an instruction index out of bounds")
-        elif instr_idx == len(self._instructions) - 1:
-            self._instructions = self._instructions[:-1]
+        if instr_idx == len(self._instructions) - 1:
             # There is no split instruction at this point
             self._split_instruction = None
-        else:
-            self._instructions.pop(instr_idx)
+
+        return self._instructions.pop(instr_idx)
+
+    def insert_instruction(self, index: int, instruction: CFGInstruction) -> None:
+        self._instructions.insert(index, instruction)
 
     def get_instructions_to_compute(self) -> List[CFGInstruction]:
         return [instruction for instruction in self._instructions if instruction.must_be_computed()]

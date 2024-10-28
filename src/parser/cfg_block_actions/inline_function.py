@@ -2,6 +2,7 @@ from typing import Optional
 from global_params.types import block_id_T, function_name_T
 from parser.cfg_block_actions.actions_interface import BlockAction
 from parser.cfg_block_actions.split_block import SplitBlock
+from parser.cfg_instruction import CFGInstruction
 from parser.cfg_block_list import CFGBlockList
 from parser.cfg_block import CFGBlock
 from parser.cfg_function import CFGFunction
@@ -63,7 +64,7 @@ class InlineFunction(BlockAction):
 
         first_sub_block = split_action.first_half
         # We have to remove the function call
-        first_sub_block.remove_instruction(-1)
+        call_instruction = first_sub_block.remove_instruction(-1)
         second_sub_block = split_action.second_half
 
         self._first_sub_block = first_sub_block
@@ -75,6 +76,10 @@ class InlineFunction(BlockAction):
         modify_successors(first_sub_block.block_id, second_sub_block.block_id, function_start_id, self._cfg_blocklist)
         modify_comes_from(function_start_id, None, first_sub_block.block_id, self._cfg_blocklist)
 
+        # Returned values correspond to the input values of the last instruction of each exit block,
+        # as they must correspond to the instruction "functionReturn"
+        returned_values_per_exit = []
+
         # We set the "comes_from" from the second block to empty. This way, we can ensure only the terminal blocks
         # appear in this list
         self._cfg_blocklist.blocks[second_sub_block.block_id].set_comes_from([])
@@ -83,8 +88,26 @@ class InlineFunction(BlockAction):
             modify_successors(exit_id, None, second_sub_block.block_id, self._cfg_blocklist)
 
             # Add the exit id if it doesn't appear yet
-            if exit_id not in self._cfg_blocklist.blocks[second_sub_block.block_id].get_comes_from():
-                self._cfg_blocklist.blocks[second_sub_block.block_id].add_comes_from(exit_id)
+            if exit_id not in second_sub_block.get_comes_from():
+                second_sub_block.add_comes_from(exit_id)
+
+            exit_block = self._cfg_blocklist.get_block(exit_id)
+            last_instruction_exit = exit_block.get_instructions()[-1]
+            assert last_instruction_exit.get_op_name() == "functionReturn", \
+                f"Last instruction of block {exit_id} is not a FunctionReturn"
+            returned_values_per_exit.append(last_instruction_exit.get_in_args())
+
+            # Finally, we remove the function return from the exit id
+            exit_block.remove_instruction(-1)
+
+        if len(returned_values_per_exit) > 1:
+            # We need to assign phi-functions for the values that were assigned to the returned instruction
+            for i, output_values in enumerate(call_instruction.get_out_args()):
+
+                returned_values_i = [returned_value[i] for returned_value in returned_values_per_exit]
+
+                # Insert phi function at the beginning
+                second_sub_block.insert_instruction(0, CFGInstruction("PhiFunction", returned_values_i, [output_values]))
 
         # is_correct, reason = validate_block_list_comes_from(self._cfg_blocklist)
 
