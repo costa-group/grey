@@ -16,6 +16,7 @@ def asm_from_op_info(op: str, value: Optional[Union[int, str]] = None,
     """
     JSON asm initialized with default values
     """
+
     default_asm = {"name": op, "begin": -1, "end": -1, "source": source}
 
     if value is not None:
@@ -42,6 +43,9 @@ def id_to_asm_bytecode(uf_instrs: Dict[str, Dict[str, Any]], instr_id: str) -> A
                 or associated_instr['disasm'] == "PUSHIMMUTABLE":
             value = hex(int(associated_instr['value'][0]))[2:]
             return asm_from_op_info(associated_instr['disasm'], value)
+        elif associated_instr["disasm"] == "PUSH [TAG]":
+            value = int(associated_instr["outpt_sk"][0])
+            return asm_from_op_info("PUSH [tag]",value)
         else:
             return asm_from_op_info(associated_instr['disasm'],None if 'value' not in associated_instr else associated_instr['value'][0])
 
