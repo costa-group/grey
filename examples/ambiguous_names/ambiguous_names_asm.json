@@ -1,0 +1,38 @@
+{
+    "contracts": {
+        "examples/ambiguous_names/ambiguous_names.cfg:object": {
+            ".code": [
+                {
+                    "name": "PUSH",
+                    "begin": -1,
+                    "end": -1,
+                    "source": -1,
+                    "value": "2a"
+                },
+                {
+                    "name": "PUSH",
+                    "begin": -1,
+                    "end": -1,
+                    "source": -1,
+                    "value": "2a"
+                },
+                {
+                    "name": "SSTORE",
+                    "begin": -1,
+                    "end": -1,
+                    "source": -1
+                },
+                {
+                    "name": "STOP",
+                    "begin": -1,
+                    "end": -1,
+                    "source": -1
+                }
+            ],
+            ".data": {},
+            "sourceList": [
+                "examples/ambiguous_names/ambiguous_names.cfg"
+            ]
+        }
+    }
+}

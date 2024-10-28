@@ -246,10 +246,6 @@ class LayoutGeneration:
         self._block_depth = compute_block_level(self._dominance_tree, self._start)
         self._unification_dict = unification_block_dict(liveness_info)
 
-        # Tags dict and idx for building the specification
-        self._tags_dict = dict()
-        self._tags_idx = 0
-
     def _construct_code_from_block(self, block: CFGBlock, input_stacks: Dict[str, List[str]],
                                    output_stacks: Dict[str, List[str]], combined_stacks: Dict[str, List[str]]):
         """
@@ -328,8 +324,7 @@ class LayoutGeneration:
             output_stacks[block_id] = output_stack
 
         # We build the corresponding specification
-        block_json, out_idx, new_tag_idx = block.build_spec(self._tags_dict, self._tags_idx, input_stack, output_stack)
-        self._tags_idx = new_tag_idx
+        block_json, out_idx = block.build_spec(input_stack, output_stack)
 
         return block_json
 
@@ -401,8 +396,6 @@ def layout_generation(cfg: CFG, final_dir: Path = Path(".")) -> Tuple[Dict[str, 
     component2block_list = cfg.generate_id2block_list()
 
     jsons = dict()
-    tag_idx = 0
-    tags_dict = dict()
 
     for component_name, liveness in results.items():
         print(component_name)
@@ -413,14 +406,8 @@ def layout_generation(cfg: CFG, final_dir: Path = Path(".")) -> Tuple[Dict[str, 
 
         layout = LayoutGeneration(component_name, component2block_list[component_name], liveness, component2inputs,
                                   final_dir.joinpath(f"{short_component_name}_dominated.dot"), digraph)
-        layout._tags_idx = tag_idx
+        
         layout_blocks = layout.build_layout()
         jsons.update(layout_blocks)
 
-        # Update the target idx with the one in the layout object
-        tag_idx = layout._tags_idx
-
-        # Store the assigned tags in the dict
-        tags_dict.update(layout._tags_dict)
-
-    return jsons, tags_dict
+    return jsons

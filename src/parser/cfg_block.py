@@ -186,19 +186,40 @@ class CFGBlock:
     def set_length(self) -> int:
         return len(self._instructions)
 
-    def _process_instructions_from_jump(self):
-        # Add a PUSH tag instruction as part of the assignment dict
-        self._instructions.insert(0, CFGInstruction("PUSH [tag]", [], [self._jump_to]))
+    def _process_instructions_from_jump(self, tags_dict: Dict[str, int], tag_idx: int):
 
+        if self._jump_to not in tags_dict:
+            tags_dict[self._jump_to] = tag_idx
+            tag_value = tag_idx
+            tag_idx+=1
+        else:
+            tag_value = tags_dict[self._jump_to]
+
+        # Add a PUSH tag instruction as part of the assignment dict
+        self._instructions.insert(0, CFGInstruction("PUSH [tag]", [], [str(tag_value)]))
+            
         # Add a JUMP instruction
-        self._instructions.append(CFGInstruction("JUMP", [self._jump_to], []))
+        self._instructions.append(CFGInstruction("JUMP", [str(tag_value)], []))
 
-    def _process_instructions_from_jumpi(self, condition: str):
+        return tag_idx
+        
+    def _process_instructions_from_jumpi(self, condition: str, tags_dict: Dict[str,int], tag_idx: int ):
+
+        if self._jump_to not in tags_dict:
+            tags_dict[self._jump_to] = tag_idx
+            tag_value = tag_idx
+            tag_idx+=1
+        else:
+            tag_value = tags_dict[self._jump_to]
+            
         # Add a PUSH tag instruction as part of the assignment dict
-        self._instructions.insert(0, CFGInstruction("PUSH [tag]", [], [self._jump_to]))
+        self._instructions.insert(0, CFGInstruction("PUSH [tag]", [], [str(tag_value)]))
 
         # Add a JUMPI instruction
-        self._instructions.append(CFGInstruction("JUMPI", [condition, self._jump_to], []))
+        self._instructions.append(CFGInstruction("JUMPI", [condition, str(tag_value)], []))
+
+        return tag_idx
+        
 
     def _process_instructions_from_function_return(self, values: List[var_id_T]):
         """
@@ -207,21 +228,22 @@ class CFGBlock:
         """
         self._instructions.append(CFGInstruction("functionReturn", list(reversed(values)), []))
 
-    def set_jump_info(self, exit_info: Dict[str, Any]) -> None:
+    def set_jump_info(self, exit_info: Dict[str, Any], tags_dict: Dict[str,int], tag_idx) -> None:
         type_block = exit_info["type"]
         if type_block in ["ConditionalJump"]:
             targets = exit_info["targets"]
             self._jump_type = "conditional"
             self._falls_to = targets[0]
             self._jump_to = targets[1]
-            self._process_instructions_from_jumpi(exit_info["cond"])
+            tag_idx = self._process_instructions_from_jumpi(exit_info["cond"], tags_dict, tag_idx)
+
 
         elif type_block in ["Jump"]:
             targets = exit_info["targets"]
             self._jump_type = "unconditional"
             self._jump_to = targets[0]
             # Add to the instructions a JUMP
-            self._process_instructions_from_jump()
+            tag_idx = self._process_instructions_from_jump(tags_dict, tag_idx)
 
         elif type_block in ["Terminated"]:
             # We do not store the direction as it generates a loop
@@ -233,8 +255,11 @@ class CFGBlock:
             self._jump_type = "mainExit"
         elif type_block in ["FunctionReturn"]:
             self._jump_type = "FunctionReturn"
+            print(exit_info)
             self._process_instructions_from_function_return(exit_info["returnValues"])
 
+        return tag_idx
+            
     def process_function_calls(self, function_ids):
         op_names = map(lambda x: x.get_op_name(), self._instructions)
         calls = filter(lambda x: x in function_ids, op_names)
@@ -576,81 +601,7 @@ class CFGBlock:
 
         return block_spec, out_idx, block_tag_idx
 
-    # def build_spec(self, block_tags_dict: Dict, block_tag_idx: int):
-
-    #     ins_seq = []
-    #     map_instructions = {}
-    #     specifications = {}
-
-    #     cont = 0
-    #     out_idx = 0
-    #     # print("BLOCK TAG", block_tag_idx)
-    #     # print(self._instructions)
-
-    #     for i in range(len(self._instructions)):
-    #         ins = self._instructions[i]
-    #         if ins.get_op_name().upper() in constants.split_block or ins.get_op_name() in self.function_calls:
-    #             if  ins_seq != []:
-    #                 r, out_idx, map_positions = self._build_spec_for_block(ins_seq, map_instructions, out_idx)
-
-    #                 sto_deps, mem_deps = self._process_dependences(ins_seq, map_positions)
-
-    #                 r["storage_dependences"] = sto_deps
-    #                 r["memory_dependences"] = mem_deps
-
-    #                 specifications[str(self.block_id)+"_"+str(cont)] = r
-    #                 cont +=1
-
-    #                 if not ins.get_op_name() in self.function_calls:
-    #                     print(str(self.block_id)+"_"+str(cont))
-    #                     print(json.dumps(r, indent=4))
-
-    #             else:
-    #                 r = get_empty_spec()
-    #                 cont+=1
-
-    #             if ins.get_op_name() in self.function_calls:
-    #                 r, out_idx = self._include_function_call_tags(ins,out_idx,r)
-
-    #                 specifications[str(self.block_id)+"_"+str(cont-1)] = r
-    #                 print(str(self.block_id)+"_"+str(cont-1))
-    #                 print(json.dumps(r, indent=4))
-
-    #             #We reset the seq of instructions and the out_idx for next block
-    #             ins_seq = []
-    #             out_idx = 0
-    #             map_instructions = {}
-
-    #         else:
-    #             ins_seq.append(ins)
-
-    #     if ins_seq != []:
-    #         r, out_idx, map_positions = self._build_spec_for_block(ins_seq, map_instructions, out_idx)
-
-    #         sto_deps, mem_deps = self._process_dependences(ins_seq, map_positions)
-    #         r["storage_dependences"] = sto_deps
-    #         r["memory_dependences"] = mem_deps
-
-    #         specifications[str(self.block_id)+"_"+str(cont)] = r
-
-    #         #Just to print information if it is not a jump
-    #         if not self._jump_type in ["conditional","unconditional"]:
-    #             print(str(self.block_id)+"_"+str(cont))
-    #             print(json.dumps(r, indent=4))
-
-    #     else:
-    #         r = get_empty_spec()
-    #         cont+=1
-
-    #     if self._jump_type in ["conditional","unconditional"]:
-    #         r, out_idx, block_tag_idx = self._include_jump_tag(r,out_idx, block_tags_dict, block_tag_idx)
-    #         specifications[str(self.block_id)+"_"+str(cont)] = r
-    #         print(str(self.block_id)+"_"+str(cont))
-    #         print(json.dumps(r, indent=4))
-
-    #     return specifications, block_tag_idx
-
-    def build_spec(self, block_tags_dict: Dict, block_tag_idx: int, initial_stack: List[str],
+    def build_spec(self, initial_stack: List[str],
                    final_stack: List[str]) -> Tuple[Dict[str, Any], int, int]:
         
         map_instructions = {}
@@ -669,7 +620,7 @@ class CFGBlock:
             logging.debug(f"Building Spec of block {self.block_id}...")
             logging.debug(json.dumps(spec, indent=4))
 
-        return spec, out_idx, block_tag_idx
+        return spec, out_idx
 
     def __str__(self):
         s = "BlockID: " + self.block_id + "\n"

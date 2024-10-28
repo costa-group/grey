@@ -16,10 +16,11 @@ def asm_from_op_info(op: str, value: Optional[Union[int, str]] = None,
     """
     JSON asm initialized with default values
     """
+
     default_asm = {"name": op, "begin": -1, "end": -1, "source": source}
 
     if value is not None:
-        default_asm["value"] = value
+        default_asm["value"] = str(value)
 
     if jump_type is not None:
         default_asm["jumpType"] = jump_type
@@ -42,6 +43,9 @@ def id_to_asm_bytecode(uf_instrs: Dict[str, Dict[str, Any]], instr_id: str) -> A
                 or associated_instr['disasm'] == "PUSHIMMUTABLE":
             value = hex(int(associated_instr['value'][0]))[2:]
             return asm_from_op_info(associated_instr['disasm'], value)
+        elif associated_instr["disasm"] == "PUSH [TAG]":
+            value = int(associated_instr["outpt_sk"][0])
+            return asm_from_op_info("PUSH [tag]",value)
         else:
             return asm_from_op_info(associated_instr['disasm'],None if 'value' not in associated_instr else associated_instr['value'][0])
 
@@ -221,7 +225,7 @@ def traverse_cfg(cfg_object, asm_dicts, tags_dict):
 
         elif jump_type == "mainExit":
             asm_instructions+=asm_block+[asm_from_op_info("STOP")]
-            init_pos_dict += [block_id]*len(asm_block+1)
+            init_pos_dict += [block_id]*(len(asm_block)+1)
             
         else:
             raise Exception("[ERROR]: Unknown jump type when generating asm output")
@@ -245,13 +249,16 @@ def asm_from_cfg(cfg: CFG, asm_dicts: Dict[str, List[ASM_bytecode_T]], tags_dict
     for obj_name in objects_cfg.keys():
         obj = objects_cfg[obj_name]
 
-        asm = traverse_cfg(obj, asm_dicts, tags_dict)
+        tags = tags_dict[obj_name]
+        
+        asm = traverse_cfg(obj, asm_dicts, tags)
         json_asm = {".code": asm}
 
         json_asm_subobjects = {}
         for idx, deployed_obj in enumerate(subobjects):
             subobj = subobjects[deployed_obj]
-            asm_subobj = traverse_cfg(subobj, asm_dicts, tags_dict)
+            tags = tags_dict[deployed_obj]
+            asm_subobj = traverse_cfg(subobj, asm_dicts, tags)
 
             aux_data = "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
             subobj_asm_code = {".auxdata":aux_data, ".code": asm_subobj}
