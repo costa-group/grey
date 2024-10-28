@@ -1,0 +1,392 @@
+{
+  ".code": [
+    {
+      "begin": 64,
+      "end": 70,
+      "name": "PUSH",
+      "source": -1,
+      "value": "101"
+    },
+    {
+      "begin": 58,
+      "end": 62,
+      "name": "PUSH",
+      "source": -1,
+      "value": "1"
+    },
+    {
+      "begin": 51,
+      "end": 71,
+      "name": "SSTORE",
+      "source": -1
+    },
+    {
+      "begin": 97,
+      "end": 103,
+      "name": "PUSH",
+      "source": -1,
+      "value": "202"
+    },
+    {
+      "begin": 91,
+      "end": 95,
+      "name": "PUSH",
+      "source": -1,
+      "value": "2"
+    },
+    {
+      "begin": 84,
+      "end": 104,
+      "name": "SSTORE",
+      "source": -1
+    },
+    {
+      "begin": 167,
+      "end": 613,
+      "name": "tag",
+      "source": -1,
+      "value": "1"
+    },
+    {
+      "begin": 167,
+      "end": 613,
+      "name": "JUMPDEST",
+      "source": -1
+    },
+    {
+      "begin": 201,
+      "end": 205,
+      "name": "PUSH",
+      "source": -1,
+      "value": "3"
+    },
+    {
+      "begin": 195,
+      "end": 206,
+      "name": "SLOAD",
+      "source": -1
+    },
+    {
+      "begin": 188,
+      "end": 207,
+      "name": "ISZERO",
+      "source": -1
+    },
+    {
+      "begin": 185,
+      "end": 217,
+      "name": "PUSH [tag]",
+      "source": -1,
+      "value": "2"
+    },
+    {
+      "begin": 185,
+      "end": 217,
+      "name": "JUMPI",
+      "source": -1
+    },
+    {
+      "begin": 247,
+      "end": 253,
+      "name": "PUSH",
+      "source": -1,
+      "value": "505"
+    },
+    {
+      "begin": 241,
+      "end": 245,
+      "name": "PUSH",
+      "source": -1,
+      "value": "5"
+    },
+    {
+      "begin": 234,
+      "end": 254,
+      "name": "SSTORE",
+      "source": -1
+    },
+    {
+      "begin": 280,
+      "end": 284,
+      "name": "PUSH",
+      "source": -1,
+      "value": "6"
+    },
+    {
+      "begin": 274,
+      "end": 285,
+      "name": "SLOAD",
+      "source": -1
+    },
+    {
+      "begin": 271,
+      "end": 388,
+      "name": "PUSH [tag]",
+      "source": -1,
+      "value": "4"
+    },
+    {
+      "begin": 271,
+      "end": 388,
+      "name": "JUMPI",
+      "source": -1
+    },
+    {
+      "begin": 418,
+      "end": 424,
+      "name": "PUSH",
+      "source": -1,
+      "value": "808"
+    },
+    {
+      "begin": 412,
+      "end": 416,
+      "name": "PUSH",
+      "source": -1,
+      "value": "8"
+    },
+    {
+      "begin": 405,
+      "end": 425,
+      "name": "SSTORE",
+      "source": -1
+    },
+    {
+      "begin": 451,
+      "end": 455,
+      "name": "PUSH",
+      "source": -1,
+      "value": "9"
+    },
+    {
+      "begin": 445,
+      "end": 456,
+      "name": "SLOAD",
+      "source": -1
+    },
+    {
+      "begin": 442,
+      "end": 562,
+      "name": "PUSH [tag]",
+      "source": -1,
+      "value": "6"
+    },
+    {
+      "begin": 442,
+      "end": 562,
+      "name": "JUMPI",
+      "source": -1
+    },
+    {
+      "begin": 592,
+      "end": 598,
+      "name": "PUSH",
+      "source": -1,
+      "value": "B0B"
+    },
+    {
+      "begin": 586,
+      "end": 590,
+      "name": "PUSH",
+      "source": -1,
+      "value": "B"
+    },
+    {
+      "begin": 579,
+      "end": 599,
+      "name": "SSTORE",
+      "source": -1
+    },
+    {
+      "begin": 130,
+      "end": 154,
+      "name": "tag",
+      "source": -1,
+      "value": "8"
+    },
+    {
+      "begin": 130,
+      "end": 154,
+      "name": "JUMPDEST",
+      "source": -1
+    },
+    {
+      "begin": 145,
+      "end": 151,
+      "name": "PUSH",
+      "source": -1,
+      "value": "404"
+    },
+    {
+      "begin": 139,
+      "end": 143,
+      "name": "PUSH",
+      "source": -1,
+      "value": "4"
+    },
+    {
+      "begin": 132,
+      "end": 152,
+      "name": "SSTORE",
+      "source": -1
+    },
+    {
+      "begin": 130,
+      "end": 154,
+      "name": "PUSH [tag]",
+      "source": -1,
+      "value": "1"
+    },
+    {
+      "begin": 130,
+      "end": 154,
+      "name": "JUMP",
+      "source": -1
+    },
+    {
+      "begin": 473,
+      "end": 562,
+      "name": "tag",
+      "source": -1,
+      "value": "6"
+    },
+    {
+      "begin": 473,
+      "end": 562,
+      "name": "JUMPDEST",
+      "source": -1
+    },
+    {
+      "begin": 508,
+      "end": 514,
+      "name": "PUSH",
+      "source": -1,
+      "value": "A0A"
+    },
+    {
+      "begin": 502,
+      "end": 506,
+      "name": "PUSH",
+      "source": -1,
+      "value": "A"
+    },
+    {
+      "begin": 495,
+      "end": 515,
+      "name": "SSTORE",
+      "source": -1
+    },
+    {
+      "begin": 536,
+      "end": 544,
+      "name": "PUSH [tag]",
+      "source": -1,
+      "value": "8"
+    },
+    {
+      "begin": 536,
+      "end": 544,
+      "name": "JUMP",
+      "source": -1
+    },
+    {
+      "begin": 302,
+      "end": 388,
+      "name": "tag",
+      "source": -1,
+      "value": "4"
+    },
+    {
+      "begin": 302,
+      "end": 388,
+      "name": "JUMPDEST",
+      "source": -1
+    },
+    {
+      "begin": 337,
+      "end": 343,
+      "name": "PUSH",
+      "source": -1,
+      "value": "707"
+    },
+    {
+      "begin": 331,
+      "end": 335,
+      "name": "PUSH",
+      "source": -1,
+      "value": "7"
+    },
+    {
+      "begin": 324,
+      "end": 344,
+      "name": "SSTORE",
+      "source": -1
+    },
+    {
+      "begin": 117,
+      "end": 613,
+      "name": "tag",
+      "source": -1,
+      "value": "9"
+    },
+    {
+      "begin": 117,
+      "end": 613,
+      "name": "JUMPDEST",
+      "source": -1
+    },
+    {
+      "begin": 639,
+      "end": 645,
+      "name": "PUSH",
+      "source": -1,
+      "value": "C0C"
+    },
+    {
+      "begin": 633,
+      "end": 637,
+      "name": "PUSH",
+      "source": -1,
+      "value": "C"
+    },
+    {
+      "begin": 626,
+      "end": 646,
+      "name": "SSTORE",
+      "source": -1
+    },
+    {
+      "begin": 117,
+      "end": 613,
+      "name": "STOP",
+      "source": -1
+    },
+    {
+      "begin": 208,
+      "end": 217,
+      "name": "tag",
+      "source": -1,
+      "value": "2"
+    },
+    {
+      "begin": 208,
+      "end": 217,
+      "name": "JUMPDEST",
+      "source": -1
+    },
+    {
+      "begin": 210,
+      "end": 215,
+      "name": "PUSH [tag]",
+      "source": -1,
+      "value": "9"
+    },
+    {
+      "begin": 210,
+      "end": 215,
+      "name": "JUMP",
+      "source": -1
+    }
+  ],
+  "sourceList": []
+}
