@@ -1,0 +1,30 @@
+{
+  ".code": [
+    {
+      "begin": 42,
+      "end": 44,
+      "name": "PUSH",
+      "source": -1,
+      "value": "2A"
+    },
+    {
+      "begin": 31,
+      "end": 45,
+      "name": "DUP1",
+      "source": -1
+    },
+    {
+      "begin": 31,
+      "end": 45,
+      "name": "SSTORE",
+      "source": -1
+    },
+    {
+      "begin": 27,
+      "end": 49,
+      "name": "STOP",
+      "source": -1
+    }
+  ],
+  "sourceList": []
+}
