@@ -1,0 +1,1 @@
+jump instruction and push tag of first block can be removed
