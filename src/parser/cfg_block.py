@@ -193,7 +193,7 @@ class CFGBlock:
         self._instructions.insert(0, CFGInstruction("PUSH [tag]", [], [str(tag_value)]))
             
         # Add a JUMP instruction
-        self._instructions.append(CFGInstruction("JUMP", [self._jump_to], []))
+        self._instructions.append(CFGInstruction("JUMP", [str(tag_value)], []))
 
         return tag_idx
         
@@ -210,7 +210,7 @@ class CFGBlock:
         self._instructions.insert(0, CFGInstruction("PUSH [tag]", [], [str(tag_value)]))
 
         # Add a JUMPI instruction
-        self._instructions.append(CFGInstruction("JUMPI", [condition, self._jump_to], []))
+        self._instructions.append(CFGInstruction("JUMPI", [condition, str(tag_value)], []))
 
         return tag_idx
         
