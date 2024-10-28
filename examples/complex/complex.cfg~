@@ -1,0 +1,451 @@
+
+======= yul-files/complex.yul (EVM) =======
+Yul Control Flow Graph:
+
+{
+  "object": {
+    "blocks": [
+      {
+        "exit": {
+          "targets": [
+            "Block0"
+          ],
+          "type": "MainExit"
+        },
+        "id": "Block0",
+        "instructions": [
+          {
+            "in": [],
+            "op": "f",
+            "out": []
+          }
+        ],
+        "type": "FunctionCall"
+      }
+    ],
+    "functions": {
+      "f": {
+        "arguments": [],
+        "blocks": [
+          {
+            "exit": {
+              "targets": [
+                "Block1"
+              ],
+              "type": "Jump"
+            },
+            "id": "Block0",
+            "instructions": []
+          },
+          {
+            "entries": [
+              "Block0",
+              "Block21"
+            ],
+            "exit": {
+              "cond": "v3",
+              "targets": [
+                "Block4",
+                "Block2"
+              ],
+              "type": "ConditionalJump"
+            },
+            "id": "Block1",
+            "instructions": [
+              {
+                "in": [
+                  "0x2a",
+                  "v29"
+                ],
+                "op": "PhiFunction",
+                "out": [
+                  "v2"
+                ]
+              },
+              {
+                "in": [
+                  "0x01",
+                  "v2"
+                ],
+                "op": "lt",
+                "out": [
+                  "v3"
+                ]
+              }
+            ],
+            "type": "BuiltinCall"
+          },
+          {
+            "exit": {
+              "instructions": [],
+              "targets": [
+                "Block4"
+              ],
+              "type": "FunctionReturn"
+            },
+            "id": "Block4",
+            "instructions": [
+              {
+                "in": [
+                  "0x0c0c",
+                  "0x0c"
+                ],
+                "op": "sstore",
+                "out": []
+              }
+            ],
+            "type": "BuiltinCall"
+          },
+          {
+            "exit": {
+              "cond": "v5",
+              "targets": [
+                "Block7",
+                "Block6"
+              ],
+              "type": "ConditionalJump"
+            },
+            "id": "Block2",
+            "instructions": [
+              {
+                "in": [
+                  "v2"
+                ],
+                "op": "mload",
+                "out": [
+                  "v4"
+                ]
+              },
+              {
+                "in": [
+                  "0x00",
+                  "v4"
+                ],
+                "op": "eq",
+                "out": [
+                  "v5"
+                ]
+              }
+            ],
+            "type": "BuiltinCall"
+          },
+          {
+            "exit": {
+              "cond": "v9",
+              "targets": [
+                "Block10",
+                "Block9"
+              ],
+              "type": "ConditionalJump"
+            },
+            "id": "Block7",
+            "instructions": [
+              {
+                "in": [
+                  "0x01",
+                  "v4"
+                ],
+                "op": "eq",
+                "out": [
+                  "v9"
+                ]
+              }
+            ],
+            "type": "BuiltinCall"
+          },
+          {
+            "exit": {
+              "targets": [
+                "Block4"
+              ],
+              "type": "Jump"
+            },
+            "id": "Block6",
+            "instructions": [
+              {
+                "in": [
+                  "0x0202",
+                  "0x02"
+                ],
+                "op": "sstore",
+                "out": []
+              }
+            ],
+            "type": "BuiltinCall"
+          },
+          {
+            "exit": {
+              "cond": "v12",
+              "targets": [
+                "Block13",
+                "Block12"
+              ],
+              "type": "ConditionalJump"
+            },
+            "id": "Block10",
+            "instructions": [
+              {
+                "in": [
+                  "0x02",
+                  "v4"
+                ],
+                "op": "eq",
+                "out": [
+                  "v12"
+                ]
+              }
+            ],
+            "type": "BuiltinCall"
+          },
+          {
+            "exit": {
+              "instructions": [],
+              "targets": [
+                "Block9"
+              ],
+              "type": "FunctionReturn"
+            },
+            "id": "Block9",
+            "instructions": [
+              {
+                "in": [
+                  "0x0404",
+                  "0x04"
+                ],
+                "op": "sstore",
+                "out": []
+              }
+            ],
+            "type": "BuiltinCall"
+          },
+          {
+            "exit": {
+              "cond": "v13",
+              "targets": [
+                "Block16",
+                "Block15"
+              ],
+              "type": "ConditionalJump"
+            },
+            "id": "Block13",
+            "instructions": [
+              {
+                "in": [
+                  "0x03",
+                  "v4"
+                ],
+                "op": "eq",
+                "out": [
+                  "v13"
+                ]
+              }
+            ],
+            "type": "BuiltinCall"
+          },
+          {
+            "exit": {
+              "targets": [
+                "Block12"
+              ],
+              "type": "Terminated"
+            },
+            "id": "Block12",
+            "instructions": [
+              {
+                "in": [
+                  "0x00",
+                  "0x00"
+                ],
+                "op": "revert",
+                "out": []
+              }
+            ],
+            "type": "BuiltinCall"
+          },
+          {
+            "exit": {
+              "cond": "v17",
+              "targets": [
+                "Block18",
+                "Block17"
+              ],
+              "type": "ConditionalJump"
+            },
+            "id": "Block16",
+            "instructions": [
+              {
+                "in": [
+                  "0x02"
+                ],
+                "op": "mload",
+                "out": [
+                  "v17"
+                ]
+              }
+            ],
+            "type": "BuiltinCall"
+          },
+          {
+            "exit": {
+              "targets": [
+                "Block5"
+              ],
+              "type": "Jump"
+            },
+            "id": "Block15",
+            "instructions": [
+              {
+                "in": [
+                  "0x0808",
+                  "0x08"
+                ],
+                "op": "sstore",
+                "out": []
+              }
+            ],
+            "type": "BuiltinCall"
+          },
+          {
+            "exit": {
+              "targets": [
+                "Block5"
+              ],
+              "type": "Jump"
+            },
+            "id": "Block18",
+            "instructions": [
+              {
+                "in": [
+                  "0x0a0a",
+                  "0x0a"
+                ],
+                "op": "sstore",
+                "out": []
+              }
+            ],
+            "type": "BuiltinCall"
+          },
+          {
+            "exit": {
+              "targets": [
+                "Block17"
+              ],
+              "type": "Terminated"
+            },
+            "id": "Block17",
+            "instructions": [
+              {
+                "in": [
+                  "0x00",
+                  "0x00"
+                ],
+                "op": "return",
+                "out": []
+              }
+            ],
+            "type": "BuiltinCall"
+          },
+          {
+            "exit": {
+              "targets": [
+                "Block3"
+              ],
+              "type": "Jump"
+            },
+            "id": "Block5",
+            "instructions": [
+              {
+                "in": [
+                  "0x0b0b",
+                  "0x0b"
+                ],
+                "op": "sstore",
+                "out": []
+              }
+            ],
+            "type": "BuiltinCall"
+          },
+          {
+            "exit": {
+              "cond": "v30",
+              "targets": [
+                "Block21",
+                "Block20"
+              ],
+              "type": "ConditionalJump"
+            },
+            "id": "Block3",
+            "instructions": [
+              {
+                "in": [
+                  "0x01",
+                  "v2"
+                ],
+                "op": "add",
+                "out": [
+                  "v29"
+                ]
+              },
+              {
+                "in": [
+                  "v29"
+                ],
+                "op": "calldataload",
+                "out": [
+                  "v30"
+                ]
+              }
+            ],
+            "type": "BuiltinCall"
+          },
+          {
+            "exit": {
+              "targets": [
+                "Block1"
+              ],
+              "type": "Jump"
+            },
+            "id": "Block21",
+            "instructions": [
+              {
+                "in": [
+                  "0xffff",
+                  "0xff"
+                ],
+                "op": "sstore",
+                "out": []
+              }
+            ],
+            "type": "BuiltinCall"
+          },
+          {
+            "exit": {
+              "instructions": [],
+              "targets": [
+                "Block20"
+              ],
+              "type": "FunctionReturn"
+            },
+            "id": "Block20",
+            "instructions": [
+              {
+                "in": [
+                  "v29",
+                  "0x00"
+                ],
+                "op": "sstore",
+                "out": []
+              }
+            ],
+            "type": "BuiltinCall"
+          }
+        ],
+        "entry": "Block0",
+        "returns": [],
+        "type": "Function"
+      }
+    }
+  },
+  "subObjects": {},
+  "type": "Object"
+}
