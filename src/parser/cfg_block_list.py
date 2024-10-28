@@ -6,28 +6,54 @@ Module that contains the necessary methods for a set of blocks that correspond t
 from typing import List, Dict, Any, Tuple
 import logging
 import networkx
+from global_params.types import block_id_T
 from parser.cfg_block import CFGBlock, include_function_call_tags
 from parser.constants import split_block
 
 
 class CFGBlockList:
     """
-    Object that manages a list of blocks that connected
+    Object that manages a list of blocks that are connected through an object or function
     """
 
-    def __init__(self):
-        self.blocks: Dict[str, CFGBlock] = {}
+    def __init__(self, name: block_id_T):
+        self.name: block_id_T = name
+        self.blocks: Dict[block_id_T, CFGBlock] = {}
         self.graph = None
         self.start_block = None
+        self._terminal_blocks: List[block_id_T] = []
+        self._function_return_blocks: List[block_id_T] = []
         self.block_tags_dict = {}
         self.entry_dict: Dict[str, Tuple[str, str]] = dict()
 
-    def add_block(self, block: CFGBlock) -> None:
+    @property
+    def terminal_blocks(self) -> List[block_id_T]:
+        return self._terminal_blocks
+
+    @property
+    def function_return_blocks(self) -> List[block_id_T]:
+        return self._function_return_blocks
+
+    def add_block(self, block: CFGBlock, is_start_block: bool = False) -> None:
+        """
+        Adds a block to the block list, updating the corresponding internal attributes accordingly.
+        The flag 'is_start_block' indicates whether the new added block corresponds to the start block,
+        assuming no start block is already assigned.
+        """
         block_id = block.get_block_id()
 
         # Assuming the first block corresponds to the entry point
-        if not self.blocks:
+        if not self.blocks or is_start_block:
+            assert self.start_block is None, f"Trying to set the start block of block list {self.name} to {block_id} " \
+                                             f"when already assigned to {self.start_block}"
             self.start_block = block_id
+
+        # The blocks that return in the CFG correspond to function returns and main exits
+        if block.get_jump_type() in ["FunctionReturn", "mainExit", "terminal"]:
+            self._terminal_blocks.append(block_id)
+
+            if block.get_jump_type() in ["FunctionReturn"]:
+                self._function_return_blocks.append(block_id)
 
         if block_id in self.blocks:
             logging.warning("You are overwritting an existing block")
@@ -35,18 +61,28 @@ class CFGBlockList:
         self.graph = None
         self.blocks[block_id] = block
 
-    def get_block(self, block_id: str):
+    def get_block(self, block_id: block_id_T) -> CFGBlock:
         return self.blocks[block_id]
+
+    def remove_block(self, block_id: block_id_T) -> None:
+        if block_id not in self.blocks:
+            raise ValueError(f"{block_id} does not appear in the block list {self.name}")
+
+        if block_id == self.start_block:
+            self.start_block = None
+
+        self.blocks.pop(block_id)
+
+        # Remove the corresponding terminal block
+        self._terminal_blocks = [terminal_block for terminal_block in self._terminal_blocks
+                                 if terminal_block != block_id]
+
+        # Same for function return
+        self._function_return_blocks = [return_block for return_block in self._function_return_blocks
+                                        if return_block != block_id]
 
     def get_blocks_dict(self):
         return self.blocks
-
-    def get_terminal_blocks(self) -> List[str]:
-        """
-        Terminal blocks are either mainExit and terminal blocks
-        """
-        return [block.block_id for block in self.blocks.values() if block.get_jump_type() in
-                ["mainExit", "terminal", "FunctionReturn"]]
 
     def build_spec(self, block_tag_idx, return_function_element = 0):
         """
@@ -79,13 +115,28 @@ class CFGBlockList:
         Creates a networkx.DiGraph from the blocks information
         """
         if self.graph is None:
-            graph = networkx.DiGraph(self.blocks)
+            graph = networkx.DiGraph()
+            graph.add_nodes_from(self.blocks.keys())
             for block_id, block in self.blocks.items():
                 for successor in [block.get_jump_to(), block.get_falls_to()]:
                     if successor is not None:
                         graph.add_edge(block_id, successor)
             return graph
         return self.graph
+
+    def to_graph_comes_from(self) -> networkx.DiGraph:
+        """
+        Creates a networkx.DiGraph from the comes_from
+        """
+        if self.graph is None:
+            graph = networkx.DiGraph()
+            graph.add_nodes_from(self.blocks.keys())
+            for block_id, block in self.blocks.items():
+                for predecessor in block.get_comes_from():
+                    graph.add_edge(predecessor, block_id)
+            return graph
+        return self.graph
+
 
     def to_json(self) -> List[Dict[str, Any]]:
         """

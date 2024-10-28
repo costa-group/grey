@@ -108,7 +108,7 @@ def compute_sub_block_list(block_list: CFGBlockList) -> CFGBlockList:
     """
     Generates a new CFGBlockList that considers splitting blocks when split instructions are found
     """
-    new_block_list = CFGBlockList()
+    new_block_list = CFGBlockList("")
     # For each modified block, we store the names of the initial and final sub block
     modified_blocks = dict()
     for block_name, cfg_block in block_list.blocks.items():

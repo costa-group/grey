@@ -1,5 +1,6 @@
 import json
 import logging
+from global_params.types import component_name_T
 from parser.cfg_block_list import CFGBlockList
 from parser.cfg_function import CFGFunction
 from typing import Dict, List
@@ -28,8 +29,14 @@ class CFGObject:
     def get_block(self, block_id):
         return self.blocks.get_block(block_id)
 
-    def get_block_list(self):
-        return self.blocks
+    def get_block_list(self, name: component_name_T):
+        if name == self.name:
+            return self.blocks
+        function = self.functions.get(name, None)
+        if function is not None:
+            return function.blocks
+        else:
+            raise ValueError(f"CFG Object {self.name} does not contain a function named {name}")
     
     def get_function(self, function_id):
         return self.functions[function_id]

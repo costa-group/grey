@@ -1,5 +1,6 @@
 """
-Module that contains the declaration of common types used throughout the project
+Module that contains the declaration of common types used throughout the project.
+While most of the types correspond to basic types, it is useful to read the project
 """
 from typing import Dict, Union, Any, List, Tuple
 
@@ -20,8 +21,17 @@ instr_id_T = str
 # Id for block ids
 block_id_T = str
 
+# Name of a function
+function_name_T = str
+
+# Object type
+cfg_object_T = str
+
 # A component correspond to the name of either a object or function in the CFG
-component_name_T = str
+component_name_T = Union[cfg_object_T, function_name_T]
+
+# The type of a block list id corresponds to its associated component
+block_list_id_T = component_name_T
 
 # How dependencies among instructions are represented
 dependencies_T = List[List[instr_id_T]]

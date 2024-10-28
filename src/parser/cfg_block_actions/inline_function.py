@@ -1,23 +1,14 @@
 from typing import Optional
+from global_params.types import block_id_T, function_name_T
 from parser.cfg_block_actions.actions_interface import BlockAction
 from parser.cfg_block_actions.split_block import SplitBlock
+from parser.cfg_instruction import CFGInstruction
 from parser.cfg_block_list import CFGBlockList
 from parser.cfg_block import CFGBlock
 from parser.cfg_function import CFGFunction
 from parser.cfg_object import CFGObject
 from parser.cfg_block_actions.utils import modify_comes_from, modify_successors
-
-
-def new_node_name(current_node: str) -> str:
-    """
-    Given a node, generates a new name for the resulting split
-    """
-    split_name = current_node.split("_")
-    if len(split_name) > 1:
-        split_name[1] = str(int(split_name[1]) + 1)
-        return '_'.join(split_name)
-    else:
-        return current_node + "_1"
+from analysis.cfg_validation import validate_block_list_comes_from
 
 
 class InlineFunction(BlockAction):
@@ -35,7 +26,7 @@ class InlineFunction(BlockAction):
         self._instr_position: int = instr_position
         self._cfg_block: CFGBlock = cfg_block
         self._cfg_blocklist: CFGBlockList = cfg_blocklist
-        self._function_name: str = function_name
+        self._function_name: function_name_T = function_name
         self._cfg_function: CFGFunction = cfg_object.functions[function_name]
         self._function_blocklist: CFGBlockList = self._cfg_function.blocks
         self._cfg_object: CFGObject = cfg_object
@@ -43,18 +34,28 @@ class InlineFunction(BlockAction):
         self._second_sub_block: Optional[CFGObject] = None
 
     def perform_action(self):
+        original_block_id = self._cfg_block.block_id
+
         # First we need to split the block in the function call, which is given by the instr position.
         # As a final check, we ensure the instruction in that position corresponds to the function name passed as
         # an argument
         assert self._cfg_block.get_instructions()[self._instr_position].get_op_name() == self._function_name, \
-            f"Expected function call {self._function_name} in position {self._instr_position}"
+            f"Expected function call {self._function_name} in position {self._instr_position} but got instead" \
+            f"{self._cfg_block.get_instructions()}"
 
         # Include the blocks from the function into the CFG block list
         for block in self._function_blocklist.blocks.values():
+
+            # Blocks that are introduced are no longer return functions. Hence, we need to modify them before
+            # adding to the block list so that they are not registered as terminal blocks
+            # (now they jump to the return block)
+            if block.get_jump_type() == "FunctionReturn":
+                block.set_jump_type("conditional")
+
             self._cfg_blocklist.add_block(block)
 
-        function_start_id = self._cfg_function.entry
-        function_exists_ids = self._cfg_function.exits
+        function_start_id = self._cfg_function.blocks.start_block
+        function_exists_ids = self._cfg_function.blocks.function_return_blocks
 
         # Even after splitting the blocks, we have to remove the first instruction
         # from the first block (the function call)
@@ -63,7 +64,7 @@ class InlineFunction(BlockAction):
 
         first_sub_block = split_action.first_half
         # We have to remove the function call
-        first_sub_block.remove_instruction(-1)
+        call_instruction = first_sub_block.remove_instruction(-1)
         second_sub_block = split_action.second_half
 
         self._first_sub_block = first_sub_block
@@ -75,13 +76,40 @@ class InlineFunction(BlockAction):
         modify_successors(first_sub_block.block_id, second_sub_block.block_id, function_start_id, self._cfg_blocklist)
         modify_comes_from(function_start_id, None, first_sub_block.block_id, self._cfg_blocklist)
 
+        # Returned values correspond to the input values of the last instruction of each exit block,
+        # as they must correspond to the instruction "functionReturn"
+        returned_values_per_exit = []
+
         # We set the "comes_from" from the second block to empty. This way, we can ensure only the terminal blocks
         # appear in this list
         self._cfg_blocklist.blocks[second_sub_block.block_id].set_comes_from([])
         for exit_id in function_exists_ids:
             # Now the exit id must jump to the second sub_block
             modify_successors(exit_id, None, second_sub_block.block_id, self._cfg_blocklist)
-            self._cfg_blocklist.blocks[second_sub_block.block_id].add_comes_from(exit_id)
+
+            # Add the exit id if it doesn't appear yet
+            if exit_id not in second_sub_block.get_comes_from():
+                second_sub_block.add_comes_from(exit_id)
+
+            exit_block = self._cfg_blocklist.get_block(exit_id)
+            last_instruction_exit = exit_block.get_instructions()[-1]
+            assert last_instruction_exit.get_op_name() == "functionReturn", \
+                f"Last instruction of block {exit_id} is not a FunctionReturn"
+            returned_values_per_exit.append(last_instruction_exit.get_in_args())
+
+            # Finally, we remove the function return from the exit id
+            exit_block.remove_instruction(-1)
+
+        if len(returned_values_per_exit) > 1:
+            # We need to assign phi-functions for the values that were assigned to the returned instruction
+            for i, output_values in enumerate(call_instruction.get_out_args()):
+
+                returned_values_i = [returned_value[i] for returned_value in returned_values_per_exit]
+
+                # Insert phi function at the beginning
+                second_sub_block.insert_instruction(0, CFGInstruction("PhiFunction", returned_values_i, [output_values]))
+
+        # is_correct, reason = validate_block_list_comes_from(self._cfg_blocklist)
 
         # Last step consists of removing the blocklist, the function and remove the function
         # from the corresponding object

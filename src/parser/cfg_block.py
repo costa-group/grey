@@ -1,7 +1,7 @@
 import itertools
 import logging
 
-from global_params.types import instr_id_T, dependencies_T, var_id_T
+from global_params.types import instr_id_T, dependencies_T, var_id_T, block_id_T
 from parser.cfg_instruction import CFGInstruction, build_push_spec, build_pushtag_spec
 from parser.utils_parser import is_in_input_stack, is_in_output_stack, are_dependent_interval, get_empty_spec, \
     get_expression, are_dependent_accesses, replace_pos_instrsid, generate_dep, get_interval, replace_aliasing_spec
@@ -119,7 +119,7 @@ class CFGBlock:
     def get_instructions(self) -> List[CFGInstruction]:
         return self._instructions
 
-    def remove_instruction(self, instr_idx: int) -> None:
+    def remove_instruction(self, instr_idx: int) -> CFGInstruction:
         """
         Removes the instruction at position instr_index, updating the last split instruction if it affects
         the last instruction
@@ -128,12 +128,14 @@ class CFGBlock:
         instr_idx = (len(self._instructions) + instr_idx) % len(self._instructions)
         if instr_idx >= len(self._instructions):
             raise ValueError("Attempting to remove an instruction index out of bounds")
-        elif instr_idx == len(self._instructions) - 1:
-            self._instructions = self._instructions[:-1]
+        if instr_idx == len(self._instructions) - 1:
             # There is no split instruction at this point
             self._split_instruction = None
-        else:
-            self._instructions.pop(instr_idx)
+
+        return self._instructions.pop(instr_idx)
+
+    def insert_instruction(self, index: int, instruction: CFGInstruction) -> None:
+        self._instructions.insert(index, instruction)
 
     def get_instructions_to_compute(self) -> List[CFGInstruction]:
         return [instruction for instruction in self._instructions if instruction.must_be_computed()]
@@ -149,6 +151,10 @@ class CFGBlock:
 
     def get_falls_to(self) -> str:
         return self._falls_to
+
+    @property
+    def successors(self) -> List[block_id_T]:
+        return [next_block for next_block in [self._jump_to, self._falls_to] if next_block is not None]
 
     def is_function_call(self) -> bool:
         return self.is_function_call

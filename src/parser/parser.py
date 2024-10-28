@@ -149,7 +149,7 @@ def parser_block_list(object_name: str, blocks: List[Dict[str, Any]], function_c
     """
     Returns the list of blocks parsed and the ids that correspond to Exit blocks
     """
-    block_list = CFGBlockList()
+    block_list = CFGBlockList(object_name)
     exit_blocks = []
     comes_from = collections.defaultdict(lambda: [])
     for b in blocks:
@@ -181,7 +181,8 @@ def parse_function(function_name: str, function_json: Dict[str,Any], function_ca
     blocks = function_json.get("blocks", -1)
     cfg_block_list, exit_points = parser_block_list(function_name, blocks, function_calls, built_in_op, objects_keys)
 
-    cfg_function = CFGFunction(function_name, args, ret_vals, entry_point, cfg_block_list)
+    cfg_function = CFGFunction(function_name, args, ret_vals, generate_block_name(function_name, entry_point),
+                               cfg_block_list)
     cfg_function.exits = exit_points
     return cfg_function
     

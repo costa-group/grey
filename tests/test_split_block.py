@@ -11,7 +11,7 @@ class TestSplitBlock:
     def test_split_block_simple(self, n, instructions):
         # Simple example: just one block
         cfg_block = CFGBlock("block_0", instructions, "sub_block", dict())
-        cfg_block_list = CFGBlockList()
+        cfg_block_list = CFGBlockList("object")
         cfg_block_list.add_block(cfg_block)
 
         # We don't want to select the last index

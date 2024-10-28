@@ -398,6 +398,7 @@ def layout_generation(cfg: CFG, final_dir: Path = Path(".")) -> Tuple[Dict[str, 
     cfg_info = construct_analysis_info(cfg)
     component2inputs = functions_inputs_from_components(cfg)
     results = perform_liveness_analysis_from_cfg_info(cfg_info)
+    component2block_list = cfg.generate_id2block_list()
 
     jsons = dict()
     tag_idx = 0
@@ -410,7 +411,7 @@ def layout_generation(cfg: CFG, final_dir: Path = Path(".")) -> Tuple[Dict[str, 
 
         short_component_name = shorten_name(component_name)
 
-        layout = LayoutGeneration(component_name, cfg.block_list[component_name], liveness, component2inputs,
+        layout = LayoutGeneration(component_name, component2block_list[component_name], liveness, component2inputs,
                                   final_dir.joinpath(f"{short_component_name}_dominated.dot"), digraph)
         layout._tags_idx = tag_idx
         layout_blocks = layout.build_layout()
