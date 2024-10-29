@@ -16,6 +16,7 @@ from solution_generation.statistics import generate_statistics_info
 from solution_generation.reconstruct_bytecode import asm_from_ids, asm_from_cfg, store_asm_output
 from liveness.liveness_analysis import dot_from_analysis
 from liveness.layout_generation import layout_generation
+from cfg_methods.preprocessing_methods import preprocess_cfg
 
 
 def parse_args() -> argparse.Namespace:
@@ -70,13 +71,13 @@ def yul_cfg_dict_from_format(input_format: str, filename: str, contract: Optiona
 
 
 def analyze_single_cfg(cfg: CFG, tags_dict, final_dir: Path, dot_file_dir: Path, args: argparse.Namespace):
-    sub_block_cfg = compute_sub_block_cfg(cfg)
+    preprocess_cfg(cfg, dot_file_dir)
 
     if args.visualize:
-        liveness_info = dot_from_analysis(sub_block_cfg, dot_file_dir)
+        liveness_info = dot_from_analysis(cfg, dot_file_dir)
 
     x = dtimer()
-    jsons = layout_generation(sub_block_cfg, dot_file_dir)
+    jsons = layout_generation(cfg, dot_file_dir)
 
     sfs_final_dir = final_dir.joinpath("sfs")
     sfs_final_dir.mkdir(exist_ok=True, parents=True)
@@ -100,7 +101,7 @@ def analyze_single_cfg(cfg: CFG, tags_dict, final_dir: Path, dot_file_dir: Path,
 
         # Generate complete asm from CFG object + dict
 
-        json_asm_contract = asm_from_cfg(sub_block_cfg, block_name2asm, tags_dict, args.source)
+        json_asm_contract = asm_from_cfg(cfg, block_name2asm, tags_dict, args.source)
         df = pd.DataFrame(csv_rows)
         df.to_csv(final_dir.joinpath("statistics.csv"))
 
