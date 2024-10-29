@@ -1,0 +1,24 @@
+{
+    "contracts": {
+        "examples/complex/complex.cfg:object": {
+            ".code": [
+                {
+                    "name": "F",
+                    "begin": -1,
+                    "end": -1,
+                    "source": -1
+                },
+                {
+                    "name": "STOP",
+                    "begin": -1,
+                    "end": -1,
+                    "source": -1
+                }
+            ],
+            ".data": {},
+            "sourceList": [
+                "examples/complex/complex.cfg"
+            ]
+        }
+    }
+}
