@@ -140,7 +140,7 @@ def locate_fallsto_block(block_id,fallsto_block,pos_dict,visited,asm_instruction
     return pos_dict, asm_instructions
 
 def traverse_cfg(cfg_object, asm_dicts, tags_dict):
-    block_list = cfg_object.get_block_list()
+    block_list = cfg_object.get_block_list(cfg_object.get_name())
     blocks = block_list.get_blocks_dict()
 
     init_block = blocks[list(blocks.keys())[0]]

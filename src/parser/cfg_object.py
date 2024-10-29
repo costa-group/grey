@@ -25,7 +25,11 @@ class CFGObject:
     def add_functions(self, functions_list:List[CFGFunction]) -> None:
         for f in functions_list:
             self.add_function(f)
-        
+
+    
+    def get_name(self):
+        return self.name
+            
     def get_block(self, block_id):
         return self.blocks.get_block(block_id)
 
