@@ -74,7 +74,8 @@ def asm_for_split_instruction(block: CFGBlock) -> List[ASM_bytecode_T]:
     Reconstructs the assembly from a block with a single split instruction
     """
 
-    assert block.split_instruction != None, "[ERROR]: split_instructions has to contain a value in a subblock"
+    assert block.split_instruction is not None, \
+        f"[ERROR]: Block {block.block_id} split_instructions has to contain a value in a subblock"
     
     split_ins = block.split_instruction
     asm_ins = asm_from_op_info(split_ins.get_op_name().upper())
