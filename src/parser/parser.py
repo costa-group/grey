@@ -108,6 +108,7 @@ def parse_block(object_name: str, block_json: Dict[str,Any], built_in_op: bool,
 
     block_identifier = generate_block_name(object_name, block_id)
     block = CFGBlock(block_identifier, list_cfg_instructions, block_type, assignment_dict)
+    block.set_jump_info(block_exit)
 
     block.check_validity_arguments()
     
