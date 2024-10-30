@@ -80,14 +80,14 @@ class CFGBlock:
         # Split instruction is recognized as the last instruction
         # As we don't have information on the function calls, we assign it to None and then
         # identify it once we set the function calls
-        self._split_instruction = instructions[-1] if len(instructions) > 0 and instructions[-1].get_op_name() \
-                                                      in itertools.chain(split_block, ["JUMP", "JUMPI"]) else None
+        self._split_instruction = None
 
         # minimum size of the source stack
         self.source_stack = 0
         self._jump_type = type_block
         self._jump_to = None
         self._falls_to = None
+        self._condition = None
         self.assignment_dict = assignment_dict
         self.is_function_call = False
         self._comes_from = []
@@ -112,6 +112,16 @@ class CFGBlock:
     @property
     def split_instruction(self) -> Optional[CFGInstruction]:
         return self._split_instruction
+
+    @split_instruction.setter
+    def split_instruction(self, instruction: Optional[CFGInstruction]) -> None:
+        self._split_instruction = instruction
+
+    def get_condition(self) -> Optional[var_id_T]:
+        return self._condition
+
+    def set_condition(self, cond: var_id_T) -> None:
+        self._condition = cond
 
     def get_block_id(self) -> str:
         return self.block_id
@@ -186,40 +196,44 @@ class CFGBlock:
     def set_length(self) -> int:
         return len(self._instructions)
 
-    def _process_instructions_from_jump(self, tags_dict: Dict[str, int], tag_idx: int):
+    def insert_jumps_tags(self, tags_dict: Dict[str, int]) -> None:
+        if self._jump_type == "conditional":
+            self._insert_jumpi_instruction(tags_dict)
+        elif self._jump_type == "unconditional":
+            self._insert_jump_instruction(tags_dict)
 
+    def _insert_jump_instruction(self, tags_dict: Dict[str, int]) -> None:
         if self._jump_to not in tags_dict:
-            tags_dict[self._jump_to] = tag_idx
-            tag_value = tag_idx
-            tag_idx+=1
+            tag_value = len(tags_dict)
+            tags_dict[self._jump_to] = tag_value
         else:
             tag_value = tags_dict[self._jump_to]
 
-        # Add a PUSH tag instruction as part of the assignment dict
-        self._instructions.insert(0, CFGInstruction("PUSH [tag]", [], [str(tag_value)]))
+        # Add a PUSH tag instruction
+        self._instructions.append(CFGInstruction("PUSH [tag]", [], [str(tag_value)]))
             
         # Add a JUMP instruction
         self._instructions.append(CFGInstruction("JUMP", [str(tag_value)], []))
 
-        return tag_idx
-        
-    def _process_instructions_from_jumpi(self, condition: str, tags_dict: Dict[str,int], tag_idx: int ):
-
+    def _insert_jumpi_instruction(self, tags_dict: Dict[str, int]) -> None:
         if self._jump_to not in tags_dict:
-            tags_dict[self._jump_to] = tag_idx
-            tag_value = tag_idx
-            tag_idx+=1
+            tag_value = len(tags_dict)
+            tags_dict[self._jump_to] = tag_value
         else:
             tag_value = tags_dict[self._jump_to]
-            
-        # Add a PUSH tag instruction as part of the assignment dict
-        self._instructions.insert(0, CFGInstruction("PUSH [tag]", [], [str(tag_value)]))
+
+        assert self._condition is not None, \
+            f"Trying to introduce a JUMPI with an empty condition in block {self.block_id}"
+
+        # Add a PUSH tag instruction
+        self._instructions.append(CFGInstruction("PUSH [tag]", [], [str(tag_value)]))
 
         # Add a JUMPI instruction
-        self._instructions.append(CFGInstruction("JUMPI", [condition, str(tag_value)], []))
+        jumpi_instr = CFGInstruction("JUMPI", [self._condition, str(tag_value)], [])
+        self._instructions.append(jumpi_instr)
 
-        return tag_idx
-        
+        # Finally, assign the JUMPI instruction to the split one
+        self._split_instruction = jumpi_instr
 
     def _process_instructions_from_function_return(self, values: List[var_id_T]):
         """
@@ -228,22 +242,20 @@ class CFGBlock:
         """
         self._instructions.append(CFGInstruction("functionReturn", list(reversed(values)), []))
 
-    def set_jump_info(self, exit_info: Dict[str, Any], tags_dict: Dict[str,int], tag_idx) -> None:
+    def set_jump_info(self, exit_info: Dict[str, Any]) -> None:
         type_block = exit_info["type"]
         if type_block in ["ConditionalJump"]:
             targets = exit_info["targets"]
             self._jump_type = "conditional"
             self._falls_to = targets[0]
             self._jump_to = targets[1]
-            tag_idx = self._process_instructions_from_jumpi(exit_info["cond"], tags_dict, tag_idx)
-
+            self._condition = exit_info["cond"]
 
         elif type_block in ["Jump"]:
             targets = exit_info["targets"]
             self._jump_type = "unconditional"
             self._jump_to = targets[0]
             # Add to the instructions a JUMP
-            tag_idx = self._process_instructions_from_jump(tags_dict, tag_idx)
 
         elif type_block in ["Terminated"]:
             # We do not store the direction as it generates a loop
@@ -255,11 +267,8 @@ class CFGBlock:
             self._jump_type = "mainExit"
         elif type_block in ["FunctionReturn"]:
             self._jump_type = "FunctionReturn"
-            print(exit_info)
             self._process_instructions_from_function_return(exit_info["returnValues"])
 
-        return tag_idx
-            
     def process_function_calls(self, function_ids):
         op_names = map(lambda x: x.get_op_name(), self._instructions)
         calls = filter(lambda x: x in function_ids, op_names)

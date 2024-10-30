@@ -53,9 +53,13 @@ def modify_block_list_split(block_list: CFGBlockList) -> None:
                 split_block_action = SplitBlock(instr_idx, current_block, block_list)
                 split_block_action.perform_action()
 
+                # Set the first sub block instruction split instruction
+                first_sub_block = split_block_action.first_half
+                first_sub_block.split_instruction = first_sub_block.get_instructions()[-1]
+
                 # If the current block corresponds to the initial block and we modify it
                 if new_start_block is None and current_block.block_id == block_list.start_block:
-                    new_start_block = split_block_action.first_half
+                    new_start_block = first_sub_block
 
                 current_block = split_block_action.second_half
                 instr_idx = 0
