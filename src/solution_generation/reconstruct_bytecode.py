@@ -20,7 +20,7 @@ def asm_from_op_info(op: str, value: Optional[Union[int, str]] = None,
     default_asm = {"name": op, "begin": -1, "end": -1, "source": source}
 
     if value is not None:
-        default_asm["value"] = str(value)
+        default_asm["value"] = str(value).upper()
 
     if jump_type is not None:
         default_asm["jumpType"] = jump_type
