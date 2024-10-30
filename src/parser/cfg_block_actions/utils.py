@@ -38,11 +38,11 @@ def modify_successors(block_to_modify: block_id_T, previous_successor_id: block_
     pred_block = cfg_block_list.blocks[block_to_modify]
 
     # To avoid assigning the same successor id if the previous one was None,
-    # we force the "falls to" case not to be empty (same as unconditional jumps)
-    if previous_successor_id is not None and pred_block.get_jump_to() == previous_successor_id:
+    # we force the "jumps to" case not to be empty (same as unconditional jumps)
+    if previous_successor_id is None or pred_block.get_jump_to() == previous_successor_id:
         pred_block.set_jump_to(new_successor_id)
     else:
         falls_to = pred_block.get_falls_to()
-        assert falls_to == previous_successor_id or previous_successor_id is None, \
+        assert falls_to == previous_successor_id, \
             f"Incoherent CFG: the predecessor block {block_to_modify} must reach block {previous_successor_id}"
         pred_block.set_falls_to(new_successor_id)
