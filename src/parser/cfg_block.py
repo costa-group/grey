@@ -113,6 +113,16 @@ class CFGBlock:
     def split_instruction(self) -> Optional[CFGInstruction]:
         return self._split_instruction
 
+    @split_instruction.setter
+    def split_instruction(self, instruction: Optional[CFGInstruction]) -> None:
+        self._split_instruction = instruction
+
+    def get_condition(self) -> Optional[var_id_T]:
+        return self._condition
+
+    def set_condition(self, cond: var_id_T) -> None:
+        self._condition = cond
+
     def get_block_id(self) -> str:
         return self.block_id
 
@@ -190,9 +200,9 @@ class CFGBlock:
         if self._jump_type == "conditional":
             self._insert_jumpi_instruction(tags_dict)
         elif self._jump_type == "unconditional":
-            self._insert_jump_related_instruction(tags_dict)
+            self._insert_jump_instruction(tags_dict)
 
-    def _insert_jump_related_instruction(self, tags_dict: Dict[str, int]) -> None:
+    def _insert_jump_instruction(self, tags_dict: Dict[str, int]) -> None:
         if self._jump_to not in tags_dict:
             tag_value = len(tags_dict)
             tags_dict[self._jump_to] = tag_value
@@ -232,7 +242,7 @@ class CFGBlock:
         """
         self._instructions.append(CFGInstruction("functionReturn", list(reversed(values)), []))
 
-    def set_jump_info(self, exit_info: Dict[str, Any], tags_dict: Dict[str,int], tag_idx: int) -> int:
+    def set_jump_info(self, exit_info: Dict[str, Any]) -> None:
         type_block = exit_info["type"]
         if type_block in ["ConditionalJump"]:
             targets = exit_info["targets"]
@@ -259,8 +269,6 @@ class CFGBlock:
             self._jump_type = "FunctionReturn"
             self._process_instructions_from_function_return(exit_info["returnValues"])
 
-        return tag_idx
-            
     def process_function_calls(self, function_ids):
         op_names = map(lambda x: x.get_op_name(), self._instructions)
         calls = filter(lambda x: x in function_ids, op_names)

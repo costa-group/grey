@@ -50,7 +50,7 @@ class InlineFunction(BlockAction):
             # adding to the block list so that they are not registered as terminal blocks
             # (now they jump to the return block)
             if block.get_jump_type() == "FunctionReturn":
-                block.set_jump_type("conditional")
+                block.set_jump_type("unconditional")
 
             self._cfg_blocklist.add_block(block)
 

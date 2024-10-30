@@ -79,6 +79,7 @@ class SplitBlock(BlockAction):
         self._second_half.set_falls_to(self._cfg_block.get_falls_to())
         self._second_half.set_jump_to(self._cfg_block.get_jump_to())
         self._second_half.final_stack_elements = self._cfg_block.final_stack_elements
+        self._second_half.set_condition(self._cfg_block.get_condition())
 
         # Finally, we update the comes from information from the blocks that are reached afterwards
         initial_jumps_to = self._cfg_block.get_jump_to()

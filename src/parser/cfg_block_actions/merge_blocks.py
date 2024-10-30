@@ -37,6 +37,7 @@ class MergeBlocks(BlockAction):
 
         combined_block = CFGBlock(combined_block_id, combined_instrs, combined_jump_type, combined_assignment_dict)
         self._combined_block = combined_block
+        self._combined_block.set_condition(self._second_block.get_condition())
 
         self._update_cfg_edges()
 
