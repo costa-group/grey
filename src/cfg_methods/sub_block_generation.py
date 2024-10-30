@@ -115,7 +115,7 @@ def combine_blocks_block_list(cfg_block_list: CFGBlockList, function_names: List
         # Conditions to merge nodes: either they are empty (due to inlining certain functions)
         # or if the first one has no split instruction or calls to functions
         if len(first_block.get_instructions()) == 0 or len(second_block.get_instructions()) == 0 or \
-                first_block.get_instructions()[-1].get_op_name() in chain(constants.split_block, function_names):
+                first_block.get_instructions()[-1].get_op_name() not in chain(constants.split_block, function_names):
 
             nx.nx_agraph.write_dot(cfg_block_list.to_graph(), "antes.dot")
 

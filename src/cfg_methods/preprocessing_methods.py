@@ -30,5 +30,5 @@ def preprocess_cfg(cfg: CFG, dot_file_dir: Path) -> Dict[str, Dict[str, int]]:
     # Then we combine and remove the blocks from the CFG
     tag_dict = insert_jumps_tags_cfg(cfg)
     dot_file_dir.joinpath("jumps").mkdir(exist_ok=True, parents=True)
-    liveness_info = dot_from_analysis(cfg, dot_file_dir.joinpath("combined"))
+    liveness_info = dot_from_analysis(cfg, dot_file_dir.joinpath("jumps"))
     return tag_dict
