@@ -306,7 +306,7 @@ def replace_aliasing_spec(aliasing_dict, specs, vars_list, tgt_stack):
         new_input = list(map(lambda x: x.replace(x,aliasing_dict.get(x,x)),input_vals))
 
         output_vals = instruction["outpt_sk"]
-        new_output = list(map(lambda x: x.replace(x,aliasing_dict.get(x,x)),output_vals_vals))
+        new_output = list(map(lambda x: x.replace(x,aliasing_dict.get(x,x)), output_vals))
 
         instruction["inpt_sk"] = new_input
         instruction["outpt_sk"] = new_output
