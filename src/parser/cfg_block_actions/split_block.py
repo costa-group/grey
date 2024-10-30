@@ -65,11 +65,7 @@ class SplitBlock(BlockAction):
         self._first_half.set_falls_to(None)
         self._first_half.set_jump_to(self._second_half.block_id)
 
-        # We need to force the input arguments of the instruction we have use to split
-        self._first_half.final_stack_elements = self._cfg_block.get_instructions()[self._instr_idx - 1].get_in_args()
-
         # Finally, we update the information from the blocks that jumped (or fell) to the first one
-
         for pred_block_id in self._cfg_block.get_comes_from():
             modify_successors(pred_block_id, self._initial_id, self._first_half.block_id, self._cfg_block_list)
 
@@ -78,7 +74,6 @@ class SplitBlock(BlockAction):
         self._second_half.set_comes_from([self._first_half.block_id])
         self._second_half.set_falls_to(self._cfg_block.get_falls_to())
         self._second_half.set_jump_to(self._cfg_block.get_jump_to())
-        self._second_half.final_stack_elements = self._cfg_block.final_stack_elements
         self._second_half.set_condition(self._cfg_block.get_condition())
 
         # Finally, we update the comes from information from the blocks that are reached afterwards

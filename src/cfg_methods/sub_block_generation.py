@@ -55,7 +55,6 @@ def modify_block_list_split(block_list: CFGBlockList) -> None:
 
                 # Set the first sub block instruction split instruction
                 first_sub_block = split_block_action.first_half
-                first_sub_block.split_instruction = first_sub_block.get_instructions()[-1]
 
                 # If the current block corresponds to the initial block and we modify it
                 if new_start_block is None and current_block.block_id == block_list.start_block:
@@ -127,6 +126,7 @@ def combine_blocks_block_list(cfg_block_list: CFGBlockList, function_names: List
 
 def remove_blocks_block_list(cfg_block_list: CFGBlockList) -> None:
     nodes_to_remove = _nodes_to_remove(cfg_block_list.start_block, cfg_block_list.to_graph())
+    print("nodes to remove", nodes_to_remove)
     for node_to_remove in nodes_to_remove:
         cfg_block_list.remove_block(node_to_remove)
 

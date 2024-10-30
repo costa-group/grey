@@ -80,10 +80,8 @@ class CFGBlock:
         # Split instruction is recognized as the last instruction
         # As we don't have information on the function calls, we assign it to None and then
         # identify it once we set the function calls
-        self._split_instruction = None
+        self._split_instruction = instructions[-1] if len(instructions) > 0 else None
 
-        # minimum size of the source stack
-        self.source_stack = 0
         self._jump_type = type_block
         self._jump_to = None
         self._falls_to = None
@@ -94,7 +92,9 @@ class CFGBlock:
         self.function_calls = set()
 
         # Stack elements that must be placed in a specific order in the stack after performing
-        self._final_stack_elements: List[str] = []
+        self._final_stack_elements: List[str] = self._split_instruction.get_in_args() \
+            if self._split_instruction is not None else []
+
         self.output_var_idx = 0
 
     @property
@@ -112,10 +112,6 @@ class CFGBlock:
     @property
     def split_instruction(self) -> Optional[CFGInstruction]:
         return self._split_instruction
-
-    @split_instruction.setter
-    def split_instruction(self, instruction: Optional[CFGInstruction]) -> None:
-        self._split_instruction = instruction
 
     def get_condition(self) -> Optional[var_id_T]:
         return self._condition
@@ -141,6 +137,7 @@ class CFGBlock:
         if instr_idx == len(self._instructions) - 1:
             # There is no split instruction at this point
             self._split_instruction = None
+            self._final_stack_elements = []
 
         return self._instructions.pop(instr_idx)
 
@@ -149,9 +146,6 @@ class CFGBlock:
 
     def get_instructions_to_compute(self) -> List[CFGInstruction]:
         return [instruction for instruction in self._instructions if instruction.must_be_computed()]
-
-    def get_source_stack(self) -> int:
-        return self.source_stack
 
     def get_jump_type(self) -> str:
         return self._jump_type
