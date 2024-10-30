@@ -64,7 +64,7 @@ def generate_function2blocks_block_list(cfg_block_list: CFGBlockList, function_n
     """
     function2blocks = defaultdict(lambda: [])
     for block_name, block in cfg_block_list.blocks.items():
-        for i, instruction in enumerate(block.get_instructions()):
+        for i, instruction in enumerate(block.instructions_without_phi_functions()):
             if instruction.get_op_name() in function_names:
                 function2blocks[instruction.get_op_name()].append((i, block.block_id, cfg_block_list.name))
     return function2blocks
@@ -96,7 +96,8 @@ def inline_functions_cfg_object(cfg_object: CFGObject, function_call_info: funct
             if len(split_blocks) > 1:
                 split_block_index, position_index = _determine_idx(instr_pos, split_blocks, cfg_block_list)
             else:
-                split_block_index, position_index = 0, instr_pos
+                split_block_index = 0
+                position_index = instr_pos + _adjust_phi_function_idx_misalignment(cfg_block_list.blocks[split_blocks[split_block_index]])
 
             inline_action = InlineFunction(position_index, cfg_block_list.blocks[split_blocks[split_block_index]],
                                            cfg_block_list, function_name, cfg_object)
@@ -124,9 +125,16 @@ def _determine_idx(instr_idx: int, split_block_names: List[block_id_T], cfg_bloc
         cfg_block = cfg_block_list.blocks[split_block_names[i]]
 
         # The instr index corresponds to this block
-        if instr_idx < len(cfg_block.get_instructions()):
-            return i, instr_idx
+        if instr_idx < len(cfg_block.instructions_without_phi_functions()):
+            return i, instr_idx + _adjust_phi_function_idx_misalignment(cfg_block)
+
         # We have to remove an extra instruction, as the previous function calls have been removed
-        instr_idx -= len(cfg_block.get_instructions()) + 1
+        instr_idx -= len(cfg_block.instructions_without_phi_functions()) + 1
         i += 1
     raise ValueError("Block not found")
+
+
+def _adjust_phi_function_idx_misalignment(block: CFGBlock) -> int:
+    # Here we need to reassign the index considering the preceding phi functions in the block, as
+    # we have skipped them
+    return len([True for instr in block.get_instructions() if instr.get_op_name() == "PhiFunction"])

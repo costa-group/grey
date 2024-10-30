@@ -125,6 +125,9 @@ class CFGBlock:
     def get_instructions(self) -> List[CFGInstruction]:
         return self._instructions
 
+    def instructions_without_phi_functions(self) -> List[CFGInstruction]:
+        return [instr for instr in self._instructions if instr.get_op_name() != "PhiFunction"]
+
     def remove_instruction(self, instr_idx: int) -> CFGInstruction:
         """
         Removes the instruction at position instr_index, updating the last split instruction if it affects
@@ -276,9 +279,11 @@ class CFGBlock:
     @property
     def instructions_to_synthesize(self) -> List[CFGInstruction]:
         if self.split_instruction is not None:
-            return self._instructions[:-1]
+            prefix_instrs = self._instructions[:-1]
         else:
-            return self._instructions
+            prefix_instrs = self._instructions
+
+        return [instr for instr in prefix_instrs if instr != "PhiFunction"]
 
     @instructions_to_synthesize.setter
     def instructions_to_synthesize(self, value):

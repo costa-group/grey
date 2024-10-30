@@ -115,8 +115,9 @@ def main():
     x = dtimer()
     json_dict = yul_cfg_dict_from_format(args.input_format, args.source,
                                          args.contract, args.solc_executable)
+
     with open('intermediate.json', 'w') as f:
-        json.dump(json_dict, f)
+        json.dump(json_dict, f, indent=4)
 
     cfgs = parse_CFG_from_json_dict(json_dict, args.builtin)
     

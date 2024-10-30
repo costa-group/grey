@@ -32,7 +32,6 @@ def parse_instruction(ins_json: Dict[str,Any]) -> CFGInstruction:
     
     if builtinargs != -1:
         instruction.set_builtin_args(builtinargs)
-
     
     return instruction
 
@@ -92,12 +91,6 @@ def parse_block(object_name: str, block_json: Dict[str,Any], built_in_op: bool,
     for instruction in block_instructions:
         if "assignment" in instruction:
             list_cfg_instructions.append(parse_assignment(instruction, assignment_dict))
-        # We handle Phi functions separately
-        elif instruction["op"] == "PhiFunction":
-            # Beware: we need to keep the same name we are using to identify the blocks
-            entry_dict.update((generate_block_name(object_name, entry), values)
-                              for entry, values in process_block_entry(block_json, instruction).items())
-
         else:
             cfg_instruction = parse_instruction(instruction) if block_type != "FunctionReturn" else []
 
@@ -105,6 +98,14 @@ def parse_block(object_name: str, block_json: Dict[str,Any], built_in_op: bool,
                 cfg_instruction.translate_opcode(objects_keys)
 
             list_cfg_instructions.append(cfg_instruction)
+
+            if instruction["op"] == "PhiFunction":
+
+                # For phi functions, we store the assignment in an entry dict. This is needed because some phi
+                # functions involve introducing constants, and we need to introduce the corresponding PUSH
+                # in the block fom which the phi function uses that value
+                entry_dict.update((generate_block_name(object_name, entry), values)
+                                  for entry, values in process_block_entry(block_json, instruction).items())
 
     block_identifier = generate_block_name(object_name, block_id)
     block = CFGBlock(block_identifier, list_cfg_instructions, block_type, assignment_dict)
