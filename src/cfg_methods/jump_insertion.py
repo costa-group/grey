@@ -7,7 +7,7 @@ from parser.cfg import CFG
 from parser.cfg_block_list import CFGBlockList
 
 
-def insert_jumps_tags_cfg(cfg: CFG) -> Dict[str, int]:
+def insert_jumps_tags_cfg(cfg: CFG) -> Dict[str, Dict[str, int]]:
     """
     Introduces the JUMP, JUMPI and PUSH [tag] instructions in the blocks according to the CFG structure
     """
@@ -21,7 +21,7 @@ def insert_jumps_tags_cfg(cfg: CFG) -> Dict[str, int]:
         for function_name, cfg_function in cfg_object.functions.items():
             insert_jumps_tags_block_list(cfg_function.blocks, tags_object)
 
-        combined_tags |= tags_object
+        combined_tags[object_id] = tags_object
 
         sub_object = cfg.get_subobject()
 

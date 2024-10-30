@@ -10,7 +10,7 @@ from cfg_methods.sub_block_generation import combine_remove_blocks_cfg, split_bl
 from cfg_methods.jump_insertion import insert_jumps_tags_cfg
 
 
-def preprocess_cfg(cfg: CFG, dot_file_dir: Path) -> Dict[str, int]:
+def preprocess_cfg(cfg: CFG, dot_file_dir: Path) -> Dict[str, Dict[str, int]]:
     # First we inline the functions
     inline_functions(cfg)
     dot_file_dir.joinpath("inlined").mkdir(exist_ok=True, parents=True)
