@@ -70,8 +70,8 @@ def yul_cfg_dict_from_format(input_format: str, filename: str, contract: Optiona
         raise ValueError(f"Input format {input_format} not recognized.")
 
 
-def analyze_single_cfg(cfg: CFG, tags_dict, final_dir: Path, dot_file_dir: Path, args: argparse.Namespace):
-    preprocess_cfg(cfg, dot_file_dir)
+def analyze_single_cfg(cfg: CFG, final_dir: Path, dot_file_dir: Path, args: argparse.Namespace):
+    tags_dict = preprocess_cfg(cfg, dot_file_dir)
 
     if args.visualize:
         liveness_info = dot_from_analysis(cfg, dot_file_dir)
@@ -117,7 +117,8 @@ def main():
                                          args.contract, args.solc_executable)
     with open('intermediate.json', 'w') as f:
         json.dump(json_dict, f)
-    cfgs, tags = parse_CFG_from_json_dict(json_dict, args.builtin)
+
+    cfgs = parse_CFG_from_json_dict(json_dict, args.builtin)
     
     y = dtimer()
 
@@ -135,10 +136,8 @@ def main():
     asm_out_dir = final_dir.joinpath("asm_out_files")
     asm_out_dir.mkdir(exist_ok=True, parents=True)
     
-    for i in cfgs:
-        cfg = cfgs[i]
-        tags_dict = tags[i]
-        json_asm_contract = analyze_single_cfg(cfg,tags_dict,final_dir,dot_file_dir,args)
+    for cfg in cfgs.values():
+        json_asm_contract = analyze_single_cfg(cfg, final_dir, dot_file_dir, args)
         
         asm_output = asm_output | json_asm_contract
 
