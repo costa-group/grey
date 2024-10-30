@@ -56,17 +56,28 @@ class MergeBlocks(BlockAction):
         Updates the CFG in the block list with the information of the combined block
         """
         # Retrieve the information from the first and second blocks
-        predecessor_ids = self._first_block.get_comes_from()
+        # We need to consider the comes from the second block, as it might have some predecessors as well.
+        # We have to remove the first block from that list, though
+        predecessor_ids_first = self._first_block.get_comes_from()
+        predecessor_ids_second = [pred_id for pred_id in self._second_block.get_comes_from()
+                                  if pred_id != self._first_block_id]
+
         jumps_to_id = self._second_block.get_jump_to()
         falls_to_id = self._second_block.get_falls_to()
         combined_block_id = self._combined_block.block_id
 
         # Update the information from the predecessors of the first block
-        for pred_block_id in predecessor_ids:
+        for pred_block_id in predecessor_ids_first:
+            # We replace the successors of the predecessor block by the first block
             modify_successors(pred_block_id, self._first_block_id, combined_block_id, self._cfg_blocklist)
 
+        # Update the information from the predecessors of the first block
+        for pred_block_id in predecessor_ids_second:
+            # We replace the successors of the predecessor block by the second block
+            modify_successors(pred_block_id, self._second_block_id, combined_block_id, self._cfg_blocklist)
+
         # We retrieve the information from the first and second blocks
-        self._combined_block.set_comes_from(predecessor_ids)
+        self._combined_block.set_comes_from(predecessor_ids_first + predecessor_ids_second)
         self._combined_block.set_jump_to(jumps_to_id)
         self._combined_block.set_falls_to(falls_to_id)
 

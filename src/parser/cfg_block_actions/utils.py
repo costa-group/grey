@@ -29,7 +29,7 @@ def modify_comes_from(block_to_modify: block_id_T, previous_pred_id: Optional[bl
     assert found_previous, f"Comes from list {comes_from} of {block_to_modify} does not contain {previous_pred_id}"
 
 
-def modify_successors(block_to_modify: block_id_T, previous_successor_id: block_id_T,
+def modify_successors(block_to_modify: block_id_T, previous_successor_id: Optional[block_id_T],
                       new_successor_id: block_id_T, cfg_block_list: CFGBlockList):
     """
     Modifies the successor "previous_successor_id" from block "block_to_modify" so that it falls to or jumps to

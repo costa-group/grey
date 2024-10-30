@@ -103,7 +103,7 @@ def combine_blocks_block_list(cfg_block_list: CFGBlockList, function_names: List
     and blocks with no split instruction
     """
     cfg_graph = cfg_block_list.to_graph()
-    nodes_to_merge = _nodes_to_merge(cfg_graph)
+    nodes_to_merge = _nodes_to_merge(cfg_graph, cfg_block_list, function_names)
     renamed_nodes = dict()
     for first_half_node, second_half_node in nodes_to_merge:
         first_half_updated = union_find_search(first_half_node, renamed_nodes)
@@ -114,18 +114,15 @@ def combine_blocks_block_list(cfg_block_list: CFGBlockList, function_names: List
 
         # Conditions to merge nodes: either they are empty (due to inlining certain functions)
         # or if the first one has no split instruction or calls to functions
-        if len(first_block.get_instructions()) == 0 or len(second_block.get_instructions()) == 0 or \
-                first_block.get_instructions()[-1].get_op_name() not in chain(constants.split_block, function_names):
+        # nx.nx_agraph.write_dot(cfg_block_list.to_graph(), "before.dot")
 
-            nx.nx_agraph.write_dot(cfg_block_list.to_graph(), "antes.dot")
+        merge_blocks = MergeBlocks(first_block, second_block, cfg_block_list)
+        merge_blocks.perform_action()
+        combined_block = merge_blocks.combined_block
+        renamed_nodes[first_half_updated] = combined_block.block_id
+        renamed_nodes[second_half_updated] = combined_block.block_id
 
-            merge_blocks = MergeBlocks(first_block, second_block, cfg_block_list)
-            merge_blocks.perform_action()
-            combined_block = merge_blocks.combined_block
-            renamed_nodes[first_half_updated] = combined_block.block_id
-            renamed_nodes[second_half_updated] = combined_block.block_id
-
-            nx.nx_agraph.write_dot(cfg_block_list.to_graph(), "despues.dot")
+        # nx.nx_agraph.write_dot(cfg_block_list.to_graph(), "after.dot")
 
 
 def remove_blocks_block_list(cfg_block_list: CFGBlockList) -> None:
@@ -134,19 +131,30 @@ def remove_blocks_block_list(cfg_block_list: CFGBlockList) -> None:
         cfg_block_list.remove_block(node_to_remove)
 
 
-def _nodes_to_merge(graph: nx.DiGraph) -> List[Tuple[block_id_T, block_id_T]]:
+def _nodes_to_merge(graph: nx.DiGraph, block_list: CFGBlockList,
+                    function_names: List[function_name_T]) -> List[Tuple[block_id_T, block_id_T]]:
     """
     From a graph, detects which blocks must be combined
     """
     nodes_to_merge = []
     for node in list(graph.nodes):
+
         # Check if node has exactly one outgoing edge
         if graph.out_degree(node) == 1:
             # Get the target node
             target = next(graph.successors(node))
 
-            # Check if target node has exactly one incoming edge
-            if graph.in_degree(target) == 1:
+            first_block = block_list.get_block(node)
+
+            # First condition: the first block is an empty node. It doesn't matter if the second node
+            # has another entry point
+            if len(first_block.get_instructions()) == 0:
+                nodes_to_merge.append((node, target))
+
+            # Second condition target node has exactly one incoming edge and they can be merged safely
+            elif graph.in_degree(target) == 1 and (len(block_list.get_block(target).get_instructions()) == 0 or
+                                                   first_block.get_instructions()[-1].get_op_name()
+                                                   not in chain(constants.split_block, function_names)):
                 nodes_to_merge.append((node, target))
     return nodes_to_merge
 
