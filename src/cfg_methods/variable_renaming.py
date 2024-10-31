@@ -32,15 +32,18 @@ def rename_variables_block_list(block_list: CFGBlockList, variables_assigned: Se
     for block_name, block in block_list.blocks.items():
         for instruction in block.get_instructions():
             free_index = modify_vars_in_instr(instruction, variables_assigned, renaming_dict, free_index)
+
+    # We have to update the names with the ones that have already been assigned
+    variables_assigned |= renaming_dict.keys()
     return free_index
 
 
 def modify_vars_in_instr(instruction: CFGInstruction, variables_assigned: Set[var_id_T],
                          renaming_dict: Dict[var_id_T, var_id_T], free_index: int) -> int:
-    instruction.in_args, free_index = modified_var_list(instruction.in_args, variables_assigned,
-                                                        renaming_dict, free_index)
     instruction.out_args, free_index = modified_var_list(instruction.out_args, variables_assigned,
                                                          renaming_dict, free_index)
+    instruction.in_args, free_index = modified_var_list(instruction.in_args, variables_assigned,
+                                                        renaming_dict, free_index)
     return free_index
 
 
@@ -69,7 +72,6 @@ def modified_var_list(var_list: List[var_id_T], variables_assigned: Set[var_id_T
         # The variable name is available. We just update the free index to ensure no overlapping is possible
         else:
             free_index = max(free_index, int(variable[1:]) + 1)
-            variables_assigned.add(variable)
             updated_var_list.append(variable)
 
     return updated_var_list, free_index
