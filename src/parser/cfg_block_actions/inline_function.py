@@ -1,5 +1,5 @@
-from typing import Optional
-from global_params.types import block_id_T, function_name_T
+from typing import Optional, Dict
+from global_params.types import block_id_T, function_name_T, var_id_T
 from parser.cfg_block_actions.actions_interface import BlockAction
 from parser.cfg_block_actions.split_block import SplitBlock
 from parser.cfg_instruction import CFGInstruction
@@ -34,14 +34,17 @@ class InlineFunction(BlockAction):
         self._second_sub_block: Optional[CFGObject] = None
 
     def perform_action(self):
-        original_block_id = self._cfg_block.block_id
+        call_instruction = self._cfg_block.get_instructions()[self._instr_position]
 
         # First we need to split the block in the function call, which is given by the instr position.
         # As a final check, we ensure the instruction in that position corresponds to the function name passed as
         # an argument
-        assert self._cfg_block.get_instructions()[self._instr_position].get_op_name() == self._function_name, \
+        assert call_instruction.get_op_name() == self._function_name, \
             f"Expected function call {self._function_name} in position {self._instr_position} but got instead" \
             f"{self._cfg_block.get_instructions()}"
+
+        # Rename the input and output values in the function block list to match the returned values
+        self._rename_output_values(call_instruction)
 
         # Include the blocks from the function into the CFG block list
         for block in self._function_blocklist.blocks.values():
@@ -133,6 +136,41 @@ class InlineFunction(BlockAction):
         actions has not been performed yet
         """
         return self._second_sub_block
+
+    def _rename_output_values(self, call_instruction: CFGInstruction) -> None:
+        """
+        When inlining, the name of the input and output values must match the ones that are passed as arguments
+        """
+        relabel_dict = self._relabel_dict_from_call_instruction(call_instruction)
+
+        # Traverse all blocks and rename them using the relabel dict
+        for block in self._cfg_function.blocks.blocks.values():
+            for instruction in block.get_instructions():
+                instruction.in_args = [relabel_dict.get(in_arg, in_arg) for in_arg in instruction.in_args]
+                instruction.out_args = [relabel_dict.get(out_arg, out_arg) for out_arg in instruction.out_args]
+
+    def _relabel_dict_from_call_instruction(self, call_instruction: CFGInstruction):
+        """
+        Map the intput and output values of terminal blocks
+        """
+        assert len(self._cfg_function.arguments) == len(call_instruction.get_in_args()), \
+            f"The number of arguments of function {call_instruction.get_op_name()} do not match the expected ones"
+
+        relabel_dict = {arg: in_var for arg, in_var in zip(self._cfg_function.arguments, call_instruction.get_in_args())}
+        for exit_block_id in self._cfg_function.blocks.function_return_blocks:
+            exit_block = self._cfg_function.blocks.get_block(exit_block_id)
+            last_instruction = exit_block.get_instructions()[-1]
+            assert last_instruction.get_op_name() == "functionReturn", \
+                f"Last instruction of exit block {exit_block_id} must correspond to a function return"
+
+            # Recall that the variables returned corresponds to the input variables of function return
+            assert len(last_instruction.get_in_args()) == len(call_instruction.get_out_args()), \
+                f"The number of returned values of {exit_block_id} do not match the expected ones"
+
+            relabel_dict.update({arg: out_var for arg, out_var in zip(last_instruction.get_in_args(),
+                                                                      call_instruction.get_out_args())})
+
+        return relabel_dict
 
     def __str__(self):
         return f"Inlining function {self._function_name}"
