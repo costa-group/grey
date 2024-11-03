@@ -72,7 +72,7 @@ class CFGBlock:
     Class for representing a cfg block
     """
 
-    def __init__(self, identifier: str, instructions: List[CFGInstruction], type_block: str,
+    def __init__(self, identifier: block_id_T, instructions: List[CFGInstruction], type_block: str,
                  assignment_dict: Dict[str, str]):
         self.block_id = identifier
         self._instructions = instructions
@@ -95,7 +95,9 @@ class CFGBlock:
         self._final_stack_elements: List[str] = self._split_instruction.get_in_args() \
             if self._split_instruction is not None else []
 
-        self.output_var_idx = 0
+        # Entries corresponds to the predecessors blocks from which the value of a phi function
+        # at position i is generated. Hence, all phi functions must define the values in the same order
+        self._entries: List[block_id_T] = []
 
     @property
     def final_stack_elements(self) -> List[str]:
@@ -112,6 +114,14 @@ class CFGBlock:
     @property
     def split_instruction(self) -> Optional[CFGInstruction]:
         return self._split_instruction
+
+    @property
+    def entries(self) -> List[block_id_T]:
+        return self._entries
+
+    @entries.setter
+    def entries(self, value: List[block_id_T]) -> None:
+        self._entries = value
 
     def get_condition(self) -> Optional[var_id_T]:
         return self._condition
