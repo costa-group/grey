@@ -124,7 +124,8 @@ def build_custom_function_spec(function_name: str, input_args: List[str], output
 class CFGInstruction:
     def __init__(self, op: str, in_args: List[str], out_args: List[str]):
         self.op = op
-        self.in_args = in_args[::-1]
+        # Phi Functions must be keep the order of input arguments
+        self.in_args = in_args[::-1] if op != "PhiFunction" else in_args
         self.out_args = out_args[::-1]
         self.builtin_op = None
         self.builtin_args = None
