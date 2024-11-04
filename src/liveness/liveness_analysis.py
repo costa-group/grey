@@ -4,9 +4,9 @@ import networkx as nx
 from typing import Dict, List, Union, Any
 from pathlib import Path
 
-from analysis.fixpoint_analysis import BlockAnalysisInfo, BackwardsAnalysis
+from analysis.fixpoint_analysis import BlockAnalysisInfo, BackwardsAnalysis, state_T
 from analysis.abstract_state import digraph_from_block_info
-from liveness.liveness_state import LivenessState, LivenessBlockInfo
+from liveness.liveness_state import LivenessState, LivenessBlockInfo, LivenessBlockInfoSSA
 from graphs.algorithms import condense_to_dag
 from parser.utils_parser import shorten_name
 from parser.cfg_block_list import CFGBlockList
@@ -40,6 +40,9 @@ class LivenessAnalysisInfo(BlockAnalysisInfo):
         else:
             self.output_state.live_vars = self.block_info.uses.union(self.input_state.live_vars.difference(self.block_info.defines))
 
+    def propagate_state(self, current_state: LivenessState) -> None:
+        self.input_state.lub(current_state)
+
     def dot_repr(self) -> str:
         instr_repr = '\n'.join([instr.dot_repr() for instr in self.block_info._instructions])
         assignment_repr = '\n'.join([f"{out_value} = {in_value}"
@@ -57,13 +60,49 @@ class LivenessAnalysisInfo(BlockAnalysisInfo):
         return '\n'.join(text_repr_list)
 
 
+class LivenessAnalysisInfoSSA(BlockAnalysisInfo):
+    """
+    Liveness analysis using the SSA representation
+    """
+    def __init__(self, block_info: LivenessBlockInfoSSA, input_state: LivenessState) -> None:
+        # We need to copy the input state given, as it corresponds to the output state of a given previous state
+        super().__init__(block_info,  copy.deepcopy(input_state))
+
+    def propagate_information(self) -> None:
+        # If the output state is None, we need to propagate the information from the block and the input state
+        if self.output_state is None:
+            output_state = LivenessState()
+            self.output_state = output_state
+
+        # See equations in book
+        self.output_state.live_vars = set().union(self.input_state.live_vars.difference(self.block_info.defs),
+                                                  self.block_info.upward_exposed)
+
+    def propagate_state(self, current_state: LivenessState) -> None:
+        # The propagation here differs slightly, as we have to substract the phi function information
+        self.input_state.live_vars = self.block_info.phi_uses_from_block(self.block_info.block_id).union(current_state.live_vars.difference(self.block_info.phi_defs))
+
+    def dot_repr(self) -> str:
+        instr_repr = '\n'.join([instr.dot_repr() for instr in self.block_info._instructions])
+
+        combined_repr = instr_repr if instr_repr != "" else "[]"
+
+        text_repr_list = [f"{self.block_info.block_id}:", f"{self.output_state}", combined_repr, f"{self.input_state}"]
+        return '\n'.join(text_repr_list)
+
+    def __repr__(self) -> str:
+        text_repr_list = [f"Input state: {self.input_state}", f"Output state: {self.output_state}",
+                          f"Block info: {self.block_info}"]
+        return '\n'.join(text_repr_list)
+
+
 def construct_analysis_info_from_cfgblocklist(block_list: CFGBlockList) -> cfg_info_T:
     """
     Constructs the info needed for the liveness analysis from a given set of blocks.
     This information consists of a dict with two entries: "block_info", that contains the information needed per
     block and "terminal_blocks", which contain the list of terminal block ids
     """
-    block_info = {block_id: LivenessBlockInfo(block) for block_id, block in block_list.get_blocks_dict().items()}
+    block_info = {block_id: LivenessBlockInfoSSA(block) for block_id, block in block_list.get_blocks_dict().items()}
     terminal_blocks = block_list.terminal_blocks.copy()
     return {"block_info": block_info, "terminal_blocks": terminal_blocks}
 
@@ -98,7 +137,7 @@ def liveness_analysis_from_vertices(vertices: Dict[str, LivenessBlockInfo],
     """
     Performs the liveness analysis and returns a BackwardsAnalysis object with the corresponding info
     """
-    liveness_analysis = BackwardsAnalysis(vertices, initial_blocks, LivenessState(), LivenessAnalysisInfo)
+    liveness_analysis = BackwardsAnalysis(vertices, initial_blocks, LivenessState(), LivenessAnalysisInfoSSA)
     liveness_analysis.analyze()
     return liveness_analysis
 
@@ -146,15 +185,5 @@ def dot_from_analysis(cfg: CFG, final_dir: Path = Path(".")) -> Dict[str, Dict[s
         short_component_name = shorten_name(component_name)
 
         nx.nx_agraph.write_dot(renamed_digraph, final_dir.joinpath(f"{short_component_name}.dot"))
-
-        condensed_digraph, sccs = condense_to_dag(renamed_digraph)
-
-        # We just consider the first part of the dot representation ("Block {i}:")
-        renamed_condensed_dict = {i: '\n'.join(sorted([dot_repr.splitlines()[0] for dot_repr in dot_repr_from_variables]))
-                                  for i, dot_repr_from_variables in enumerate(sccs)}
-
-        renamed_condensed_digraph = nx.relabel_nodes(condensed_digraph, renamed_condensed_dict)
-
-        nx.nx_agraph.write_dot(renamed_condensed_digraph, final_dir.joinpath(f"{short_component_name}_condensed.dot"))
 
     return results

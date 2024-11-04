@@ -54,8 +54,12 @@ class BlockAnalysisInfo(ABC):
 
         return not leq
 
+    @abstractmethod
     def propagate_state(self, current_state: state_T) -> None:
-        self.input_state.lub(current_state)
+        """
+        The state propagation backwards is also declared as an abstract method
+        """
+        raise NotImplementedError
 
     @abstractmethod
     def propagate_information(self) -> None:
@@ -81,6 +85,11 @@ class BlockAnalysisInfo(ABC):
 
 
 class BackwardsAnalysis:
+    """
+    Modification of the traditional Backward propagation analysis to consider phi functions. See Page 110 of
+    "SSA-based Compiler Design (2022)". The change comes in the propagation, as we have to consider which value from
+    the phi function corresponds to the block
+    """
 
     def __init__(self, vertices: Dict[block_id_T, block_T], initial_blocks: List[block_id_T], initial_state: state_T,
                  analysis_info_constructor):

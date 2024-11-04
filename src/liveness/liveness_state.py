@@ -1,16 +1,14 @@
 """
 Module that implements the state needed to perform the liveness analysis
 """
-
+from global_params.types import var_id_T, block_id_T
 from analysis.abstract_state import AbstractState, AbstractBlockInfo
 from parser.cfg_block import CFGBlock, CFGInstruction
 from typing import Dict, List, Tuple, Set, Any
 
-var_T = str
-
 
 def _uses_defines_from_instructions(instructions: List[CFGInstruction],
-                                    assignment_dict: Dict[str, str]) -> Tuple[Set[var_T], Set[var_T]]:
+                                    assignment_dict: Dict[str, str]) -> Tuple[Set[var_id_T], Set[var_id_T]]:
     """
     Generates uses and defines sets with the variables that are used and defined in the set of instructions, resp.
     """
@@ -70,6 +68,8 @@ class LivenessBlockInfo(AbstractBlockInfo):
                      f"Propagated variables: {self.propagated_variables}"]
         return '\n'.join(text_repr)
 
+# State for liveness analysis
+
 
 class LivenessState(AbstractState):
     """
@@ -88,3 +88,124 @@ class LivenessState(AbstractState):
 
     def __repr__(self):
         return str(self.live_vars)
+
+
+# Methods for classic backwards analysis using phi-functions
+
+def _ssa_liveness_definitions(instructions: List[CFGInstruction]) -> Dict[str, Set[var_id_T]]:
+    """
+    Generates five different sets: Defs, Uses, UpwardExposed, PhiDefs, PhiUses (see Page 110 of
+    "SSA-based Compiler Design (2022)"). In order to avoid using 5 different sets, we store them in a dictionary
+    using the previously referred keys
+    """
+    combined_liveness_sets = dict()
+    uses, defines, upward, phi_defs, phi_uses = set(), set(), set(), set(), set()
+    for instruction in instructions:
+
+        # The phi instruction case must be handled differently: phi_uses and phi_defs
+        if instruction.op == "PhiFunction":
+            phi_uses.update([element for element in instruction.in_args if not element.startswith("0x")])
+            phi_defs.update(instruction.out_args)
+
+        else:
+            # For computing the uses, we cannot include variables that have been defined in the same block
+            uses.update([element for element in instruction.in_args if not element.startswith("0x")])
+
+            # The updward set must consider variables with no preceding definition in B
+            # TODO: does the upward set skip variables defined in phi-functions?
+            upward.update([element for element in instruction.in_args if not element.startswith("0x") and
+                           element not in defines.union(phi_defs)])
+
+            defines.update(instruction.out_args)
+
+    # TODO: check if the assignment dict is needed or not (it shouldn't)
+
+    combined_liveness_sets["Uses"] = uses
+    combined_liveness_sets["Defs"] = defines
+    combined_liveness_sets["UpwardExposed"] = upward
+    combined_liveness_sets["PhiDefs"] = phi_defs
+    combined_liveness_sets["PhiUses"] = phi_uses
+    return combined_liveness_sets
+
+
+def _block_id_to_uses_defs(instructions: List[CFGInstruction], entries_list: List[block_id_T]) -> Dict[block_id_T, Set[var_id_T]]:
+    """
+    Generates a dict that links each predecessor block with the corresponding variables that are used
+    in the phi-functions for that block
+    """
+    # First we retrieve the arguments for every phi function
+    i = 0
+    arguments_per_index = [set() for _ in entries_list]
+    while i < len(instructions) and instructions[i].get_op_name() == "PhiFunction":
+        for j, input_elem in enumerate(instructions[i].get_in_args()):
+            arguments_per_index[j].add(input_elem)
+        i += 1
+
+    # Then we store the corresponding the variables for the corresponding entry
+    return {entry: arguments for entry, arguments in zip(entries_list, arguments_per_index)}
+
+
+class LivenessBlockInfoSSA(AbstractBlockInfo):
+    """
+    Same as LivenessBlockInfo, but storing the information needed to perform the analysis for a SSA
+    """
+    def __init__(self, basic_block: CFGBlock):
+        super().__init__()
+        self._id = basic_block.block_id
+        self._successors = [possible_successor for possible_successor
+                            in [basic_block.get_jump_to(), basic_block.get_falls_to()]
+                            if possible_successor is not None]
+
+        self._block_type = basic_block.get_jump_type()
+        self._comes_from = basic_block.get_comes_from()
+        self.liveness_sets = _ssa_liveness_definitions(basic_block.get_instructions())
+        self._instructions = basic_block.get_instructions()
+        self._assignment_dict = basic_block.assignment_dict
+        self._entries = basic_block.entries
+        self.entry_dict_phi_uses = _block_id_to_uses_defs(basic_block.get_instructions(), basic_block.entries)
+
+    @property
+    def block_id(self) -> Any:
+        return self._id
+
+    @property
+    def successors(self) -> Any:
+        return self._successors
+
+    @property
+    def block_type(self) -> Any:
+        return self._block_type
+
+    @property
+    def comes_from(self) -> Any:
+        return self._comes_from
+
+    def _liveness_set(self, name: str) -> Set[var_id_T]:
+        return self.liveness_sets[name]
+
+    @property
+    def uses(self) -> Set[var_id_T]:
+        return self._liveness_set("Uses")
+
+    @property
+    def defs(self) -> Set[var_id_T]:
+        return self._liveness_set("Defs")
+
+    @property
+    def upward_exposed(self) -> Set[var_id_T]:
+        return self._liveness_set("UpwardExposed")
+
+    @property
+    def phi_defs(self) -> Set[var_id_T]:
+        return self._liveness_set("PhiDefs")
+
+    @property
+    def phi_uses(self) -> Set[var_id_T]:
+        return self._liveness_set("PhiUses")
+
+    def phi_uses_from_block(self, block_id: block_id_T) -> Set[var_id_T]:
+        return self.entry_dict_phi_uses[block_id]
+
+    def __repr__(self):
+        text_repr = [f"Block id: {self._id}", f"Block type: {self.block_type}", f"Successors: {self.successors}"]
+        return '\n'.join(text_repr)
