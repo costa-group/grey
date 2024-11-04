@@ -109,9 +109,8 @@ def _ssa_liveness_definitions(instructions: List[CFGInstruction]) -> Dict[str, S
             uses.update([element for element in instruction.in_args if not element.startswith("0x")])
 
             # The updward set must consider variables with no preceding definition in B
-            # TODO: does the upward set skip variables defined in phi-functions?
             upward.update([element for element in instruction.in_args if not element.startswith("0x") and
-                           element not in defines])
+                           element not in defines.union(phi_defs)])
 
             defines.update(instruction.out_args)
 
@@ -151,8 +150,10 @@ def _block_id_to_phi_uses(block_id: block_id_T, successor_instructions: List[CFG
     corresponding_arg = successor_entry_list.index(block_id)
     phi_uses, phi_defs = set(), set()
     while i < len(successor_instructions) and successor_instructions[i].get_op_name() == "PhiFunction":
-        phi_uses.add(successor_instructions[i].get_in_args()[corresponding_arg])
-        phi_defs.add(successor_instructions[i].get_out_args())
+        arg = successor_instructions[i].get_in_args()[corresponding_arg]
+        if not arg.startswith("0x"):
+            phi_uses.add(arg)
+        phi_defs.update(successor_instructions[i].get_out_args())
         i += 1
 
     return phi_uses, phi_defs

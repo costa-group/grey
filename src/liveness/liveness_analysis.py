@@ -90,7 +90,9 @@ class LivenessAnalysisInfoSSA(BlockAnalysisInfo):
 
         combined_repr = instr_repr if instr_repr != "" else "[]"
 
-        text_repr_list = [f"{self.block_info.block_id}:", f"{self.in_state}", combined_repr, f"{self.out_state}"]
+        text_repr_list = [f"{self.block_info.block_id}:", f"{self.in_state}", combined_repr, f"{self.out_state}",
+                          "Phi uses", f"{self.block_info.phi_uses}", "Phi defines:", f"{self.block_info.phi_defs}",
+                          "Upward:", f"{self.block_info.upward_exposed}", f"{self.block_info._entries}"]
         return '\n'.join(text_repr_list)
 
     def __repr__(self) -> str:

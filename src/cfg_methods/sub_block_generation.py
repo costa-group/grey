@@ -146,15 +146,11 @@ def _nodes_to_merge(graph: nx.DiGraph, block_list: CFGBlockList,
             first_block = block_list.get_block(node)
             second_block = block_list.get_block(target)
 
-            # First condition: the second block is an empty node. It doesn't matter if the second node
-            # has another entry point
-            if len(second_block.get_instructions()) == 0:
-                nodes_to_merge.append((node, target))
-
-            # Second condition target node has exactly one incoming edge and they can be merged safely
-            elif graph.in_degree(target) == 1 and (len(first_block.get_instructions()) == 0 or
-                                                   first_block.get_instructions()[-1].get_op_name()
-                                                   not in chain(constants.split_block, function_names)):
+            # Condition: target node has exactly one incoming edge and they can be merged safely
+            if graph.in_degree(target) == 1 and (len(first_block.get_instructions()) == 0 or
+                                                 len(second_block.get_instructions()) == 0 or
+                                                 first_block.get_instructions()[-1].get_op_name()
+                                                 not in chain(constants.split_block, function_names)):
                 nodes_to_merge.append((node, target))
     return nodes_to_merge
 

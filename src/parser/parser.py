@@ -78,7 +78,7 @@ def parse_block(object_name: str, block_json: Dict[str,Any], built_in_op: bool,
     block_instructions = block_json.get("instructions", -1)
     block_exit = block_json.get("exit", -1)
     block_type = block_json.get("type", "")
-    entries = [generate_block_name(object_name, target) for target in block_exit.get("entries", [])]
+    entries = [generate_block_name(object_name, target) for target in block_json.get("entries", [])]
 
     # Modify the block exit targets with the new information
     block_exit["targets"] = [generate_block_name(object_name, target) for target in block_exit.get("targets", [])]

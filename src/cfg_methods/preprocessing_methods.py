@@ -12,6 +12,9 @@ from cfg_methods.variable_renaming import rename_variables_cfg
 
 
 def preprocess_cfg(cfg: CFG, dot_file_dir: Path) -> Dict[str, Dict[str, int]]:
+    dot_file_dir.joinpath("initial").mkdir(exist_ok=True, parents=True)
+    liveness_info = dot_from_analysis(cfg, dot_file_dir.joinpath("initial"))
+
     # Assign distinct names for all the variables in the CFG among different functions and blocks
     # TODO: in the future, we could do the renaming just in the inliner when two block lists are merged
     rename_variables_cfg(cfg)
