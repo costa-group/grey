@@ -128,17 +128,18 @@ def main():
     final_dir = Path(args.folder)
 
     final_dir.mkdir(exist_ok=True, parents=True)
-
-    dot_file_dir = final_dir.joinpath("liveness")
-    dot_file_dir.mkdir(exist_ok=True, parents=True)
-
     asm_output = {}
 
-    asm_out_dir = final_dir.joinpath("asm_out_files")
-    asm_out_dir.mkdir(exist_ok=True, parents=True)
-    
-    for cfg in cfgs.values():
-        json_asm_contract = analyze_single_cfg(cfg, final_dir, dot_file_dir, args)
+    for cfg_name, cfg in cfgs.items():
+        cfg_dir = final_dir.joinpath(cfg_name)
+
+        dot_file_dir = cfg_dir.joinpath("liveness")
+        dot_file_dir.mkdir(exist_ok=True, parents=True)
+
+        asm_out_dir = cfg_dir.joinpath("asm_out_files")
+        asm_out_dir.mkdir(exist_ok=True, parents=True)
+
+        json_asm_contract = analyze_single_cfg(cfg, cfg_dir, dot_file_dir, args)
         
         asm_output = asm_output | json_asm_contract
 
