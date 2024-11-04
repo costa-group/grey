@@ -26,6 +26,7 @@ def modify_comes_from(block_to_modify: block_id_T, previous_pred_id: Optional[bl
         new_comes_from.append(new_pred_id)
 
     block.set_comes_from(new_comes_from)
+    block.entries = [entry if entry != previous_pred_id else new_pred_id for entry in block.entries]
     assert found_previous, f"Comes from list {comes_from} of {block_to_modify} does not contain {previous_pred_id}"
 
 
