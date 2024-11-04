@@ -33,9 +33,7 @@ class LivenessBlockInfo(AbstractBlockInfo):
     def __init__(self, basic_block: CFGBlock):
         super().__init__()
         self._id = basic_block.block_id
-        self._successors = [possible_successor for possible_successor
-                            in [basic_block.get_jump_to(), basic_block.get_falls_to()]
-                            if possible_successor is not None]
+        self._successors = basic_block.successors
 
         self._block_type = basic_block.get_jump_type()
         self._comes_from = basic_block.get_comes_from()
@@ -94,17 +92,16 @@ class LivenessState(AbstractState):
 
 def _ssa_liveness_definitions(instructions: List[CFGInstruction]) -> Dict[str, Set[var_id_T]]:
     """
-    Generates five different sets: Defs, Uses, UpwardExposed, PhiDefs, PhiUses (see Page 110 of
-    "SSA-based Compiler Design (2022)"). In order to avoid using 5 different sets, we store them in a dictionary
+    Generates five different sets: Defs, Uses, UpwardExposed, PhiDefs (see Page 110 of
+    "SSA-based Compiler Design (2022)"). In order to avoid using 4 different sets, we store them in a dictionary
     using the previously referred keys
     """
     combined_liveness_sets = dict()
-    uses, defines, upward, phi_defs, phi_uses = set(), set(), set(), set(), set()
+    uses, defines, upward, phi_defs = set(), set(), set(), set()
     for instruction in instructions:
 
         # The phi instruction case must be handled differently: phi_uses and phi_defs
         if instruction.op == "PhiFunction":
-            phi_uses.update([element for element in instruction.in_args if not element.startswith("0x")])
             phi_defs.update(instruction.out_args)
 
         else:
@@ -114,7 +111,7 @@ def _ssa_liveness_definitions(instructions: List[CFGInstruction]) -> Dict[str, S
             # The updward set must consider variables with no preceding definition in B
             # TODO: does the upward set skip variables defined in phi-functions?
             upward.update([element for element in instruction.in_args if not element.startswith("0x") and
-                           element not in defines.union(phi_defs)])
+                           element not in defines])
 
             defines.update(instruction.out_args)
 
@@ -124,7 +121,6 @@ def _ssa_liveness_definitions(instructions: List[CFGInstruction]) -> Dict[str, S
     combined_liveness_sets["Defs"] = defines
     combined_liveness_sets["UpwardExposed"] = upward
     combined_liveness_sets["PhiDefs"] = phi_defs
-    combined_liveness_sets["PhiUses"] = phi_uses
     return combined_liveness_sets
 
 
@@ -145,16 +141,31 @@ def _block_id_to_uses_defs(instructions: List[CFGInstruction], entries_list: Lis
     return {entry: arguments for entry, arguments in zip(entries_list, arguments_per_index)}
 
 
+def _block_id_to_phi_uses(block_id: block_id_T, successor_instructions: List[CFGInstruction],
+                          successor_entry_list: List[block_id_T]) -> Tuple[Set[var_id_T], Set[var_id_T]]:
+    """
+    Given the instructions from one of the successors of block_id, generates the corresponding PhiUses and PhiDefs sets
+    """
+    # First we retrieve the arguments for every phi function
+    i = 0
+    corresponding_arg = successor_entry_list.index(block_id)
+    phi_uses, phi_defs = set(), set()
+    while i < len(successor_instructions) and successor_instructions[i].get_op_name() == "PhiFunction":
+        phi_uses.add(successor_instructions[i].get_in_args()[corresponding_arg])
+        phi_defs.add(successor_instructions[i].get_out_args())
+        i += 1
+
+    return phi_uses, phi_defs
+
+
 class LivenessBlockInfoSSA(AbstractBlockInfo):
     """
     Same as LivenessBlockInfo, but storing the information needed to perform the analysis for a SSA
     """
-    def __init__(self, basic_block: CFGBlock):
+    def __init__(self, basic_block: CFGBlock, block_dict: Dict[block_id_T, CFGBlock]):
         super().__init__()
         self._id = basic_block.block_id
-        self._successors = [possible_successor for possible_successor
-                            in [basic_block.get_jump_to(), basic_block.get_falls_to()]
-                            if possible_successor is not None]
+        self._successors = basic_block.successors
 
         self._block_type = basic_block.get_jump_type()
         self._comes_from = basic_block.get_comes_from()
@@ -162,7 +173,14 @@ class LivenessBlockInfoSSA(AbstractBlockInfo):
         self._instructions = basic_block.get_instructions()
         self._assignment_dict = basic_block.assignment_dict
         self._entries = basic_block.entries
-        self.entry_dict_phi_uses = _block_id_to_uses_defs(basic_block.get_instructions(), basic_block.entries)
+
+        self._phi_uses = set()
+        for successor in self._successors:
+            successor_block = block_dict[successor]
+            if len(successor_block.entries) > 0:
+                phi_uses, _ = _block_id_to_phi_uses(basic_block.block_id, successor_block.get_instructions(),
+                                                    successor_block.entries)
+                self._phi_uses.update(phi_uses)
 
     @property
     def block_id(self) -> Any:
@@ -201,10 +219,7 @@ class LivenessBlockInfoSSA(AbstractBlockInfo):
 
     @property
     def phi_uses(self) -> Set[var_id_T]:
-        return self._liveness_set("PhiUses")
-
-    def phi_uses_from_block(self, block_id: block_id_T) -> Set[var_id_T]:
-        return self.entry_dict_phi_uses[block_id]
+        return self._phi_uses
 
     def __repr__(self):
         text_repr = [f"Block id: {self._id}", f"Block type: {self.block_type}", f"Successors: {self.successors}"]

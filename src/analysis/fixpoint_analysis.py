@@ -7,14 +7,13 @@ https://github.com/costa-group/EthIR/blob/fea70e305801258c3ec50b47e1251237063d3f
 """
 
 import logging
+from global_params.types import block_id_T
 from analysis.abstract_state import AbstractState, AbstractBlockInfo
 from typing import Dict, List, Any, Optional, Type
 from abc import ABC, abstractmethod
-from parser.cfg_block import CFGBlock
 
 # Relevant types to consider in the algorithm
 block_T = AbstractBlockInfo
-block_id_T = str
 var_T = str
 state_T = AbstractState
 
@@ -29,14 +28,24 @@ class BlockAnalysisInfo(ABC):
     # Creates an initial abstract state with the received information
     def __init__(self, block_info: block_T, input_state: state_T):
         self.block_info: block_T = block_info
-        self.input_state: state_T = input_state
-        self.output_state: Optional[state_T] = None
+        self._out: state_T = input_state
+        self._in: Optional[state_T] = None
 
-    def get_input_state(self) -> state_T:
-        return self.input_state
+    @property
+    def out_state(self) -> state_T:
+        return self._out
 
-    def get_output_state(self) -> state_T:
-        return self.output_state  
+    @out_state.setter
+    def out_state(self, value: state_T) -> None:
+        self._out = value
+
+    @property
+    def in_state(self) -> state_T:
+        return self._in
+
+    @in_state.setter
+    def in_state(self, value: state_T) -> None:
+        self._in = value
 
     def revisit_block(self, current_state: state_T) -> bool:
         """
@@ -44,12 +53,12 @@ class BlockAnalysisInfo(ABC):
         """
         logging.debug("Comparing...")
         logging.debug(f"Block name: {self.block_info.block_id}")
-        logging.debug("Stored state: " + str(self.input_state))
+        logging.debug("Stored state: " + str(self.out_state))
         logging.debug("Current state: " + str(current_state))
 
         # If the state being considered is leq than the one
         # currently stored, then we return False
-        leq = current_state.leq(self.input_state)
+        leq = current_state.leq(self.out_state)
         logging.debug("Result: " + str(leq))
 
         return not leq
@@ -71,16 +80,16 @@ class BlockAnalysisInfo(ABC):
 
     def process_block(self) -> None:
         # We start with the initial state of the block
-        current_state = self.input_state
+        current_state = self.out_state
         id_block = self.block_info.block_id
 
         logging.debug("Processing " + str(id_block) + " :: " + str(current_state))
         self.propagate_information()
-        logging.debug("Resulting state " + str(id_block) + " :: " + str(self.output_state))
+        logging.debug("Resulting state " + str(id_block) + " :: " + str(self._in))
 
     def __repr__(self):
-        textual_repr = str(self.block_info.block_id) + "." + "Input State: " + str(self.input_state) + \
-                       ". Output State: " + str(self.output_state) + "."
+        textual_repr = str(self.block_info.block_id) + "." + "Input State: " + str(self._out) + \
+                       ". Output State: " + str(self._in) + "."
         return textual_repr
 
 
@@ -111,11 +120,11 @@ class BackwardsAnalysis:
 
             block_info.process_block()
 
-            # Returns the output state of the corresponding block
-            output_state = block_info.get_output_state()
+            # Returns the in state of the corresponding block
+            in_state = block_info.in_state
 
             # Propagates the information
-            self.process_jumps(block_id, output_state)
+            self.process_jumps(block_id, in_state)
 
     def process_jumps(self, block_id: block_id_T, input_state: state_T) -> None:
         """

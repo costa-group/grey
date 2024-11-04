@@ -1,3 +1,4 @@
+from copy import copy
 from typing import Optional, Dict
 from global_params.types import block_id_T, function_name_T, var_id_T
 from parser.cfg_block_actions.actions_interface import BlockAction
@@ -111,6 +112,10 @@ class InlineFunction(BlockAction):
 
                 # Insert phi function at the beginning
                 second_sub_block.insert_instruction(0, CFGInstruction("PhiFunction", returned_values_i, [output_values]))
+
+            # Finally, we have to update the entries field in the new block according to the phi function
+            # (in the order we have traversed the functionReturn blocks, to maintain the coherence)
+            second_sub_block.entries = copy(function_exists_ids)
 
         # is_correct, reason = validate_block_list_comes_from(self._cfg_blocklist)
 

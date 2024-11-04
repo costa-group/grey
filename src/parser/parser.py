@@ -1,7 +1,7 @@
 import collections
 import json
 from typing import Union, Dict, Any, List, Tuple, Set
-from global_params.types import Yul_CFG_T
+from global_params.types import Yul_CFG_T, block_id_T, component_name_T
 from parser.cfg import CFG
 from parser.cfg_block_list import CFGBlockList
 from parser.cfg_object import CFGObject
@@ -10,17 +10,15 @@ from parser.cfg_block import CFGBlock
 from parser.cfg_instruction import CFGInstruction
 from parser.utils_parser import check_instruction_validity, check_block_validity, check_assignment_validity, split_json
 
-block_id_T = str
 
-
-def generate_block_name(object_name: str, block_id: block_id_T) -> block_id_T:
+def generate_block_name(object_name: component_name_T, block_id: block_id_T) -> block_id_T:
     """
     Block name used to identify the blocks
     """
     return '_'.join([object_name, block_id])
 
 
-def parse_instruction(ins_json: Dict[str,Any]) -> CFGInstruction:
+def parse_instruction(ins_json: Dict[str, Any]) -> CFGInstruction:
     in_arg = ins_json.get("in",-1)
     op = ins_json.get("op", -1)
     out_arg = ins_json.get("out", -1)
@@ -32,7 +30,7 @@ def parse_instruction(ins_json: Dict[str,Any]) -> CFGInstruction:
     
     if builtinargs != -1:
         instruction.set_builtin_args(builtinargs)
-    
+
     return instruction
 
 
@@ -80,7 +78,7 @@ def parse_block(object_name: str, block_json: Dict[str,Any], built_in_op: bool,
     block_instructions = block_json.get("instructions", -1)
     block_exit = block_json.get("exit", -1)
     block_type = block_json.get("type", "")
-    entries = block_json.get("entries", [])
+    entries = [generate_block_name(object_name, target) for target in block_exit.get("entries", [])]
 
     # Modify the block exit targets with the new information
     block_exit["targets"] = [generate_block_name(object_name, target) for target in block_exit.get("targets", [])]

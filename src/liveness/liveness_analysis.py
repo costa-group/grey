@@ -30,18 +30,18 @@ class LivenessAnalysisInfo(BlockAnalysisInfo):
 
     def propagate_information(self) -> None:
         # If the output state is None, we need to propagate the information from the block and the input state
-        if self.output_state is None:
+        if self.in_state is None:
             output_state = LivenessState()
             output_state.live_vars = self.block_info.uses.union(
-                self.input_state.live_vars.difference(self.block_info.defines))
-            self.output_state = output_state
+                self.out_state.live_vars.difference(self.block_info.defines))
+            self.in_state = output_state
 
         # Otherwise, the information from the block is already propagated
         else:
-            self.output_state.live_vars = self.block_info.uses.union(self.input_state.live_vars.difference(self.block_info.defines))
+            self.in_state.live_vars = self.block_info.uses.union(self.out_state.live_vars.difference(self.block_info.defines))
 
     def propagate_state(self, current_state: LivenessState) -> None:
-        self.input_state.lub(current_state)
+        self.out_state.lub(current_state)
 
     def dot_repr(self) -> str:
         instr_repr = '\n'.join([instr.dot_repr() for instr in self.block_info._instructions])
@@ -51,11 +51,11 @@ class LivenessAnalysisInfo(BlockAnalysisInfo):
         combined_repr = '\n'.join(repr_ for repr_ in [assignment_repr, instr_repr] if repr_ != "") \
             if assignment_repr != "" or instr_repr != "" else "[]"
 
-        text_repr_list = [f"{self.block_info.block_id}:", f"{self.output_state}", combined_repr, f"{self.input_state}"]
+        text_repr_list = [f"{self.block_info.block_id}:", f"{self.in_state}", combined_repr, f"{self.out_state}"]
         return '\n'.join(text_repr_list)
 
     def __repr__(self) -> str:
-        text_repr_list = [f"Input state: {self.input_state}", f"Output state: {self.output_state}",
+        text_repr_list = [f"In state: {self.out_state}", f"Out state: {self.in_state}",
                           f"Block info: {self.block_info}"]
         return '\n'.join(text_repr_list)
 
@@ -70,28 +70,31 @@ class LivenessAnalysisInfoSSA(BlockAnalysisInfo):
 
     def propagate_information(self) -> None:
         # If the output state is None, we need to propagate the information from the block and the input state
-        if self.output_state is None:
+        if self.in_state is None:
             output_state = LivenessState()
-            self.output_state = output_state
+            self.in_state = output_state
 
-        # See equations in book
-        self.output_state.live_vars = set().union(self.input_state.live_vars.difference(self.block_info.defs),
-                                                  self.block_info.upward_exposed)
+        # Live in variables: remove from the out variables those that are defined (either as part of a
+        # normal function or a phi function) and add the ones that are used with no preceding definition
+        # TODO: check if it is correct (differs slightly from the book)
+        self.in_state.live_vars = self.block_info.upward_exposed.union(self.out_state.live_vars.difference(self.block_info.defs.union(self.block_info.phi_defs)))
 
     def propagate_state(self, current_state: LivenessState) -> None:
-        # The propagation here differs slightly, as we have to substract the phi function information
-        self.input_state.live_vars = self.block_info.phi_uses_from_block(self.block_info.block_id).union(current_state.live_vars.difference(self.block_info.phi_defs))
+        # Live out variables: the live in variables + those selected from the phi functions
+        self.out_state.live_vars = set().union(self.out_state.live_vars,
+                                               self.block_info.phi_uses,
+                                               current_state.live_vars)
 
     def dot_repr(self) -> str:
         instr_repr = '\n'.join([instr.dot_repr() for instr in self.block_info._instructions])
 
         combined_repr = instr_repr if instr_repr != "" else "[]"
 
-        text_repr_list = [f"{self.block_info.block_id}:", f"{self.output_state}", combined_repr, f"{self.input_state}"]
+        text_repr_list = [f"{self.block_info.block_id}:", f"{self.in_state}", combined_repr, f"{self.out_state}"]
         return '\n'.join(text_repr_list)
 
     def __repr__(self) -> str:
-        text_repr_list = [f"Input state: {self.input_state}", f"Output state: {self.output_state}",
+        text_repr_list = [f"In state: {self.out_state}", f"Out state: {self.in_state}",
                           f"Block info: {self.block_info}"]
         return '\n'.join(text_repr_list)
 
@@ -102,7 +105,11 @@ def construct_analysis_info_from_cfgblocklist(block_list: CFGBlockList) -> cfg_i
     This information consists of a dict with two entries: "block_info", that contains the information needed per
     block and "terminal_blocks", which contain the list of terminal block ids
     """
-    block_info = {block_id: LivenessBlockInfoSSA(block) for block_id, block in block_list.get_blocks_dict().items()}
+    # TODO: better initialization without requiring to pass block list for each construction
+    block_info = {block_id: LivenessBlockInfoSSA(block, block_list.get_blocks_dict())
+                  for block_id, block in block_list.get_blocks_dict().items()}
+    # if any(block_id.startswith("extract_byte_array_length") for block_id in block_info.keys()):
+    #     print("HERE")
     terminal_blocks = block_list.terminal_blocks.copy()
     return {"block_info": block_info, "terminal_blocks": terminal_blocks}
 

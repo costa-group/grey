@@ -49,7 +49,7 @@ def compute_variable_depth(liveness_info: Dict[str, LivenessAnalysisInfo], topol
         current_variable_depth_out = dict()
 
         # Initialize variables in the live_in set to len(topological_order) + 1
-        for input_variable in liveness_info[node].output_state.live_vars:
+        for input_variable in liveness_info[node].in_state.live_vars:
             current_variable_depth_out[input_variable] = max_depth
 
         # For each successor, compute the variable depth information and update the corresponding map
@@ -263,7 +263,7 @@ class LayoutGeneration:
 
             if len(predecessor_stacks) > 1:
                 combined_stack_id = '_'.join(sorted(comes_from))
-                input_stack = joined_stack(combined_stacks[combined_stack_id], liveness_info.output_state.live_vars)
+                input_stack = joined_stack(combined_stacks[combined_stack_id], liveness_info.in_state.live_vars)
 
                 for i in range(len(predecessor_stacks)):
                     # Check they match
@@ -278,7 +278,7 @@ class LayoutGeneration:
             # We introduce the necessary args in the generation of the first output stack layout
             # The stack elements we have to "force" a certain order correspond to the input parameters of
             # the function
-            input_stack = output_stack_layout([], self._function_inputs[self._component_id], liveness_info.output_state.live_vars,
+            input_stack = output_stack_layout([], self._function_inputs[self._component_id], liveness_info.in_state.live_vars,
                                               self._variable_order[block_id])
 
         input_stacks[block.block_id] = input_stack
@@ -300,7 +300,7 @@ class LayoutGeneration:
                 elements_to_unify = [block_id, *brothers]
 
                 # We unify the stacks according the first reached block
-                combined_liveness_info = [self._liveness_info[block_id].input_state.live_vars
+                combined_liveness_info = [self._liveness_info[block_id].out_state.live_vars
                                           for block_id in elements_to_unify]
 
                 combined_output_stack, output_stacks_unified = unify_stacks_brothers(input_stack, block.final_stack_elements,
@@ -318,7 +318,7 @@ class LayoutGeneration:
                     output_stacks[brother] = output_stacks_unified[i]
 
         if output_stack is None:
-            output_stack = output_stack_layout(input_stack, block.final_stack_elements, liveness_info.input_state.live_vars,
+            output_stack = output_stack_layout(input_stack, block.final_stack_elements, liveness_info.out_state.live_vars,
                                                self._variable_order[block_id])
             # We store the output stack in the dict, as we have built a new element
             output_stacks[block_id] = output_stack
