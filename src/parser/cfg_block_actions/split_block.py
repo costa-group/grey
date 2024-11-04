@@ -61,6 +61,7 @@ class SplitBlock(BlockAction):
 
     def _update_first_half(self):
         # We need to update the corresponding information from both the first and second half
+        self._first_half.entries = self._cfg_block.entries
         self._first_half.set_comes_from(self._cfg_block.get_comes_from())
         self._first_half.set_falls_to(self._second_half.block_id)
         self._first_half.set_jump_to(None)

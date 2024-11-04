@@ -36,6 +36,7 @@ class MergeBlocks(BlockAction):
         combined_assignment_dict = self._first_block.assignment_dict | self._second_block.assignment_dict
 
         combined_block = CFGBlock(combined_block_id, combined_instrs, combined_jump_type, combined_assignment_dict)
+        combined_block.entries = self._first_block.entries
         self._combined_block = combined_block
         self._combined_block.set_condition(self._second_block.get_condition())
 
