@@ -126,7 +126,6 @@ def combine_blocks_block_list(cfg_block_list: CFGBlockList, function_names: List
 
 def remove_blocks_block_list(cfg_block_list: CFGBlockList) -> None:
     nodes_to_remove = _nodes_to_remove(cfg_block_list.start_block, cfg_block_list.to_graph())
-    print("nodes to remove", nodes_to_remove)
     for node_to_remove in nodes_to_remove:
         cfg_block_list.remove_block(node_to_remove)
 
