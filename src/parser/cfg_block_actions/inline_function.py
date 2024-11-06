@@ -9,6 +9,7 @@ from parser.cfg_block import CFGBlock
 from parser.cfg_function import CFGFunction
 from parser.cfg_object import CFGObject
 from parser.cfg_block_actions.utils import modify_comes_from, modify_successors
+from cfg_methods.variable_renaming import rename_cfg_function
 from analysis.cfg_validation import validate_block_list_comes_from
 
 
@@ -147,12 +148,10 @@ class InlineFunction(BlockAction):
         When inlining, the name of the input and output values must match the ones that are passed as arguments
         """
         relabel_dict = self._relabel_dict_from_call_instruction(call_instruction)
-
-        # Traverse all blocks and rename them using the relabel dict
-        for block in self._cfg_function.blocks.blocks.values():
-            for instruction in block.get_instructions():
-                instruction.in_args = [relabel_dict.get(in_arg, in_arg) for in_arg in instruction.in_args]
-                instruction.out_args = [relabel_dict.get(out_arg, out_arg) for out_arg in instruction.out_args]
+        n_modified_vars = len(relabel_dict)
+        rename_cfg_function(self._cfg_function, set(), relabel_dict, 0)
+        assert sum(1 for old_name, new_name in relabel_dict.items() if old_name != new_name) == n_modified_vars, \
+            f"Inlining {self._function_name} should not assign new variables"
 
     def _relabel_dict_from_call_instruction(self, call_instruction: CFGInstruction):
         """

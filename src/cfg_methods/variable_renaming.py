@@ -7,6 +7,7 @@ from global_params.types import var_id_T
 from parser.cfg import CFG
 from parser.cfg_instruction import CFGInstruction
 from parser.cfg_block_list import CFGBlockList
+from parser.cfg_function import CFGFunction
 
 
 def rename_variables_cfg(cfg: CFG) -> None:
@@ -19,15 +20,20 @@ def rename_variables_cfg(cfg: CFG) -> None:
 
         # We also consider the information per function
         for cfg_function in cfg_object.functions.values():
-            renaming_dict = dict()
-            cfg_function.arguments, free_index = modified_var_list(cfg_function.arguments, already_assigned,
-                                                                   renaming_dict, free_index)
-            free_index = rename_variables_block_list(cfg_function.blocks, already_assigned, renaming_dict, free_index)
+            free_index = rename_cfg_function(cfg_function, already_assigned, dict(), free_index)
 
         sub_object = cfg.get_subobject()
 
         if sub_object is not None:
             rename_variables_cfg(sub_object)
+
+
+def rename_cfg_function(cfg_function: CFGFunction, assigned_global: Set[var_id_T],
+                         renaming_dict: Dict[var_id_T, var_id_T], free_index: int) -> int:
+    cfg_function.arguments, free_index = modified_var_list(cfg_function.arguments, assigned_global,
+                                                           renaming_dict, free_index)
+    free_index = rename_variables_block_list(cfg_function.blocks, assigned_global, renaming_dict, free_index)
+    return free_index
 
 
 def rename_variables_block_list(block_list: CFGBlockList, variables_assigned: Set[var_id_T],
