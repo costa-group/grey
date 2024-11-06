@@ -1,5 +1,5 @@
 from copy import copy
-from typing import Optional, Dict
+from typing import Optional, Dict, Tuple
 from global_params.types import block_id_T, function_name_T, var_id_T
 from parser.cfg_block_actions.actions_interface import BlockAction
 from parser.cfg_block_actions.split_block import SplitBlock
@@ -9,7 +9,7 @@ from parser.cfg_block import CFGBlock
 from parser.cfg_function import CFGFunction
 from parser.cfg_object import CFGObject
 from parser.cfg_block_actions.utils import modify_comes_from, modify_successors
-from cfg_methods.variable_renaming import rename_cfg_function
+from cfg_methods.variable_renaming import rename_variables_block_list, rename_cfg_function
 from analysis.cfg_validation import validate_block_list_comes_from
 
 
@@ -46,7 +46,7 @@ class InlineFunction(BlockAction):
             f"{self._cfg_block.get_instructions()}"
 
         # Rename the input and output values in the function block list to match the returned values
-        self._rename_output_values(call_instruction)
+        self._rename_input_args(call_instruction)
 
         # Include the blocks from the function into the CFG block list
         for block in self._function_blocklist.blocks.values():
@@ -102,9 +102,6 @@ class InlineFunction(BlockAction):
                 f"Last instruction of block {exit_id} is not a FunctionReturn"
             returned_values_per_exit.append(last_instruction_exit.get_in_args())
 
-            # Finally, we remove the function return from the exit id
-            exit_block.remove_instruction(-1)
-
         if len(returned_values_per_exit) > 1:
             # We need to assign phi-functions for the values that were assigned to the returned instruction
             for i, output_values in enumerate(call_instruction.get_out_args()):
@@ -117,6 +114,18 @@ class InlineFunction(BlockAction):
             # Finally, we have to update the entries field in the new block according to the phi function
             # (in the order we have traversed the functionReturn blocks, to maintain the coherence)
             second_sub_block.entries = copy(function_exists_ids)
+
+        elif len(returned_values_per_exit) == 1:
+            # To keep the coherence of the CFG, we need to rename the returned variable name
+            # by the one inside the function. Otherwise, the coherence is lost, as in this case we introduce no phi
+            # function
+            self._rename_output_args(call_instruction)
+
+        # After performing all the renamings, we remove the last instruction from the original block
+        for exit_id in function_exists_ids:
+            exit_block = self._cfg_blocklist.get_block(exit_id)
+            # Finally, we remove the function return from the exit id
+            exit_block.remove_instruction(-1)
 
         # is_correct, reason = validate_block_list_comes_from(self._cfg_blocklist)
 
@@ -143,24 +152,47 @@ class InlineFunction(BlockAction):
         """
         return self._second_sub_block
 
-    def _rename_output_values(self, call_instruction: CFGInstruction) -> None:
+    def _rename_input_args(self, call_instruction: CFGInstruction) -> None:
         """
-        When inlining, the name of the input and output values must match the ones that are passed as arguments
+        When inlining, the name of the input values must match the ones that are passed as arguments.
+        We substitute the variables inside the function by the arguments used for
+        the invocation and propagate these values
         """
-        relabel_dict = self._relabel_dict_from_call_instruction(call_instruction)
+        relabel_dict = self._function_input2call_input(call_instruction)
         n_modified_vars = len(relabel_dict)
         rename_cfg_function(self._cfg_function, set(), relabel_dict, 0)
+
         assert sum(1 for old_name, new_name in relabel_dict.items() if old_name != new_name) == n_modified_vars, \
             f"Inlining {self._function_name} should not assign new variables"
 
-    def _relabel_dict_from_call_instruction(self, call_instruction: CFGInstruction):
+    def _rename_output_args(self, call_instruction: CFGInstruction) -> None:
         """
-        Map the intput and output values of terminal blocks
+        When inlining, if the function has only a return point, we have to rename the values after invoking the function
+        in the original block with the ones
+        """
+        relabel_dict = self._call_output2function_output(call_instruction)
+        n_modified_vars = len(relabel_dict)
+        rename_variables_block_list(self._cfg_blocklist, set(), relabel_dict, 0)
+
+        assert sum(1 for old_name, new_name in relabel_dict.items() if old_name != new_name) == n_modified_vars, \
+            f"Inlining {self._function_name} should not assign new variables"
+
+    def _function_input2call_input(self, call_instruction: CFGInstruction) -> Dict[var_id_T, var_id_T]:
+        """
+        Maps the input arguments of the function with the arguments of the function
         """
         assert len(self._cfg_function.arguments) == len(call_instruction.get_in_args()), \
             f"The number of arguments of function {call_instruction.get_op_name()} do not match the expected ones"
 
         relabel_dict = {arg: in_var for arg, in_var in zip(self._cfg_function.arguments, call_instruction.get_in_args())}
+        return relabel_dict
+
+    def _call_output2function_output(self, call_instruction: CFGInstruction) -> Dict[var_id_T, var_id_T]:
+        """
+        Maps the output arguments of the call to the output of the function
+        """
+        relabel_dict = dict()
+
         for exit_block_id in self._cfg_function.blocks.function_return_blocks:
             exit_block = self._cfg_function.blocks.get_block(exit_block_id)
             last_instruction = exit_block.get_instructions()[-1]
@@ -171,8 +203,8 @@ class InlineFunction(BlockAction):
             assert len(last_instruction.get_in_args()) == len(call_instruction.get_out_args()), \
                 f"The number of returned values of {exit_block_id} do not match the expected ones"
 
-            relabel_dict.update({arg: out_var for arg, out_var in zip(last_instruction.get_in_args(),
-                                                                      call_instruction.get_out_args())})
+            relabel_dict.update({out_var: arg for out_var, arg in zip(call_instruction.get_out_args(),
+                                                                      last_instruction.get_in_args())})
 
         return relabel_dict
 

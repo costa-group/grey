@@ -12,7 +12,6 @@ from parser.utils_parser import shorten_name
 from parser.cfg_block_list import CFGBlockList
 from parser.cfg import CFG
 
-
 # The information from the CFG consists of a dict with two keys:
 # "block_info": a dictionary that contains for each block id a LivenessBlockInfo object
 # "terminal_blocks: the list of terminal block ids, in order to start the analysis
@@ -26,7 +25,7 @@ class LivenessAnalysisInfo(BlockAnalysisInfo):
 
     def __init__(self, block_info: LivenessBlockInfo, input_state: LivenessState) -> None:
         # We need to copy the input state given, as it corresponds to the output state of a given previous state
-        super().__init__(block_info,  copy.deepcopy(input_state))
+        super().__init__(block_info, copy.deepcopy(input_state))
 
     def propagate_information(self) -> None:
         # If the output state is None, we need to propagate the information from the block and the input state
@@ -38,7 +37,8 @@ class LivenessAnalysisInfo(BlockAnalysisInfo):
 
         # Otherwise, the information from the block is already propagated
         else:
-            self.in_state.live_vars = self.block_info.uses.union(self.out_state.live_vars.difference(self.block_info.defines))
+            self.in_state.live_vars = self.block_info.uses.union(
+                self.out_state.live_vars.difference(self.block_info.defines))
 
     def propagate_state(self, current_state: LivenessState) -> None:
         self.out_state.lub(current_state)
@@ -64,9 +64,10 @@ class LivenessAnalysisInfoSSA(BlockAnalysisInfo):
     """
     Liveness analysis using the SSA representation
     """
+
     def __init__(self, block_info: LivenessBlockInfoSSA, input_state: LivenessState) -> None:
         # We need to copy the input state given, as it corresponds to the output state of a given previous state
-        super().__init__(block_info,  copy.deepcopy(input_state))
+        super().__init__(block_info, copy.deepcopy(input_state))
 
     def propagate_information(self) -> None:
         # If the output state is None, we need to propagate the information from the block and the input state
@@ -77,7 +78,8 @@ class LivenessAnalysisInfoSSA(BlockAnalysisInfo):
         # Live in variables: remove from the out variables those that are defined (either as part of a
         # normal function or a phi function) and add the ones that are used with no preceding definition
         # TODO: check if it is correct (differs slightly from the book)
-        self.in_state.live_vars = self.block_info.upward_exposed.union(self.out_state.live_vars.difference(self.block_info.defs.union(self.block_info.phi_defs)))
+        self.in_state.live_vars = self.block_info.upward_exposed.union(
+            self.out_state.live_vars.difference(self.block_info.defs.union(self.block_info.phi_defs)))
 
     def propagate_state(self, current_state: LivenessState) -> None:
         # Live out variables: the live in variables + those selected from the phi functions
@@ -90,9 +92,9 @@ class LivenessAnalysisInfoSSA(BlockAnalysisInfo):
 
         combined_repr = instr_repr if instr_repr != "" else "[]"
 
-        text_repr_list = [f"{self.block_info.block_id}:", f"{self.in_state}", combined_repr, f"{self.out_state}",
-                          "Phi uses", f"{self.block_info.phi_uses}", "Phi defines:", f"{self.block_info.phi_defs}",
-                          "Upward:", f"{self.block_info.upward_exposed}", f"{self.block_info._entries}"]
+        text_repr_list = [f"{self.block_info.block_id}:", f"{self.in_state}", combined_repr, f"{self.out_state}"]
+        # "Phi uses", f"{self.block_info.phi_uses}", "Phi defines:", f"{self.block_info.phi_defs}",
+        # "Upward:", f"{self.block_info.upward_exposed}", f"{self.block_info._entries}"
         return '\n'.join(text_repr_list)
 
     def __repr__(self) -> str:
@@ -151,7 +153,8 @@ def liveness_analysis_from_vertices(vertices: Dict[str, LivenessBlockInfo],
     return liveness_analysis
 
 
-def perform_liveness_analysis_from_cfg_info(cfg_info: Dict[str, cfg_info_T]) -> Dict[str, Dict[str, LivenessAnalysisInfo]]:
+def perform_liveness_analysis_from_cfg_info(cfg_info: Dict[str, cfg_info_T]) -> Dict[
+    str, Dict[str, LivenessAnalysisInfo]]:
     """
     Returns the information from the liveness analysis for each structure stored in the cfg info
     """
