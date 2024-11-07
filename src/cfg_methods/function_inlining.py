@@ -1,8 +1,12 @@
 """
 Module to perform function inlining.
 """
+import json
 from typing import Set, Dict, Tuple, List
 from collections import defaultdict
+
+import networkx as nx
+
 from global_params.types import block_id_T, component_name_T, function_name_T, block_list_id_T
 from parser.cfg_block import CFGBlock
 from parser.cfg_block_list import CFGBlockList
@@ -38,15 +42,15 @@ def generate_function2information(cfg: CFG) -> Dict[function_name_T, function_ca
     """
     function2blocks = dict()
     for object_id, cfg_object in cfg.objectCFG.items():
-        current_function2blocks = dict()
+        current_object2call_info = defaultdict(lambda: [])
         function_names = set(cfg_object.functions.keys())
-        current_function2blocks.update(generate_function2blocks_block_list(cfg_object.blocks, function_names))
+        generate_function2blocks_block_list(cfg_object.blocks, function_names, current_object2call_info)
 
         # We also consider the information per function
         for cfg_function in cfg_object.functions.values():
-            current_function2blocks.update(generate_function2blocks_block_list(cfg_function.blocks, function_names))
+            generate_function2blocks_block_list(cfg_function.blocks, function_names, current_object2call_info)
 
-        function2blocks[object_id] = current_function2blocks
+        function2blocks[object_id] = current_object2call_info
         sub_object = cfg.get_subobject()
 
         if sub_object is not None:
@@ -55,16 +59,15 @@ def generate_function2information(cfg: CFG) -> Dict[function_name_T, function_ca
     return function2blocks
 
 
-def generate_function2blocks_block_list(cfg_block_list: CFGBlockList, function_names: Set[function_name_T]) -> function_call_info_T:
+def generate_function2blocks_block_list(cfg_block_list: CFGBlockList, function_names: Set[function_name_T],
+                                        function2blocks: function_call_info_T) -> None:
     """
     Links the function calls that appear in the block list to the exact block and the block list
     """
-    function2blocks = defaultdict(lambda: [])
     for block_name, block in cfg_block_list.blocks.items():
         for i, instruction in enumerate(block.instructions_without_phi_functions()):
             if instruction.get_op_name() in function_names:
                 function2blocks[instruction.get_op_name()].append((i, block.block_id, cfg_block_list.name))
-    return function2blocks
 
 
 # Methods to perform the inlining of cfg objects
