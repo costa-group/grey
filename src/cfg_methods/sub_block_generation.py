@@ -6,10 +6,10 @@ import networkx as nx
 from global_params.types import block_id_T, function_name_T
 from itertools import chain
 from parser.cfg_block_list import CFGBlockList
-from parser.cfg_block_actions.merge_blocks import MergeBlocks
+from cfg_methods.cfg_block_actions.merge_blocks import MergeBlocks
 from parser.cfg import CFG
 import parser.constants as constants
-from parser.cfg_block_actions.split_block import SplitBlock
+from cfg_methods.cfg_block_actions.split_block import SplitBlock
 from cfg_methods.utils import union_find_search
 
 

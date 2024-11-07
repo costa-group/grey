@@ -1,6 +1,6 @@
-from typing import List, Optional
-from parser.cfg_block_actions.actions_interface import BlockAction
-from parser.cfg_block_actions.utils import modify_comes_from, modify_successors
+from typing import Optional
+from cfg_methods.cfg_block_actions.actions_interface import BlockAction
+from cfg_methods.cfg_block_actions.utils import modify_comes_from, modify_successors
 from parser.cfg_block_list import CFGBlockList
 from parser.cfg_block import CFGBlock
 from global_params.types import block_id_T
