@@ -1,16 +1,15 @@
 from copy import copy
-from typing import Optional, Dict, Tuple
-from global_params.types import block_id_T, function_name_T, var_id_T
-from parser.cfg_block_actions.actions_interface import BlockAction
-from parser.cfg_block_actions.split_block import SplitBlock
+from typing import Optional, Dict
+from global_params.types import function_name_T, var_id_T
+from cfg_methods.cfg_block_actions.actions_interface import BlockAction
+from cfg_methods.cfg_block_actions.split_block import SplitBlock
 from parser.cfg_instruction import CFGInstruction
 from parser.cfg_block_list import CFGBlockList
 from parser.cfg_block import CFGBlock
 from parser.cfg_function import CFGFunction
 from parser.cfg_object import CFGObject
-from parser.cfg_block_actions.utils import modify_comes_from, modify_successors
+from cfg_methods.cfg_block_actions.utils import modify_comes_from, modify_successors
 from cfg_methods.variable_renaming import rename_variables_block_list, rename_cfg_function
-from analysis.cfg_validation import validate_block_list_comes_from
 
 
 class InlineFunction(BlockAction):

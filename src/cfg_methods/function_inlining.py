@@ -5,14 +5,11 @@ from typing import Set, Dict, Tuple, List
 from collections import defaultdict
 from global_params.types import block_id_T, component_name_T, function_name_T, block_list_id_T
 from parser.cfg_block import CFGBlock
-from analysis.cfg_validation import validate_block_list_comes_from
 from parser.cfg_block_list import CFGBlockList
 from parser.cfg_object import CFGObject
 from parser.cfg import CFG
-from parser.cfg_block_actions.inline_function import InlineFunction
+from cfg_methods.cfg_block_actions.inline_function import InlineFunction
 from cfg_methods.utils import union_find_search
-import networkx as nx
-import matplotlib.pyplot as plt
 
 # For each time a function is invoked, we store the position of the instruction (int) in the
 # block (blok_id_T) that appears in the block list (block_list_id)
