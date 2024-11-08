@@ -18,7 +18,7 @@ class InlineFunction(BlockAction):
     """
 
     def __init__(self, instr_position: int, cfg_block: CFGBlock, cfg_blocklist: CFGBlockList,
-                 function_name: str, cfg_object: CFGObject):
+                 cfg_function: CFGFunction):
         """
         It receives the position in which we want to split, the corresponding block in which we are appending
         the corresponding block list, its block list, the function name and the block list
@@ -27,10 +27,9 @@ class InlineFunction(BlockAction):
         self._instr_position: int = instr_position
         self._cfg_block: CFGBlock = cfg_block
         self._cfg_blocklist: CFGBlockList = cfg_blocklist
-        self._function_name: function_name_T = function_name
-        self._cfg_function: CFGFunction = cfg_object.functions[function_name]
+        self._function_name: function_name_T = cfg_function.name
+        self._cfg_function: CFGFunction = cfg_function
         self._function_blocklist: CFGBlockList = self._cfg_function.blocks
-        self._cfg_object: CFGObject = cfg_object
         self._first_sub_block: Optional[CFGObject] = None
         self._second_sub_block: Optional[CFGObject] = None
 
@@ -40,7 +39,9 @@ class InlineFunction(BlockAction):
         # First we need to split the block in the function call, which is given by the instr position.
         # As a final check, we ensure the instruction in that position corresponds to the function name passed as
         # an argument
-        assert call_instruction.get_op_name() == self._function_name, \
+        # Considering we might have duplicated the function multiple times, we just check that the original call matches
+        # the start of the function name
+        assert self._function_name.startswith(call_instruction.get_op_name()), \
             f"Expected function call {self._function_name} in position {self._instr_position} but got instead" \
             f"{self._cfg_block.get_instructions()}"
 
@@ -133,7 +134,6 @@ class InlineFunction(BlockAction):
         self._function_blocklist.blocks.clear()
         del self._function_blocklist
         del self._cfg_function
-        self._cfg_object.functions.pop(self._function_name)
 
     @property
     def first_sub_block(self) -> Optional[CFGBlock]:

@@ -132,6 +132,9 @@ class CFGBlock:
     def get_block_id(self) -> str:
         return self.block_id
 
+    def set_block_id(self, value: var_id_T) -> None:
+        self.block_id = value
+
     def get_instructions(self) -> List[CFGInstruction]:
         return self._instructions
 
