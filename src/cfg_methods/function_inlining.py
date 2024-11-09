@@ -83,23 +83,19 @@ def inline_functions_cfg_object(cfg_object: CFGObject, function_call_info: funct
     # Dict that maps each initial block name in the CFG to the set of blocks in which it can be split
     block2current: Dict[block_id_T, List[block_id_T]] = dict()
 
-    # Same idea as before but for block lists (as we have joined them previously)
-    block_list2current: Dict[block_list_id_T, block_list_id_T] = dict()
+    function_call_info, topological_sort = prune_cycles_topological_sort(function_call_info)
 
-    for function_name, call_info in function_call_info.items():
-
+    for function_name in topological_sort:
+        call_info = function_call_info[function_name]
         cfg_function = cfg_object.functions[function_name]
+
         # Only consider blocks for inlining that have just one invocation
         if len(call_info) == 1 or _must_be_inlined(function_name, call_info, function2costs, 
                                                    len(cfg_function.exits)):
 
             for call_idx, (instr_pos, cfg_block_name, cfg_block_list_name) in enumerate(call_info):
-
-                # First we find in which block list the function block list is stored
-                # As many substitutions can happen, we have to iterate recursively to find the most recent one
-                current_block_list_name = union_find_search(cfg_block_list_name, block_list2current)
-                print(current_block_list_name)
-                cfg_block_list = cfg_object.get_block_list(current_block_list_name)
+                print(function_name, cfg_block_list_name)
+                cfg_block_list = cfg_object.get_block_list(cfg_block_list_name)
 
                 # Then we determine whether the function has been split
                 split_blocks = block2current.get(cfg_block_name, [cfg_block_name])
@@ -113,24 +109,27 @@ def inline_functions_cfg_object(cfg_object: CFGObject, function_call_info: funct
 
                 function_to_inline, renaming_dict = _generate_function_to_inline(cfg_function, call_idx, len(call_info))
 
+                if cfg_block_list.name == "fun__exists_1337":
+                    print("HOLA")
+
+                # nx.nx_agraph.write_dot(cfg_block_list.to_graph_info(), f"antes.dot")
+
                 inline_action = InlineFunction(position_index, cfg_block_list.blocks[split_blocks[split_block_index]],
                                                cfg_block_list, function_to_inline)
 
                 inline_action.perform_action()
 
+                # nx.nx_agraph.write_dot(cfg_block_list.to_graph_info(), f"despues.dot")
+
                 # Uncomment for validation
                 # is_correct, reason = validate_block_list_comes_from(cfg_block_list)
 
-                # Finally, we have to update the information of both the block lists and blocks
-                new_function_name = cfg_function.name
-
-                block_list2current[new_function_name] = current_block_list_name
                 block2current[cfg_block_name] = split_blocks[:split_block_index] + \
                                                 [inline_action.first_sub_block.block_id,
                                                  inline_action.second_sub_block.block_id] + split_blocks[
                                                                                             split_block_index + 1:]
-        # As we have decided to inline, we can just remove it from the list of functions
-        cfg_object.functions.pop(function_name)
+            # As we have decided to inline, we can just remove it from the list of functions
+            cfg_object.functions.pop(function_name)
 
 
 def _determine_idx(instr_idx: int, split_block_names: List[block_id_T], cfg_block_list: CFGBlockList) \
@@ -206,3 +205,39 @@ def _generate_function_to_inline(original_function: CFGFunction, current_call_id
     copied_function.exits = [renaming_dict.get(exit_id, exit_id) for exit_id in copied_function.exits]
     copied_function.name = f"{copied_function.name}_copy_{current_call_idx}"
     return copied_function, renaming_dict
+
+
+# Methods to find a cycle in the call functions, remove them and generate the topological sort
+
+def prune_cycles_topological_sort(function2call_info: function2call_info_T) -> \
+        Tuple[function2call_info_T, List[function_name_T]]:
+    """
+    Given the list of functions invoking one another, we remove the cycles generated (i.e. mutually called functions)
+    from the calls and return the topological order
+    """
+    function_deps = nx.from_dict_of_lists({function_name: [call_info[2] for call_info in call_info_list if call_info[2] in function2call_info]
+                                           for function_name, call_info_list in function2call_info.items()},
+                                          create_using=nx.DiGraph())
+    # We condense the nodes to form a DAG (see https://networkx.org/documentation/stable/reference/algorithms/generated/networkx.algorithms.components.condensation.html#networkx.algorithms.components.condensation)
+    condensed_deps = nx.condensation(function_deps)
+
+    # We compute the topological sort over the original function deps
+    component_topological_sort = list(nx.topological_sort(condensed_deps))
+
+    nx.nx_agraph.write_dot(function_deps, "functions.dot")
+
+    # We reverse the change
+    original_topological_sort = [original_node for component in component_topological_sort
+                                 for original_node in condensed_deps.nodes[component]["members"]]
+
+    # Update the function calls as well using the information from the cycles
+    pruned_function2call_info = _prune_cycling_function_calls(function2call_info, [])
+
+    return pruned_function2call_info, original_topological_sort
+
+
+def _prune_cycling_function_calls(function2call_info: function2call_info_T,
+                                  cycle_calls: List[List[function_name_T]]) -> function2call_info_T:
+    # TODO: handle this case. A cycle is a closed path were no node is repeated twice, so we can just traverse every
+    # two nodes in every list and remove the corresponding edge
+    return function2call_info

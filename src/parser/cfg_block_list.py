@@ -86,6 +86,7 @@ class CFGBlockList:
         for old_block_id, block in self.blocks.items():
             new_block_id = renaming_dict.get(old_block_id, old_block_id)
             block.set_block_id(new_block_id)
+            block.rename_cfg(renaming_dict)
             new_block_dict[new_block_id] = block
 
         self.blocks = new_block_dict
