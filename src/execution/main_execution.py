@@ -70,11 +70,13 @@ def yul_cfg_dict_from_format(input_format: str, filename: str, contract: Optiona
         raise ValueError(f"Input format {input_format} not recognized.")
 
 
-def analyze_single_cfg(cfg: CFG, final_dir: Path, dot_file_dir: Path, args: argparse.Namespace):
+def analyze_single_cfg(cfg: CFG, final_dir: Path, args: argparse.Namespace):
+    dot_file_dir = final_dir.joinpath("liveness")
+    dot_file_dir.mkdir(exist_ok=True, parents=True)
     tags_dict = preprocess_cfg(cfg, dot_file_dir, args.visualize)
 
     x = dtimer()
-    jsons_list = layout_generation(cfg, dot_file_dir)
+    jsons_list = layout_generation(cfg, final_dir.joinpath("stack_layouts"))
 
     sfs_final_dir = final_dir.joinpath("sfs")
     sfs_final_dir.mkdir(exist_ok=True, parents=True)
@@ -136,11 +138,7 @@ def main():
 
     for cfg_name, cfg in cfgs.items():
         cfg_dir = final_dir.joinpath(cfg_name)
-
-        dot_file_dir = cfg_dir.joinpath("liveness")
-        dot_file_dir.mkdir(exist_ok=True, parents=True)
-
-        json_asm_contract = analyze_single_cfg(cfg, cfg_dir, dot_file_dir, args)
+        json_asm_contract = analyze_single_cfg(cfg, cfg_dir, args)
         
         asm_output = asm_output | json_asm_contract
 

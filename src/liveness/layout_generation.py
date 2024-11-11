@@ -248,19 +248,27 @@ class LayoutGeneration:
 
         self._start = block_list.start_block
 
+        _tree_dir = name.joinpath("tree")
+        _tree_dir.mkdir(exist_ok=True, parents=True)
+
         immediate_dominators = nx.immediate_dominators(self._cfg_graph, self._start)
         self._dominance_tree = nx.DiGraph([v, u] for u, v in immediate_dominators.items() if u != self._start)
         self._dominance_tree.add_node(self._start)
 
-        nx.nx_agraph.write_dot(self._dominance_tree, name)
+        nx.nx_agraph.write_dot(self._dominance_tree, _tree_dir.joinpath(f"{object_id}.dot"))
         self._block_order = list(nx.topological_sort(self._dominance_tree))
 
         self._variable_order = compute_variable_depth(liveness_info, self._block_order)
 
         renamed_graph = information_on_graph(self._cfg_graph, {name: var_order_repr(name, assignments)
                                                                for name, assignments in self._variable_order.items()})
-        nx.nx_agraph.write_dot(renamed_graph, Path(name.parent).joinpath(name.stem + "_vars.dot"))
-        self._dir = name
+        _var_dir = name.joinpath("var_order")
+        _var_dir.mkdir(exist_ok=True, parents=True)
+        nx.nx_agraph.write_dot(renamed_graph, _var_dir.joinpath(f"{object_id}.dot"))
+
+        self._layout_dir = name.joinpath("layouts")
+        self._layout_dir.mkdir(exist_ok=True, parents=True)
+
         # Guess: we need to traverse the code following the dominance tree in topological order
         # This is because in the dominance tree together with the SSA, all the nodes
 
@@ -301,7 +309,6 @@ class LayoutGeneration:
         # a stack, we need to assign the same stack
         next_block_id, elements_to_unify, phi_instructions = self._unification_dict.get(block_id, (None, [], []))
         output_stack = None
-        print(block_id, comes_from, elements_to_unify)
 
         if len(elements_to_unify) > 1:
 
@@ -338,7 +345,6 @@ class LayoutGeneration:
             output_stacks[block_id] = output_stack
 
         # We build the corresponding specification
-        print(block_id)
         block_json = block.build_spec(input_stack, output_stack)
 
         return block_json
@@ -388,14 +394,13 @@ class LayoutGeneration:
         Builds the layout of the blocks from the given representation
         """
         json_info = self._construct_code_from_block_list()
-        print(json_info.keys())
 
         renamed_graph = information_on_graph(self._cfg_graph,
                                              {block_name: print_stacks(block_name, json_info[block_name])
                                               for block_name in
                                               self._block_list.blocks})
 
-        nx.nx_agraph.write_dot(renamed_graph, Path(self._dir.parent).joinpath(self._dir.stem + "_stacks.dot"))
+        nx.nx_agraph.write_dot(renamed_graph, self._layout_dir.joinpath(f"{self._component_id}.dot"))
 
         return json_info
 
@@ -419,7 +424,7 @@ def layout_generation_cfg(cfg: CFG, final_dir: Path = Path(".")) -> Dict[str, SM
         short_component_name = shorten_name(component_name)
 
         layout = LayoutGeneration(component_name, component2block_list[component_name], liveness, component2inputs,
-                                  final_dir.joinpath(f"{short_component_name}_dominated.dot"), digraph)
+                                  final_dir, digraph)
 
         layout_blocks = layout.build_layout()
         jsons.update(layout_blocks)
@@ -427,13 +432,16 @@ def layout_generation_cfg(cfg: CFG, final_dir: Path = Path(".")) -> Dict[str, SM
     return jsons
 
 
-def layout_generation(cfg: CFG, final_dir: Path = Path(".")) -> List[Dict[str, SMS_T]]:
+def layout_generation(cfg: CFG, final_dir: Path = Path("."), position: int = 0) -> List[Dict[str, SMS_T]]:
     """
     Returns the information from the liveness analysis and also stores a dot file for each analyzed structure
     in "final_dir"
     """
-    layouts_per_cfg = [layout_generation_cfg(cfg, final_dir)]
+    layout_dir = final_dir.joinpath(str(position))
+    layout_dir.mkdir(parents=True, exist_ok=True)
+
+    layouts_per_cfg = [layout_generation_cfg(cfg, layout_dir)]
     if cfg.subObjects is not None:
-        layouts_per_cfg.extend(layout_generation(cfg.subObjects, final_dir))
+        layouts_per_cfg.extend(layout_generation(cfg.subObjects, final_dir, position + 1))
 
     return layouts_per_cfg
