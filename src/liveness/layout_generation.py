@@ -106,10 +106,11 @@ def unification_block_dict(block_info: Dict[str, Any]) -> Dict[str, List[str]]:
 
 
 def output_stack_layout(input_stack: List[str], final_stack_elements: List[str],
-                        live_vars: Set[str], variable_depth_info: Dict[str, int]) -> List[str]:
+                        live_vars: Set[str], variable_depth_info: Dict[str, int]) -> Tuple[List[str], List[str]]:
     """
-    Generates the output stack layout, according to the variables in live vars, the variables that must
-    appear at the top of the stack and the information from the input stack
+    Generates the output stack layout before and after the last instruction
+    (i.e. the one not optimized by the greedy algorithm), according to the variables
+    in live vars, the variables that must appear at the top of the stack and the information from the input stack
     """
 
     # We keep the variables in the input stack in the same order if they appear in the variable vars (so that we
@@ -153,12 +154,12 @@ def output_stack_layout(input_stack: List[str], final_stack_elements: List[str],
         bottom_output_stack = [var_ for var_ in bottom_output_stack if var_ is not None]
 
     # The final stack elements must appear in the top of the stack
-    return final_stack_elements + bottom_output_stack
+    return bottom_output_stack, final_stack_elements + bottom_output_stack
 
 
 def unify_stacks_brothers(input_stack: List[str], final_stack_elements: List[str],
                           live_vars_list: List[Set[str]], variable_depth_info: Dict[str, int]) \
-        -> Tuple[List[str], List[List[str]]]:
+        -> Tuple[List[str], List[str], List[List[str]]]:
     """
     Given the input stack from one of the brothers, the values that must be placed at the top of the stack,
     the list of variables that are live, the variable depth info for the initial block, returns an output
@@ -174,13 +175,14 @@ def unify_stacks_brothers(input_stack: List[str], final_stack_elements: List[str
         combined_variable_depth_info[variables] = max_value
 
     # Construct the output stack with all the joined variable elements
-    combined_output_stack = output_stack_layout(input_stack, final_stack_elements, all_var_elements, variable_depth_info)
+    combined_output_stack_analysis, combined_output_stack_json = output_stack_layout(input_stack, final_stack_elements,
+                                                                                     all_var_elements, variable_depth_info)
 
     # Construct the remaining output stacks, considering the order of the first generated output stacks
-    output_stacks = [[variable if variable in live_vars else "bottom" for variable in combined_output_stack]
+    output_stacks = [[variable if variable in live_vars else "bottom" for variable in combined_output_stack_analysis]
                      for live_vars in live_vars_list]
 
-    return combined_output_stack, output_stacks
+    return combined_output_stack_json, combined_output_stack_analysis, output_stacks
 
 
 def joined_stack(combined_output_stack: List[str], live_vars: Set[str]):
@@ -278,8 +280,8 @@ class LayoutGeneration:
             # We introduce the necessary args in the generation of the first output stack layout
             # The stack elements we have to "force" a certain order correspond to the input parameters of
             # the function
-            input_stack = output_stack_layout([], self._function_inputs[self._component_id], liveness_info.in_state.live_vars,
-                                              self._variable_order[block_id])
+            input_stack, _ = output_stack_layout([], self._function_inputs[self._component_id],
+                                                 liveness_info.in_state.live_vars, self._variable_order[block_id])
 
         input_stacks[block.block_id] = input_stack
 
@@ -318,13 +320,14 @@ class LayoutGeneration:
                     output_stacks[brother] = output_stacks_unified[i]
 
         if output_stack is None:
-            output_stack = output_stack_layout(input_stack, block.final_stack_elements, liveness_info.out_state.live_vars,
-                                               self._variable_order[block_id])
+            output_stack_json, output_stack_analysis = output_stack_layout(input_stack, block.final_stack_elements,
+                                                                           liveness_info.out_state.live_vars,
+                                                                           self._variable_order[block_id])
             # We store the output stack in the dict, as we have built a new element
-            output_stacks[block_id] = output_stack
+            output_stacks[block_id] = output_stack_analysis
 
         # We build the corresponding specification
-        block_json, out_idx = block.build_spec(input_stack, output_stack)
+        block_json, out_idx = block.build_spec(input_stack, output_stack_json)
 
         return block_json
 
