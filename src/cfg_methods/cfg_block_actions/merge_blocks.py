@@ -1,4 +1,5 @@
 from typing import Optional
+from copy import copy
 from cfg_methods.cfg_block_actions.actions_interface import BlockAction
 from cfg_methods.cfg_block_actions.utils import modify_comes_from, modify_successors
 from parser.cfg_block_list import CFGBlockList
@@ -81,6 +82,7 @@ class MergeBlocks(BlockAction):
         self._combined_block.set_comes_from(predecessor_ids_first + predecessor_ids_second)
         self._combined_block.set_jump_to(jumps_to_id)
         self._combined_block.set_falls_to(falls_to_id)
+        self._combined_block.final_stack_elements = copy(self._second_block.final_stack_elements)
 
         # Update the "comes from" information from the successors of the first block
         if jumps_to_id is not None:
