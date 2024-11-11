@@ -267,7 +267,11 @@ class CFGBlock:
         Introduces an extra operation representing the application of a return function.
         Hack which guarantees the liveness and layout analysis generate the correct stack
         """
-        self._instructions.append(CFGInstruction("functionReturn", list(reversed(values)), []))
+        function_return = CFGInstruction("functionReturn", list(reversed(values)), [])
+        self._instructions.append(function_return)
+        self._split_instruction = function_return
+        self._final_stack_elements = []
+
 
     def set_jump_info(self, exit_info: Dict[str, Any]) -> None:
         type_block = exit_info["type"]
