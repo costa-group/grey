@@ -56,7 +56,7 @@ class CFGBlockList:
                 self._function_return_blocks.append(block_id)
 
         if block_id in self.blocks:
-            logging.warning("You are overwritting an existing block")
+            logging.warning(f"You are overwritting an existing block: {block_id}")
 
         self.graph = None
         self.blocks[block_id] = block
@@ -80,6 +80,24 @@ class CFGBlockList:
         # Same for function return
         self._function_return_blocks = [return_block for return_block in self._function_return_blocks
                                         if return_block != block_id]
+
+    def rename_blocks(self, renaming_dict: Dict[block_id_T, block_id_T]):
+        new_block_dict = dict()
+        for old_block_id, block in self.blocks.items():
+            new_block_id = renaming_dict.get(old_block_id, old_block_id)
+            block.set_block_id(new_block_id)
+            block.rename_cfg(renaming_dict)
+            new_block_dict[new_block_id] = block
+
+        self.blocks = new_block_dict
+
+        self._terminal_blocks = [renaming_dict.get(terminal_block, terminal_block)
+                                 for terminal_block in self._terminal_blocks]
+
+        self._function_return_blocks = [renaming_dict.get(return_block, return_block)
+                                        for return_block in self._function_return_blocks]
+
+        self.start_block = renaming_dict.get(self.start_block, self.start_block)
 
     def get_blocks_dict(self):
         return self.blocks
@@ -123,6 +141,24 @@ class CFGBlockList:
                         graph.add_edge(block_id, successor)
             return graph
         return self.graph
+
+    def to_graph_info(self) -> networkx.DiGraph:
+        """
+        Creates a networkx.DiGraph from the blocks information. Useful for debugging
+        """
+        graph = networkx.DiGraph()
+        graph.add_nodes_from(self.blocks.keys())
+        for block_id, block in self.blocks.items():
+            for successor in [block.get_jump_to(), block.get_falls_to()]:
+                if successor is not None:
+                    graph.add_edge(block_id, successor)
+
+        relabel_dict = {block_name: '\n'.join([block.get_block_id(), *[instr.dot_repr() for instr in block.get_instructions()]])
+                        for block_name, block in self.blocks.items()}
+        renamed_digraph = networkx.relabel_nodes(graph, relabel_dict)
+
+        return renamed_digraph
+
 
     def to_graph_comes_from(self) -> networkx.DiGraph:
         """

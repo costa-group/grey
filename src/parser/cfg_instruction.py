@@ -341,6 +341,24 @@ class CFGInstruction:
     def dot_repr(self):
         return self.get_instruction_representation()
 
+    @property
+    def gas_spent_op(self) -> int:
+        """
+        Gas spent for performing the operation. Does not consider the cost needed to generate the args
+        """
+        if self.op == "PhiFunction" or self.op == "FunctionReturn":
+            return 0
+        return opcodes.get_ins_cost(self.op)
+
+    @property
+    def bytes_required(self) -> int:
+        """
+        Bytes required for performing the operation. Does not consider the cost needed to generate the args (hence, 1)
+        """
+        if self.op == "PhiFunction" or self.op == "FunctionReturn":
+            return 0
+        return 1
+
     def __repr__(self):
         return json.dumps(self.get_as_json())
 

@@ -132,8 +132,20 @@ class CFGBlock:
     def get_block_id(self) -> str:
         return self.block_id
 
+    def set_block_id(self, value: var_id_T) -> None:
+        self.block_id = value
+
     def get_instructions(self) -> List[CFGInstruction]:
         return self._instructions
+
+    def rename_cfg(self, renaming_dict: Dict[var_id_T, var_id_T]) -> None:
+        """
+        Changes the successors and predecessors according to the renaming dict
+        """
+        self._jump_to = renaming_dict.get(self._jump_to, self._jump_to)
+        self._falls_to = renaming_dict.get(self._falls_to, self._falls_to)
+        self._comes_from = [renaming_dict.get(predecessor, predecessor) for predecessor in self._comes_from]
+        self._entries = [renaming_dict.get(entry, entry) for entry in self._entries]
 
     def instructions_without_phi_functions(self) -> List[CFGInstruction]:
         return [instr for instr in self._instructions if instr.get_op_name() != "PhiFunction"]
