@@ -69,11 +69,8 @@ def compute_variable_depth(liveness_info: Dict[str, LivenessAnalysisInfo], topol
 
         current_variable_depth_in = current_variable_depth_out.copy()
 
-        if block_info.block_id == "fun_supportsInterface_985_Block2":
-            print("HOLA")
-
         # Finally, we update the corresponding variables that are defined in the blocks
-        for used_variable in set(block_info.defs).union(block_info.phi_defs):
+        for used_variable in set(block_info.uses).union(block_info.phi_uses):
             current_variable_depth_out[used_variable] = 0
 
         variable_depth_out[node] = current_variable_depth_out

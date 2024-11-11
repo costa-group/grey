@@ -147,8 +147,6 @@ def _block_id_to_phi_uses(block_id: block_id_T, successor_instructions: List[CFG
     """
     # First we retrieve the arguments for every phi function
     i = 0
-    if block_id == "extract_byte_array_length_Block1_copy_0":
-        print("HOLA")
 
     corresponding_arg = successor_entry_list.index(block_id)
     phi_uses, phi_defs = set(), set()
