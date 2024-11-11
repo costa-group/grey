@@ -233,6 +233,7 @@ class CFGBlock:
             
         # Add a JUMP instruction
         self._instructions.append(CFGInstruction("JUMP", [str(tag_value)], []))
+        self._final_stack_elements = [[str(tag_value)]]
 
     def _insert_jumpi_instruction(self, tags_dict: Dict[str, int]) -> None:
         if self._jump_to not in tags_dict:
@@ -250,6 +251,7 @@ class CFGBlock:
         # Add a JUMPI instruction
         jumpi_instr = CFGInstruction("JUMPI", [self._condition, str(tag_value)], [])
         self._instructions.append(jumpi_instr)
+        self._final_stack_elements = [self._condition, str(tag_value)]
 
         # Finally, assign the JUMPI instruction to the split one
         self._split_instruction = jumpi_instr
