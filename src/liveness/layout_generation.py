@@ -388,7 +388,6 @@ class LayoutGeneration:
         Builds the layout of the blocks from the given representation
         """
         json_info = self._construct_code_from_block_list()
-        print(json_info.keys())
 
         renamed_graph = information_on_graph(self._cfg_graph,
                                              {block_name: print_stacks(block_name, json_info[block_name])

@@ -2,7 +2,7 @@
 Module to perform function inlining.
 """
 import json
-from copy import deepcopy
+from copy import deepcopy, copy
 from typing import Set, Dict, Tuple, List
 from collections import defaultdict
 
@@ -82,12 +82,10 @@ def inline_functions_cfg_object(cfg_object: CFGObject, function_call_info: funct
                                 function2costs: function2costs_T):
     # Dict that maps each initial block name in the CFG to the set of blocks in which it can be split
     block2current: Dict[block_id_T, List[block_id_T]] = dict()
-    free_index = _free_index_from_object(cfg_object)
-    print("FREE", free_index)
 
     function_call_info, topological_sort = prune_cycles_topological_sort(function_call_info)
 
-    for function_name in topological_sort:
+    for func_idx, function_name in enumerate(topological_sort):
         call_info = function_call_info[function_name]
         cfg_function = cfg_object.functions[function_name]
 
@@ -109,8 +107,8 @@ def inline_functions_cfg_object(cfg_object: CFGObject, function_call_info: funct
                     split_block_index = 0
                     position_index = instr_pos + _adjust_phi_function_idx_misalignment(cfg_block_list.blocks[split_blocks[split_block_index]])
 
-                function_to_inline, renaming_dict, free_index = _generate_function_to_inline(cfg_function, call_idx,
-                                                                                             len(call_info), free_index)
+                function_to_inline, renaming_dict = _generate_function_to_inline(cfg_function, func_idx, call_idx,
+                                                                                             len(call_info))
 
                 # nx.nx_agraph.write_dot(cfg_block_list.to_graph_info(), f"antes.dot")
 
@@ -182,15 +180,15 @@ def _must_be_inlined(function_name: function_name_T, call_info_list: List[call_i
     return (inlining_extra_size - no_inlining_extra_size) <= 20 * no_inlining_extra_gas
 
 
-def _generate_function_to_inline(original_function: CFGFunction, current_call_idx: int,
-                                 n_calls: int, free_index: int) -> Tuple[CFGFunction, Dict[block_id_T, block_id_T], int]:
+def _generate_function_to_inline(original_function: CFGFunction, func_idx: int, current_call_idx: int,
+                                 n_calls: int) -> Tuple[CFGFunction, Dict[block_id_T, block_id_T]]:
     """
     We must rename the blocks when inlining to avoid conflicts, as the function can be inlined multiple times in the
     same function (and hence, the same blocks would appear multiple times). We also return the renaming dict
     """
     # If there is just one call, we avoid renaming the blocks
     if n_calls == 1:
-        return original_function, dict(), 0
+        return original_function, dict()
     # If we are making multiple copies, we copy it call_idx - 1 times, as the last one should remove it
     elif current_call_idx == n_calls - 1:
         copied_function = original_function
@@ -202,11 +200,24 @@ def _generate_function_to_inline(original_function: CFGFunction, current_call_id
     renaming_dict = {block_name: f"{block_name}_copy_{current_call_idx}" for block_name in block_list.blocks}
     block_list.rename_blocks(renaming_dict)
 
-    new_free_index = rename_cfg_function(copied_function, set(f"v{idx}"for idx in range(free_index)), dict(), free_index)
+    var_ids = _var_ids_from_list(block_list)
+    renaming_vars = {var_: f"{var_}_f{func_idx}_{current_call_idx}" for var_ in var_ids}
+    renaming_vars.update((var_, f"{var_}_f{func_idx}_{current_call_idx}") for var_ in copied_function.arguments)
+    bef = copy(renaming_vars)
+    nx.nx_agraph.write_dot(copied_function.blocks.to_graph_info(), "bef.dot")
+    n_renaming_vars = len(renaming_vars)
+    rename_cfg_function(copied_function, set(), renaming_vars, 0, False)
+
+    nx.nx_agraph.write_dot(copied_function.blocks.to_graph_info(), "aft.dot")
+
+    print(renaming_vars, bef)
+    print(block_list.name, set(renaming_vars.keys()).difference(bef.keys()))
+    assert n_renaming_vars == len(renaming_vars), \
+        "Variable renaming in function duplication should not assign new variables"
 
     copied_function.exits = [renaming_dict.get(exit_id, exit_id) for exit_id in copied_function.exits]
     copied_function.name = f"{copied_function.name}_copy_{current_call_idx}"
-    return copied_function, renaming_dict, new_free_index
+    return copied_function, renaming_dict
 
 
 # Methods to find a cycle in the call functions, remove them and generate the topological sort
@@ -245,22 +256,23 @@ def _prune_cycling_function_calls(function2call_info: function2call_info_T,
     return function2call_info
 
 
-def _free_index_from_object(cfg_object: CFGObject) -> int:
-    free_index = max(0, _free_index_from_list(cfg_object.blocks))
+def _var_ids_from_object(cfg_object: CFGObject) -> Set[var_id_T]:
+    var_ids = _var_ids_from_list(cfg_object.blocks)
     for function in cfg_object.functions.values():
-        free_index = max(free_index, _free_index_from_list(function.blocks))
-    return free_index
+        var_ids.update(_var_ids_from_list(function.blocks))
+    return var_ids
 
 
-def _free_index_from_list(block_list: CFGBlockList) -> int:
-    max_idx = 0
+def _var_ids_from_list(block_list: CFGBlockList) -> Set[var_id_T]:
+    var_ids = set()
     for block in block_list.blocks.values():
         for instr in block.get_instructions():
             for arg in [*instr.get_in_args(), *instr.get_out_args()]:
                 if not arg.startswith("0x"):
-                    max_idx = max(max_idx, _idx_from_var(arg))
-    return max_idx
+                    var_ids.add(arg)
+        cond = block.get_condition()
+        if cond is not None:
+            if not cond.startswith("0x"):
+                var_ids.add(cond)
+    return var_ids
 
-
-def _idx_from_var(var_: var_id_T) -> int:
-    return int(var_[1:])

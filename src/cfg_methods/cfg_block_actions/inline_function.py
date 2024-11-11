@@ -159,7 +159,7 @@ class InlineFunction(BlockAction):
         """
         relabel_dict = self._function_input2call_input(call_instruction)
         n_modified_vars = len(relabel_dict)
-        rename_cfg_function(self._cfg_function, set(), relabel_dict, 0)
+        rename_cfg_function(self._cfg_function, set(), relabel_dict, 0, False)
 
         assert sum(1 for old_name, new_name in relabel_dict.items() if old_name != new_name) == n_modified_vars, \
             f"Inlining {self._function_name} should not assign new variables"
@@ -171,7 +171,7 @@ class InlineFunction(BlockAction):
         """
         relabel_dict = self._call_output2function_output(call_instruction)
         n_modified_vars = len(relabel_dict)
-        rename_variables_block_list(self._cfg_blocklist, set(), relabel_dict, 0)
+        rename_variables_block_list(self._cfg_blocklist, set(), relabel_dict, 0, False)
 
         assert sum(1 for old_name, new_name in relabel_dict.items() if old_name != new_name) == n_modified_vars, \
             f"Inlining {self._function_name} should not assign new variables"
