@@ -5,7 +5,7 @@ Module that serves as the skeleton for fixpoint-based analysis. Used for impleme
 which variables must be reused. Adapted from
 https://github.com/costa-group/EthIR/blob/fea70e305801258c3ec50b47e1251237063d3fcd/ethir/analysis/fixpoint_analysis.py
 """
-
+import copy
 import logging
 from global_params.types import block_id_T
 from analysis.abstract_state import AbstractState, AbstractBlockInfo

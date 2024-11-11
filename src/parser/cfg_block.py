@@ -92,7 +92,7 @@ class CFGBlock:
         self.function_calls = set()
 
         # Stack elements that must be placed in a specific order in the stack after performing
-        self._final_stack_elements: List[str] = self._split_instruction.get_in_args() \
+        self._final_stack_elements: List[str] = self._split_instruction.get_out_args() \
             if self._split_instruction is not None else []
 
         # Entries corresponds to the predecessors blocks from which the value of a phi function
@@ -149,6 +149,9 @@ class CFGBlock:
 
     def instructions_without_phi_functions(self) -> List[CFGInstruction]:
         return [instr for instr in self._instructions if instr.get_op_name() != "PhiFunction"]
+
+    def phi_instructions(self) -> List[CFGInstruction]:
+        return [instr for instr in self._instructions if instr.get_op_name() == "PhiFunction"]
 
     def remove_instruction(self, instr_idx: int) -> CFGInstruction:
         """
@@ -232,8 +235,10 @@ class CFGBlock:
         self._instructions.append(CFGInstruction("PUSH [tag]", [], [str(tag_value)]))
             
         # Add a JUMP instruction
-        self._instructions.append(CFGInstruction("JUMP", [str(tag_value)], []))
-        self._final_stack_elements = [[str(tag_value)]]
+        jump_instr = CFGInstruction("JUMP", [str(tag_value)], [])
+        self._instructions.append(jump_instr)
+        self._split_instruction = jump_instr
+        self._final_stack_elements = []
 
     def _insert_jumpi_instruction(self, tags_dict: Dict[str, int]) -> None:
         if self._jump_to not in tags_dict:
@@ -251,7 +256,8 @@ class CFGBlock:
         # Add a JUMPI instruction
         jumpi_instr = CFGInstruction("JUMPI", [self._condition, str(tag_value)], [])
         self._instructions.append(jumpi_instr)
-        self._final_stack_elements = [self._condition, str(tag_value)]
+        self._split_instruction = jumpi_instr
+        self._final_stack_elements = []
 
         # Finally, assign the JUMPI instruction to the split one
         self._split_instruction = jumpi_instr
@@ -471,7 +477,7 @@ class CFGBlock:
 
         return list(vars_spec)
 
-    def _build_spec_for_sequence(self, instructions, map_instructions: Dict, out_idx,
+    def _build_spec_for_sequence(self, instructions: List[CFGInstruction], map_instructions: Dict, out_idx,
                                  initial_stack: List[str], final_stack: List[str]):
         """
         Builds the specification for a sequence of instructions. "map_instructions" is passed as an argument
@@ -496,8 +502,18 @@ class CFGBlock:
             # Check if it has been already created
             if ins.get_op_name().startswith("push"):
                 ins_spec = map_instructions.get((ins.get_op_name().upper(), tuple(ins.get_builtin_args())), None)
+            elif not ins.memory_operation():
+                ins_spec = map_instructions.get((ins.get_op_name().upper(), tuple(ins.get_in_args())), None)
             else:
                 ins_spec = map_instructions.get((ins.get_op_name().upper(), tuple(ins.get_in_args())), None)
+
+                if ins_spec is not None:
+                    if len(ins_spec["outpt_sk"]) == 0 or ins_spec["outpt_sk"] == ins.get_out_args():
+                        # Memory operations have an extra check: repeated keccaks or loads with the same arguments
+                        # generate no instruction unless their output stack value is different
+                        ins_spec = None
+                    else:
+                        map_positions_instructions[i] = ins_spec
 
             if ins_spec is None:
                 result, new_out_idx = ins.build_spec(new_out_idx, instrs_idx, map_instructions)
@@ -532,9 +548,10 @@ class CFGBlock:
         if self.split_instruction is not None:
             unprocess_out = self.split_instruction.get_out_args()
             assert unprocess_out == final_stack[:len(unprocess_out)], \
-                f"Stack elements from the instruction {self.split_instruction.get_op_name()} " \
+                f"Stack elements from the instruction {self.split_instruction} " \
                 f"do not match the ones from the final stack.\nFinal stack: {final_stack}." \
-                f"\nStack elements produced by the instruction: {unprocess_out}"
+                f"\nStack elements produced by the instruction: {unprocess_out}" \
+                f"\nFinal stack elements: {self.final_stack_elements}"
 
             # As the unprocessed instruction is not considered as part of the SFS,
             # we must remove the corresponding values from the final stack
@@ -633,15 +650,15 @@ class CFGBlock:
 
         return block_spec, out_idx, block_tag_idx
 
-    def build_spec(self, initial_stack: List[str],
-                   final_stack: List[str]) -> Tuple[Dict[str, Any], int, int]:
-        
+    def build_spec(self, initial_stack: List[str], final_stack: List[str]) -> Dict[str, Any]:
         map_instructions = {}
 
         out_idx = 0
 
         spec, out_idx, map_positions = self._build_spec_for_sequence(self.instructions_to_synthesize, map_instructions, out_idx,
                                                                      initial_stack, final_stack)
+        with open("sms.json", 'w') as f:
+            json.dump(spec, f, indent=4)
 
         sto_deps, mem_deps = self._process_dependences(self._instructions, map_positions)
         spec["storage_dependences"] = sto_deps
@@ -652,7 +669,7 @@ class CFGBlock:
             logging.debug(f"Building Spec of block {self.block_id}...")
             logging.debug(json.dumps(spec, indent=4))
 
-        return spec, out_idx
+        return spec
 
     def __str__(self):
         s = "BlockID: " + self.block_id + "\n"

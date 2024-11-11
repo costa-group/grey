@@ -10,10 +10,11 @@ from typing import Dict, List, Type, Any, Set, Tuple, Optional
 import networkx as nx
 from pathlib import Path
 
-from global_params.types import SMS_T, component_name_T, var_id_T
+from global_params.types import SMS_T, component_name_T, var_id_T, block_id_T
+from parser.cfg import CFG
 from parser.cfg_block_list import CFGBlockList
 from parser.cfg_block import CFGBlock
-from parser.cfg import CFG
+from parser.cfg_instruction import CFGInstruction
 from parser.utils_parser import shorten_name
 from analysis.abstract_state import digraph_from_block_info
 from graphs.algorithms import condense_to_dag, information_on_graph
@@ -68,9 +69,12 @@ def compute_variable_depth(liveness_info: Dict[str, LivenessAnalysisInfo], topol
 
         current_variable_depth_in = current_variable_depth_out.copy()
 
-        # Finally, we update the corresponding variables that are defined and used in the blocks
-        for used_variable in block_info.uses:
-            current_variable_depth_in[used_variable] = 0
+        if block_info.block_id == "fun_supportsInterface_985_Block2":
+            print("HOLA")
+
+        # Finally, we update the corresponding variables that are defined in the blocks
+        for used_variable in set(block_info.defs).union(block_info.phi_defs):
+            current_variable_depth_out[used_variable] = 0
 
         variable_depth_out[node] = current_variable_depth_out
         variable_depth_in[node] = current_variable_depth_in
@@ -85,28 +89,28 @@ def compute_block_level(dominance_tree: nx.DiGraph, start: str) -> Dict[str, int
     return nx.shortest_path_length(dominance_tree, start)
 
 
-def unification_block_dict(block_info: Dict[str, Any]) -> Dict[str, List[str]]:
+def unification_block_dict(block_list: CFGBlockList) -> Dict[block_id_T, Tuple[block_id_T, List[block_id_T], List[CFGInstruction]]]:
     """
     Given the CFG, it finds those blocks that must unify their corresponding output stacks, due to jumping to the same
-    block
+    block and the corresponding phi instructions
     """
     unification_dict = dict()
-    for block_name, information in block_info.items():
-        comes_from = information.block_info.comes_from
+    for block_name, block in block_list.blocks.items():
+        comes_from = block.get_comes_from()
 
         # Comes from can have more than two blocks
         if len(comes_from) > 1:
-            comes_from_set = set(comes_from)
+
+            info_to_store = block_name, block.entries if block.entries else comes_from, block.phi_instructions()
+            # If current block has a Phi Instruction, it uses the order determined by the entries field
             for predecessor_block in comes_from:
-                comes_from_set.remove(predecessor_block)
-                unification_dict[predecessor_block] = list(comes_from_set.copy())
-                comes_from_set.add(predecessor_block)
+                unification_dict[predecessor_block] = info_to_store
 
     return unification_dict
 
 
 def output_stack_layout(input_stack: List[str], final_stack_elements: List[str],
-                        live_vars: Set[str], variable_depth_info: Dict[str, int]) -> Tuple[List[str], List[str]]:
+                        live_vars: Set[str], variable_depth_info: Dict[str, int]) -> List[str]:
     """
     Generates the output stack layout before and after the last instruction
     (i.e. the one not optimized by the greedy algorithm), according to the variables
@@ -154,35 +158,49 @@ def output_stack_layout(input_stack: List[str], final_stack_elements: List[str],
         bottom_output_stack = [var_ for var_ in bottom_output_stack if var_ is not None]
 
     # The final stack elements must appear in the top of the stack
-    return bottom_output_stack, final_stack_elements + bottom_output_stack
+    return final_stack_elements + bottom_output_stack
 
 
-def unify_stacks_brothers(input_stack: List[str], final_stack_elements: List[str],
-                          live_vars_list: List[Set[str]], variable_depth_info: Dict[str, int]) \
-        -> Tuple[List[str], List[str], List[List[str]]]:
+def unify_stacks_brothers(taget_block_id: block_id_T, predecessor_blocks: List[block_id_T],
+                          live_vars_dict: Dict[block_id_T, Set[var_id_T]], phi_functions: List[CFGInstruction],
+                          variable_depth_info: Dict[str, int]) -> Tuple[
+    List[block_id_T], Dict[block_id_T, List[var_id_T]]]:
     """
-    Given the input stack from one of the brothers, the values that must be placed at the top of the stack,
-    the list of variables that are live, the variable depth info for the initial block, returns an output
-    stack for every one of them in the same order as others_live_vars_list is provided
+    Generate the output stack for all blocks that share a common block destination and the consolidated stack,
+    considering the PhiFunctions
     """
-    all_var_elements = set().union(*live_vars_list)
+    # TODO: uses the input stacks for all the brother stacks for a better combination
 
-    # Extend the variable depth info with the variables that are not in the initial set
-    max_value = max(variable_depth_info.values()) if variable_depth_info else 0 + 1
+    # First we generate the stack layout for the input stack of the target block. We make no assumptions on how the
+    # input stack works
+    combined_output_stack = output_stack_layout([], [], live_vars_dict[taget_block_id], variable_depth_info)
 
-    combined_variable_depth_info = variable_depth_info.copy()
-    for variables in all_var_elements.difference(variable_depth_info):
-        combined_variable_depth_info[variables] = max_value
+    # From this layout, we reconstruct the previous stack layouts using the information from the phi functions
+    phi_func = {(phi_function.out_args[0], predecessor_block): input_arg for phi_function in phi_functions
+                for input_arg, predecessor_block in zip(phi_function.in_args, predecessor_blocks)}
 
-    # Construct the output stack with all the joined variable elements
-    combined_output_stack_analysis, combined_output_stack_json = output_stack_layout(input_stack, final_stack_elements,
-                                                                                     all_var_elements, variable_depth_info)
+    # Reconstruct all the output stacks
+    predecessor_output_stacks = dict()
 
-    # Construct the remaining output stacks, considering the order of the first generated output stacks
-    output_stacks = [[variable if variable in live_vars else "bottom" for variable in combined_output_stack_analysis]
-                     for live_vars in live_vars_list]
+    for predecessor_id in predecessor_blocks:
+        predecessor_output_stack = []
+        # Three possibilities:
+        for out_var in combined_output_stack:
+            # First case: the variable is already live
+            if out_var in live_vars_dict:
+                predecessor_output_stack.append(out_var)
+            else:
+                in_arg = phi_func.get((out_var, predecessor_id), None)
+                # The argument corresponds to the input of a phi function
+                if in_arg is not None:
+                    predecessor_output_stack.append(in_arg)
+                # Otherwise, we have to introduce a bottom value
+                else:
+                    predecessor_output_stack.append("bottom")
 
-    return combined_output_stack_json, combined_output_stack_analysis, output_stacks
+        predecessor_output_stacks[predecessor_id] = predecessor_output_stack
+
+    return combined_output_stack, predecessor_output_stacks
 
 
 def joined_stack(combined_output_stack: List[str], live_vars: Set[str]):
@@ -202,7 +220,8 @@ def var_order_repr(block_name: str, var_info: Dict[str, int]):
 
 
 def print_json_instr(instr: Dict[str, Any]) -> str:
-    return ', '.join([f"Opcode {instr['disasm']}", f"Input args: {instr['inpt_sk']}", f"Output args: {instr['outpt_sk']}"])
+    return ', '.join(
+        [f"Opcode {instr['disasm']}", f"Input args: {instr['inpt_sk']}", f"Output args: {instr['outpt_sk']}"])
 
 
 def print_stacks(block_name: str, json_dict: Dict[str, Any]) -> str:
@@ -246,10 +265,10 @@ class LayoutGeneration:
         # This is because in the dominance tree together with the SSA, all the nodes
 
         self._block_depth = compute_block_level(self._dominance_tree, self._start)
-        self._unification_dict = unification_block_dict(liveness_info)
+        self._unification_dict = unification_block_dict(block_list)
 
     def _construct_code_from_block(self, block: CFGBlock, input_stacks: Dict[str, List[str]],
-                                   output_stacks: Dict[str, List[str]], combined_stacks: Dict[str, List[str]]):
+                                   output_stacks: Dict[str, List[str]]):
         """
         Constructs the specification for a given block, according to the input and output stacks
         """
@@ -264,70 +283,63 @@ class LayoutGeneration:
                                   if predecessor in output_stacks]
 
             if len(predecessor_stacks) > 1:
-                combined_stack_id = '_'.join(sorted(comes_from))
-                input_stack = joined_stack(combined_stacks[combined_stack_id], liveness_info.in_state.live_vars)
-
-                for i in range(len(predecessor_stacks)):
-                    # Check they match
-                    assert len(predecessor_stacks[i]) == len(input_stack) and \
-                           all(elem1 == elem2 or elem1 == "bottom" or elem2 == "bottom" for elem1, elem2 in
-                               zip(predecessor_stacks[i], input_stack)), \
-                        f"ERROR when unifying stacks for block {block_id}: {predecessor_stacks[i]} != {input_stack}"
-
+                # At this point, the input stack must have been assigned from the predecessors
+                input_stack = input_stacks[block.block_id]
             else:
                 input_stack = output_stacks[comes_from[0]]
         else:
             # We introduce the necessary args in the generation of the first output stack layout
             # The stack elements we have to "force" a certain order correspond to the input parameters of
             # the function
-            input_stack, _ = output_stack_layout([], self._function_inputs[self._component_id],
-                                                 liveness_info.in_state.live_vars, self._variable_order[block_id])
+            input_stack = output_stack_layout([], self._function_inputs[self._component_id],
+                                              liveness_info.in_state.live_vars, self._variable_order[block_id])
 
         input_stacks[block.block_id] = input_stack
 
         # Computing output stack...
         # If the current block belongs to the unification tuples and a brother block has already been assigned
         # a stack, we need to assign the same stack
-        brothers = self._unification_dict.get(block_id, None)
+        next_block_id, elements_to_unify, phi_instructions = self._unification_dict.get(block_id, (None, [], []))
         output_stack = None
+        print(block_id, comes_from, elements_to_unify)
 
-        if brothers is not None:
+        if len(elements_to_unify) > 1:
 
             # If one of the brothers was assigned previously, the corresponding id is already assigned as well
             if block_id in output_stacks:
+                # We store the output stack from the analysis after commbining
                 output_stack = output_stacks[block_id]
 
             # We need to determine a stack that is the combination of the previous ones
             else:
-                elements_to_unify = [block_id, *brothers]
-
                 # We unify the stacks according the first reached block
-                combined_liveness_info = [self._liveness_info[block_id].out_state.live_vars
-                                          for block_id in elements_to_unify]
+                combined_liveness_info = {element_to_unify: self._liveness_info[element_to_unify].out_state.live_vars
+                                          for element_to_unify in elements_to_unify}
+                combined_liveness_info[next_block_id] = self._liveness_info[next_block_id].out_state.live_vars
 
-                combined_output_stack, output_stacks_unified = unify_stacks_brothers(input_stack, block.final_stack_elements,
+                combined_output_stack, output_stacks_unified = unify_stacks_brothers(next_block_id,
+                                                                                     elements_to_unify,
                                                                                      combined_liveness_info,
-                                                                                     self._variable_order[block_id])
+                                                                                     phi_instructions,
+                                                                                     self._variable_order[next_block_id])
 
-                # We assign all the output stacks that have been unified
-                output_stack = output_stacks_unified[0]
-                output_stacks[block_id] = output_stack
+                # Update the output stacks with the ones generated from the unification
+                output_stacks.update(output_stacks_unified)
+                output_stack = output_stacks[block_id]
 
-                combined_name = '_'.join(sorted(elements_to_unify))
-                combined_stacks[combined_name] = combined_output_stack
-
-                for i, brother in enumerate(elements_to_unify):
-                    output_stacks[brother] = output_stacks_unified[i]
+                # The combined output stack is the input stack of the successor
+                input_stacks[next_block_id] = combined_output_stack
 
         if output_stack is None:
-            output_stack_json, output_stack_analysis = output_stack_layout(input_stack, block.final_stack_elements,
-                                                                           liveness_info.out_state.live_vars,
-                                                                           self._variable_order[block_id])
+            output_stack = output_stack_layout(input_stack, block.final_stack_elements,
+                                               liveness_info.out_state.live_vars,
+                                               self._variable_order[block_id])
             # We store the output stack in the dict, as we have built a new element
-            output_stacks[block_id] = output_stack_analysis
+            output_stacks[block_id] = output_stack
 
         # We build the corresponding specification
-        block_json, out_idx = block.build_spec(input_stack, output_stack_json)
+        print(block_id)
+        block_json = block.build_spec(input_stack, output_stack)
 
         return block_json
 
@@ -340,7 +352,6 @@ class LayoutGeneration:
         output_stacks = dict()
         traversed = set()
         json_info = dict()
-        combined_stacks = dict()
 
         pending_blocks = []
         heapq.heappush(pending_blocks, (0, 0, self._start))
@@ -358,7 +369,7 @@ class LayoutGeneration:
             current_block = self._block_list.get_block(block_name)
 
             block_specification = self._construct_code_from_block(current_block, input_stacks,
-                                                                  output_stacks, combined_stacks)
+                                                                  output_stacks)
 
             json_info[block_name] = block_specification
 
@@ -379,16 +390,17 @@ class LayoutGeneration:
         json_info = self._construct_code_from_block_list()
         print(json_info.keys())
 
-        renamed_graph = information_on_graph(self._cfg_graph, {block_name: print_stacks(block_name, json_info[block_name])
-                                                               for block_name in
-                                                               self._block_list.blocks})
+        renamed_graph = information_on_graph(self._cfg_graph,
+                                             {block_name: print_stacks(block_name, json_info[block_name])
+                                              for block_name in
+                                              self._block_list.blocks})
 
         nx.nx_agraph.write_dot(renamed_graph, Path(self._dir.parent).joinpath(self._dir.stem + "_stacks.dot"))
 
         return json_info
 
 
-def layout_generation(cfg: CFG, final_dir: Path = Path(".")) -> Tuple[Dict[str, SMS_T], Dict[str, int]]:
+def layout_generation_cfg(cfg: CFG, final_dir: Path = Path(".")) -> Dict[str, SMS_T]:
     """
     Returns the information from the liveness analysis and also stores a dot file for each analyzed structure
     in "final_dir"
@@ -401,7 +413,6 @@ def layout_generation(cfg: CFG, final_dir: Path = Path(".")) -> Tuple[Dict[str, 
     jsons = dict()
 
     for component_name, liveness in results.items():
-        print(component_name)
         cfg_info_suboject = cfg_info[component_name]["block_info"]
         digraph = digraph_from_block_info(cfg_info_suboject.values())
 
@@ -409,8 +420,20 @@ def layout_generation(cfg: CFG, final_dir: Path = Path(".")) -> Tuple[Dict[str, 
 
         layout = LayoutGeneration(component_name, component2block_list[component_name], liveness, component2inputs,
                                   final_dir.joinpath(f"{short_component_name}_dominated.dot"), digraph)
-        
+
         layout_blocks = layout.build_layout()
         jsons.update(layout_blocks)
 
     return jsons
+
+
+def layout_generation(cfg: CFG, final_dir: Path = Path(".")) -> List[Dict[str, SMS_T]]:
+    """
+    Returns the information from the liveness analysis and also stores a dot file for each analyzed structure
+    in "final_dir"
+    """
+    layouts_per_cfg = [layout_generation_cfg(cfg, final_dir)]
+    if cfg.subObjects is not None:
+        layouts_per_cfg.extend(layout_generation(cfg.subObjects, final_dir))
+
+    return layouts_per_cfg

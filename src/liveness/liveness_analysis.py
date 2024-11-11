@@ -77,22 +77,29 @@ class LivenessAnalysisInfoSSA(BlockAnalysisInfo):
 
         # Live in variables: remove from the out variables those that are defined (either as part of a
         # normal function or a phi function) and add the ones that are used with no preceding definition
-        # TODO: check if it is correct (differs slightly from the book)
+        # 0TODO: check if it is correct (differs slightly from the book)
         self.in_state.live_vars = self.block_info.upward_exposed.union(
             self.out_state.live_vars.difference(self.block_info.defs.union(self.block_info.phi_defs)))
 
     def propagate_state(self, current_state: LivenessState) -> None:
+        if self.block_info.block_id == "extract_byte_array_length_Block1_copy_0":
+            print(self.out_state.live_vars)
+
         # Live out variables: the live in variables + those selected from the phi functions
         self.out_state.live_vars = set().union(self.out_state.live_vars,
                                                self.block_info.phi_uses,
                                                current_state.live_vars)
 
     def dot_repr(self) -> str:
+        if self.block_info.block_id == "extract_byte_array_length_Block1_copy_0":
+            print(self.out_state.live_vars)
+
         instr_repr = '\n'.join([instr.dot_repr() for instr in self.block_info._instructions])
 
         combined_repr = instr_repr if instr_repr != "" else "[]"
 
-        text_repr_list = [f"{self.block_info.block_id}:", f"{self.in_state}", combined_repr, f"{self.out_state}"]
+        text_repr_list = [f"{self.block_info.block_id}:", f"{self.in_state}", combined_repr, f"{self.out_state}",
+                          f"{self.block_info._entries}"]
         # "Phi uses", f"{self.block_info.phi_uses}", "Phi defines:", f"{self.block_info.phi_defs}",
         # "Upward:", f"{self.block_info.upward_exposed}", f"{self.block_info._entries}"
         return '\n'.join(text_repr_list)
@@ -120,8 +127,8 @@ def construct_analysis_info_from_cfgblocklist(block_list: CFGBlockList) -> cfg_i
 
 def construct_analysis_info(cfg: CFG) -> Dict[str, cfg_info_T]:
     """
-    Constructs the info needed for the liveness analysis for all the code in a CFG: the main blocks, the functions
-    inside and the CFG stored in the subObject field. The dictionary contains an item for each structure
+    Constructs the info needed for the liveness analysis for all the code in a CFG: the main blocks and the functions
+    inside (excludes the CFG stored in the subObject field). The dictionary contains an item for each structure
     """
     cfg_info = dict()
 
@@ -133,12 +140,6 @@ def construct_analysis_info(cfg: CFG) -> Dict[str, cfg_info_T]:
         # We also consider the information per function
         for function_name, cfg_function in cfg_object.functions.items():
             cfg_info[function_name] = construct_analysis_info_from_cfgblocklist(cfg_function.blocks)
-
-        subobject = cfg.get_subobject()
-
-        if subobject is not None:
-            subobject_cfg_info = construct_analysis_info(subobject)
-            cfg_info.update(subobject_cfg_info)
 
     return cfg_info
 
@@ -178,7 +179,7 @@ def perform_liveness_analysis(cfg: CFG) -> Dict[str, Dict[str, LivenessAnalysisI
     return perform_liveness_analysis_from_cfg_info(cfg_info)
 
 
-def dot_from_analysis(cfg: CFG, final_dir: Path = Path(".")) -> Dict[str, Dict[str, LivenessAnalysisInfo]]:
+def dot_from_analysis_cfg(cfg: CFG, final_dir: Path = Path(".")) -> Dict[str, Dict[str, LivenessAnalysisInfo]]:
     """
     Returns the information from the liveness analysis and also stores a dot file for each analyzed structure
     in "final_dir"
@@ -199,3 +200,16 @@ def dot_from_analysis(cfg: CFG, final_dir: Path = Path(".")) -> Dict[str, Dict[s
         nx.nx_agraph.write_dot(renamed_digraph, final_dir.joinpath(f"{short_component_name}.dot"))
 
     return results
+
+
+def dot_from_analysis(cfg: CFG, final_dir: Path = Path("."), position: int = 0) -> Dict[str, Dict[str, LivenessAnalysisInfo]]:
+    """
+    Returns the information from the liveness analysis and also stores a dot file for each analyzed structure
+    in "final_dir"
+    """
+    sub_cfg = final_dir.joinpath(f"{position}")
+    sub_cfg.mkdir(exist_ok=True, parents=True)
+    analysis_cfg = dot_from_analysis_cfg(cfg, sub_cfg)
+    if cfg.subObjects is not None:
+        analysis_cfg.update(dot_from_analysis(cfg.subObjects, final_dir, position + 1))
+    return analysis_cfg

@@ -139,7 +139,14 @@ class CFGInstruction:
         algorithm) or not. Instructions that must not be computed include assignments (as they are propagated directly)
         and functionReturns
         """
-        return self.op != "assignments"
+        return self.op not in ["assignments", "PhiFunction", "functionReturn"]
+
+    def memory_operation(self):
+        """
+        Memory operation: STORE operations and function calls
+        """
+        # TODO: handle keccaks and loads better
+        return "STORE" in self.op or self.op not in opcodes.opcodes or "LOAD" in self.op or "KECCAK" in self.op
         
     def set_builtin_args(self, builtin: List[str]) -> None:
         self.builtin_args = builtin
