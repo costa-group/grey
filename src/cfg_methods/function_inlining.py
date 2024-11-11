@@ -94,7 +94,7 @@ def inline_functions_cfg_object(cfg_object: CFGObject, function_call_info: funct
                                                    len(cfg_function.exits)):
 
             for call_idx, (instr_pos, cfg_block_name, cfg_block_list_name) in enumerate(call_info):
-                print(function_name, cfg_block_list_name)
+                # print(function_name, cfg_block_list_name)
                 cfg_block_list = cfg_object.get_block_list(cfg_block_list_name)
 
                 # Then we determine whether the function has been split
@@ -108,9 +108,6 @@ def inline_functions_cfg_object(cfg_object: CFGObject, function_call_info: funct
                     position_index = instr_pos + _adjust_phi_function_idx_misalignment(cfg_block_list.blocks[split_blocks[split_block_index]])
 
                 function_to_inline, renaming_dict = _generate_function_to_inline(cfg_function, call_idx, len(call_info))
-
-                if cfg_block_list.name == "fun__exists_1337":
-                    print("HOLA")
 
                 # nx.nx_agraph.write_dot(cfg_block_list.to_graph_info(), f"antes.dot")
 

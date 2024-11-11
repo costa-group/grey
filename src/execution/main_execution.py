@@ -136,14 +136,14 @@ def main():
         dot_file_dir = cfg_dir.joinpath("liveness")
         dot_file_dir.mkdir(exist_ok=True, parents=True)
 
-        asm_out_dir = cfg_dir.joinpath("asm_out_files")
-        asm_out_dir.mkdir(exist_ok=True, parents=True)
-
         json_asm_contract = analyze_single_cfg(cfg, cfg_dir, dot_file_dir, args)
         
         asm_output = asm_output | json_asm_contract
 
     asm_contracts = {"contracts": asm_output}
+
+    asm_out_dir = final_dir.joinpath("asm_out_files")
+    asm_out_dir.mkdir(exist_ok=True, parents=True)
 
     source_name = args.source.split(".")[0]
     store_asm_output(asm_out_dir, asm_contracts, source_name.split("/")[-1])
