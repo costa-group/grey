@@ -71,10 +71,7 @@ def yul_cfg_dict_from_format(input_format: str, filename: str, contract: Optiona
 
 
 def analyze_single_cfg(cfg: CFG, final_dir: Path, dot_file_dir: Path, args: argparse.Namespace):
-    tags_dict = preprocess_cfg(cfg, dot_file_dir)
-
-    if args.visualize:
-        liveness_info = dot_from_analysis(cfg, dot_file_dir)
+    tags_dict = preprocess_cfg(cfg, dot_file_dir, args.visualize)
 
     x = dtimer()
     jsons_list = layout_generation(cfg, dot_file_dir)
@@ -91,14 +88,20 @@ def analyze_single_cfg(cfg: CFG, final_dir: Path, dot_file_dir: Path, args: argp
     
     if args.greedy:
         csv_rows = []
-        for jsons in jsons_list:
+        for i, jsons in enumerate(jsons_list):
             for block_name, sfs in jsons.items():
-                store_sfs_json(block_name, sfs, sfs_final_dir)
-                _, time, solution_found = greedy_standalone(sfs)
-                csv_row = generate_statistics_info(block_name, solution_found, time, sfs)
-                solution_asm = asm_from_ids(sfs, solution_found)
-                block_name2asm[block_name] = solution_asm
-                csv_rows.append(csv_row)
+                cfg_sfs_dir = sfs_final_dir.joinpath(str(i))
+                cfg_sfs_dir.mkdir(exist_ok=True, parents=True)
+                store_sfs_json(block_name, sfs, cfg_sfs_dir)
+                try:
+                    _, time, solution_found = greedy_standalone(sfs)
+                    csv_row = generate_statistics_info(block_name, solution_found, time, sfs)
+                    csv_rows.append(csv_row)
+                    solution_asm = asm_from_ids(sfs, solution_found)
+                    block_name2asm[block_name] = solution_asm
+                except:
+                    block_name2asm[block_name] = []
+                    print(f"Error processing {block_name} in the greedy algorithm")
 
         # Generate complete asm from CFG object + dict
 
