@@ -81,19 +81,12 @@ class LivenessAnalysisInfoSSA(BlockAnalysisInfo):
         self.in_state.live_vars = self.block_info.upward_exposed.union(
             self.out_state.live_vars.difference(self.block_info.defs.union(self.block_info.phi_defs)))
 
-    def propagate_state(self, current_state: LivenessState) -> None:
-        if self.block_info.block_id == "extract_byte_array_length_Block1_copy_0":
-            print(self.out_state.live_vars)
-
-        # Live out variables: the live in variables + those selected from the phi functions
+    def propagate_state(self, current_state: LivenessState) -> None:        # Live out variables: the live in variables + those selected from the phi functions
         self.out_state.live_vars = set().union(self.out_state.live_vars,
                                                self.block_info.phi_uses,
                                                current_state.live_vars)
 
     def dot_repr(self) -> str:
-        if self.block_info.block_id == "extract_byte_array_length_Block1_copy_0":
-            print(self.out_state.live_vars)
-
         instr_repr = '\n'.join([instr.dot_repr() for instr in self.block_info._instructions])
 
         combined_repr = instr_repr if instr_repr != "" else "[]"

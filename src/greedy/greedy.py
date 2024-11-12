@@ -1714,9 +1714,9 @@ def greedy_from_json(json_data: Dict[str, Any], verb=False) -> Tuple[
             # print(name, encoding._b0, encoding._b0)
         error = 0
     except Exception:
-        print(json_data)
-        _, _, tb = sys.exc_info()
-        traceback.print_tb(tb)
+        # print(json_data)
+        # _, _, tb = sys.exc_info()
+        # traceback.print_tb(tb)
         # print("Error")
         res = None
         resids = None

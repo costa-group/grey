@@ -203,15 +203,15 @@ def are_dependent_accesses(exp1: expression_T, exp2: expression_T) -> bool:
     val1 = exp1[0]
     val2 = exp2[0]
 
-    print(exp1)
-    print(exp2)
+    # print(exp1)
+    # print(exp2)
 
     if val1 == "inf" or val2 == "inf":
         return True
     elif isinstance(val1, int) and isinstance(val2, int):  # constants
         return val1 == val2
     elif isinstance(val1, str) and isinstance(val2, str):  # variables
-        print("Check with ssa")
+        # print("Check with ssa")
         return True  # val1 == val2
     elif isinstance(val1, str) and isinstance(val2, tuple):  # One expression is contained in the other
         return not is_member_recursive(val1, val2)
