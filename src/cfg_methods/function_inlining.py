@@ -83,7 +83,6 @@ def inline_functions_cfg_object(cfg_object: CFGObject, function_call_info: funct
     # Dict that maps each initial block name in the CFG to the set of blocks in which it can be split
     block2current: Dict[block_id_T, List[block_id_T]] = dict()
     free_index = _free_index_from_object(cfg_object)
-    print("FREE", free_index)
 
     function_call_info, topological_sort = prune_cycles_topological_sort(function_call_info)
 
