@@ -17,6 +17,7 @@ from parser.cfg import CFG
 # "terminal_blocks: the list of terminal block ids, in order to start the analysis
 cfg_info_T = Dict[str, Union[Dict[str, LivenessBlockInfo], List[str]]]
 
+i = 0
 
 class LivenessAnalysisInfo(BlockAnalysisInfo):
     """
@@ -189,8 +190,14 @@ def dot_from_analysis_cfg(cfg: CFG, final_dir: Path = Path(".")) -> Dict[str, Di
         renamed_digraph = nx.relabel_nodes(digraph, renaming_dict)
 
         short_component_name = shorten_name(component_name)
+        try:
+            nx.nx_agraph.write_dot(renamed_digraph, final_dir.joinpath(f"{short_component_name}.dot"))
+        except:
 
-        nx.nx_agraph.write_dot(renamed_digraph, final_dir.joinpath(f"{short_component_name}.dot"))
+            global i
+
+            nx.nx_agraph.write_dot(renamed_digraph, final_dir.joinpath(f"too_long_name_{i}.dot"))
+            i += 1
 
     return results
 

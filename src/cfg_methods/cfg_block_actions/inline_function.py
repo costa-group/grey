@@ -9,7 +9,7 @@ from parser.cfg_block import CFGBlock
 from parser.cfg_function import CFGFunction
 from parser.cfg_object import CFGObject
 from cfg_methods.cfg_block_actions.utils import modify_comes_from, modify_successors
-from cfg_methods.variable_renaming import rename_variables_block_list, rename_cfg_function
+from cfg_methods.variable_renaming import rename_block_list, rename_function
 
 
 class InlineFunction(BlockAction):
@@ -125,7 +125,9 @@ class InlineFunction(BlockAction):
         for exit_id in function_exists_ids:
             exit_block = self._cfg_blocklist.get_block(exit_id)
             # Finally, we remove the function return from the exit id
-            exit_block.remove_instruction(-1)
+            exit_function_return = exit_block.remove_instruction(-1)
+            assert exit_function_return.get_op_name() == "functionReturn", f"Last instruction of exit block " \
+                                                                           f"{exit_id} must be a functionReturn"
 
         # is_correct, reason = validate_block_list_comes_from(self._cfg_blocklist)
 
@@ -159,7 +161,7 @@ class InlineFunction(BlockAction):
         """
         relabel_dict = self._function_input2call_input(call_instruction)
         n_modified_vars = len(relabel_dict)
-        rename_cfg_function(self._cfg_function, set(), relabel_dict, 0)
+        rename_function(self._cfg_function, relabel_dict)
 
         assert sum(1 for old_name, new_name in relabel_dict.items() if old_name != new_name) == n_modified_vars, \
             f"Inlining {self._function_name} should not assign new variables"
@@ -171,7 +173,7 @@ class InlineFunction(BlockAction):
         """
         relabel_dict = self._call_output2function_output(call_instruction)
         n_modified_vars = len(relabel_dict)
-        rename_variables_block_list(self._cfg_blocklist, set(), relabel_dict, 0)
+        rename_block_list(self._cfg_blocklist, relabel_dict)
 
         assert sum(1 for old_name, new_name in relabel_dict.items() if old_name != new_name) == n_modified_vars, \
             f"Inlining {self._function_name} should not assign new variables"
