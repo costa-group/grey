@@ -15,7 +15,7 @@ from parser.cfg_function import CFGFunction
 from parser.cfg_object import CFGObject
 from parser.cfg import CFG
 from cfg_methods.cfg_block_actions.inline_function import InlineFunction
-from cfg_methods.variable_renaming import rename_cfg_function
+from cfg_methods.variable_renaming import rename_function
 from cfg_methods.cost_computation import function2costs_T, compute_gas_bytes
 
 # For each time a function is invoked, we store the position of the instruction (int) in the
@@ -206,7 +206,7 @@ def _generate_function_to_inline(original_function: CFGFunction, func_idx: int, 
     bef = copy(renaming_vars)
     nx.nx_agraph.write_dot(copied_function.blocks.to_graph_info(), "bef.dot")
     n_renaming_vars = len(renaming_vars)
-    rename_cfg_function(copied_function, set(), renaming_vars, 0, False)
+    rename_function(copied_function, renaming_vars)
 
     nx.nx_agraph.write_dot(copied_function.blocks.to_graph_info(), "aft.dot")
 
