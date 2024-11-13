@@ -296,8 +296,7 @@ class LayoutGeneration:
             # We introduce the necessary args in the generation of the first output stack layout
             # The stack elements we have to "force" a certain order correspond to the input parameters of
             # the function
-            input_stack = output_stack_layout([], self._function_inputs[self._component_id],
-                                              liveness_info.in_state.live_vars, self._variable_order[block_id])
+            input_stack = self._function_inputs[self._block_list.name]
 
         input_stacks[block.block_id] = input_stack
 
