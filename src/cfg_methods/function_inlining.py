@@ -107,8 +107,7 @@ def inline_functions_cfg_object(cfg_object: CFGObject, function_call_info: funct
                     split_block_index = 0
                     position_index = instr_pos + _adjust_phi_function_idx_misalignment(cfg_block_list.blocks[split_blocks[split_block_index]])
 
-                function_to_inline, renaming_dict = _generate_function_to_inline(cfg_function, func_idx, call_idx,
-                                                                                             len(call_info))
+                function_to_inline, renaming_dict = _generate_function_to_inline(cfg_function, func_idx, call_idx, len(call_info))
 
                 # nx.nx_agraph.write_dot(cfg_block_list.to_graph_info(), f"antes.dot")
 
@@ -201,17 +200,12 @@ def _generate_function_to_inline(original_function: CFGFunction, func_idx: int, 
     block_list.rename_blocks(renaming_dict)
 
     var_ids = _var_ids_from_list(block_list)
-    renaming_vars = {var_: f"{var_}_f{func_idx}_{current_call_idx}" for var_ in var_ids}
-    renaming_vars.update((var_, f"{var_}_f{func_idx}_{current_call_idx}") for var_ in copied_function.arguments)
-    bef = copy(renaming_vars)
-    nx.nx_agraph.write_dot(copied_function.blocks.to_graph_info(), "bef.dot")
+    renaming_vars = {var_: f"{var_.split('_')[0]}_f{func_idx}_{current_call_idx}" for var_ in var_ids}
+    renaming_vars.update((var_, f"{var_.split('_')[0]}_f{func_idx}_{current_call_idx}") for var_ in copied_function.arguments)
+
     n_renaming_vars = len(renaming_vars)
     rename_function(copied_function, renaming_vars)
 
-    nx.nx_agraph.write_dot(copied_function.blocks.to_graph_info(), "aft.dot")
-
-    print(renaming_vars, bef)
-    print(block_list.name, set(renaming_vars.keys()).difference(bef.keys()))
     assert n_renaming_vars == len(renaming_vars), \
         "Variable renaming in function duplication should not assign new variables"
 

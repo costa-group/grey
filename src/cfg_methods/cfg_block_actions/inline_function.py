@@ -125,7 +125,9 @@ class InlineFunction(BlockAction):
         for exit_id in function_exists_ids:
             exit_block = self._cfg_blocklist.get_block(exit_id)
             # Finally, we remove the function return from the exit id
-            exit_block.remove_instruction(-1)
+            exit_function_return = exit_block.remove_instruction(-1)
+            assert exit_function_return.get_op_name() == "functionReturn", f"Last instruction of exit block " \
+                                                                           f"{exit_id} must be a functionReturn"
 
         # is_correct, reason = validate_block_list_comes_from(self._cfg_blocklist)
 
