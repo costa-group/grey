@@ -200,8 +200,8 @@ def _generate_function_to_inline(original_function: CFGFunction, func_idx: int, 
     block_list.rename_blocks(renaming_dict)
 
     var_ids = _var_ids_from_list(block_list)
-    renaming_vars = {var_: f"{var_.split('_')[0]}_f{func_idx}_{current_call_idx}" for var_ in var_ids}
-    renaming_vars.update((var_, f"{var_.split('_')[0]}_f{func_idx}_{current_call_idx}") for var_ in copied_function.arguments)
+    renaming_vars = {var_: f"{var_}_f{func_idx}_{current_call_idx}" for var_ in var_ids}
+    renaming_vars.update((var_, f"{var_}_f{func_idx}_{current_call_idx}") for var_ in copied_function.arguments)
 
     n_renaming_vars = len(renaming_vars)
     rename_function(copied_function, renaming_vars)
