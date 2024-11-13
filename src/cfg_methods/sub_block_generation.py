@@ -18,11 +18,12 @@ def split_blocks_cfg(cfg: CFG) -> None:
     Splits the blocks in the cfg
     """
     for object_id, cfg_object in cfg.objectCFG.items():
-        modify_block_list_split(cfg_object.blocks)
+        function_names = list(cfg_object.functions.keys())
+        modify_block_list_split(cfg_object.blocks, function_names)
 
         # We also consider the information per function
         for function_name, cfg_function in cfg_object.functions.items():
-            modify_block_list_split(cfg_function.blocks)
+            modify_block_list_split(cfg_function.blocks, function_names)
 
         sub_object = cfg.get_subobject()
 
@@ -30,7 +31,7 @@ def split_blocks_cfg(cfg: CFG) -> None:
             split_blocks_cfg(sub_object)
 
 
-def modify_block_list_split(block_list: CFGBlockList) -> None:
+def modify_block_list_split(block_list: CFGBlockList, function_calls: List[function_name_T]) -> None:
     """
     Modifies a CFGBlockList by splitting blocks when function calls and split instructions are found
     """
@@ -46,7 +47,7 @@ def modify_block_list_split(block_list: CFGBlockList) -> None:
             instr = current_block.get_instructions()[instr_idx]
 
             is_split_instr = instr.get_op_name() in constants.split_block
-            is_function_call = instr.get_op_name() in cfg_block.function_calls
+            is_function_call = instr.get_op_name() in function_calls
 
             if is_split_instr or is_function_call:
                 # Sub blocks contain a split instruction or a function call as the last instruction
