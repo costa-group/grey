@@ -219,42 +219,36 @@ class CFGBlock:
         return len(self._instructions)
 
     def insert_jumps_tags(self, tags_dict: Dict[str, int]) -> None:
-        if self._jump_type == "conditional":
-            self._insert_jumpi_instruction(tags_dict)
-        elif self._jump_type == "unconditional":
-            self._insert_jump_instruction(tags_dict)
-
-    def _insert_jump_instruction(self, tags_dict: Dict[str, int]) -> None:
         if self._jump_to not in tags_dict:
-            tag_value = len(tags_dict)
+            tag_value = len(tags_dict) + 1
             tags_dict[self._jump_to] = tag_value
         else:
             tag_value = tags_dict[self._jump_to]
 
+        if self._jump_type == "conditional":
+            self._insert_jumpi_instruction(str(tag_value))
+        elif self._jump_type == "unconditional":
+            self._insert_jump_instruction(str(tag_value))
+
+    def _insert_jump_instruction(self, tag_value: str) -> None:
         # Add a PUSH tag instruction
-        self._instructions.append(CFGInstruction("PUSH [tag]", [], [str(tag_value)]))
+        self._instructions.append(CFGInstruction("PUSH [tag]", [], [tag_value]))
             
         # Add a JUMP instruction
-        jump_instr = CFGInstruction("JUMP", [str(tag_value)], [])
+        jump_instr = CFGInstruction("JUMP", [tag_value], [])
         self._instructions.append(jump_instr)
         self._split_instruction = jump_instr
         self._final_stack_elements = []
 
-    def _insert_jumpi_instruction(self, tags_dict: Dict[str, int]) -> None:
-        if self._jump_to not in tags_dict:
-            tag_value = len(tags_dict)
-            tags_dict[self._jump_to] = tag_value
-        else:
-            tag_value = tags_dict[self._jump_to]
-
+    def _insert_jumpi_instruction(self, tag_value: str) -> None:
         assert self._condition is not None, \
             f"Trying to introduce a JUMPI with an empty condition in block {self.block_id}"
 
         # Add a PUSH tag instruction
-        self._instructions.append(CFGInstruction("PUSH [tag]", [], [str(tag_value)]))
+        self._instructions.append(CFGInstruction("PUSH [tag]", [], [tag_value]))
 
         # Add a JUMPI instruction
-        jumpi_instr = CFGInstruction("JUMPI", [self._condition, str(tag_value)], [])
+        jumpi_instr = CFGInstruction("JUMPI", [self._condition, tag_value], [])
         self._instructions.append(jumpi_instr)
         self._split_instruction = jumpi_instr
         self._final_stack_elements = []
