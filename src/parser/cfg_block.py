@@ -306,7 +306,7 @@ class CFGBlock:
         else:
             prefix_instrs = self._instructions
 
-        return [instr for instr in prefix_instrs if instr != "PhiFunction"]
+        return [instr for instr in prefix_instrs if instr.get_op_name() != "PhiFunction"]
 
     @instructions_to_synthesize.setter
     def instructions_to_synthesize(self, value):
