@@ -1,7 +1,7 @@
 import itertools
 import logging
 
-from global_params.types import instr_id_T, dependencies_T, var_id_T, block_id_T
+from global_params.types import instr_id_T, dependencies_T, var_id_T, block_id_T, function_name_T
 from parser.cfg_instruction import CFGInstruction, build_push_spec, build_pushtag_spec
 from parser.utils_parser import is_in_input_stack, is_in_output_stack, are_dependent_interval, get_empty_spec, \
     get_expression, are_dependent_accesses, replace_pos_instrsid, generate_dep, get_interval, replace_aliasing_spec
@@ -218,19 +218,10 @@ class CFGBlock:
     def set_length(self) -> int:
         return len(self._instructions)
 
-    def insert_jumps_tags(self, tags_dict: Dict[str, int]) -> None:
-        if self._jump_to not in tags_dict:
-            tag_value = len(tags_dict) + 1
-            tags_dict[self._jump_to] = tag_value
-        else:
-            tag_value = tags_dict[self._jump_to]
-
-        if self._jump_type == "conditional":
-            self._insert_jumpi_instruction(str(tag_value))
-        elif self._jump_type == "unconditional":
-            self._insert_jump_instruction(str(tag_value))
-
-    def _insert_jump_instruction(self, tag_value: str) -> None:
+    def insert_jump_instruction(self, tag_value: str) -> None:
+        """
+        Inserts a JUMP instruction and the corresponding tag
+        """
         # Add a PUSH tag instruction
         self._instructions.append(CFGInstruction("PUSH [tag]", [], [tag_value]))
             
@@ -240,7 +231,11 @@ class CFGBlock:
         self._split_instruction = jump_instr
         self._final_stack_elements = []
 
-    def _insert_jumpi_instruction(self, tag_value: str) -> None:
+    def insert_jumpi_instruction(self, tag_value: str) -> None:
+        """
+        Inserts a JUMPI instruction and the corresponding tag
+        """
+
         assert self._condition is not None, \
             f"Trying to introduce a JUMPI with an empty condition in block {self.block_id}"
 
