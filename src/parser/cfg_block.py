@@ -485,8 +485,6 @@ class CFGBlock:
         unprocessed_instr = None
 
         for i, ins in enumerate(instructions):
-            print(i, ins)
-
             # Check if it has been already created
             if ins.get_op_name().startswith("push"):
                 ins_spec = map_instructions.get((ins.get_op_name().upper(), tuple(ins.get_builtin_args())), None)
