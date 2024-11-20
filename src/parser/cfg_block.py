@@ -80,7 +80,7 @@ class CFGBlock:
         # Split instruction is recognized as the last instruction
         # As we don't have information on the function calls, we assign it to None and then
         # identify it once we set the function calls
-        self._split_instruction = instructions[-1] if len(instructions) > 0 else None
+        self._split_instruction = None
 
         self._jump_type = type_block
         self._jump_to = None
@@ -110,6 +110,10 @@ class CFGBlock:
     @property
     def split_instruction(self) -> Optional[CFGInstruction]:
         return self._split_instruction
+
+    @split_instruction.setter
+    def split_instruction(self, value: CFGInstruction) -> None:
+        self._split_instruction = value
 
     @property
     def entries(self) -> List[block_id_T]:
@@ -161,7 +165,6 @@ class CFGBlock:
         if instr_idx == len(self._instructions) - 1:
             # There is no split instruction at this point
             self._split_instruction = None
-            self._final_stack_elements = []
 
         return self._instructions.pop(instr_idx)
 
@@ -225,7 +228,6 @@ class CFGBlock:
         jump_instr = CFGInstruction("JUMP", [tag_value], [])
         self._instructions.append(jump_instr)
         self._split_instruction = jump_instr
-        self._final_stack_elements = []
 
     def insert_jumpi_instruction(self, tag_value: str) -> None:
         """
@@ -241,8 +243,6 @@ class CFGBlock:
         # Add a JUMPI instruction
         jumpi_instr = CFGInstruction("JUMPI", [self._condition, tag_value], [])
         self._instructions.append(jumpi_instr)
-        self._split_instruction = jumpi_instr
-        self._final_stack_elements = []
 
         # Finally, assign the JUMPI instruction to the split one
         self._split_instruction = jumpi_instr
@@ -255,8 +255,6 @@ class CFGBlock:
         function_return = CFGInstruction("functionReturn", list(reversed(values)), [])
         self._instructions.append(function_return)
         self._split_instruction = function_return
-        self._final_stack_elements = []
-
 
     def set_jump_info(self, exit_info: Dict[str, Any]) -> None:
         type_block = exit_info["type"]
@@ -536,11 +534,6 @@ class CFGBlock:
         # add the inputs from that instruction
         if self.split_instruction is not None:
             unprocess_out = self.split_instruction.get_out_args()
-            assert unprocess_out == final_stack[:len(unprocess_out)], \
-                f"Stack elements from the instruction {self.split_instruction} " \
-                f"do not match the ones from the final stack.\nFinal stack: {final_stack}." \
-                f"\nStack elements produced by the instruction: {unprocess_out}" \
-                f"\nFinal stack elements: {self.final_stack_elements}"
 
             # As the unprocessed instruction is not considered as part of the SFS,
             # we must remove the corresponding values from the final stack

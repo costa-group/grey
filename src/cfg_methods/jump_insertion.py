@@ -2,14 +2,14 @@
 Module to insert the JUMP, JUMPI and PUSH [tag] instructions before performing the liveness analysis
 """
 from typing import Dict, Iterable
-from global_params.types import block_id_T, function_name_T
+from global_params.types import block_id_T, function_name_T, cfg_object_T
 from parser.cfg import CFG
 from parser.cfg_function import CFGFunction
 from parser.cfg_block_list import CFGBlockList
 from parser.cfg_block import CFGBlock
 
 
-def insert_jumps_tags_cfg(cfg: CFG) -> Dict[str, Dict[str, int]]:
+def insert_jumps_tags_cfg(cfg: CFG) -> Dict[cfg_object_T, Dict[block_id_T, int]]:
     """
     Introduces the JUMP, JUMPI and PUSH [tag] instructions in the blocks according to the CFG structure
     """
@@ -21,6 +21,10 @@ def insert_jumps_tags_cfg(cfg: CFG) -> Dict[str, Dict[str, int]]:
         insert_jumps_tags_block_list(cfg_object.blocks, tags_object)
 
         for function_name, cfg_function in cfg_object.functions.items():
+            # Insert a tag for the initial block of the function
+            tag_from_tag_dict(cfg_function.blocks.start_block, tags_object)
+
+            # Insert the tags and jumps of the block list
             insert_jumps_tags_block_list(cfg_function.blocks, tags_object)
 
         combined_tags[object_id] = tags_object

@@ -13,7 +13,6 @@ from cfg_methods.variable_renaming import rename_variables_cfg
 
 def preprocess_cfg(cfg: CFG, dot_file_dir: Path, visualization: bool) -> Dict[str, Dict[str, int]]:
     if visualization:
-        dot_file_dir.joinpath("initial").mkdir(exist_ok=True, parents=True)
         liveness_info = dot_from_analysis(cfg, dot_file_dir.joinpath("initial"))
 
     # Assign distinct names for all the variables in the CFG among different functions and blocks
@@ -21,31 +20,27 @@ def preprocess_cfg(cfg: CFG, dot_file_dir: Path, visualization: bool) -> Dict[st
     rename_variables_cfg(cfg)
 
     if visualization:
-        dot_file_dir.joinpath("renamed").mkdir(exist_ok=True, parents=True)
         liveness_info = dot_from_analysis(cfg, dot_file_dir.joinpath("renamed"))
 
     # We inline the functions
     inline_functions(cfg)
     if visualization:
-        dot_file_dir.joinpath("inlined").mkdir(exist_ok=True, parents=True)
         liveness_info = dot_from_analysis(cfg, dot_file_dir.joinpath("inlined"))
 
-    # Then we split by sub blocks
-    split_blocks_cfg(cfg)
-    if visualization:
-        dot_file_dir.joinpath("split").mkdir(exist_ok=True, parents=True)
-        liveness_info = dot_from_analysis(cfg, dot_file_dir.joinpath("split"))
-
-    # Then we combine and remove the blocks from the CFG
+    # Finally we combine and remove the blocks from the CFG
+    # Must be the latest step because we might have split blocks after insert jumps and tags
     combine_remove_blocks_cfg(cfg)
     if visualization:
-        dot_file_dir.joinpath("combined").mkdir(exist_ok=True, parents=True)
         liveness_info = dot_from_analysis(cfg, dot_file_dir.joinpath("combined"))
 
-    # Finally, we introduce the jumps, tags and the stack requirements for each block
-    # Then we combine and remove the blocks from the CFG
+    # We introduce the jumps, tags and the stack requirements for each block
     tag_dict = insert_jumps_tags_cfg(cfg)
     if visualization:
-        dot_file_dir.joinpath("jumps").mkdir(exist_ok=True, parents=True)
         liveness_info = dot_from_analysis(cfg, dot_file_dir.joinpath("jumps"))
+
+    # Then we split by sub blocks
+    split_blocks_cfg(cfg, tag_dict)
+    if visualization:
+        liveness_info = dot_from_analysis(cfg, dot_file_dir.joinpath("split"))
+
     return tag_dict
