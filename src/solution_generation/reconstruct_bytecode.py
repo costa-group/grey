@@ -7,6 +7,7 @@ from global_params.types import SMS_T, ASM_bytecode_T, ASM_contract_T, block_id_
 from parser.cfg import CFG
 from parser.cfg_object import CFGObject
 from parser.cfg_function import CFGFunction
+from parser.cfg_block_list import CFGBlockList
 from parser.cfg_block import CFGBlock
 from pathlib import Path
 
@@ -87,8 +88,11 @@ def asm_for_split_instruction(block: CFGBlock, tag_dict: Dict[block_id_T, int],
     entry_block = function_name2entry.get(split_ins.get_op_name(), None)
     if entry_block is not None:
         # Introduce a JUMP instruction to invoke the function
-        asm_ins = asm_from_op_info("JUMP", str(tag_dict[entry_block]))
+        asm_ins = asm_from_op_info("JUMP", jump_type="[in]")
 
+    elif split_ins.get_op_name() == "functionReturn":
+        # For function returns, we replace them by a JUMP instruction
+        asm_ins = asm_from_op_info("JUMP", jump_type="[out]")
     else:
         # Just include the corresponding instruction
         asm_ins = asm_from_op_info(split_ins.get_op_name().upper())
@@ -166,12 +170,12 @@ def generate_function_name2entry(functions: Iterable[CFGFunction]) -> Dict[funct
     return {function.name: function.blocks.start_block for function in functions}
 
 
-def traverse_cfg(cfg_object: CFGObject, asm_dicts: Dict[block_id_T, List[ASM_bytecode_T]],
-                 tags_dict: Dict[block_id_T, int]) -> List[ASM_bytecode_T]:
+def traverse_cfg_block_list(block_list: CFGBlockList, function_name2entry: Dict[function_name_T, block_id_T],
+                            asm_dicts: Dict[block_id_T, List[ASM_bytecode_T]],
+                            tags_dict: Dict[block_id_T, int]) -> List[ASM_bytecode_T]:
     """
-    Traverses the CFG to generate the serialized assembly code
+    Traverses the blocks in the block list to generate the serialized assembly code
     """
-    block_list = cfg_object.get_block_list(cfg_object.get_name())
     blocks = block_list.get_blocks_dict()
 
     init_block = blocks[block_list.start_block]
@@ -185,8 +189,6 @@ def traverse_cfg(cfg_object: CFGObject, asm_dicts: Dict[block_id_T, List[ASM_byt
     init_pos_dict = []
 
     asm_instructions = []
-
-    function_name2entry = generate_function_name2entry(cfg_object.functions.values())
 
     while pending_blocks:
         next_block = pending_blocks.pop()
@@ -252,7 +254,7 @@ def traverse_cfg(cfg_object: CFGObject, asm_dicts: Dict[block_id_T, List[ASM_byt
             init_pos_dict, asm_instructions = locate_fallsto_block(block_id, blocks[falls_to], init_pos_dict, visited,
                                                                    asm_instructions, asm_block, pending_blocks)
 
-        elif jump_type == "terminal":
+        elif jump_type == "terminal" or jump_type == "FunctionReturn":
             asm_instructions += asm_block
             init_pos_dict += [block_id] * len(asm_block)
 
@@ -266,6 +268,21 @@ def traverse_cfg(cfg_object: CFGObject, asm_dicts: Dict[block_id_T, List[ASM_byt
         visited.append(block_id)
 
     return asm_instructions
+
+
+def traverse_cfg(cfg_object: CFGObject, asm_dicts: Dict[block_id_T, List[ASM_bytecode_T]],
+                 tags_dict: Dict[block_id_T, int]) -> List[ASM_bytecode_T]:
+    """
+    Traverses the blocks in the CFG to generate the serialized assembly code
+    """
+    function_name2entry = generate_function_name2entry(cfg_object.functions.values())
+    object_code = traverse_cfg_block_list(cfg_object.blocks, function_name2entry, asm_dicts, tags_dict)
+
+    function_code_list = []
+    # TODO: devise better strategies to decide in which order the functions are included in the code
+    for function_name, function in cfg_object.functions.items():
+        function_code_list.extend(traverse_cfg_block_list(function.blocks, function_name2entry, asm_dicts, tags_dict))
+    return object_code + function_code_list
 
 
 # Combine information from the greedy algorithm and the CFG
