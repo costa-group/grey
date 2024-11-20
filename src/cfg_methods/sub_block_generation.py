@@ -83,8 +83,8 @@ def modify_block_list_split(block_list: CFGBlockList, function_calls: List[funct
         # Nevertheless, we check if the last instruction is a split one and set it
         last_instr = current_block.get_instructions()[-1] if len(current_block.get_instructions()) > 0 else None
         if last_instr is not None and \
-                last_instr.get_op_name() in itertools.chain(constants.split_block, function_calls, ["JUMP", "JUMPI",
-                                                                                                    "functionReturn"]):
+                last_instr.get_op_name() in itertools.chain(constants.split_block, function_calls, ["JUMP", "JUMPI"],
+                                                            constants.terminal_ops):
             current_block.split_instruction = last_instr
 
 
