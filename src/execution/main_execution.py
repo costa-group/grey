@@ -103,7 +103,7 @@ def analyze_single_cfg(cfg: CFG, final_dir: Path, args: argparse.Namespace):
                     block_name2asm[block_name] = solution_asm
                 except:
                     block_name2asm[block_name] = []
-                    print(f"Error processing {block_name} in the greedy algorithm")
+                    print(f"Error in the greedy algorithm processing {block_name}")
 
         # Generate complete asm from CFG object + dict
 
@@ -137,17 +137,8 @@ def main():
     asm_output = {}
 
     for cfg_name, cfg in cfgs.items():
+        print("Synthesizing...", cfg_name)
         cfg_dir = final_dir.joinpath(cfg_name)
         json_asm_contract = analyze_single_cfg(cfg, cfg_dir, args)
-        
-        asm_output = asm_output | json_asm_contract
 
-    asm_contracts = {"contracts": asm_output}
-
-    asm_out_dir = final_dir.joinpath("asm_out_files")
-    asm_out_dir.mkdir(exist_ok=True, parents=True)
-
-    source_name = args.source.split(".")[0]
-    store_asm_output(asm_out_dir, asm_contracts, source_name.split("/")[-1])
-    
-    # asm_contracts["version"] = #TODO Call to solc version
+        store_asm_output(json_asm_contract, cfg_dir)
