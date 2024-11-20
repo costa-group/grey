@@ -94,8 +94,8 @@ def asm_for_split_instruction(block: CFGBlock, tag_dict: Dict[block_id_T, int],
         # For function returns, we replace them by a JUMP instruction
         asm_ins = asm_from_op_info("JUMP", jump_type="[out]")
     else:
-        # Just include the corresponding instruction
-        asm_ins = asm_from_op_info(split_ins.get_op_name().upper())
+        # Just include the corresponding instruction and the value field for builtin translations
+        asm_ins = asm_from_op_info(split_ins.get_op_name().upper(), split_ins.translate_builtin_args)
 
     asm_subblock = [asm_ins]
 
@@ -320,12 +320,13 @@ def asm_from_cfg(cfg: CFG, asm_dicts: Dict[str, List[ASM_bytecode_T]], tags_dict
 
         json_asm["sourceList"] = [filename]
 
-        json_object[filename + ":" + obj_name] = json_asm
+        json_object[obj_name] = json_asm
 
     return json_object
 
 
-def store_asm_output(asm_output_dir: Path, json_object: Dict[str, Any], object_name: str):
-    file_to_store = asm_output_dir.joinpath(object_name + "_asm.json")
-    with open(file_to_store, 'w') as f:
-        json.dump(json_object, f, indent=4)
+def store_asm_output(json_object: Dict[str, Any], cfg_dir: Path):
+    for object_name, object_asm in json_object.items():
+        file_to_store = cfg_dir.joinpath(object_name + "_asm.json")
+        with open(file_to_store, 'w') as f:
+            json.dump(object_asm, f, indent=4)

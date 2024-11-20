@@ -260,7 +260,7 @@ class CFGInstruction:
     def translate_linkersymbol(self) :
         self.op = "pushlib"
         # TODO: revert changes in translate builting args
-        self.translate_builtin_args = [0] # list(self.builtin_args)
+        self.translate_builtin_args = list(self.builtin_args)
 
 
     def translate_memoryguard(self) :
@@ -275,7 +275,7 @@ class CFGInstruction:
         builtin_val = self.builtin_args[0]
         try:
             pos = subobjects_keys.index(builtin_val)
-            self.translate_builtin_args = [0] # ["{0:064X}".format(pos)]
+            self.translate_builtin_args = ["{0:064X}".format(pos)]
         except:
             raise Exception("[ERROR]: Identifier not found in subobjects keys")
 
@@ -286,7 +286,7 @@ class CFGInstruction:
         builtin_val = self.builtin_args[0]
         try:
             pos = subobjects_keys.index(builtin_val)
-            self.translate_builtin_args = [0] # ["{0:064X}".format(pos)]
+            self.translate_builtin_args = ["{0:064X}".format(pos)]
         except:
             raise Exception("[ERROR]: Identifier not found in subobjects keys")
         
@@ -297,11 +297,11 @@ class CFGInstruction:
     def translate_setimmutable(self) :
         #It is treated as a special mstore in gasol.
         self.op = "assignimmutable"
-        self.translate_builtin_args = [0] # self.builtin_args
+        self.translate_builtin_args = self.builtin_args
 
     def translate_loadimmutable(self) :
        self.op = "pushimmutable"
-       self.translate_builtin_args = [0] # self.builtin_args
+       self.translate_builtin_args = self.builtin_args
 
     def translate_built_in_function(self, subobjects_keys: List[str]):
         self.builtin_op = self.op
