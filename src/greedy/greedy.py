@@ -15,7 +15,7 @@ instr_T = Dict[str, Any]
 var_instr_map_T = Dict[var_T, instr_T]
 opid_instr_map_T = Dict[var_T, instr_T]
 
-VERBOSE = 0
+VERBOSE = 3
 
 
 def get_ops_map(instructions: List[Dict[str, Any]], op: id_T) -> Dict[var_T, id_T]:
@@ -789,7 +789,8 @@ class SMSgreedy:
                 opcode = self._opid_instr_map[o]['disasm']
                 opcodeid = self._opid_instr_map[o]['id']
                 outs = []
-            elif 'PUSH' in self._var_instr_map[o]['disasm'] and 'value' in self._var_instr_map[o]:
+            elif 'PUSH' in self._var_instr_map[o]['disasm'] and 'value' in self._var_instr_map[o] \
+                    and isinstance(self._var_instr_map[o]['value'], int):
                 if 'tag' in self._var_instr_map[o]['disasm']:
                     tag = str(self._var_instr_map[o]['value'][0])
                     # tag = hex(self._var_instr_map[o]['value'][0])
@@ -1713,7 +1714,8 @@ def greedy_from_json(json_data: Dict[str, Any], verb=False) -> Tuple[
             pass
             # print(name, encoding._b0, encoding._b0)
         error = 0
-    except Exception:
+    except Exception as e:
+        # print(e)
         # print(json_data)
         # _, _, tb = sys.exc_info()
         # traceback.print_tb(tb)
@@ -1772,6 +1774,7 @@ if __name__ == "__main__":
         name = name[p + 1:]
 
     json_info, encod, rs, rsids, error = greedy_from_json(json_read)  # ,True) if verbose
+    print("Solution", rsids)
 
     # if error == 0:
     #    print(name, "m:", minst, "g:", len(rs), "e:", error)
