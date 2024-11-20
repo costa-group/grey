@@ -105,11 +105,7 @@ class CFGBlock:
         Stack elements that must be placed in a specific order in the stack after performing the operations
         in the block. It can be either the condition of a JUMPI or when invoking a function just after a sub block
         """
-        return self._final_stack_elements
-
-    @final_stack_elements.setter
-    def final_stack_elements(self, value: List[str]):
-        self._final_stack_elements = value
+        return self._split_instruction.get_out_args() if self._split_instruction is not None else []
 
     @property
     def split_instruction(self) -> Optional[CFGInstruction]:

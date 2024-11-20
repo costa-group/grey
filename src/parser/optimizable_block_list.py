@@ -61,8 +61,7 @@ def initialize_sub_blocks(initial_block: CFGBlock, sub_blocks_instrs: List[Tuple
 
         cfg_sub_block.set_falls_to(current_falls_to)
         cfg_sub_block.set_jump_to(current_jumps_to)
-        cfg_sub_block.final_stack_elements = current_stack_values
-        
+
         current_falls_to = cfg_sub_block.block_id
         current_jumps_to = None
 
