@@ -485,6 +485,7 @@ class CFGBlock:
         unprocessed_instr = None
 
         for i, ins in enumerate(instructions):
+            print(i, ins)
 
             # Check if it has been already created
             if ins.get_op_name().startswith("push"):
@@ -642,7 +643,7 @@ class CFGBlock:
         with open("sms.json", 'w') as f:
             json.dump(spec, f, indent=4)
 
-        sto_deps, mem_deps = self._process_dependences(self._instructions, map_positions)
+        sto_deps, mem_deps = self._process_dependences(self.instructions_to_synthesize, map_positions)
         spec["storage_dependences"] = sto_deps
         spec["memory_dependences"] = mem_deps
 
