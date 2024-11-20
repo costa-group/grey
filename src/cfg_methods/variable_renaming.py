@@ -70,7 +70,6 @@ def rename_block_list(block_list: CFGBlockList, renaming_dict: Dict[var_id_T, va
         if block.get_condition() is not None:
             new_cond_list = rename_var_list([block.get_condition()], renaming_dict)
             block.set_condition(new_cond_list[0])
-        block.final_stack_elements = rename_var_list(block.final_stack_elements, renaming_dict)
 
 
 def rename_vars_in_instr(instruction: CFGInstruction, renaming_dict: Dict[var_id_T, var_id_T]) -> None:

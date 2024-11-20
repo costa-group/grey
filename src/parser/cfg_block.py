@@ -1,7 +1,7 @@
 import itertools
 import logging
 
-from global_params.types import instr_id_T, dependencies_T, var_id_T, block_id_T
+from global_params.types import instr_id_T, dependencies_T, var_id_T, block_id_T, function_name_T
 from parser.cfg_instruction import CFGInstruction, build_push_spec, build_pushtag_spec
 from parser.utils_parser import is_in_input_stack, is_in_output_stack, are_dependent_interval, get_empty_spec, \
     get_expression, are_dependent_accesses, replace_pos_instrsid, generate_dep, get_interval, replace_aliasing_spec
@@ -80,7 +80,7 @@ class CFGBlock:
         # Split instruction is recognized as the last instruction
         # As we don't have information on the function calls, we assign it to None and then
         # identify it once we set the function calls
-        self._split_instruction = instructions[-1] if len(instructions) > 0 else None
+        self._split_instruction = None
 
         self._jump_type = type_block
         self._jump_to = None
@@ -105,15 +105,15 @@ class CFGBlock:
         Stack elements that must be placed in a specific order in the stack after performing the operations
         in the block. It can be either the condition of a JUMPI or when invoking a function just after a sub block
         """
-        return self._final_stack_elements
-
-    @final_stack_elements.setter
-    def final_stack_elements(self, value: List[str]):
-        self._final_stack_elements = value
+        return self._split_instruction.get_out_args() if self._split_instruction is not None else []
 
     @property
     def split_instruction(self) -> Optional[CFGInstruction]:
         return self._split_instruction
+
+    @split_instruction.setter
+    def split_instruction(self, value: CFGInstruction) -> None:
+        self._split_instruction = value
 
     @property
     def entries(self) -> List[block_id_T]:
@@ -165,7 +165,6 @@ class CFGBlock:
         if instr_idx == len(self._instructions) - 1:
             # There is no split instruction at this point
             self._split_instruction = None
-            self._final_stack_elements = []
 
         return self._instructions.pop(instr_idx)
 
@@ -218,46 +217,32 @@ class CFGBlock:
     def set_length(self) -> int:
         return len(self._instructions)
 
-    def insert_jumps_tags(self, tags_dict: Dict[str, int]) -> None:
-        if self._jump_type == "conditional":
-            self._insert_jumpi_instruction(tags_dict)
-        elif self._jump_type == "unconditional":
-            self._insert_jump_instruction(tags_dict)
-
-    def _insert_jump_instruction(self, tags_dict: Dict[str, int]) -> None:
-        if self._jump_to not in tags_dict:
-            tag_value = len(tags_dict)
-            tags_dict[self._jump_to] = tag_value
-        else:
-            tag_value = tags_dict[self._jump_to]
-
+    def insert_jump_instruction(self, tag_value: str) -> None:
+        """
+        Inserts a JUMP instruction and the corresponding tag
+        """
         # Add a PUSH tag instruction
-        self._instructions.append(CFGInstruction("PUSH [tag]", [], [str(tag_value)]))
+        self._instructions.append(CFGInstruction("PUSH [tag]", [], [tag_value]))
             
         # Add a JUMP instruction
-        jump_instr = CFGInstruction("JUMP", [str(tag_value)], [])
+        jump_instr = CFGInstruction("JUMP", [tag_value], [])
         self._instructions.append(jump_instr)
         self._split_instruction = jump_instr
-        self._final_stack_elements = []
 
-    def _insert_jumpi_instruction(self, tags_dict: Dict[str, int]) -> None:
-        if self._jump_to not in tags_dict:
-            tag_value = len(tags_dict)
-            tags_dict[self._jump_to] = tag_value
-        else:
-            tag_value = tags_dict[self._jump_to]
+    def insert_jumpi_instruction(self, tag_value: str) -> None:
+        """
+        Inserts a JUMPI instruction and the corresponding tag
+        """
 
         assert self._condition is not None, \
             f"Trying to introduce a JUMPI with an empty condition in block {self.block_id}"
 
         # Add a PUSH tag instruction
-        self._instructions.append(CFGInstruction("PUSH [tag]", [], [str(tag_value)]))
+        self._instructions.append(CFGInstruction("PUSH [tag]", [], [tag_value]))
 
         # Add a JUMPI instruction
-        jumpi_instr = CFGInstruction("JUMPI", [self._condition, str(tag_value)], [])
+        jumpi_instr = CFGInstruction("JUMPI", [self._condition, tag_value], [])
         self._instructions.append(jumpi_instr)
-        self._split_instruction = jumpi_instr
-        self._final_stack_elements = []
 
         # Finally, assign the JUMPI instruction to the split one
         self._split_instruction = jumpi_instr
@@ -270,8 +255,6 @@ class CFGBlock:
         function_return = CFGInstruction("functionReturn", list(reversed(values)), [])
         self._instructions.append(function_return)
         self._split_instruction = function_return
-        self._final_stack_elements = []
-
 
     def set_jump_info(self, exit_info: Dict[str, Any]) -> None:
         type_block = exit_info["type"]
@@ -317,7 +300,7 @@ class CFGBlock:
         else:
             prefix_instrs = self._instructions
 
-        return [instr for instr in prefix_instrs if instr != "PhiFunction"]
+        return [instr for instr in prefix_instrs if instr.get_op_name() != "PhiFunction"]
 
     @instructions_to_synthesize.setter
     def instructions_to_synthesize(self, value):
@@ -551,11 +534,6 @@ class CFGBlock:
         # add the inputs from that instruction
         if self.split_instruction is not None:
             unprocess_out = self.split_instruction.get_out_args()
-            assert unprocess_out == final_stack[:len(unprocess_out)], \
-                f"Stack elements from the instruction {self.split_instruction} " \
-                f"do not match the ones from the final stack.\nFinal stack: {final_stack}." \
-                f"\nStack elements produced by the instruction: {unprocess_out}" \
-                f"\nFinal stack elements: {self.final_stack_elements}"
 
             # As the unprocessed instruction is not considered as part of the SFS,
             # we must remove the corresponding values from the final stack
