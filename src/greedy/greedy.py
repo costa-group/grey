@@ -15,7 +15,7 @@ instr_T = Dict[str, Any]
 var_instr_map_T = Dict[var_T, instr_T]
 opid_instr_map_T = Dict[var_T, instr_T]
 
-VERBOSE = 3
+VERBOSE = 0
 
 
 def get_ops_map(instructions: List[Dict[str, Any]], op: id_T) -> Dict[var_T, id_T]:
