@@ -16,7 +16,7 @@ from parser.cfg_object import CFGObject
 from parser.cfg import CFG
 from cfg_methods.cfg_block_actions.inline_function import InlineFunction
 from cfg_methods.variable_renaming import rename_function
-from cfg_methods.cost_computation import function2costs_T, compute_gas_bytes
+from cfg_methods.cost_computation import function2costs_T, compute_gas_bytes_function
 
 # For each time a function is invoked, we store the position of the instruction (int) in the
 # block (blok_id_T) that appears in the block list (block_list_id)
@@ -30,10 +30,9 @@ def inline_functions(cfg: CFG) -> None:
     Inlines the functions that are invoked just in one place
     """
     cfg_object2modify: Dict[component_name_T, function2call_info_T] = generate_function2information(cfg)
-    cfg_function2costs = compute_gas_bytes(cfg)
 
     for object_id, cfg_object in cfg.objectCFG.items():
-        inline_functions_cfg_object(cfg_object, cfg_object2modify[object_id], cfg_function2costs[object_id])
+        inline_functions_cfg_object(cfg_object, cfg_object2modify[object_id])
         sub_object = cfg.get_subobject()
 
         if sub_object is not None:
@@ -78,16 +77,19 @@ def generate_function2blocks_block_list(cfg_block_list: CFGBlockList, function_n
 
 
 # Methods to perform the inlining of cfg objects
-def inline_functions_cfg_object(cfg_object: CFGObject, function_call_info: function2call_info_T, 
-                                function2costs: function2costs_T):
+def inline_functions_cfg_object(cfg_object: CFGObject, function_call_info: function2call_info_T):
     # Dict that maps each initial block name in the CFG to the set of blocks in which it can be split
     block2current: Dict[block_id_T, List[block_id_T]] = dict()
+    function2costs: function2costs_T = dict()
 
     function_call_info, topological_sort = prune_cycles_topological_sort(function_call_info)
 
     for func_idx, function_name in enumerate(topological_sort):
         call_info = function_call_info[function_name]
         cfg_function = cfg_object.functions[function_name]
+
+        # Here we compute the function2costs of the corresponding function
+        compute_gas_bytes_function(function_name, cfg_object.functions, function2costs, set())
 
         # Only consider blocks for inlining that have just one invocation
         if len(call_info) == 1 or _must_be_inlined(function_name, call_info, function2costs, 
