@@ -478,6 +478,16 @@ class CFGBlock:
         unprocessed_instr = None
 
         for i, ins in enumerate(instructions):
+            
+            #stampe durante il loop delle istruzioni per investigare errore elementi stack
+            #Giulia
+            print(f"=== DEBUG: Istruzione {i} ===")
+            print(f"Istruzione: {ins.get_op_name()}")
+            print(f"Input stack: {ins.get_in_args()}")
+            print(f"Output stack: {ins.get_out_args()}")
+            print(f"Stack corrente: {final_stack}")
+            print("===================================")
+            #fine Giulia
 
             # Check if it has been already created
             if ins.get_op_name().startswith("push"):
@@ -511,16 +521,54 @@ class CFGBlock:
             #ins_spec != None. We have to rename the aliasing information
             else:
                 old_variable = ins.get_out_args()[0]
+                
+                #giulia debug alias
+                # Stampe per verificare gli alias
+                #print(f"=== DEBUG: Stato aliasing_dict ===")
+                #print(f"Alias corrente: {aliasing_dict}")
+                #fine parte1
+                
                 aliasing_dict[old_variable] = ins_spec["outpt_sk"][0]
+                
+                #inizio parte 2
+                # Dopo l'aggiornamento, stampa di nuovo
+               # print(f"Alias aggiornato: {old_variable} -> {ins_spec['outpt_sk'][0]}")
+               # print("===================================")
+                #fine parte 2
                 
         # We must remove the final output variable from the unprocessed instruction and
         # add the inputs from that instruction
         if self.split_instruction is not None:
             unprocess_out = self.split_instruction.get_out_args()
+            
+                # Stampe di debug -Giulia
+                #self.split_instruction.get_op_name(): nome dell'operazione associata alla split instruction.
+                #unprocess_out: lista di valori che la split_instruction produce.
+                #final_stack[:len(unprocess_out)]: la porzione dello stack finale che dovrebbe corrispondere agli output dello split.
+                #final_stack: l'intero stack finale per un confronto visivo.
+            #print("=== DEBUG: Verifica split_instruction ===")
+            #print(f"Istruzione: {self.split_instruction.get_op_name()}")
+            #print(f"Output dello split_instruction: {unprocess_out}")
+            #print(f"Stack finale atteso: {final_stack[:len(unprocess_out)]}")
+            #print(f"Stack finale completo: {final_stack}")
+            #print("=========================================")
+                #fine -Giulia
+            
+            
+            
             assert unprocess_out == final_stack[:len(unprocess_out)], \
                 f"Stack elements from the instruction {self.split_instruction.get_op_name()} " \
                 f"do not match the ones from the final stack.\nFinal stack: {final_stack}." \
-                f"\nStack elements produced by the instruction: {unprocess_out}"
+                f"\nStack elements produced by the instruction: {unprocess_out}"\
+                f"\n"\
+                f"\nGiulia Debug"\
+                f"\n=== DEBUG: Verifica split_instruction ==="\
+                f"\nIstruzione: {self.split_instruction.get_op_name()}"\
+                f"\nOutput dello split_instruction: {unprocess_out}"\
+                f"\nStack finale atteso: {final_stack[:len(unprocess_out)]}"\
+                f"\nStack finale completo: {final_stack}" \
+                f"\n========================================="\
+                #fine -Giulia
 
             # As the unprocessed instruction is not considered as part of the SFS,
             # we must remove the corresponding values from the final stack
@@ -592,6 +640,7 @@ class CFGBlock:
 
         vars_list = spec["variables"]
         tgt_stack = spec["tgt_ws"]
+        
         
         if aliasing_dict != {}:
             replace_aliasing_spec(aliasing_dict, uninter_functions, vars_list, tgt_stack)

@@ -209,13 +209,18 @@ def are_dependent_accesses(exp1: expression_T, exp2: expression_T) -> bool:
 
     if val1 == "inf" or val2 == "inf":
         return True
-    elif isinstance(val1, int) and isinstance(val2, int):  # constants
-        return val1 == val2
+    elif isinstance(val1, int) and isinstance(val2, int):  # constants 
+        return val1 == val2 #Se entrambi i valori sono interi, la funzione controlla se sono uguali. Se sì, sono considerati dipendenti (True), altrimenti no (False).
+    
     elif isinstance(val1, str) and isinstance(val2, str):  # variables
-        print("Check with ssa")
-        return True  # val1 == val2
+        print("Check with ssa") #sarebbe necessario fare un controllo con Single Static Assignment (SSA), una tecnica di analisi usata per determinare se due variabili rappresentano la stessa entità o sono realmente dipendenti.
+    #Se entrambi i valori sono stringhe, la funzione li tratta come "variabili" e ritorna True, considerando le due espressioni dipendenti. 
+        return True  # val1 == val2 
     elif isinstance(val1, str) and isinstance(val2, tuple):  # One expression is contained in the other
         return not is_member_recursive(val1, val2)
+    #La funzione verifica se val1 è contenuto all'interno di val2 usando is_member_recursive. 
+    # is_member_recursive(val1, val2) è una funzione che controlla ricorsivamente se val1 è parte di val2.
+    # La funzione ritorna True se val1 non è contenuto in val2, indicando che c'è dipendenza tra le due espressioni.
     elif isinstance(val2, str) and isinstance(val1, tuple):
         return not is_member_recursive(val2, val1)
     else:
