@@ -184,7 +184,7 @@ def unify_stacks_brothers(taget_block_id: block_id_T, predecessor_blocks: List[b
         # Three possibilities:
         for out_var in combined_output_stack:
             # First case: the variable is already live
-            if out_var in live_vars_dict:
+            if out_var in live_vars_dict[predecessor_id]:
                 predecessor_output_stack.append(out_var)
             else:
                 in_arg = phi_func.get((out_var, predecessor_id), None)
@@ -280,6 +280,10 @@ class LayoutGeneration:
         block_id = block.block_id
         liveness_info = self._liveness_info[block_id]
         comes_from = block.get_comes_from()
+
+        if block_id == "abi_encode_t_bytes_storage_to_t_bytes_memory_ptr_nonPadded_inplace_fromStack_Block2":
+            print("HOLA")
+
 
         # Computing input stack...
         # The stack from comes_from stacks must be equal
