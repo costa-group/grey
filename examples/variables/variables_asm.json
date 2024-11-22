@@ -1,0 +1,46 @@
+{
+    ".code": [
+        {
+            "name": "PUSH",
+            "begin": -1,
+            "end": -1,
+            "source": -1,
+            "value": "4"
+        },
+        {
+            "name": "CALLDATALOAD",
+            "begin": -1,
+            "end": -1,
+            "source": -1
+        },
+        {
+            "name": "PUSH",
+            "begin": -1,
+            "end": -1,
+            "source": -1,
+            "value": "3"
+        },
+        {
+            "name": "CALLDATALOAD",
+            "begin": -1,
+            "end": -1,
+            "source": -1
+        },
+        {
+            "name": "SSTORE",
+            "begin": -1,
+            "end": -1,
+            "source": -1
+        },
+        {
+            "name": "STOP",
+            "begin": -1,
+            "end": -1,
+            "source": -1
+        }
+    ],
+    ".data": {},
+    "sourceList": [
+        "examples/variables/variables.cfg"
+    ]
+}

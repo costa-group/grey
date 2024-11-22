@@ -1,0 +1,49 @@
+{
+  ".code": [
+    {
+      "begin": 143,
+      "end": 144,
+      "name": "PUSH",
+      "source": -1,
+      "value": "3"
+    },
+    {
+      "begin": 130,
+      "end": 145,
+      "name": "CALLDATALOAD",
+      "source": -1
+    },
+    {
+      "begin": 176,
+      "end": 177,
+      "name": "PUSH",
+      "source": -1,
+      "value": "4"
+    },
+    {
+      "begin": 163,
+      "end": 178,
+      "name": "CALLDATALOAD",
+      "source": -1
+    },
+    {
+      "begin": 191,
+      "end": 203,
+      "name": "SWAP1",
+      "source": -1
+    },
+    {
+      "begin": 191,
+      "end": 203,
+      "name": "SSTORE",
+      "source": -1
+    },
+    {
+      "begin": 27,
+      "end": 219,
+      "name": "STOP",
+      "source": -1
+    }
+  ],
+  "sourceList": []
+}
