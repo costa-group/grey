@@ -5,14 +5,26 @@
             "begin": -1,
             "end": -1,
             "source": -1,
-            "value": "2A"
+            "value": "4"
+        },
+        {
+            "name": "CALLDATALOAD",
+            "begin": -1,
+            "end": -1,
+            "source": -1
         },
         {
             "name": "PUSH",
             "begin": -1,
             "end": -1,
             "source": -1,
-            "value": "2A"
+            "value": "3"
+        },
+        {
+            "name": "CALLDATALOAD",
+            "begin": -1,
+            "end": -1,
+            "source": -1
         },
         {
             "name": "SSTORE",
@@ -29,6 +41,6 @@
     ],
     ".data": {},
     "sourceList": [
-        "examples/ambiguous_names/ambiguous_names.cfg"
+        "examples/variables/variables.cfg"
     ]
 }

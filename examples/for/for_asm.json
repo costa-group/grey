@@ -5,104 +5,6 @@
             "begin": -1,
             "end": -1,
             "source": -1,
-            "value": "101"
-        },
-        {
-            "name": "PUSH",
-            "begin": -1,
-            "end": -1,
-            "source": -1,
-            "value": "1"
-        },
-        {
-            "name": "SSTORE",
-            "begin": -1,
-            "end": -1,
-            "source": -1
-        },
-        {
-            "name": "PUSH",
-            "begin": -1,
-            "end": -1,
-            "source": -1,
-            "value": "0"
-        },
-        {
-            "name": "CALLDATALOAD",
-            "begin": -1,
-            "end": -1,
-            "source": -1
-        },
-        {
-            "name": "PUSH [tag]",
-            "begin": -1,
-            "end": -1,
-            "source": -1,
-            "value": "1"
-        },
-        {
-            "name": "JUMPI",
-            "begin": -1,
-            "end": -1,
-            "source": -1
-        },
-        {
-            "name": "tag",
-            "begin": -1,
-            "end": -1,
-            "source": -1,
-            "value": "2"
-        },
-        {
-            "name": "JUMPDEST",
-            "begin": -1,
-            "end": -1,
-            "source": -1
-        },
-        {
-            "name": "PUSH",
-            "begin": -1,
-            "end": -1,
-            "source": -1,
-            "value": "3"
-        },
-        {
-            "name": "PUSH",
-            "begin": -1,
-            "end": -1,
-            "source": -1,
-            "value": "3"
-        },
-        {
-            "name": "SSTORE",
-            "begin": -1,
-            "end": -1,
-            "source": -1
-        },
-        {
-            "name": "STOP",
-            "begin": -1,
-            "end": -1,
-            "source": -1
-        },
-        {
-            "name": "tag",
-            "begin": -1,
-            "end": -1,
-            "source": -1,
-            "value": "1"
-        },
-        {
-            "name": "JUMPDEST",
-            "begin": -1,
-            "end": -1,
-            "source": -1
-        },
-        {
-            "name": "PUSH",
-            "begin": -1,
-            "end": -1,
-            "source": -1,
             "value": "202"
         },
         {
@@ -119,6 +21,71 @@
             "source": -1
         },
         {
+            "name": "PUSH",
+            "begin": -1,
+            "end": -1,
+            "source": -1,
+            "value": "101"
+        },
+        {
+            "name": "PUSH",
+            "begin": -1,
+            "end": -1,
+            "source": -1,
+            "value": "1"
+        },
+        {
+            "name": "SSTORE",
+            "begin": -1,
+            "end": -1,
+            "source": -1
+        },
+        {
+            "name": "PUSH [tag]",
+            "begin": -1,
+            "end": -1,
+            "source": -1,
+            "value": "1"
+        },
+        {
+            "name": "JUMP",
+            "begin": -1,
+            "end": -1,
+            "source": -1
+        },
+        {
+            "name": "tag",
+            "begin": -1,
+            "end": -1,
+            "source": -1,
+            "value": "1"
+        },
+        {
+            "name": "JUMPDEST",
+            "begin": -1,
+            "end": -1,
+            "source": -1
+        },
+        {
+            "name": "PUSH",
+            "begin": -1,
+            "end": -1,
+            "source": -1,
+            "value": "3"
+        },
+        {
+            "name": "SLOAD",
+            "begin": -1,
+            "end": -1,
+            "source": -1
+        },
+        {
+            "name": "ISZERO",
+            "begin": -1,
+            "end": -1,
+            "source": -1
+        },
+        {
             "name": "PUSH [tag]",
             "begin": -1,
             "end": -1,
@@ -126,7 +93,99 @@
             "value": "2"
         },
         {
+            "name": "JUMPI",
+            "begin": -1,
+            "end": -1,
+            "source": -1
+        },
+        {
+            "name": "PUSH",
+            "begin": -1,
+            "end": -1,
+            "source": -1,
+            "value": "404"
+        },
+        {
+            "name": "PUSH",
+            "begin": -1,
+            "end": -1,
+            "source": -1,
+            "value": "4"
+        },
+        {
+            "name": "SSTORE",
+            "begin": -1,
+            "end": -1,
+            "source": -1
+        },
+        {
+            "name": "PUSH",
+            "begin": -1,
+            "end": -1,
+            "source": -1,
+            "value": "505"
+        },
+        {
+            "name": "PUSH",
+            "begin": -1,
+            "end": -1,
+            "source": -1,
+            "value": "5"
+        },
+        {
+            "name": "SSTORE",
+            "begin": -1,
+            "end": -1,
+            "source": -1
+        },
+        {
+            "name": "PUSH [tag]",
+            "begin": -1,
+            "end": -1,
+            "source": -1,
+            "value": "1"
+        },
+        {
             "name": "JUMP",
+            "begin": -1,
+            "end": -1,
+            "source": -1
+        },
+        {
+            "name": "tag",
+            "begin": -1,
+            "end": -1,
+            "source": -1,
+            "value": "2"
+        },
+        {
+            "name": "JUMPDEST",
+            "begin": -1,
+            "end": -1,
+            "source": -1
+        },
+        {
+            "name": "PUSH",
+            "begin": -1,
+            "end": -1,
+            "source": -1,
+            "value": "506"
+        },
+        {
+            "name": "PUSH",
+            "begin": -1,
+            "end": -1,
+            "source": -1,
+            "value": "6"
+        },
+        {
+            "name": "SSTORE",
+            "begin": -1,
+            "end": -1,
+            "source": -1
+        },
+        {
+            "name": "STOP",
             "begin": -1,
             "end": -1,
             "source": -1
@@ -134,6 +193,6 @@
     ],
     ".data": {},
     "sourceList": [
-        "examples/if/if.cfg"
+        "examples/for/for.cfg"
     ]
 }

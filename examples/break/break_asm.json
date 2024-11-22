@@ -1,438 +1,434 @@
 {
-    "contracts": {
-        "examples/break/break.cfg:object": {
-            ".code": [
-                {
-                    "name": "PUSH",
-                    "begin": -1,
-                    "end": -1,
-                    "source": -1,
-                    "value": "202"
-                },
-                {
-                    "name": "PUSH",
-                    "begin": -1,
-                    "end": -1,
-                    "source": -1,
-                    "value": "2"
-                },
-                {
-                    "name": "SSTORE",
-                    "begin": -1,
-                    "end": -1,
-                    "source": -1
-                },
-                {
-                    "name": "PUSH",
-                    "begin": -1,
-                    "end": -1,
-                    "source": -1,
-                    "value": "101"
-                },
-                {
-                    "name": "PUSH",
-                    "begin": -1,
-                    "end": -1,
-                    "source": -1,
-                    "value": "1"
-                },
-                {
-                    "name": "SSTORE",
-                    "begin": -1,
-                    "end": -1,
-                    "source": -1
-                },
-                {
-                    "name": "PUSH [tag]",
-                    "begin": -1,
-                    "end": -1,
-                    "source": -1,
-                    "value": "0"
-                },
-                {
-                    "name": "JUMP",
-                    "begin": -1,
-                    "end": -1,
-                    "source": -1
-                },
-                {
-                    "name": "tag",
-                    "begin": -1,
-                    "end": -1,
-                    "source": -1,
-                    "value": "0"
-                },
-                {
-                    "name": "JUMPDEST",
-                    "begin": -1,
-                    "end": -1,
-                    "source": -1
-                },
-                {
-                    "name": "PUSH",
-                    "begin": -1,
-                    "end": -1,
-                    "source": -1,
-                    "value": "3"
-                },
-                {
-                    "name": "SLOAD",
-                    "begin": -1,
-                    "end": -1,
-                    "source": -1
-                },
-                {
-                    "name": "ISZERO",
-                    "begin": -1,
-                    "end": -1,
-                    "source": -1
-                },
-                {
-                    "name": "PUSH [tag]",
-                    "begin": -1,
-                    "end": -1,
-                    "source": -1,
-                    "value": "1"
-                },
-                {
-                    "name": "JUMPI",
-                    "begin": -1,
-                    "end": -1,
-                    "source": -1
-                },
-                {
-                    "name": "PUSH",
-                    "begin": -1,
-                    "end": -1,
-                    "source": -1,
-                    "value": "505"
-                },
-                {
-                    "name": "PUSH",
-                    "begin": -1,
-                    "end": -1,
-                    "source": -1,
-                    "value": "5"
-                },
-                {
-                    "name": "SSTORE",
-                    "begin": -1,
-                    "end": -1,
-                    "source": -1
-                },
-                {
-                    "name": "PUSH",
-                    "begin": -1,
-                    "end": -1,
-                    "source": -1,
-                    "value": "6"
-                },
-                {
-                    "name": "SLOAD",
-                    "begin": -1,
-                    "end": -1,
-                    "source": -1
-                },
-                {
-                    "name": "PUSH [tag]",
-                    "begin": -1,
-                    "end": -1,
-                    "source": -1,
-                    "value": "2"
-                },
-                {
-                    "name": "JUMPI",
-                    "begin": -1,
-                    "end": -1,
-                    "source": -1
-                },
-                {
-                    "name": "PUSH",
-                    "begin": -1,
-                    "end": -1,
-                    "source": -1,
-                    "value": "808"
-                },
-                {
-                    "name": "PUSH",
-                    "begin": -1,
-                    "end": -1,
-                    "source": -1,
-                    "value": "8"
-                },
-                {
-                    "name": "SSTORE",
-                    "begin": -1,
-                    "end": -1,
-                    "source": -1
-                },
-                {
-                    "name": "PUSH",
-                    "begin": -1,
-                    "end": -1,
-                    "source": -1,
-                    "value": "9"
-                },
-                {
-                    "name": "SLOAD",
-                    "begin": -1,
-                    "end": -1,
-                    "source": -1
-                },
-                {
-                    "name": "PUSH [tag]",
-                    "begin": -1,
-                    "end": -1,
-                    "source": -1,
-                    "value": "4"
-                },
-                {
-                    "name": "JUMPI",
-                    "begin": -1,
-                    "end": -1,
-                    "source": -1
-                },
-                {
-                    "name": "PUSH",
-                    "begin": -1,
-                    "end": -1,
-                    "source": -1,
-                    "value": "b0b"
-                },
-                {
-                    "name": "PUSH",
-                    "begin": -1,
-                    "end": -1,
-                    "source": -1,
-                    "value": "b"
-                },
-                {
-                    "name": "SSTORE",
-                    "begin": -1,
-                    "end": -1,
-                    "source": -1
-                },
-                {
-                    "name": "PUSH [tag]",
-                    "begin": -1,
-                    "end": -1,
-                    "source": -1,
-                    "value": "5"
-                },
-                {
-                    "name": "JUMP",
-                    "begin": -1,
-                    "end": -1,
-                    "source": -1
-                },
-                {
-                    "name": "tag",
-                    "begin": -1,
-                    "end": -1,
-                    "source": -1,
-                    "value": "5"
-                },
-                {
-                    "name": "JUMPDEST",
-                    "begin": -1,
-                    "end": -1,
-                    "source": -1
-                },
-                {
-                    "name": "PUSH",
-                    "begin": -1,
-                    "end": -1,
-                    "source": -1,
-                    "value": "404"
-                },
-                {
-                    "name": "PUSH",
-                    "begin": -1,
-                    "end": -1,
-                    "source": -1,
-                    "value": "4"
-                },
-                {
-                    "name": "SSTORE",
-                    "begin": -1,
-                    "end": -1,
-                    "source": -1
-                },
-                {
-                    "name": "PUSH [tag]",
-                    "begin": -1,
-                    "end": -1,
-                    "source": -1,
-                    "value": "0"
-                },
-                {
-                    "name": "JUMP",
-                    "begin": -1,
-                    "end": -1,
-                    "source": -1
-                },
-                {
-                    "name": "tag",
-                    "begin": -1,
-                    "end": -1,
-                    "source": -1,
-                    "value": "4"
-                },
-                {
-                    "name": "JUMPDEST",
-                    "begin": -1,
-                    "end": -1,
-                    "source": -1
-                },
-                {
-                    "name": "PUSH",
-                    "begin": -1,
-                    "end": -1,
-                    "source": -1,
-                    "value": "a0a"
-                },
-                {
-                    "name": "PUSH",
-                    "begin": -1,
-                    "end": -1,
-                    "source": -1,
-                    "value": "a"
-                },
-                {
-                    "name": "SSTORE",
-                    "begin": -1,
-                    "end": -1,
-                    "source": -1
-                },
-                {
-                    "name": "PUSH [tag]",
-                    "begin": -1,
-                    "end": -1,
-                    "source": -1,
-                    "value": "5"
-                },
-                {
-                    "name": "JUMP",
-                    "begin": -1,
-                    "end": -1,
-                    "source": -1
-                },
-                {
-                    "name": "tag",
-                    "begin": -1,
-                    "end": -1,
-                    "source": -1,
-                    "value": "2"
-                },
-                {
-                    "name": "JUMPDEST",
-                    "begin": -1,
-                    "end": -1,
-                    "source": -1
-                },
-                {
-                    "name": "PUSH",
-                    "begin": -1,
-                    "end": -1,
-                    "source": -1,
-                    "value": "707"
-                },
-                {
-                    "name": "PUSH",
-                    "begin": -1,
-                    "end": -1,
-                    "source": -1,
-                    "value": "7"
-                },
-                {
-                    "name": "SSTORE",
-                    "begin": -1,
-                    "end": -1,
-                    "source": -1
-                },
-                {
-                    "name": "PUSH [tag]",
-                    "begin": -1,
-                    "end": -1,
-                    "source": -1,
-                    "value": "3"
-                },
-                {
-                    "name": "JUMP",
-                    "begin": -1,
-                    "end": -1,
-                    "source": -1
-                },
-                {
-                    "name": "tag",
-                    "begin": -1,
-                    "end": -1,
-                    "source": -1,
-                    "value": "3"
-                },
-                {
-                    "name": "JUMPDEST",
-                    "begin": -1,
-                    "end": -1,
-                    "source": -1
-                },
-                {
-                    "name": "PUSH",
-                    "begin": -1,
-                    "end": -1,
-                    "source": -1,
-                    "value": "c0c"
-                },
-                {
-                    "name": "PUSH",
-                    "begin": -1,
-                    "end": -1,
-                    "source": -1,
-                    "value": "c"
-                },
-                {
-                    "name": "SSTORE",
-                    "begin": -1,
-                    "end": -1,
-                    "source": -1
-                },
-                {
-                    "name": "STOP",
-                    "begin": -1,
-                    "end": -1,
-                    "source": -1
-                },
-                {
-                    "name": "tag",
-                    "begin": -1,
-                    "end": -1,
-                    "source": -1,
-                    "value": "1"
-                },
-                {
-                    "name": "JUMPDEST",
-                    "begin": -1,
-                    "end": -1,
-                    "source": -1
-                },
-                {
-                    "name": "PUSH [tag]",
-                    "begin": -1,
-                    "end": -1,
-                    "source": -1,
-                    "value": "3"
-                },
-                {
-                    "name": "JUMP",
-                    "begin": -1,
-                    "end": -1,
-                    "source": -1
-                }
-            ],
-            ".data": {},
-            "sourceList": [
-                "examples/break/break.cfg"
-            ]
+    ".code": [
+        {
+            "name": "PUSH",
+            "begin": -1,
+            "end": -1,
+            "source": -1,
+            "value": "202"
+        },
+        {
+            "name": "PUSH",
+            "begin": -1,
+            "end": -1,
+            "source": -1,
+            "value": "2"
+        },
+        {
+            "name": "SSTORE",
+            "begin": -1,
+            "end": -1,
+            "source": -1
+        },
+        {
+            "name": "PUSH",
+            "begin": -1,
+            "end": -1,
+            "source": -1,
+            "value": "101"
+        },
+        {
+            "name": "PUSH",
+            "begin": -1,
+            "end": -1,
+            "source": -1,
+            "value": "1"
+        },
+        {
+            "name": "SSTORE",
+            "begin": -1,
+            "end": -1,
+            "source": -1
+        },
+        {
+            "name": "PUSH [tag]",
+            "begin": -1,
+            "end": -1,
+            "source": -1,
+            "value": "1"
+        },
+        {
+            "name": "JUMP",
+            "begin": -1,
+            "end": -1,
+            "source": -1
+        },
+        {
+            "name": "tag",
+            "begin": -1,
+            "end": -1,
+            "source": -1,
+            "value": "1"
+        },
+        {
+            "name": "JUMPDEST",
+            "begin": -1,
+            "end": -1,
+            "source": -1
+        },
+        {
+            "name": "PUSH",
+            "begin": -1,
+            "end": -1,
+            "source": -1,
+            "value": "3"
+        },
+        {
+            "name": "SLOAD",
+            "begin": -1,
+            "end": -1,
+            "source": -1
+        },
+        {
+            "name": "ISZERO",
+            "begin": -1,
+            "end": -1,
+            "source": -1
+        },
+        {
+            "name": "PUSH [tag]",
+            "begin": -1,
+            "end": -1,
+            "source": -1,
+            "value": "2"
+        },
+        {
+            "name": "JUMPI",
+            "begin": -1,
+            "end": -1,
+            "source": -1
+        },
+        {
+            "name": "PUSH",
+            "begin": -1,
+            "end": -1,
+            "source": -1,
+            "value": "505"
+        },
+        {
+            "name": "PUSH",
+            "begin": -1,
+            "end": -1,
+            "source": -1,
+            "value": "5"
+        },
+        {
+            "name": "SSTORE",
+            "begin": -1,
+            "end": -1,
+            "source": -1
+        },
+        {
+            "name": "PUSH",
+            "begin": -1,
+            "end": -1,
+            "source": -1,
+            "value": "6"
+        },
+        {
+            "name": "SLOAD",
+            "begin": -1,
+            "end": -1,
+            "source": -1
+        },
+        {
+            "name": "PUSH [tag]",
+            "begin": -1,
+            "end": -1,
+            "source": -1,
+            "value": "3"
+        },
+        {
+            "name": "JUMPI",
+            "begin": -1,
+            "end": -1,
+            "source": -1
+        },
+        {
+            "name": "PUSH",
+            "begin": -1,
+            "end": -1,
+            "source": -1,
+            "value": "808"
+        },
+        {
+            "name": "PUSH",
+            "begin": -1,
+            "end": -1,
+            "source": -1,
+            "value": "8"
+        },
+        {
+            "name": "SSTORE",
+            "begin": -1,
+            "end": -1,
+            "source": -1
+        },
+        {
+            "name": "PUSH",
+            "begin": -1,
+            "end": -1,
+            "source": -1,
+            "value": "9"
+        },
+        {
+            "name": "SLOAD",
+            "begin": -1,
+            "end": -1,
+            "source": -1
+        },
+        {
+            "name": "PUSH [tag]",
+            "begin": -1,
+            "end": -1,
+            "source": -1,
+            "value": "5"
+        },
+        {
+            "name": "JUMPI",
+            "begin": -1,
+            "end": -1,
+            "source": -1
+        },
+        {
+            "name": "PUSH",
+            "begin": -1,
+            "end": -1,
+            "source": -1,
+            "value": "B0B"
+        },
+        {
+            "name": "PUSH",
+            "begin": -1,
+            "end": -1,
+            "source": -1,
+            "value": "B"
+        },
+        {
+            "name": "SSTORE",
+            "begin": -1,
+            "end": -1,
+            "source": -1
+        },
+        {
+            "name": "PUSH [tag]",
+            "begin": -1,
+            "end": -1,
+            "source": -1,
+            "value": "6"
+        },
+        {
+            "name": "JUMP",
+            "begin": -1,
+            "end": -1,
+            "source": -1
+        },
+        {
+            "name": "tag",
+            "begin": -1,
+            "end": -1,
+            "source": -1,
+            "value": "6"
+        },
+        {
+            "name": "JUMPDEST",
+            "begin": -1,
+            "end": -1,
+            "source": -1
+        },
+        {
+            "name": "PUSH",
+            "begin": -1,
+            "end": -1,
+            "source": -1,
+            "value": "404"
+        },
+        {
+            "name": "PUSH",
+            "begin": -1,
+            "end": -1,
+            "source": -1,
+            "value": "4"
+        },
+        {
+            "name": "SSTORE",
+            "begin": -1,
+            "end": -1,
+            "source": -1
+        },
+        {
+            "name": "PUSH [tag]",
+            "begin": -1,
+            "end": -1,
+            "source": -1,
+            "value": "1"
+        },
+        {
+            "name": "JUMP",
+            "begin": -1,
+            "end": -1,
+            "source": -1
+        },
+        {
+            "name": "tag",
+            "begin": -1,
+            "end": -1,
+            "source": -1,
+            "value": "5"
+        },
+        {
+            "name": "JUMPDEST",
+            "begin": -1,
+            "end": -1,
+            "source": -1
+        },
+        {
+            "name": "PUSH",
+            "begin": -1,
+            "end": -1,
+            "source": -1,
+            "value": "A0A"
+        },
+        {
+            "name": "PUSH",
+            "begin": -1,
+            "end": -1,
+            "source": -1,
+            "value": "A"
+        },
+        {
+            "name": "SSTORE",
+            "begin": -1,
+            "end": -1,
+            "source": -1
+        },
+        {
+            "name": "PUSH [tag]",
+            "begin": -1,
+            "end": -1,
+            "source": -1,
+            "value": "6"
+        },
+        {
+            "name": "JUMP",
+            "begin": -1,
+            "end": -1,
+            "source": -1
+        },
+        {
+            "name": "tag",
+            "begin": -1,
+            "end": -1,
+            "source": -1,
+            "value": "3"
+        },
+        {
+            "name": "JUMPDEST",
+            "begin": -1,
+            "end": -1,
+            "source": -1
+        },
+        {
+            "name": "PUSH",
+            "begin": -1,
+            "end": -1,
+            "source": -1,
+            "value": "707"
+        },
+        {
+            "name": "PUSH",
+            "begin": -1,
+            "end": -1,
+            "source": -1,
+            "value": "7"
+        },
+        {
+            "name": "SSTORE",
+            "begin": -1,
+            "end": -1,
+            "source": -1
+        },
+        {
+            "name": "PUSH [tag]",
+            "begin": -1,
+            "end": -1,
+            "source": -1,
+            "value": "4"
+        },
+        {
+            "name": "JUMP",
+            "begin": -1,
+            "end": -1,
+            "source": -1
+        },
+        {
+            "name": "tag",
+            "begin": -1,
+            "end": -1,
+            "source": -1,
+            "value": "4"
+        },
+        {
+            "name": "JUMPDEST",
+            "begin": -1,
+            "end": -1,
+            "source": -1
+        },
+        {
+            "name": "PUSH",
+            "begin": -1,
+            "end": -1,
+            "source": -1,
+            "value": "C0C"
+        },
+        {
+            "name": "PUSH",
+            "begin": -1,
+            "end": -1,
+            "source": -1,
+            "value": "C"
+        },
+        {
+            "name": "SSTORE",
+            "begin": -1,
+            "end": -1,
+            "source": -1
+        },
+        {
+            "name": "STOP",
+            "begin": -1,
+            "end": -1,
+            "source": -1
+        },
+        {
+            "name": "tag",
+            "begin": -1,
+            "end": -1,
+            "source": -1,
+            "value": "2"
+        },
+        {
+            "name": "JUMPDEST",
+            "begin": -1,
+            "end": -1,
+            "source": -1
+        },
+        {
+            "name": "PUSH [tag]",
+            "begin": -1,
+            "end": -1,
+            "source": -1,
+            "value": "4"
+        },
+        {
+            "name": "JUMP",
+            "begin": -1,
+            "end": -1,
+            "source": -1
         }
-    }
+    ],
+    ".data": {},
+    "sourceList": [
+        "examples/break/break.cfg"
+    ]
 }
