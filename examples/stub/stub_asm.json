@@ -1,0 +1,14 @@
+{
+    ".code": [
+        {
+            "name": "STOP",
+            "begin": -1,
+            "end": -1,
+            "source": -1
+        }
+    ],
+    ".data": {},
+    "sourceList": [
+        "examples/stub/stub.cfg"
+    ]
+}
