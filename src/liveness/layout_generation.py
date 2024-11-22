@@ -281,10 +281,6 @@ class LayoutGeneration:
         liveness_info = self._liveness_info[block_id]
         comes_from = block.get_comes_from()
 
-        if block_id == "abi_encode_t_bytes_storage_to_t_bytes_memory_ptr_nonPadded_inplace_fromStack_Block2":
-            print("HOLA")
-
-
         # Computing input stack...
         # The stack from comes_from stacks must be equal
         if comes_from:
@@ -322,7 +318,7 @@ class LayoutGeneration:
                 # We unify the stacks according the first reached block
                 combined_liveness_info = {element_to_unify: self._liveness_info[element_to_unify].out_state.live_vars
                                           for element_to_unify in elements_to_unify}
-                combined_liveness_info[next_block_id] = self._liveness_info[next_block_id].out_state.live_vars
+                combined_liveness_info[next_block_id] = self._liveness_info[next_block_id].in_state.live_vars
 
                 combined_output_stack, output_stacks_unified = unify_stacks_brothers(next_block_id,
                                                                                      elements_to_unify,
