@@ -4,3 +4,6 @@ split_block = {'calldatacopy', 'create', 'codecopy', 'call', 'log4', 'gas', 'del
 terminal_ops = {"functionReturn", "functionReturn", "return", "revert"}
 
 # split_block = {"ASSIGNIMMUTABLE", "GAS", "MEMORYGUARD", "DATACOPY"}
+
+def add_verbatim_to_split_block(verbatim_inst):
+    split_block.add(verbatim_inst)
