@@ -1,0 +1,142 @@
+{
+  ".code": [
+    {
+      "begin": 21,
+      "end": 23,
+      "name": "PUSH",
+      "source": -1,
+      "value": "2A"
+    },
+    {
+      "begin": 43,
+      "end": 45,
+      "name": "PUSH",
+      "source": -1,
+      "value": "17"
+    },
+    {
+      "begin": 65,
+      "end": 66,
+      "name": "PUSH",
+      "source": -1,
+      "value": "1"
+    },
+    {
+      "begin": 141,
+      "end": 142,
+      "name": "PUSH",
+      "source": -1,
+      "value": "8"
+    },
+    {
+      "begin": 138,
+      "end": 139,
+      "name": "PUSH",
+      "source": -1,
+      "value": "7"
+    },
+    {
+      "begin": 135,
+      "end": 136,
+      "name": "PUSH",
+      "source": -1,
+      "value": "6"
+    },
+    {
+      "begin": 132,
+      "end": 133,
+      "name": "PUSH",
+      "source": -1,
+      "value": "5"
+    },
+    {
+      "begin": 129,
+      "end": 130,
+      "name": "PUSH",
+      "source": -1,
+      "value": "4"
+    },
+    {
+      "begin": 126,
+      "end": 127,
+      "name": "PUSH",
+      "source": -1,
+      "value": "3"
+    },
+    {
+      "begin": 123,
+      "end": 124,
+      "name": "PUSH",
+      "source": -1,
+      "value": "2"
+    },
+    {
+      "begin": 118,
+      "end": 121,
+      "name": "DUP8",
+      "source": -1
+    },
+    {
+      "begin": 113,
+      "end": 116,
+      "name": "DUP10",
+      "source": -1
+    },
+    {
+      "begin": 108,
+      "end": 111,
+      "name": "DUP12",
+      "source": -1
+    },
+    {
+      "begin": 84,
+      "end": 143,
+      "name": "VERBATIM",
+      "source": -1,
+      "value": "74657374"
+    },
+    {
+      "begin": 161,
+      "end": 162,
+      "name": "DUP1",
+      "source": -1
+    },
+    {
+      "begin": 159,
+      "end": 160,
+      "name": "DUP2",
+      "source": -1
+    },
+    {
+      "begin": 152,
+      "end": 163,
+      "name": "SSTORE",
+      "source": -1
+    },
+    {
+      "begin": 0,
+      "end": 165,
+      "name": "POP",
+      "source": -1
+    },
+    {
+      "begin": 0,
+      "end": 165,
+      "name": "POP",
+      "source": -1
+    },
+    {
+      "begin": 0,
+      "end": 165,
+      "name": "POP",
+      "source": -1
+    },
+    {
+      "begin": 0,
+      "end": 165,
+      "name": "POP",
+      "source": -1
+    }
+  ],
+  "sourceList": []
+}

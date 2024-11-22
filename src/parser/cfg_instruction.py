@@ -5,7 +5,7 @@ import json
 from typing import List, Dict, Optional
 from parser.utils_parser import process_opcode, get_ins_size, is_commutative
 import parser.opcodes as opcodes
-
+import parser.constants as constants
 
 def build_instr_spec(op_name: str, idx: int, input_args: List[str], out_args: List[str], value: Optional[str]= None):
     """
@@ -86,7 +86,7 @@ def build_verbatim_spec(function_name: str, input_args: List[str], output_args: 
     # Hence, different functions can have the same function name
     obj["id"] = function_name + "_args_" + builting_args[0]
     obj["opcode"] = builting_args[0]
-    obj["disasm"] = builting_args[0]
+    obj["disasm"] = "VERBATIM" #builting_args[0]
     obj["inpt_sk"] = input_args
     obj["outpt_sk"] = output_args
     obj["gas"] = 100 # Random value for gas, as it is unknown
@@ -131,7 +131,10 @@ class CFGInstruction:
         self.builtin_args = None
         self.translate_builtin_args = None
         self.assignments = None
-        
+
+        if op.startswith("verbatim"):
+            constants.add_verbatim_to_split_block(op)
+
         
     def must_be_computed(self):
         """

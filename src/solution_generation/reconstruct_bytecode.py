@@ -93,6 +93,10 @@ def asm_for_split_instruction(block: CFGBlock, tag_dict: Dict[block_id_T, int],
     elif split_ins.get_op_name() == "functionReturn":
         # For function returns, we replace them by a JUMP instruction
         asm_ins = asm_from_op_info("JUMP", jump_type="[out]")
+
+    elif split_ins.get_op_name().startswith("verbatim"):
+        asm_ins = asm_from_op_info("VERBATIM",0) #WARNING: Value assigned to verbatim is 0
+        
     else:
         # Just include the corresponding instruction and the value field for builtin translations
         asm_ins = asm_from_op_info(split_ins.get_op_name().upper(), split_ins.translate_builtin_args)
