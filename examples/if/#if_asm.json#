@@ -1,0 +1,160 @@
+{
+    "contracts": {
+        "examples/if/if.cfg:object": {
+            ".code": [
+                {
+                    "name": "SWAP1",
+                    "begin": -1,
+                    "end": -1,
+                    "source": -1
+                },
+                {
+                    "name": "PUSH",
+                    "begin": -1,
+                    "end": -1,
+                    "source": -1,
+                    "value": "101"
+                },
+                {
+                    "name": "PUSH",
+                    "begin": -1,
+                    "end": -1,
+                    "source": -1,
+                    "value": "1"
+                },
+                {
+                    "name": "SSTORE",
+                    "begin": -1,
+                    "end": -1,
+                    "source": -1
+                },
+                {
+                    "name": "PUSH",
+                    "begin": -1,
+                    "end": -1,
+                    "source": -1,
+                    "value": "0"
+                },
+                {
+                    "name": "CALLDATALOAD",
+                    "begin": -1,
+                    "end": -1,
+                    "source": -1
+                },
+                {
+                    "name": "SWAP1",
+                    "begin": -1,
+                    "end": -1,
+                    "source": -1
+                },
+                {
+                    "name": "JUMPI",
+                    "begin": -1,
+                    "end": -1,
+                    "source": -1
+                },
+                {
+                    "name": "tag",
+                    "begin": -1,
+                    "end": -1,
+                    "source": -1,
+                    "value": "1"
+                },
+                {
+                    "name": "JUMPDEST",
+                    "begin": -1,
+                    "end": -1,
+                    "source": -1
+                },
+                {
+                    "name": "POP",
+                    "begin": -1,
+                    "end": -1,
+                    "source": -1
+                },
+                {
+                    "name": "PUSH",
+                    "begin": -1,
+                    "end": -1,
+                    "source": -1,
+                    "value": "3"
+                },
+                {
+                    "name": "PUSH",
+                    "begin": -1,
+                    "end": -1,
+                    "source": -1,
+                    "value": "3"
+                },
+                {
+                    "name": "SSTORE",
+                    "begin": -1,
+                    "end": -1,
+                    "source": -1
+                },
+                {
+                    "name": "STOP",
+                    "begin": -1,
+                    "end": -1,
+                    "source": -1
+                },
+                {
+                    "name": "tag",
+                    "begin": -1,
+                    "end": -1,
+                    "source": -1,
+                    "value": "0"
+                },
+                {
+                    "name": "JUMPDEST",
+                    "begin": -1,
+                    "end": -1,
+                    "source": -1
+                },
+                {
+                    "name": "PUSH",
+                    "begin": -1,
+                    "end": -1,
+                    "source": -1,
+                    "value": "202"
+                },
+                {
+                    "name": "PUSH",
+                    "begin": -1,
+                    "end": -1,
+                    "source": -1,
+                    "value": "2"
+                },
+                {
+                    "name": "SSTORE",
+                    "begin": -1,
+                    "end": -1,
+                    "source": -1
+                },
+                {
+                    "name": "PUSH",
+                    "begin": -1,
+                    "end": -1,
+                    "source": -1,
+                    "value": "0"
+                },
+                {
+                    "name": "SWAP1",
+                    "begin": -1,
+                    "end": -1,
+                    "source": -1
+                },
+                {
+                    "name": "JUMP",
+                    "begin": -1,
+                    "end": -1,
+                    "source": -1
+                }
+            ],
+            ".data": {},
+            "sourceList": [
+                "examples/if/if.cfg"
+            ]
+        }
+    }
+}
