@@ -95,7 +95,7 @@ def asm_for_split_instruction(block: CFGBlock, tag_dict: Dict[block_id_T, int],
         asm_ins = asm_from_op_info("JUMP", jump_type="[out]")
 
     elif split_ins.get_op_name().startswith("verbatim"):
-        asm_ins = asm_from_op_info("VERBATIM",0)
+        asm_ins = asm_from_op_info("VERBATIM",0) #WARNING: Value assigned to verbatim is 0
         
     else:
         # Just include the corresponding instruction and the value field for builtin translations
