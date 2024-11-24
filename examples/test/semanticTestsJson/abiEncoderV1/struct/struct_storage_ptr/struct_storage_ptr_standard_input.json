@@ -1,0 +1,25 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "struct_storage_ptr.sol": {
+            "content": "library L {\n\tstruct S { uint x; uint y; }\n\tfunction f(uint[] storage r, S storage s) public returns (uint, uint, uint, uint) {\n\t\tr[2] = 8;\n\t\ts.x = 7;\n\t\treturn (r[0], r[1], s.x, s.y);\n\t}\n}\ncontract C {\n\tuint8 x = 3;\n\tL.S s;\n\tuint[] r;\n\tfunction f() public returns (uint, uint, uint, uint, uint, uint) {\n\t\tr = new uint[](6);\n\t\tr[0] = 1;\n\t\tr[1] = 2;\n\t\tr[2] = 3;\n\t\ts.x = 11;\n\t\ts.y = 12;\n\t\t(uint a, uint b, uint c, uint d) = L.f(r, s);\n\t\treturn (r[2], s.x, a, b, c, d);\n\t}\n}\n// ----\n// library: L\n// f() -> 8, 7, 1, 2, 7, 12\n// gas irOptimized: 166761\n// gas legacy: 169273\n// gas legacyOptimized: 167243\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

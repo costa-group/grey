@@ -1,0 +1,28 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "simple_struct.sol": {
+            "content": "pragma abicoder               v2;\n\ncontract C {\n    struct S { uint8 a; bytes1 b; }\n    function gg(S calldata s) external pure returns (bytes memory) {\n        s.a; s.b; // only this will validate.\n        return msg.data;\n    }\n    function f(uint256 a, bytes32 b) public returns (bytes memory) {\n        S memory s = S(2,0x02);\n        assembly {\n            mstore(s, a)\n            mstore(add(s, 0x20), b)\n        }\n        return this.gg(s);\n    }\n}\n// ====\n// EVMVersion: >homestead\n// ----\n// f(uint256,bytes32): 1, left(0x01) -> 0x20, 0x44, hex\"b63240b0\", 1, left(0x01), hex\"00000000000000000000000000000000000000000000000000000000\"\n// gg((uint8,bytes1)): 1, left(0x01) -> 0x20, 0x44, hex\"b63240b0\", 1, left(0x01), hex\"00000000000000000000000000000000000000000000000000000000\"\n// f(uint256,bytes32): 0x0101, left(0x0101) -> 0x20, 0x44, hex\"b63240b0\", 1, left(0x01), hex\"00000000000000000000000000000000000000000000000000000000\"\n// gg((uint8,bytes1)): 0x0101, left(0x0101) -> FAILURE\n"
+        },
+        "bool.sol": {
+            "content": "pragma abicoder               v2;\n\ncontract C {\n    function gggg(bool x) external pure returns (bool) {\n        return x;\n    }\n    function f(uint256 a) external view returns (bool) {\n        bool x = false;\n        assembly { x := a }\n        return this.gggg(x);\n    }\n}\n// ----\n// f(uint256): 0 -> false\n// gggg(bool): 0 -> false # test validation as well as sanity check #\n// f(uint256): 1 -> true\n// gggg(bool): 1 -> true\n// f(uint256): 2 -> true\n// gggg(bool): 2 -> FAILURE\n// f(uint256): 0x1000 -> true\n// gggg(bool): 0x1000 -> FAILURE\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

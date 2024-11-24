@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "fixed_bytes_index_access.sol": {
+            "content": "contract C {\n    bytes16[] public data;\n\n    function f(bytes32 x) public returns (bytes1) {\n        return x[2];\n    }\n\n    function g(bytes32 x) public returns (uint256) {\n        data = [x[0], x[1], x[2]];\n        data[0] = \"12345\";\n        return uint256(uint8(data[0][4]));\n    }\n}\n// ----\n// f(bytes32): \"789\" -> \"9\"\n// g(bytes32): \"789\" -> 0x35\n// data(uint256): 0x01 -> \"8\"\n"
+        },
+        "bytes_index_access_memory.sol": {
+            "content": "contract Main {\n    function f(bytes memory _s1, uint i1, uint i2, uint i3) public returns (bytes1 c1, bytes1 c2, bytes1 c3) {\n        c1 = _s1[i1];\n        c2 = intern(_s1, i2);\n        c3 = internIndirect(_s1)[i3];\n    }\n    function intern(bytes memory _s1, uint i) public returns (bytes1 c) {\n        return _s1[i];\n    }\n    function internIndirect(bytes memory _s1) public returns (bytes memory) {\n        return _s1;\n    }\n}\n// ----\n// f(bytes,uint256,uint256,uint256): 0x80, 3, 4, 5, 78, \"abcdefghijklmnopqrstuvwxyzabcdef\", \"ghijklmnopqrstuvwxyzabcdefghijkl\", \"mnopqrstuvwxyz\" -> \"d\", \"e\", \"f\"\n"
+        },
+        "arrays_complex_memory_index_access.sol": {
+            "content": "contract Test {\n    function set(uint24[3][] memory _data, uint256 a, uint256 b)\n        public\n        returns (uint256 l, uint256 e)\n    {\n        l = _data.length;\n        e = _data[a][b];\n    }\n}\n// ----\n// set(uint24[3][],uint256,uint256): 0x60, 0x03, 0x02, 0x06, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0x10, 0x11, 0x12 -> 0x06, 0x0c\n"
+        },
+        "memory_arrays_dynamic_index_access_write.sol": {
+            "content": "contract Test {\n    uint24[3][][4] data;\n\n    function set(uint24[3][][4] memory x)\n        internal\n        returns (uint24[3][][4] memory)\n    {\n        x[1][2][2] = 1;\n        x[1][3][2] = 7;\n        return x;\n    }\n\n    function f() public returns (uint24[3][] memory) {\n        while (data[1].length < 4) data[1].push();\n        return set(data)[1];\n    }\n}\n// ----\n// f() -> 0x20, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x07\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

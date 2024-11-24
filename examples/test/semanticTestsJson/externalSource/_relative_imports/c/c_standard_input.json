@@ -1,0 +1,28 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "h.sol": {
+            "content": "contract H {\n}\n"
+        },
+        "c.sol": {
+            "content": "contract C {\n}\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

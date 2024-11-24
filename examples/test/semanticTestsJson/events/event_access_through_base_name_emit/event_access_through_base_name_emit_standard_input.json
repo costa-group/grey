@@ -1,0 +1,31 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "event_selector_file_level.sol": {
+            "content": "event E();\n\nlibrary L {\n    event E();\n}\n\ncontract C {\n    function main() external pure returns (bytes32, bytes32) {\n        assert(E.selector == L.E.selector);\n\n        return (E.selector, L.E.selector);\n    }\n}\n// ----\n// main() -> 0x92bbf6e823a631f3c8e09b1c8df90f378fb56f7fbc9701827e1ff8aad7f6a028, 0x92bbf6e823a631f3c8e09b1c8df90f378fb56f7fbc9701827e1ff8aad7f6a028\n"
+        },
+        "event_emit_via_interface.sol": {
+            "content": "interface I {\n    event Event(address indexed _from, uint256 _value);\n}\n\ncontract C {\n    function emitEvent(uint256 _value) public {\n        emit I.Event(msg.sender, _value);\n    }\n}\n\n// ----\n// emitEvent(uint256): 100 ->\n// ~ emit Event(address,uint256): #0x1212121212121212121212121212120000000012, 0x64\n"
+        },
+        "event_access_through_base_name_emit.sol": {
+            "content": "contract A {\n    event x();\n}\ncontract B is A {\n    function f() public returns (uint) {\n        emit A.x();\n        return 1;\n    }\n}\n// ----\n// f() -> 1\n// ~ emit x()\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

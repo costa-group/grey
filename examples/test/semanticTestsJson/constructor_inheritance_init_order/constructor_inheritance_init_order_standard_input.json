@@ -1,0 +1,43 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "constructor_inheritance_init_order_2.sol": {
+            "content": "contract A {\n    uint x = 42;\n    function f() public returns(uint256) {\n        return x;\n    }\n}\ncontract B is A {\n    uint public y = f();\n}\n// ----\n// constructor() ->\n// gas irOptimized: 99436\n// gas irOptimized code: 20200\n// gas legacy: 100973\n// gas legacy code: 32600\n// gas legacyOptimized: 99137\n// gas legacyOptimized code: 16200\n// y() -> 42\n"
+        },
+        "constructor_with_params_inheritance_2.sol": {
+            "content": "contract C {\n    uint public i;\n    uint public k;\n\n    constructor(uint newI, uint newK) {\n        i = newI;\n        k = newK;\n    }\n}\ncontract D is C(2, 1) {}\n// ----\n// i() -> 2\n// k() -> 1\n"
+        },
+        "emit_two_identical_events.sol": {
+            "content": "contract C {\n    event Terminated();\n\n    function terminate() external {\n        emit Terminated();\n        emit Terminated();\n    }\n}\n// ----\n// terminate() ->\n// ~ emit Terminated()\n// ~ emit Terminated()"
+        },
+        "state_variables_init_order.sol": {
+            "content": "contract A {\n    uint public x = 0;\n    uint y = f();\n    function f() public returns (uint256) {\n        ++x;\n        return 42;\n    }\n}\ncontract B is A {\n}\n// ----\n// x() -> 1\n"
+        },
+        "constructor_with_params_inheritance.sol": {
+            "content": "contract C {\n    uint public i;\n    uint public k;\n\n    constructor(uint newI, uint newK) {\n        i = newI;\n        k = newK;\n    }\n}\ncontract D is C {\n    constructor(uint newI, uint newK) C(newI, newK + 1) {}\n}\n// ----\n// constructor(): 2, 0 ->\n// gas irOptimized: 101581\n// gas irOptimized code: 20200\n// gas legacy: 105192\n// gas legacy code: 32000\n// gas legacyOptimized: 101503\n// gas legacyOptimized code: 17000\n// i() -> 2\n// k() -> 1\n"
+        },
+        "constructor_inheritance_init_order_3_legacy.sol": {
+            "content": "contract A {\n    uint public x = 2;\n    constructor(uint) {}\n    function f() public returns(uint) { x = 4; }\n}\ncontract B is A {\n    constructor() A(f()) {}\n}\n// ====\n// compileViaYul: false\n// ----\n// x() -> 4\n"
+        },
+        "constructor_inheritance_init_order.sol": {
+            "content": "contract A {\n    uint x;\n    constructor() {\n        x = 42;\n    }\n    function f() public returns(uint256) {\n        return x;\n    }\n}\ncontract B is A {\n    uint public y = f();\n}\n// ====\n// compileViaYul: true\n// ----\n// constructor() ->\n// gas irOptimized: 99436\n// gas irOptimized code: 20200\n// y() -> 42\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

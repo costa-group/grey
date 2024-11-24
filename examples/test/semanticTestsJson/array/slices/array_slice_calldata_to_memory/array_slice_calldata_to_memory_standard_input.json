@@ -1,0 +1,25 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "array_slice_calldata_to_memory.sol": {
+            "content": "contract C {\n    function f(int[] calldata b, uint256 start, uint256 end) public returns (int) {\n        int[] memory m = b[start:end];\n        uint len = end - start;\n        assert(len == m.length);\n        for (uint i = 0; i < len; i++) {\n            assert(b[start:end][i] == m[i]);\n        }\n        return [b[start:end]][0][0];\n    }\n\n    function g(int[] calldata b, uint256 start, uint256 end) public returns (int[] memory) {\n        return b[start:end];\n    }\n\n    function h1(int[] memory b) internal returns (int[] memory) {\n        return b;\n    }\n\n    function h(int[] calldata b, uint256 start, uint256 end) public returns (int[] memory) {\n        return h1(b[start:end]);\n    }\n}\n// ----\n// f(int256[],uint256,uint256): 0x60, 1, 3, 4, 1, 2, 3, 4 -> 2\n// g(int256[],uint256,uint256): 0x60, 1, 3, 4, 1, 2, 3, 4 -> 0x20, 2, 2, 3\n// h(int256[],uint256,uint256): 0x60, 1, 3, 4, 1, 2, 3, 4 -> 0x20, 2, 2, 3\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

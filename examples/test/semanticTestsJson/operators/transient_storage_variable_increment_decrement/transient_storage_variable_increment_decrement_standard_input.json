@@ -1,0 +1,31 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "compound_assign_transient_storage.sol": {
+            "content": "contract test {\n\tuint value1;\n\tuint transient value2;\n\tfunction f(uint x, uint y) public returns (uint w) {\n\t\tuint value3 = y;\n\t\tvalue1 += x;\n\t\tvalue3 *= x;\n\t\tvalue2 += value3 + value1;\n\t\treturn value2 += 7;\n\t}\n}\n// ====\n// EVMVersion: >=cancun\n// ----\n// f(uint256,uint256): 0, 6 -> 7\n// f(uint256,uint256): 1, 3 -> 11\n// f(uint256,uint256): 2, 25 -> 0x3c\n// f(uint256,uint256): 3, 69 -> 0xdc\n// f(uint256,uint256): 4, 84 -> 353\n// f(uint256,uint256): 5, 2 -> 0x20\n// f(uint256,uint256): 6, 51 -> 334\n// f(uint256,uint256): 7, 48 -> 371\n"
+        },
+        "compound_assign.sol": {
+            "content": "contract test {\n\tuint value1;\n\tuint value2;\n\tfunction f(uint x, uint y) public returns (uint w) {\n\t\tuint value3 = y;\n\t\tvalue1 += x;\n\t\tvalue3 *= x;\n\t\tvalue2 *= value3 + value1;\n\t\treturn value2 += 7;\n\t}\n}\n// ----\n// f(uint256,uint256): 0, 6 -> 7\n// f(uint256,uint256): 1, 3 -> 0x23\n// f(uint256,uint256): 2, 25 -> 0x0746\n// f(uint256,uint256): 3, 69 -> 396613\n// f(uint256,uint256): 4, 84 -> 137228105\n// f(uint256,uint256): 5, 2 -> 0xcc7c5e28\n// f(uint256,uint256): 6, 51 -> 1121839760671\n// f(uint256,uint256): 7, 48 -> 408349672884251\n"
+        },
+        "transient_storage_variable_increment_decrement.sol": {
+            "content": "contract C {\n    int transient x;\n    function f() public returns (int) {\n        ++x;\n        ++x;\n        --x;\n        x++;\n        x--;\n        return x;\n    }\n}\n// ====\n// EVMVersion: >=cancun\n// ----\n// f() -> 1\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

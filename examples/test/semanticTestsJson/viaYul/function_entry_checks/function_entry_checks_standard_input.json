@@ -1,0 +1,31 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "return.sol": {
+            "content": "contract C {\n    function f() public pure returns (uint x) {\n        return 7;\n        x = 3;\n    }\n}\n// ----\n// f() -> 7\n"
+        },
+        "detect_add_overflow_signed.sol": {
+            "content": "contract C {\n    function f(int a, int b) public pure returns (int x) {\n        x = a + b;\n    }\n    function g(int8 a, int8 b) public pure returns (int8 x) {\n        x = a + b;\n    }\n}\n// ----\n// f(int256,int256): 5, 6 -> 11\n// f(int256,int256): -2, 1 -> -1\n// f(int256,int256): -2, 2 -> 0\n// f(int256,int256): 2, -2 -> 0\n// f(int256,int256): -5, -6 -> -11\n// f(int256,int256): 0x7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0, 0x0F -> 0x7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF\n// f(int256,int256): 0x0F, 0x7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0 -> 0x7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF\n// f(int256,int256): 0x7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF, 1 -> FAILURE, hex\"4e487b71\", 0x11\n// f(int256,int256): 1, 0x7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF -> FAILURE, hex\"4e487b71\", 0x11\n// f(int256,int256): 0x8000000000000000000000000000000000000000000000000000000000000001, -1 -> 0x8000000000000000000000000000000000000000000000000000000000000000\n// f(int256,int256): -1, 0x8000000000000000000000000000000000000000000000000000000000000001 -> 0x8000000000000000000000000000000000000000000000000000000000000000\n// f(int256,int256): 0x8000000000000000000000000000000000000000000000000000000000000000, -1 -> FAILURE, hex\"4e487b71\", 0x11\n// f(int256,int256): -1, 0x8000000000000000000000000000000000000000000000000000000000000000 -> FAILURE, hex\"4e487b71\", 0x11\n// g(int8,int8): 5, 6 -> 11\n// g(int8,int8): -2, 1 -> -1\n// g(int8,int8): -2, 2 -> 0\n// g(int8,int8): 2, -2 -> 0\n// g(int8,int8): -5, -6 -> -11\n// g(int8,int8): 126, 1 -> 127\n// g(int8,int8): 1, 126 -> 127\n// g(int8,int8): 127, 1 -> FAILURE, hex\"4e487b71\", 0x11\n// g(int8,int8): 1, 127 -> FAILURE, hex\"4e487b71\", 0x11\n// g(int8,int8): -127, -1 -> -128\n// g(int8,int8): -1, -127 -> -128\n// g(int8,int8): -127, -2 -> FAILURE, hex\"4e487b71\", 0x11\n// g(int8,int8): -2, -127 -> FAILURE, hex\"4e487b71\", 0x11\n// g(int8,int8): -128, 0 -> -128\n// g(int8,int8): 0, -128 -> -128\n"
+        },
+        "function_entry_checks.sol": {
+            "content": "contract C {\n    function f() public returns (uint) {\n    }\n    function g(uint x, uint y) public returns (uint) {\n    }\n    function h() public payable returns (uint) {\n    }\n    function i(bytes32 b) public returns (bytes32) {\n    }\n    function j(bool b) public returns (bool) {\n    }\n    function k(bytes32 b) public returns (bytes32) {\n    }\n    function s() public returns (uint256[] memory) {\n    }\n    function t(uint) public pure {\n    }\n}\n// ----\n// f() -> 0\n// g(uint256,uint256): 1, -2 -> 0\n// h(), 1 ether -> 0\n// i(bytes32), 1 ether: 2 -> FAILURE\n// i(bytes32): 2 -> 0\n// j(bool): true -> false\n// k(bytes32): 0x31 -> 0x00\n// s(): hex\"4200ef\" -> 0x20, 0\n// t(uint256) -> FAILURE\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

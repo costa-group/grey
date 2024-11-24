@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "enum_explicit_overflow_homestead.sol": {
+            "content": "contract test {\n    enum ActionChoices {GoLeft, GoRight, GoStraight}\n\n    constructor() {}\n\n    function getChoiceExp(uint256 x) public returns (uint256 d) {\n        choice = ActionChoices(x);\n        d = uint256(choice);\n    }\n\n    function getChoiceFromSigned(int256 x) public returns (uint256 d) {\n        choice = ActionChoices(x);\n        d = uint256(choice);\n    }\n\n    function getChoiceFromMax() public returns (uint256 d) {\n        choice = ActionChoices(type(uint256).max);\n        d = uint256(choice);\n    }\n\n    ActionChoices choice;\n}\n// ====\n// EVMVersion: <byzantium\n// ----\n// getChoiceExp(uint256): 3 -> FAILURE # These should throw #\n// getChoiceFromSigned(int256): -1 -> FAILURE\n// getChoiceFromMax() -> FAILURE\n// getChoiceExp(uint256): 2 -> 2 # These should work #\n// getChoiceExp(uint256): 0 -> 0\n"
+        },
+        "constructing_enums_from_ints.sol": {
+            "content": "contract c {\n    enum Truth {False, True}\n\n    function test() public returns (uint256) {\n        return uint256(Truth(uint8(0x1)));\n    }\n}\n// ----\n// test() -> 1\n"
+        },
+        "enum_explicit_overflow.sol": {
+            "content": "contract test {\n    enum ActionChoices {GoLeft, GoRight, GoStraight}\n\n    constructor() {}\n\n    function getChoiceExp(uint256 x) public returns (uint256 d) {\n        choice = ActionChoices(x);\n        d = uint256(choice);\n    }\n\n    function getChoiceFromSigned(int256 x) public returns (uint256 d) {\n        choice = ActionChoices(x);\n        d = uint256(choice);\n    }\n\n    function getChoiceFromMax() public returns (uint256 d) {\n        choice = ActionChoices(type(uint).max);\n        d = uint256(choice);\n    }\n\n    ActionChoices choice;\n}\n// ====\n// EVMVersion: >=byzantium\n// ----\n// getChoiceExp(uint256): 2 -> 2\n// getChoiceExp(uint256): 3 -> FAILURE, hex\"4e487b71\", 0x21 # These should throw #\n// getChoiceFromSigned(int256): -1 -> FAILURE, hex\"4e487b71\", 0x21\n// getChoiceFromMax() -> FAILURE, hex\"4e487b71\", 0x21\n// getChoiceExp(uint256): 2 -> 2 # These should work #\n// getChoiceExp(uint256): 0 -> 0\n"
+        },
+        "invalid_enum_logged.sol": {
+            "content": "contract C {\n    enum X { A, B }\n    event Log(X);\n\n    function test_log() public returns (uint) {\n        X garbled = X.A;\n        assembly {\n            garbled := 5\n        }\n        emit Log(garbled);\n        return 1;\n    }\n    function test_log_ok() public returns (uint) {\n        X x = X.A;\n        emit Log(x);\n        return 1;\n    }\n}\n// ----\n// test_log_ok() -> 1\n// ~ emit Log(uint8): 0x00\n// test_log() -> FAILURE, hex\"4e487b71\", 0x21\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

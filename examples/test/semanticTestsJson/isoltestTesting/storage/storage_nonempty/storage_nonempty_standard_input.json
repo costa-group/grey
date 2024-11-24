@@ -1,0 +1,28 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "storage_empty.sol": {
+            "content": "contract StorageEmpty {\n}\n// ----\n// storageEmpty -> 1\n"
+        },
+        "storage_nonempty.sol": {
+            "content": "contract StorageNotEmpty {\n    uint256 x;\n    function set(uint256 _a) public { x = _a; }\n}\n// ----\n// storageEmpty -> 1\n// set(uint256): 1 ->\n// storageEmpty -> 0\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

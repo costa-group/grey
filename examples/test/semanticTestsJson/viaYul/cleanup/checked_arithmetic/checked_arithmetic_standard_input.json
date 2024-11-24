@@ -1,0 +1,28 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "comparison.sol": {
+            "content": "contract C {\n\tfunction eq() public pure returns (bool) {\n\t\tuint8 x = 1; uint8 y;\n\t\tassembly { y := 0x0101 }\n\t\treturn (x == y);\n\t}\n\tfunction neq() public pure returns (bool) {\n\t\tuint8 x = 1; uint8 y;\n\t\tassembly { y := 0x0101 }\n\t\treturn (x != y);\n\t}\n\tfunction geq() public pure returns (bool) {\n\t\tuint8 x = 1; uint8 y;\n\t\tassembly { y := 0x0101 }\n\t\treturn (x >= y);\n\t}\n\tfunction leq() public pure returns (bool) {\n\t\tuint8 x = 2; uint8 y;\n\t\tassembly { y := 0x0101 }\n\t\treturn (x <= y);\n\t}\n\tfunction gt() public pure returns (bool) {\n\t\tuint8 x = 2; uint8 y;\n\t\tassembly { y := 0x0101 }\n\t\treturn (x > y);\n\t}\n\tfunction lt() public pure returns (bool) {\n\t\tuint8 x = 1; uint8 y;\n\t\tassembly { y := 0x0101 }\n\t\treturn (x < y);\n\t}\n}\n// ----\n// eq() -> true\n// neq() -> false\n// geq() -> true\n// leq() -> false\n// gt() -> true\n// lt() -> false\n"
+        },
+        "checked_arithmetic.sol": {
+            "content": "contract C {\n\tfunction add() public pure returns (uint8, uint8) {\n\t\tuint8 x; uint8 y = 0;\n\t\tassembly { x := 0x0101 }\n\t\treturn (x + y, y + x);\n\t}\n\tfunction sub() public pure returns (uint8, uint8) {\n\t\tuint8 x; uint8 y = 1;\n\t\tassembly { x := 0x0101 }\n\t\treturn (x - y, y - x);\n\t}\n\tfunction mul() public pure returns (uint8, uint8) {\n\t\tuint8 x; uint8 y = 1;\n\t\tassembly { x := 0x0101 }\n\t\treturn (x * y, y * x);\n\t}\n\tfunction div() public pure returns (uint8, uint8) {\n\t\tuint8 x; uint8 y = 1;\n\t\tassembly { x := 0x0101 }\n\t\treturn (x / y, y / x);\n\t}\n\tfunction mod() public pure returns (uint8, uint8) {\n\t\tuint8 x; uint8 y = 2;\n\t\tassembly { x := 0x0101 }\n\t\treturn (x % y, y % x);\n\t}\n\tfunction inc_pre() public pure returns (uint8) {\n\t\tuint8 x;\n\t\tassembly { x := 0x0100 }\n\t\treturn ++x;\n\t}\n\tfunction inc_post() public pure returns (uint8) {\n\t\tuint8 x;\n\t\tassembly { x := 0x0100 }\n\t\treturn x++;\n\t}\n\tfunction dec_pre() public pure returns (uint8) {\n\t\tuint8 x;\n\t\tassembly { x := not(0xFF) }\n\t\treturn --x;\n\t}\n\tfunction dec_post() public pure returns (uint8) {\n\t\tuint8 x;\n\t\tassembly { x := not(0xFF) }\n\t\treturn x--;\n\t}\n\tfunction neg() public pure returns (int8) {\n\t\tint8 x;\n\t\tassembly { x := 0x80 }\n\t\treturn -x;\n\t}\n}\n// ====\n// compileViaYul: true\n// ----\n// add() -> 1, 1\n// sub() -> 0, 0\n// mul() -> 1, 1\n// div() -> 1, 1\n// mod() -> 1, 0\n// inc_pre() -> 1\n// inc_post() -> 0\n// dec_pre() -> FAILURE, hex\"4e487b71\", 0x11\n// dec_post() -> FAILURE, hex\"4e487b71\", 0x11\n// neg() -> FAILURE, hex\"4e487b71\", 0x11\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

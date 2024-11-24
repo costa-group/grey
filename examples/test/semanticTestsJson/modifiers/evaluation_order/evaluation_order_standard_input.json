@@ -1,0 +1,61 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "function_modifier_empty.sol": {
+            "content": "abstract contract A {\n    function f() public mod returns (bool r) {\n        return true;\n    }\n\n    modifier mod virtual;\n}\n\n\ncontract C is A {\n    modifier mod override {\n        if (false) _;\n    }\n}\n// ----\n// f() -> false\n"
+        },
+        "return_in_modifier.sol": {
+            "content": "contract C {\n    uint256 public x;\n    modifier run() {\n        for (uint256 i = 1; i < 10; i++) {\n            if (i == 5) return;\n            _;\n        }\n    }\n\n    function f() public run {\n        uint256 k = x;\n        uint256 t = k + 1;\n        x = t;\n    }\n}\n// ----\n// x() -> 0\n// f() ->\n// x() -> 4\n"
+        },
+        "function_modifier_multi_with_return.sol": {
+            "content": "// Note that return sets the return variable and jumps to the end of the current function or\n// modifier code block.\ncontract C {\n    modifier repeat(bool twice) {\n        if (twice) _;\n        _;\n    }\n\n    function f(bool twice) public repeat(twice) returns (uint256 r) {\n        r += 1;\n        return r;\n    }\n}\n// via yul disabled because the return variables are\n// fresh variables each time, while in the old code generator,\n// they share a stack slot when the function is\n// invoked multiple times via `_`.\n\n// ====\n// compileViaYul: false\n// ----\n// f(bool): false -> 1\n// f(bool): true -> 2\n"
+        },
+        "function_modifier_library_inheritance.sol": {
+            "content": "// Tests that virtual lookup for modifiers in libraries does not consider\n// the current inheritance hierarchy.\nlibrary L {\n    struct S {\n        uint256 v;\n    }\n    modifier mod(S storage s) {\n        s.v++;\n        _;\n    }\n\n    function libFun(S storage s) internal mod(s) {\n        s.v += 0x100;\n    }\n}\n\n\ncontract Test {\n    using L for *;\n    L.S s;\n    modifier mod(L.S storage) {\n        revert();\n        _;\n    }\n\n    function f() public returns (uint256) {\n        s.libFun();\n        L.libFun(s);\n        return s.v;\n    }\n}\n// ----\n// f() -> 0x202\n"
+        },
+        "transient_state_variable_value_type.sol": {
+            "content": "contract C {\n    uint16 transient x;\n\n    modifier m(uint16) {\n        x += 10;\n        _;\n    }\n\n    function f() public m(x) returns (uint16) {\n        x *= 10;\n        return x;\n    }\n}\n\n// ====\n// EVMVersion: >=cancun\n// ----\n// f() -> 100\n"
+        },
+        "function_modifier_loop_viair.sol": {
+            "content": "contract C {\n    modifier repeat(uint256 count) {\n        uint256 i;\n        for (i = 0; i < count; ++i) _;\n    }\n\n    function f() public repeat(10) returns (uint256 r) {\n        r += 1;\n    }\n}\n// ====\n// compileViaYul: true\n// ----\n// f() -> 1\n"
+        },
+        "stacked_return_with_modifiers.sol": {
+            "content": "contract C {\n    uint256 public x;\n    modifier m() {\n        for (uint256 i = 0; i < 10; i++) {\n            _;\n            ++x;\n            return;\n        }\n    }\n\n    function f() public m m m returns (uint) {\n        for (uint256 i = 0; i < 10; i++) {\n            ++x;\n            return 42;\n        }\n    }\n}\n// ----\n// x() -> 0\n// f() -> 42\n// x() -> 4\n"
+        },
+        "access_through_contract_name.sol": {
+            "content": "contract A {\n    uint public x = 7;\n    modifier m virtual { x = 2; _; }\n}\ncontract C is A {\n    modifier m override { x = 1; _; }\n\n    function f() public A.m returns (uint) {\n        return 9;\n    }\n    function g() public m returns (uint) {\n        return 10;\n    }\n}\n// ----\n// x() -> 7\n// f() -> 9\n// x() -> 2\n// g() -> 0x0a\n// x() -> 1\n// f() -> 9\n// x() -> 2\n"
+        },
+        "function_modifier_local_variables.sol": {
+            "content": "contract C {\n    modifier mod1 {\n        uint8 a = 1;\n        uint8 b = 2;\n        _;\n    }\n    modifier mod2(bool a) {\n        if (a) return;\n        else _;\n    }\n\n    function f(bool a) public mod1 mod2(a) returns (uint256 r) {\n        return 3;\n    }\n}\n// ----\n// f(bool): true -> 0\n// f(bool): false -> 3\n"
+        },
+        "function_modifier_overriding.sol": {
+            "content": "contract A {\n    function f() public mod returns (bool r) {\n        return true;\n    }\n\n    modifier mod virtual {\n        _;\n    }\n}\n\n\ncontract C is A {\n    modifier mod override {\n        if (false) _;\n    }\n}\n// ----\n// f() -> false\n"
+        },
+        "access_through_module_name.sol": {
+            "content": "==== Source: a ====\nimport \"a\" as M;\ncontract C {\n    uint public x;\n    modifier m { x = 1; _; }\n\n    function f() public M.M.C.m returns (uint t, uint r) {\n        t = x;\n        x = 3;\n        r = 9;\n    }\n    function g() public m returns (uint t, uint r) {\n        t = x;\n        x = 4;\n        r = 10;\n    }\n}\n// ----\n// x() -> 0x00\n// f() -> 1, 9\n// x() -> 3\n// g() -> 1, 0x0a\n// x() -> 4\n// f() -> 1, 9\n// x() -> 3\n"
+        },
+        "function_modifier.sol": {
+            "content": "contract C {\n    function getOne() public payable nonFree returns (uint256 r) {\n        return 1;\n    }\n\n    modifier nonFree {\n        if (msg.value > 0) _;\n    }\n}\n// ----\n// getOne() -> 0\n// getOne(), 1 wei -> 1\n"
+        },
+        "evaluation_order.sol": {
+            "content": "contract A { constructor(uint) {} }\ncontract B { constructor(uint) {} }\ncontract C { constructor(uint) {} }\n\ncontract D is A, B, C {\n    uint[] x;\n    constructor() m2(f(1)) B(f(2)) m1(f(3)) C(f(4)) m3(f(5)) A(f(6)) {\n        f(7);\n    }\n\n    function query() public view returns (uint[] memory) { return x; }\n\n    modifier m1(uint) { _; }\n    modifier m2(uint) { _; }\n    modifier m3(uint) { _; }\n\n    function f(uint y) internal returns (uint) { x.push(y); return 0; }\n}\n// ----\n// query() -> 0x20, 7, 4, 2, 6, 1, 3, 5, 7\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

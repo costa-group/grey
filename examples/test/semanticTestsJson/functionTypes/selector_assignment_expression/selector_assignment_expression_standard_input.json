@@ -1,0 +1,25 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "selector_assignment_expression.sol": {
+            "content": "contract C {\n    bool public z;\n    function f() public {\n        ((z = true) ? this.f : this.f).selector;\n    }\n}\n\n// ----\n// f()\n// z() -> true\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

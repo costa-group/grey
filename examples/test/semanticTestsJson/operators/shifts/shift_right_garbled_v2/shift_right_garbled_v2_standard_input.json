@@ -1,0 +1,25 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "shift_right_garbled_v2.sol": {
+            "content": "pragma abicoder               v2;\n\n\ncontract C {\n    function f(uint8 a, uint8 b) public returns (uint256) {\n        assembly {\n            a := 0xffffffff\n        }\n        // Higher bits should be cleared before the shift\n        return a >> b;\n    }\n}\n// ----\n// f(uint8,uint8): 0x00, 0x04 -> 0x0f\n// f(uint8,uint8): 0x00, 0x1004 -> FAILURE\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

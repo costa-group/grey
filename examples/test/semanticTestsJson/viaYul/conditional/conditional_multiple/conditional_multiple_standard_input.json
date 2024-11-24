@@ -1,0 +1,37 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "conditional_with_assignment.sol": {
+            "content": "contract A {\n    function f() public pure returns (uint, uint, uint, uint) {\n\t\tuint y1 = 1;\n\t\tuint y2 = 1;\n\t\tuint x = 3 < 0 ? y1 = 3 : 6;\n\t\tuint z = 3 < 10 ? y2 = 5 : 6;\n\t\treturn (x, y1, y2, z);\n\t}\n}\n// ----\n// f() -> 6, 1, 5, 5\n"
+        },
+        "conditional_tuple.sol": {
+            "content": "contract A {\n\tfunction f(bool cond) public pure returns (uint, uint) {\n\t\t(uint a, uint b) = cond ? (1, 2) : (3, 4);\n\t\treturn (a, b);\n\t}\n}\n// ----\n// f(bool): true -> 1, 2\n// f(bool): false -> 3, 4\n"
+        },
+        "conditional_true_false_literal.sol": {
+            "content": "contract A {\n\tfunction f() public pure returns (uint) {\n\t\tuint x = true ? 1 : 0;\n\t\tuint y = false ? 0 : 1;\n\t\treturn x + y;\n\t}\n}\n// ----\n// f() -> 2\n"
+        },
+        "conditional_with_variables.sol": {
+            "content": "contract A {\n\tfunction f() public pure returns (uint, uint, uint, uint) {\n\t\tuint x = 3;\n\t\tuint y = 1;\n\t\tuint z = (x > y) ? x : y;\n\t\tuint w = x < y ? x : y;\n\t\treturn (x, y, z, w);\n\t}\n}\n// ----\n// f() -> 3, 1, 3, 1\n"
+        },
+        "conditional_multiple.sol": {
+            "content": "contract A {\n\tfunction f() public pure returns (uint) {\n\t\tuint x = 3 < 0 ? 2 > 1 ? 2 : 1 : 7 > 2 ? 7 : 6;\n\t\treturn x;\n\t}\n}\n// ----\n// f() -> 7\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

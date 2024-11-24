@@ -1,0 +1,25 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "delete_transient_state_variable.sol": {
+            "content": "contract C {\n    uint transient x;\n    function f() public returns (uint) {\n        x = 10;\n        delete x;\n        return x;\n    }\n}\n// ====\n// EVMVersion: >=cancun\n// ----\n// f() -> 0\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

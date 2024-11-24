@@ -1,0 +1,25 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "do_while_loop_continue.sol": {
+            "content": "contract test {\n    function f() public pure returns(uint r) {\n        uint i = 0;\n        do\n        {\n            if (i > 0) return 0;\n            i++;\n            continue;\n        } while (false);\n        return 42;\n    }\n}\n// ----\n// f() -> 42\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

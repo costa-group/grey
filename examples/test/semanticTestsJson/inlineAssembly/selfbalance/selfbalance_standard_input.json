@@ -1,0 +1,25 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "selfbalance.sol": {
+            "content": "contract C {\n    function f() public payable returns (uint ret) {\n        assembly {\n            ret := selfbalance()\n        }\n    }\n}\n// ====\n// EVMVersion: >=istanbul\n// ----\n// f(), 254 wei -> 254\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

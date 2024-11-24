@@ -1,0 +1,31 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "conditional_expression_true_literal.sol": {
+            "content": "contract test {\n    function f() public returns(uint d) {\n        return true ? 5 : 10;\n    }\n}\n// ----\n// f() -> 5\n"
+        },
+        "conditional_expression_functions.sol": {
+            "content": "contract test {\n    function x() public returns (uint) { return 1; }\n    function y() public returns (uint) { return 2; }\n\n    function f(bool cond) public returns (uint) {\n        function () returns (uint) z = cond ? x : y;\n        return z();\n    }\n}\n// ----\n// f(bool): true -> 1\n// f(bool): false -> 2\n"
+        },
+        "inc_dec_operators.sol": {
+            "content": "contract test {\n    uint8 x;\n    uint v;\n    function f() public returns (uint r) {\n        uint a = 6;\n        r = a;\n        r += (a++) * 0x10;\n        r += (++a) * 0x100;\n        v = 3;\n        r += (v++) * 0x1000;\n        r += (++v) * 0x10000;\n    }\n}\n// ----\n// f() -> 0x053866\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

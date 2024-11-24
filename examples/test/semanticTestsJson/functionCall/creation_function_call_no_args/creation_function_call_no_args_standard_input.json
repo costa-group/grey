@@ -1,0 +1,97 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "external_call_dynamic_returndata.sol": {
+            "content": "pragma solidity >= 0.6.0;\n\ncontract C {\n    function d(uint n) external pure returns (uint[] memory) {\n        uint[] memory data = new uint[](n);\n        for (uint i = 0; i < data.length; ++i)\n            data[i] = i;\n        return data;\n    }\n\n    function dt(uint n) public view returns (uint) {\n        uint[] memory data = this.d(n);\n        uint sum = 0;\n        for (uint i = 0; i < data.length; ++i)\n            sum += data[i];\n        return sum;\n    }\n}\n// ====\n// EVMVersion: >=byzantium\n// ----\n// dt(uint256): 4 -> 6\n"
+        },
+        "external_call_to_nonexisting_debugstrings.sol": {
+            "content": "// This tests skipping the extcodesize check.\n\ninterface I {\n    function a() external pure;\n    function b() external;\n    function c() external payable;\n    function x() external returns (uint);\n    function y() external returns (string memory);\n}\ncontract C {\n    I i = I(address(0xcafecafe));\n    constructor() payable {}\n    function f(uint c) external returns (uint) {\n        if (c == 0) i.a();\n        else if (c == 1) i.b();\n        else if (c == 2) i.c();\n        else if (c == 3) i.c{value: 1}();\n        else if (c == 4) i.x();\n        else if (c == 5) i.y();\n        return 1 + c;\n    }\n}\n// ====\n// EVMVersion: >=byzantium\n// revertStrings: debug\n// ----\n// constructor(), 1 ether ->\n// gas irOptimized: 98698\n// gas irOptimized code: 284200\n// gas legacy: 123258\n// gas legacy code: 682400\n// gas legacyOptimized: 106969\n// gas legacyOptimized code: 386400\n// f(uint256): 0 -> FAILURE, hex\"08c379a0\", 0x20, 37, \"Target contract does not contain\", \" code\"\n// f(uint256): 1 -> FAILURE, hex\"08c379a0\", 0x20, 37, \"Target contract does not contain\", \" code\"\n// f(uint256): 2 -> FAILURE, hex\"08c379a0\", 0x20, 37, \"Target contract does not contain\", \" code\"\n// f(uint256): 3 -> FAILURE, hex\"08c379a0\", 0x20, 37, \"Target contract does not contain\", \" code\"\n// f(uint256): 4 -> FAILURE, hex\"08c379a0\", 0x20, 37, \"Target contract does not contain\", \" code\"\n// f(uint256): 5 -> FAILURE, hex\"08c379a0\", 0x20, 37, \"Target contract does not contain\", \" code\"\n// f(uint256): 6 -> 7\n"
+        },
+        "return_size_shorter_than_expected.sol": {
+            "content": "interface LongReturn {\n    function f() external pure returns (uint[20] memory);\n}\ncontract ShortReturn {\n    function f() external pure returns (bytes32) {}\n}\n\ncontract Test {\n    function test() public returns (uint) {\n        ShortReturn shortReturn = new ShortReturn();\n        uint freeMemoryBefore;\n        assembly {\n            freeMemoryBefore := mload(0x40)\n        }\n\n        LongReturn(address(shortReturn)).f();\n\n        uint freeMemoryAfter;\n\n        assembly {\n            freeMemoryAfter := mload(0x40)\n        }\n\n        return freeMemoryAfter - freeMemoryBefore;\n    }\n}\n// ====\n// EVMVersion: <=homestead\n// compileViaYul: true\n// ----\n// test() -> 0x0500\n// gas legacy: 131966\n"
+        },
+        "multiple_return_values.sol": {
+            "content": "contract test {\n    function run(bool x1, uint x2) public returns(uint y1, bool y2, uint y3) {\n        y1 = x2; y2 = x1;\n    }\n}\n// ----\n// run(bool,uint256): true, 0xcd -> 0xcd, true, 0\n"
+        },
+        "call_attached_library_function_on_function.sol": {
+            "content": "library L {\n    function g(function() internal returns (uint) _t) internal returns (uint) { return _t(); }\n}\ncontract C {\n    using L for *;\n    function f() public returns (uint) {\n        return t.g();\n    }\n    function t() public pure returns (uint)  { return 7; }\n}\n// ----\n// library: L\n// f() -> 7\n"
+        },
+        "send_zero_ether.sol": {
+            "content": "// Sending zero ether to a contract should still invoke the receive ether function\n// (it previously did not because the gas stipend was not provided by the EVM)\ncontract Receiver {\n    receive() external payable {}\n}\n\n\ncontract Main {\n    constructor() payable {}\n\n    function s() public returns (bool) {\n        Receiver r = new Receiver();\n        return payable(r).send(0);\n    }\n}\n// ----\n// constructor(), 20 wei ->\n// gas irOptimized: 100264\n// gas legacy: 57555\n// gas legacy code: 53000\n// gas legacyOptimized: 100361\n// s() -> true\n"
+        },
+        "creation_function_call_with_args.sol": {
+            "content": "contract C {\n    uint public i;\n    constructor(uint newI) {\n        i = newI;\n    }\n}\ncontract D {\n    C c;\n    constructor(uint v) {\n        c = new C(v);\n    }\n    function f() public returns (uint r) {\n        return c.i();\n    }\n}\n// ----\n// constructor(): 2 ->\n// gas irOptimized: 138930\n// gas irOptimized code: 53800\n// gas legacy: 145569\n// gas legacy code: 95600\n// gas legacyOptimized: 138297\n// gas legacyOptimized code: 54600\n// f() -> 2\n"
+        },
+        "call_function_returning_nothing_via_pointer.sol": {
+            "content": "contract test {\n    bool public flag = false;\n\n    function f0() public {\n        flag = true;\n    }\n\n    function f() public returns (bool) {\n        function() internal x = f0;\n        x();\n        return flag;\n    }\n}\n// ----\n// f() -> true\n// flag() -> true\n"
+        },
+        "external_call_to_nonexisting.sol": {
+            "content": "// This tests skipping the extcodesize check.\n\ninterface I {\n    function a() external pure;\n    function b() external;\n    function c() external payable;\n    function x() external returns (uint);\n    function y() external returns (string memory);\n}\ncontract C {\n    I i = I(address(0xcafecafe));\n    constructor() payable {}\n    function f(uint c) external returns (uint) {\n        if (c == 0) i.a();\n        else if (c == 1) i.b();\n        else if (c == 2) i.c();\n        else if (c == 3) i.c{value: 1}();\n        else if (c == 4) i.x();\n        else if (c == 5) i.y();\n        return 1 + c;\n    }\n}\n// ----\n// constructor(), 1 ether ->\n// gas irOptimized: 88853\n// gas irOptimized code: 164400\n// gas legacy: 102721\n// gas legacy code: 334400\n// gas legacyOptimized: 91499\n// gas legacyOptimized code: 196400\n// f(uint256): 0 -> FAILURE\n// f(uint256): 1 -> FAILURE\n// f(uint256): 2 -> FAILURE\n// f(uint256): 3 -> FAILURE\n// f(uint256): 4 -> FAILURE\n// f(uint256): 5 -> FAILURE\n// f(uint256): 6 -> 7\n"
+        },
+        "mapping_internal_return.sol": {
+            "content": "contract test {\n    mapping(uint8 => uint8) a;\n    mapping(uint8 => uint8) b;\n    function f() internal returns (mapping(uint8 => uint8) storage r) {\n        r = a;\n        r[1] = 42;\n        r = b;\n        r[1] = 84;\n    }\n    function g() public returns (uint8, uint8, uint8, uint8, uint8, uint8) {\n        f()[2] = 21;\n        return (a[0], a[1], a[2], b[0], b[1], b[2]);\n    }\n    function h() public returns (uint8, uint8, uint8, uint8, uint8, uint8) {\n        mapping(uint8 => uint8) storage m = f();\n        m[2] = 17;\n        return (a[0], a[1], a[2], b[0], b[1], b[2]);\n    }\n}\n// ----\n// g() -> 0, 42, 0, 0, 84, 21\n// h() -> 0, 42, 0, 0, 84, 17\n"
+        },
+        "named_args.sol": {
+            "content": "contract test {\n    function a(uint a, uint b, uint c) public returns (uint r) { r = a * 100 + b * 10 + c * 1; }\n    function b() public returns (uint r) { r = a({a: 1, b: 2, c: 3}); }\n    function c() public returns (uint r) { r = a({b: 2, c: 3, a: 1}); }\n}\n// ----\n// b() -> 123\n// c() -> 123\n"
+        },
+        "file_level_call_via_module.sol": {
+            "content": "==== Source: a.sol ====\nfunction f(uint) pure returns (uint) { return 7; }\nfunction f(bytes memory x) pure returns (uint) { return x.length; }\n==== Source: b.sol ====\nimport \"a.sol\" as M;\ncontract C {\n    function f() public pure returns (uint, uint) {\n        return (M.f(2), M.f(\"abc\"));\n\n    }\n}\n// ----\n// f() -> 7, 3\n"
+        },
+        "conditional_with_arguments.sol": {
+            "content": "contract C {\n    function g(int x, int y) public pure returns (int) { return x - y; }\n    function h(int y, int x) public pure returns (int) { return y - x; }\n\n    function f() public pure returns (int) {\n        return (false ? g : h)(2, 1);\n    }\n}\n// ----\n// f() -> 1\n"
+        },
+        "value_test.sol": {
+            "content": "contract C {\n\tfunction f() public payable returns (uint) {\n\t\treturn msg.value;\n\t}\n}\n// ----\n// f(), 1 ether -> 1000000000000000000\n// f(), 1 wei -> 1\n"
+        },
+        "precompile_extcodesize_check.sol": {
+            "content": "interface Identity {\n    function selectorAndAppendValue(uint value) external pure returns (uint);\n}\ninterface ReturnMoreData {\n    function f(uint value) external pure returns (uint, uint, uint);\n}\ncontract C {\n    Identity constant i = Identity(address(0x0004));\n    function testHighLevel() external pure returns (bool) {\n        // Works because the extcodesize check is skipped\n        // and the precompiled contract returns actual data.\n        i.selectorAndAppendValue(5);\n        return true;\n    }\n    function testHighLevel2() external pure returns (uint, uint, uint) {\n        // Fails because the identity contract does not return enough data.\n        return ReturnMoreData(address(4)).f(2);\n    }\n    function testLowLevel() external view returns (uint value) {\n        (bool success, bytes memory ret) =\n            address(4).staticcall(\n                abi.encodeWithSelector(Identity.selectorAndAppendValue.selector, uint(5))\n            );\n        value = abi.decode(ret, (uint));\n    }\n\n}\n// ====\n// EVMVersion: >=constantinople\n// ----\n// testHighLevel() -> true\n// testLowLevel() -> 0xc76596d400000000000000000000000000000000000000000000000000000000\n// testHighLevel2() -> FAILURE\n"
+        },
+        "return_size_bigger_than_expected.sol": {
+            "content": "interface ShortReturn {\n    function f() external pure returns (bytes32);\n}\ncontract LongReturn {\n    function f() external pure returns (uint[20] memory) {}\n}\n\ncontract Test {\n    function test() public returns (uint) {\n        LongReturn longReturn = new LongReturn();\n        uint freeMemoryBefore;\n        assembly {\n            freeMemoryBefore := mload(0x40)\n        }\n\n        ShortReturn(address(longReturn)).f();\n\n        uint freeMemoryAfter;\n\n        assembly {\n            freeMemoryAfter := mload(0x40)\n        }\n\n        return freeMemoryAfter - freeMemoryBefore;\n    }\n}\n// ====\n// compileViaYul: true\n// ----\n// test() -> 0x20\n// gas legacy: 131966\n"
+        },
+        "call_function_returning_function.sol": {
+            "content": "contract test {\n    function f0() public returns (uint) {\n        return 2;\n    }\n\n    function f1() internal returns (function() internal returns (uint)) {\n        return f0;\n    }\n\n    function f2() internal returns (function() internal returns (function () internal returns (uint))) {\n        return f1;\n    }\n\n    function f3() internal returns (function() internal returns (function () internal returns (function () internal returns (uint)))) {\n        return f2;\n    }\n\n    function f() public returns (uint) {\n        function() internal returns(function() internal returns(function() internal returns(function() internal returns(uint)))) x;\n        x = f3;\n        return x()()()();\n    }\n}\n// ----\n// f() -> 2\n"
+        },
+        "delegatecall_return_value.sol": {
+            "content": "contract C {\n    uint256 value;\n\n    function set(uint256 _value) external {\n        value = _value;\n    }\n\n    function get() external view returns (uint256) {\n        return value;\n    }\n\n    function get_delegated() external returns (bool, bytes memory) {\n        return address(this).delegatecall(abi.encodeWithSignature(\"get()\"));\n    }\n\n    function assert0() external view {\n        assert(value == 0);\n    }\n\n    function assert0_delegated() external returns (bool, bytes memory) {\n        return address(this).delegatecall(abi.encodeWithSignature(\"assert0()\"));\n    }\n}\n// ====\n// EVMVersion: >=byzantium\n// ----\n// get() -> 0x00\n// assert0_delegated() -> 0x01, 0x40, 0x0\n// get_delegated() -> 0x01, 0x40, 0x20, 0x0\n// set(uint256): 0x01 ->\n// get() -> 0x01\n// assert0_delegated() -> 0x00, 0x40, 0x24, 0x4e487b7100000000000000000000000000000000000000000000000000000000, 0x0100000000000000000000000000000000000000000000000000000000\n// get_delegated() -> 0x01, 0x40, 0x20, 0x1\n// set(uint256): 0x2a ->\n// get() -> 0x2a\n// assert0_delegated() -> 0x00, 0x40, 0x24, 0x4e487b7100000000000000000000000000000000000000000000000000000000, 0x0100000000000000000000000000000000000000000000000000000000\n// get_delegated() -> 0x01, 0x40, 0x20, 0x2a\n"
+        },
+        "external_public_override.sol": {
+            "content": "contract A {\n    function f() external virtual returns (uint256) {\n        return 1;\n    }\n}\n\n\ncontract B is A {\n    function f() public override returns (uint256) {\n        return 2;\n    }\n\n    function g() public returns (uint256) {\n        return f();\n    }\n}\n// ----\n// f() -> 2\n// g() -> 2\n"
+        },
+        "external_call.sol": {
+            "content": "pragma solidity >= 0.6.0;\n\ncontract C {\n    function g(uint n) external pure returns (uint) {\n        return n + 1;\n    }\n\n    function f(uint n) public view returns (uint) {\n        return this.g(2 * n);\n    }\n}\n// ----\n// g(uint256): 4 -> 5\n// f(uint256): 2 -> 5\n"
+        },
+        "transaction_status.sol": {
+            "content": "contract test {\n\tfunction f() public { }\n\tfunction g() public { revert(); }\n\tfunction h() public { assert(false); }\n}\n// ----\n// f() ->\n// g() -> FAILURE\n// h() -> FAILURE, hex\"4e487b71\", 0x01\n"
+        },
+        "calling_uninitialized_function.sol": {
+            "content": "contract C {\n    function intern() public returns (uint256) {\n        function (uint) internal returns (uint) x;\n        x(2);\n        return 7;\n    }\n\n    function extern() public returns (uint256) {\n        function (uint) external returns (uint) x;\n        x(2);\n        return 7;\n    }\n}\n// ----\n// intern() -> FAILURE, hex\"4e487b71\", 0x51 # This should throw exceptions #\n// extern() -> FAILURE\n"
+        },
+        "return_size_shorter_than_expected_evm_version_after_homestead.sol": {
+            "content": "interface LongReturn {\n    function f() external pure returns (uint[20] memory);\n}\ncontract ShortReturn {\n    function f() external pure returns (bytes32) {}\n}\n\ncontract Test {\n    function test() public returns (uint) {\n        ShortReturn shortReturn = new ShortReturn();\n        uint freeMemoryBefore;\n        assembly {\n            freeMemoryBefore := mload(0x40)\n        }\n\n        // This reverts. The external call succeeds but ABI decoding fails due to the returned\n        // `bytes32` being much shorter than the expected `uint[20]`.\n        LongReturn(address(shortReturn)).f();\n\n        uint freeMemoryAfter;\n\n        assembly {\n            freeMemoryAfter := mload(0x40)\n        }\n\n        return freeMemoryAfter - freeMemoryBefore;\n    }\n}\n// ====\n// EVMVersion: >homestead\n// compileViaYul: true\n// ----\n// test() -> FAILURE\n// gas legacy: 131966\n"
+        },
+        "external_function.sol": {
+            "content": "contract c {\n    function f(uint256 a) public returns (uint256) {\n        return a;\n    }\n\n    function test(uint256 a, uint256 b)\n        external\n        returns (uint256 r_a, uint256 r_b)\n    {\n        r_a = f(a + 7);\n        r_b = b;\n    }\n}\n// ----\n// test(uint256,uint256): 2, 3 -> 9, 3\n"
+        },
+        "creation_function_call_no_args.sol": {
+            "content": "contract C {\n    uint public i;\n    constructor() {\n        i = 2;\n    }\n}\ncontract D {\n    function f() public returns (uint r) {\n        return new C().i();\n    }\n}\n// ----\n// f() -> 2\n// gas legacy: 76585\n// gas legacy code: 23600\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

@@ -1,0 +1,40 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "internal_virtual_function_calls_through_dispatch.sol": {
+            "content": "contract Base {\n    function f() internal returns (uint256 i) {\n        function() internal returns (uint256) ptr = g;\n        return ptr();\n    }\n\n    function g() internal virtual returns (uint256 i) {\n        return 1;\n    }\n}\n\n\ncontract Derived is Base {\n    function g() internal override returns (uint256 i) {\n        return 2;\n    }\n\n    function h() public returns (uint256 i) {\n        return f();\n    }\n}\n// ----\n// h() -> 2\n"
+        },
+        "virtual_override_changing_mutability_public.sol": {
+            "content": "contract A {\n    function f() internal virtual {\n        mutableWithViewOverride();\n        mutableWithPureOverride();\n        viewWithPureOverride();\n    }\n\n    function mutableWithViewOverride() public virtual {}\n    function mutableWithPureOverride() public virtual {}\n    function viewWithPureOverride() public view virtual {}\n}\n\ncontract C is A {\n    function run() public {\n        f();\n    }\n\n    function mutableWithViewOverride() public view override {}\n    function mutableWithPureOverride() public pure override {}\n    function viewWithPureOverride() public pure override {}\n}\n// ----\n// run() ->\n"
+        },
+        "internal_virtual_function_calls.sol": {
+            "content": "contract Base {\n    function f() public returns (uint256 i) {\n        return g();\n    }\n\n    function g() internal virtual returns (uint256 i) {\n        return 1;\n    }\n}\n\n\ncontract Derived is Base {\n    function g() internal override returns (uint256 i) {\n        return 2;\n    }\n}\n// ----\n// f() -> 2\n"
+        },
+        "virtual_function_calls.sol": {
+            "content": "contract Base {\n    function f() public returns (uint256 i) {\n        return g();\n    }\n\n    function g() public virtual returns (uint256 i) {\n        return 1;\n    }\n}\n\n\ncontract Derived is Base {\n    function g() public override returns (uint256 i) {\n        return 2;\n    }\n}\n// ----\n// g() -> 2\n// f() -> 2\n"
+        },
+        "virtual_function_usage_in_constructor_arguments.sol": {
+            "content": "contract BaseBase {\n    uint256 m_a;\n\n    constructor(uint256 a) {\n        m_a = a;\n    }\n\n    function overridden() public virtual returns (uint256 r) {\n        return 1;\n    }\n\n    function g() public returns (uint256 r) {\n        return overridden();\n    }\n}\n\n\ncontract Base is BaseBase(BaseBase.g()) {}\n\n\ncontract Derived is Base {\n    function getA() public returns (uint256 r) {\n        return m_a;\n    }\n\n    function overridden() public override returns (uint256 r) {\n        return 2;\n    }\n}\n// ----\n// getA() -> 2\n"
+        },
+        "virtual_override_changing_mutability_internal.sol": {
+            "content": "contract A {\n    function f() internal virtual {\n        mutableWithViewOverride();\n        mutableWithPureOverride();\n        viewWithPureOverride();\n    }\n\n    function mutableWithViewOverride() internal virtual {}\n    function mutableWithPureOverride() internal virtual {}\n    function viewWithPureOverride() internal view virtual {}\n}\n\ncontract C is A {\n    function run() public {\n        f();\n    }\n\n    function mutableWithViewOverride() internal view override {}\n    function mutableWithPureOverride() internal pure override {}\n    function viewWithPureOverride() internal pure override {}\n}\n// ----\n// run() ->\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

@@ -1,0 +1,37 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "memory_arrays_delete.sol": {
+            "content": "contract Test {\n    function del() public returns (uint24[3][4] memory) {\n        uint24[3][4] memory x;\n        for (uint24 i = 0; i < x.length; i ++)\n            for (uint24 j = 0; j < x[i].length; j ++)\n                x[i][j] = i * 0x10 + j;\n        delete x[1];\n        delete x[3][2];\n        return x;\n    }\n}\n// ----\n// del() -> 0, 1, 2, 0, 0, 0, 0x20, 0x21, 0x22, 0x30, 0x31, 0\n"
+        },
+        "delete_removes_bytes_data.sol": {
+            "content": "contract c {\n    fallback() external { data = msg.data; }\n    function del() public returns (bool) { delete data; return true; }\n    bytes data;\n}\n// ----\n// (): 7 ->\n// storageEmpty -> 0\n// del(): 7 -> true\n// storageEmpty -> 1\n"
+        },
+        "delete_storage_array_packed.sol": {
+            "content": "contract C {\n    uint120[] data;\n\n    function f() public returns (uint120, uint120, uint120) {\n        data.push(123);\n        data.push(234);\n        data.push(345);\n        delete data;\n        assembly {\n            sstore(data.slot, 3)\n        }\n        return (data[0], data[1], data[2]);\n    }\n}\n// ----\n// f() -> 0, 0, 0\n// gas irOptimized: 90992\n// gas legacy: 111037\n// gas legacyOptimized: 109633\n"
+        },
+        "delete_storage_array.sol": {
+            "content": "contract C {\n    uint[] data;\n\n    function len() public returns (uint ret) {\n        data.push(234);\n        data.push(123);\n        delete data;\n        assembly {\n            ret := sload(data.slot)\n        }\n    }\n\n    function val() public returns (uint ret) {\n        assembly {\n            sstore(0, 2)\n            mstore(0, 0)\n            sstore(keccak256(0, 32), 234)\n            sstore(add(keccak256(0, 32), 1), 123)\n        }\n\n        assert(data[0] == 234);\n        assert(data[1] == 123);\n\n        delete data;\n\n        uint size = 999;\n\n        assembly {\n            size := sload(0)\n            mstore(0, 0)\n            ret := sload(keccak256(0, 32))\n        }\n    }\n}\n// ----\n// len() -> 0\n// val() -> 0\n"
+        },
+        "bytes_delete_element.sol": {
+            "content": "contract c {\n    bytes data;\n\n    function test1() external returns (bool) {\n        data = new bytes(100);\n        for (uint256 i = 0; i < data.length; i++) data[i] = bytes1(uint8(i));\n        delete data[94];\n        delete data[96];\n        delete data[98];\n        return\n            data[94] == 0 &&\n            uint8(data[95]) == 95 &&\n            data[96] == 0 &&\n            uint8(data[97]) == 97;\n    }\n}\n// ----\n// test1() -> true\n// gas irOptimized: 218449\n// gas legacy: 242263\n// gas legacyOptimized: 241182\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

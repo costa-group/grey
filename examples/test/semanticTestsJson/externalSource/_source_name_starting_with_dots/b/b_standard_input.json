@@ -1,0 +1,31 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "dot_a.sol": {
+            "content": "contract Dot_A {\n}\n"
+        },
+        "dot_dot_b.sol": {
+            "content": "contract Dot_Dot_B {\n}\n"
+        },
+        "b.sol": {
+            "content": "contract B {\n}\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

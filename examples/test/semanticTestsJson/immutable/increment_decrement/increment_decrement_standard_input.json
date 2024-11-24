@@ -1,0 +1,25 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "increment_decrement.sol": {
+            "content": "contract C {\n    int immutable x = 1;\n    int immutable y = 3;\n\n    constructor() {\n        x--;\n        --x;\n        y++;\n        ++y;\n        --y;\n    }\n\n    function f() public view returns (int, int) {\n        return (x, y);\n    }\n}\n// ----\n// f() -> -1, 4\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

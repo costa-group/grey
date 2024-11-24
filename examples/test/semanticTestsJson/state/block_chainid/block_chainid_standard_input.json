@@ -1,0 +1,25 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "block_chainid.sol": {
+            "content": "contract C {\n    function f() public returns (uint) {\n        return block.chainid;\n    }\n}\n// ====\n// EVMVersion: >=istanbul\n// ----\n// f() -> 1\n// f() -> 1\n// f() -> 1\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

@@ -1,0 +1,160 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "external_call_dynamic_returndata.sol": {
+            "content": "pragma solidity >= 0.6.0;\n\ncontract C {\n    function d(uint n) external pure returns (uint[] memory) {\n        uint[] memory data = new uint[](n);\n        for (uint i = 0; i < data.length; ++i)\n            data[i] = i;\n        return data;\n    }\n\n    function dt(uint n) public view returns (uint) {\n        uint[] memory data = this.d(n);\n        uint sum = 0;\n        for (uint i = 0; i < data.length; ++i)\n            sum += data[i];\n        return sum;\n    }\n}\n// ====\n// EVMVersion: >=byzantium\n// ----\n// dt(uint256): 4 -> 6\n"
+        },
+        "external_call_to_nonexisting_debugstrings.sol": {
+            "content": "// This tests skipping the extcodesize check.\n\ninterface I {\n    function a() external pure;\n    function b() external;\n    function c() external payable;\n    function x() external returns (uint);\n    function y() external returns (string memory);\n}\ncontract C {\n    I i = I(address(0xcafecafe));\n    constructor() payable {}\n    function f(uint c) external returns (uint) {\n        if (c == 0) i.a();\n        else if (c == 1) i.b();\n        else if (c == 2) i.c();\n        else if (c == 3) i.c{value: 1}();\n        else if (c == 4) i.x();\n        else if (c == 5) i.y();\n        return 1 + c;\n    }\n}\n// ====\n// EVMVersion: >=byzantium\n// revertStrings: debug\n// ----\n// constructor(), 1 ether ->\n// gas irOptimized: 98698\n// gas irOptimized code: 284200\n// gas legacy: 123258\n// gas legacy code: 682400\n// gas legacyOptimized: 106969\n// gas legacyOptimized code: 386400\n// f(uint256): 0 -> FAILURE, hex\"08c379a0\", 0x20, 37, \"Target contract does not contain\", \" code\"\n// f(uint256): 1 -> FAILURE, hex\"08c379a0\", 0x20, 37, \"Target contract does not contain\", \" code\"\n// f(uint256): 2 -> FAILURE, hex\"08c379a0\", 0x20, 37, \"Target contract does not contain\", \" code\"\n// f(uint256): 3 -> FAILURE, hex\"08c379a0\", 0x20, 37, \"Target contract does not contain\", \" code\"\n// f(uint256): 4 -> FAILURE, hex\"08c379a0\", 0x20, 37, \"Target contract does not contain\", \" code\"\n// f(uint256): 5 -> FAILURE, hex\"08c379a0\", 0x20, 37, \"Target contract does not contain\", \" code\"\n// f(uint256): 6 -> 7\n"
+        },
+        "return_size_shorter_than_expected.sol": {
+            "content": "interface LongReturn {\n    function f() external pure returns (uint[20] memory);\n}\ncontract ShortReturn {\n    function f() external pure returns (bytes32) {}\n}\n\ncontract Test {\n    function test() public returns (uint) {\n        ShortReturn shortReturn = new ShortReturn();\n        uint freeMemoryBefore;\n        assembly {\n            freeMemoryBefore := mload(0x40)\n        }\n\n        LongReturn(address(shortReturn)).f();\n\n        uint freeMemoryAfter;\n\n        assembly {\n            freeMemoryAfter := mload(0x40)\n        }\n\n        return freeMemoryAfter - freeMemoryBefore;\n    }\n}\n// ====\n// EVMVersion: <=homestead\n// compileViaYul: true\n// ----\n// test() -> 0x0500\n// gas legacy: 131966\n"
+        },
+        "multiple_return_values.sol": {
+            "content": "contract test {\n    function run(bool x1, uint x2) public returns(uint y1, bool y2, uint y3) {\n        y1 = x2; y2 = x1;\n    }\n}\n// ----\n// run(bool,uint256): true, 0xcd -> 0xcd, true, 0\n"
+        },
+        "call_attached_library_function_on_function.sol": {
+            "content": "library L {\n    function g(function() internal returns (uint) _t) internal returns (uint) { return _t(); }\n}\ncontract C {\n    using L for *;\n    function f() public returns (uint) {\n        return t.g();\n    }\n    function t() public pure returns (uint)  { return 7; }\n}\n// ----\n// library: L\n// f() -> 7\n"
+        },
+        "send_zero_ether.sol": {
+            "content": "// Sending zero ether to a contract should still invoke the receive ether function\n// (it previously did not because the gas stipend was not provided by the EVM)\ncontract Receiver {\n    receive() external payable {}\n}\n\n\ncontract Main {\n    constructor() payable {}\n\n    function s() public returns (bool) {\n        Receiver r = new Receiver();\n        return payable(r).send(0);\n    }\n}\n// ----\n// constructor(), 20 wei ->\n// gas irOptimized: 100264\n// gas legacy: 57555\n// gas legacy code: 53000\n// gas legacyOptimized: 100361\n// s() -> true\n"
+        },
+        "creation_function_call_with_args.sol": {
+            "content": "contract C {\n    uint public i;\n    constructor(uint newI) {\n        i = newI;\n    }\n}\ncontract D {\n    C c;\n    constructor(uint v) {\n        c = new C(v);\n    }\n    function f() public returns (uint r) {\n        return c.i();\n    }\n}\n// ----\n// constructor(): 2 ->\n// gas irOptimized: 138930\n// gas irOptimized code: 53800\n// gas legacy: 145569\n// gas legacy code: 95600\n// gas legacyOptimized: 138297\n// gas legacyOptimized code: 54600\n// f() -> 2\n"
+        },
+        "call_function_returning_nothing_via_pointer.sol": {
+            "content": "contract test {\n    bool public flag = false;\n\n    function f0() public {\n        flag = true;\n    }\n\n    function f() public returns (bool) {\n        function() internal x = f0;\n        x();\n        return flag;\n    }\n}\n// ----\n// f() -> true\n// flag() -> true\n"
+        },
+        "external_call_to_nonexisting.sol": {
+            "content": "// This tests skipping the extcodesize check.\n\ninterface I {\n    function a() external pure;\n    function b() external;\n    function c() external payable;\n    function x() external returns (uint);\n    function y() external returns (string memory);\n}\ncontract C {\n    I i = I(address(0xcafecafe));\n    constructor() payable {}\n    function f(uint c) external returns (uint) {\n        if (c == 0) i.a();\n        else if (c == 1) i.b();\n        else if (c == 2) i.c();\n        else if (c == 3) i.c{value: 1}();\n        else if (c == 4) i.x();\n        else if (c == 5) i.y();\n        return 1 + c;\n    }\n}\n// ----\n// constructor(), 1 ether ->\n// gas irOptimized: 88853\n// gas irOptimized code: 164400\n// gas legacy: 102721\n// gas legacy code: 334400\n// gas legacyOptimized: 91499\n// gas legacyOptimized code: 196400\n// f(uint256): 0 -> FAILURE\n// f(uint256): 1 -> FAILURE\n// f(uint256): 2 -> FAILURE\n// f(uint256): 3 -> FAILURE\n// f(uint256): 4 -> FAILURE\n// f(uint256): 5 -> FAILURE\n// f(uint256): 6 -> 7\n"
+        },
+        "mapping_internal_return.sol": {
+            "content": "contract test {\n    mapping(uint8 => uint8) a;\n    mapping(uint8 => uint8) b;\n    function f() internal returns (mapping(uint8 => uint8) storage r) {\n        r = a;\n        r[1] = 42;\n        r = b;\n        r[1] = 84;\n    }\n    function g() public returns (uint8, uint8, uint8, uint8, uint8, uint8) {\n        f()[2] = 21;\n        return (a[0], a[1], a[2], b[0], b[1], b[2]);\n    }\n    function h() public returns (uint8, uint8, uint8, uint8, uint8, uint8) {\n        mapping(uint8 => uint8) storage m = f();\n        m[2] = 17;\n        return (a[0], a[1], a[2], b[0], b[1], b[2]);\n    }\n}\n// ----\n// g() -> 0, 42, 0, 0, 84, 21\n// h() -> 0, 42, 0, 0, 84, 17\n"
+        },
+        "named_args.sol": {
+            "content": "contract test {\n    function a(uint a, uint b, uint c) public returns (uint r) { r = a * 100 + b * 10 + c * 1; }\n    function b() public returns (uint r) { r = a({a: 1, b: 2, c: 3}); }\n    function c() public returns (uint r) { r = a({b: 2, c: 3, a: 1}); }\n}\n// ----\n// b() -> 123\n// c() -> 123\n"
+        },
+        "file_level_call_via_module.sol": {
+            "content": "==== Source: a.sol ====\nfunction f(uint) pure returns (uint) { return 7; }\nfunction f(bytes memory x) pure returns (uint) { return x.length; }\n==== Source: b.sol ====\nimport \"a.sol\" as M;\ncontract C {\n    function f() public pure returns (uint, uint) {\n        return (M.f(2), M.f(\"abc\"));\n\n    }\n}\n// ----\n// f() -> 7, 3\n"
+        },
+        "conditional_with_arguments.sol": {
+            "content": "contract C {\n    function g(int x, int y) public pure returns (int) { return x - y; }\n    function h(int y, int x) public pure returns (int) { return y - x; }\n\n    function f() public pure returns (int) {\n        return (false ? g : h)(2, 1);\n    }\n}\n// ----\n// f() -> 1\n"
+        },
+        "value_test.sol": {
+            "content": "contract C {\n\tfunction f() public payable returns (uint) {\n\t\treturn msg.value;\n\t}\n}\n// ----\n// f(), 1 ether -> 1000000000000000000\n// f(), 1 wei -> 1\n"
+        },
+        "precompile_extcodesize_check.sol": {
+            "content": "interface Identity {\n    function selectorAndAppendValue(uint value) external pure returns (uint);\n}\ninterface ReturnMoreData {\n    function f(uint value) external pure returns (uint, uint, uint);\n}\ncontract C {\n    Identity constant i = Identity(address(0x0004));\n    function testHighLevel() external pure returns (bool) {\n        // Works because the extcodesize check is skipped\n        // and the precompiled contract returns actual data.\n        i.selectorAndAppendValue(5);\n        return true;\n    }\n    function testHighLevel2() external pure returns (uint, uint, uint) {\n        // Fails because the identity contract does not return enough data.\n        return ReturnMoreData(address(4)).f(2);\n    }\n    function testLowLevel() external view returns (uint value) {\n        (bool success, bytes memory ret) =\n            address(4).staticcall(\n                abi.encodeWithSelector(Identity.selectorAndAppendValue.selector, uint(5))\n            );\n        value = abi.decode(ret, (uint));\n    }\n\n}\n// ====\n// EVMVersion: >=constantinople\n// ----\n// testHighLevel() -> true\n// testLowLevel() -> 0xc76596d400000000000000000000000000000000000000000000000000000000\n// testHighLevel2() -> FAILURE\n"
+        },
+        "return_size_bigger_than_expected.sol": {
+            "content": "interface ShortReturn {\n    function f() external pure returns (bytes32);\n}\ncontract LongReturn {\n    function f() external pure returns (uint[20] memory) {}\n}\n\ncontract Test {\n    function test() public returns (uint) {\n        LongReturn longReturn = new LongReturn();\n        uint freeMemoryBefore;\n        assembly {\n            freeMemoryBefore := mload(0x40)\n        }\n\n        ShortReturn(address(longReturn)).f();\n\n        uint freeMemoryAfter;\n\n        assembly {\n            freeMemoryAfter := mload(0x40)\n        }\n\n        return freeMemoryAfter - freeMemoryBefore;\n    }\n}\n// ====\n// compileViaYul: true\n// ----\n// test() -> 0x20\n// gas legacy: 131966\n"
+        },
+        "call_function_returning_function.sol": {
+            "content": "contract test {\n    function f0() public returns (uint) {\n        return 2;\n    }\n\n    function f1() internal returns (function() internal returns (uint)) {\n        return f0;\n    }\n\n    function f2() internal returns (function() internal returns (function () internal returns (uint))) {\n        return f1;\n    }\n\n    function f3() internal returns (function() internal returns (function () internal returns (function () internal returns (uint)))) {\n        return f2;\n    }\n\n    function f() public returns (uint) {\n        function() internal returns(function() internal returns(function() internal returns(function() internal returns(uint)))) x;\n        x = f3;\n        return x()()()();\n    }\n}\n// ----\n// f() -> 2\n"
+        },
+        "delegatecall_return_value.sol": {
+            "content": "contract C {\n    uint256 value;\n\n    function set(uint256 _value) external {\n        value = _value;\n    }\n\n    function get() external view returns (uint256) {\n        return value;\n    }\n\n    function get_delegated() external returns (bool, bytes memory) {\n        return address(this).delegatecall(abi.encodeWithSignature(\"get()\"));\n    }\n\n    function assert0() external view {\n        assert(value == 0);\n    }\n\n    function assert0_delegated() external returns (bool, bytes memory) {\n        return address(this).delegatecall(abi.encodeWithSignature(\"assert0()\"));\n    }\n}\n// ====\n// EVMVersion: >=byzantium\n// ----\n// get() -> 0x00\n// assert0_delegated() -> 0x01, 0x40, 0x0\n// get_delegated() -> 0x01, 0x40, 0x20, 0x0\n// set(uint256): 0x01 ->\n// get() -> 0x01\n// assert0_delegated() -> 0x00, 0x40, 0x24, 0x4e487b7100000000000000000000000000000000000000000000000000000000, 0x0100000000000000000000000000000000000000000000000000000000\n// get_delegated() -> 0x01, 0x40, 0x20, 0x1\n// set(uint256): 0x2a ->\n// get() -> 0x2a\n// assert0_delegated() -> 0x00, 0x40, 0x24, 0x4e487b7100000000000000000000000000000000000000000000000000000000, 0x0100000000000000000000000000000000000000000000000000000000\n// get_delegated() -> 0x01, 0x40, 0x20, 0x2a\n"
+        },
+        "external_public_override.sol": {
+            "content": "contract A {\n    function f() external virtual returns (uint256) {\n        return 1;\n    }\n}\n\n\ncontract B is A {\n    function f() public override returns (uint256) {\n        return 2;\n    }\n\n    function g() public returns (uint256) {\n        return f();\n    }\n}\n// ----\n// f() -> 2\n// g() -> 2\n"
+        },
+        "external_call.sol": {
+            "content": "pragma solidity >= 0.6.0;\n\ncontract C {\n    function g(uint n) external pure returns (uint) {\n        return n + 1;\n    }\n\n    function f(uint n) public view returns (uint) {\n        return this.g(2 * n);\n    }\n}\n// ----\n// g(uint256): 4 -> 5\n// f(uint256): 2 -> 5\n"
+        },
+        "transaction_status.sol": {
+            "content": "contract test {\n\tfunction f() public { }\n\tfunction g() public { revert(); }\n\tfunction h() public { assert(false); }\n}\n// ----\n// f() ->\n// g() -> FAILURE\n// h() -> FAILURE, hex\"4e487b71\", 0x01\n"
+        },
+        "calling_uninitialized_function.sol": {
+            "content": "contract C {\n    function intern() public returns (uint256) {\n        function (uint) internal returns (uint) x;\n        x(2);\n        return 7;\n    }\n\n    function extern() public returns (uint256) {\n        function (uint) external returns (uint) x;\n        x(2);\n        return 7;\n    }\n}\n// ----\n// intern() -> FAILURE, hex\"4e487b71\", 0x51 # This should throw exceptions #\n// extern() -> FAILURE\n"
+        },
+        "return_size_shorter_than_expected_evm_version_after_homestead.sol": {
+            "content": "interface LongReturn {\n    function f() external pure returns (uint[20] memory);\n}\ncontract ShortReturn {\n    function f() external pure returns (bytes32) {}\n}\n\ncontract Test {\n    function test() public returns (uint) {\n        ShortReturn shortReturn = new ShortReturn();\n        uint freeMemoryBefore;\n        assembly {\n            freeMemoryBefore := mload(0x40)\n        }\n\n        // This reverts. The external call succeeds but ABI decoding fails due to the returned\n        // `bytes32` being much shorter than the expected `uint[20]`.\n        LongReturn(address(shortReturn)).f();\n\n        uint freeMemoryAfter;\n\n        assembly {\n            freeMemoryAfter := mload(0x40)\n        }\n\n        return freeMemoryAfter - freeMemoryBefore;\n    }\n}\n// ====\n// EVMVersion: >homestead\n// compileViaYul: true\n// ----\n// test() -> FAILURE\n// gas legacy: 131966\n"
+        },
+        "external_function.sol": {
+            "content": "contract c {\n    function f(uint256 a) public returns (uint256) {\n        return a;\n    }\n\n    function test(uint256 a, uint256 b)\n        external\n        returns (uint256 r_a, uint256 r_b)\n    {\n        r_a = f(a + 7);\n        r_b = b;\n    }\n}\n// ----\n// test(uint256,uint256): 2, 3 -> 9, 3\n"
+        },
+        "creation_function_call_no_args.sol": {
+            "content": "contract C {\n    uint public i;\n    constructor() {\n        i = 2;\n    }\n}\ncontract D {\n    function f() public returns (uint r) {\n        return new C().i();\n    }\n}\n// ----\n// f() -> 2\n// gas legacy: 76585\n// gas legacy code: 23600\n"
+        },
+        "call_attached_library_function_on_storage_variable.sol": {
+            "content": "library D { struct s { uint a; } function mul(s storage self, uint x) public returns (uint) { return self.a *= x; } }\ncontract C {\n    using D for D.s;\n    D.s public x;\n    function f(uint a) public returns (uint) {\n        x.a = 6;\n        return (x.mul)({x: a});\n    }\n}\n// ----\n// library: D\n// f(uint256): 7 -> 0x2a\n// x() -> 0x2a\n"
+        },
+        "call_options_overload.sol": {
+            "content": "contract C {\n    function f(uint x) external payable returns (uint) { return 1; }\n    function f(uint x, uint y) external payable returns (uint) { return 2; }\n    function call() public payable returns (uint v, uint x, uint y, uint z) {\n        v = this.f{value: 10}(2);\n        x = this.f{gas: 10000}(2, 3);\n        y = this.f{gas: 10000, value: 10}(2, 3);\n        z = this.f{value: 10, gas: 10000}(2, 3);\n    }\n    function bal() external returns (uint) { return address(this).balance; }\n    receive() external payable {}\n}\n// ----\n// (), 1 ether\n// call() -> 1, 2, 2, 2\n// bal() -> 1000000000000000000\n"
+        },
+        "mapping_array_internal_argument.sol": {
+            "content": "contract test {\n    mapping(uint8 => uint8)[2] a;\n    mapping(uint8 => uint8)[2] b;\n    function set_internal(mapping(uint8 => uint8)[2] storage m, uint8 key, uint8 value1, uint8 value2) internal returns (uint8, uint8) {\n        uint8 oldValue1 = m[0][key];\n        uint8 oldValue2 = m[1][key];\n        m[0][key] = value1;\n        m[1][key] = value2;\n        return (oldValue1, oldValue2);\n    }\n    function set(uint8 key, uint8 value_a1, uint8 value_a2, uint8 value_b1, uint8 value_b2) public returns (uint8 old_a1, uint8 old_a2, uint8 old_b1, uint8 old_b2) {\n        (old_a1, old_a2) = set_internal(a, key, value_a1, value_a2);\n        (old_b1, old_b2) = set_internal(b, key, value_b1, value_b2);\n    }\n    function get(uint8 key) public returns (uint8, uint8, uint8, uint8) {\n        return (a[0][key], a[1][key], b[0][key], b[1][key]);\n    }\n}\n// ----\n// set(uint8,uint8,uint8,uint8,uint8): 1, 21, 22, 42, 43 -> 0, 0, 0, 0\n// gas irOptimized: 111237\n// gas legacy: 113742\n// gas legacyOptimized: 111768\n// get(uint8): 1 -> 21, 22, 42, 43\n// set(uint8,uint8,uint8,uint8,uint8): 1, 10, 30, 11, 31 -> 21, 22, 42, 43\n// get(uint8): 1 -> 10, 30, 11, 31\n"
+        },
+        "named_args_overload.sol": {
+            "content": "contract C {\n    function f() public returns (uint) {\n        return 0;\n    }\n    function f(uint a) public returns (uint) {\n        return a;\n    }\n    function f(uint a, uint b) public returns (uint) {\n        return a+b;\n    }\n    function f(uint a, uint b, uint c) public returns (uint) {\n        return a+b+c;\n    }\n    function call(uint num) public returns (uint256) {\n        if (num == 0)\n            return f();\n        if (num == 1)\n            return f({a: 1});\n        if (num == 2)\n            return f({b: 1, a: 2});\n        if (num == 3)\n            return f({c: 1, a: 2, b: 3});\n        if (num == 4)\n            return f({b: 5, c: 1, a: 2});\n\n        return 500;\n    }\n}\n// ----\n// call(uint256): 0 -> 0\n// call(uint256): 1 -> 1\n// call(uint256): 2 -> 3\n// call(uint256): 3 -> 6\n// call(uint256): 4 -> 8\n// call(uint256): 5 -> 500\n"
+        },
+        "delegatecall_return_value_pre_byzantium.sol": {
+            "content": "contract C {\n    uint256 value;\n\n    function set(uint256 _value) external {\n        value = _value;\n    }\n\n    function get() external view returns (uint256) {\n        return value;\n    }\n\n    function get_delegated() external returns (bool) {\n        (bool success,) = address(this).delegatecall(abi.encodeWithSignature(\"get()\"));\n        return success;\n    }\n\n    function assert0() external view {\n        assert(value == 0);\n    }\n\n    function assert0_delegated() external returns (bool) {\n        (bool success,) = address(this).delegatecall(abi.encodeWithSignature(\"assert0()\"));\n        return success;\n    }\n}\n// ====\n// EVMVersion: <byzantium\n// ----\n// get() -> 0x00\n// assert0_delegated() -> true\n// get_delegated() -> true\n// set(uint256): 0x01 ->\n// get() -> 0x01\n// assert0_delegated() -> false\n// get_delegated() -> true\n// set(uint256): 0x2a ->\n// get() -> 0x2a\n// assert0_delegated() -> false\n// get_delegated() -> true\n"
+        },
+        "mapping_internal_argument.sol": {
+            "content": "contract test {\n    mapping(uint8 => uint8) a;\n    mapping(uint8 => uint8) b;\n    function set_internal(mapping(uint8 => uint8) storage m, uint8 key, uint8 value) internal returns (uint8) {\n        uint8 oldValue = m[key];\n        m[key] = value;\n        return oldValue;\n    }\n    function set(uint8 key, uint8 value_a, uint8 value_b) public returns (uint8 old_a, uint8 old_b) {\n        old_a = set_internal(a, key, value_a);\n        old_b = set_internal(b, key, value_b);\n    }\n    function get(uint8 key) public returns (uint8, uint8) {\n        return (a[key], b[key]);\n    }\n}\n// ----\n// set(uint8,uint8,uint8): 1, 21, 42 -> 0, 0\n// get(uint8): 1 -> 21, 42\n// set(uint8,uint8,uint8): 1, 10, 11 -> 21, 42\n// get(uint8): 1 -> 10, 11\n"
+        },
+        "external_call_at_construction_time.sol": {
+            "content": "// This tests skipping the extcodesize check.\n\ncontract T {\n    constructor() { this.f(); }\n    function f() external {}\n}\ncontract U {\n    constructor() { this.f(); }\n    function f() external returns (uint) {}\n}\n\ncontract C {\n    function f(uint c) external returns (uint) {\n        if (c == 0) new T();\n        else if (c == 1) new U();\n        return 1 + c;\n    }\n}\n// ====\n// EVMVersion: >=byzantium\n// ----\n// f(uint256): 0 -> FAILURE\n// f(uint256): 1 -> FAILURE\n// f(uint256): 2 -> 3\n"
+        },
+        "disordered_named_args.sol": {
+            "content": "contract test {\n    function a(uint a, uint b, uint c) public returns (uint r) { r = a * 100 + b * 10 + c * 1; }\n    function b() public returns (uint r) { r = a({c: 3, a: 1, b: 2}); }\n}\n// ----\n// b() -> 123\n"
+        },
+        "calling_uninitialized_function_in_detail.sol": {
+            "content": "contract C {\n    function() returns (uint256) internal x;\n    int256 mutex;\n\n    function t() public returns (uint256) {\n        if (mutex > 0) {\n            assembly {\n                mstore(0, 7)\n                return(0, 0x20)\n            }\n        }\n        mutex = 1;\n        // Avoid re-executing this function if we jump somewhere.\n        x();\n        return 2;\n    }\n}\n// ----\n// t() -> FAILURE, hex\"4e487b71\", 0x51\n"
+        },
+        "failed_create.sol": {
+            "content": "contract D { constructor() payable {} }\ncontract C {\n\tuint public x;\n\tconstructor() payable {}\n\tfunction f(uint amount) public returns (D) {\n\t\tx++;\n\t\treturn (new D){value: amount}();\n\t}\n\tfunction stack(uint depth) public payable returns (address) {\n\t\tif (depth > 0)\n\t\t\treturn this.stack(depth - 1);\n\t\telse\n\t\t\treturn address(f(0));\n\t}\n}\n// ====\n// EVMVersion: >=byzantium\n// ----\n// constructor(), 20 wei\n// gas irOptimized: 61548\n// gas irOptimized code: 104600\n// gas legacy: 70147\n// gas legacy code: 215400\n// gas legacyOptimized: 61715\n// gas legacyOptimized code: 106800\n// f(uint256): 20 -> 0x137aa4dfc0911524504fcd4d98501f179bc13b4a\n// x() -> 1\n// f(uint256): 20 -> FAILURE\n// x() -> 1\n// stack(uint256): 1023 -> FAILURE\n// gas irOptimized: 252410\n// gas legacy: 476845\n// gas legacyOptimized: 299061\n// x() -> 1\n// stack(uint256): 10 -> 0x87948bd7ebbe13a00bfd930c93e4828ab18e3908\n// x() -> 2\n"
+        },
+        "array_multiple_local_vars.sol": {
+            "content": "contract test {\n    function f(uint256[] calldata seq) external pure returns (uint256) {\n        uint i = 0;\n        uint sum = 0;\n        while (i < seq.length)\n        {\n            uint idx = i;\n            if (idx >= 10) break;\n            uint x = seq[idx];\n            if (x >= 1000) {\n                uint n = i + 1;\n                i = n;\n                continue;\n            }\n            else {\n                uint y = sum + x;\n                sum = y;\n            }\n            if (sum >= 500) return sum;\n            i++;\n        }\n        return sum;\n    }\n}\n// ----\n// f(uint256[]): 32, 3, 1000, 1, 2 -> 3\n// f(uint256[]): 32, 3, 100, 500, 300 -> 600\n// f(uint256[]): 32, 11, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 111 -> 55\n"
+        },
+        "member_accessors.sol": {
+            "content": "contract test {\n    uint256 public data;\n    bytes6 public name;\n    bytes32 public a_hash;\n    address public an_address;\n    constructor() {\n        data = 8;\n        name = \"Celina\";\n        a_hash = keccak256(\"\\x7b\");\n        an_address = address(0x1337);\n        super_secret_data = 42;\n    }\n    uint256 super_secret_data;\n}\n// ====\n// allowNonExistingFunctions: true\n// ----\n// data() -> 8\n// name() -> \"Celina\"\n// a_hash() -> 0xa91eddf639b0b768929589c1a9fd21dcb0107199bdd82e55c5348018a1572f52\n// an_address() -> 0x1337\n// super_secret_data() -> FAILURE\n"
+        },
+        "calling_nonexisting_contract_throws.sol": {
+            "content": "abstract contract D {\n    function g() public virtual;\n}\n\n\ncontract C {\n    D d = D(address(0x1212));\n\n    function f() public returns (uint256) {\n        d.g();\n        return 7;\n    }\n\n    function g() public returns (uint256) {\n        d.g{gas: 200}();\n        return 7;\n    }\n\n    function h() public returns (uint256) {\n        address(d).call(\"\"); // this does not throw (low-level)\n        return 7;\n    }\n}\n// ----\n// f() -> FAILURE\n// g() -> FAILURE\n// h() -> 7\n"
+        },
+        "call_attached_library_function_on_string.sol": {
+            "content": "library D { function length(string memory self) public returns (uint) { return bytes(self).length; } }\ncontract C {\n    using D for string;\n    string x;\n    function f() public returns (uint) {\n        x = \"abc\";\n        return x.length();\n    }\n    function g() public returns (uint) {\n        string memory s = \"abc\";\n        return s.length();\n    }\n}\n// ----\n// library: D\n// f() -> 3\n// g() -> 3\n"
+        },
+        "creation_function_call_with_salt.sol": {
+            "content": "contract C {\n    uint public i;\n    constructor(uint newI) {\n        i = newI;\n    }\n}\ncontract D {\n    C c;\n    constructor(uint v) {\n        c = new C{salt: \"abc\"}(v);\n    }\n    function f() public returns (uint r) {\n        return c.i();\n    }\n}\n// ====\n// EVMVersion: >=constantinople\n// ----\n// constructor(): 2 ->\n// gas irOptimized: 139112\n// gas irOptimized code: 53800\n// gas legacy: 145935\n// gas legacy code: 95600\n// gas legacyOptimized: 138529\n// gas legacyOptimized code: 54600\n// f() -> 2\n"
+        },
+        "multiple_functions.sol": {
+            "content": "contract test {\n    function a() public returns(uint n) { return 0; }\n    function b() public returns(uint n) { return 1; }\n    function c() public returns(uint n) { return 2; }\n    function f() public returns(uint n) { return 3; }\n}\n// ====\n// allowNonExistingFunctions: true\n// ----\n// a() -> 0\n// b() -> 1\n// c() -> 2\n// f() -> 3\n// i_am_not_there() -> FAILURE\n"
+        },
+        "gas_and_value_basic.sol": {
+            "content": "contract helper {\n    bool flag;\n\n    function getBalance() public payable returns (uint256 myBalance) {\n        return address(this).balance;\n    }\n\n    function setFlag() public {\n        flag = true;\n    }\n\n    function getFlag() public returns (bool fl) {\n        return flag;\n    }\n}\n\n\ncontract test {\n    helper h;\n\n    constructor() payable {\n        h = new helper();\n    }\n\n    function sendAmount(uint256 amount) public payable returns (uint256 bal) {\n        return h.getBalance{value: amount}();\n    }\n\n    function outOfGas() public returns (bool ret) {\n        h.setFlag{gas: 2}(); // should fail due to OOG\n        return true;\n    }\n\n    function checkState() public returns (bool flagAfter, uint256 myBal) {\n        flagAfter = h.getFlag();\n        myBal = address(this).balance;\n    }\n}\n// ----\n// constructor(), 20 wei ->\n// gas irOptimized: 120218\n// gas irOptimized code: 132000\n// gas legacy: 130583\n// gas legacy code: 261200\n// gas legacyOptimized: 121069\n// gas legacyOptimized code: 147000\n// sendAmount(uint256): 5 -> 5\n// outOfGas() -> FAILURE # call to helper should not succeed but amount should be transferred anyway #\n// checkState() -> false, 15\n"
+        },
+        "bare_call_no_returndatacopy.sol": {
+            "content": "contract C {\n    function f() public returns (bool) {\n        (bool success, ) = address(1).call(\"\");\n        return success;\n    }\n}\n// ----\n// f() -> true\n"
+        },
+        "call_internal_function_via_expression.sol": {
+            "content": "contract C {\n    function foo() internal returns (uint) {\n        return 42;\n    }\n\n    function get_ptr(function() internal returns (uint) ptr) internal returns(function() internal returns (uint)) {\n        return ptr;\n    }\n\n    function associated() public returns (uint) {\n        // This expression directly references function definition\n        return (foo)();\n    }\n\n    function unassociated() public returns (uint) {\n        // This expression is not associated with a specific function definition\n        return (get_ptr(foo))();\n    }\n}\n// ----\n// associated() -> 42\n// unassociated() -> 42\n"
+        },
+        "external_call_value.sol": {
+            "content": "pragma solidity >= 0.6.0;\n\ncontract C {\n    function g(uint n) external payable returns (uint, uint) {\n        return (msg.value * 1000, n);\n    }\n\n    function f(uint n) public payable returns (uint, uint) {\n        return this.g{value: 10}(n);\n    }\n}\n// ----\n// g(uint256), 1 ether: 4 -> 1000000000000000000000, 4\n// f(uint256), 11 ether: 2 -> 10000, 2\n"
+        },
+        "call_internal_function_with_multislot_arguments_via_pointer.sol": {
+            "content": "contract C {\n    function m(\n        function() external returns (uint) a,\n        function() external returns (uint) b\n    ) internal returns (function() external returns (uint)) {\n        return a;\n    }\n\n    function s(uint a, uint b) internal returns (uint) {\n        return a + b;\n    }\n\n    function foo() external returns (uint) {\n        return 6;\n    }\n\n    function test() public returns (uint) {\n        function(uint, uint) internal returns (uint) single_slot_function = s;\n\n        function(\n            function() external returns (uint),\n            function() external returns (uint)\n        ) internal returns (function() external returns (uint)) multi_slot_function = m;\n\n        return multi_slot_function(this.foo, this.foo)() + single_slot_function(5, 1);\n    }\n}\n// ----\n// test() -> 12\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

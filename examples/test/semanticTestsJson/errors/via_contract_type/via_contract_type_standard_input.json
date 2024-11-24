@@ -1,0 +1,61 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "require_error_string_literal.sol": {
+            "content": "error CustomError(string);\n\ncontract C\n{\n    function f() external pure\n    {\n        require(false, CustomError(\"errorReason\"));\n    }\n\n    function g() external pure\n    {\n        require(false, CustomError(\"anotherReason\"));\n    }\n}\n\n// ----\n// f() -> FAILURE, hex\"8d6ea8be\", hex\"0000000000000000000000000000000000000000000000000000000000000020\", hex\"000000000000000000000000000000000000000000000000000000000000000b\", hex\"6572726f72526561736f6e000000000000000000000000000000000000000000\"\n// g() -> FAILURE, hex\"8d6ea8be\", hex\"0000000000000000000000000000000000000000000000000000000000000020\", hex\"000000000000000000000000000000000000000000000000000000000000000d\", hex\"616e6f74686572526561736f6e00000000000000000000000000000000000000\"\n"
+        },
+        "require_error_multiple_arguments.sol": {
+            "content": "error CustomError(uint256, string, uint256);\n\ncontract C\n{\n    function f() external pure\n    {\n        require(false, CustomError(1, \"two\", 3));\n    }\n\n    function g() external pure\n    {\n        require(false, CustomError(4, \"five\", 6));\n    }\n}\n\n// ----\n// f() -> FAILURE, hex\"11a1077e\", hex\"0000000000000000000000000000000000000000000000000000000000000001\", hex\"0000000000000000000000000000000000000000000000000000000000000060\", hex\"0000000000000000000000000000000000000000000000000000000000000003\", hex\"0000000000000000000000000000000000000000000000000000000000000003\", hex\"74776f0000000000000000000000000000000000000000000000000000000000\"\n// g() -> FAILURE, hex\"11a1077e\", hex\"0000000000000000000000000000000000000000000000000000000000000004\", hex\"0000000000000000000000000000000000000000000000000000000000000060\", hex\"0000000000000000000000000000000000000000000000000000000000000006\", hex\"0000000000000000000000000000000000000000000000000000000000000004\", hex\"6669766500000000000000000000000000000000000000000000000000000000\"\n"
+        },
+        "require_error_function_pointer_parameter.sol": {
+            "content": "error CustomError(function(uint256) external pure returns (uint256));\n\ncontract C\n{\n    function e(uint256 x) external pure returns (uint256)\n    {\n        return x;\n    }\n\n    function f() external view\n    {\n        // more than one stack slot\n        require(false, CustomError(this.e));\n    }\n}\n\n// ----\n// f() -> FAILURE, hex\"271b1dfa\", hex\"c06afe3a8444fc0004668591e8306bfb9968e79ef37cdc8e0000000000000000\"\n"
+        },
+        "require_error_uint256.sol": {
+            "content": "error CustomError(uint256);\n\ncontract C\n{\n    function f() external pure\n    {\n        require(false, CustomError(1));\n    }\n\n    function g() external pure\n    {\n        require(false, CustomError(2));\n    }\n}\n\n// ----\n// f() -> FAILURE, hex\"110b3655\", 1\n// g() -> FAILURE, hex\"110b3655\", 2\n"
+        },
+        "require_error_condition_evaluated_only_once.sol": {
+            "content": "contract C {\n    uint256 counter = 0;\n\n    error CustomError(uint256);\n\n    function getCounter() public view returns (uint256) {\n        return counter;\n    }\n\n    function g(bool condition) internal returns (bool) {\n        counter++;\n        return condition;\n    }\n\n    function f(bool condition) external {\n        require(g(condition), CustomError(counter));\n    }\n}\n\n// ----\n// f(bool): false -> FAILURE, hex\"110b3655\", 1\n// getCounter() -> 0\n// f(bool): true ->\n// getCounter() -> 1\n"
+        },
+        "error_in_library_and_interface.sol": {
+            "content": "error E(uint a);\nlibrary L {\n    error E(uint a, uint b);\n}\ninterface I {\n    error E(uint a, uint b, uint c);\n}\ncontract C {\n    function f() public pure {\n        revert E(1);\n    }\n    function g() public pure {\n        revert L.E(1, 2);\n    }\n    function h() public pure {\n        revert I.E(1, 2, 3);\n    }\n}\n// ----\n// f() -> FAILURE, hex\"002ff067\", hex\"0000000000000000000000000000000000000000000000000000000000000001\"\n// g() -> FAILURE, hex\"85208890\", hex\"0000000000000000000000000000000000000000000000000000000000000001\", hex\"0000000000000000000000000000000000000000000000000000000000000002\"\n// h() -> FAILURE, hex\"7924ea7c\", hex\"0000000000000000000000000000000000000000000000000000000000000001\", hex\"0000000000000000000000000000000000000000000000000000000000000002\", hex\"0000000000000000000000000000000000000000000000000000000000000003\"\n"
+        },
+        "error_static_calldata_uint_array_and_dynamic_array.sol": {
+            "content": "contract C {\n    error E(uint[], uint[1]);\n\n    // This case used to be affected by the buggy cleanup due to ABIEncoderV2HeadOverflowWithStaticArrayCleanup bug.\n    function f(uint[] memory a, uint[1] calldata b) public {\n        revert E(a, b);\n    }\n}\n// ----\n// f(uint256[],uint256[1]): 0x40, 0xff, 1, 0xffff -> FAILURE, hex\"f42f106d\", 0x40, 0xff, 1, 0xffff\n"
+        },
+        "named_parameters_shadowing_types.sol": {
+            "content": "pragma abicoder v2;\n\ncontract C {\n    enum EnumType {A, B, C}\n\n    struct StructType {\n        uint x;\n    }\n\n    error E1(StructType StructType);\n    error E2(EnumType StructType, StructType EnumType);\n\n    function f() public {\n        revert E1({StructType: StructType(42)});\n    }\n\n    function g() public {\n        revert E2({EnumType: StructType(42), StructType: EnumType.B});\n    }\n}\n// ----\n// f() -> FAILURE, hex\"33a54193\", hex\"000000000000000000000000000000000000000000000000000000000000002a\"\n// g() -> FAILURE, hex\"374b9387\", hex\"0000000000000000000000000000000000000000000000000000000000000001\", hex\"000000000000000000000000000000000000000000000000000000000000002a\"\n"
+        },
+        "require_error_string_memory.sol": {
+            "content": "error CustomError(string);\n\ncontract C\n{\n    function f() external pure\n    {\n        string memory reason = \"errorReason\";\n        require(false, CustomError(reason));\n    }\n\n    function g() external pure\n    {\n        string memory reason = \"anotherReason\";\n        require(false, CustomError(reason));\n    }\n}\n\n// ----\n// f() -> FAILURE, hex\"8d6ea8be\", hex\"0000000000000000000000000000000000000000000000000000000000000020\", hex\"000000000000000000000000000000000000000000000000000000000000000b\", hex\"6572726f72526561736f6e000000000000000000000000000000000000000000\"\n// g() -> FAILURE, hex\"8d6ea8be\", hex\"0000000000000000000000000000000000000000000000000000000000000020\", hex\"000000000000000000000000000000000000000000000000000000000000000d\", hex\"616e6f74686572526561736f6e00000000000000000000000000000000000000\"\n"
+        },
+        "require_inherited_error.sol": {
+            "content": "contract Base\n{\n    error CustomError(uint256, string, uint256);\n}\n\ncontract C is Base\n{\n    function f() external pure\n    {\n        require(false, CustomError(1, \"two\", 3));\n    }\n}\n\n// ----\n// f() -> FAILURE, hex\"11a1077e\", hex\"0000000000000000000000000000000000000000000000000000000000000001\", hex\"0000000000000000000000000000000000000000000000000000000000000060\", hex\"0000000000000000000000000000000000000000000000000000000000000003\", hex\"0000000000000000000000000000000000000000000000000000000000000003\", hex\"74776f0000000000000000000000000000000000000000000000000000000000\"\n"
+        },
+        "require_different_errors_same_parameters.sol": {
+            "content": "error AnError(uint256, string, uint256);\nerror AnotherError(uint256, string, uint256);\n\ncontract C\n{\n    function f() external pure\n    {\n        require(false, AnError(1, \"two\", 3));\n    }\n\n    function g() external pure\n    {\n        require(false, AnotherError(4, \"five\", 6));\n    }\n}\n\n// ----\n// f() -> FAILURE, hex\"f55fefe3\", hex\"0000000000000000000000000000000000000000000000000000000000000001\", hex\"0000000000000000000000000000000000000000000000000000000000000060\", hex\"0000000000000000000000000000000000000000000000000000000000000003\", hex\"0000000000000000000000000000000000000000000000000000000000000003\", hex\"74776f0000000000000000000000000000000000000000000000000000000000\"\n// g() -> FAILURE, hex\"44a06798\", hex\"0000000000000000000000000000000000000000000000000000000000000004\", hex\"0000000000000000000000000000000000000000000000000000000000000060\", hex\"0000000000000000000000000000000000000000000000000000000000000006\", hex\"0000000000000000000000000000000000000000000000000000000000000004\", hex\"6669766500000000000000000000000000000000000000000000000000000000\"\n"
+        },
+        "using_structs.sol": {
+            "content": "pragma abicoder v2;\nstruct S { uint a; string b; }\nerror E(uint a, S s, uint b);\ncontract C {\n    S s;\n    function f(bool c) public {\n        if (c) {\n            s.a = 9;\n            s.b = \"abc\";\n            revert E(2, s, 7);\n        } else {\n            revert E({b: 7, a: 2, s: S({b: \"abc\", a: 9})});\n        }\n    }\n}\n// ----\n// f(bool): true -> FAILURE, hex\"e96e07f0\", hex\"0000000000000000000000000000000000000000000000000000000000000002\", hex\"0000000000000000000000000000000000000000000000000000000000000060\", hex\"0000000000000000000000000000000000000000000000000000000000000007\", hex\"0000000000000000000000000000000000000000000000000000000000000009\", hex\"0000000000000000000000000000000000000000000000000000000000000040\", hex\"0000000000000000000000000000000000000000000000000000000000000003\", hex\"6162630000000000000000000000000000000000000000000000000000000000\"\n// f(bool): false -> FAILURE, hex\"e96e07f0\", hex\"0000000000000000000000000000000000000000000000000000000000000002\", hex\"0000000000000000000000000000000000000000000000000000000000000060\", hex\"0000000000000000000000000000000000000000000000000000000000000007\", hex\"0000000000000000000000000000000000000000000000000000000000000009\", hex\"0000000000000000000000000000000000000000000000000000000000000040\", hex\"0000000000000000000000000000000000000000000000000000000000000003\", hex\"6162630000000000000000000000000000000000000000000000000000000000\"\n"
+        },
+        "via_contract_type.sol": {
+            "content": "contract A {\n  error E(uint);\n}\ncontract X {\n  error E(string);\n}\ncontract B is A {\n  function f() public pure { revert E(1); }\n  function g() public pure  { revert A.E(1); }\n  function h() public pure { revert X.E(\"abc\"); }\n\n}\n// ----\n// f() -> FAILURE, hex\"002ff067\", hex\"0000000000000000000000000000000000000000000000000000000000000001\"\n// g() -> FAILURE, hex\"002ff067\", hex\"0000000000000000000000000000000000000000000000000000000000000001\"\n// h() -> FAILURE, hex\"3e9992c9\", hex\"0000000000000000000000000000000000000000000000000000000000000020\", hex\"0000000000000000000000000000000000000000000000000000000000000003\", hex\"6162630000000000000000000000000000000000000000000000000000000000\"\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

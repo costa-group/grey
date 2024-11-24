@@ -1,0 +1,25 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "conditional_expression_true_literal.sol": {
+            "content": "contract test {\n    function f() public returns(uint d) {\n        return true ? 5 : 10;\n    }\n}\n// ----\n// f() -> 5\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

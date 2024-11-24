@@ -1,0 +1,31 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "bytes_to_fixed_bytes_too_long.sol": {
+            "content": "contract C {\n    bytes s = \"abcdefghabcdefghabcdefghabcdefgha\";\n\n    function fromMemory(bytes memory m) public returns (bytes32) {\n        return bytes32(m);\n    }\n    function fromCalldata(bytes calldata c) external returns (bytes32) {\n        return bytes32(c);\n    }\n    function fromStorage() external returns (bytes32) {\n        return bytes32(s);\n    }\n    function fromSlice(bytes calldata c) external returns (bytes32) {\n        return bytes32(c[0:33]);\n    }\n}\n// ----\n// fromMemory(bytes): 0x20, 33, \"abcdefghabcdefghabcdefghabcdefgh\", \"a\" -> \"abcdefghabcdefghabcdefghabcdefgh\"\n// fromCalldata(bytes): 0x20, 33, \"abcdefghabcdefghabcdefghabcdefgh\", \"a\" -> \"abcdefghabcdefghabcdefghabcdefgh\"\n// fromStorage() -> \"abcdefghabcdefghabcdefghabcdefgh\"\n// fromSlice(bytes): 0x20, 33, \"abcdefghabcdefghabcdefghabcdefgh\", \"a\" -> \"abcdefghabcdefghabcdefghabcdefgh\"\n"
+        },
+        "array_2d_new.sol": {
+            "content": "contract C {\n\tfunction f(uint n) public pure returns (uint) {\n\t\tuint[][] memory a = new uint[][](2);\n\t\tfor (uint i = 0; i < 2; ++i)\n\t\t\ta[i] = new uint[](3);\n\t\treturn a[0][0] = n;\n\t}\n}\n// ----\n// f(uint256): 42 -> 42\n"
+        },
+        "array_3d_new.sol": {
+            "content": "contract C {\n\tfunction f(uint n) public pure returns (uint) {\n\t\tuint[][][] memory a = new uint[][][](2);\n\t\tfor (uint i = 0; i < 2; ++i)\n\t\t{\n\t\t\ta[i] = new uint[][](3);\n\t\t\tfor (uint j = 0; j < 3; ++j)\n\t\t\t\ta[i][j] = new uint[](4);\n\t\t}\n\t\treturn a[1][1][1] = n;\n\t}\n}\n// ----\n// f(uint256): 42 -> 42\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

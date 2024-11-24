@@ -1,0 +1,28 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "fallback_argument.sol": {
+            "content": "contract A {\n    uint public x;\n    fallback (bytes calldata _input) external returns (bytes memory) {\n        x = _input.length;\n        return \"\";\n    }\n    function f() public returns (bool, bytes memory) {\n        (bool success, bytes memory retval) = address(this).call(\"abc\");\n        return (success, retval);\n    }\n}\n// ====\n// EVMVersion: >=byzantium\n// ----\n// f() -> 0x01, 0x40, 0x00\n// x() -> 3\n"
+        },
+        "fallback_override.sol": {
+            "content": "contract A {\n    fallback (bytes calldata _input) virtual external returns (bytes memory) {\n        return _input;\n    }\n}\ncontract B is A {\n    fallback (bytes calldata _input) override external returns (bytes memory) {\n        return \"xyz\";\n    }\n    function f() public returns (bool, bytes memory) {\n        (bool success, bytes memory retval) = address(this).call(\"abc\");\n        return (success, retval);\n    }\n}\n// ====\n// EVMVersion: >=byzantium\n// ----\n// f() -> 0x01, 0x40, 0x03, 0x78797a0000000000000000000000000000000000000000000000000000000000\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

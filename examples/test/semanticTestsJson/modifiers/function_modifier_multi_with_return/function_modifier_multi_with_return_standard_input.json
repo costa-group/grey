@@ -1,0 +1,31 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "function_modifier_empty.sol": {
+            "content": "abstract contract A {\n    function f() public mod returns (bool r) {\n        return true;\n    }\n\n    modifier mod virtual;\n}\n\n\ncontract C is A {\n    modifier mod override {\n        if (false) _;\n    }\n}\n// ----\n// f() -> false\n"
+        },
+        "return_in_modifier.sol": {
+            "content": "contract C {\n    uint256 public x;\n    modifier run() {\n        for (uint256 i = 1; i < 10; i++) {\n            if (i == 5) return;\n            _;\n        }\n    }\n\n    function f() public run {\n        uint256 k = x;\n        uint256 t = k + 1;\n        x = t;\n    }\n}\n// ----\n// x() -> 0\n// f() ->\n// x() -> 4\n"
+        },
+        "function_modifier_multi_with_return.sol": {
+            "content": "// Note that return sets the return variable and jumps to the end of the current function or\n// modifier code block.\ncontract C {\n    modifier repeat(bool twice) {\n        if (twice) _;\n        _;\n    }\n\n    function f(bool twice) public repeat(twice) returns (uint256 r) {\n        r += 1;\n        return r;\n    }\n}\n// via yul disabled because the return variables are\n// fresh variables each time, while in the old code generator,\n// they share a stack slot when the function is\n// invoked multiple times via `_`.\n\n// ====\n// compileViaYul: false\n// ----\n// f(bool): false -> 1\n// f(bool): true -> 2\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

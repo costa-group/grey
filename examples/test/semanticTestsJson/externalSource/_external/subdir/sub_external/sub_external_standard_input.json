@@ -1,0 +1,28 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "import.sol": {
+            "content": "import \"sub_external.sol\";\n"
+        },
+        "sub_external.sol": {
+            "content": "contract SubExternal {\n}\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

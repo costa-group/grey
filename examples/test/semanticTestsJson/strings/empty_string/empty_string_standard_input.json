@@ -1,0 +1,43 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "string_escapes.sol": {
+            "content": "contract test {\n    function f() public pure returns (bytes32) {\n        bytes32 escapeCharacters = \"\\t\\n\\r\\'\\\"\\\\\";\n        return escapeCharacters;\n    }\n}\n// ----\n// f() -> 0x090a0d27225c0000000000000000000000000000000000000000000000000000\n"
+        },
+        "unicode_escapes.sol": {
+            "content": "contract C {\n    function oneByteUTF8() public pure returns (string memory) {\n        return \"aaa\\u0024aaa\"; // usdollar\n    }\n\n    function twoBytesUTF8() public pure returns (string memory) {\n        return \"aaa\\u00A2aaa\"; // cent\n    }\n\n    function threeBytesUTF8() public pure returns (string memory) {\n        return \"aaa\\u20ACaaa\"; // euro\n    }\n\n    function combined() public pure returns (string memory) {\n        return \"\\u0024\\u00A2\\u20AC\";\n    }\n}\n// ----\n// oneByteUTF8() -> 0x20, 7, \"aaa$aaa\"\n// twoBytesUTF8() -> 0x20, 8, \"aaa\\xc2\\xa2aaa\"\n// threeBytesUTF8() -> 0x20, 9, \"aaa\\xe2\\x82\\xacaaa\"\n// combined() -> 0x20, 6, \"$\\xc2\\xa2\\xe2\\x82\\xac\"\n"
+        },
+        "unicode_string.sol": {
+            "content": "contract C {\n    function f() public pure returns (string memory) {\n        return unicode\"\ud83d\ude03, \ud83d\ude2d, and \ud83d\ude08\";\n    }\n    function g() public pure returns (string memory) {\n        return unicode\"\ud83d\ude03, \ud83d\ude2d,\\\n and \ud83d\ude08\";\n    }\n}\n// ----\n// f() -> 0x20, 0x14, \"\\xf0\\x9f\\x98\\x83, \\xf0\\x9f\\x98\\xad, and \\xf0\\x9f\\x98\\x88\"\n// g() -> 0x20, 0x14, \"\\xf0\\x9f\\x98\\x83, \\xf0\\x9f\\x98\\xad, and \\xf0\\x9f\\x98\\x88\"\n"
+        },
+        "empty_string_input.sol": {
+            "content": "contract C {\n    function f() public pure returns (string memory) {\n        return \"\";\n    }\n    function g(string calldata msg) public pure returns (string memory) {\n        return msg;\n    }\n    function h(string calldata msg, uint256 v) public pure returns (string memory, uint256) {\n        return (msg, v);\n    }\n    // Adjusting order of input/output intentionally.\n    function i(string calldata msg1, uint256 v, string calldata msg2) public pure returns (string memory, string memory, uint256) {\n        return (msg1, msg2, v);\n    }\n    function j(string calldata msg1, uint256 v) public pure returns (string memory, string memory, uint256) {\n        return (msg1, \"\", v);\n    }\n}\n// ----\n// f() -> 0x20, 0\n// g(string): 0x20, 0, \"\" -> 0x20, 0\n// g(string): 0x20, 0 -> 0x20, 0\n// h(string,uint256): 0x40, 0x888, 0, \"\" -> 0x40, 0x0888, 0\n// h(string,uint256): 0x40, 0x888, 0 -> 0x40, 0x0888, 0\n// i(string,uint256,string): 0x60, 0x888, 0x60, 0, \"\" -> 0x60, 0x80, 0x0888, 0, 0\n// i(string,uint256,string): 0x60, 0x888, 0x60, 0 -> 0x60, 0x80, 0x0888, 0, 0\n// j(string,uint256): 0x40, 0x888, 0, \"\" -> 0x60, 0x80, 0x0888, 0, 0\n// j(string,uint256): 0x40, 0x888, 0 -> 0x60, 0x80, 0x0888, 0, 0\n"
+        },
+        "empty_storage_string.sol": {
+            "content": "contract C {\n\n    string uninitializedString;\n    string emptyString = \"\";\n    string nonEmptyString = \"This is a non empty string\";\n    string nonEmptyString2 = \"Another string\";\n    bytes uninitializedBytes;\n    bytes emptyBytes = \"\";\n    error EmptyError(string);\n    event EmptyEvent(string);\n\n    function f() public returns (string memory) {\n        return uninitializedString;\n    }\n\n    function g() public returns (string memory, string memory) {\n        return (uninitializedString, emptyString);\n    }\n\n    function h() public returns (string memory, string memory) {\n        return (uninitializedString, nonEmptyString);\n    }\n\n    function i() public returns (string memory, string memory) {\n        return (nonEmptyString, emptyString);\n    }\n\n    function j(string calldata _s) public returns (string memory) {\n        return _s;\n    }\n\n    function k() public returns (string memory) {\n        nonEmptyString2 = \"\";\n        return nonEmptyString2;\n    }\n\n    function l(string calldata _s) public returns (bytes memory) {\n        return abi.encode(_s);\n    }\n\n    function m() public returns (string memory) {\n        bytes memory b = abi.encode(emptyString);\n        return string(b);\n    }\n\n    function n() public {\n        revert EmptyError(uninitializedString);\n    }\n\n    function o() public {\n        emit EmptyEvent(emptyString);\n    }\n\n    function p() public {\n        emit EmptyEvent(\"\");\n    }\n\n    function q() public returns (bytes memory) {\n        return uninitializedBytes;\n    }\n\n    function r() public returns (bytes memory) {\n        emptyBytes = abi.encode(\"\");\n        return emptyBytes;\n    }\n\n    function s() public returns (bytes memory) {\n        emptyBytes = abi.encode(uninitializedString);\n        return emptyBytes;\n    }\n\n    function set(string calldata _s) public {\n        nonEmptyString = _s;\n    }\n\n    function get() public returns (string memory) {\n        return nonEmptyString;\n    }\n}\n// ====\n// compileViaYul: also\n// ----\n// f() -> 0x20, 0\n// g() -> 0x40, 0x60, 0, 0\n// h() -> 0x40, 0x60, 0, 0x1a, 38178759162904981154304545770567765692299154484752076569098748838215919075328\n// i() -> 0x40, 0x80, 0x1a, 38178759162904981154304545770567765692299154484752076569098748838215919075328, 0\n// j(string): 0x20, 0, \"\" -> 0x20, 0\n// k() -> 0x20, 0\n// l(string): 0x20, 0, \"\" -> 0x20, 0x40, 0x20, 0\n// m() -> 0x20, 0x40, 0x20, 0\n// n() -> FAILURE, hex\"d3f13430\", hex\"0000000000000000000000000000000000000000000000000000000000000020\", hex\"0000000000000000000000000000000000000000000000000000000000000000\"\n// o() ->\n// ~ emit EmptyEvent(string): 0x20, 0x00\n// p() ->\n// ~ emit EmptyEvent(string): 0x20, 0x00\n// q() -> 0x20, 0\n// r() -> 0x20, 0x40, 0x20, 0\n// s() -> 0x20, 0x40, 0x20, 0\n// set(string): 0x20, 0, \"\" ->\n// get() -> 0x20, 0\n"
+        },
+        "return_string.sol": {
+            "content": "contract Main {\n    string public s;\n    function set(string calldata _s) external {\n        s = _s;\n    }\n    function get1() public returns (string memory r) {\n        return s;\n    }\n    function get2() public returns (string memory r) {\n        r = s;\n    }\n}\n// ----\n// set(string): 0x20, 5, \"Julia\" ->\n// get1() -> 0x20, 5, \"Julia\"\n// get2() -> 0x20, 5, \"Julia\"\n// s() -> 0x20, 5, \"Julia\"\n"
+        },
+        "empty_string.sol": {
+            "content": "contract C {\n    function f() public pure returns (string memory) {\n        return \"\";\n    }\n}\n// ----\n// f() -> 0x20, 0\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

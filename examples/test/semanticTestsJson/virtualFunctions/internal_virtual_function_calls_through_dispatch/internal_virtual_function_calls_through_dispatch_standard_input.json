@@ -1,0 +1,25 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "internal_virtual_function_calls_through_dispatch.sol": {
+            "content": "contract Base {\n    function f() internal returns (uint256 i) {\n        function() internal returns (uint256) ptr = g;\n        return ptr();\n    }\n\n    function g() internal virtual returns (uint256 i) {\n        return 1;\n    }\n}\n\n\ncontract Derived is Base {\n    function g() internal override returns (uint256 i) {\n        return 2;\n    }\n\n    function h() public returns (uint256 i) {\n        return f();\n    }\n}\n// ----\n// h() -> 2\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

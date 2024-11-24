@@ -1,0 +1,31 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "empty_calldata_calls_receive.sol": {
+            "content": "contract A {\n    uint public x;\n    receive () external payable { ++x; }\n}\n// ----\n// x() -> 0\n// ()\n// x() -> 1\n// (), 1 wei\n// x() -> 2\n// x(), 1 wei -> FAILURE\n// (): hex\"00\" -> FAILURE\n// (), 1 ether: hex\"00\" -> FAILURE\n"
+        },
+        "inherited.sol": {
+            "content": "contract A {\n    uint data;\n    receive() external payable { ++data; }\n    function getData() public returns (uint r) { return data; }\n}\ncontract B is A {}\n// ----\n// getData() -> 0\n// () ->\n// getData() -> 1\n// (), 1 ether ->\n// getData() -> 2\n"
+        },
+        "ether_and_data.sol": {
+            "content": "contract C {\n    receive () payable external { }\n}\n// ----\n// (), 1 ether\n// (), 1 ether: 1 -> FAILURE\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

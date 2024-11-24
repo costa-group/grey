@@ -1,0 +1,58 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "array_mapping_struct.sol": {
+            "content": "contract C {\n    struct Y {\n        uint a;\n        uint b;\n    }\n    mapping(uint256 => Y)[] public m;\n    mapping(uint256 => Y)[3] public n;\n    constructor() {\n        m.push();\n        m.push();\n        m[1][0].a = 1;\n        m[1][0].b = 2;\n        m[1][1].a = 3;\n        m[1][1].b = 4;\n        n[1][0].a = 7;\n        n[1][0].b = 8;\n        n[1][1].a = 9;\n        n[1][1].b = 10;\n    }\n}\n// ----\n// m(uint256,uint256): 0, 0 -> 0x00, 0x00\n// m(uint256,uint256): 1, 0 -> 1, 2\n// m(uint256,uint256): 1, 1 -> 3, 4\n// m(uint256,uint256): 1, 2 -> 0x00, 0x00\n// n(uint256,uint256): 0, 0 -> 0x00, 0x00\n// n(uint256,uint256): 1, 0 -> 7, 8\n// n(uint256,uint256): 1, 1 -> 9, 0x0a\n// n(uint256,uint256): 1, 2 -> 0x00, 0x00\n"
+        },
+        "transient_value_types.sol": {
+            "content": "contract C {\n    int8 public transient x;\n\n    function f() public returns(int8) {\n        x = -1;\n        return this.x();\n    }\n}\n// ====\n// EVMVersion: >=cancun\n// ----\n// x() -> 0\n// f() -> -1\n// x() -> 0\n"
+        },
+        "mapping_array_struct.sol": {
+            "content": "contract C {\n    struct Y {\n        uint a;\n        uint b;\n    }\n    mapping(uint256 => Y[]) public m;\n    mapping(uint256 => Y[3]) public n;\n    constructor() {\n        m[1].push().a = 1;\n        m[1][0].b = 2;\n        m[1].push().a = 3;\n        m[1][1].b = 4;\n        n[1][0].a = 7;\n        n[1][0].b = 8;\n        n[1][1].a = 9;\n        n[1][1].b = 10;\n    }\n}\n// ----\n// m(uint256,uint256): 0, 0 -> FAILURE\n// m(uint256,uint256): 1, 0 -> 1, 2\n// m(uint256,uint256): 1, 1 -> 3, 4\n// m(uint256,uint256): 1, 2 -> FAILURE\n// n(uint256,uint256): 0, 0 -> 0x00, 0x00\n// n(uint256,uint256): 1, 0 -> 7, 8\n// n(uint256,uint256): 1, 1 -> 9, 0x0a\n// n(uint256,uint256): 1, 2 -> 0x00, 0x00\n"
+        },
+        "arrays.sol": {
+            "content": "contract C {\n    uint8[][2] public a;\n    constructor() {\n        a[1].push(3);\n        a[1].push(4);\n    }\n}\n// ----\n// a(uint256,uint256): 0, 0 -> FAILURE\n// a(uint256,uint256): 1, 0 -> 3\n// a(uint256,uint256): 1, 1 -> 4\n// a(uint256,uint256): 2, 0 -> FAILURE\n"
+        },
+        "mapping_to_struct.sol": {
+            "content": "contract C {\n    struct S {\n        uint8 a;\n        uint16 b;\n        uint128 c;\n        uint d;\n    }\n    mapping(uint => mapping(uint => S)) public x;\n    constructor() {\n        x[1][2].a = 3;\n        x[1][2].b = 4;\n        x[1][2].c = 5;\n        x[1][2].d = 6;\n    }\n}\n// ----\n// x(uint256,uint256): 1, 2 -> 3, 4, 5, 6\n// x(uint256,uint256): 0, 0 -> 0x00, 0x00, 0x00, 0x00\n"
+        },
+        "mapping.sol": {
+            "content": "contract C {\n    mapping(uint => mapping(uint => uint)) public x;\n    constructor() {\n        x[1][2] = 3;\n    }\n}\n// ----\n// x(uint256,uint256): 1, 2 -> 3\n// x(uint256,uint256): 0, 0 -> 0\n"
+        },
+        "bytes.sol": {
+            "content": "contract C {\n    bytes public b;\n    constructor() {\n        b = \"abc\";\n    }\n}\n// ----\n// b() -> 0x20, 0x03, 0x6162630000000000000000000000000000000000000000000000000000000000\n"
+        },
+        "struct_with_bytes.sol": {
+            "content": "contract C {\n    struct S {\n        uint a;\n        bytes b;\n        mapping(uint => uint) c;\n        uint[] d;\n    }\n    uint shifter;\n    S public s;\n    constructor() {\n        s.a = 7;\n        s.b = \"abc\";\n        s.c[0] = 9;\n        s.d.push(10);\n    }\n}\n// ----\n// s() -> 7, 0x40, 3, 0x6162630000000000000000000000000000000000000000000000000000000000\n"
+        },
+        "mapping_with_names.sol": {
+            "content": "contract C {\n    mapping(uint a => mapping(uint b => uint c)) public x;\n    constructor() {\n        x[1][2] = 3;\n    }\n}\n// ----\n// x(uint256,uint256): 1, 2 -> 3\n// x(uint256,uint256): 0, 0 -> 0\n"
+        },
+        "string_and_bytes.sol": {
+            "content": "contract C {\n    string public a;\n    string public b;\n    bytes public c;\n    string public d = \"abcd\";\n    constructor() {\n        a = \"hello world\";\n        b = hex\"41424344\";\n        c = hex\"ff077fff\";\n    }\n}\n// ----\n// a() -> 0x20, 11, \"hello world\"\n// b() -> 0x20, 4, \"ABCD\"\n// c() -> 0x20, 4, -439061522557375173052089223601630338202760422010735733633791622124826263552\n// d() -> 0x20, 4, \"abcd\"\n"
+        },
+        "struct_with_bytes_simple.sol": {
+            "content": "contract C {\n    struct S {\n        uint a;\n        bytes b;\n        mapping(uint => uint) c;\n        uint[] d;\n    }\n    uint shifter;\n    S public s;\n    constructor() {\n        s.a = 7;\n        s.b = \"abc\";\n        s.c[0] = 9;\n    }\n}\n// ----\n// s() -> 0x07, 0x40, 0x03, 0x6162630000000000000000000000000000000000000000000000000000000000\n"
+        },
+        "value_types.sol": {
+            "content": "contract C {\n    uint8 public a;\n    uint16 public b;\n    uint128 public c;\n    uint public d;\n    bytes1 public e;\n    bytes20 public f;\n    bytes32 public g;\n    bool public h;\n    address public i;\n    constructor() {\n        a = 3;\n        b = 4;\n        c = 5;\n        d = 6;\n        e = bytes1(uint8(0x7f));\n        f = bytes20(uint160(0x6465616462656566313564656164000000000010));\n        g = bytes32(uint256(0x6465616462656566313564656164000000000000000000000000000000000010));\n        h = true;\n        i = address(type(uint160).max / 3);\n    }\n}\n// ----\n// a() -> 3\n// b() -> 4\n// c() -> 5\n// d() -> 6\n// e() -> 0x7f00000000000000000000000000000000000000000000000000000000000000\n// f() -> 0x6465616462656566313564656164000000000010000000000000000000000000\n// g() -> 0x6465616462656566313564656164000000000000000000000000000000000010\n// h() -> true\n// i() -> 0x5555555555555555555555555555555555555555\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

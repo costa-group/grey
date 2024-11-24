@@ -1,0 +1,37 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "multiple_equals_signs.sol": {
+            "content": "==== ExternalSource: a=_external/external.sol=sol ====\nimport {External} from \"a\";\ncontract C {\n}\n// ----\n// constructor()\n"
+        },
+        "source_import.sol": {
+            "content": "==== ExternalSource: _external/external.sol ====\n==== ExternalSource: _external/other_external.sol ====\nimport {External} from \"_external/external.sol\";\nimport {OtherExternal} from \"_external/other_external.sol\";\ncontract C {\n}\n// ----\n// constructor()\n"
+        },
+        "relative_imports.sol": {
+            "content": "==== ExternalSource: _relative_imports/dir/contract.sol ====\n==== ExternalSource: _relative_imports/dir/a.sol ====\n==== ExternalSource: _relative_imports/dir/B/b.sol ====\n==== ExternalSource: _relative_imports/c.sol ====\n==== ExternalSource: _relative_imports/D/d.sol ====\n==== ExternalSource: _relative_imports/dir/G/g.sol ====\n==== ExternalSource: _relative_imports/h.sol ====\nimport {A, B, C, D, G, H, Contract} from \"_relative_imports/dir/contract.sol\";\ncontract CC {\n}\n// ----\n// constructor()\n"
+        },
+        "source_remapping.sol": {
+            "content": "==== ExternalSource: ExtSource.sol=_external/external.sol ====\n==== ExternalSource: /ExtSource.sol=_external/other_external.sol ====\nimport \"ExtSource.sol\";\nimport \"/ExtSource.sol\";\ncontract C {\n    External _external;\n    OtherExternal _otherExternal;\n}\n// ----\n// constructor()\n"
+        },
+        "multiple_external_source.sol": {
+            "content": "==== ExternalSource: _external/external.sol ====\n==== ExternalSource: _external/other_external.sol ====\nimport {External} from \"_external/external.sol\";\nimport {OtherExternal} from \"_external/other_external.sol\";\ncontract C {\n}\n// ----\n// constructor()\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

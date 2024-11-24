@@ -1,0 +1,61 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "cleanup_bytes_types_v1.sol": {
+            "content": "pragma abicoder v1;\n// Checks that bytesXX types are properly cleaned before they are compared.\ncontract C {\n    function f(bytes2 a, uint16 x) public returns (uint256) {\n        if (a != \"ab\") return 1;\n        if (x != 0x0102) return 2;\n        if (bytes3(uint24(x)) != 0x000102) return 3;\n        return 0;\n    }\n}\n// ====\n// ABIEncoderV1Only: true\n// compileViaYul: false\n// ----\n// f(bytes2,uint16): \"abc\", 0x40102 -> 0x0 # We input longer data on purpose. #\n"
+        },
+        "cleanup_bytes_types_v2.sol": {
+            "content": "pragma abicoder               v2;\n\n\n// Checks that bytesXX types are properly cleaned before they are compared.\ncontract C {\n    function f(bytes2 a, uint16 x) public returns (uint256) {\n        if (a != \"ab\") return 1;\n        if (x != 0x0102) return 2;\n        if (bytes3(uint24(x)) != 0x000102) return 3;\n        return 0;\n    }\n}\n// ----\n// f(bytes2,uint16): \"abc\", 0x40102 -> FAILURE # We input longer data on purpose. #\n"
+        },
+        "bool_conversion_v2.sol": {
+            "content": "pragma abicoder               v2;\n\n\ncontract C {\n    function f(bool _b) public returns (uint256) {\n        if (_b) return 1;\n        else return 0;\n    }\n\n    function g(bool _in) public returns (bool _out) {\n        _out = _in;\n    }\n}\n// ----\n// f(bool): 0x0 -> 0x0\n// f(bool): 0x1 -> 0x1\n// f(bool): 0x2 -> FAILURE\n// f(bool): 0x3 -> FAILURE\n// f(bool): 0xff -> FAILURE\n// g(bool): 0x0 -> 0x0\n// g(bool): 0x1 -> 0x1\n// g(bool): 0x2 -> FAILURE\n// g(bool): 0x3 -> FAILURE\n// g(bool): 0xff -> FAILURE\n"
+        },
+        "bool_conversion_v1.sol": {
+            "content": "pragma abicoder v1;\ncontract C {\n    function f(bool _b) public returns (uint256) {\n        if (_b) return 1;\n        else return 0;\n    }\n\n    function g(bool _in) public returns (bool _out) {\n        _out = _in;\n    }\n}\n// ====\n// ABIEncoderV1Only: true\n// compileViaYul: false\n// ----\n// f(bool): 0x0 -> 0x0\n// f(bool): 0x1 -> 0x1\n// f(bool): 0x2 -> 0x1\n// f(bool): 0x3 -> 0x1\n// f(bool): 0xff -> 0x1\n// g(bool): 0x0 -> 0x0\n// g(bool): 0x1 -> 0x1\n// g(bool): 0x2 -> 0x1\n// g(bool): 0x3 -> 0x1\n// g(bool): 0xff -> 0x1\n"
+        },
+        "exp_cleanup.sol": {
+            "content": "contract C {\n    function f() public pure returns (uint x) {\n        unchecked {\n            uint8 y = uint8(2)**uint8(8);\n            return 0**y;\n        }\n    }\n}\n// ----\n// f() -> 0x1\n"
+        },
+        "cleanup_in_compound_assign.sol": {
+            "content": "contract C {\n    function test() public returns (uint256, uint256) {\n        uint32 a = 0xffffffff;\n        uint16 x = uint16(a);\n        uint16 y = x;\n        x /= 0x100;\n        y = y / 0x100;\n        return (x, y);\n    }\n}\n// ----\n// test() -> 0xff, 0xff\n"
+        },
+        "cleanup_address_types_v1.sol": {
+            "content": "pragma abicoder v1;\n// Checks that address types are properly cleaned before they are compared.\ncontract C {\n    function f(address a) public returns (uint256) {\n        if (a != 0x1234567890123456789012345678901234567890) return 1;\n        return 0;\n    }\n\n    function g(address payable a) public returns (uint256) {\n        if (a != 0x1234567890123456789012345678901234567890) return 1;\n        return 0;\n    }\n}\n// ====\n// ABIEncoderV1Only: true\n// compileViaYul: false\n// ----\n// f(address): 0xffff1234567890123456789012345678901234567890 -> 0x0 # We input longer data on purpose.#\n// g(address): 0xffff1234567890123456789012345678901234567890 -> 0x0\n"
+        },
+        "exp_cleanup_direct.sol": {
+            "content": "contract C {\n    function f() public pure returns (uint8 x) {\n        unchecked {\n            return uint8(0)**uint8(uint8(2)**uint8(8));\n        }\n    }\n}\n// ----\n// f() -> 0x1\n"
+        },
+        "indexed_log_topic_during_explicit_downcast_during_emissions.sol": {
+            "content": "contract C {\n    event ev0(bytes1 indexed);\n    constructor() {\n        emit ev0(bytes1(bytes16(0x31313131313131313131313131313131)));\n    }\n    function j() external {\n        bytes1 x;\n        assembly { x := 0x3131313131313131313131313131313131313131313131313131313131313131 }\n        emit ev0(x);\n    }\n}\n// ----\n// constructor() ->\n// ~ emit ev0(bytes1): #\"1\"\n// gas legacy: 168735\n// j() ->\n// ~ emit ev0(bytes1): #\"1\"\n"
+        },
+        "cleanup_address_types_v2.sol": {
+            "content": "pragma abicoder               v2;\n\n\n// Checks that address types are properly cleaned before they are compared.\ncontract C {\n    function f(address a) public returns (uint256) {\n        if (a != 0x1234567890123456789012345678901234567890) return 1;\n        return 0;\n    }\n\n    function g(address payable a) public returns (uint256) {\n        if (a != 0x1234567890123456789012345678901234567890) return 1;\n        return 0;\n    }\n}\n// ----\n// f(address): 0xffff1234567890123456789012345678901234567890 -> FAILURE # We input longer data on purpose.#\n// g(address): 0xffff1234567890123456789012345678901234567890 -> FAILURE\n"
+        },
+        "exp_cleanup_smaller_base.sol": {
+            "content": "contract C {\n    function f() public pure returns (uint16 x) {\n        // tests that ``e`` is not converted to uint8\n        // right before the exp\n        uint16 e = 0x100;\n        uint8 b = 0x2;\n        unchecked {\n            return b**e;\n        }\n    }\n}\n// ----\n// f() -> 0x00\n"
+        },
+        "exp_cleanup_nonzero_base.sol": {
+            "content": "contract C {\n    function f() public pure returns (uint8 x) {\n        unchecked {\n\t\t\tuint16 x = 0x166;\n            return uint8(x)**uint8(uint8(2)**uint8(8));\n        }\n    }\n}\n// ----\n// f() -> 0x1\n"
+        },
+        "cleanup_bytes_types_shortening_newCodeGen.sol": {
+            "content": "contract C {\n    function f() public pure returns (bytes32 r) {\n        bytes4 x = 0xffffffff;\n        bytes2 y = bytes2(x);\n        assembly {\n            r := y\n        }\n    }\n}\n// ====\n// compileViaYul: true\n// ----\n// f() -> 0xffff000000000000000000000000000000000000000000000000000000000000\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

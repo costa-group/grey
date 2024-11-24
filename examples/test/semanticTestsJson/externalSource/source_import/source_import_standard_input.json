@@ -1,0 +1,28 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "multiple_equals_signs.sol": {
+            "content": "==== ExternalSource: a=_external/external.sol=sol ====\nimport {External} from \"a\";\ncontract C {\n}\n// ----\n// constructor()\n"
+        },
+        "source_import.sol": {
+            "content": "==== ExternalSource: _external/external.sol ====\n==== ExternalSource: _external/other_external.sol ====\nimport {External} from \"_external/external.sol\";\nimport {OtherExternal} from \"_external/other_external.sol\";\ncontract C {\n}\n// ----\n// constructor()\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

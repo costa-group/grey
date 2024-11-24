@@ -1,0 +1,31 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "increment_decrement.sol": {
+            "content": "contract C {\n    int immutable x = 1;\n    int immutable y = 3;\n\n    constructor() {\n        x--;\n        --x;\n        y++;\n        ++y;\n        --y;\n    }\n\n    function f() public view returns (int, int) {\n        return (x, y);\n    }\n}\n// ----\n// f() -> -1, 4\n"
+        },
+        "small_types_in_reverse.sol": {
+            "content": "contract A {\n\tuint16 public immutable a;\n\tuint16 public immutable b;\n\tuint16 public immutable c;\n\tuint16[3] public x;\n\tconstructor() {\n\t\tc = 0xffff;\n\t\tb = 0x0f0f;\n\t\ta = 0x1234;\n\t\tx = [a, b, c];\n\t}\n}\n// ----\n// a() -> 4660\n// b() -> 0x0f0f\n// c() -> 0xffff\n// x(uint256): 0 -> 4660\n// x(uint256): 1 -> 0x0f0f\n// x(uint256): 2 -> 0xffff\n"
+        },
+        "multi_creation.sol": {
+            "content": "contract A {\n\tuint immutable a;\n\tconstructor() {\n\t\ta = 7;\n\t}\n\tfunction f() public view returns (uint) { return a; }\n}\ncontract B {\n\tuint immutable a;\n\tconstructor() {\n\t\ta = 5;\n\t}\n\tfunction f() public view returns (uint) { return a; }\n}\ncontract C {\n\tuint immutable a;\n\tuint public x;\n\tuint public y;\n\tconstructor() {\n\t\ta = 3;\n\t\tx = (new A()).f();\n\t\ty = (new B()).f();\n\t}\n\tfunction f() public returns (uint256, uint, uint) {\n\t\treturn (a, (new A()).f(), (new B()).f());\n\t}\n}\n// ----\n// f() -> 3, 7, 5\n// gas irOptimized: 86796\n// gas irOptimized code: 37200\n// gas legacy: 87727\n// gas legacy code: 60800\n// gas legacyOptimized: 86770\n// gas legacyOptimized code: 37200\n// x() -> 7\n// y() -> 5\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

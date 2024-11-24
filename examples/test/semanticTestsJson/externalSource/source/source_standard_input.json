@@ -1,0 +1,49 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "multiple_equals_signs.sol": {
+            "content": "==== ExternalSource: a=_external/external.sol=sol ====\nimport {External} from \"a\";\ncontract C {\n}\n// ----\n// constructor()\n"
+        },
+        "source_import.sol": {
+            "content": "==== ExternalSource: _external/external.sol ====\n==== ExternalSource: _external/other_external.sol ====\nimport {External} from \"_external/external.sol\";\nimport {OtherExternal} from \"_external/other_external.sol\";\ncontract C {\n}\n// ----\n// constructor()\n"
+        },
+        "relative_imports.sol": {
+            "content": "==== ExternalSource: _relative_imports/dir/contract.sol ====\n==== ExternalSource: _relative_imports/dir/a.sol ====\n==== ExternalSource: _relative_imports/dir/B/b.sol ====\n==== ExternalSource: _relative_imports/c.sol ====\n==== ExternalSource: _relative_imports/D/d.sol ====\n==== ExternalSource: _relative_imports/dir/G/g.sol ====\n==== ExternalSource: _relative_imports/h.sol ====\nimport {A, B, C, D, G, H, Contract} from \"_relative_imports/dir/contract.sol\";\ncontract CC {\n}\n// ----\n// constructor()\n"
+        },
+        "source_remapping.sol": {
+            "content": "==== ExternalSource: ExtSource.sol=_external/external.sol ====\n==== ExternalSource: /ExtSource.sol=_external/other_external.sol ====\nimport \"ExtSource.sol\";\nimport \"/ExtSource.sol\";\ncontract C {\n    External _external;\n    OtherExternal _otherExternal;\n}\n// ----\n// constructor()\n"
+        },
+        "multiple_external_source.sol": {
+            "content": "==== ExternalSource: _external/external.sol ====\n==== ExternalSource: _external/other_external.sol ====\nimport {External} from \"_external/external.sol\";\nimport {OtherExternal} from \"_external/other_external.sol\";\ncontract C {\n}\n// ----\n// constructor()\n"
+        },
+        "source_import_subdir.sol": {
+            "content": "==== ExternalSource: _external/import_with_subdir.sol ====\n==== ExternalSource: subdir/import.sol=_external/subdir/import.sol ====\n==== ExternalSource: sub_external.sol=_external/subdir/sub_external.sol ====\nimport {SubExternal} from \"sub_external.sol\";\ncontract C {\n}\n// ----\n// constructor()\n"
+        },
+        "non_normalized_paths.sol": {
+            "content": "==== ExternalSource: _non_normalized_paths//a.sol ====\n==== ExternalSource: C/////c.sol=_non_normalized_paths/c.sol ====\n==== ExternalSource: C/../////D/d.sol=_non_normalized_paths///d.sol ====\nimport {A} from \"_non_normalized_paths//a.sol\";\nimport {C} from \"C/////c.sol\";\nimport {D} from \"C/../////D/d.sol\";\ncontract Contract {\n}\n// ----\n// constructor()\n"
+        },
+        "multisource.sol": {
+            "content": "==== ExternalSource: _external/external.sol ====\n==== Source: s1.sol ====\nimport {External} from \"_external/external.sol\";\ncontract S1 {\n}\n==== Source: s2.sol ====\nimport {S1} from \"s1.sol\";\ncontract C {\n}\n// ----\n// constructor()\n\n"
+        },
+        "source.sol": {
+            "content": "==== ExternalSource: _external/external.sol ====\nimport {External} from \"_external/external.sol\";\ncontract C {\n}\n// ----\n// constructor()\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

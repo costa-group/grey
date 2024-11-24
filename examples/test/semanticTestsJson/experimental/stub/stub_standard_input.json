@@ -1,0 +1,28 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "type_class.sol": {
+            "content": "pragma experimental solidity;\n\ntype word = __builtin(\"word\");\ntype bool = __builtin(\"bool\");\n\ntype Cat = word;\ntype Dog = word;\n\nclass Self: Animal {\n    function new() -> Self;\n    function alive(self: Self) -> bool;\n}\n\ninstantiation Cat: Animal {\n    function new() -> Cat {\n        let c;\n        return c;\n    }\n\n    function alive(self: Cat) -> bool {\n        // TODO: Boolean literals or operators not implemented.\n        let w;\n        assembly {\n            w := 1\n        }\n        return bool.abs(w);\n    }\n}\n\ninstantiation Dog: Animal {\n    function new() -> Dog {\n        let d: Dog;\n        return d;\n    }\n\n    function alive(self: Dog) -> bool {\n        let b: bool;\n        return b;\n    }\n}\n\ncontract C {\n    fallback() external {\n        let boolResult1: bool;\n        let boolResult2: bool;\n\n        let c: Cat = Animal.new();\n        boolResult1 = Animal.alive(c);\n\n        let d: Dog = Animal.new();\n        boolResult2 = Animal.alive(d);\n\n        let wordResult1 = bool.rep(boolResult1);\n        let wordResult2 = bool.rep(boolResult2);\n        assembly {\n            mstore(0, wordResult1)\n            mstore(32, wordResult2)\n            return(0, 64)\n        }\n    }\n}\n\n// ====\n// EVMVersion: >=constantinople\n// compileViaYul: true\n// ----\n// () -> 1, 0\n"
+        },
+        "stub.sol": {
+            "content": "pragma experimental solidity;\n\ntype word = __builtin(\"word\");\ntype bool = __builtin(\"bool\");\ntype integer = __builtin(\"integer\");\n\ntype uint256 = word;\n\ninstantiation uint256: + {\n    function add(x, y) -> uint256 {\n        let a = uint256.rep(x);\n        let b = uint256.rep(y);\n        assembly {\n            a := add(a,b)\n        }\n        return uint256.abs(a);\n    }\n}\n\n\ninstantiation uint256: * {\n    function mul(x, y) -> uint256 {\n        let a = uint256.rep(x);\n        let b = uint256.rep(y);\n        assembly {\n            a := mul(a,b)\n        }\n        return uint256.abs(a);\n    }\n}\ninstantiation word: * {\n    function mul(x, y) -> word {\n        let z: word;\n        assembly {\n            z := mul(x,y)\n        }\n        return z;\n    }\n}\n\ninstantiation word: Integer {\n    function fromInteger(x:integer) -> word {\n        //x + x;\n    }\n}\n\ninstantiation word: == {\n    function eq(x, y) -> bool {\n        assembly {\n            x := eq(x, y)\n        }\n    }\n}\n\n\nfunction f(x:uint256->uint256,y:uint256) -> uint256\n{\n    return x(y);\n}\n\nfunction g(x:uint256) -> uint256\n{\n    return x;\n}\n\ncontract C {\n    fallback() external {\n        let arg;\n        assembly {\n            arg := calldataload(0)\n        }\n        let x : word;\n        if (bool.abs(arg)) {\n            assembly {\n                x := 0x10\n            }\n        }\n        let w = uint256.abs(x);\n//        w = f(g, w);\n        w = w * w + w;\n        let y : word;\n        let z : (uint256,uint256);\n        assembly { y := 2 }\n        y = uint256.rep(w) * y;\n        assembly {\n            mstore(0, y)\n            return(0, 32)\n        }\n    }\n}\n// ====\n// EVMVersion: >=constantinople\n// ====\n// compileViaYul: true\n// ----\n// (): 0 -> 0\n// (): 1 -> 544\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

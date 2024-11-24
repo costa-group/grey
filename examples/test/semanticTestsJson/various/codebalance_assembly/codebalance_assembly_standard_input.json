@@ -1,0 +1,28 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "senders_balance.sol": {
+            "content": "contract C {\n    function f() public view returns (uint256) {\n        return msg.sender.balance;\n    }\n}\n\n\ncontract D {\n    C c = new C();\n\n    constructor() payable {}\n\n    function f() public view returns (uint256) {\n        return c.f();\n    }\n}\n// ----\n// constructor(), 27 wei ->\n// gas irOptimized: 114057\n// gas irOptimized code: 53800\n// gas legacy: 117834\n// gas legacy code: 100600\n// gas legacyOptimized: 113676\n// gas legacyOptimized code: 53600\n// f() -> 27\n"
+        },
+        "codebalance_assembly.sol": {
+            "content": "contract C {\n    constructor() payable {}\n\n    function f() public returns (uint256 ret) {\n        assembly {\n            ret := balance(0)\n        }\n    }\n    function g() public returns (uint256 ret) {\n        assembly {\n            ret := balance(1)\n        }\n    }\n    function h() public returns (uint256 ret) {\n        assembly {\n            ret := balance(address())\n        }\n    }\n}\n// ====\n// EVMVersion: >=constantinople\n// ----\n// constructor(), 23 wei ->\n// gas legacy: 100517\n// f() -> 0\n// g() -> 1\n// h() -> 23\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

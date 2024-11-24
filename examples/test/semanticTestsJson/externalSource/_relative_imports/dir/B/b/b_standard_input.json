@@ -1,0 +1,25 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "b.sol": {
+            "content": "import {C} from \"../../c.sol\";\ncontract B {\n}\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

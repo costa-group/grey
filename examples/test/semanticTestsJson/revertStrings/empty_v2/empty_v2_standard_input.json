@@ -1,0 +1,40 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "short_input_bytes.sol": {
+            "content": "pragma abicoder               v2;\ncontract C {\n\tfunction e(bytes memory a) public pure returns (uint) { return 7; }\n}\n// ====\n// EVMVersion: >=byzantium\n// revertStrings: debug\n// ----\n// e(bytes): 0x20, 7 -> FAILURE, hex\"08c379a0\", 0x20, 39, \"ABI decoding: invalid byte array\", \" length\"\n"
+        },
+        "calldata_too_short_v1.sol": {
+            "content": "pragma abicoder v1;\ncontract C {\n\tfunction d(bytes memory _data) public pure returns (uint8) {\n\t\treturn abi.decode(_data, (uint8));\n\t}\n}\n// ====\n// EVMVersion: >=byzantium\n// revertStrings: debug\n// ABIEncoderV1Only: true\n// compileViaYul: false\n// ----\n// d(bytes): 0x20, 0x01, 0x0000000000000000000000000000000000000000000000000000000000000000 -> FAILURE, hex\"08c379a0\", 0x20, 18, \"Calldata too short\"\n"
+        },
+        "empty_v1.sol": {
+            "content": "pragma abicoder v1;\ncontract C {\n\tfunction f() public {\n\t\trevert(\"\");\n\t}\n\tfunction g(string calldata msg) public {\n\t\trevert(msg);\n\t}\n}\n// ====\n// ABIEncoderV1Only: true\n// EVMVersion: >=byzantium\n// revertStrings: debug\n// compileViaYul: false\n// ----\n// f() -> FAILURE, hex\"08c379a0\", 0x20, 0\n// g(string): 0x20, 0, \"\" -> FAILURE, hex\"08c379a0\", 0x20, 0\n// g(string): 0x20, 0 -> FAILURE, hex\"08c379a0\", 0x20, 0\n"
+        },
+        "unknown_sig_no_fallback.sol": {
+            "content": "contract A {\n\treceive () external payable {}\n}\n// ====\n// EVMVersion: >=byzantium\n// revertStrings: debug\n// ----\n// (): hex\"00\" -> FAILURE, hex\"08c379a0\", 0x20, 41, \"Unknown signature and no fallbac\", \"k defined\"\n"
+        },
+        "enum_v1.sol": {
+            "content": "pragma abicoder v1;\ncontract C {\n\tenum E {X, Y}\n\tfunction f(E[] calldata arr) external {\n\t\tarr[1];\n\t}\n}\n// ====\n// EVMVersion: >=byzantium\n// revertStrings: debug\n// ABIEncoderV1Only: true\n// compileViaYul: false\n// ----\n// f(uint8[]): 0x20, 2, 3, 3 -> FAILURE, hex\"08c379a0\", 0x20, 17, \"Enum out of range\"\n"
+        },
+        "empty_v2.sol": {
+            "content": "pragma abicoder               v2;\ncontract C {\n\tfunction f() public {\n\t\trevert(\"\");\n\t}\n\tfunction g(string calldata msg) public {\n\t\trevert(msg);\n\t}\n}\n// ====\n// EVMVersion: >=byzantium\n// revertStrings: debug\n// ----\n// f() -> FAILURE, hex\"08c379a0\", 0x20, 0\n// g(string): \"\" -> FAILURE, hex\"08c379a0\", 0x20, 0\n// g(string): 0x20, 0, \"\" -> FAILURE, hex\"08c379a0\", 0x20, 0\n// g(string): 0x20, 0 -> FAILURE, hex\"08c379a0\", 0x20, 0\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

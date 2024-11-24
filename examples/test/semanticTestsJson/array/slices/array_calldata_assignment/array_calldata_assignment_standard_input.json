@@ -1,0 +1,31 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "array_slice_calldata_to_memory.sol": {
+            "content": "contract C {\n    function f(int[] calldata b, uint256 start, uint256 end) public returns (int) {\n        int[] memory m = b[start:end];\n        uint len = end - start;\n        assert(len == m.length);\n        for (uint i = 0; i < len; i++) {\n            assert(b[start:end][i] == m[i]);\n        }\n        return [b[start:end]][0][0];\n    }\n\n    function g(int[] calldata b, uint256 start, uint256 end) public returns (int[] memory) {\n        return b[start:end];\n    }\n\n    function h1(int[] memory b) internal returns (int[] memory) {\n        return b;\n    }\n\n    function h(int[] calldata b, uint256 start, uint256 end) public returns (int[] memory) {\n        return h1(b[start:end]);\n    }\n}\n// ----\n// f(int256[],uint256,uint256): 0x60, 1, 3, 4, 1, 2, 3, 4 -> 2\n// g(int256[],uint256,uint256): 0x60, 1, 3, 4, 1, 2, 3, 4 -> 0x20, 2, 2, 3\n// h(int256[],uint256,uint256): 0x60, 1, 3, 4, 1, 2, 3, 4 -> 0x20, 2, 2, 3\n"
+        },
+        "array_slice_calldata_to_storage.sol": {
+            "content": "contract C {\n    int[] s;\n    function f(int[] calldata b, uint256 start, uint256 end) public returns (int) {\n        s = b[start:end];\n        uint len = end - start;\n        assert(len == s.length);\n        for (uint i = 0; i < len; i++) {\n            assert(b[start:end][i] == s[i]);\n        }\n        return s[0];\n    }\n}\n// ----\n// f(int256[],uint256,uint256): 0x60, 1, 3, 4, 1, 2, 3, 4 -> 2\n"
+        },
+        "array_calldata_assignment.sol": {
+            "content": "contract C {\n    function f(uint256[] calldata x, uint256[] calldata y, uint256 i) external returns (uint256) {\n        x = y;\n        return x[i];\n    }\n}\n// ----\n// f(uint256[],uint256[],uint256): 0x60, 0xA0, 1, 1, 0, 2, 1, 2 -> 2\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}
