@@ -177,8 +177,8 @@ def unify_stacks_brothers(target_block_id: block_id_T, predecessor_blocks: List[
     # accounted as well. In order to do so, we introduce some kind of "PhiFunction" that combines these values
     # in the resulting block
 
-    # First we identify these variables
-    variables_to_remove = {predecessor_block: live_vars_dict[predecessor_block].difference(live_vars_dict[target_block_id])
+    # First we identify these variables, removing the variables that are already part of a phi functions
+    variables_to_remove = {predecessor_block: live_vars_dict[predecessor_block].difference(live_vars_dict[target_block_id].union(phi_func.values()))
                            for predecessor_block in predecessor_blocks}
 
     # Then we combine them as new phi functions. We fill with bottom values if there are not enought values to combine
