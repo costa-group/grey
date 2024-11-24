@@ -9,6 +9,7 @@ import itertools
 from typing import Dict, List, Type, Any, Set, Tuple, Optional
 import networkx as nx
 from pathlib import Path
+from itertools import zip_longest
 
 from global_params.types import SMS_T, component_name_T, var_id_T, block_id_T
 from parser.cfg import CFG
@@ -21,6 +22,7 @@ from graphs.algorithms import condense_to_dag, information_on_graph
 from liveness.liveness_analysis import LivenessAnalysisInfo, construct_analysis_info, \
     perform_liveness_analysis_from_cfg_info
 from liveness.utils import functions_inputs_from_components
+
 
 
 def unify_stacks(predecessor_stacks: List[List[str]], variable_depth_info: Dict[str, int]) -> List[str]:
@@ -158,7 +160,7 @@ def output_stack_layout(input_stack: List[str], final_stack_elements: List[str],
     return final_stack_elements + bottom_output_stack
 
 
-def unify_stacks_brothers(taget_block_id: block_id_T, predecessor_blocks: List[block_id_T],
+def unify_stacks_brothers(target_block_id: block_id_T, predecessor_blocks: List[block_id_T],
                           live_vars_dict: Dict[block_id_T, Set[var_id_T]], phi_functions: List[CFGInstruction],
                           variable_depth_info: Dict[str, int]) -> Tuple[
     List[block_id_T], Dict[block_id_T, List[var_id_T]]]:
@@ -167,14 +169,28 @@ def unify_stacks_brothers(taget_block_id: block_id_T, predecessor_blocks: List[b
     considering the PhiFunctions
     """
     # TODO: uses the input stacks for all the brother stacks for a better combination
-
-    # First we generate the stack layout for the input stack of the target block. We make no assumptions on how the
-    # input stack works
-    combined_output_stack = output_stack_layout([], [], live_vars_dict[taget_block_id], variable_depth_info)
-
-    # From this layout, we reconstruct the previous stack layouts using the information from the phi functions
+    # First we extract the information from the phi functions
     phi_func = {(phi_function.out_args[0], predecessor_block): input_arg for phi_function in phi_functions
                 for input_arg, predecessor_block in zip(phi_function.in_args, predecessor_blocks)}
+
+    # The variables that appear in some of the liveness set of the variables but not in the successor must be
+    # accounted as well. In order to do so, we introduce some kind of "PhiFunction" that combines these values
+    # in the resulting block
+
+    # First we identify these variables
+    variables_to_remove = {predecessor_block: live_vars_dict[predecessor_block].difference(live_vars_dict[target_block_id])
+                           for predecessor_block in predecessor_blocks}
+
+    # Then we combine them as new phi functions. We fill with bottom values if there are not enought values to combine
+    pseudo_phi_functions = {f"b{i}": in_args for i, in_args in enumerate(zip_longest(*(variables_to_remove[predecessor_block]
+                                                                                       for predecessor_block in predecessor_blocks),
+                                                                                     fillvalue="bottom"))}
+    phi_func.update({(out_arg, predecessor_block): input_arg for out_arg, in_args in pseudo_phi_functions.items()
+                     for input_arg, predecessor_block in zip(in_args, predecessor_blocks)})
+
+    # We generate the input stack of the combined information, considering the pseudo phi functions
+    combined_output_stack = output_stack_layout([], [], live_vars_dict[target_block_id].union(pseudo_phi_functions.keys()),
+                                                dict(variable_depth_info, **{key: 0 for key in pseudo_phi_functions.keys()}))
 
     # Reconstruct all the output stacks
     predecessor_output_stacks = dict()
