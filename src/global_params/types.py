@@ -4,6 +4,9 @@ While most of the types correspond to basic types, it is useful to read the proj
 """
 from typing import Dict, Union, Any, List, Tuple
 
+# Constants in the yul format are hexadecimal
+constant_T = str
+
 # Type for the stack variables that are introduced in the stack as args of other expressions
 var_id_T = str
 
