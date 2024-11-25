@@ -177,12 +177,14 @@ class LivenessBlockInfoSSA(AbstractBlockInfo):
         self._entries = basic_block.entries
 
         self._phi_uses = set()
+        self._pred_phi_defs = set()
         for successor in self._successors:
             successor_block = block_dict[successor]
             if len(successor_block.entries) > 0:
-                phi_uses, _ = _block_id_to_phi_uses(basic_block.block_id, successor_block.get_instructions(),
-                                                    successor_block.entries)
+                phi_uses, phi_defs = _block_id_to_phi_uses(basic_block.block_id, successor_block.get_instructions(),
+                                                           successor_block.entries)
                 self._phi_uses.update(phi_uses)
+                self._pred_phi_defs.update(phi_defs)
 
     @property
     def block_id(self) -> Any:
@@ -222,6 +224,12 @@ class LivenessBlockInfoSSA(AbstractBlockInfo):
     @property
     def phi_uses(self) -> Set[var_id_T]:
         return self._phi_uses
+
+
+    @property
+    def pred_phi_defs(self) -> Set[var_id_T]:
+        return self._pred_phi_defs
+
 
     def __repr__(self):
         text_repr = [f"Block id: {self._id}", f"Block type: {self.block_type}", f"Successors: {self.successors}"]

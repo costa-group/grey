@@ -142,6 +142,7 @@ class BackwardsAnalysis:
             if previous_block_info is None:
                 self.pending.append(previous_block)
                 self.blocks_info[previous_block] = self.constructor(self.vertices[previous_block], input_state)
+                self.blocks_info[previous_block].propagate_state(input_state)
 
             # If we decide to revisit the block, we propagate the state and
             # then include it as part of the pending blocks

@@ -329,22 +329,15 @@ class CFGInstruction:
     def translate_opcode(self, subobjects_keys: List[str]):
         if self.op in ["linkersymbol","memoryguard", "datasize", "dataoffset", "datacopy", "setimmutable", "loadimmutable"]:
             self.translate_built_in_function(subobjects_keys)
-            
-        
+
     def get_op_name(self):
         return self.op
 
     def get_instruction_representation(self):
-        outs = ""
-        if self.out_args != []:
-            outs = ",".join(self.out_args)
-            outs+= " = "
-
-        inps = ""
-        if self.in_args !=[]:
-            inps = ",".join(self.in_args)
-            
-        instr = outs+self.op+"("+inps+")"
+        outs = f'{",".join(self.out_args)} = ' if self.out_args else ''
+        inps = f'({",".join(self.in_args)})' if self.in_args else ''
+        args = f'[{",".join(self.builtin_args)}]' if self.builtin_args else ''
+        instr = outs + self.op + inps + args
 
         return instr
 

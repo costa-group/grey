@@ -73,7 +73,7 @@ def process_block_entry(block_json: Dict[str, Any], phi_instr: Dict[str, Any]) -
 
 
 def parse_block(object_name: str, block_json: Dict[str,Any], built_in_op: bool,
-                objects_keys: List[str]) -> Tuple[block_id_T, CFGBlock, Dict, Dict[str, Tuple[str, str]]]:
+                objects_keys: List[str]) -> Tuple[block_id_T, CFGBlock, Dict]:
     block_id = block_json.get("id", -1)
     block_instructions = block_json.get("instructions", -1)
     block_exit = block_json.get("exit", -1)
@@ -85,29 +85,16 @@ def parse_block(object_name: str, block_json: Dict[str,Any], built_in_op: bool,
     check_block_validity(block_id, block_instructions, block_exit, block_type)
     
     list_cfg_instructions = []
-    assignment_dict = dict()
-    entry_dict = dict()
     for instruction in block_instructions:
-        if "assignment" in instruction:
-            list_cfg_instructions.append(parse_assignment(instruction, assignment_dict))
-        else:
-            cfg_instruction = parse_instruction(instruction) if block_type != "FunctionReturn" else []
+        cfg_instruction = parse_instruction(instruction) if block_type != "FunctionReturn" else []
 
-            if not built_in_op and cfg_instruction != []:
-                cfg_instruction.translate_opcode(objects_keys)
+        if not built_in_op and cfg_instruction != []:
+            cfg_instruction.translate_opcode(objects_keys)
 
-            list_cfg_instructions.append(cfg_instruction)
-
-            if instruction["op"] == "PhiFunction":
-
-                # For phi functions, we store the assignment in an entry dict. This is needed because some phi
-                # functions involve introducing constants, and we need to introduce the corresponding PUSH
-                # in the block fom which the phi function uses that value
-                entry_dict.update((generate_block_name(object_name, entry), values)
-                                  for entry, values in process_block_entry(block_json, instruction).items())
+        list_cfg_instructions.append(cfg_instruction)
 
     block_identifier = generate_block_name(object_name, block_id)
-    block = CFGBlock(block_identifier, list_cfg_instructions, block_type, assignment_dict)
+    block = CFGBlock(block_identifier, list_cfg_instructions, block_type, dict())
     block.set_jump_info(block_exit)
     block.entries = entries
 
@@ -118,7 +105,7 @@ def parse_block(object_name: str, block_json: Dict[str,Any], built_in_op: bool,
 
     # block._process_dependences(block._instructions)
         
-    return block_identifier, block, block_exit, entry_dict
+    return block_identifier, block, block_exit
 
 
 def update_comes_from(block_list: CFGBlockList, comes_from: Dict[str, List[str]]) -> None:
@@ -132,19 +119,6 @@ def update_comes_from(block_list: CFGBlockList, comes_from: Dict[str, List[str]]
                 block_list.get_block(block_id).add_comes_from(predecessor)
 
 
-def update_assignments_from_phi_functions(block_list: CFGBlockList, phi_function_dict: Dict[str, Tuple[str, str]]) -> None:
-    """
-    Given the list of blocks and the phi functions that appear in any of those blocks, introduces the values
-    that are constants from the phi function in the corresponding block as part of the assignments
-    """
-    for block_id, (input_value, output_value) in phi_function_dict.items():
-        block = block_list.get_block(block_id)
-
-        # We update the assignments of constants
-        if input_value.startswith("0x"):
-            block.assignment_dict[output_value] = input_value
-
-
 def parser_block_list(object_name: str, blocks: List[Dict[str, Any]], built_in_op : bool, objects_keys : List[str]):
     """
     Returns the list of blocks parsed and the ids that correspond to Exit blocks
@@ -153,7 +127,7 @@ def parser_block_list(object_name: str, blocks: List[Dict[str, Any]], built_in_o
     exit_blocks = []
     comes_from = collections.defaultdict(lambda: [])
     for b in blocks:
-        block_id, new_block, block_exit, block_entries = parse_block(object_name, b, built_in_op, objects_keys)
+        block_id, new_block, block_exit = parse_block(object_name, b, built_in_op, objects_keys)
 
         # Annotate comes from
         for succ_block in block_exit["targets"]:
@@ -163,11 +137,9 @@ def parser_block_list(object_name: str, blocks: List[Dict[str, Any]], built_in_o
             exit_blocks.append(block_id)
 
         block_list.add_block(new_block)
-        block_list.entry_dict.update(block_entries)
 
     # We need to update some fields in the blocks using the previously gathered information
     update_comes_from(block_list, comes_from)
-    update_assignments_from_phi_functions(block_list, block_list.entry_dict)
 
     return block_list, exit_blocks
 
