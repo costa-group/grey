@@ -24,7 +24,6 @@ class CFGBlockList:
         self._terminal_blocks: List[block_id_T] = []
         self._function_return_blocks: List[block_id_T] = []
         self.block_tags_dict = {}
-        self.entry_dict: Dict[str, Tuple[str, str]] = dict()
 
     @property
     def terminal_blocks(self) -> List[block_id_T]:

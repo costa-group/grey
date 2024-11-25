@@ -68,7 +68,7 @@ class LivenessAnalysisInfoSSA(BlockAnalysisInfo):
 
     def __init__(self, block_info: LivenessBlockInfoSSA, input_state: LivenessState) -> None:
         # We need to copy the input state given, as it corresponds to the output state of a given previous state
-        super().__init__(block_info, copy.deepcopy(input_state))
+        super().__init__(block_info, LivenessState())
 
     def propagate_information(self) -> None:
         # If the output state is None, we need to propagate the information from the block and the input state
@@ -78,14 +78,14 @@ class LivenessAnalysisInfoSSA(BlockAnalysisInfo):
 
         # Live in variables: remove from the out variables those that are defined (either as part of a
         # normal function or a phi function) and add the ones that are used with no preceding definition
-        # 0TODO: check if it is correct (differs slightly from the book)
-        self.in_state.live_vars = self.block_info.upward_exposed.union(
-            self.out_state.live_vars.difference(self.block_info.defs.union(self.block_info.phi_defs)))
+        # TODO: check if it is correct (differs slightly from the book)
+        self.in_state.live_vars = self.block_info.upward_exposed.union(self.block_info.phi_defs,
+                                                                       self.out_state.live_vars.difference(self.block_info.defs))
 
     def propagate_state(self, current_state: LivenessState) -> None:        # Live out variables: the live in variables + those selected from the phi functions
         self.out_state.live_vars = set().union(self.out_state.live_vars,
                                                self.block_info.phi_uses,
-                                               current_state.live_vars)
+                                               current_state.live_vars.difference(self.block_info.pred_phi_defs))
 
     def dot_repr(self) -> str:
         instr_repr = '\n'.join([instr.dot_repr() for instr in self.block_info._instructions])
