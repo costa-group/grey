@@ -319,18 +319,18 @@ def extract_code_and_data(json_file):
         # Extraer los campos ".code" y ".data"
         code = data.get('.code', [])
         data_field = data.get('.data', {})
-
+        
         # Imprimir resultados
         gas_code = 0
         bytes_code = 0
         len_code = len(code)
-        print("Campo '.code':")
+        # print("Campo '.code':")
         for instruction in code:
             #print(instruction)
             gas_code+= get_ins_cost(instruction.get("name",""))
             bytes_code+= get_bytes(instruction)
 
-        print("\nCampo '.data':")
+        # print("\nCampo '.data':")
 
         dict_data = {}
         
@@ -358,7 +358,15 @@ def extract_code_and_data(json_file):
         print(f"Error inesperado: {e}")
 
 if __name__ == "__main__":
-    # Archivo de entrada
+    #Archivo de entrada 
     input_name = sys.argv[1]
-    data = extract_code_and_data(input_name)
+
+    dir_name = input_name.split("/")[-1]
+    
+    data_solc = extract_code_and_data(input_name+"/"+dir_name+"-asm-solc.json")
+    #data = extract_code_and_data(input_name+"_asm.json")
+    data = extract_code_and_data(input_name+"/object_asm.json")
+
+    print(data_solc)
     print(data)
+    
