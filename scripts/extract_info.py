@@ -367,6 +367,20 @@ if __name__ == "__main__":
     #data = extract_code_and_data(input_name+"_asm.json")
     data = extract_code_and_data(input_name+"/object_asm.json")
 
+
     print(data_solc)
     print(data)
     
+    assert(len(data_solc.items()) == len(data.items()), "[ERROR]: they should have same number of elements")
+
+    s = ["Key, SOLC GAS, SOLC BYTES, SOLC NUM INS, GREEDY GAS, GREEDY BYTES, GREEDY NUM INS, DIFF GAS, DIFF BYTES, DIFF NUM INS"]
+    
+    for key, solc_value in data_solc.items():
+        data_value = data[key]
+        s_aux = [key+","+ str(solc_value[0])+","+ str(solc_value[1])+","+ str(solc_value[2])+","+ str(data_value[0])+","+ str(data_value[1])+","+ str(data_value[2])+","+ str(solc_value[0]-data_value[0])+","+ str(solc_value[1]-data_value[1])+","+ str(solc_value[2]-data_value[2])]
+
+        s+=s_aux
+
+    f = open(input_name+"/notes.csv","w")
+    f.write("\n".join(s))
+    f.close()
