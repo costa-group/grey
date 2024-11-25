@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 import itertools
 import json
+import logging
 import sys
 import os
-from typing import List, Dict, Tuple, Any, Set, Optional
+from typing import List, Dict, Tuple, Any, Set, Optional, Generator
 from collections import defaultdict, Counter
 import traceback
 from enum import Enum, unique
@@ -11,7 +12,12 @@ from enum import Enum, unique
 import networkx
 import networkx as nx
 from analysis.greedy_validation import check_execution_from_ids
-from global_params.types import var_id_T, instr_id_T, instr_JSON_T
+from global_params.types import var_id_T, instr_id_T, instr_JSON_T, SMS_T
+
+# Specific type to identify which positions corresponds to the ones
+# in the current and final stacks
+cstack_pos_T = int
+fstack_pos_T = int
 
 
 def _simplify_graph_to_selected_nodes(graph: nx.DiGraph, selected_nodes: List) -> nx.DiGraph:
@@ -38,14 +44,14 @@ def _simplify_graph_to_selected_nodes(graph: nx.DiGraph, selected_nodes: List) -
     return subgraph_reduced
 
 
-def idx_wrt_cstack(idx: int, cstack: List, fstack: List) -> int:
+def idx_wrt_cstack(idx: fstack_pos_T, cstack: List, fstack: List) -> cstack_pos_T:
     """
     Given a position w.r.t fstack, returns the corresponding position w.r.t cstack
     """
     return idx - len(fstack) + len(cstack)
 
 
-def idx_wrt_fstack(idx: int, cstack: List, fstack: List) -> int:
+def idx_wrt_fstack(idx: cstack_pos_T, cstack: List, fstack: List) -> fstack_pos_T:
     """
     Given a position w.r.t cstack, returns the corresponding position w.r.t fstack
     """
@@ -155,13 +161,13 @@ class SymbolicState:
 
 class SMSgreedy:
 
-    def __init__(self, json_format, debug_mode: bool = False):
+    def __init__(self, json_format: SMS_T):
         self._user_instr: List[instr_JSON_T] = json_format['user_instrs']
         self._initial_stack: List[var_id_T] = json_format['src_ws']
         self._final_stack: List[var_id_T] = json_format['tgt_ws']
         self._vars: List[var_id_T] = json_format['vars']
         self._deps: List[Tuple[var_id_T, var_id_T]] = json_format['dependencies']
-        self.debug_mode = debug_mode
+        self.debug_logger = DebugLogger()
 
         # Note: we assume function invocations might have several variables in 'outpt_sk'
         self._var2instr = {var: ins for ins in self._user_instr for var in ins['outpt_sk']}
@@ -319,3 +325,141 @@ class SMSgreedy:
                 current_uses.add(stack_var)
         value_uses[instr["id"]] = current_uses
         return current_uses
+
+    def greedy(self) -> List[instr_id_T]:
+        """
+        Main implementation of the greedy algorithm (i.e. the instruction scheduling algorithm)
+        """
+        cstate: SymbolicState = SymbolicState(self._initial_stack)
+
+        dep_graph = self._trans_sub_graph.copy()
+        optg = []
+
+        self.debug_logger.debug_initial(dep_graph.nodes)
+
+        # For easier code, we end the while when we need to choose an
+        # operation and there are no operations left
+        while True:
+            var_top = cstate.top_stack()
+
+            self.debug_logger.debug_loop(dep_graph, optg, cstate)
+
+            # Case 1: Top of the stack must be removed, as it appears more time it is being used
+            if var_top is not None and cstate.var_uses[var_top] > self._var_total_uses[var_top]:
+                self.debug_logger.debug_pop(var_top, cstate)
+                cstate.pop()
+                optg.append("POP")
+
+            # Case 2: Top of the stack must be placed in some other position
+            elif var_top is not None and self.var_must_be_moved(var_top, cstate):
+                optg.extend(self.move_top_to_position(var_top, cstate))
+
+            # Case 3: Top of the stack cannot be moved to the corresponding position.
+            # Hence, we just generate the following computation
+            else:
+                # There are no operations left to choose, so we stop the search
+                if len(dep_graph.nodes) == 0:
+                    break
+
+                next_id, location = self.choose_next_computation(cstate, dep_graph)
+                self._debug_choose_computation(next_id, location, cstate)
+
+                # It is already stored in a local
+                if location == 'local':
+                    # We just load the stack var
+                    x = cstate.local_with_value(next_id)
+                    cstate.lget(x)
+                    ops = [f'LGET_{x}']
+                elif location == 'cheap':
+                    # Cheap instructions are just computed, there is no need to erase elements from the lists
+                    ops = self.compute_instr(self._id2instr[next_id], cstate)
+                else:
+                    next_instr = self._id2instr[next_id]
+                    # After choosing a value that must be computed, we store intermediate values that are used in locals
+                    ops = self.store_needed_value(next_instr, cstate)
+                    self._debug_store_intermediate(next_id, ops)
+
+                    other_ops = self.compute_instr(next_instr, cstate)
+                    self._debug_compute_instr(next_id, other_ops)
+                    ops.extend(other_ops)
+                    dep_graph.remove_node(next_id)
+
+                optg.extend(ops)
+
+        optg.extend(self.solve_permutation(cstate))
+        self.debug_logger.debug_after_permutation(cstate, optg)
+
+        return optg
+
+    def _available_positions(self, var_elem: var_id_T, cstate: SymbolicState) -> Generator[cstack_pos_T]:
+        """
+        Generator for the set of available positions in cstack where the var element can be placed
+        """
+        # We just need to check that the positions in which the element appears in the
+        # final stack are in range and not contain the element
+        for position in reversed(self._var2pos_stack[var_elem]):
+            fidx = idx_wrt_cstack(position, cstate.stack, self._final_stack)
+
+            # When the index is negative, it means there are not enough elements in cstack
+            # to place the corresponding element
+            if fidx < 0:
+                break
+
+            # A variable must be moved when a positive index is found
+            # which does not contain yet the corresponding element
+            elif fidx >= 0 and cstate.stack[fidx] != var_elem:
+                yield position
+
+    def var_must_be_moved(self, var_elem: var_id_T, cstate: SymbolicState) -> bool:
+        """
+        By construction, a var element must be moved if there is an available position in which it
+        appears in the final stack
+        """
+        return next(self._available_positions(var_elem, cstate), None) is not None
+
+    def move_top_to_position(self, var_elem: var_id_T, cstate: SymbolicState) -> List[instr_id_T]:
+        """
+        Stores the current element in all the positions in which it is available to be moved.
+        """
+        # TODO: decide if we just want to move one element or duplicate it as many
+        #  times as it is possible
+        # We just need to retrieve the deepest element
+        deepest_position_available = next(self._available_positions(var_elem, cstate))
+
+        cstate.swap(deepest_position_available)
+        return [f"SWAP{deepest_position_available}"]
+
+
+class DebugLogger:
+
+    """
+    Class that contains the multiple debugging messages for the greedy algorithm
+    """
+    
+    def __init__(self):
+        self._logger = logging.Logger("greedy")
+    
+    def debug_initial(self, ops: List[instr_id_T]):
+        self._logger.debug("---- Initial Ops ----")
+        self._logger.debug(f'Ops:{ops}')
+        self._logger.debug("")
+
+    def debug_loop(self, dep_graph, optg: List[instr_id_T],
+                    cstate: SymbolicState):
+        self._logger.debug("---- While loop ----")
+        self._logger.debug("Ops not computed", dep_graph.nodes)
+        self._logger.debug("Ops computed", optg)
+        self._logger.debug(cstate)
+        self._logger.debug("")
+
+    def debug_pop(self, var_top: var_id_T, cstate: SymbolicState):
+        self._logger.debug("---- Drop term ----")
+        self._logger.debug("Var Term", var_top)
+        self._logger.debug('State', cstate)
+        self._logger.debug("")
+
+    def debug_after_permutation(self, cstate: SymbolicState, optg: List[instr_id_T]):
+        self._logger.debug("---- State after solving permutation ----")
+        self._logger.debug(cstate)
+        self._logger.debug(optg)
+        self._logger.debug("")
