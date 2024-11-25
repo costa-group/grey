@@ -22,9 +22,14 @@ find "$DIRECTORIO_BASE" -type f -name "*.yul" | while read -r yul_file; do
 
     /Users/pablo/Repositorios/ethereum/grey/examples/solc "$yul_file" --optimize --strict-assembly --pretty-json --asm-json &> "$yul_dir/$yul_base-asm-solc.json"
 
+    sed -i '' '/^======= .* (EVM) =======$/d;/^EVM assembly:$/d' $yul_dir/$yul_base-asm-solc.json
+    
     python3 /Users/pablo/Repositorios/ethereum/grey/src/grey_main.py -s "$yul_dir/$yul_base.cfg" -g -v -if yul-cfg -solc examples/solc -o "/tmp/$yul_base"
     
     cp "/tmp/$yul_base"/*/*_asm.json "$yul_dir/"
+
+    python3 extract_info.py "$yul_dir"
+    
 done
 
 echo "Procesamiento completado."
