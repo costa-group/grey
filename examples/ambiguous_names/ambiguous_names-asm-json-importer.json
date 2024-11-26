@@ -1,2 +1,1 @@
-
-{".code":[{"begin":-1,"end":-1,"name":"PUSH","source":-1,"value":"2A"},{"begin":-1,"end":-1,"name":"PUSH","source":-1,"value":"2A"},{"begin":-1,"end":-1,"name":"SSTORE","source":-1},{"begin":-1,"end":-1,"name":"STOP","source":-1}],"sourceList":["examples/ambiguous_names/ambiguous_names.cfg"]}
+Error: Option --optimize is not supported with --import-asm-json.
