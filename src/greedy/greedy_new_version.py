@@ -19,6 +19,9 @@ from global_params.types import var_id_T, instr_id_T, instr_JSON_T, SMS_T
 cstack_pos_T = int
 fstack_pos_T = int
 
+# Annotation for the maximum stack depth that can be managed through operations
+STACK_DEPTH = 16
+
 
 def _simplify_graph_to_selected_nodes(graph: nx.DiGraph, selected_nodes: List) -> nx.DiGraph:
     """
@@ -405,17 +408,19 @@ class SMSgreedy:
             if fidx < 0:
                 break
 
-            # A variable must be moved when a positive index is found
+            # A variable must be moved when a positive index is found (less than STACK_DEPTH)
             # which does not contain yet the corresponding element
-            elif fidx >= 0 and cstate.stack[fidx] != var_elem:
+            elif STACK_DEPTH >= fidx >= 0 and cstate.stack[fidx] != var_elem:
                 yield position
 
     def var_must_be_moved(self, var_elem: var_id_T, cstate: SymbolicState) -> bool:
         """
         By construction, a var element must be moved if there is an available position in which it
-        appears in the final stack
+        appears in the final stack (and it is not yet in its position)
         """
-        return next(self._available_positions(var_elem, cstate), None) is not None
+        topmost_idx_fstack = idx_wrt_fstack(0, cstate.stack, self._final_stack)
+        return (topmost_idx_fstack < 0 or self._final_stack[topmost_idx_fstack] != var_elem) and \
+            next(self._available_positions(var_elem, cstate), None) is not None
 
     def move_top_to_position(self, var_elem: var_id_T, cstate: SymbolicState) -> List[instr_id_T]:
         """
@@ -428,6 +433,75 @@ class SMSgreedy:
 
         cstate.swap(deepest_position_available)
         return [f"SWAP{deepest_position_available}"]
+
+    def choose_next_computation(self, cstate: SymbolicState, dep_graph: networkx.DiGraph) -> instr_id_T:
+        """
+        Returns an element from mops, sops or lops and where it came from (mops, sops or lops)
+        TODO: Here we should try to devise a good heuristics to select the terms
+        """
+
+        # To determine the best candidate to compute, we choose a variable among the ones that can be placed in
+        # their position such that they can reuse a topmost element. If it is not possible,
+        # we compute a memory element
+        candidate = None
+        min_unsolved = len(cstate.locals) + 1
+        min_uses_top = False
+        current_top = cstate.top_stack()
+
+        # First we try to assign an element from the list of final local values if it can be placed in all the gaps
+        # We also determine the element which has more
+        candidates = [id_ for id_ in dep_graph.nodes if dep_graph.in_degree(id_) == 0]
+
+        # First case: try to determine if there is an element (probably, LOAD or something) that is embedded into other
+        # term and can be both applied
+        for candidate in candidates:
+
+            # Traverse all the operations that use it as a term
+            direct_edges = self._direct_g.out_edges(candidate)
+            for _, out_node in direct_edges:
+
+                indirect_deps = [dep[0] for dep in dep_graph.in_edges(out_node)]
+
+                if len(indirect_deps) == 0 or indirect_deps == [candidate]:
+                    dep_graph.remove_node(candidate)
+                    self._indirect_g.remove_node(candidate)
+                    self._direct_g.remove_node(candidate)
+                    return out_node
+
+        for id_ in candidates:
+            top_instr = self._id2instr[id_]
+
+            # If there is an operation whose produced elements can be placed in all locals, we choose that element
+            all_solved = True
+            not_solved = len(cstate.locals) + 1
+
+            # Call instructions might generate multiple values that we should take into account
+            for out_var in top_instr['outpt_sk']:
+                # TODO consider in locals that can be solved how the operation could liberate some local registers
+                avail_solved_flocals = self._locals_that_can_be_solved(out_var, cstate)
+                pos_flocals = self._var2pos_locals[out_var]
+
+                # Current heuristics: select as a candidate the instruction with the most number of positions that
+                # can be solved
+                all_solved = all_solved and len(pos_flocals) == len(avail_solved_flocals)
+                not_solved = min(not_solved, len(pos_flocals) - len(avail_solved_flocals))
+
+            uses_top = current_top is not None and current_top in self._top_can_be_used[id_]
+
+            if all_solved and uses_top:
+                return id_, 'lops'
+            # Condition: now it reuses top or solves more operations
+            elif uses_top and (uses_top != min_uses_top or not_solved <= min_unsolved):
+                candidate = id_
+                min_uses_top = not_solved
+                min_uses_top = uses_top
+
+        if candidate is None:
+            candidate = candidates[0]
+
+        # Finally, we just choose an element from locals that covers multiple gaps,
+        # which has been determined previously
+        return candidate, 'lops'
 
 
 class DebugLogger:
