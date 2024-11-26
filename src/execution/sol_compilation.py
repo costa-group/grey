@@ -388,15 +388,16 @@ class SolidityCompilation:
 
         # Returns a dict with all the information for each contract
         output_dict = process_sol_output(sol_output, ["yul"])
-
+        
         # We filter the corresponding contract
         if deployed_contract is not None:
             for deployed_filename, output_info in output_dict.items():
-                if deployed_contract in deployed_filename:
+                if deployed_contract in deployed_filename and output_info["yul"] != None:
                     return {deployed_contract: output_info["yul"]}
         else:
-            # Only return yul information
-            return {contract_name: contract_info["yul"] for contract_name, contract_info in output_dict.items()}
+            # Only return yul information        
+        
+            return {contract_name: contract_info["yul"] for contract_name, contract_info in output_dict.items() if contract_info["yul"] != None}
 
     def compile_sol_file_from_code(self, source_code_plain: str, deployed_contract: Optional[str] = None) -> Optional[Dict[str, Yul_CFG_T]]:
         """
