@@ -367,9 +367,8 @@ if __name__ == "__main__":
     #data = extract_code_and_data(input_name+"_asm.json")
     data = extract_code_and_data(input_name+"/object_asm.json")
 
-
-    print(data_solc)
-    print(data)
+    # print(data_solc)
+    # print(data)
     
     assert(len(data_solc.items()) == len(data.items()), "[ERROR]: they should have same number of elements")
 
