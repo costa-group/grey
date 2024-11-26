@@ -1,0 +1,34 @@
+{
+    "language": "Yul",
+    "sources": {
+        "verbatim.yul": {
+            "content": "{\n        let a_1 := 42\n        let a_2 := 23\n        let a_3 := 1\n        let b := verbatim_10i_1o(\"test\", a_1, a_2, a_3, 2, 3, 4, 5, 6, 7, 8)\n        sstore(b,b)\n}\n// ----\n// digraph CFG {\n// nodesep=0.7;\n// node[shape=box];\n//\n// Entry [label=\"Entry\"];\n// Entry -> Block0;\n// Block0 [label=\"\\\n// Assignment(a_1): [ 0x2a ] => [ a_1 ]\\l\\\n// Assignment(a_2): [ 0x17 ] => [ a_2 ]\\l\\\n// Assignment(a_3): [ 0x01 ] => [ a_3 ]\\l\\\n// verbatim_10i_1o: [ 0x08 0x07 0x06 0x05 0x04 0x03 0x02 a_3 a_2 a_1 ] => [ TMP[verbatim_10i_1o, 0] ]\\l\\\n// Assignment(b): [ TMP[verbatim_10i_1o, 0] ] => [ b ]\\l\\\n// sstore: [ b b ] => [ ]\\l\\\n// \"];\n// Block0Exit [label=\"MainExit\"];\n// Block0 -> Block0Exit;\n//\n// }\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

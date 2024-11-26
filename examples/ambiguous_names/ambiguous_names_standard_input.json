@@ -1,0 +1,34 @@
+{
+    "language": "Yul",
+    "sources": {
+        "ambiguous_names.yul": {
+            "content": "{\n  a()\n  c()\n  function a() {\n    let x := 42\n    sstore(x,x)\n    b()\n    function b() {}\n  }\n  function c() {\n    let x := 21\n    mstore(x,x)\n    b()\n    function b() {}\n  }\n}\n// ----\n// digraph CFG {\n// nodesep=0.7;\n// node[shape=box];\n//\n// Entry [label=\"Entry\"];\n// Entry -> Block0;\n// Block0 [label=\"\\\n// a: [ RET[a] ] => [ ]\\l\\\n// c: [ RET[c] ] => [ ]\\l\\\n// \"];\n// Block0Exit [label=\"MainExit\"];\n// Block0 -> Block0Exit;\n//\n// FunctionEntry_a_1 [label=\"function a()\"];\n// FunctionEntry_a_1 -> Block1;\n// Block1 [label=\"\\\n// Assignment(x): [ 0x2a ] => [ x ]\\l\\\n// sstore: [ x x ] => [ ]\\l\\\n// b: [ RET[b] ] => [ ]\\l\\\n// \"];\n// Block1Exit [label=\"FunctionReturn[a]\"];\n// Block1 -> Block1Exit;\n//\n// FunctionEntry_b_2 [label=\"function b()\"];\n// FunctionEntry_b_2 -> Block2;\n// Block2 [label=\"\\\n// \"];\n// Block2Exit [label=\"FunctionReturn[b]\"];\n// Block2 -> Block2Exit;\n//\n// FunctionEntry_c_3 [label=\"function c()\"];\n// FunctionEntry_c_3 -> Block3;\n// Block3 [label=\"\\\n// Assignment(x): [ 0x15 ] => [ x ]\\l\\\n// mstore: [ x x ] => [ ]\\l\\\n// b: [ RET[b] ] => [ ]\\l\\\n// \"];\n// Block3Exit [label=\"FunctionReturn[c]\"];\n// Block3 -> Block3Exit;\n//\n// FunctionEntry_b_4 [label=\"function b()\"];\n// FunctionEntry_b_4 -> Block4;\n// Block4 [label=\"\\\n// \"];\n// Block4Exit [label=\"FunctionReturn[b]\"];\n// Block4 -> Block4Exit;\n//\n// }\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

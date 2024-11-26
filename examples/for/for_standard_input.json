@@ -1,0 +1,34 @@
+{
+    "language": "Yul",
+    "sources": {
+        "for.yul": {
+            "content": "{\n    sstore(0x01, 0x0101)\n    for { sstore(0x02, 0x0202) } sload(0x03) { sstore(0x04, 0x0404) } {\n        sstore(0x05, 0x0505)\n    }\n    sstore(0x06, 0x0506)\n}\n// ----\n// digraph CFG {\n// nodesep=0.7;\n// node[shape=box];\n//\n// Entry [label=\"Entry\"];\n// Entry -> Block0;\n// Block0 [label=\"\\\n// sstore: [ 0x0101 0x01 ] => [ ]\\l\\\n// sstore: [ 0x0202 0x02 ] => [ ]\\l\\\n// \"];\n// Block0 -> Block0Exit [arrowhead=none];\n// Block0Exit [label=\"Jump\" shape=oval];\n// Block0Exit -> Block1;\n//\n// Block1 [label=\"\\\n// sload: [ 0x03 ] => [ TMP[sload, 0] ]\\l\\\n// \"];\n// Block1 -> Block1Exit;\n// Block1Exit [label=\"{ TMP[sload, 0]| { <0> Zero | <1> NonZero }}\" shape=Mrecord];\n// Block1Exit:0 -> Block2;\n// Block1Exit:1 -> Block3;\n//\n// Block2 [label=\"\\\n// sstore: [ 0x0506 0x06 ] => [ ]\\l\\\n// \"];\n// Block2Exit [label=\"MainExit\"];\n// Block2 -> Block2Exit;\n//\n// Block3 [label=\"\\\n// sstore: [ 0x0505 0x05 ] => [ ]\\l\\\n// \"];\n// Block3 -> Block3Exit [arrowhead=none];\n// Block3Exit [label=\"Jump\" shape=oval];\n// Block3Exit -> Block4;\n//\n// Block4 [label=\"\\\n// sstore: [ 0x0404 0x04 ] => [ ]\\l\\\n// \"];\n// Block4 -> Block4Exit [arrowhead=none];\n// Block4Exit [label=\"BackwardsJump\" shape=oval];\n// Block4Exit -> Block1;\n//\n// }\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

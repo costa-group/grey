@@ -1,0 +1,55 @@
+{
+    ".code": [
+        {
+            "name": "PUSH",
+            "begin": -1,
+            "end": -1,
+            "source": -1,
+            "value": "202"
+        },
+        {
+            "name": "JUMP",
+            "begin": -1,
+            "end": -1,
+            "source": -1,
+            "jumpType": "[in]"
+        },
+        {
+            "name": "tag",
+            "begin": -1,
+            "end": -1,
+            "source": -1,
+            "value": "1"
+        },
+        {
+            "name": "JUMPDEST",
+            "begin": -1,
+            "end": -1,
+            "source": -1
+        },
+        {
+            "name": "POP",
+            "begin": -1,
+            "end": -1,
+            "source": -1
+        },
+        {
+            "name": "PUSH",
+            "begin": -1,
+            "end": -1,
+            "source": -1,
+            "value": "0"
+        },
+        {
+            "name": "JUMP",
+            "begin": -1,
+            "end": -1,
+            "source": -1,
+            "jumpType": "[in]"
+        }
+    ],
+    ".data": {},
+    "sourceList": [
+        "/Users/pablo/Repositorios/ethereum/grey/scripts/prueba/function/function.cfg"
+    ]
+}

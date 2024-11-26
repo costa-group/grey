@@ -1,0 +1,746 @@
+{
+    ".code": [
+        {
+            "name": "PUSH",
+            "begin": -1,
+            "end": -1,
+            "source": -1,
+            "value": "2A"
+        },
+        {
+            "name": "PUSH [tag]",
+            "begin": -1,
+            "end": -1,
+            "source": -1,
+            "value": "10"
+        },
+        {
+            "name": "JUMP",
+            "begin": -1,
+            "end": -1,
+            "source": -1
+        },
+        {
+            "name": "tag",
+            "begin": -1,
+            "end": -1,
+            "source": -1,
+            "value": "10"
+        },
+        {
+            "name": "JUMPDEST",
+            "begin": -1,
+            "end": -1,
+            "source": -1
+        },
+        {
+            "name": "PUSH",
+            "begin": -1,
+            "end": -1,
+            "source": -1,
+            "value": "1"
+        },
+        {
+            "name": "DUP2",
+            "begin": -1,
+            "end": -1,
+            "source": -1
+        },
+        {
+            "name": "LT",
+            "begin": -1,
+            "end": -1,
+            "source": -1
+        },
+        {
+            "name": "PUSH [tag]",
+            "begin": -1,
+            "end": -1,
+            "source": -1,
+            "value": "1"
+        },
+        {
+            "name": "JUMPI",
+            "begin": -1,
+            "end": -1,
+            "source": -1
+        },
+        {
+            "name": "tag",
+            "begin": -1,
+            "end": -1,
+            "source": -1,
+            "value": "5"
+        },
+        {
+            "name": "JUMPDEST",
+            "begin": -1,
+            "end": -1,
+            "source": -1
+        },
+        {
+            "name": "POP",
+            "begin": -1,
+            "end": -1,
+            "source": -1
+        },
+        {
+            "name": "PUSH",
+            "begin": -1,
+            "end": -1,
+            "source": -1,
+            "value": "C0C"
+        },
+        {
+            "name": "PUSH",
+            "begin": -1,
+            "end": -1,
+            "source": -1,
+            "value": "C"
+        },
+        {
+            "name": "SSTORE",
+            "begin": -1,
+            "end": -1,
+            "source": -1
+        },
+        {
+            "name": "PUSH [tag]",
+            "begin": -1,
+            "end": -1,
+            "source": -1,
+            "value": "2"
+        },
+        {
+            "name": "JUMP",
+            "begin": -1,
+            "end": -1,
+            "source": -1
+        },
+        {
+            "name": "tag",
+            "begin": -1,
+            "end": -1,
+            "source": -1,
+            "value": "2"
+        },
+        {
+            "name": "JUMPDEST",
+            "begin": -1,
+            "end": -1,
+            "source": -1
+        },
+        {
+            "name": "STOP",
+            "begin": -1,
+            "end": -1,
+            "source": -1
+        },
+        {
+            "name": "tag",
+            "begin": -1,
+            "end": -1,
+            "source": -1,
+            "value": "1"
+        },
+        {
+            "name": "JUMPDEST",
+            "begin": -1,
+            "end": -1,
+            "source": -1
+        },
+        {
+            "name": "DUP1",
+            "begin": -1,
+            "end": -1,
+            "source": -1
+        },
+        {
+            "name": "MLOAD",
+            "begin": -1,
+            "end": -1,
+            "source": -1
+        },
+        {
+            "name": "PUSH",
+            "begin": -1,
+            "end": -1,
+            "source": -1,
+            "value": "0"
+        },
+        {
+            "name": "DUP2",
+            "begin": -1,
+            "end": -1,
+            "source": -1
+        },
+        {
+            "name": "EQ",
+            "begin": -1,
+            "end": -1,
+            "source": -1
+        },
+        {
+            "name": "PUSH [tag]",
+            "begin": -1,
+            "end": -1,
+            "source": -1,
+            "value": "3"
+        },
+        {
+            "name": "JUMPI",
+            "begin": -1,
+            "end": -1,
+            "source": -1
+        },
+        {
+            "name": "PUSH",
+            "begin": -1,
+            "end": -1,
+            "source": -1,
+            "value": "1"
+        },
+        {
+            "name": "DUP2",
+            "begin": -1,
+            "end": -1,
+            "source": -1
+        },
+        {
+            "name": "EQ",
+            "begin": -1,
+            "end": -1,
+            "source": -1
+        },
+        {
+            "name": "PUSH [tag]",
+            "begin": -1,
+            "end": -1,
+            "source": -1,
+            "value": "4"
+        },
+        {
+            "name": "JUMPI",
+            "begin": -1,
+            "end": -1,
+            "source": -1
+        },
+        {
+            "name": "PUSH",
+            "begin": -1,
+            "end": -1,
+            "source": -1,
+            "value": "2"
+        },
+        {
+            "name": "DUP2",
+            "begin": -1,
+            "end": -1,
+            "source": -1
+        },
+        {
+            "name": "EQ",
+            "begin": -1,
+            "end": -1,
+            "source": -1
+        },
+        {
+            "name": "PUSH [tag]",
+            "begin": -1,
+            "end": -1,
+            "source": -1,
+            "value": "6"
+        },
+        {
+            "name": "JUMPI",
+            "begin": -1,
+            "end": -1,
+            "source": -1
+        },
+        {
+            "name": "PUSH",
+            "begin": -1,
+            "end": -1,
+            "source": -1,
+            "value": "3"
+        },
+        {
+            "name": "EQ",
+            "begin": -1,
+            "end": -1,
+            "source": -1
+        },
+        {
+            "name": "PUSH [tag]",
+            "begin": -1,
+            "end": -1,
+            "source": -1,
+            "value": "7"
+        },
+        {
+            "name": "JUMPI",
+            "begin": -1,
+            "end": -1,
+            "source": -1
+        },
+        {
+            "name": "PUSH",
+            "begin": -1,
+            "end": -1,
+            "source": -1,
+            "value": "2"
+        },
+        {
+            "name": "MLOAD",
+            "begin": -1,
+            "end": -1,
+            "source": -1
+        },
+        {
+            "name": "PUSH [tag]",
+            "begin": -1,
+            "end": -1,
+            "source": -1,
+            "value": "8"
+        },
+        {
+            "name": "JUMPI",
+            "begin": -1,
+            "end": -1,
+            "source": -1
+        },
+        {
+            "name": "PUSH",
+            "begin": -1,
+            "end": -1,
+            "source": -1,
+            "value": "A0A"
+        },
+        {
+            "name": "PUSH",
+            "begin": -1,
+            "end": -1,
+            "source": -1,
+            "value": "A"
+        },
+        {
+            "name": "SSTORE",
+            "begin": -1,
+            "end": -1,
+            "source": -1
+        },
+        {
+            "name": "PUSH [tag]",
+            "begin": -1,
+            "end": -1,
+            "source": -1,
+            "value": "9"
+        },
+        {
+            "name": "JUMP",
+            "begin": -1,
+            "end": -1,
+            "source": -1
+        },
+        {
+            "name": "tag",
+            "begin": -1,
+            "end": -1,
+            "source": -1,
+            "value": "9"
+        },
+        {
+            "name": "JUMPDEST",
+            "begin": -1,
+            "end": -1,
+            "source": -1
+        },
+        {
+            "name": "PUSH",
+            "begin": -1,
+            "end": -1,
+            "source": -1,
+            "value": "B0B"
+        },
+        {
+            "name": "PUSH",
+            "begin": -1,
+            "end": -1,
+            "source": -1,
+            "value": "B"
+        },
+        {
+            "name": "SSTORE",
+            "begin": -1,
+            "end": -1,
+            "source": -1
+        },
+        {
+            "name": "PUSH",
+            "begin": -1,
+            "end": -1,
+            "source": -1,
+            "value": "1"
+        },
+        {
+            "name": "ADD",
+            "begin": -1,
+            "end": -1,
+            "source": -1
+        },
+        {
+            "name": "DUP1",
+            "begin": -1,
+            "end": -1,
+            "source": -1
+        },
+        {
+            "name": "CALLDATALOAD",
+            "begin": -1,
+            "end": -1,
+            "source": -1
+        },
+        {
+            "name": "PUSH [tag]",
+            "begin": -1,
+            "end": -1,
+            "source": -1,
+            "value": "11"
+        },
+        {
+            "name": "JUMPI",
+            "begin": -1,
+            "end": -1,
+            "source": -1
+        },
+        {
+            "name": "PUSH",
+            "begin": -1,
+            "end": -1,
+            "source": -1,
+            "value": "FFFF"
+        },
+        {
+            "name": "PUSH",
+            "begin": -1,
+            "end": -1,
+            "source": -1,
+            "value": "FF"
+        },
+        {
+            "name": "SSTORE",
+            "begin": -1,
+            "end": -1,
+            "source": -1
+        },
+        {
+            "name": "PUSH [tag]",
+            "begin": -1,
+            "end": -1,
+            "source": -1,
+            "value": "10"
+        },
+        {
+            "name": "JUMP",
+            "begin": -1,
+            "end": -1,
+            "source": -1
+        },
+        {
+            "name": "tag",
+            "begin": -1,
+            "end": -1,
+            "source": -1,
+            "value": "11"
+        },
+        {
+            "name": "JUMPDEST",
+            "begin": -1,
+            "end": -1,
+            "source": -1
+        },
+        {
+            "name": "PUSH",
+            "begin": -1,
+            "end": -1,
+            "source": -1,
+            "value": "0"
+        },
+        {
+            "name": "SSTORE",
+            "begin": -1,
+            "end": -1,
+            "source": -1
+        },
+        {
+            "name": "PUSH [tag]",
+            "begin": -1,
+            "end": -1,
+            "source": -1,
+            "value": "2"
+        },
+        {
+            "name": "JUMP",
+            "begin": -1,
+            "end": -1,
+            "source": -1
+        },
+        {
+            "name": "tag",
+            "begin": -1,
+            "end": -1,
+            "source": -1,
+            "value": "8"
+        },
+        {
+            "name": "JUMPDEST",
+            "begin": -1,
+            "end": -1,
+            "source": -1
+        },
+        {
+            "name": "POP",
+            "begin": -1,
+            "end": -1,
+            "source": -1
+        },
+        {
+            "name": "PUSH",
+            "begin": -1,
+            "end": -1,
+            "source": -1,
+            "value": "0"
+        },
+        {
+            "name": "PUSH",
+            "begin": -1,
+            "end": -1,
+            "source": -1,
+            "value": "0"
+        },
+        {
+            "name": "RETURN",
+            "begin": -1,
+            "end": -1,
+            "source": -1
+        },
+        {
+            "name": "tag",
+            "begin": -1,
+            "end": -1,
+            "source": -1,
+            "value": "7"
+        },
+        {
+            "name": "JUMPDEST",
+            "begin": -1,
+            "end": -1,
+            "source": -1
+        },
+        {
+            "name": "PUSH",
+            "begin": -1,
+            "end": -1,
+            "source": -1,
+            "value": "808"
+        },
+        {
+            "name": "PUSH",
+            "begin": -1,
+            "end": -1,
+            "source": -1,
+            "value": "8"
+        },
+        {
+            "name": "SSTORE",
+            "begin": -1,
+            "end": -1,
+            "source": -1
+        },
+        {
+            "name": "PUSH [tag]",
+            "begin": -1,
+            "end": -1,
+            "source": -1,
+            "value": "9"
+        },
+        {
+            "name": "JUMP",
+            "begin": -1,
+            "end": -1,
+            "source": -1
+        },
+        {
+            "name": "tag",
+            "begin": -1,
+            "end": -1,
+            "source": -1,
+            "value": "6"
+        },
+        {
+            "name": "JUMPDEST",
+            "begin": -1,
+            "end": -1,
+            "source": -1
+        },
+        {
+            "name": "POP",
+            "begin": -1,
+            "end": -1,
+            "source": -1
+        },
+        {
+            "name": "POP",
+            "begin": -1,
+            "end": -1,
+            "source": -1
+        },
+        {
+            "name": "PUSH",
+            "begin": -1,
+            "end": -1,
+            "source": -1,
+            "value": "0"
+        },
+        {
+            "name": "PUSH",
+            "begin": -1,
+            "end": -1,
+            "source": -1,
+            "value": "0"
+        },
+        {
+            "name": "REVERT",
+            "begin": -1,
+            "end": -1,
+            "source": -1
+        },
+        {
+            "name": "tag",
+            "begin": -1,
+            "end": -1,
+            "source": -1,
+            "value": "4"
+        },
+        {
+            "name": "JUMPDEST",
+            "begin": -1,
+            "end": -1,
+            "source": -1
+        },
+        {
+            "name": "POP",
+            "begin": -1,
+            "end": -1,
+            "source": -1
+        },
+        {
+            "name": "POP",
+            "begin": -1,
+            "end": -1,
+            "source": -1
+        },
+        {
+            "name": "PUSH",
+            "begin": -1,
+            "end": -1,
+            "source": -1,
+            "value": "404"
+        },
+        {
+            "name": "PUSH",
+            "begin": -1,
+            "end": -1,
+            "source": -1,
+            "value": "4"
+        },
+        {
+            "name": "SSTORE",
+            "begin": -1,
+            "end": -1,
+            "source": -1
+        },
+        {
+            "name": "PUSH [tag]",
+            "begin": -1,
+            "end": -1,
+            "source": -1,
+            "value": "2"
+        },
+        {
+            "name": "JUMP",
+            "begin": -1,
+            "end": -1,
+            "source": -1
+        },
+        {
+            "name": "tag",
+            "begin": -1,
+            "end": -1,
+            "source": -1,
+            "value": "3"
+        },
+        {
+            "name": "JUMPDEST",
+            "begin": -1,
+            "end": -1,
+            "source": -1
+        },
+        {
+            "name": "POP",
+            "begin": -1,
+            "end": -1,
+            "source": -1
+        },
+        {
+            "name": "POP",
+            "begin": -1,
+            "end": -1,
+            "source": -1
+        },
+        {
+            "name": "PUSH",
+            "begin": -1,
+            "end": -1,
+            "source": -1,
+            "value": "202"
+        },
+        {
+            "name": "PUSH",
+            "begin": -1,
+            "end": -1,
+            "source": -1,
+            "value": "2"
+        },
+        {
+            "name": "SSTORE",
+            "begin": -1,
+            "end": -1,
+            "source": -1
+        },
+        {
+            "name": "PUSH",
+            "begin": -1,
+            "end": -1,
+            "source": -1,
+            "value": "0"
+        },
+        {
+            "name": "PUSH [tag]",
+            "begin": -1,
+            "end": -1,
+            "source": -1,
+            "value": "5"
+        },
+        {
+            "name": "JUMP",
+            "begin": -1,
+            "end": -1,
+            "source": -1
+        }
+    ],
+    ".data": {},
+    "sourceList": [
+        "/Users/pablo/Repositorios/ethereum/grey/scripts/prueba/cfgs/yul-files/complex.cfg"
+    ]
+}

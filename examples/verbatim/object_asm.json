@@ -1,0 +1,109 @@
+{
+    ".code": [
+        {
+            "name": "PUSH",
+            "begin": -1,
+            "end": -1,
+            "source": -1,
+            "value": "8"
+        },
+        {
+            "name": "PUSH",
+            "begin": -1,
+            "end": -1,
+            "source": -1,
+            "value": "7"
+        },
+        {
+            "name": "PUSH",
+            "begin": -1,
+            "end": -1,
+            "source": -1,
+            "value": "6"
+        },
+        {
+            "name": "PUSH",
+            "begin": -1,
+            "end": -1,
+            "source": -1,
+            "value": "5"
+        },
+        {
+            "name": "PUSH",
+            "begin": -1,
+            "end": -1,
+            "source": -1,
+            "value": "4"
+        },
+        {
+            "name": "PUSH",
+            "begin": -1,
+            "end": -1,
+            "source": -1,
+            "value": "3"
+        },
+        {
+            "name": "PUSH",
+            "begin": -1,
+            "end": -1,
+            "source": -1,
+            "value": "2"
+        },
+        {
+            "name": "PUSH",
+            "begin": -1,
+            "end": -1,
+            "source": -1,
+            "value": "1"
+        },
+        {
+            "name": "PUSH",
+            "begin": -1,
+            "end": -1,
+            "source": -1,
+            "value": "17"
+        },
+        {
+            "name": "PUSH",
+            "begin": -1,
+            "end": -1,
+            "source": -1,
+            "value": "2A"
+        },
+        {
+            "name": "VERBATIM",
+            "begin": -1,
+            "end": -1,
+            "source": -1,
+            "value": "0"
+        },
+        {
+            "name": "DUP1",
+            "begin": -1,
+            "end": -1,
+            "source": -1
+        },
+        {
+            "name": "SWAP1",
+            "begin": -1,
+            "end": -1,
+            "source": -1
+        },
+        {
+            "name": "SSTORE",
+            "begin": -1,
+            "end": -1,
+            "source": -1
+        },
+        {
+            "name": "STOP",
+            "begin": -1,
+            "end": -1,
+            "source": -1
+        }
+    ],
+    ".data": {},
+    "sourceList": [
+        "/Users/pablo/Repositorios/ethereum/grey/scripts/prueba/cfgs/yul-files/verbatim.cfg"
+    ]
+}

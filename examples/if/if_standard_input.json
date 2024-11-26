@@ -1,0 +1,34 @@
+{
+    "language": "Yul",
+    "sources": {
+        "if.yul": {
+            "content": "{\n    sstore(0x01, 0x0101)\n    if calldataload(0) {\n        sstore(0x02, 0x0202)\n    }\n    sstore(0x03, 0x003)\n}\n// ----\n// digraph CFG {\n// nodesep=0.7;\n// node[shape=box];\n//\n// Entry [label=\"Entry\"];\n// Entry -> Block0;\n// Block0 [label=\"\\\n// sstore: [ 0x0101 0x01 ] => [ ]\\l\\\n// calldataload: [ 0x00 ] => [ TMP[calldataload, 0] ]\\l\\\n// \"];\n// Block0 -> Block0Exit;\n// Block0Exit [label=\"{ TMP[calldataload, 0]| { <0> Zero | <1> NonZero }}\" shape=Mrecord];\n// Block0Exit:0 -> Block1;\n// Block0Exit:1 -> Block2;\n//\n// Block1 [label=\"\\\n// sstore: [ 0x03 0x03 ] => [ ]\\l\\\n// \"];\n// Block1Exit [label=\"MainExit\"];\n// Block1 -> Block1Exit;\n//\n// Block2 [label=\"\\\n// sstore: [ 0x0202 0x02 ] => [ ]\\l\\\n// \"];\n// Block2 -> Block2Exit [arrowhead=none];\n// Block2Exit [label=\"Jump\" shape=oval];\n// Block2Exit -> Block1;\n//\n// }\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}
