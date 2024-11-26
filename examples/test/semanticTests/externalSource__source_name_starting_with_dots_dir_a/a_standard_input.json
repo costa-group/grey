@@ -1,9 +1,6 @@
 {
     "language": "Solidity",
     "sources": {
-        "contract.sol": {
-            "content": "import {A} from \"./a.sol\";\nimport {B} from \"../b.sol\";\n"
-        },
         "a.sol": {
             "content": "contract A {\n}\n"
         }

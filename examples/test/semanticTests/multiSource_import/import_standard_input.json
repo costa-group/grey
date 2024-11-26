@@ -1,9 +1,6 @@
 {
     "language": "Solidity",
     "sources": {
-        "free_function_transitive_import.sol": {
-            "content": "==== Source: s1.sol ====\nfunction f() pure returns (uint) { return 1337; }\ncontract C {\n  function g() public pure returns (uint) {\n    return f();\n  }\n}\n==== Source: s2.sol ====\nimport \"s1.sol\";\ncontract D is C {\n  function h() public pure returns (uint) {\n    return g();\n  }\n}\n==== Source: s3.sol ====\nimport \"s2.sol\";\nimport {f as f} from \"s2.sol\";\ncontract E is D {\n  function i() public pure returns (uint) {\n    return f();\n  }\n}\n// ----\n// i() -> 1337\n"
-        },
         "import.sol": {
             "content": "==== Source: A ====\ncontract A {\n\tfunction g(uint256 x) public view returns(uint256) { return x + 1; }\n}\n==== Source: B ====\nimport \"A\";\ncontract B is A {\n\tfunction f(uint256 x) public view returns(uint256) { return x; }\n}\n// ----\n// f(uint256): 1337 -> 1337\n// g(uint256): 1337 -> 1338\n"
         }

@@ -1,51 +1,6 @@
 {
     "language": "Solidity",
     "sources": {
-        "short_input_bytes.sol": {
-            "content": "pragma abicoder               v2;\ncontract C {\n\tfunction e(bytes memory a) public pure returns (uint) { return 7; }\n}\n// ====\n// EVMVersion: >=byzantium\n// revertStrings: debug\n// ----\n// e(bytes): 0x20, 7 -> FAILURE, hex\"08c379a0\", 0x20, 39, \"ABI decoding: invalid byte array\", \" length\"\n"
-        },
-        "calldata_too_short_v1.sol": {
-            "content": "pragma abicoder v1;\ncontract C {\n\tfunction d(bytes memory _data) public pure returns (uint8) {\n\t\treturn abi.decode(_data, (uint8));\n\t}\n}\n// ====\n// EVMVersion: >=byzantium\n// revertStrings: debug\n// ABIEncoderV1Only: true\n// compileViaYul: false\n// ----\n// d(bytes): 0x20, 0x01, 0x0000000000000000000000000000000000000000000000000000000000000000 -> FAILURE, hex\"08c379a0\", 0x20, 18, \"Calldata too short\"\n"
-        },
-        "empty_v1.sol": {
-            "content": "pragma abicoder v1;\ncontract C {\n\tfunction f() public {\n\t\trevert(\"\");\n\t}\n\tfunction g(string calldata msg) public {\n\t\trevert(msg);\n\t}\n}\n// ====\n// ABIEncoderV1Only: true\n// EVMVersion: >=byzantium\n// revertStrings: debug\n// compileViaYul: false\n// ----\n// f() -> FAILURE, hex\"08c379a0\", 0x20, 0\n// g(string): 0x20, 0, \"\" -> FAILURE, hex\"08c379a0\", 0x20, 0\n// g(string): 0x20, 0 -> FAILURE, hex\"08c379a0\", 0x20, 0\n"
-        },
-        "unknown_sig_no_fallback.sol": {
-            "content": "contract A {\n\treceive () external payable {}\n}\n// ====\n// EVMVersion: >=byzantium\n// revertStrings: debug\n// ----\n// (): hex\"00\" -> FAILURE, hex\"08c379a0\", 0x20, 41, \"Unknown signature and no fallbac\", \"k defined\"\n"
-        },
-        "enum_v1.sol": {
-            "content": "pragma abicoder v1;\ncontract C {\n\tenum E {X, Y}\n\tfunction f(E[] calldata arr) external {\n\t\tarr[1];\n\t}\n}\n// ====\n// EVMVersion: >=byzantium\n// revertStrings: debug\n// ABIEncoderV1Only: true\n// compileViaYul: false\n// ----\n// f(uint8[]): 0x20, 2, 3, 3 -> FAILURE, hex\"08c379a0\", 0x20, 17, \"Enum out of range\"\n"
-        },
-        "empty_v2.sol": {
-            "content": "pragma abicoder               v2;\ncontract C {\n\tfunction f() public {\n\t\trevert(\"\");\n\t}\n\tfunction g(string calldata msg) public {\n\t\trevert(msg);\n\t}\n}\n// ====\n// EVMVersion: >=byzantium\n// revertStrings: debug\n// ----\n// f() -> FAILURE, hex\"08c379a0\", 0x20, 0\n// g(string): \"\" -> FAILURE, hex\"08c379a0\", 0x20, 0\n// g(string): 0x20, 0, \"\" -> FAILURE, hex\"08c379a0\", 0x20, 0\n// g(string): 0x20, 0 -> FAILURE, hex\"08c379a0\", 0x20, 0\n"
-        },
-        "ether_non_payable_function.sol": {
-            "content": "contract C {\n\tfunction f() public {}\n}\n// ====\n// EVMVersion: >=byzantium\n// revertStrings: debug\n// ----\n// f(), 1 ether -> FAILURE, hex\"08c379a0\", 0x20, 34, \"Ether sent to non-payable functi\", \"on\"\n// () -> FAILURE, hex\"08c379a0\", 0x20, 53, \"Contract does not have fallback \", \"nor receive functions\"\n"
-        },
-        "enum_v2.sol": {
-            "content": "pragma abicoder v2;\ncontract C {\n\tenum E {X, Y}\n\tfunction f(E[] calldata arr) external {\n\t\tarr[1];\n\t}\n}\n// ====\n// EVMVersion: >=byzantium\n// revertStrings: debug\n// ----\n// f(uint8[]): 0x20, 2, 3, 3 -> FAILURE\n"
-        },
-        "calldata_array_dynamic_invalid.sol": {
-            "content": "pragma abicoder               v2;\ncontract C {\n\tfunction f(uint256[][] calldata a) external returns (uint) {\n\t\treturn 42;\n\t}\n}\n// ====\n// EVMVersion: >=byzantium\n// revertStrings: debug\n// ----\n// f(uint256[][]): 0x20, 1 -> FAILURE, hex\"08c379a0\", 0x20, 43, \"ABI decoding: invalid calldata a\", \"rray stride\"\n"
-        },
-        "transfer.sol": {
-            "content": "contract A {\n\treceive() external payable {\n\t\trevert(\"no_receive\");\n\t}\n}\n\ncontract C {\n\tA a = new A();\n\treceive() external payable {}\n\tfunction f() public {\n\t\tpayable(a).transfer(1 wei);\n\t}\n\tfunction h() public {\n\t\tpayable(a).transfer(100 ether);\n\t}\n\tfunction g() public view returns (uint) {\n\t\treturn payable(this).balance;\n\t}\n}\n// ====\n// EVMVersion: >=byzantium\n// revertStrings: debug\n// ----\n// (), 10 wei ->\n// g() -> 10\n// f() -> FAILURE, hex\"08c379a0\", 0x20, 10, \"no_receive\"\n// h() -> FAILURE\n"
-        },
-        "bubble.sol": {
-            "content": "contract A {\n\tfunction g() public { revert(\"fail\"); }\n}\n\ncontract C {\n\tA a = new A();\n\tfunction f() public {\n\t\ta.g();\n\t}\n}\n// ====\n// EVMVersion: >=byzantium\n// revertStrings: debug\n// ----\n// f() -> FAILURE, hex\"08c379a0\", 0x20, 4, \"fail\"\n"
-        },
-        "calldata_array_dynamic_static_short_decode.sol": {
-            "content": "pragma abicoder               v2;\ncontract C {\n    function f(uint256[][2][] calldata x) external returns (uint256) {\n        x[0];\n        return 23;\n    }\n}\n// ====\n// EVMVersion: >=byzantium\n// revertStrings: debug\n// ----\n// f(uint256[][2][]): 0x20, 0x01, 0x20, 0x00 -> FAILURE, hex\"08c379a0\", 0x20, 28, \"Invalid calldata tail offset\"\n"
-        },
-        "library_non_view_call.sol": {
-            "content": "library L {\n    function g() external {}\n}\ncontract C {\n    function f() public returns (bytes memory) {\n        (bool success, bytes memory result) = address(L).call(abi.encodeWithSignature(\"g()\"));\n\t\tassert(!success);\n\t\treturn result;\n    }\n}\n// ====\n// EVMVersion: >=byzantium\n// revertStrings: debug\n// ----\n// library: L\n// f() -> 32, 132, 3963877391197344453575983046348115674221700746820753546331534351508065746944, 862718293348820473429344482784628181556388621521298319395315527974912, 1518017211910606845658622928256476421055725129218887721595913401102969, 14649601406562900601407788686537400806574002225747213573947654179243427889152, 0\n"
-        },
-        "invalid_abi_decoding_calldata_v1.sol": {
-            "content": "pragma abicoder v1;\ncontract C {\n\tfunction d(bytes memory _data) public pure returns (uint8) {\n\t\treturn abi.decode(_data, (uint8));\n\t}\n}\n// ====\n// EVMVersion: >=byzantium\n// revertStrings: debug\n// ABIEncoderV1Only: true\n// compileViaYul: false\n// ----\n// d(bytes): 0x20, 0x20, 0x0000000000000000000000000000000000000000000000000000000000000000 -> 0\n// d(bytes): 0x100, 0x20, 0x0000000000000000000000000000000000000000000000000000000000000000 -> FAILURE, hex\"08c379a0\", 0x20, 43, \"ABI calldata decoding: invalid h\", \"ead pointer\"\n// d(bytes): 0x20, 0x100, 0x0000000000000000000000000000000000000000000000000000000000000000 -> FAILURE, hex\"08c379a0\", 0x20, 43, \"ABI calldata decoding: invalid d\", \"ata pointer\"\n"
-        },
-        "invalid_abi_decoding_memory_v1.sol": {
-            "content": "pragma abicoder v1;\ncontract C {\n\tfunction dyn(uint ptr, uint start, uint x) public returns (bytes memory a) {\n\t\tassembly {\n\t\t\tmstore(0, start)\n\t\t\tmstore(start, add(start, 1))\n\t\t\treturn(ptr, x)\n\t\t}\n\t}\n\tfunction f(uint ptr, uint start, uint x) public returns (bool) {\n\t\tthis.dyn(ptr, start, x);\n\t\treturn true;\n\t}\n}\n// ====\n// EVMVersion: >=byzantium\n// revertStrings: debug\n// ABIEncoderV1Only: true\n// compileViaYul: false\n// ----\n// f(uint256,uint256,uint256): 0, 0x200, 0x60 -> FAILURE, hex\"08c379a0\", 0x20, 39, \"ABI memory decoding: invalid dat\", \"a start\"\n// f(uint256,uint256,uint256): 0, 0x20, 0x60 -> FAILURE, hex\"08c379a0\", 0x20, 40, \"ABI memory decoding: invalid dat\", \"a length\"\n"
-        },
         "calldata_arrays_too_large.sol": {
             "content": "pragma abicoder               v2;\ncontract C {\n\tfunction f(uint a, uint[] calldata b, uint c) external pure returns (uint) {\n\t\treturn 7;\n\t}\n}\n// ====\n// EVMVersion: >=byzantium\n// revertStrings: debug\n// ----\n// f(uint256,uint256[],uint256): 6, 0x60, 9, 0x1000000000000000000000000000000000000000000000000000000000000002, 1, 2 -> FAILURE, hex\"08c379a0\", 0x20, 43, \"ABI decoding: invalid calldata a\", \"rray length\"\n"
         }

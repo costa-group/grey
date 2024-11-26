@@ -1,33 +1,6 @@
 {
     "language": "Solidity",
     "sources": {
-        "push_no_args_1d.sol": {
-            "content": "contract C {\n\tuint[] array;\n\n\tfunction f() public returns (uint) {\n\t\tuint y = array.push();\n\t\treturn y;\n\t}\n\n\tfunction lv(uint value) public {\n\t\tarray.push() = value;\n\t}\n\n\tfunction a(uint index) public view returns (uint) {\n\t\treturn array[index];\n\t}\n\n\tfunction l() public view returns (uint) {\n\t\treturn array.length;\n\t}\n\n}\n// ----\n// l() -> 0\n// lv(uint256): 42 ->\n// l() -> 1\n// a(uint256): 0 -> 42\n// f() -> 0\n// l() -> 2\n// a(uint256): 1 -> 0\n// lv(uint256): 111 ->\n// l() -> 3\n// a(uint256): 2 -> 111\n"
-        },
-        "array_push.sol": {
-            "content": "contract c {\n    uint256[] data;\n\n    function test()\n        public\n        returns (uint256 x, uint256 y, uint256 z, uint256 l)\n    {\n        data.push(5);\n        x = data[0];\n        data.push(4);\n        y = data[1];\n        data.push(3);\n        l = data.length;\n        z = data[2];\n    }\n}\n// ----\n// test() -> 5, 4, 3, 3\n// gas irOptimized: 111834\n// gas legacy: 111804\n// gas legacyOptimized: 111122\n"
-        },
-        "array_push_nested.sol": {
-            "content": "contract C {\n    uint8 b = 23;\n    uint120[][] s;\n    uint8 a = 17;\n    function f() public {\n        s.push();\n        assert(s.length == 1);\n        assert(s[0].length == 0);\n        s[0].push();\n        assert(s[0].length == 1);\n        assert(s[0][0] == 0);\n    }\n}\n// ----\n// f() ->\n"
-        },
-        "array_push_packed_array.sol": {
-            "content": "contract c {\n    uint80[] x;\n\n    function test() public returns (uint80, uint80, uint80, uint80) {\n        x.push(1);\n        x.push(2);\n        x.push(3);\n        x.push(4);\n        x.push(5);\n        x.pop();\n        return (x[0], x[1], x[2], x[3]);\n    }\n}\n// ----\n// test() -> 1, 2, 3, 4\n// gas irOptimized: 93017\n// gas legacy: 92798\n// gas legacyOptimized: 92062\n"
-        },
-        "push_no_args_bytes.sol": {
-            "content": "contract C {\n\tbytes array;\n\n\tfunction f() public {\n\t\tarray.push();\n\t}\n\n\tfunction g(uint x) public {\n\t\tfor (uint i = 0; i < x; ++i)\n\t\t\tarray.push() = bytes1(uint8(i));\n\t}\n\n\tfunction l() public returns (uint) {\n\t\treturn array.length;\n\t}\n\n\tfunction a(uint index) public view returns (bytes1) {\n\t\treturn array[index];\n\t}\n}\n// ----\n// l() -> 0\n// g(uint256): 70 ->\n// gas irOptimized: 181778\n// gas legacy: 175192\n// gas legacyOptimized: 175005\n// l() -> 70\n// a(uint256): 69 -> left(69)\n// f() ->\n// l() -> 71\n// a(uint256): 70 -> 0\n"
-        },
-        "byte_array_push_transition.sol": {
-            "content": "// Tests transition between short and long encoding\ncontract c {\n    bytes data;\n\n    function test() public returns (uint256) {\n        for (uint8 i = 1; i < 40; i++) {\n            data.push(bytes1(i));\n            if (data.length != i) return 0x1000 + i;\n            if (data[data.length - 1] != bytes1(i)) return i;\n        }\n        for (uint8 i = 1; i < 40; i++)\n            if (data[i - 1] != bytes1(i)) return 0x1000000 + i;\n        return 0;\n    }\n}\n// ----\n// test() -> 0\n// gas irOptimized: 167569\n// gas legacy: 206218\n// gas legacyOptimized: 197297\n"
-        },
-        "push_no_args_struct.sol": {
-            "content": "contract C {\n\tstruct S {\n\t\tuint x;\n\t}\n\n\tS[] array;\n\n\tfunction f(uint y) public {\n\t\tS storage s = array.push();\n\t\tg(s, y);\n\t}\n\n\tfunction g(S storage s, uint y) internal {\n\t\ts.x = y;\n\t}\n\n\tfunction h(uint y) public {\n\t\tg(array.push(), y);\n\t}\n\n\tfunction lv(uint y) public {\n\t\tarray.push().x = y;\n\t}\n\n\tfunction a(uint i) public returns (uint) {\n\t\treturn array[i].x;\n\t}\n\n\tfunction l() public returns (uint) {\n\t\treturn array.length;\n\t}\n\n}\n// ----\n// l() -> 0\n// f(uint256): 42 ->\n// l() -> 1\n// a(uint256): 0 -> 42\n// h(uint256): 84 ->\n// l() -> 2\n// a(uint256): 1 -> 84\n// lv(uint256): 4096 ->\n// l() -> 3\n// a(uint256): 2 -> 4096\n"
-        },
-        "array_push_nested_from_memory.sol": {
-            "content": "contract C {\n    uint8 b = 23;\n    uint120[][] s;\n    uint8 a = 17;\n    function f() public returns(uint120) {\n        delete s;\n        uint120[] memory m = new uint120[](3);\n        m[0] = 1;\n        s.push(m);\n        assert(s.length == 1);\n        assert(s[0].length == m.length);\n        assert(s[0].length > 0);\n        return s[0][0];\n    }\n}\n// ----\n// f() -> 1\n"
-        },
-        "nested_bytes_push.sol": {
-            "content": "pragma abicoder               v2;\ncontract C {\n    bytes[] a;\n\n    function f() public {\n        a.push(\"abc\");\n        a.push(\"abcdefghabcdefghabcdefghabcdefgh\");\n        a.push(\"abcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefgh\");\n        assert(a[0][0] == \"a\");\n        assert(a[1][31] == \"h\");\n        assert(a[2][32] == \"a\");\n    }\n}\n// ----\n// f() ->\n// gas irOptimized: 179534\n// gas legacy: 181013\n// gas legacyOptimized: 180397\n"
-        },
         "array_push_nested_from_calldata.sol": {
             "content": "contract C {\n    uint8 b = 23;\n    uint120[][] s;\n    uint8 a = 17;\n    function f(uint120[] calldata c) public returns(uint120) {\n        s.push(c);\n        assert(s.length == 1);\n        assert(s[0].length == c.length);\n        assert(s[0].length > 0);\n        return s[0][0];\n    }\n}\n// ----\n// f(uint120[]): 0x20, 3, 1, 2, 3 -> 1\n// gas irOptimized: 112852\n// gas legacy: 113657\n// gas legacyOptimized: 113465\n"
         }

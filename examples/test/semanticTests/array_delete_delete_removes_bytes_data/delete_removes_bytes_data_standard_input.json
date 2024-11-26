@@ -1,9 +1,6 @@
 {
     "language": "Solidity",
     "sources": {
-        "memory_arrays_delete.sol": {
-            "content": "contract Test {\n    function del() public returns (uint24[3][4] memory) {\n        uint24[3][4] memory x;\n        for (uint24 i = 0; i < x.length; i ++)\n            for (uint24 j = 0; j < x[i].length; j ++)\n                x[i][j] = i * 0x10 + j;\n        delete x[1];\n        delete x[3][2];\n        return x;\n    }\n}\n// ----\n// del() -> 0, 1, 2, 0, 0, 0, 0x20, 0x21, 0x22, 0x30, 0x31, 0\n"
-        },
         "delete_removes_bytes_data.sol": {
             "content": "contract c {\n    fallback() external { data = msg.data; }\n    function del() public returns (bool) { delete data; return true; }\n    bytes data;\n}\n// ----\n// (): 7 ->\n// storageEmpty -> 0\n// del(): 7 -> true\n// storageEmpty -> 1\n"
         }

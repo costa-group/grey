@@ -1,9 +1,6 @@
 {
     "language": "Solidity",
     "sources": {
-        "using_global_invisible.sol": {
-            "content": "==== Source: A ====\ntype T is uint;\nusing L for T global;\nlibrary L {\n    function inc(T x) internal pure returns (T) {\n        return T.wrap(T.unwrap(x) + 1);\n    }\n    function dec(T x) external pure returns (T) {\n        return T.wrap(T.unwrap(x) - 1);\n    }\n}\nusing {unwrap} for T global;\nfunction unwrap(T x) pure returns (uint) {\n    return T.unwrap(x);\n}\n\n==== Source: B ====\ncontract C {\n    function f() public pure returns (T r1) {\n        r1 = r1.inc().inc();\n    }\n}\n\nimport {T} from \"A\";\n\n==== Source: C ====\nimport {C} from \"B\";\n\ncontract D {\n    function test() public returns (uint) {\n        C c = new C();\n        // This tests that attached functions are available\n        // even if the type is not available by name.\n        // This is a regular function call, a\n        // public and an internal library call\n        // and a free function call.\n        return c.f().inc().inc().dec().unwrap();\n    }\n}\n// ----\n// library: \"A\":L\n// test() -> 3\n// gas legacy: 59680\n// gas legacy code: 61200\n"
-        },
         "free_function_multi.sol": {
             "content": "contract C {\n    function f(uint z) pure external returns(uint) {\n        return z.id();\n    }\n\n    using {id, zero, zero, id} for uint;\n\n    function g(uint z) pure external returns (uint) {\n        return z.zero();\n    }\n}\n\nfunction id(uint x) pure returns (uint) {\n    return x;\n}\n\nfunction zero(uint) pure returns (uint) {\n    return 0;\n}\n// ----\n// f(uint256): 10 -> 10\n// g(uint256): 10 -> 0\n// f(uint256): 256 -> 0x0100\n// g(uint256): 256 -> 0\n"
         }

@@ -1,33 +1,6 @@
 {
     "language": "Solidity",
     "sources": {
-        "convert_uint_to_fixed_bytes_greater_size.sol": {
-            "content": "contract Test {\n    function UintToBytes(uint16 h) public returns (bytes8 s) {\n        return bytes8(uint64(h));\n    }\n}\n// ----\n// UintToBytes(uint16): 0x6162 -> \"\\x00\\x00\\x00\\x00\\x00\\x00ab\"\n"
-        },
-        "mapping_abstract_constructor_param.sol": {
-            "content": "abstract contract A {\n    constructor (mapping (uint => uint) storage m) {\n        m[5] = 20;\n    }\n}\n\ncontract C is A {\n    mapping (uint => uint) public m;\n\n    constructor() A(m) {\n    }\n}\n// ----\n// m(uint256): 1 -> 0\n// m(uint256): 5 -> 20\n"
-        },
-        "mapping_enum_key_v1.sol": {
-            "content": "pragma abicoder v1;\nenum E { A, B, C }\ncontract test {\n    mapping(E => uint8) table;\n    function get(E k) public returns (uint8 v) {\n        return table[k];\n    }\n    function set(E k, uint8 v) public {\n        table[k] = v;\n    }\n}\n// ====\n// EVMVersion: >=byzantium\n// ABIEncoderV1Only: true\n// compileViaYul: false\n// ----\n// get(uint8): 0 -> 0\n// get(uint8): 0x01 -> 0\n// get(uint8): 0x02 -> 0\n// get(uint8): 0x03 -> FAILURE, hex\"4e487b71\", 33\n// get(uint8): 0xa7 -> FAILURE, hex\"4e487b71\", 33\n// set(uint8,uint8): 0x01, 0xa1 ->\n// get(uint8): 0 -> 0\n// get(uint8): 0x01 -> 0xa1\n// get(uint8): 0xa7 -> FAILURE, hex\"4e487b71\", 33\n// set(uint8,uint8): 0x00, 0xef ->\n// get(uint8): 0 -> 0xef\n// get(uint8): 0x01 -> 0xa1\n// get(uint8): 0xa7 -> FAILURE, hex\"4e487b71\", 33\n// set(uint8,uint8): 0x01, 0x05 ->\n// get(uint8): 0 -> 0xef\n// get(uint8): 0x01 -> 0x05\n// get(uint8): 0xa7 -> FAILURE, hex\"4e487b71\", 33\n"
-        },
-        "assign_calldata_value_type.sol": {
-            "content": "contract C {\n    function f(uint256 x) public pure returns (uint256, uint256) {\n        uint256 b = x;\n        x = 42;\n        return (x, b);\n    }\n}\n// ----\n// f(uint256): 23 -> 42, 23\n"
-        },
-        "convert_uint_to_fixed_bytes_smaller_size.sol": {
-            "content": "contract Test {\n    function uintToBytes(uint32 h) public returns (bytes2 s) {\n        return bytes2(uint16(h));\n    }\n}\n// ----\n// uintToBytes(uint32): 0x61626364 -> \"cd\"\n"
-        },
-        "mapping_enum_key_v2.sol": {
-            "content": "pragma abicoder v2;\nenum E { A, B, C }\ncontract test {\n    mapping(E => uint8) table;\n    function get(E k) public returns (uint8 v) {\n        return table[k];\n    }\n    function set(E k, uint8 v) public {\n        table[k] = v;\n    }\n}\n// ====\n// EVMVersion: >=byzantium\n// ----\n// get(uint8): 0 -> 0\n// get(uint8): 0x01 -> 0\n// get(uint8): 0x02 -> 0\n// get(uint8): 0x03 -> FAILURE\n// get(uint8): 0xa7 -> FAILURE\n// set(uint8,uint8): 0x01, 0xa1 ->\n// get(uint8): 0 -> 0\n// get(uint8): 0x01 -> 0xa1\n// get(uint8): 0xa7 -> FAILURE\n// set(uint8,uint8): 0x00, 0xef ->\n// get(uint8): 0 -> 0xef\n// get(uint8): 0x01 -> 0xa1\n// get(uint8): 0xa7 -> FAILURE\n// set(uint8,uint8): 0x01, 0x05 ->\n// get(uint8): 0 -> 0xef\n// get(uint8): 0x01 -> 0x05\n// get(uint8): 0xa7 -> FAILURE\n"
-        },
-        "mapping_contract_key_getter.sol": {
-            "content": "interface A {}\ncontract test {\n    mapping(A => uint8) public table;\n    function set(A k, uint8 v) public {\n        table[k] = v;\n    }\n    function get(A k) public returns (uint8) {\n        return this.table(k);\n    }\n}\n// ----\n// table(address): 0 -> 0\n// table(address): 0x01 -> 0\n// table(address): 0xa7 -> 0\n// get(address): 0 -> 0\n// get(address): 0x01 -> 0\n// get(address): 0xa7 -> 0\n// set(address,uint8): 0x01, 0xa1 ->\n// table(address): 0 -> 0\n// table(address): 0x01 -> 0xa1\n// table(address): 0xa7 -> 0\n// get(address): 0 -> 0\n// get(address): 0x01 -> 0xa1\n// get(address): 0xa7 -> 0\n// set(address,uint8): 0x00, 0xef ->\n// table(address): 0 -> 0xef\n// table(address): 0x01 -> 0xa1\n// table(address): 0xa7 -> 0\n// get(address): 0 -> 0xef\n// get(address): 0x01 -> 0xa1\n// get(address): 0xa7 -> 0\n// set(address,uint8): 0x01, 0x05 ->\n// table(address): 0 -> 0xef\n// table(address): 0x01 -> 0x05\n// table(address): 0xa7 -> 0\n// get(address): 0 -> 0xef\n// get(address): 0x01 -> 0x05\n// get(address): 0xa7 -> 0\n"
-        },
-        "packing_signed_types.sol": {
-            "content": "contract test {\n    function run() public returns(int8 y) {\n        uint8 x = 0xfa;\n        return int8(x);\n    }\n}\n// ----\n// run() -> 0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffa\n"
-        },
-        "external_function_to_address.sol": {
-            "content": "contract C {\n    function f() public returns (bool) {\n        return this.f.address == address(this);\n    }\n    function g(function() external cb) public returns (address) {\n        return cb.address;\n    }\n}\n// ----\n// f() -> true\n// g(function): hex\"00000000000000000000000000000000000004226121ff00000000000000000\" -> 0x42\n"
-        },
         "convert_fixed_bytes_to_uint_same_type.sol": {
             "content": "contract Test {\n    function bytesToUint(bytes32 s) public returns (uint256 h) {\n        return uint(s);\n    }\n}\n// ----\n// bytesToUint(bytes32): \"abc2\" -> left(0x61626332)\n"
         }

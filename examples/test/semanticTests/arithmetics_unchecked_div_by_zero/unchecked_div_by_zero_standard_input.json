@@ -1,15 +1,6 @@
 {
     "language": "Solidity",
     "sources": {
-        "unchecked_called_by_checked.sol": {
-            "content": "contract C {\n    function add(uint16 a, uint16 b) public returns (uint16) {\n        unchecked {\n            return a + b;\n        }\n    }\n\n    function f(uint16 a) public returns (uint16) {\n        return add(a, 0x100) + 0x100;\n    }\n}\n// ----\n// f(uint16): 7 -> 0x0207\n// f(uint16): 0xffff -> 511\n// f(uint16): 0xfeff -> FAILURE, hex\"4e487b71\", 0x11\n"
-        },
-        "addmod_mulmod.sol": {
-            "content": "contract C {\n    function test() public returns (uint256) {\n        // Note that this only works because computation on literals is done using\n        // unbounded integers.\n        if ((2**255 + 2**255) % 7 != addmod(2**255, 2**255, 7)) return 1;\n        if ((2**255 + 2**255) % 7 != addmod(2**255, 2**255, 7)) return 2;\n        return 0;\n    }\n}\n// ----\n// test() -> 0\n"
-        },
-        "block_inside_unchecked.sol": {
-            "content": "contract C {\n  function f() public returns (uint y) {\n    unchecked{{\n        uint max = type(uint).max;\n        uint x = max + 1;\n        y = x;\n    }}\n  }\n}\n// ----\n// f() -> 0x00\n"
-        },
         "unchecked_div_by_zero.sol": {
             "content": "contract C {\n    function div(uint256 a, uint256 b) public returns (uint256) {\n        // Does not disable div by zero check\n        unchecked {\n            return a / b;\n        }\n    }\n\n    function mod(uint256 a, uint256 b) public returns (uint256) {\n        // Does not disable div by zero check\n        unchecked {\n            return a % b;\n        }\n    }\n}\n// ----\n// div(uint256,uint256): 7, 2 -> 3\n// div(uint256,uint256): 7, 0 -> FAILURE, hex\"4e487b71\", 0x12 # throws #\n// mod(uint256,uint256): 7, 2 -> 1\n// mod(uint256,uint256): 7, 0 -> FAILURE, hex\"4e487b71\", 0x12 # throws #\n"
         }

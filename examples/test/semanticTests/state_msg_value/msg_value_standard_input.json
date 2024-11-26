@@ -1,63 +1,6 @@
 {
     "language": "Solidity",
     "sources": {
-        "block_chainid.sol": {
-            "content": "contract C {\n    function f() public returns (uint) {\n        return block.chainid;\n    }\n}\n// ====\n// EVMVersion: >=istanbul\n// ----\n// f() -> 1\n// f() -> 1\n// f() -> 1\n"
-        },
-        "uncalled_blockhash.sol": {
-            "content": "contract C {\n    function f() public returns (bytes32) {\n        return (blockhash)(block.number - 1);\n    }\n}\n// ----\n// f() -> 0x3737373737373737373737373737373737373737373737373737373737373738\n"
-        },
-        "msg_sender.sol": {
-            "content": "contract C {\n    function f() public returns (address) {\n        return msg.sender;\n    }\n}\n// ----\n// f() -> 0x1212121212121212121212121212120000000012\n"
-        },
-        "uncalled_blobhash.sol": {
-            "content": "contract C {\n    function f() public returns (bytes32) {\n        // NOTE: The `tx_context.blob_hashes` is injected into EVMHost with the following hashes, indexed accordingly:\n        // 0 -> 0x0100000000000000000000000000000000000000000000000000000000000001\n        // 1 -> 0x0100000000000000000000000000000000000000000000000000000000000002\n        return (blobhash)(0);\n    }\n}\n// ====\n// EVMVersion: >=cancun\n// ----\n// f() -> 0x0100000000000000000000000000000000000000000000000000000000000001\n"
-        },
-        "block_difficulty_post_paris.sol": {
-            "content": "contract C {\n    function f() public returns (uint) {\n        return block.difficulty;\n    }\n}\n// ====\n// EVMVersion: >=paris\n// ----\n// f() -> 0xa86c2e601b6c44eb4848f7d23d9df3113fbcac42041c49cbed5000cb4f118777\n// f() -> 0xa86c2e601b6c44eb4848f7d23d9df3113fbcac42041c49cbed5000cb4f118777\n// f() -> 0xa86c2e601b6c44eb4848f7d23d9df3113fbcac42041c49cbed5000cb4f118777\n"
-        },
-        "msg_data.sol": {
-            "content": "contract C {\n    function f() public returns (bytes calldata) {\n        return msg.data;\n    }\n    function g(uint,bool) public returns (bytes calldata) {\n        return msg.data;\n    }\n}\n// ----\n// f() -> 0x20, 4, 17219911917854084299749778639755835327755045716242581057573779540915269926912\n// g(uint256,bool): 1234, true -> 0x20, 0x44, 35691323728519381642872894128098848782337736632589179916067422734266033766400, 33268574187263889506619096617382224251268236217415066441681855047532544, 26959946667150639794667015087019630673637144422540572481103610249216\n"
-        },
-        "block_gaslimit.sol": {
-            "content": "contract C {\n    function f() public returns (uint) {\n        return block.gaslimit;\n    }\n}\n// ----\n// f() -> 20000000\n// f() -> 20000000\n// f() -> 20000000\n"
-        },
-        "msg_sig.sol": {
-            "content": "contract C {\n    function f() public returns (bytes4) {\n        return msg.sig;\n    }\n    function g() public returns (bytes4) {\n        return msg.sig;\n    }\n}\n// ----\n// f() -> 0x26121ff000000000000000000000000000000000000000000000000000000000\n// g() -> 0xe2179b8e00000000000000000000000000000000000000000000000000000000\n"
-        },
-        "blockhash_basic.sol": {
-            "content": "contract C {\n    bytes32 public genesisHash;\n    bytes32 public currentHash;\n    constructor() {\n        require(block.number == 1);\n        genesisHash = blockhash(0);\n        currentHash = blockhash(1);\n    }\n    function f(uint blockNumber) public returns (bytes32) {\n        return blockhash(blockNumber);\n    }\n}\n// ----\n// constructor()\n// gas irOptimized: 80338\n// gas irOptimized code: 27800\n// gas legacy: 83571\n// gas legacy code: 68600\n// gas legacyOptimized: 80338\n// gas legacyOptimized code: 26400\n// genesisHash() -> 0x3737373737373737373737373737373737373737373737373737373737373737\n// currentHash() -> 0\n// f(uint256): 0 -> 0x3737373737373737373737373737373737373737373737373737373737373737\n// f(uint256): 1 -> 0x3737373737373737373737373737373737373737373737373737373737373738\n// f(uint256): 255 -> 0x00\n// f(uint256): 256 -> 0x00\n// f(uint256): 257 -> 0x00\n"
-        },
-        "block_blobbasefee.sol": {
-            "content": "contract C {\n    function f() public view returns (uint) {\n        return block.blobbasefee;\n    }\n    function g() public view returns (uint ret) {\n        assembly {\n            ret := blobbasefee()\n        }\n    }\n}\n// ====\n// EVMVersion: >=cancun\n// ----\n// f() -> 1\n// g() -> 1\n// f() -> 1\n// g() -> 1\n"
-        },
-        "block_coinbase.sol": {
-            "content": "contract C {\n    function f() public returns (address payable) {\n        return block.coinbase;\n    }\n}\n// ----\n// f() -> 0x7878787878787878787878787878787878787878\n// f() -> 0x7878787878787878787878787878787878787878\n// f() -> 0x7878787878787878787878787878787878787878\n"
-        },
-        "tx_origin.sol": {
-            "content": "contract C {\n    function f() public returns (address) {\n        return tx.origin;\n    }\n}\n// ----\n// f() -> 0x9292929292929292929292929292929292929292\n// f() -> 0x9292929292929292929292929292929292929292\n// f() -> 0x9292929292929292929292929292929292929292\n"
-        },
-        "gasleft.sol": {
-            "content": "contract C {\n    function f() public returns (bool) {\n        return gasleft() > 0;\n    }\n}\n// ----\n// f() -> true\n// f() -> true\n// f() -> true\n"
-        },
-        "block_difficulty.sol": {
-            "content": "contract C {\n    function f() public returns (uint) {\n        return block.difficulty;\n    }\n}\n// ====\n// EVMVersion: <paris\n// ----\n// f() -> 200000000\n// f() -> 200000000\n// f() -> 200000000\n"
-        },
-        "block_timestamp.sol": {
-            "content": "contract C {\n    constructor() {}\n    function f() public returns (uint) {\n        return block.timestamp;\n    }\n}\n// ----\n// constructor() # This is the 1st block #\n// f() -> 0x1e # This is the 2nd block (each block is \"15 seconds\") #\n// f() -> 0x2d # This is the 3rd block #\n"
-        },
-        "block_basefee.sol": {
-            "content": "contract C {\n    function f() public view returns (uint) {\n        return block.basefee;\n    }\n    function g() public view returns (uint ret) {\n        assembly {\n            ret := basefee()\n        }\n    }\n}\n// ====\n// EVMVersion: >=london\n// ----\n// f() -> 7\n// g() -> 7\n// f() -> 7\n// g() -> 7\n"
-        },
-        "blobhash.sol": {
-            "content": "contract C {\n    function f(uint _index) public returns (bytes32) {\n        return blobhash(_index);\n    }\n}\n// ====\n// EVMVersion: >=cancun\n// ----\n// f(uint256): 0 -> 0x0100000000000000000000000000000000000000000000000000000000000001\n// f(uint256): 1 -> 0x0100000000000000000000000000000000000000000000000000000000000002\n// f(uint256): 2 -> 0x00\n// f(uint256): 255 -> 0x00\n// f(uint256): 256 -> 0x00\n// f(uint256): 257 -> 0x00\n"
-        },
-        "block_prevrandao.sol": {
-            "content": "contract C {\n    function f() public view returns (uint) {\n        return block.prevrandao;\n    }\n}\n// ====\n// EVMVersion: >=paris\n// ----\n// f() -> 0xa86c2e601b6c44eb4848f7d23d9df3113fbcac42041c49cbed5000cb4f118777\n"
-        },
-        "block_prevrandao_pre_paris.sol": {
-            "content": "contract C {\n    function f() public view returns (uint) {\n        return block.prevrandao;\n    }\n}\n// ====\n// EVMVersion: <paris\n// ----\n// f() -> 200000000\n"
-        },
         "msg_value.sol": {
             "content": "contract C {\n    function f() public payable returns (uint) {\n        return msg.value;\n    }\n}\n// ----\n// f() -> 0\n// f(), 12 ether -> 12000000000000000000\n"
         }

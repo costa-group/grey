@@ -1,15 +1,6 @@
 {
     "language": "Solidity",
     "sources": {
-        "parenthesized.sol": {
-            "content": "contract C {\n  int[] data;\n  function f() public returns (uint) {\n    data.push(1);\n    (data.pop)();\n    return data.length;\n  }\n}\n// ----\n// f() -> 0\n"
-        },
-        "array_pop_isolated.sol": {
-            "content": "// This tests that the compiler knows the correct size of the function on the stack.\ncontract c {\n    uint256[] data;\n\n    function test() public returns (uint256 x) {\n        x = 2;\n        data.pop;\n        x = 3;\n    }\n}\n// ----\n// test() -> 3\n"
-        },
-        "byte_array_pop.sol": {
-            "content": "contract c {\n    bytes data;\n\n    function test() public returns (uint256 x, uint256 y, uint256 l) {\n        data.push(0x07);\n        data.push(0x03);\n        x = data.length;\n        data.pop();\n        data.pop();\n        data.push(0x02);\n        y = data.length;\n        l = data.length;\n    }\n}\n// ----\n// test() -> 2, 1, 1\n"
-        },
         "array_pop.sol": {
             "content": "contract c {\n    uint256[] data;\n\n    function test() public returns (uint256 x, uint256 l) {\n        data.push(7);\n        data.push(3);\n        x = data.length;\n        data.pop();\n        x = data.length;\n        data.pop();\n        l = data.length;\n    }\n}\n// ----\n// test() -> 1, 0\n"
         }

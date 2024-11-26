@@ -1,33 +1,6 @@
 {
     "language": "Solidity",
     "sources": {
-        "asm_address_constant_regression.sol": {
-            "content": "// Test for regression of https://github.com/ethereum/solidity/issues/8406\n\ncontract C {\n  address constant e = 0x1212121212121212121212121000002134593163;\n\n  function f() public returns (bytes1 z) {\n    assembly { z := e }\n  }\n}\n// ----\n// f() -> 0x00\n"
-        },
-        "asm_constant_file_level.sol": {
-            "content": "address constant e = 0x1212121212121212121212121000002134593163;\n\ncontract C {\n  function f() public returns (address z) {\n    assembly { z := e }\n  }\n}\n// ----\n// f() -> 0x1212121212121212121212121000002134593163\n"
-        },
-        "constant_string_at_file_level.sol": {
-            "content": "bytes constant a = \"\\x03\\x01\\x02\";\nbytes constant b = hex\"030102\";\nstring constant c = \"hello\";\nuint256 constant x = 56;\nenum ActionChoices {GoLeft, GoRight, GoStraight, Sit}\nActionChoices constant choices = ActionChoices.GoRight;\nbytes32 constant st = \"abc\\x00\\xff__\";\n\ncontract C {\n    function f() public returns (bytes memory) {\n        return a;\n    }\n\n    function g() public returns (bytes memory) {\n        return b;\n    }\n\n    function h() public returns (bytes memory) {\n        return bytes(c);\n    }\n\n    function i() public returns (uint, ActionChoices, bytes32) {\n        return (x, choices, st);\n    }\n}\n// ----\n// f() -> 0x20, 3, \"\\x03\\x01\\x02\"\n// g() -> 0x20, 3, \"\\x03\\x01\\x02\"\n// h() -> 0x20, 5, \"hello\"\n// i() -> 0x38, 1, 0x61626300ff5f5f00000000000000000000000000000000000000000000000000\n"
-        },
-        "constant_variables.sol": {
-            "content": "contract Foo {\n    uint256 constant x = 56;\n    enum ActionChoices {GoLeft, GoRight, GoStraight, Sit}\n    ActionChoices constant choices = ActionChoices.GoLeft;\n    bytes32 constant st = \"abc\\x00\\xff__\";\n}\n// ----\n// constructor() ->\n"
-        },
-        "constant_string.sol": {
-            "content": "contract C {\n    bytes constant a = \"\\x03\\x01\\x02\";\n    bytes constant b = hex\"030102\";\n    string constant c = \"hello\";\n\n    function f() public returns (bytes memory) {\n        return a;\n    }\n\n    function g() public returns (bytes memory) {\n        return b;\n    }\n\n    function h() public returns (bytes memory) {\n        return bytes(c);\n    }\n}\n// ----\n// f() -> 0x20, 3, \"\\x03\\x01\\x02\"\n// g() -> 0x20, 3, \"\\x03\\x01\\x02\"\n// h() -> 0x20, 5, \"hello\"\n"
-        },
-        "constants_at_file_level_referencing.sol": {
-            "content": "==== Source: s1.sol ====\n\n\nbytes constant a = b;\nbytes constant b = hex\"030102\";\n\nfunction fre() pure returns (bytes memory) {\n    return a;\n}\n\n==== Source: s2.sol ====\n\nimport \"s1.sol\";\n\nuint256 constant c = uint8(a[0]) + 2;\n\ncontract C {\n    function f() public returns (bytes memory) {\n        return a;\n    }\n\n    function g() public returns (bytes memory) {\n        return b;\n    }\n\n    function h() public returns (uint) {\n        return c;\n    }\n\n    function i() public returns (bytes memory) {\n        return fre();\n    }\n}\n// ----\n// f() -> 0x20, 3, \"\\x03\\x01\\x02\"\n// g() -> 0x20, 3, \"\\x03\\x01\\x02\"\n// h() -> 5\n// i() -> 0x20, 3, \"\\x03\\x01\\x02\"\n"
-        },
-        "same_constants_different_files.sol": {
-            "content": "==== Source: s1.sol ====\n\n\nuint constant a = 89;\n\nfunction fre() pure returns (uint) {\n    return a;\n}\n\n==== Source: s2.sol ====\n\nimport {a as b, fre} from \"s1.sol\";\nimport \"s1.sol\" as M;\n\nuint256 constant a = 13;\n\ncontract C {\n    function f() public returns (uint, uint, uint, uint) {\n        return (a, fre(), M.a, b);\n    }\n}\n// ----\n// f() -> 0x0d, 0x59, 0x59, 0x59\n"
-        },
-        "simple_constant_variables_test.sol": {
-            "content": "contract Foo {\n    function getX() public returns (uint256 r) {\n        return x;\n    }\n\n    uint256 constant x = 56;\n}\n// ----\n// getX() -> 56\n"
-        },
-        "consteval_array_length.sol": {
-            "content": "contract C {\n    uint constant a = 12;\n    uint constant b = 10;\n\n    function f() public pure returns (uint, uint) {\n        uint[(a / b) * b] memory x;\n        return (x.length, (a / b) * b);\n    }\n}\n// ====\n// compileViaYul: true\n// ----\n// constructor() ->\n// f() -> 0x0a, 0x0a\n"
-        },
         "function_unreferenced.sol": {
             "content": "contract B {\n    function g() public {}\n}\ncontract C is B {\n    bytes4 constant s2 = B.g.selector;\n    function f() external pure returns (bytes4) { return s2; }\n}\n// ----\n// f() -> 0xe2179b8e00000000000000000000000000000000000000000000000000000000\n"
         }

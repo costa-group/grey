@@ -1,39 +1,6 @@
 {
     "language": "Solidity",
     "sources": {
-        "free_function_transitive_import.sol": {
-            "content": "==== Source: s1.sol ====\nfunction f() pure returns (uint) { return 1337; }\ncontract C {\n  function g() public pure returns (uint) {\n    return f();\n  }\n}\n==== Source: s2.sol ====\nimport \"s1.sol\";\ncontract D is C {\n  function h() public pure returns (uint) {\n    return g();\n  }\n}\n==== Source: s3.sol ====\nimport \"s2.sol\";\nimport {f as f} from \"s2.sol\";\ncontract E is D {\n  function i() public pure returns (uint) {\n    return f();\n  }\n}\n// ----\n// i() -> 1337\n"
-        },
-        "import.sol": {
-            "content": "==== Source: A ====\ncontract A {\n\tfunction g(uint256 x) public view returns(uint256) { return x + 1; }\n}\n==== Source: B ====\nimport \"A\";\ncontract B is A {\n\tfunction f(uint256 x) public view returns(uint256) { return x; }\n}\n// ----\n// f(uint256): 1337 -> 1337\n// g(uint256): 1337 -> 1338\n"
-        },
-        "free_function_resolution_override_virtual.sol": {
-            "content": "==== Source: s1.sol ====\nfunction f() pure returns (uint) { return 1337; }\ncontract C {\n  function g() public pure virtual returns (uint) {\n    return f() + 1;\n  }\n}\n==== Source: s2.sol ====\nimport \"s1.sol\";\ncontract D is C {\n  function g() public pure override returns (uint) {\n    return f();\n  }\n}\n// ----\n// g() -> 1337\n"
-        },
-        "circular_reimport.sol": {
-            "content": "==== Source: s1.sol ====\nimport {f as g, g as h} from \"s2.sol\";\nfunction f() pure returns (uint) { return 100 + h() - g(); }\n==== Source: s2.sol ====\nimport {f as h} from \"s1.sol\";\nfunction f() pure returns (uint) { return 2; }\nfunction g() pure returns (uint) { return 4; }\n==== Source: s3.sol ====\nimport \"s1.sol\";\ncontract C {\n  function foo() public pure returns (uint) {\n    return f() - g() - h();\n  }\n}\n// ----\n// foo() -> 0x60\n"
-        },
-        "circular_import_2.sol": {
-            "content": "==== Source: s1.sol ====\nimport {f as g, g as h} from \"s2.sol\";\nfunction f() pure returns (uint) { return 1000 + g() - h(); }\n==== Source: s2.sol ====\nimport {f as h} from \"s1.sol\";\nfunction f() pure returns (uint) { return 2; }\nfunction g() pure returns (uint) { return 4; }\ncontract C {\n  function foo() public pure returns (uint) {\n    return h() - f() - g();\n  }\n}\n// ----\n// foo() -> 992\n"
-        },
-        "free_function_resolution_base_contract.sol": {
-            "content": "==== Source: s1.sol ====\nfunction f() pure returns (uint) { return 1337; }\ncontract C {\n  function g() public pure returns (uint) {\n    return f();\n  }\n}\n==== Source: s2.sol ====\nimport \"s1.sol\";\ncontract D is C {\n  function h() public pure returns (uint) {\n    return g();\n  }\n}\n// ----\n// h() -> 1337\n"
-        },
-        "free_function_resolution_override_virtual_transitive.sol": {
-            "content": "==== Source: s1.sol ====\nfunction f() pure returns (uint) { return 1337; }\ncontract C {\n  function g() public pure virtual returns (uint) {\n    return f();\n  }\n}\n==== Source: s2.sol ====\nimport \"s1.sol\";\ncontract D is C {\n  function g() public pure virtual override returns (uint) {\n    return super.g() + 1;\n  }\n}\n==== Source: s3.sol ====\nimport \"s2.sol\";\ncontract E is D {\n  function g() public pure override returns (uint) {\n    return super.g() + 1;\n  }\n}\n// ----\n// g() -> 1339\n"
-        },
-        "import_overloaded_function.sol": {
-            "content": "==== Source: A ====\nfunction sub(uint256 x, uint256 y) pure returns (uint) { return 1; }\nfunction sub(uint256 x) pure returns (uint) { return 2; }\n==== Source: B ====\nimport {sub} from \"A\";\ncontract C\n{\n    function f() public pure returns (uint, uint) {\n        return (sub(1, 2), sub(2));\n    }\n}\n// ----\n// f() -> 1, 2\n"
-        },
-        "free_function_resolution_override_virtual_super.sol": {
-            "content": "==== Source: s1.sol ====\nfunction f() pure returns (uint) { return 1337; }\ncontract C {\n  function g() public pure virtual returns (uint) {\n    return f();\n  }\n}\n==== Source: s2.sol ====\nimport \"s1.sol\";\ncontract D is C {\n  function g() public pure override returns (uint) {\n    return super.g();\n  }\n}\n// ----\n// g() -> 1337\n"
-        },
-        "free_different_interger_types.sol": {
-            "content": "==== Source: s1.sol ====\nfunction f(uint24) pure returns (uint) { return 24; }\nfunction g(bool) pure returns (bool) { return true; }\n==== Source: s2.sol ====\nimport {f as g, g as g} from \"s1.sol\";\ncontract C {\n  function foo() public pure returns (uint, bool) {\n    return (g(2), g(false));\n  }\n}\n// ----\n// foo() -> 24, true\n"
-        },
-        "imported_free_function_via_alias_direct_call.sol": {
-            "content": "==== Source: s1.sol ====\nfunction f() pure returns (uint) { return 1337; }\n==== Source: s2.sol ====\nimport {f as g} from \"s1.sol\";\nfunction f() pure returns (uint) { return 6; }\ncontract D {\n  function h() public pure returns (uint) {\n    return g() + f() * 10000;\n  }\n}\n// ----\n// h() -> 61337\n"
-        },
         "circular_reimport_2.sol": {
             "content": "==== Source: s1.sol ====\nimport {f as g, g as h} from \"s2.sol\";\nfunction f() pure returns (uint) { return 1000 + h() - g(); }\n==== Source: s2.sol ====\nimport {f as h} from \"s1.sol\";\nfunction f() pure returns (uint) { return 2; }\nfunction g() pure returns (uint) { return 4; }\n==== Source: s3.sol ====\nimport \"s2.sol\";\ncontract C {\n  function foo() public pure returns (uint) {\n    return 10000 + f() - g() - h();\n  }\n}\n// ----\n// foo() -> 0x2324\n"
         }

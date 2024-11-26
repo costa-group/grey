@@ -1,18 +1,6 @@
 {
     "language": "Solidity",
     "sources": {
-        "ecrecover_abiV2.sol": {
-            "content": "pragma abicoder               v2;\ncontract test {\n    function a(bytes32 h, uint8 v, bytes32 r, bytes32 s) public returns (address addr) {\n        return ecrecover(h, v, r, s);\n    }\n}\n// ----\n// a(bytes32,uint8,bytes32,bytes32):\n// 0x18c547e4f7b0f325ad1e56f57e26c745b09a3e503d86e00e5255ff7f715d3d1c,\n// 28,\n// 0x73b1693892219d736caba55bdb67216e485557ea6b6af75f37096c9aa6a5a75f,\n// 0xeeb940b1d03b21e36b0e47e79769f095fe2ab855bd91e3a38756b7d75a9c4549\n// -> 0xa94f5374fce5edbc8e2a8697c15331677e6ebf0b\n"
-        },
-        "failing_ecrecover_invalid_input_asm.sol": {
-            "content": "contract C {\n    function f() public returns (address) {\n        assembly {\n            mstore(mload(0x40), 0xca35b7d915458ef540ade6068dfe2f44e8fa733c)\n        }\n        return ecrecover(\n            0x77e5189111eb6557e8a637b27ef8fbb15bc61d61c2f00cc48878f3a296e5e0ca,\n            0, // invalid v value\n            0x6944c77849b18048f6abe0db8084b0d0d0689cdddb53d2671c36967b58691ad4,\n            0xef4f06ba4f78319baafd0424365777241af4dfd3da840471b4b4b087b7750d0d\n        );\n    }\n}\n// ----\n// f() -> 0\n"
-        },
-        "failing_ecrecover_invalid_input.sol": {
-            "content": "contract C {\n    // ecrecover should return zero for malformed input\n\t// (v should be 27 or 28, not 1)\n\t// Note that the precompile does not return zero but returns nothing.\n    function f() public returns (address) {\n        return ecrecover(bytes32(type(uint256).max), 1, bytes32(uint(2)), bytes32(uint(3)));\n    }\n}\n// ----\n// f() -> 0\n"
-        },
-        "failing_ecrecover_invalid_input_proper.sol": {
-            "content": "contract C {\n    function f() public returns (address) {\n        return recover(\n            0x77e5189111eb6557e8a637b27ef8fbb15bc61d61c2f00cc48878f3a296e5e0ca,\n            0, // invalid v value\n            0x6944c77849b18048f6abe0db8084b0d0d0689cdddb53d2671c36967b58691ad4,\n            0xef4f06ba4f78319baafd0424365777241af4dfd3da840471b4b4b087b7750d0d,\n            0x000000000000000000000000ca35b7d915458ef540ade6068dfe2f44e8fa733c,\n            0x000000000000000000000000ca35b7d915458ef540ade6068dfe2f44e8fa733c\n        );\n    }\n    function recover(bytes32 hash, uint8 v, bytes32 r, bytes32 s, uint blockExpired, bytes32 salt)\n        public returns (address)\n    {\n        require(hash == keccak256(abi.encodePacked(blockExpired, salt)));\n        return ecrecover(hash, v, r, s);\n    }\n}\n// ----\n// f() -> 0\n"
-        },
         "ecrecover.sol": {
             "content": "contract test {\n    function a(bytes32 h, uint8 v, bytes32 r, bytes32 s) public returns (address addr) {\n        return ecrecover(h, v, r, s);\n    }\n}\n// ----\n// a(bytes32,uint8,bytes32,bytes32):\n// 0x18c547e4f7b0f325ad1e56f57e26c745b09a3e503d86e00e5255ff7f715d3d1c,\n// 28,\n// 0x73b1693892219d736caba55bdb67216e485557ea6b6af75f37096c9aa6a5a75f,\n// 0xeeb940b1d03b21e36b0e47e79769f095fe2ab855bd91e3a38756b7d75a9c4549\n// -> 0xa94f5374fce5edbc8e2a8697c15331677e6ebf0b\n"
         }

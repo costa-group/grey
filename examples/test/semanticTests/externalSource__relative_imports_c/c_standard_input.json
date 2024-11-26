@@ -1,9 +1,6 @@
 {
     "language": "Solidity",
     "sources": {
-        "h.sol": {
-            "content": "contract H {\n}\n"
-        },
         "c.sol": {
             "content": "contract C {\n}\n"
         }

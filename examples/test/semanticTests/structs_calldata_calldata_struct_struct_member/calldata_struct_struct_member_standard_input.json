@@ -1,42 +1,6 @@
 {
     "language": "Solidity",
     "sources": {
-        "calldata_struct_to_storage.sol": {
-            "content": "pragma abicoder v2;\n\ncontract C {\n    struct S {\n        uint256 a;\n        uint64 b;\n        bytes2 c;\n    }\n\n    uint[153] r;\n    S s;\n\n    function f(uint32 a, S calldata c, uint256 b) external returns (uint256, uint256, bytes1) {\n        s = c;\n        return (s.a, s.b, s.c[1]);\n    }\n}\n// ----\n// f(uint32,(uint256,uint64,bytes2),uint256): 1, 42, 23, \"ab\", 1 -> 42, 23, \"b\"\n"
-        },
-        "calldata_struct.sol": {
-            "content": "pragma abicoder               v2;\n\n\ncontract C {\n    struct S {\n        uint256 a;\n        uint256 b;\n    }\n\n    function f(S calldata s) external pure returns (uint256 a, uint256 b) {\n        a = s.a;\n        b = s.b;\n    }\n}\n// ----\n// f((uint256,uint256)): 42, 23 -> 42, 23\n"
-        },
-        "calldata_struct_to_memory_tuple_assignment.sol": {
-            "content": "pragma abicoder v2;\n\ncontract C {\n    struct S {\n        uint128 p1;\n        uint256[][2] a;\n        uint32 p2;\n    }\n\n    function f(uint32 p1, S calldata c) external returns(uint32, uint128, uint256, uint256, uint32) {\n        S memory m;\n        uint32 p2;\n        (p2, m) = (p1, c);\n        m.p1++;\n        m.a[0][1]++;\n        return (p2, m.p1, m.a[0][0], m.a[1][1], m.p2);\n    }\n}\n// ----\n// f(uint32,(uint128,uint256[][2],uint32)): 55, 0x40, 77, 0x60, 88, 0x40, 0x40, 2, 1, 2 -> 55, 78, 1, 2, 88\n"
-        },
-        "calldata_structs.sol": {
-            "content": "pragma abicoder               v2;\n\n\ncontract C {\n    struct S1 {\n        uint256 a;\n        uint256 b;\n    }\n    struct S2 {\n        uint256 a;\n    }\n\n    function f(S1 calldata s1, S2 calldata s2, S1 calldata s3)\n        external\n        pure\n        returns (uint256 a, uint256 b, uint256 c, uint256 d, uint256 e)\n    {\n        a = s1.a;\n        b = s1.b;\n        c = s2.a;\n        d = s3.a;\n        e = s3.b;\n    }\n}\n// ----\n// f((uint256,uint256),(uint256),(uint256,uint256)): 1, 2, 3, 4, 5 -> 1, 2, 3, 4, 5\n"
-        },
-        "calldata_struct_and_ints.sol": {
-            "content": "pragma abicoder               v2;\n\n\ncontract C {\n    struct S {\n        uint256 a;\n        uint256 b;\n    }\n\n    function f(uint256 a, S calldata s, uint256 b)\n        external\n        pure\n        returns (uint256, uint256, uint256, uint256)\n    {\n        return (a, s.a, s.b, b);\n    }\n}\n// ----\n// f(uint256,(uint256,uint256),uint256): 1, 2, 3, 4 -> 1, 2, 3, 4\n"
-        },
-        "dynamic_nested.sol": {
-            "content": "pragma abicoder               v2;\n\ncontract C {\n\tstruct S2 { uint256 b; }\n\tstruct S { uint256 a; S2[] children; }\n\tfunction f(S calldata s) external pure returns (uint256, uint256, uint256, uint256) {\n\t\treturn (s.children.length, s.a, s.children[0].b, s.children[1].b);\n\t}\n}\n// ----\n// f((uint256,(uint256)[])): 32, 17, 64, 2, 23, 42 -> 2, 17, 23, 42\n"
-        },
-        "calldata_struct_as_argument_of_lib_function.sol": {
-            "content": "pragma abicoder v2;\n\nstruct S {\n    uint128 p1;\n    uint256[][2] a;\n    uint32 p2;\n}\nstruct S1 {\n    uint128 u;\n    S s;\n}\n\nlibrary L {\n    function f(S1 memory m, uint32 p) external returns(uint32, uint128, uint256, uint256, uint32) {\n        return (p, m.s.p1, m.s.a[0][0], m.s.a[1][1], m.s.p2);\n    }\n}\n\ncontract C {\n\n    function f(S1 calldata c, uint32 p) external returns(uint32, uint128, uint256, uint256, uint32) {\n        return L.f(c, p);\n    }\n}\n// ----\n// library: L\n// f((uint128,(uint128,uint256[][2],uint32)),uint32): 0x40, 44, 11, 0x40, 22, 0x60, 33, 0x40, 0x40, 2, 1, 2 -> 44, 22, 1, 2, 33\n"
-        },
-        "calldata_struct_with_nested_array_to_storage.sol": {
-            "content": "pragma abicoder               v2;\n\ncontract C {\n    struct S {\n        uint128 p1;\n        uint256[][2] a;\n        uint32 p2;\n    }\n    S s;\n    function f(uint32 p1, S calldata c) external returns(uint32, uint128, uint256, uint256, uint32) {\n        s = c;\n        assert(s.a[0][0] == c.a[0][0]);\n        assert(s.a[1][1] == c.a[1][1]);\n        return (p1, s.p1, s.a[0][0], s.a[1][1], s.p2);\n    }\n}\n// ----\n// f(uint32,(uint128,uint256[][2],uint32)): 55, 0x40, 77, 0x60, 88, 0x40, 0x40, 2, 1, 2 -> 55, 77, 1, 2, 88\n// gas irOptimized: 202902\n// gas legacy: 207376\n// gas legacyOptimized: 203583\n"
-        },
-        "calldata_struct_struct_member_dynamic.sol": {
-            "content": "pragma abicoder v2;\n\ncontract C {\n    struct S {\n        uint64 a;\n        bytes b;\n    }\n    struct S1 {\n        uint256 a;\n        S s;\n        uint256 c;\n    }\n\n    function f(S1 calldata s1)\n        external\n        pure\n        returns (uint256 a, uint64 b0, bytes1 b1, uint256 c)\n    {\n        a = s1.a;\n        b0 = s1.s.a;\n        b1 = s1.s.b[0];\n        c = s1.c;\n    }\n}\n// ----\n// f((uint256,(uint64,bytes),uint256)): 0x20, 42, 0x60, 23, 1, 0x40, 2, \"ab\" -> 42, 1, \"a\", 23\n"
-        },
-        "calldata_struct_with_array_to_memory.sol": {
-            "content": "pragma abicoder v2;\n\ncontract C {\n    struct S {\n        uint256 a;\n        uint256[2] b;\n        uint256 c;\n    }\n\n    function f(S calldata c)\n        external\n        pure\n        returns (uint256, uint256, uint256, uint256)\n    {\n        S memory m = c;\n        return (m.a, m.b[0], m.b[1], m.c);\n    }\n}\n// ----\n// f((uint256,uint256[2],uint256)): 42, 1, 2, 23 -> 42, 1, 2, 23\n"
-        },
-        "calldata_struct_array_member.sol": {
-            "content": "pragma abicoder v2;\n\n\ncontract C {\n    struct S {\n        uint256 a;\n        uint256[2] b;\n        uint256 c;\n    }\n\n    function f(S calldata s)\n        external\n        pure\n        returns (uint256 a, uint256 b0, uint256 b1, uint256 c)\n    {\n        a = s.a;\n        b0 = s.b[0];\n        b1 = s.b[1];\n        c = s.c;\n    }\n}\n// ----\n// f((uint256,uint256[2],uint256)): 42, 1, 2, 23 -> 42, 1, 2, 23\n"
-        },
-        "calldata_struct_with_bytes_to_memory.sol": {
-            "content": "pragma abicoder v2;\n\ncontract C {\n    struct S {\n        uint256 a;\n        bytes b;\n        uint256 c;\n    }\n\n    function f(S calldata c)\n        external\n        pure\n        returns (uint256, bytes1, bytes1, uint256)\n    {\n        S memory m = c;\n        return (m.a, m.b[0], m.b[1], m.c);\n    }\n}\n// ----\n// f((uint256,bytes,uint256)): 0x20, 42, 0x60, 23, 2, \"ab\" -> 42, \"a\", \"b\", 23\n"
-        },
         "calldata_struct_struct_member.sol": {
             "content": "pragma abicoder v2;\n\ncontract C {\n    struct S {\n        uint64 a;\n        uint64 b;\n    }\n    struct S1 {\n        uint256 a;\n        S s;\n        uint256 c;\n    }\n\n    function f(S1 calldata s1)\n        external\n        pure\n        returns (uint256 a, uint64 b0, uint64 b1, uint256 c)\n    {\n        a = s1.a;\n        b0 = s1.s.a;\n        b1 = s1.s.b;\n        c = s1.c;\n    }\n}\n// ----\n// f((uint256,(uint64,uint64),uint256)): 42, 1, 2, 23 -> 42, 1, 2, 23\n"
         }

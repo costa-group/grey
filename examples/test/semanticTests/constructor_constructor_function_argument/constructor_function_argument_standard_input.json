@@ -1,69 +1,6 @@
 {
     "language": "Solidity",
     "sources": {
-        "arrays_in_constructors.sol": {
-            "content": "contract Base {\n    uint public m_x;\n    address[] m_s;\n    constructor(uint x, address[] memory s) {\n        m_x = x;\n        m_s = s;\n    }\n    function part(uint i) public returns (address) {\n        return m_s[i];\n    }\n}\ncontract Main is Base {\n    constructor(address[] memory s, uint x) Base(x, f(s)) {}\n    function f(address[] memory s) public returns (address[] memory) {\n        return s;\n    }\n}\ncontract Creator {\n    function f(uint x, address[] memory s) public returns (uint r, address ch) {\n        Main c = new Main(s, x);\n        r = c.m_x();\n        ch = c.part(x);\n    }\n}\n// ----\n// f(uint256,address[]): 7, 0x40, 10, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 -> 7, 8\n// gas irOptimized: 327784\n// gas irOptimized code: 94000\n// gas legacy: 336623\n// gas legacy code: 244800\n// gas legacyOptimized: 329515\n// gas legacyOptimized code: 117000\n"
-        },
-        "transient_state_variable_initialization.sol": {
-            "content": "contract C {\n    uint128 transient x;\n    uint128 y;\n\n    constructor() {\n        x = 100;\n        y = x;\n    }\n\n    function f() external view returns (uint128) {\n        return y;\n    }\n}\n\n// ====\n// EVMVersion: >=cancun\n// ----\n// f() -> 100\n"
-        },
-        "constructor_arguments_internal.sol": {
-            "content": "contract Helper {\n    bytes3 name;\n    bool flag;\n\n    constructor(bytes3 x, bool f) {\n        name = x;\n        flag = f;\n    }\n\n    function getName() public returns (bytes3 ret) {\n        return name;\n    }\n\n    function getFlag() public returns (bool ret) {\n        return flag;\n    }\n}\n\n\ncontract Main {\n    Helper h;\n\n    constructor() {\n        h = new Helper(\"abc\", true);\n    }\n\n    function getFlag() public returns (bool ret) {\n        return h.getFlag();\n    }\n\n    function getName() public returns (bytes3 ret) {\n        return h.getName();\n    }\n}\n// ----\n// getFlag() -> true\n// getName() -> \"abc\"\n"
-        },
-        "order_of_evaluation.sol": {
-            "content": "contract A {\n    constructor(uint) {}\n}\ncontract B {\n    constructor(uint) {}\n}\ncontract C {\n    constructor(uint) {}\n}\ncontract D {\n    constructor(uint) {}\n}\ncontract X is D, C, B, A {\n    uint[] x;\n    function f(uint _x) internal returns (uint) {\n        x.push(_x);\n    }\n    function g() public view returns (uint[] memory) { return x; }\n    constructor() A(f(1)) C(f(2)) B(f(3)) D(f(4)) {}\n}\n// ----\n// g() -> 0x20, 4, 1, 3, 2, 4\n"
-        },
-        "payable_constructor.sol": {
-            "content": "contract C {\n    constructor() payable {}\n}\n// ----\n// constructor(), 27 wei ->\n"
-        },
-        "constructor_static_array_argument.sol": {
-            "content": "contract C {\n    uint256 public a;\n    uint256[3] public b;\n\n    constructor(uint256 _a, uint256[3] memory _b) {\n        a = _a;\n        b = _b;\n    }\n}\n// ----\n// constructor(): 1, 2, 3, 4 ->\n// gas irOptimized: 148129\n// gas irOptimized code: 23000\n// gas legacy: 157977\n// gas legacy code: 60400\n// gas legacyOptimized: 149973\n// gas legacyOptimized code: 26200\n// a() -> 1\n// b(uint256): 0 -> 2\n// b(uint256): 1 -> 3\n// b(uint256): 2 -> 4\n"
-        },
-        "no_callvalue_check.sol": {
-            "content": "contract A1 {}\ncontract B1 is A1 { constructor() payable {} }\n\ncontract A2 { constructor() {} }\ncontract B2 is A2 { constructor() payable {} }\n\ncontract B3 { constructor() payable {} }\n\ncontract C {\n\tfunction f() public payable returns (bool) {\n\t\t// Make sure none of these revert.\n\t\tnew B1{value: 10}();\n\t\tnew B2{value: 10}();\n\t\tnew B3{value: 10}();\n\t\treturn true;\n\t}\n}\n// ----\n// f(), 2000 ether -> true\n// gas irOptimized: 117623\n// gas irOptimized code: 1800\n// gas legacy: 117821\n// gas legacy code: 4800\n// gas legacyOptimized: 117690\n// gas legacyOptimized code: 4800\n"
-        },
-        "store_internal_unused_function_in_constructor.sol": {
-            "content": "contract C {\n    function() returns (uint256) internal x;\n\n    constructor() {\n        x = unused;\n    }\n\n    function unused() internal returns (uint256) {\n        return 7;\n    }\n\n    function t() public returns (uint256) {\n        return x();\n    }\n}\n// ----\n// t() -> 7\n"
-        },
-        "constructor_function_complex.sol": {
-            "content": "contract D {\n    uint public x;\n    constructor(function() external pure returns (uint) g) {\n        x = g();\n    }\n}\n\ncontract C {\n    function f() public returns (uint r) {\n        D d = new D(this.sixteen);\n        r = d.x();\n    }\n\n    function sixteen() public pure returns (uint) {\n        return 16;\n    }\n}\n// ----\n// f() -> 16\n// gas legacy: 78477\n// gas legacy code: 23600\n"
-        },
-        "functions_called_by_constructor_through_dispatch.sol": {
-            "content": "contract Test {\n    bytes6 name;\n\n    constructor() {\n        function (bytes6 _name) internal setter = setName;\n        setter(\"abcdef\");\n\n        applyShift(leftByteShift, 3);\n    }\n\n    function getName() public returns (bytes6 ret) {\n        return name;\n    }\n\n    function setName(bytes6 _name) private {\n        name = _name;\n    }\n\n    function leftByteShift(bytes6 _value, uint _shift) public returns (bytes6) {\n        return _value << _shift * 8;\n    }\n\n    function applyShift(function (bytes6 _value, uint _shift) internal returns (bytes6) _shiftOperator, uint _bytes) internal {\n        name = _shiftOperator(name, _bytes);\n    }\n}\n// ----\n// getName() -> \"def\\x00\\x00\\x00\"\n"
-        },
-        "evm_exceptions_in_constructor_call_fail.sol": {
-            "content": "contract A {\n    constructor() {\n        address(this).call(\"123\");\n    }\n}\n\n\ncontract B {\n    uint256 public test = 1;\n\n    function testIt() public {\n        A a = new A();\n        ++test;\n    }\n}\n// ----\n// testIt() ->\n// test() -> 2\n"
-        },
-        "store_function_in_constructor.sol": {
-            "content": "contract C {\n    uint256 public result_in_constructor;\n    function(uint256) returns (uint256) internal x;\n\n    constructor() {\n        x = double;\n        result_in_constructor = use(2);\n    }\n\n    function double(uint256 _arg) public returns (uint256 _ret) {\n        _ret = _arg * 2;\n    }\n\n    function use(uint256 _arg) public returns (uint256) {\n        return x(_arg);\n    }\n}\n// ----\n// use(uint256): 3 -> 6\n// result_in_constructor() -> 4\n"
-        },
-        "constructor_arguments_external.sol": {
-            "content": "contract Main {\n    bytes3 name;\n    bool flag;\n\n    constructor(bytes3 x, bool f) {\n        name = x;\n        flag = f;\n    }\n\n    function getName() public returns (bytes3 ret) {\n        return name;\n    }\n\n    function getFlag() public returns (bool ret) {\n        return flag;\n    }\n}\n// ----\n// constructor(): \"abc\", true\n// gas irOptimized: 80174\n// gas irOptimized code: 24200\n// gas legacy: 85098\n// gas legacy code: 58200\n// gas legacyOptimized: 80132\n// gas legacyOptimized code: 22800\n// getFlag() -> true\n// getName() -> \"abc\"\n"
-        },
-        "inline_member_init_inheritence_without_constructor.sol": {
-            "content": "contract Base {\n    uint256 m_base = 5;\n\n    function getBMember() public returns (uint256 i) {\n        return m_base;\n    }\n}\n\n\ncontract Derived is Base {\n    uint256 m_derived = 6;\n\n    function getDMember() public returns (uint256 i) {\n        return m_derived;\n    }\n}\n// ----\n// getBMember() -> 5\n// getDMember() -> 6\n"
-        },
-        "base_constructor_arguments.sol": {
-            "content": "contract BaseBase {\n    uint256 m_a;\n\n    constructor(uint256 a) {\n        m_a = a;\n    }\n}\n\n\ncontract Base is BaseBase(7) {\n    constructor() {\n        m_a *= m_a;\n    }\n}\n\n\ncontract Derived is Base {\n    function getA() public returns (uint256 r) {\n        return m_a;\n    }\n}\n// ----\n// getA() -> 49\n"
-        },
-        "store_internal_unused_library_function_in_constructor.sol": {
-            "content": "library L {\n    function x() internal returns (uint256) {\n        return 7;\n    }\n}\n\n\ncontract C {\n    function() returns (uint256) internal x;\n\n    constructor() {\n        x = L.x;\n    }\n\n    function t() public returns (uint256) {\n        return x();\n    }\n}\n// ----\n// t() -> 7\n"
-        },
-        "bytes_in_constructors_packer.sol": {
-            "content": "contract Base {\n    uint public m_x;\n    bytes m_s;\n    constructor(uint x, bytes memory s) {\n        m_x = x;\n        m_s = s;\n    }\n    function part(uint i) public returns (bytes1) {\n        return m_s[i];\n    }\n}\ncontract Main is Base {\n    constructor(bytes memory s, uint x) Base(x, f(s)) {}\n    function f(bytes memory s) public returns (bytes memory) {\n        return s;\n    }\n}\ncontract Creator {\n    function f(uint x, bytes memory s) public returns (uint r, bytes1 ch) {\n        Main c = new Main(s, x);\n        r = c.m_x();\n        ch = c.part(x);\n    }\n}\n// ----\n// f(uint256,bytes): 7, 0x40, 78, \"abcdefghijklmnopqrstuvwxyzabcdef\", \"ghijklmnopqrstuvwxyzabcdefghijkl\", \"mnopqrstuvwxyz\" -> 7, \"h\"\n// gas irOptimized: 169292\n// gas irOptimized code: 99600\n// gas legacy: 172941\n// gas legacy code: 239800\n// gas legacyOptimized: 169815\n// gas legacyOptimized code: 118600\n"
-        },
-        "bytes_in_constructors_unpacker.sol": {
-            "content": "contract Test {\n    uint public m_x;\n    bytes public m_s;\n    constructor(uint x, bytes memory s) {\n        m_x = x;\n        m_s = s;\n    }\n}\n// ----\n// constructor(): 7, 0x40, 78, \"abcdefghijklmnopqrstuvwxyzabcdef\", \"ghijklmnopqrstuvwxyzabcdefghijkl\", \"mnopqrstuvwxyz\" ->\n// gas irOptimized: 181465\n// gas irOptimized code: 78400\n// gas legacy: 195212\n// gas legacy code: 109400\n// gas legacyOptimized: 181608\n// gas legacyOptimized code: 71400\n// m_x() -> 7\n// m_s() -> 0x20, 78, \"abcdefghijklmnopqrstuvwxyzabcdef\", \"ghijklmnopqrstuvwxyzabcdefghijkl\", \"mnopqrstuvwxyz\"\n"
-        },
-        "store_function_in_constructor_packed.sol": {
-            "content": "contract C {\n    uint16 public result_in_constructor;\n    function(uint16) returns (uint16) internal x;\n    uint16 public other = 0x1fff;\n\n    constructor() {\n        x = doubleInv;\n        result_in_constructor = use(2);\n    }\n\n    function doubleInv(uint16 _arg) public returns (uint16 _ret) {\n        _ret = ~(_arg * 2);\n    }\n\n    function use(uint16 _arg) public returns (uint16) {\n        return x(_arg);\n    }\n}\n// ----\n// use(uint16): 3 -> 0xfff9\n// result_in_constructor() -> 0xfffb\n// other() -> 0x1fff\n"
-        },
-        "callvalue_check.sol": {
-            "content": "contract A1 { constructor() {} }\ncontract B1 is A1 {}\n\ncontract A2 { constructor() payable {} }\ncontract B2 is A2 {}\n\ncontract B3 {}\n\ncontract B4 { constructor() {} }\n\ncontract C {\n\tfunction createWithValue(bytes memory c, uint256 value) public payable returns (bool) {\n\t\tuint256 y = 0;\n\t\tassembly { y := create(value, add(c, 0x20), mload(c)) }\n\t\treturn y != 0;\n\t}\n\tfunction f(uint256 value) public payable returns (bool) {\n\t\treturn createWithValue(type(B1).creationCode, value);\n\t}\n\tfunction g(uint256 value) public payable returns (bool) {\n\t\treturn createWithValue(type(B2).creationCode, value);\n\t}\n\tfunction h(uint256 value) public payable returns (bool) {\n\t\treturn createWithValue(type(B3).creationCode, value);\n\t}\n\tfunction i(uint256 value) public payable returns (bool) {\n\t\treturn createWithValue(type(B4).creationCode, value);\n\t}\n}\n// ====\n// EVMVersion: >homestead\n// ----\n// f(uint256), 2000 ether: 0 -> true\n// f(uint256), 2000 ether: 100 -> false\n// g(uint256), 2000 ether: 0 -> true\n// g(uint256), 2000 ether: 100 -> false\n// h(uint256), 2000 ether: 0 -> true\n// h(uint256), 2000 ether: 100 -> false\n// i(uint256), 2000 ether: 0 -> true\n// i(uint256), 2000 ether: 100 -> false\n"
-        },
-        "functions_called_by_constructor.sol": {
-            "content": "contract Test {\n    bytes3 name;\n    bool flag;\n\n    constructor() {\n        setName(\"abc\");\n    }\n\n    function getName() public returns (bytes3 ret) {\n        return name;\n    }\n\n    function setName(bytes3 _name) private {\n        name = _name;\n    }\n}\n// ----\n// getName() -> \"abc\"\n"
-        },
         "constructor_function_argument.sol": {
             "content": "// The IR of this test used to throw\ncontract D {\n    constructor(function() external returns (uint)) {\n    }\n}\n// ----\n// constructor(): 0xfdd67305928fcac8d213d1e47bfa6165cd0b87b946644cd0000000000000000 ->\n"
         }

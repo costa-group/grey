@@ -1,48 +1,6 @@
 {
     "language": "Solidity",
     "sources": {
-        "using_global_invisible.sol": {
-            "content": "==== Source: A ====\ntype T is uint;\nusing L for T global;\nlibrary L {\n    function inc(T x) internal pure returns (T) {\n        return T.wrap(T.unwrap(x) + 1);\n    }\n    function dec(T x) external pure returns (T) {\n        return T.wrap(T.unwrap(x) - 1);\n    }\n}\nusing {unwrap} for T global;\nfunction unwrap(T x) pure returns (uint) {\n    return T.unwrap(x);\n}\n\n==== Source: B ====\ncontract C {\n    function f() public pure returns (T r1) {\n        r1 = r1.inc().inc();\n    }\n}\n\nimport {T} from \"A\";\n\n==== Source: C ====\nimport {C} from \"B\";\n\ncontract D {\n    function test() public returns (uint) {\n        C c = new C();\n        // This tests that attached functions are available\n        // even if the type is not available by name.\n        // This is a regular function call, a\n        // public and an internal library call\n        // and a free function call.\n        return c.f().inc().inc().dec().unwrap();\n    }\n}\n// ----\n// library: \"A\":L\n// test() -> 3\n// gas legacy: 59680\n// gas legacy code: 61200\n"
-        },
-        "free_function_multi.sol": {
-            "content": "contract C {\n    function f(uint z) pure external returns(uint) {\n        return z.id();\n    }\n\n    using {id, zero, zero, id} for uint;\n\n    function g(uint z) pure external returns (uint) {\n        return z.zero();\n    }\n}\n\nfunction id(uint x) pure returns (uint) {\n    return x;\n}\n\nfunction zero(uint) pure returns (uint) {\n    return 0;\n}\n// ----\n// f(uint256): 10 -> 10\n// g(uint256): 10 -> 0\n// f(uint256): 256 -> 0x0100\n// g(uint256): 256 -> 0\n"
-        },
-        "free_functions_individual.sol": {
-            "content": "using {zero} for uint;\n\ncontract C {\n    using {id} for uint;\n\n    function f(uint z) pure external returns(uint) {\n        return z.id();\n    }\n\n    function g(uint z) pure external returns (uint) {\n        return z.zero();\n    }\n}\n\nfunction id(uint x) pure returns (uint) {\n    return x;\n}\n\nfunction zero(uint) pure returns (uint) {\n    return 0;\n}\n// ----\n// f(uint256): 10 -> 10\n// g(uint256): 10 -> 0\n// f(uint256): 256 -> 0x0100\n// g(uint256): 256 -> 0\n"
-        },
-        "using_global_for_global.sol": {
-            "content": "==== Source: A ====\ntype global is uint;\nusing { f } for global global;\nfunction f(global x) pure returns (global) { return global.wrap(global.unwrap(x) + 1); }\n==== Source: B ====\nimport { global } from \"A\";\n\nfunction g(global x) pure returns (global) { return global.wrap(global.unwrap(x) + 10); }\n\ncontract C {\n    using { g } for global;\n    function f(global r) public pure returns (global) {\n        return r.f().g();\n    }\n}\n// ----\n// f(uint256): 100 -> 111"
-        },
-        "module_renamed.sol": {
-            "content": "==== Source: A ====\nfunction f(uint x) pure returns (uint) {\n    return x + 2;\n}\nfunction g(uint x) pure returns (uint) {\n    return x + 8;\n}\n\n==== Source: B ====\nimport {f as g, g as f} from \"A\";\n\n==== Source: C ====\ncontract C {\n\tfunction test(uint x, uint y) public pure returns (uint, uint) {\n        return (x.f(), y.g());\n    }\n}\n\nusing {M.g, M.f} for uint;\n\nimport \"B\" as M;\n\n// ----\n// test(uint256,uint256): 1, 1 -> 9, 3\n"
-        },
-        "calldata_memory_copy.sol": {
-            "content": "\ncontract C {\n    function f(uint[] calldata arr) external returns (uint) {\n        return arr.sum();\n    }\n}\n\nfunction sum(uint[] memory arr) returns (uint result) {\n    for(uint i = 0; i < arr.length; i++) {\n        result += arr[i];\n    }\n}\n\nusing {sum} for uint[];\n\n// ----\n// f(uint256[]): 0x20, 3, 1, 2, 8 -> 11\n"
-        },
-        "library_through_module.sol": {
-            "content": "==== Source: A ====\nlibrary L {\n    function id(uint x) internal pure returns (uint) {\n        return x;\n    }\n    function one_ext(uint) pure external returns(uint) {\n        return 1;\n    }\n    function empty() pure internal {\n    }\n\n}\n\n==== Source: B ====\ncontract C {\n    using M.L for uint;\n    function f(uint x) public pure returns (uint) {\n        return x.id();\n    }\n    function g(uint x) public pure returns (uint) {\n        return x.one_ext();\n    }\n}\n\nimport \"A\" as M;\n\n// ----\n// library: \"A\":L\n// f(uint256): 5 -> 5\n// f(uint256): 10 -> 10\n// g(uint256): 5 -> 1\n// g(uint256): 10 -> 1\n"
-        },
-        "library_functions_inside_contract.sol": {
-            "content": "library L {\n    function externalFunction(uint a) external pure returns (uint) { return a * 1; }\n    function publicFunction(uint b) public pure returns (uint) { return b * 2; }\n    function internalFunction(uint c) internal pure returns (uint) { return c * 3; }\n}\n\ncontract C {\n    using {L.externalFunction} for uint;\n    using {L.publicFunction} for uint;\n    using {L.internalFunction} for uint;\n\n    function f() public pure returns (uint) {\n        uint x = 1;\n        return x.externalFunction();\n    }\n\n    function g() public pure returns (uint) {\n        uint x = 1;\n        return x.publicFunction();\n    }\n\n    function h() public pure returns (uint) {\n        uint x = 1;\n        return x.internalFunction();\n    }\n}\n// ----\n// library: L\n// f() -> 1\n// g() -> 2\n// h() -> 3\n"
-        },
-        "library_on_interface.sol": {
-            "content": "using L for I;\ninterface I { function f() external pure returns (uint); }\nlibrary L {\n    function execute(I i) internal pure returns (uint) {\n        return i.f();\n    }\n}\ncontract C is I {\n    function x() public view returns (uint) {\n        I i = this;\n        return i.execute();\n    }\n    function f() public pure returns (uint) { return 7; }\n}\n// ----\n// x() -> 7\n"
-        },
-        "using_global_library.sol": {
-            "content": "==== Source: A ====\ntype T is uint;\nusing L for T global;\nlibrary L {\n    function inc(T x) internal pure returns (T) {\n        return T.wrap(T.unwrap(x) + 1);\n    }\n    function dec(T x) external pure returns (T) {\n        return T.wrap(T.unwrap(x) - 1);\n    }\n}\n\n==== Source: B ====\ncontract C {\n    function f() public pure returns (T r1, T r2) {\n        r1 = r1.inc().inc();\n        r2 = r1.dec();\n    }\n}\n\nimport {T} from \"A\";\n\n// ----\n// library: \"A\":L\n// f() -> 2, 1\n"
-        },
-        "private_library_function.sol": {
-            "content": "library L {\n    using {L.privateFunction} for uint;\n    function privateFunction(uint x) private pure returns (uint) { return x + 1; }\n    function f() public pure returns (uint) {\n        uint x = 1;\n        return x.privateFunction();\n    }\n}\n// ----\n// f() -> 2\n"
-        },
-        "using_global_all_the_types.sol": {
-            "content": "==== Source: A ====\nenum E {A, B}\nstruct S { uint x; }\ntype T is uint;\nusing L for E global;\nusing L for S global;\nusing L for T global;\nlibrary L {\n    function f(E e) internal pure returns (uint) {\n        return uint(e);\n    }\n    function f(S memory s) internal pure returns (uint) {\n        return s.x;\n    }\n    function f(T t) internal pure returns (uint) {\n        return T.unwrap(t);\n    }\n}\n\n==== Source: B ====\ncontract C {\n    function f() public pure returns (uint a, uint b, uint c) {\n        E e = E.B;\n        a = e.f();\n        S memory s;\n        s.x = 7;\n        b = s.f();\n        T t = T.wrap(9);\n        c = t.f();\n    }\n}\n\nimport {E, S, T} from \"A\";\n\n// ----\n// f() -> 1, 7, 9\n"
-        },
-        "free_function_braces.sol": {
-            "content": "function id(uint x) pure returns (uint) {\n    return x;\n}\n\nfunction zero(uint) pure returns (uint) {\n    return 0;\n}\n\ncontract C {\n    function f(uint z) pure external returns(uint) {\n        return z.id();\n    }\n\n    function g(uint z) pure external returns (uint) {\n        return z.zero();\n    }\n\n    using {id, zero} for uint;\n}\n// ----\n// f(uint256): 10 -> 10\n// g(uint256): 10 -> 0\n// f(uint256): 256 -> 0x0100\n// g(uint256): 256 -> 0\n"
-        },
-        "imported_functions.sol": {
-            "content": "==== Source: A ====\nfunction inc(uint x) pure returns (uint) {\n    return x + 1;\n}\n\n==== Source: B ====\ncontract C {\n\tfunction f(uint x) public returns (uint) {\n        return x.f() + x.inc();\n    }\n}\nusing {A.inc, f} for uint;\nimport {inc as f} from \"A\";\nimport \"A\" as A;\n// ----\n// f(uint256): 5 -> 12\n// f(uint256): 10 -> 0x16\n"
-        },
         "recursive_import.sol": {
             "content": "==== Source: A ====\nimport {T as U} from \"A\";\nimport \"A\" as X;\n\ntype T is uint;\nfunction f(T x) pure returns (T) { return T.wrap(T.unwrap(x) + 1); }\nfunction g(T x) pure returns (uint) { return T.unwrap(x) + 10; }\n\nusing { f } for X.X.U global;\nusing { g } for T global;\n\nfunction cr() pure returns (T) {}\n\n==== Source: B ====\nimport { cr } from \"A\";\n\ncontract C {\n    function f() public returns (uint) {\n        return cr().f().g();\n    }\n}\n// ----\n// f() -> 11\n"
         }

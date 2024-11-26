@@ -1,9 +1,6 @@
 {
     "language": "Solidity",
     "sources": {
-        "conditional_expression_true_literal.sol": {
-            "content": "contract test {\n    function f() public returns(uint d) {\n        return true ? 5 : 10;\n    }\n}\n// ----\n// f() -> 5\n"
-        },
         "conditional_expression_functions.sol": {
             "content": "contract test {\n    function x() public returns (uint) { return 1; }\n    function y() public returns (uint) { return 2; }\n\n    function f(bool cond) public returns (uint) {\n        function () returns (uint) z = cond ? x : y;\n        return z();\n    }\n}\n// ----\n// f(bool): true -> 1\n// f(bool): false -> 2\n"
         }

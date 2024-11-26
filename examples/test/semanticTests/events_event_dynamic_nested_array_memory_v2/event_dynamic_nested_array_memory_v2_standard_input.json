@@ -1,36 +1,6 @@
 {
     "language": "Solidity",
     "sources": {
-        "event_selector_file_level.sol": {
-            "content": "event E();\n\nlibrary L {\n    event E();\n}\n\ncontract C {\n    function main() external pure returns (bytes32, bytes32) {\n        assert(E.selector == L.E.selector);\n\n        return (E.selector, L.E.selector);\n    }\n}\n// ----\n// main() -> 0x92bbf6e823a631f3c8e09b1c8df90f378fb56f7fbc9701827e1ff8aad7f6a028, 0x92bbf6e823a631f3c8e09b1c8df90f378fb56f7fbc9701827e1ff8aad7f6a028\n"
-        },
-        "event_emit_via_interface.sol": {
-            "content": "interface I {\n    event Event(address indexed _from, uint256 _value);\n}\n\ncontract C {\n    function emitEvent(uint256 _value) public {\n        emit I.Event(msg.sender, _value);\n    }\n}\n\n// ----\n// emitEvent(uint256): 100 ->\n// ~ emit Event(address,uint256): #0x1212121212121212121212121212120000000012, 0x64\n"
-        },
-        "event_access_through_base_name_emit.sol": {
-            "content": "contract A {\n    event x();\n}\ncontract B is A {\n    function f() public returns (uint) {\n        emit A.x();\n        return 1;\n    }\n}\n// ----\n// f() -> 1\n// ~ emit x()\n"
-        },
-        "event_indexed_function2.sol": {
-            "content": "contract C {\n    event TestA(function() external indexed);\n    event TestB(function(uint256) external indexed);\n    function f1() public {\n        emit TestA(this.f1);\n    }\n    function f2(uint256 a) public {\n        emit TestB(this.f2);\n    }\n}\n// ----\n// f1() ->\n// ~ emit TestA(function): #0xc06afe3a8444fc0004668591e8306bfb9968e79ec27fc3050000000000000000\n// f2(uint256): 1 ->\n// ~ emit TestB(function): #0xc06afe3a8444fc0004668591e8306bfb9968e79ebf3724af0000000000000000\n"
-        },
-        "event_struct_memory_v2.sol": {
-            "content": "pragma abicoder v2;\ncontract C {\n    struct S { uint a; }\n    event E(S);\n    function createEvent(uint x) public {\n        emit E(S(x));\n    }\n}\n// ----\n// createEvent(uint256): 42 ->\n// ~ emit E((uint256)): 0x2a\n"
-        },
-        "event_dynamic_nested_array_storage_v2.sol": {
-            "content": "pragma abicoder v2;\ncontract C {\n    event E(uint[][]);\n    uint[][] arr;\n    function createEvent(uint x) public {\n        arr.push(new uint[](2));\n        arr.push(new uint[](2));\n        arr[0][0] = x;\n        arr[0][1] = x + 1;\n        arr[1][0] = x + 2;\n        arr[1][1] = x + 3;\n        emit E(arr);\n    }\n}\n// ----\n// createEvent(uint256): 42 ->\n// ~ emit E(uint256[][]): 0x20, 0x02, 0x40, 0xa0, 0x02, 0x2a, 0x2b, 0x02, 0x2c, 0x2d\n// gas irOptimized: 185148\n// gas legacy: 187493\n// gas legacyOptimized: 184548\n"
-        },
-        "event_indexed_mixed.sol": {
-            "content": "contract C {\n    // Indexed parameters are always listed first in the output.\n    // The data is the ABI encoding of just the non-indexed parameters,\n    // so putting the indexed parameters \"in between\" would mess\n    // up the offsets for the reader.\n    event E(uint a, uint indexed r, uint b, bytes c);\n    function deposit() public {\n        emit E(1, 2, 3, \"def\");\n    }\n}\n// ----\n// deposit() ->\n// ~ emit E(uint256,uint256,uint256,bytes): #0x02, 0x01, 0x03, 0x60, 0x03, \"def\"\n// gas irOptimized: 23709\n// gas legacy: 24342\n// gas legacyOptimized: 23753\n"
-        },
-        "event.sol": {
-            "content": "contract ClientReceipt {\n    event Deposit(address indexed _from, bytes32 indexed _id, uint _value);\n    function deposit(bytes32 _id, bool _manually) public payable {\n        if (_manually) {\n            bytes32 s = 0x19dacbf83c5de6658e14cbf7bcae5c15eca2eedecf1c66fbca928e4d351bea0f;\n            uint value = msg.value;\n            address sender = msg.sender;\n            assembly {\n                mstore(0, value)\n                log3(0, 0x20, s, sender, _id)\n            }\n        } else {\n            emit Deposit(msg.sender, _id, msg.value);\n        }\n    }\n}\n// ----\n// deposit(bytes32,bool), 18 wei: 0x1234, true ->\n// ~ emit Deposit(address,bytes32,uint256): #0x1212121212121212121212121212120000000012, #0x1234, 0x12\n// deposit(bytes32,bool), 18 wei: 0x1234, false ->\n// ~ emit Deposit(address,bytes32,uint256): #0x1212121212121212121212121212120000000012, #0x1234, 0x12\n"
-        },
-        "event_dynamic_array_memory.sol": {
-            "content": "contract C {\n    event E(uint[]);\n    function createEvent(uint x) public {\n        uint[] memory arr = new uint[](3);\n        arr[0] = x;\n        arr[1] = x + 1;\n        arr[2] = x + 2;\n        emit E(arr);\n    }\n}\n// ----\n// createEvent(uint256): 42 ->\n// ~ emit E(uint256[]): 0x20, 0x03, 0x2a, 0x2b, 0x2c\n"
-        },
-        "event_emit_from_other_contract.sol": {
-            "content": "contract D {\n    event Deposit(address indexed _from, bytes32 indexed _id, uint _value);\n    function deposit(bytes32 _id) public payable {\n        emit Deposit(msg.sender, _id, msg.value);\n    }\n}\ncontract C {\n    D d;\n    constructor() {\n        d = new D();\n    }\n    function deposit(bytes32 _id) public payable {\n        d.deposit(_id);\n    }\n}\n// ----\n// constructor() ->\n// gas irOptimized: 113970\n// gas irOptimized code: 51400\n// gas legacy: 119791\n// gas legacy code: 125200\n// gas legacyOptimized: 114187\n// gas legacyOptimized code: 57400\n// deposit(bytes32), 18 wei: 0x1234 ->\n// ~ emit Deposit(address,bytes32,uint256) from 0x137aa4dfc0911524504fcd4d98501f179bc13b4a: #0xc06afe3a8444fc0004668591e8306bfb9968e79e, #0x1234, 0x00\n"
-        },
         "event_dynamic_nested_array_memory_v2.sol": {
             "content": "pragma abicoder v2;\ncontract C {\n    event E(uint[][]);\n    function createEvent(uint x) public {\n        uint[][] memory arr = new uint[][](2);\n        arr[0] = new uint[](2);\n        arr[1] = new uint[](2);\n        arr[0][0] = x;\n        arr[0][1] = x + 1;\n        arr[1][0] = x + 2;\n        arr[1][1] = x + 3;\n        emit E(arr);\n    }\n}\n// ----\n// createEvent(uint256): 42 ->\n// ~ emit E(uint256[][]): 0x20, 0x02, 0x40, 0xa0, 0x02, 0x2a, 0x2b, 0x02, 0x2c, 0x2d\n"
         }

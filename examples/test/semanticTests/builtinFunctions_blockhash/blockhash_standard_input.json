@@ -1,66 +1,6 @@
 {
     "language": "Solidity",
     "sources": {
-        "keccak256_empty.sol": {
-            "content": "contract C {\n    function f() public returns (bytes32) {\n        return keccak256(\"\");\n    }\n}\n// ----\n// f() -> 0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470\n"
-        },
-        "ripemd160_packed.sol": {
-            "content": "contract C {\n    function f(int256 _input) public returns (bytes32 hash) {\n        uint24 b = 65536;\n        uint c = 256;\n        bytes32 input = bytes32(uint256(_input));\n        return ripemd160(abi.encodePacked(uint8(8), input, b, input, c));\n    }\n}\n// ----\n// f(int256): 4 -> 0xf93175303eba2a7b372174fc9330237f5ad202fc000000000000000000000000\n// f(int256): 5 -> 0x04f4fc112e2bfbe0d38f896a46629e08e2fcfad5000000000000000000000000\n// f(int256): -1 -> 0xc0a2e4b1f3ff766a9a0089e7a410391730872495000000000000000000000000\n"
-        },
-        "ripemd160.sol": {
-            "content": "contract C {\n    function f(int256 input) public returns (bytes32 sha256hash) {\n        return ripemd160(abi.encodePacked(bytes32(uint256(input))));\n    }\n}\n// ----\n// f(int256): 4 -> 0x1b0f3c404d12075c68c938f9f60ebea4f74941a0000000000000000000000000\n// f(int256): 5 -> 0xee54aa84fc32d8fed5a5fe160442ae84626829d9000000000000000000000000\n// f(int256): -1 -> 0x1cf4e77f5966e13e109703cd8a0df7ceda7f3dc3000000000000000000000000\n"
-        },
-        "keccak256_packed_complex_types.sol": {
-            "content": "contract C {\n    uint120[3] x;\n    function f() public returns (bytes32 hash1, bytes32 hash2, bytes32 hash3) {\n        uint120[] memory y = new uint120[](3);\n        x[0] = y[0] = uint120(type(uint).max - 1);\n        x[1] = y[1] = uint120(type(uint).max - 2);\n        x[2] = y[2] = uint120(type(uint).max - 3);\n        hash1 = keccak256(abi.encodePacked(x));\n        hash2 = keccak256(abi.encodePacked(y));\n        hash3 = keccak256(abi.encodePacked(this.f));\n    }\n}\n// ----\n// f() -> 0xba4f20407251e4607cd66b90bfea19ec6971699c03e4a4f3ea737d5818ac27ae, 0xba4f20407251e4607cd66b90bfea19ec6971699c03e4a4f3ea737d5818ac27ae, 0x0e9229fb1d2cd02cee4b6c9f25497777014a8766e3479666d1c619066d2887ec\n"
-        },
-        "iterated_keccak256_with_bytes.sol": {
-            "content": "contract c {\n    bytes data;\n\n    function foo() public returns (bytes32) {\n        data.push(\"x\");\n        data.push(\"y\");\n        data.push(\"z\");\n        return keccak256(abi.encodePacked(\"b\", keccak256(data), \"a\"));\n    }\n}\n// ----\n// foo() -> 0xb338eefce206f9f57b83aa738deecd5326dc4b72dd81ee6a7c621a6facb7acdc\n"
-        },
-        "keccak256_multiple_arguments.sol": {
-            "content": "contract c {\n    function foo(uint256 a, uint256 b, uint256 c) public returns (bytes32 d) {\n        d = keccak256(abi.encodePacked(a, b, c));\n    }\n}\n// ----\n// foo(uint256,uint256,uint256): 0xa, 0xc, 0xd -> 0xbc740a98aae5923e8f04c9aa798c9ee82f69e319997699f2782c40828db9fd81\n"
-        },
-        "ripemd160_empty.sol": {
-            "content": "contract C {\n    function f() public returns (bytes20) {\n        return ripemd160(\"\");\n    }\n}\n// ----\n// f() -> 0x9c1185a5c5e9fc54612808977ee8f548b2258d31000000000000000000000000\n"
-        },
-        "keccak256.sol": {
-            "content": "contract C {\n    function f(int256 input) public returns (bytes32 sha256hash) {\n        return keccak256(abi.encodePacked(bytes32(uint256(input))));\n    }\n}\n// ----\n// f(int256): 4 -> 0x8a35acfbc15ff81a39ae7d344fd709f28e8600b4aa8c65c6b64bfe7fe36bd19b\n// f(int256): 5 -> 0x036b6384b5eca791c62761152d0c79bb0604c104a5fb6f4eb0703f3154bb3db0\n// f(int256): -1 -> 0xa9c584056064687e149968cbab758a3376d22aedc6a55823d1b3ecbee81b8fb9\n"
-        },
-        "msg_sig.sol": {
-            "content": "contract test {\n    function foo(uint256 a) public returns (bytes4 value) {\n        return msg.sig;\n    }\n}\n// ----\n// foo(uint256): 0x0 -> 0x2fbebd3800000000000000000000000000000000000000000000000000000000\n"
-        },
-        "sha256.sol": {
-            "content": "contract C {\n    function f(int256 input) public returns (bytes32 sha256hash) {\n        return sha256(abi.encodePacked(bytes32(uint256(input))));\n    }\n}\n// ----\n// f(int256): 4 -> 0xe38990d0c7fc009880a9c07c23842e886c6bbdc964ce6bdd5817ad357335ee6f\n// f(int256): 5 -> 0x96de8fc8c256fa1e1556d41af431cace7dca68707c78dd88c3acab8b17164c47\n// f(int256): -1 -> 0xaf9613760f72635fbdb44a5a0a63c39f12af30f950a6ee5c971be188e89c4051\n"
-        },
-        "sha256_packed.sol": {
-            "content": "contract C {\n    function f(int256 _input) public returns (bytes32 hash) {\n        uint24 b = 65536;\n        uint c = 256;\n        bytes32 input = bytes32(uint256(_input));\n        return sha256(abi.encodePacked(uint8(8), input, b, input, c));\n    }\n}\n// ----\n// f(int256): 4 -> 0x804e0d7003cfd70fc925dc103174d9f898ebb142ecc2a286da1abd22ac2ce3ac\n// f(int256): 5 -> 0xe94921945f9068726c529a290a954f412bcac53184bb41224208a31edbf63cf0\n// f(int256): -1 -> 0xf14def4d07cd185ddd8b10a81b2238326196a38867e6e6adbcc956dc913488c7\n"
-        },
-        "keccak256_with_bytes.sol": {
-            "content": "contract c {\n    bytes data;\n\n    function foo() public returns (bool) {\n        data.push(\"f\");\n        data.push(\"o\");\n        data.push(\"o\");\n        return keccak256(data) == keccak256(\"foo\");\n    }\n}\n// ----\n// foo() -> true\n"
-        },
-        "blockhash_shadow_resolution.sol": {
-            "content": "contract C {\n    function blockhash(uint256 blockNumber) public returns(bytes32) { bytes32 x; return x; }\n    function f() public returns(bytes32) { return blockhash(3); }\n}\n// ----\n// f() -> 0\n"
-        },
-        "assignment_to_const_var_involving_keccak.sol": {
-            "content": "contract C {\n    bytes32 constant x = keccak256(\"abc\");\n\n    function f() public returns (bytes32) {\n        return x;\n    }\n}\n// ----\n// f() -> 0x4e03657aea45a94fc7d47ba826c8d667c0d1e6e33a64a036ec44f58fa12d6c45\n"
-        },
-        "keccak256_multiple_arguments_with_string_literals.sol": {
-            "content": "contract c {\n    function foo() public returns (bytes32 d) {\n        d = keccak256(\"foo\");\n    }\n\n    function bar(uint256 a, uint16 b) public returns (bytes32 d) {\n        d = keccak256(abi.encodePacked(a, b, uint8(145), \"foo\"));\n    }\n}\n// ----\n// foo() -> 0x41b1a0649752af1b28b3dc29a1556eee781e4a4c3a1f7f53f90fa834de098c4d\n// bar(uint256,uint16): 0xa, 0xc -> 0x6990f36476dc412b1c4baa48e2d9f4aa4bb313f61fda367c8fdbbb2232dc6146\n"
-        },
-        "blobhash_shadow_resolution.sol": {
-            "content": "contract C {\n    function blobhash(uint256 index) public pure returns(bytes32) {\n        return bytes32(index);\n    }\n    function f() public pure returns(bytes32) {\n        return blobhash(3);\n    }\n}\n// ====\n// EVMVersion: >=cancun\n// ----\n// f() -> 0x03\n"
-        },
-        "sha256_empty.sol": {
-            "content": "contract C {\n    function f() public returns (bytes32) {\n        return sha256(\"\");\n    }\n}\n// ----\n// f() -> 0xe3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\n"
-        },
-        "keccak256_multiple_arguments_with_numeric_literals.sol": {
-            "content": "contract c {\n    function foo(uint256 a, uint16 b) public returns (bytes32 d) {\n        d = keccak256(abi.encodePacked(a, b, uint8(145)));\n    }\n}\n// ----\n// foo(uint256,uint16): 0xa, 0xc -> 0x88acd45f75907e7c560318bc1a5249850a0999c4896717b1167d05d116e6dbad\n"
-        },
-        "blobhash.sol": {
-            "content": "contract C {\n    function f() public view returns(bytes32) {\n        return blobhash(0);\n    }\n    function g() public view returns(bytes32) {\n        return blobhash(1);\n    }\n    function h() public view returns(bytes32) {\n        // NOTE: blobhash(2) should return 0 since EVMHost has only two blob hashes injected in the block the transaction is being executed.\n        return blobhash(2);\n    }\n}\n// ====\n// EVMVersion: >=cancun\n// ----\n// f() -> 0x0100000000000000000000000000000000000000000000000000000000000001\n// g() -> 0x0100000000000000000000000000000000000000000000000000000000000002\n// h() -> 0x00\n"
-        },
-        "function_types_sig.sol": {
-            "content": "contract C {\n    uint256 public x;\n\n    function f() public pure returns (bytes4) {\n        return this.f.selector;\n    }\n\n    function g() public returns (bytes4) {\n        function () pure external returns (bytes4) fun = this.f;\n        return fun.selector;\n    }\n\n    function h() public returns (bytes4) {\n        function () pure external returns (bytes4) fun = this.f;\n        return fun.selector;\n    }\n\n    function i() public pure returns (bytes4) {\n        return this.x.selector;\n    }\n}\n// ----\n// f() -> 0x26121ff000000000000000000000000000000000000000000000000000000000\n// g() -> 0x26121ff000000000000000000000000000000000000000000000000000000000\n// h() -> 0x26121ff000000000000000000000000000000000000000000000000000000000\n// i() -> 0x0c55699c00000000000000000000000000000000000000000000000000000000\n"
-        },
         "blockhash.sol": {
             "content": "contract C {\n    function f() public returns(bytes32) {\n        return blockhash(1);\n    }\n    function g() public returns(bytes32) {\n        return blockhash(2);\n    }\n    function h() public returns(bytes32) {\n        return blockhash(3);\n    }\n}\n// ----\n// f() -> 0x3737373737373737373737373737373737373737373737373737373737373738\n// g() -> 0x3737373737373737373737373737373737373737373737373737373737373739\n// h() -> 0x373737373737373737373737373737373737373737373737373737373737373a\n"
         }

@@ -1,9 +1,6 @@
 {
     "language": "Solidity",
     "sources": {
-        "explicit_base_class.sol": {
-            "content": "contract BaseBase {\n    function g() public virtual returns (uint256 r) {\n        return 1;\n    }\n}\n\n\ncontract Base is BaseBase {\n    function g() public virtual override returns (uint256 r) {\n        return 2;\n    }\n}\n\n\ncontract Derived is Base {\n    function f() public returns (uint256 r) {\n        return BaseBase.g();\n    }\n\n    function g() public override returns (uint256 r) {\n        return 3;\n    }\n}\n// ----\n// g() -> 3\n// f() -> 1\n"
-        },
         "member_notation_ctor.sol": {
             "content": "==== Source: A ====\ncontract C {\n\tint private x;\n\tconstructor (int p) public { x = p; }\n\tfunction getX() public returns (int) { return x; }\n}\n==== Source: B ====\nimport \"A\" as M;\n\ncontract D is M.C {\n\tconstructor (int p) M.C(p) public {}\n}\n\ncontract A {\n\tfunction g(int p) public returns (int) {\n\t\tD d = new D(p);\n\t\treturn d.getX();\n\t}\n}\n// ----\n// g(int256): -1 -> -1\n// gas legacy: 77876\n// gas legacy code: 24200\n// g(int256): 10 -> 10\n// gas legacy: 77504\n// gas legacy code: 24200\n"
         }

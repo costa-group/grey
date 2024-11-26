@@ -1,21 +1,6 @@
 {
     "language": "Solidity",
     "sources": {
-        "struct_accessor.sol": {
-            "content": "contract test {\n    struct Data { uint a; uint8 b; mapping(uint => uint) c; bool d; }\n    mapping(uint => Data) public data;\n    constructor() {\n        data[7].a = 1;\n        data[7].b = 2;\n        data[7].c[0] = 3;\n        data[7].d = true;\n    }\n}\n// ----\n// data(uint256): 7 -> 1, 2, true\n"
-        },
-        "empty_nonempty_empty.sol": {
-            "content": "contract Test {\n    bytes x;\n    function set(bytes memory _a) public { x = _a; }\n}\n// ----\n// set(bytes): 0x20, 3, \"abc\"\n// storageEmpty -> 0\n// set(bytes): 0x20, 0\n// storageEmpty -> 1\n// set(bytes): 0x20, 31, \"1234567890123456789012345678901\"\n// storageEmpty -> 0\n// set(bytes): 0x20, 36, \"12345678901234567890123456789012\", \"XXXX\"\n// storageEmpty -> 0\n// set(bytes): 0x20, 3, \"abc\"\n// storageEmpty -> 0\n// set(bytes): 0x20, 0\n// storageEmpty -> 1\n// set(bytes): 0x20, 3, \"abc\"\n// storageEmpty -> 0\n// set(bytes): 0x20, 36, \"12345678901234567890123456789012\", \"XXXX\"\n// storageEmpty -> 0\n// set(bytes): 0x20, 0\n// storageEmpty -> 1\n// set(bytes): 0x20, 66, \"12345678901234567890123456789012\", \"12345678901234567890123456789012\", \"12\"\n// gas irOptimized: 111849\n// gas legacy: 112734\n// gas legacyOptimized: 112084\n// storageEmpty -> 0\n// set(bytes): 0x20, 3, \"abc\"\n// storageEmpty -> 0\n// set(bytes): 0x20, 0\n// storageEmpty -> 1\n"
-        },
-        "mappings_array2d_pop_delete.sol": {
-            "content": "contract C {\n\tmapping (uint => uint)[][] a;\n\n\tfunction n1(uint key, uint value) public {\n\t\ta.push();\n\t\tmapping (uint => uint)[] storage b = a[a.length - 1];\n\t\tb.push();\n\t\tb[b.length - 1][key] = value;\n\t}\n\n\tfunction n2() public {\n\t\ta.push();\n\t\tmapping (uint => uint)[] storage b = a[a.length - 1];\n\t\tb.push();\n\t}\n\n\tfunction map(uint key) public view returns (uint) {\n\t\tmapping (uint => uint)[] storage b = a[a.length - 1];\n\t\treturn b[b.length - 1][key];\n\t}\n\n\tfunction p() public {\n\t\ta.pop();\n\t}\n\n\tfunction d() public returns (uint) {\n\t\tdelete a;\n\t\treturn a.length;\n\t}\n}\n// ----\n// n1(uint256,uint256): 42, 64 ->\n// map(uint256): 42 -> 64\n// p() ->\n// n2() ->\n// map(uint256): 42 -> 64\n// d() -> 0\n// n2() ->\n// map(uint256): 42 -> 64\n"
-        },
-        "simple_accessor.sol": {
-            "content": "contract test {\n    uint256 public data;\n    constructor() {\n        data = 8;\n    }\n}\n// ----\n// data() -> 8\n"
-        },
-        "mapping_string_key.sol": {
-            "content": "contract C {\n    mapping (string => uint) m_nameToRecord;\n    function set(string calldata key, uint value) external {\n        m_nameToRecord[key] = value;\n    }\n    function get(string calldata key) external view returns (uint) {\n        return m_nameToRecord[key];\n    }\n    function setFixed(uint value) external {\n        m_nameToRecord[\"fixed\"] = value;\n    }\n    function getFixed() external view returns (uint) {\n        return m_nameToRecord[\"fixed\"];\n    }\n}\n// ----\n// set(string,uint256): 0x40, 8, 3, \"abc\" ->\n// get(string): 0x20, 3, \"abc\" -> 8\n// get(string): 0x20, 3, \"abe\" -> 0\n// getFixed() -> 0\n// setFixed(uint256): 9 ->\n// getFixed() -> 9\n"
-        },
         "packed_storage_overflow.sol": {
             "content": "contract C {\n    uint16 x = 0x1234;\n    uint16 a = 0xffff;\n    uint16 b;\n\n    function f() public returns (uint256, uint256, uint256, uint256) {\n        unchecked { a++; }\n        uint256 c = b;\n        delete b;\n        unchecked { a -= 2; }\n        return (x, c, b, a);\n    }\n}\n// ----\n// f() -> 0x1234, 0x0, 0x0, 0xfffe\n"
         }

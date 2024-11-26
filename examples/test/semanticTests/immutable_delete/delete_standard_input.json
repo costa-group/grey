@@ -1,36 +1,6 @@
 {
     "language": "Solidity",
     "sources": {
-        "increment_decrement.sol": {
-            "content": "contract C {\n    int immutable x = 1;\n    int immutable y = 3;\n\n    constructor() {\n        x--;\n        --x;\n        y++;\n        ++y;\n        --y;\n    }\n\n    function f() public view returns (int, int) {\n        return (x, y);\n    }\n}\n// ----\n// f() -> -1, 4\n"
-        },
-        "small_types_in_reverse.sol": {
-            "content": "contract A {\n\tuint16 public immutable a;\n\tuint16 public immutable b;\n\tuint16 public immutable c;\n\tuint16[3] public x;\n\tconstructor() {\n\t\tc = 0xffff;\n\t\tb = 0x0f0f;\n\t\ta = 0x1234;\n\t\tx = [a, b, c];\n\t}\n}\n// ----\n// a() -> 4660\n// b() -> 0x0f0f\n// c() -> 0xffff\n// x(uint256): 0 -> 4660\n// x(uint256): 1 -> 0x0f0f\n// x(uint256): 2 -> 0xffff\n"
-        },
-        "multi_creation.sol": {
-            "content": "contract A {\n\tuint immutable a;\n\tconstructor() {\n\t\ta = 7;\n\t}\n\tfunction f() public view returns (uint) { return a; }\n}\ncontract B {\n\tuint immutable a;\n\tconstructor() {\n\t\ta = 5;\n\t}\n\tfunction f() public view returns (uint) { return a; }\n}\ncontract C {\n\tuint immutable a;\n\tuint public x;\n\tuint public y;\n\tconstructor() {\n\t\ta = 3;\n\t\tx = (new A()).f();\n\t\ty = (new B()).f();\n\t}\n\tfunction f() public returns (uint256, uint, uint) {\n\t\treturn (a, (new A()).f(), (new B()).f());\n\t}\n}\n// ----\n// f() -> 3, 7, 5\n// gas irOptimized: 86796\n// gas irOptimized code: 37200\n// gas legacy: 87727\n// gas legacy code: 60800\n// gas legacyOptimized: 86770\n// gas legacyOptimized code: 37200\n// x() -> 7\n// y() -> 5\n"
-        },
-        "inheritance.sol": {
-            "content": "contract A {\n\tuint8 immutable a;\n\tconstructor() {\n\t\ta = 4;\n\t}\n}\ncontract B is A {\n\tuint8 immutable b;\n\tconstructor() {\n\t\tb = 3;\n\t}\n}\ncontract C is A {\n\tuint8 immutable c;\n\tconstructor() {\n\t\tc = 2;\n\t}\n}\ncontract D is B, C {\n\tuint8 immutable d;\n\n\tconstructor() {\n\t\td = 1;\n\t}\n\tfunction f() public view returns (uint256, uint256, uint, uint) {\n\t\treturn (a, b, c, d);\n\t}\n}\n// ----\n// f() -> 4, 3, 2, 1\n"
-        },
-        "assign_from_immutables.sol": {
-            "content": "contract C {\n\tuint immutable public a;\n\tuint immutable public b;\n\tuint immutable public c;\n\tuint immutable public d;\n\n\tconstructor() {\n\t\ta = 1;\n\t\tb = a;\n\t\tc = b;\n\t\td = c;\n\t}\n}\n// ----\n// a() -> 1\n// b() -> 1\n// c() -> 1\n// d() -> 1\n"
-        },
-        "read_in_ctor.sol": {
-            "content": "contract A {\n\tuint8 immutable a;\n\tuint8 x;\n\n\tconstructor() {\n\t\ta = 3;\n\t\tx = a;\n\t}\n\n\tfunction readX() public view returns (uint8) {\n\t\treturn x;\n\t}\n}\n// ----\n// readX() -> 3\n"
-        },
-        "assign_at_declaration.sol": {
-            "content": "contract A {\n\tuint8 immutable a = 2;\n\tfunction f() public view returns (uint) {\n\t\treturn a;\n\t}\n}\n// ----\n// f() -> 2\n"
-        },
-        "getter.sol": {
-            "content": "contract C {\n    uint immutable public x = 1;\n}\n// ----\n// x() -> 1\n"
-        },
-        "getter_call_in_constructor.sol": {
-            "content": "contract A {\n    uint immutable public x = 1;\n    uint public y;\n    constructor() {\n        y = this.x();\n    }\n}\ncontract C {\n    function f() public returns (bool) {\n        try new A() { return false; }\n        catch { return true; }\n    }\n}\n// ====\n// EVMVersion: >=tangerineWhistle\n// ----\n// f() -> true\n"
-        },
-        "use_scratch.sol": {
-            "content": "contract C {\n\tuint256 immutable x;\n\tuint256 immutable y;\n\tmapping(uint => uint) public m;\n\tconstructor(uint _a) {\n\t\tx = 42;\n\t\ty = 23;\n\t\tm[_a] = 7;\n\t\tnew uint[](4);\n\n\t}\n\tfunction f() public view returns (uint256, uint256) {\n\t\treturn (x+x,y);\n\t}\n}\n// ----\n// constructor(): 3 ->\n// gas irOptimized: 81194\n// gas irOptimized code: 42400\n// gas legacy: 88244\n// gas legacy code: 109400\n// gas legacyOptimized: 81858\n// gas legacyOptimized code: 55800\n// f() -> 84, 23\n// m(uint256): 3 -> 7\n"
-        },
         "delete.sol": {
             "content": "contract C {\n    uint8 immutable public a;\n    uint8 immutable public b = 0x42;\n    uint public c;\n\n    constructor() {\n        delete a;\n        delete b;\n        c = b * 2 + a;\n    }\n}\n// ----\n// a() -> 0\n// b() -> 0\n// c() -> 0\n"
         }

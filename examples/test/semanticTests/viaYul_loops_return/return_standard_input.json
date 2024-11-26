@@ -1,9 +1,6 @@
 {
     "language": "Solidity",
     "sources": {
-        "continue.sol": {
-            "content": "contract C {\n    function f() public returns (uint x) {\n        x = 1;\n        uint a = 0;\n        for (; a < 10; a = a + 1) {\n            continue;\n            x = x + x;\n        }\n        x = x + a;\n    }\n    function g() public returns (uint x) {\n        x = 1;\n        uint a = 0;\n        while (a < 10) {\n            a = a + 1;\n            continue;\n            x = x + x;\n        }\n        x = x + a;\n    }\n    function h() public returns (uint x) {\n        x = 1;\n        uint a = 0;\n        do {\n            a = a + 1;\n            continue;\n            x = x + x;\n        } while (a < 4);\n        x = x + a;\n    }\n}\n// ----\n// f() -> 11\n// g() -> 11\n// h() -> 5\n"
-        },
         "return.sol": {
             "content": "contract C {\n    function f() public returns (uint x) {\n        x = 1;\n        uint a;\n        for (; a < 10; a = a + 1) {\n            return x;\n            x = x + x;\n        }\n        x = x + a;\n    }\n    function g() public returns (uint x) {\n        x = 1;\n        uint a;\n        while (a < 10) {\n            return x;\n            x = x + x;\n            a = a + 1;\n        }\n        x = x + a;\n    }\n    function h() public returns (uint x) {\n        x = 1;\n        do {\n            x = x + 1;\n            return x;\n        } while (x < 3);\n    }\n}\n// ----\n// f() -> 1\n// g() -> 1\n// h() -> 2\n"
         }
