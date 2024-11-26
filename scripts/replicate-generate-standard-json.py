@@ -14,7 +14,17 @@ def generate_standard_json_input(directory, out_dir):
         "settings": {
             "optimizer": {
                 "enabled": True,
-                "runs": 200
+                "runs": 200,
+                "details": {
+                    "peephole": False,
+                    "inliner": False,
+                    "jumpdestRemover": False,
+                    "orderLiterals": False,
+                    "deduplicate": False,
+                    "cse": False,
+                    "constantOptimizer": False
+                }
+
             },
             "outputSelection": {
                 "*": {
