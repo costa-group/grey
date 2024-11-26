@@ -1,0 +1,46 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "interfaceId_events.sol": {
+            "content": "interface HelloWorld {\n    function hello() external pure;\n    function world(int) external pure;\n}\n\ninterface HelloWorldWithEvent {\n    event Event();\n    function hello() external pure;\n    function world(int) external pure;\n}\n\ncontract Test {\n    bytes4 public hello_world = type(HelloWorld).interfaceId;\n    bytes4 public hello_world_with_event = type(HelloWorldWithEvent).interfaceId;\n}\n// ----\n// hello_world() -> left(0xc6be8b58)\n// hello_world_with_event() -> left(0xc6be8b58)\n"
+        },
+        "lisa.sol": {
+            "content": "interface ERC165 {\n    /// @notice Query if a contract implements an interface\n    /// @param interfaceID The interface identifier, as specified in ERC-165\n    /// @dev Interface identification is specified in ERC-165. This function\n    ///  uses less than 30,000 gas.\n    /// @return `true` if the contract implements `interfaceID` and\n    ///  `interfaceID` is not 0xffffffff, `false` otherwise\n    function supportsInterface(bytes4 interfaceID) external view returns (bool);\n}\n\nabstract contract ERC165MappingImplementation is ERC165 {\n    /// @dev You must not set element 0xffffffff to true\n    mapping(bytes4 => bool) internal supportedInterfaces;\n\n    constructor() {\n        supportedInterfaces[this.supportsInterface.selector] = true;\n    }\n\n    function supportsInterface(bytes4 interfaceID) external view override returns (bool) {\n        return supportedInterfaces[interfaceID];\n    }\n}\n\ninterface Simpson {\n    function is2D() external returns (bool);\n    function skinColor() external returns (string memory);\n}\n\ncontract Lisa is ERC165MappingImplementation, Simpson {\n    constructor() {\n        supportedInterfaces[this.is2D.selector ^ this.skinColor.selector] = true;\n    }\n\n    function is2D() external override returns (bool) {\n        return true;\n    }\n\n    function skinColor() external override returns (string memory) {\n        return \"yellow\";\n    }\n}\n// ----\n// supportsInterface(bytes4): left(0x01ffc9a0) -> false\n// supportsInterface(bytes4): left(0x01ffc9a7) -> true\n// supportsInterface(bytes4): left(0x73b6b492) -> true\n// supportsInterface(bytes4): left(0x70b6b492) -> false\n"
+        },
+        "lisa_interfaceId.sol": {
+            "content": "interface ERC165 {\n    /// @notice Query if a contract implements an interface\n    /// @param interfaceID The interface identifier, as specified in ERC-165\n    /// @dev Interface identification is specified in ERC-165. This function\n    ///  uses less than 30,000 gas.\n    /// @return `true` if the contract implements `interfaceID` and\n    ///  `interfaceID` is not 0xffffffff, `false` otherwise\n    function supportsInterface(bytes4 interfaceID) external view returns (bool);\n}\n\nabstract contract ERC165MappingImplementation is ERC165 {\n    /// @dev You must not set element 0xffffffff to true\n    mapping(bytes4 => bool) internal supportedInterfaces;\n\n    constructor() {\n        supportedInterfaces[this.supportsInterface.selector] = true;\n    }\n\n    function supportsInterface(bytes4 interfaceID) external view override returns (bool) {\n        return supportedInterfaces[interfaceID];\n    }\n}\n\ninterface Simpson {\n    function is2D() external returns (bool);\n    function skinColor() external returns (string memory);\n}\n\ncontract Lisa is ERC165MappingImplementation, Simpson {\n    constructor() {\n        supportedInterfaces[type(Simpson).interfaceId] = true;\n    }\n\n    function is2D() external override returns (bool) {\n        return true;\n    }\n\n    function skinColor() external override returns (string memory) {\n        return \"yellow\";\n    }\n}\n// ----\n// supportsInterface(bytes4): left(0x01ffc9a0) -> false\n// supportsInterface(bytes4): left(0x01ffc9a7) -> true\n// supportsInterface(bytes4): left(0x73b6b492) -> true\n// supportsInterface(bytes4): left(0x70b6b492) -> false\n"
+        },
+        "homer.sol": {
+            "content": "interface ERC165 {\n    /// @notice Query if a contract implements an interface\n    /// @param interfaceID The interface identifier, as specified in ERC-165\n    /// @dev Interface identification is specified in ERC-165. This function\n    ///  uses less than 30,000 gas.\n    /// @return `true` if the contract implements `interfaceID` and\n    ///  `interfaceID` is not 0xffffffff, `false` otherwise\n    function supportsInterface(bytes4 interfaceID) external view returns (bool);\n}\n\ninterface Simpson {\n    function is2D() external returns (bool);\n    function skinColor() external returns (string memory);\n}\n\ncontract Homer is ERC165, Simpson {\n    function supportsInterface(bytes4 interfaceID) external view override returns (bool) {\n        return\n            interfaceID == this.supportsInterface.selector || // ERC165\n            interfaceID == this.is2D.selector ^ this.skinColor.selector; // Simpson\n    }\n\n    function is2D() external override returns (bool) {\n        return true;\n    }\n\n    function skinColor() external override returns (string memory) {\n        return \"yellow\";\n    }\n}\n// ----\n// supportsInterface(bytes4): left(0x01ffc9a0) -> false\n// supportsInterface(bytes4): left(0x01ffc9a7) -> true\n// supportsInterface(bytes4): left(0x73b6b492) -> true\n// supportsInterface(bytes4): left(0x70b6b492) -> false\n"
+        },
+        "homer_interfaceId.sol": {
+            "content": "interface ERC165 {\n    /// @notice Query if a contract implements an interface\n    /// @param interfaceID The interface identifier, as specified in ERC-165\n    /// @dev Interface identification is specified in ERC-165. This function\n    ///  uses less than 30,000 gas.\n    /// @return `true` if the contract implements `interfaceID` and\n    ///  `interfaceID` is not 0xffffffff, `false` otherwise\n    function supportsInterface(bytes4 interfaceID) external view returns (bool);\n}\n\ninterface Simpson {\n    function is2D() external returns (bool);\n    function skinColor() external returns (string memory);\n}\n\ncontract Homer is ERC165, Simpson {\n    function supportsInterface(bytes4 interfaceID) external view override returns (bool) {\n        return\n            interfaceID == type(ERC165).interfaceId ||\n            interfaceID == type(Simpson).interfaceId;\n    }\n\n    function is2D() external override returns (bool) {\n        return true;\n    }\n\n    function skinColor() external override returns (string memory) {\n        return \"yellow\";\n    }\n}\n// ----\n// supportsInterface(bytes4): left(0x01ffc9a0) -> false\n// supportsInterface(bytes4): left(0x01ffc9a7) -> true\n// supportsInterface(bytes4): left(0x73b6b492) -> true\n// supportsInterface(bytes4): left(0x70b6b492) -> false\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

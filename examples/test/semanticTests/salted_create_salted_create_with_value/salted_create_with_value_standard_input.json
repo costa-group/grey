@@ -1,0 +1,37 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "salted_create.sol": {
+            "content": "contract B\n{\n}\n\ncontract A {\n    function different_salt() public returns (bool) {\n        B x = new B{salt: \"abc\"}();\n        B y = new B{salt: \"abcef\"}();\n        return x != y;\n    }\n    function same_salt() public returns (bool) {\n        B x = new B{salt: \"xyz\"}();\n        try new B{salt: \"xyz\"}() {} catch {\n            return true;\n        }\n        return false;\n    }\n}\n// ====\n// EVMVersion: >=constantinople\n// ----\n// different_salt() -> true\n// same_salt() -> true\n// gas irOptimized: 98438295\n// gas irOptimized code: 600\n// gas legacy: 98437509\n// gas legacy code: 1600\n// gas legacyOptimized: 98437367\n// gas legacyOptimized code: 1600\n"
+        },
+        "salted_create_with_value.sol": {
+            "content": "contract B\n{\n    uint x;\n    function getBalance() public view returns (uint) {\n        return address(this).balance * 1000 + x;\n    }\n    constructor(uint _x) payable {\n        x = _x;\n    }\n}\n\ncontract A {\n    function f() public payable returns (uint, uint, uint) {\n        B x = new B{salt: \"abc\", value: 3}(7);\n        B y = new B{value: 3, salt: \"abc\"}(8);\n        B z = new B{salt: \"abc\", value: 3}(9);\n        return (x.getBalance(), y.getBalance(), z.getBalance());\n    }\n}\n// ====\n// EVMVersion: >=constantinople\n// ----\n// f(), 10 ether -> 3007, 3008, 3009\n// gas irOptimized: 187022\n// gas irOptimized code: 67200\n// gas legacy: 190858\n// gas legacy code: 190200\n// gas legacyOptimized: 187256\n// gas legacyOptimized code: 92400\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

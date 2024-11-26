@@ -1,0 +1,49 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "delete_transient_state_variable.sol": {
+            "content": "contract C {\n    uint transient x;\n    function f() public returns (uint) {\n        x = 10;\n        delete x;\n        return x;\n    }\n}\n// ====\n// EVMVersion: >=cancun\n// ----\n// f() -> 0\n"
+        },
+        "transient_state_variable_cleanup_assignment.sol": {
+            "content": "contract C {\n    uint8 transient x;\n    function f() public returns(uint256 r) {\n        uint8 y;\n        assembly { y := 0xFFFF }\n        x = y;\n        assembly {\n            r := tload(x.slot)\n        }\n\n    }\n}\n// ====\n// EVMVersion: >=cancun\n// ----\n// f() -> 0xff\n"
+        },
+        "transient_state_variable_tuple_assignment.sol": {
+            "content": "contract C {\n    uint transient x;\n    uint y;\n    uint transient w;\n    uint z;\n\n    function f() public returns (uint, uint, uint) {\n        x = 1;\n        y = 2;\n        w = 3;\n        z = 4;\n\n        (x, y, w) = (y, w, z);\n        return (x, y, w);\n    }\n}\n// ====\n// EVMVersion: >=cancun\n// ----\n// f() -> 2, 3, 4\n"
+        },
+        "public_state_overridding.sol": {
+            "content": "contract A\n{\n\tfunction test() external virtual returns (uint256)\n\t{\n\t\treturn 5;\n\t}\n}\ncontract X is A\n{\n\tuint256 public override test;\n\n\tfunction set() public { test = 2; }\n}\n// ----\n// test() -> 0\n// set() ->\n// test() -> 2\n"
+        },
+        "transient_function_type_state_variable.sol": {
+            "content": "contract C {\n    function () external transient f;\n    function g() external {\n    }\n\n    function test() public returns (bool) {\n        assert(f != this.g);\n        f = this.g;\n\n        return f == this.g;\n    }\n}\n// ====\n// EVMVersion: >=cancun\n// ----\n// test() -> true\n"
+        },
+        "delete_transient_state_variable_non_zero_offset.sol": {
+            "content": "contract C {\n    bytes14 transient x;\n    uint32  transient y;\n    uint112 transient z;\n\n    function f() public returns (bytes14, uint32, uint112) {\n        x = 0xffffffffffffffffffffffffffff;\n        y = 0xffffffff;\n        z = 0xffffffffffffffffffffffffffff;\n        delete y;\n        return (x, y, z);\n    }\n}\n// ====\n// EVMVersion: >=cancun\n// ----\n// f() -> 0xffffffffffffffffffffffffffff000000000000000000000000000000000000, 0, 0xffffffffffffffffffffffffffff\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

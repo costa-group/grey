@@ -1,0 +1,37 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "array_mapping_struct.sol": {
+            "content": "contract C {\n    struct Y {\n        uint a;\n        uint b;\n    }\n    mapping(uint256 => Y)[] public m;\n    mapping(uint256 => Y)[3] public n;\n    constructor() {\n        m.push();\n        m.push();\n        m[1][0].a = 1;\n        m[1][0].b = 2;\n        m[1][1].a = 3;\n        m[1][1].b = 4;\n        n[1][0].a = 7;\n        n[1][0].b = 8;\n        n[1][1].a = 9;\n        n[1][1].b = 10;\n    }\n}\n// ----\n// m(uint256,uint256): 0, 0 -> 0x00, 0x00\n// m(uint256,uint256): 1, 0 -> 1, 2\n// m(uint256,uint256): 1, 1 -> 3, 4\n// m(uint256,uint256): 1, 2 -> 0x00, 0x00\n// n(uint256,uint256): 0, 0 -> 0x00, 0x00\n// n(uint256,uint256): 1, 0 -> 7, 8\n// n(uint256,uint256): 1, 1 -> 9, 0x0a\n// n(uint256,uint256): 1, 2 -> 0x00, 0x00\n"
+        },
+        "transient_value_types.sol": {
+            "content": "contract C {\n    int8 public transient x;\n\n    function f() public returns(int8) {\n        x = -1;\n        return this.x();\n    }\n}\n// ====\n// EVMVersion: >=cancun\n// ----\n// x() -> 0\n// f() -> -1\n// x() -> 0\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

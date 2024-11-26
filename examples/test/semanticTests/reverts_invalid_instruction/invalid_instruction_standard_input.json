@@ -1,0 +1,49 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "invalid_enum_stored.sol": {
+            "content": "contract C {\n    enum X {A, B}\n    X public x;\n\n    function test_store() public returns (uint256) {\n        X garbled = X.A;\n        assembly {\n            garbled := 5\n        }\n        x = garbled;\n        return 1;\n    }\n\n    function test_store_ok() public returns (uint256) {\n        x = X.A;\n        return 1;\n    }\n}\n// ====\n// EVMVersion: >=byzantium\n// ----\n// test_store_ok() -> 1\n// x() -> 0\n// test_store() -> FAILURE, hex\"4e487b71\", 33 # should throw #\n"
+        },
+        "error_struct.sol": {
+            "content": "struct error { uint error; }\ncontract C {\n\terror test();\n\terror _struct;\n\tfunction f() public {\n\t\trevert test();\n\t}\n\tfunction g(uint x) public returns (uint) {\n\t\t_struct.error = x;\n\t\treturn _struct.error;\n\t}\n}\n// ----\n// f() -> FAILURE, hex\"f8a8fd6d\"\n// g(uint256): 7 -> 7\n"
+        },
+        "invalid_enum_compared.sol": {
+            "content": "contract C {\n    enum X {A, B}\n\n    function test_eq() public returns (bool) {\n        X garbled;\n        assembly {\n            garbled := 5\n        }\n        return garbled == garbled;\n    }\n\n    function test_eq_ok() public returns (bool) {\n        X garbled = X.A;\n        return garbled == garbled;\n    }\n\n    function test_neq() public returns (bool) {\n        X garbled;\n        assembly {\n            garbled := 5\n        }\n        return garbled != garbled;\n    }\n}\n// ====\n// EVMVersion: >=byzantium\n// ----\n// test_eq_ok() -> 1\n// test_eq() -> FAILURE, hex\"4e487b71\", 33 # both should throw #\n// test_neq() -> FAILURE, hex\"4e487b71\", 33\n"
+        },
+        "revert.sol": {
+            "content": "contract C {\n    uint256 public a = 42;\n\n    function f() public {\n        a = 1;\n        revert();\n    }\n\n    function g() public {\n        a = 1;\n        assembly {\n            revert(0, 0)\n        }\n    }\n}\n// ----\n// f() -> FAILURE\n// a() -> 42\n// g() -> FAILURE\n// a() -> 42\n"
+        },
+        "revert_return_area.sol": {
+            "content": "contract C {\n    fallback() external {\n        revert(\"abc\");\n    }\n\n    function f() public returns (uint s, uint r) {\n        address x = address(this);\n        assembly {\n            mstore(0, 7)\n            s := call(sub(0, 1), x, 0, 0, 0, 0, 32)\n            r := mload(0)\n        }\n    }\n}\n// ====\n// EVMVersion: >=byzantium\n// ----\n// f() -> 0x00, 0x08c379a000000000000000000000000000000000000000000000000000000000\n"
+        },
+        "invalid_instruction.sol": {
+            "content": "contract C {\n    function f() public {\n        assembly {\n            invalid()\n        }\n    }\n}\n// ----\n// f() -> FAILURE\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

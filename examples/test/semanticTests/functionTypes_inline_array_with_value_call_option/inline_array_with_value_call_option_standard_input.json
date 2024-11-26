@@ -1,0 +1,49 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "selector_assignment_expression.sol": {
+            "content": "contract C {\n    bool public z;\n    function f() public {\n        ((z = true) ? this.f : this.f).selector;\n    }\n}\n\n// ----\n// f()\n// z() -> true\n"
+        },
+        "comparison_operators_for_external_functions.sol": {
+            "content": "contract C {\n    function f() external {}\n    function g() external {}\n    function h() pure external {}\n    function i() view external {}\n\n    function comparison_operators_for_external_functions() public returns (bool) {\n        assert(\n            this.f != this.g &&\n            this.f != this.h &&\n            this.f != this.i &&\n\n            this.g != this.h &&\n            this.g != this.i &&\n\n            this.h != this.i &&\n\n            this.f == this.f &&\n            this.g == this.g &&\n            this.h == this.h &&\n            this.i == this.i\n        );\n        return true;\n    }\n\n    function comparison_operators_for_local_external_function_pointers() public returns (bool) {\n        function () external f_local = this.f;\n        function () external g_local = this.g;\n        function () external pure h_local = this.h;\n        function () external view i_local = this.i;\n\n        assert(\n            f_local == this.f &&\n            g_local == this.g &&\n            h_local == this.h &&\n            i_local == this.i &&\n\n            f_local != this.g &&\n            f_local != this.h &&\n            f_local != this.i &&\n\n            g_local != this.f &&\n            g_local != this.h &&\n            g_local != this.i &&\n\n            h_local != this.f &&\n            h_local != this.g &&\n            h_local != this.i &&\n\n            i_local != this.f &&\n            i_local != this.g &&\n            i_local != this.h\n        );\n\n        assert(\n            f_local == f_local &&\n            f_local != g_local &&\n            f_local != h_local &&\n            f_local != i_local\n        );\n\n        assert(\n            g_local == g_local &&\n            g_local != h_local &&\n            g_local != i_local\n        );\n\n        assert(\n            h_local == h_local &&\n            i_local == i_local &&\n            h_local != i_local\n        );\n\n        return true;\n    }\n}\n// ----\n// comparison_operators_for_external_functions() -> true\n// comparison_operators_for_local_external_function_pointers() -> true\n"
+        },
+        "stack_height_check_on_adding_gas_variable_to_function.sol": {
+            "content": "contract C {\n    function g() external {}\n    function h() external payable {}\n    function test_function() external returns (bool){\n        assert (\n            this.g.address == this.g.address &&\n            this.g{gas: 42}.address == this.g.address &&\n            this.g{gas: 42}.selector == this.g.selector\n        );\n        assert (\n            this.h.address == this.h.address &&\n            this.h{gas: 42}.address == this.h.address &&\n            this.h{gas: 42}.selector == this.h.selector\n        );\n        assert (\n            this.h{gas: 42, value: 5}.address == this.h.address &&\n            this.h{gas: 42, value: 5}.selector == this.h.selector\n        );\n        return true;\n    }\n}\n// ----\n// test_function() -> true\n"
+        },
+        "function_type_library_internal.sol": {
+            "content": "library Utils {\n    function reduce(\n        uint256[] memory array,\n        function(uint, uint) internal returns (uint) f,\n        uint256 init\n    ) internal returns (uint256) {\n        for (uint256 i = 0; i < array.length; i++) {\n            init = f(array[i], init);\n        }\n        return init;\n    }\n\n    function sum(uint256 a, uint256 b) internal returns (uint256) {\n        return a + b;\n    }\n}\n\n\ncontract C {\n    function f(uint256[] memory x) public returns (uint256) {\n        return Utils.reduce(x, Utils.sum, 0);\n    }\n}\n// ----\n// f(uint256[]): 0x20, 0x3, 0x1, 0x7, 0x3 -> 11\n"
+        },
+        "struct_with_functions.sol": {
+            "content": "struct S {\n    uint16 a;\n    function() returns (uint) x;\n    uint16 b;\n}\ncontract Flow {\n    S[2] t;\n\n    function X() internal pure returns (uint) {\n        return 1;\n    }\n\n    function Y() internal pure returns (uint) {\n        return 2;\n    }\n\n    constructor() {\n        t[0].a = 0xff07;\n        t[0].b = 0xff07;\n        t[1].x = Y;\n        t[1].a = 0xff07;\n        t[1].b = 0xff07;\n        t[0].x = X;\n    }\n\n    function f() public returns (uint, uint) {\n        return (t[0].x(), t[1].x());\n    }\n}\n// ----\n// f() -> 1, 2\n"
+        },
+        "inline_array_with_value_call_option.sol": {
+            "content": "contract C {\n    function f() external payable returns (uint) { assert(msg.value > 0); return 1; }\n    function g() external payable returns (uint) { assert(msg.value > 0); return 2; }\n\n    function h() public payable returns (uint) {\n        return [this.f, this.g][0]{value: 1}();\n    }\n}\n// ----\n// h(), 1 ether -> 1\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

@@ -1,0 +1,40 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "packed_storage.sol": {
+            "content": "contract C {\n    uint16 x;\n    bytes1 y;\n    uint16 z;\n    function f(uint8 a) public returns (uint _x) {\n        x = a;\n        y = bytes1(uint8(x) + 1);\n        z = uint8(y) + 1;\n        x = z + 1;\n        _x = x;\n    }\n}\n// ----\n// f(uint8): 6 -> 9\n"
+        },
+        "dirty_storage_dynamic_array.sol": {
+            "content": "contract C {\n    uint8[] s;\n    function f() public returns (bool correct) {\n        s.push();\n        assembly {\n            mstore(0, s.slot)\n            sstore(keccak256(0, 0x20), 257)\n        }\n        uint8 x = s[0];\n        uint r;\n        assembly {\n            r := x\n        }\n        correct = (s[0] == 0x01) && (r == 0x01);\n    }\n}\n// ----\n// f() -> true\n"
+        },
+        "dirty_storage_bytes.sol": {
+            "content": "contract C {\n    bytes b;\n    function f() public returns (bool correct) {\n        assembly {\n            sstore(b.slot, or(\"deadbeef\", 0x08))\n        }\n        bytes1 s = b[3];\n        uint r;\n        assembly {\n            r := s\n        }\n        correct = r == (0x64 << 248);\n    }\n}\n// ----\n// f() -> true\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

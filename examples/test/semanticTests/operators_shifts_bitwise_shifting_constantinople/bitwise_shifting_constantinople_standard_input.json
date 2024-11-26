@@ -1,0 +1,55 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "shift_right_garbled_v2.sol": {
+            "content": "pragma abicoder               v2;\n\n\ncontract C {\n    function f(uint8 a, uint8 b) public returns (uint256) {\n        assembly {\n            a := 0xffffffff\n        }\n        // Higher bits should be cleared before the shift\n        return a >> b;\n    }\n}\n// ----\n// f(uint8,uint8): 0x00, 0x04 -> 0x0f\n// f(uint8,uint8): 0x00, 0x1004 -> FAILURE\n"
+        },
+        "shift_left_uint8.sol": {
+            "content": "contract C {\n    function f(uint8 a, uint8 b) public returns (uint256) {\n        return a << b;\n    }\n}\n// ----\n// f(uint8,uint8): 0x66, 0x0 -> 0x66\n// f(uint8,uint8): 0x66, 0x8 -> 0\n"
+        },
+        "shift_right_garbled_v1.sol": {
+            "content": "pragma abicoder v1;\ncontract C {\n    function f(uint8 a, uint8 b) public returns (uint256) {\n        assembly {\n            a := 0xffffffff\n        }\n        // Higher bits should be cleared before the shift\n        return a >> b;\n    }\n}\n// ====\n// ABIEncoderV1Only: true\n// compileViaYul: false\n// ----\n// f(uint8,uint8): 0x00, 0x04 -> 0x0f\n// f(uint8,uint8): 0x00, 0x1004 -> 0x0f\n"
+        },
+        "shift_negative_constant_right.sol": {
+            "content": "contract C {\n    int256 public a = -0x4200 >> 8;\n}\n// ----\n// a() -> -66\n"
+        },
+        "bitwise_shifting_constantinople_combined.sol": {
+            "content": "contract C {\n    function shl_zero(uint256 a) public returns (uint256 c) {\n        assembly {\n            c := shl(0, a)\n        }\n    }\n\n    function shr_zero(uint256 a) public returns (uint256 c) {\n        assembly {\n            c := shr(0, a)\n        }\n    }\n\n    function sar_zero(uint256 a) public returns (uint256 c) {\n        assembly {\n            c := sar(0, a)\n        }\n    }\n\n    function shl_large(uint256 a) public returns (uint256 c) {\n        assembly {\n            c := shl(0x110, a)\n        }\n    }\n\n    function shr_large(uint256 a) public returns (uint256 c) {\n        assembly {\n            c := shr(0x110, a)\n        }\n    }\n\n    function sar_large(uint256 a) public returns (uint256 c) {\n        assembly {\n            c := sar(0x110, a)\n        }\n    }\n\n    function shl_combined(uint256 a) public returns (uint256 c) {\n        assembly {\n            c := shl(4, shl(12, a))\n        }\n    }\n\n    function shr_combined(uint256 a) public returns (uint256 c) {\n        assembly {\n            c := shr(4, shr(12, a))\n        }\n    }\n\n    function sar_combined(uint256 a) public returns (uint256 c) {\n        assembly {\n            c := sar(4, sar(12, a))\n        }\n    }\n\n    function shl_combined_large(uint256 a) public returns (uint256 c) {\n        assembly {\n            c := shl(0xd0, shl(0x40, a))\n        }\n    }\n\n    function shl_combined_overflow(uint256 a) public returns (uint256 c) {\n        assembly {\n            c := shl(0x01, shl(not(0x00), a))\n        }\n    }\n\n    function shr_combined_large(uint256 a) public returns (uint256 c) {\n        assembly {\n            c := shr(0xd0, shr(0x40, a))\n        }\n    }\n\n    function shr_combined_overflow(uint256 a) public returns (uint256 c) {\n        assembly {\n            c := shr(0x01, shr(not(0x00), a))\n        }\n    }\n\n    function sar_combined_large(uint256 a) public returns (uint256 c) {\n        assembly {\n            c := sar(0xd0, sar(0x40, a))\n        }\n    }\n}\n// ====\n// EVMVersion: >=constantinople\n// ----\n// shl_zero(uint256): 0x00 -> 0x00\n// shl_zero(uint256): 0xffff -> 0xffff\n// shl_zero(uint256): 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff -> 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff\n// shr_zero(uint256): 0x00 -> 0x00\n// shr_zero(uint256): 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff -> 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff\n// sar_zero(uint256): 0x00 -> 0x00\n// sar_zero(uint256): 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff -> 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff\n// shl_large(uint256): 0x00 -> 0x00\n// shl_large(uint256): 0xffff -> 0x00\n// shl_large(uint256): 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff -> 0x00\n// shr_large(uint256): 0x00 -> 0x00\n// shr_large(uint256): 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff -> 0x00\n// sar_large(uint256): 0x00 -> 0x00\n// sar_large(uint256): 0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff -> 0x00\n// sar_large(uint256): 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff -> 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff\n// shl_combined(uint256): 0x00 -> 0x00\n// shl_combined(uint256): 0xffff -> 0xffff0000\n// shl_combined(uint256): 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff -> 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff0000\n// shr_combined(uint256): 0x00 -> 0x00\n// shr_combined(uint256): 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff -> 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff\n// sar_combined(uint256): 0x00 -> 0x00\n// sar_combined(uint256): 0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff -> 0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffff\n// sar_combined(uint256): 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff -> 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff\n// shl_combined_large(uint256): 0x00 -> 0x00\n// shl_combined_large(uint256): 0xffff -> 0x00\n// shl_combined_large(uint256): 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff -> 0x00\n// shl_combined_overflow(uint256): 0x02 -> 0x00\n// shr_combined_large(uint256): 0x00 -> 0x00\n// shr_combined_large(uint256): 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff -> 0x00\n// shr_combined_overflow(uint256): 0x02 -> 0x00\n// sar_combined_large(uint256): 0x00 -> 0x00\n// sar_combined_large(uint256): 0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff -> 0x00\n// sar_combined_large(uint256): 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff -> 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff\n"
+        },
+        "shift_bytes_cleanup_viaYul.sol": {
+            "content": "contract C {\n\tfunction l(uint8 y) public returns (bytes20) {\n\t\tbytes20 x;\n\t\tassembly { x := \"12345678901234567890abcde\" }\n\t\t// When compiling via IR, `x` is truncated before applying\n\t\t// the operation.\n\t\treturn x << y;\n\t}\n\tfunction r(uint8 y) public returns (bytes20) {\n\t\tbytes20 x;\n\t\tassembly { x := \"12345678901234567890abcde\" }\n\t\treturn x >> y;\n\t}\n}\n// ====\n// compileViaYul: true\n// ----\n// l(uint8): 64 -> 0x3930313233343536373839300000000000000000000000000000000000000000\n// r(uint8): 64 -> 0x313233343536373839303132000000000000000000000000\n"
+        },
+        "shift_left_uint32.sol": {
+            "content": "contract C {\n    function f(uint32 a, uint32 b) public returns (uint256) {\n        return a << b;\n    }\n}\n// ----\n// f(uint32,uint32): 0x4266, 0x0 -> 0x4266\n// f(uint32,uint32): 0x4266, 0x8 -> 0x426600\n// f(uint32,uint32): 0x4266, 0x10 -> 0x42660000\n// f(uint32,uint32): 0x4266, 0x11 -> 0x84cc0000\n// f(uint32,uint32): 0x4266, 0x20 -> 0\n"
+        },
+        "bitwise_shifting_constantinople.sol": {
+            "content": "contract C {\n    function shl(uint256 a, uint256 b) public returns (uint256 c) {\n        assembly {\n            c := shl(b, a)\n        }\n    }\n\n    function shr(uint256 a, uint256 b) public returns (uint256 c) {\n        assembly {\n            c := shr(b, a)\n        }\n    }\n\n    function sar(uint256 a, uint256 b) public returns (uint256 c) {\n        assembly {\n            c := sar(b, a)\n        }\n    }\n}\n// ====\n// EVMVersion: >=constantinople\n// ----\n// shl(uint256,uint256): 0x01, 0x02 -> 0x04\n// shl(uint256,uint256): 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, 0x01 -> 0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe\n// shl(uint256,uint256): 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, 0x100 -> 0x00\n// shr(uint256,uint256): 0x03, 0x01 -> 0x01\n// shr(uint256,uint256): 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, 0x01 -> 0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff\n// shr(uint256,uint256): 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, 0xff -> 0x01\n// shr(uint256,uint256): 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, 0x100 -> 0x00\n// sar(uint256,uint256): 0x03, 0x01 -> 0x01\n// sar(uint256,uint256): 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, 0x01 -> 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff\n// sar(uint256,uint256): 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, 0xff -> 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff\n// sar(uint256,uint256): 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, 0x100 -> 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

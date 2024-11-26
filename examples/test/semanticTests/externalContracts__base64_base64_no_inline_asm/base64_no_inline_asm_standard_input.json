@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "base64_no_inline_asm.sol": {
+            "content": "// SPDX-License-Identifier: MIT\n\npragma solidity ^0.8.0;\n\n/**\n * @dev Provides a set of functions to operate with Base64 strings.\n */\nlibrary NoAsmBase64 {\n    bytes private constant TABLE = \"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/\";\n\n        function encode(bytes memory data) internal pure returns (string memory) {\n        if (data.length == 0) return \"\";\n\n        bytes memory table     = TABLE;\n        bytes memory result    = new bytes(4 * ((data.length + 2) / 3));\n        uint256      resultPtr = 0;\n\n        for (uint256 dataPtr = 0; dataPtr < data.length; dataPtr += 3) {\n            uint24 chunk = (                            (uint24(uint8(data[dataPtr + 0])) << 16))\n                         + (dataPtr + 1 < data.length ? (uint24(uint8(data[dataPtr + 1])) <<  8) : 0)\n                         + (dataPtr + 2 < data.length ? (uint24(uint8(data[dataPtr + 2]))      ) : 0);\n\n            result[resultPtr++] = table[uint8(chunk >> 18) & 0x3f];\n            result[resultPtr++] = table[uint8(chunk >> 12) & 0x3f];\n            result[resultPtr++] = table[uint8(chunk >>  6) & 0x3f];\n            result[resultPtr++] = table[uint8(chunk      ) & 0x3f];\n        }\n\n        if (data.length % 3 == 1) {\n            result[--resultPtr] = 0x3d;\n            result[--resultPtr] = 0x3d;\n        }\n        else if (data.length % 3 == 2) {\n            result[--resultPtr] = 0x3d;\n        }\n\n        return (string(result));\n    }\n}\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

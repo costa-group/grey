@@ -1,0 +1,37 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "base64_no_inline_asm.sol": {
+            "content": "// SPDX-License-Identifier: MIT\n\npragma solidity ^0.8.0;\n\n/**\n * @dev Provides a set of functions to operate with Base64 strings.\n */\nlibrary NoAsmBase64 {\n    bytes private constant TABLE = \"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/\";\n\n        function encode(bytes memory data) internal pure returns (string memory) {\n        if (data.length == 0) return \"\";\n\n        bytes memory table     = TABLE;\n        bytes memory result    = new bytes(4 * ((data.length + 2) / 3));\n        uint256      resultPtr = 0;\n\n        for (uint256 dataPtr = 0; dataPtr < data.length; dataPtr += 3) {\n            uint24 chunk = (                            (uint24(uint8(data[dataPtr + 0])) << 16))\n                         + (dataPtr + 1 < data.length ? (uint24(uint8(data[dataPtr + 1])) <<  8) : 0)\n                         + (dataPtr + 2 < data.length ? (uint24(uint8(data[dataPtr + 2]))      ) : 0);\n\n            result[resultPtr++] = table[uint8(chunk >> 18) & 0x3f];\n            result[resultPtr++] = table[uint8(chunk >> 12) & 0x3f];\n            result[resultPtr++] = table[uint8(chunk >>  6) & 0x3f];\n            result[resultPtr++] = table[uint8(chunk      ) & 0x3f];\n        }\n\n        if (data.length % 3 == 1) {\n            result[--resultPtr] = 0x3d;\n            result[--resultPtr] = 0x3d;\n        }\n        else if (data.length % 3 == 2) {\n            result[--resultPtr] = 0x3d;\n        }\n\n        return (string(result));\n    }\n}\n"
+        },
+        "base64_inline_asm.sol": {
+            "content": "// SPDX-License-Identifier: MIT\n\npragma solidity ^0.8.0;\n\n/**\n * @dev Provides a set of functions to operate with Base64 strings.\n */\nlibrary InlineAsmBase64 {\n    /**\n     * @dev Base64 Encoding/Decoding Table\n     */\n    string internal constant _TABLE = \"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/\";\n\n    /**\n     * @dev Converts a `bytes` to its Bytes64 `string` representation.\n     */\n    function encode(bytes memory data) internal pure returns (string memory) {\n        /**\n         * Inspired by OpenZepplin Base64 implementation\n         * https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2884/commits/157c32b65a15cb0b58257543643cafa1cebf883a\n         */\n        if (data.length == 0) return \"\";\n\n        // Loads the table into memory\n        string memory table = _TABLE;\n\n        // Encoding takes 3 bytes chunks of binary data from `bytes` data parameter\n        // and split into 4 numbers of 6 bits.\n        // The final Base64 length should be `bytes` data length multiplied by 4/3 rounded up\n        // - `data.length + 2`  -> Round up\n        // - `/ 3`              -> Number of 3-bytes chunks\n        // - `4 *`              -> 4 characters for each chunk\n        uint256 encodedLen = 4 * ((data.length + 2) / 3);\n\n        // Add some extra buffer at the end required for the writing\n        string memory result = new string(encodedLen);\n\n        assembly {\n            // Store the actual result length in memory\n            mstore(result, encodedLen)\n\n            // Prepare the lookup table\n            let tablePtr := add(table, 1)\n\n            // Prepare input pointer\n            let dataPtr := data\n            let endPtr := add(dataPtr, mload(data))\n\n            // Prepare result pointer, jump over length\n            let resultPtr := add(result, 32)\n\n            // Run over the input, 3 bytes at a time\n            for {\n\n            } lt(dataPtr, endPtr) {\n\n            } {\n                // Advance 3 bytes\n                dataPtr := add(dataPtr, 3)\n                let input := mload(dataPtr)\n\n                // To write each character, shift the 3 bytes (24 bits) chunk 4\n                // times in blocks of 6 bits for each character (18, 12, 6, 0)\n                // and apply logical AND with 0x3F to extract the 6-bit group.\n                // Add the 6-bit group with the table ptr to index into the\n                // table and acquire the character to write.  Finally, write\n                // the character to the result pointer.\n\n                mstore8(resultPtr, mload(add(tablePtr, and(shr(18, input), 0x3F))))\n                resultPtr := add(resultPtr, 1) // Advance\n\n                mstore8(resultPtr, mload(add(tablePtr, and(shr(12, input), 0x3F))))\n                resultPtr := add(resultPtr, 1) // Advance\n\n                mstore8(resultPtr, mload(add(tablePtr, and(shr(6, input), 0x3F))))\n                resultPtr := add(resultPtr, 1) // Advance\n\n                mstore8(resultPtr, mload(add(tablePtr, and(input, 0x3F))))\n                resultPtr := add(resultPtr, 1) // Advance\n            }\n\n            // When data `bytes` is not exactly 3 bytes long\n            // it is padded with `=` characters at the end\n            switch mod(mload(data), 3)\n            case 1 {\n                mstore8(sub(resultPtr, 1), 0x3d)\n                mstore8(sub(resultPtr, 2), 0x3d)\n            }\n            case 2 {\n                mstore8(sub(resultPtr, 1), 0x3d)\n            }\n        }\n\n        return result;\n    }\n}\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

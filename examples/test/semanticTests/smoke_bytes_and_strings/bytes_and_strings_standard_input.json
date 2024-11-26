@@ -1,0 +1,58 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "multiline.sol": {
+            "content": "contract C {\n    function f(uint a, uint b, uint c, uint d, uint e) public returns (uint) {\n        return a + b + c + d + e;\n    }\n}\n// ====\n// allowNonExistingFunctions: true\n// ----\n// f(uint256,uint256,uint256,uint256,uint256): 1, 1, 1, 1, 1\n// -> 5\n// g()\n// # g() does not exist #\n// -> FAILURE\n"
+        },
+        "multiline_comments.sol": {
+            "content": "contract C {\n    function f(uint a, uint b, uint c, uint d, uint e) public returns (uint) {\n        return a + b + c + d + e;\n    }\n}\n// ----\n// f(uint256,uint256,uint256,uint256,uint256): 1, 1, 1, 1, 1\n// # A comment on the function parameters. #\n// -> 5\n// f(uint256,uint256,uint256,uint256,uint256):\n// 1,\n// 1,\n// 1,\n// 1,\n// 1\n// -> 5\n// # Should return sum of all parameters. #\n"
+        },
+        "structs.sol": {
+            "content": "pragma abicoder               v2;\n\ncontract C {\n    struct S {\n        uint a;\n        uint b;\n    }\n    struct T {\n        uint a;\n        uint b;\n        string s;\n    }\n    function s() public returns (S memory) {\n        return S(23, 42);\n    }\n    function t() public returns (T memory) {\n        return T(23, 42, \"any\");\n    }\n}\n// ----\n// s() -> 23, 42\n// t() -> 0x20, 23, 42, 0x60, 3, \"any\"\n"
+        },
+        "alignment.sol": {
+            "content": "contract C {\n    uint256 public stateDecimal = 0x20;\n}\n\ncontract D {\n    bool public stateBool = true;\n    uint256 public stateDecimal = 42;\n    bytes32 public stateBytes = \"\\x42\\x00\\xef\";\n\n    function internalStateDecimal() public returns (uint256) {\n        return (new C()).stateDecimal();\n    }\n\n    function update(bool _bool, uint256 _decimal, bytes32 _bytes) public returns (bool, uint256, bytes32) {\n        stateBool = _bool;\n        stateDecimal = _decimal;\n        stateBytes = _bytes;\n        return (stateBool, stateDecimal, stateBytes);\n    }\n}\n// ----\n// stateBool() -> true\n// stateBool() -> right(true)\n// stateDecimal() -> 42\n// stateDecimal() -> right(42)\n// stateBytes() -> left(0x4200ef)\n// internalStateDecimal() -> 0x20\n// gas legacy: 76665\n// gas legacy code: 23600\n// update(bool,uint256,bytes32): false, -23, left(0x2300ef) -> false, -23, left(0x2300ef)\n"
+        },
+        "arrays.sol": {
+            "content": "pragma abicoder               v2;\n\ncontract C {\n    struct T {\n        uint a;\n        uint b;\n        string s;\n    }\n    bool[2][] flags;\n    function r() public returns (bool[3] memory) {\n        return [true, false, true];\n    }\n    function s() public returns (uint[2] memory, uint) {\n        return ([uint(123), 456], 789);\n    }\n    function u() public returns (T[2] memory) {\n        return [T(23, 42, \"any\"), T(555, 666, \"any\")];\n    }\n    function v() public returns (bool[2][] memory) {\n        return flags;\n    }\n    function w1() public returns (string[1] memory) {\n        return [\"any\"];\n    }\n    function w2() public returns (string[2] memory) {\n        return [\"any\", \"any\"];\n    }\n    function w3() public returns (string[3] memory) {\n        return [\"any\", \"any\", \"any\"];\n    }\n    function x() public returns (string[2] memory, string[3] memory) {\n        return ([\"any\", \"any\"], [\"any\", \"any\", \"any\"]);\n    }\n}\n// ----\n// r() -> true, false, true\n// s() -> 123, 456, 789\n// u() -> 0x20, 0x40, 0xE0, 23, 42, 0x60, 3, \"any\", 555, 666, 0x60, 3, \"any\"\n// v() -> 0x20, 0\n// w1() -> 0x20, 0x20, 3, \"any\"\n// w2() -> 0x20, 0x40, 0x80, 3, \"any\", 3, \"any\"\n// w3() -> 0x20, 0x60, 0xa0, 0xe0, 3, \"any\", 3, \"any\", 3, \"any\"\n// x() -> 0x40, 0x0100, 0x40, 0x80, 3, \"any\", 3, \"any\", 0x60, 0xa0, 0xe0, 3, \"any\", 3, \"any\", 3, \"any\"\n"
+        },
+        "constructor.sol": {
+            "content": "contract C {\n    uint public state = 0;\n    constructor(uint _state) payable {\n        state = _state;\n    }\n    function balance() public payable returns (uint256) {\n        return address(this).balance;\n    }\n    function update(uint _state) public {\n        state = _state;\n    }\n}\n// ----\n// constructor(), 2 wei: 3 ->\n// gas irOptimized: 78996\n// gas irOptimized code: 25400\n// gas legacy: 83055\n// gas legacy code: 65200\n// gas legacyOptimized: 78898\n// gas legacyOptimized code: 27800\n// state() -> 3\n// balance() -> 2\n// balance -> 2\n// update(uint256): 4\n// state() -> 4\n"
+        },
+        "basic.sol": {
+            "content": "pragma abicoder               v2;\n\ncontract C {\n    function d() public {\n    }\n    function e() public payable returns (uint) {\n        return msg.value;\n    }\n    function f(uint a) public pure returns (uint, uint) {\n        return (a, a);\n    }\n    function g() public  pure returns (uint, uint) {\n        return (2, 3);\n    }\n    function h(uint x, uint y) public  pure returns (uint) {\n        unchecked { return x - y; }\n    }\n    function i(bool b) public  pure returns (bool) {\n        return !b;\n    }\n    function j(bytes32 b) public pure returns (bytes32, bytes32) {\n        return (b, b);\n    }\n    function k() public pure returns (uint) {\n        return msg.data.length;\n    }\n    function l(uint a) public pure returns (uint d) {\n        return a * 7;\n    }\n}\n// ----\n// d() ->\n// e(), 1 wei -> 1\n// e(), 1 ether -> 1000000000000000000\n// f(uint256): 3 -> 3, 3\n// g() -> 2, 3\n// h(uint256,uint256): 1, -2 -> 3\n// i(bool): true -> false\n// j(bytes32): 0x10001 -> 0x10001, 0x10001\n// k(): hex\"4200efef\" -> 8\n// l(uint256): 99 -> 693\n"
+        },
+        "fallback.sol": {
+            "content": "contract A {\n    uint public data;\n    uint public balance;\n    bytes public externalData;\n    fallback() external payable {\n        data += 1;\n        balance = msg.value;\n        externalData = msg.data;\n    }\n}\n// ----\n// data() -> 0\n// ()\n// data() -> 1\n// (): hex\"42ef\"\n// data() -> 2\n// externalData() -> 0x20, 2, left(0x42ef)\n// balance() -> 0\n// (), 1 wei\n// balance() -> 1\n// (), 2 wei: hex\"fefe\"\n// balance() -> 2\n// externalData() -> 0x20, 2, left(0xfefe)\n"
+        },
+        "bytes_and_strings.sol": {
+            "content": "contract C {\n    function e(bytes memory b) public pure returns (bytes memory) {\n        return b;\n    }\n    function f() public pure returns (string memory, string memory) {\n        return (\"any\", \"any\");\n    }\n    function g() public pure returns (string memory, uint, string memory) {\n        return (\"any\", 42, \"any\");\n    }\n    function h() public pure returns (string memory) {\n        return \"any\";\n    }\n}\n// ----\n// e(bytes): 32, 3, hex\"AB33BB\" -> 32, 3, left(0xAB33BB)\n// e(bytes): 32, 32, 0x20 -> 32, 32, 0x20\n// e(bytes): 32, 3, hex\"AB33FF\" -> 32, 3, hex\"ab33ff0000000000000000000000000000000000000000000000000000000000\"\n// f() -> 0x40, 0x80, 3, \"any\", 3, \"any\"\n// g() -> 0x60, 0x2a, 0xa0, 3, \"any\", 3, \"any\"\n// h() -> 0x20, 3, \"any\"\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

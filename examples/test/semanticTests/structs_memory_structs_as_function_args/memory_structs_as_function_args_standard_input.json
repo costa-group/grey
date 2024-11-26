@@ -1,0 +1,76 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "memory_struct_named_constructor.sol": {
+            "content": "pragma abicoder               v2;\n\ncontract C {\n    struct S {\n        uint256 a;\n        bool x;\n    }\n\n    function s() public returns(S memory)\n    {\n        return S({x: true, a: 8});\n    }\n}\n// ----\n// s() -> 8, true\n"
+        },
+        "copy_from_mapping.sol": {
+            "content": "pragma abicoder v2;\n\ncontract C {\n    struct S {\n        bytes b;\n        uint16[] a;\n        uint16 u;\n    }\n\n    constructor() {\n        uint16[] memory a = new uint16[](2);\n        a[0] = 13;\n        a[1] = 14;\n\n        m[7] = S({b: \"foo\", a: a, u: 7});\n    }\n\n    mapping (uint => S) m;\n    S s;\n\n    function to_state() public returns (S memory) {\n\ts = m[7];\n        return s;\n    }\n\n    function to_storage() public returns (S memory) {\n        S storage sLocal = s;\n\tsLocal = m[7];\n        return sLocal;\n    }\n\n    function to_memory() public returns (S memory) {\n\treturn m[7];\n    }\n\n}\n// ----\n// to_state() -> 0x20, 0x60, 0xa0, 7, 3, 0x666F6F0000000000000000000000000000000000000000000000000000000000, 2, 13, 14\n// gas irOptimized: 121282\n// gas legacy: 122977\n// gas legacyOptimized: 121652\n// to_storage() -> 0x20, 0x60, 0xa0, 7, 3, 0x666F6F0000000000000000000000000000000000000000000000000000000000, 2, 13, 14\n// to_memory() -> 0x20, 0x60, 0xa0, 7, 3, 0x666F6F0000000000000000000000000000000000000000000000000000000000, 2, 13, 14\n"
+        },
+        "struct_delete_storage_nested_small.sol": {
+            "content": "contract C {\n    struct S {\n        uint32 a;\n        S[] x;\n    }\n    S s;\n    function f() public returns (uint256 r1, uint256 r2, uint256 r3) {\n        assembly {\n            // 2 ** 150 - 1\n            sstore(s.slot, 1427247692705959881058285969449495136382746623)\n        }\n        s.a = 1;\n        s.x.push(); s.x.push();\n        S storage ptr1 = s.x[0];\n        S storage ptr2 = s.x[1];\n        assembly {\n            // 2 ** 150 - 1\n            sstore(ptr1.slot, 1427247692705959881058285969449495136382746623)\n            sstore(ptr2.slot, 1427247692705959881058285969449495136382746623)\n        }\n        s.x[0].a = 2; s.x[1].a = 3;\n        delete s;\n        assert(s.a == 0);\n        assert(s.x.length == 0);\n        assembly {\n            r1 := sload(s.slot)\n            r2 := sload(ptr1.slot)\n            r3 := sload(ptr2.slot)\n        }\n    }\n}\n// ====\n// compileViaYul: true\n// ----\n// f() -> 0, 0, 0\n// gas irOptimized: 117101\n"
+        },
+        "copy_from_storage.sol": {
+            "content": "pragma abicoder v2;\n// Example from https://github.com/ethereum/solidity/issues/12558\nstruct S {\n    uint x;\n}\n\ncontract C {\n    S sStorage;\n    constructor() {\n        sStorage.x = 13;\n    }\n\n    function f() external returns (S[] memory) {\n        S[] memory sMemory = new S[](1);\n\n        sMemory[0] = sStorage;\n\n        return sMemory;\n    }\n}\n// ----\n// f() -> 0x20, 1, 13\n"
+        },
+        "copy_substructures_from_mapping.sol": {
+            "content": "pragma abicoder v2;\n\ncontract C {\n    struct S {\n        bytes b;\n        uint16[] a;\n        uint16 u;\n    }\n\n    constructor() {\n        uint16[] memory a = new uint16[](2);\n        a[0] = 13;\n        a[1] = 14;\n\n        m[7] = S({b: \"foo\", a: a, u: 7});\n    }\n\n    mapping (uint => S) m;\n    S s;\n\n    function to_state() public returns (S memory) {\n\ts.b = m[7].b;\n\ts.a = m[7].a;\n\ts.u = m[7].u;\n        return s;\n    }\n\n    function to_storage() public returns (S memory) {\n        S storage sLocal = s;\n\tsLocal.b = m[7].b;\n\tsLocal.a = m[7].a;\n\tsLocal.u = m[7].u;\n        return sLocal;\n    }\n\n    function to_memory() public returns (S memory) {\n        S memory sLocal;\n        sLocal.b = m[7].b;\n        sLocal.a = m[7].a;\n        sLocal.u = m[7].u;\n\treturn sLocal;\n    }\n\n}\n// ----\n// to_state() -> 0x20, 0x60, 0xa0, 7, 3, 0x666F6F0000000000000000000000000000000000000000000000000000000000, 2, 13, 14\n// gas irOptimized: 121454\n// gas legacy: 123114\n// gas legacyOptimized: 121659\n// to_storage() -> 0x20, 0x60, 0xa0, 7, 3, 0x666F6F0000000000000000000000000000000000000000000000000000000000, 2, 13, 14\n// to_memory() -> 0x20, 0x60, 0xa0, 7, 3, 0x666F6F0000000000000000000000000000000000000000000000000000000000, 2, 13, 14\n"
+        },
+        "struct_reference.sol": {
+            "content": "contract test {\n    struct s2 {\n        uint32 z;\n        mapping(uint8 => s2) recursive;\n    }\n    s2 data;\n    function check() public returns (bool ok) {\n        return data.z == 2 &&\n            data.recursive[0].z == 3 &&\n            data.recursive[0].recursive[1].z == 0 &&\n            data.recursive[0].recursive[0].z == 1;\n    }\n    function set() public {\n        data.z = 2;\n        mapping(uint8 => s2) storage map = data.recursive;\n        s2 storage inner = map[0];\n        inner.z = 3;\n        inner.recursive[0].z = inner.recursive[1].z + 1;\n    }\n}\n// ----\n// check() -> false\n// set() ->\n// check() -> true\n"
+        },
+        "struct_named_constructor.sol": {
+            "content": "contract C {\n    struct S {\n        uint256 a;\n        bool x;\n    }\n    S public s;\n\n    constructor() {\n        s = S({x: true, a: 1});\n    }\n}\n// ----\n// s() -> 1, true\n"
+        },
+        "using_for_function_on_struct.sol": {
+            "content": "library D { struct s { uint a; } function mul(s storage self, uint x) public returns (uint) { return self.a *= x; } }\ncontract C {\n    using D for D.s;\n    D.s public x;\n    function f(uint a) public returns (uint) {\n        x.a = 3;\n        return x.mul(a);\n    }\n}\n// ----\n// library: D\n// f(uint256): 7 -> 0x15\n// x() -> 0x15\n"
+        },
+        "structs.sol": {
+            "content": "contract test {\n    struct s1 {\n        uint8 x;\n        bool y;\n    }\n    struct s2 {\n        uint32 z;\n        s1 s1data;\n        mapping(uint8 => s2) recursive;\n    }\n    s2 data;\n    function check() public returns (bool ok) {\n        return data.z == 1 && data.s1data.x == 2 &&\n            data.s1data.y == true &&\n            data.recursive[3].recursive[4].z == 5 &&\n            data.recursive[4].recursive[3].z == 6 &&\n            data.recursive[0].s1data.y == false &&\n            data.recursive[4].z == 9;\n    }\n    function set() public {\n        data.z = 1;\n        data.s1data.x = 2;\n        data.s1data.y = true;\n        data.recursive[3].recursive[4].z = 5;\n        data.recursive[4].recursive[3].z = 6;\n        data.recursive[0].s1data.y = false;\n        data.recursive[4].z = 9;\n    }\n}\n// ----\n// check() -> false\n// set() ->\n// gas irOptimized: 134073\n// gas legacy: 135243\n// gas legacyOptimized: 134062\n// check() -> true\n"
+        },
+        "global.sol": {
+            "content": "pragma abicoder               v2;\n\nstruct S { uint256 a; uint256 b; }\ncontract C {\n    function f(S calldata s) external pure returns (uint256, uint256) {\n        return (s.a, s.b);\n    }\n}\n// ----\n// f((uint256,uint256)): 42, 23 -> 42, 23\n"
+        },
+        "struct_memory_to_storage.sol": {
+            "content": "pragma abicoder               v2;\n\ncontract C {\n    struct S {\n        uint32 a;\n        uint128 b;\n        uint256 c;\n    }\n\n    struct X {\n        uint256 a;\n        S s;\n    }\n\n    uint[79] r;\n    X x;\n\n    function f() external returns (uint32, uint128, uint256) {\n        X memory m = X(12, S(42, 23, 34));\n        x = m;\n        return (x.s.a, x.s.b, x.s.c);\n    }\n}\n// ----\n// f() -> 42, 23, 34\n"
+        },
+        "simple_struct_allocation.sol": {
+            "content": "contract C {\n  struct S {\n    uint a;\n  }\n\n  function f() external returns (uint) {\n    S memory s = S(1);\n    return s.a;\n  }\n}\n// ----\n// f() -> 1\n"
+        },
+        "event.sol": {
+            "content": "pragma abicoder v2;\n\nstruct Item {uint x;}\nlibrary L {\n    event Ev(Item);\n    function o() public { emit L.Ev(Item(1)); }\n}\ncontract C {\n    function f() public {\n        L.o();\n    }\n}\n// ----\n// library: L\n// f() ->\n// ~ emit Ev((uint256)): 0x01\n"
+        },
+        "struct_containing_bytes_copy_and_delete.sol": {
+            "content": "contract c {\n    struct Struct { uint a; bytes data; uint b; }\n    Struct data1;\n    Struct data2;\n    function set(uint _a, bytes calldata _data, uint _b) external returns (bool) {\n        data1.a = _a;\n        data1.b = _b;\n        data1.data = _data;\n        return true;\n    }\n    function copy() public returns (bool) {\n        data1 = data2;\n        return true;\n    }\n    function del() public returns (bool) {\n        delete data1;\n        return true;\n    }\n    function test(uint256 i) public returns (bytes1) {\n        return data1.data[i];\n    }\n}\n// ----\n// storageEmpty -> 1\n// set(uint256,bytes,uint256): 12, 0x60, 13, 33, \"12345678901234567890123456789012\", \"3\" -> true\n// gas irOptimized: 133557\n// gas legacy: 134624\n// gas legacyOptimized: 133856\n// test(uint256): 32 -> \"3\"\n// storageEmpty -> 0\n// copy() -> true\n// storageEmpty -> 1\n// set(uint256,bytes,uint256): 12, 0x60, 13, 33, \"12345678901234567890123456789012\", \"3\" -> true\n// gas irOptimized: 133557\n// gas legacy: 134624\n// gas legacyOptimized: 133856\n// storageEmpty -> 0\n// del() -> true\n// storageEmpty -> 1\n"
+        },
+        "memory_structs_as_function_args.sol": {
+            "content": "contract Test {\n    struct S {\n        uint8 x;\n        uint16 y;\n        uint256 z;\n    }\n\n    function test() public returns (uint256 x, uint256 y, uint256 z) {\n        S memory data = combine(1, 2, 3);\n        x = extract(data, 0);\n        y = extract(data, 1);\n        z = extract(data, 2);\n    }\n\n    function extract(S memory s, uint256 which) internal returns (uint256 x) {\n        if (which == 0) return s.x;\n        else if (which == 1) return s.y;\n        else return s.z;\n    }\n\n    function combine(uint8 x, uint16 y, uint256 z)\n        internal\n        returns (S memory s)\n    {\n        s.x = x;\n        s.y = y;\n        s.z = z;\n    }\n}\n// ----\n// test() -> 1, 2, 3\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

@@ -1,0 +1,37 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "enum_explicit_overflow_homestead.sol": {
+            "content": "contract test {\n    enum ActionChoices {GoLeft, GoRight, GoStraight}\n\n    constructor() {}\n\n    function getChoiceExp(uint256 x) public returns (uint256 d) {\n        choice = ActionChoices(x);\n        d = uint256(choice);\n    }\n\n    function getChoiceFromSigned(int256 x) public returns (uint256 d) {\n        choice = ActionChoices(x);\n        d = uint256(choice);\n    }\n\n    function getChoiceFromMax() public returns (uint256 d) {\n        choice = ActionChoices(type(uint256).max);\n        d = uint256(choice);\n    }\n\n    ActionChoices choice;\n}\n// ====\n// EVMVersion: <byzantium\n// ----\n// getChoiceExp(uint256): 3 -> FAILURE # These should throw #\n// getChoiceFromSigned(int256): -1 -> FAILURE\n// getChoiceFromMax() -> FAILURE\n// getChoiceExp(uint256): 2 -> 2 # These should work #\n// getChoiceExp(uint256): 0 -> 0\n"
+        },
+        "constructing_enums_from_ints.sol": {
+            "content": "contract c {\n    enum Truth {False, True}\n\n    function test() public returns (uint256) {\n        return uint256(Truth(uint8(0x1)));\n    }\n}\n// ----\n// test() -> 1\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

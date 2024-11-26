@@ -1,0 +1,46 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "array_static_zeroed_memory_index_access.sol": {
+            "content": "contract C {\n\tuint test1;\n\tuint test2;\n\tuint test3;\n\tuint test4;\n\tuint test5;\n\tuint test6;\n\tuint test7;\n\tmapping (string => uint) map;\n\tfunction set(string memory s) public returns (uint) {\n\t\tmap[s] = 0;\n\t\tuint[3] memory x;\n\t\treturn x[2];\n\t}\n}\n// ----\n// set(string): 0x20, 32, \"01234567890123456789012345678901\" -> 0\n"
+        },
+        "array_2d_zeroed_memory_index_access.sol": {
+            "content": "contract C {\n\tuint test1;\n\tuint test2;\n\tuint test3;\n\tuint test4;\n\tuint test5;\n\tuint test6;\n\tuint test7;\n\tmapping (string => uint) map;\n\tfunction set(string memory s, uint n, uint m, uint a, uint b) public returns (uint) {\n\t\tmap[s] = 0;\n\t\tuint[][] memory x = new uint[][](n);\n\t\tfor (uint i = 0; i < n; ++i)\n\t\t\tx[i] = new uint[](m);\n\t\treturn x[a][b];\n\t}\n}\n// ----\n// set(string,uint256,uint256,uint256,uint256): 0xa0, 2, 4, 0, 0, 32, \"01234567890123456789012345678901\" -> 0\n// set(string,uint256,uint256,uint256,uint256): 0xa0, 2, 4, 1, 3, 32, \"01234567890123456789012345678901\" -> 0\n// set(string,uint256,uint256,uint256,uint256): 0xa0, 2, 4, 3, 3, 32, \"01234567890123456789012345678901\" -> FAILURE, hex\"4e487b71\", 0x32\n// set(string,uint256,uint256,uint256,uint256): 0xa0, 2, 4, 1, 5, 32, \"01234567890123456789012345678901\" -> FAILURE, hex\"4e487b71\", 0x32\n"
+        },
+        "array_zeroed_memory_index_access.sol": {
+            "content": "contract C {\n\tuint test1;\n\tuint test2;\n\tuint test3;\n\tuint test4;\n\tuint test5;\n\tuint test6;\n\tuint test7;\n\tmapping (string => uint) map;\n\tfunction set(string memory s, uint n, uint a) public returns (uint) {\n\t\tmap[s] = 0;\n\t\tuint[] memory x = new uint[](n);\n\t\treturn x[a];\n\t}\n}\n// ----\n// set(string,uint256,uint256): 0x60, 5, 0, 32, \"01234567890123456789012345678901\" -> 0\n// set(string,uint256,uint256): 0x60, 5, 1, 32, \"01234567890123456789012345678901\" -> 0\n// set(string,uint256,uint256): 0x60, 5, 4, 32, \"01234567890123456789012345678901\" -> 0\n// set(string,uint256,uint256): 0x60, 5, 5, 32, \"01234567890123456789012345678901\" -> FAILURE, hex\"4e487b71\", 0x32\n"
+        },
+        "array_array_static.sol": {
+            "content": "contract C {\n\tuint test1;\n\tuint test2;\n\tuint test3;\n\tuint test4;\n\tuint test5;\n\tuint test6;\n\tuint test7;\n\tmapping (string => uint) map;\n\tfunction set(string memory s, uint n, uint m) public returns (uint) {\n\t\tmap[s] = 0;\n\t\tuint[4][] memory x = new uint[4][](n);\n\t\treturn x[m][0];\n\t}\n}\n// ----\n// set(string,uint256,uint256): 0x60, 2, 0, 32, \"01234567890123456789012345678901\" -> 0\n// set(string,uint256,uint256): 0x60, 2, 1, 32, \"01234567890123456789012345678901\" -> 0\n// set(string,uint256,uint256): 0x60, 2, 2, 32, \"01234567890123456789012345678901\" -> FAILURE, hex\"4e487b71\", 0x32\n// set(string,uint256,uint256): 0x60, 200, 199, 32, \"01234567890123456789012345678901\" -> 0\n"
+        },
+        "array_static_return_param_zeroed_memory_index_access.sol": {
+            "content": "contract C {\n\tuint test1;\n\tuint test2;\n\tuint test3;\n\tuint test4;\n\tuint test5;\n\tuint test6;\n\tuint test7;\n\tmapping (string => uint) map;\n\tfunction set(string memory s) public returns (uint[3] memory x, uint[2] memory y, uint[] memory z, uint t) {\n\t\tmap[s] = 0;\n\t}\n}\n// ----\n// set(string): 0x20, 32, \"01234567890123456789012345678901\" -> 0, 0, 0, 0, 0, 0xe0, 0, 0\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

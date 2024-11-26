@@ -1,0 +1,58 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "import.sol": {
+            "content": "==== Source: A ====\nstruct S { uint x; }\nfunction set(S storage a, uint v) { a.x = v; }\n\n==== Source: B ====\nimport \"A\";\nimport \"A\" as A;\ncontract C {\n  A.S data;\n  function f(uint v) public returns (uint one, uint two) {\n    A.set(data, v);\n    one = data.x;\n    set(data, v + 1);\n    two = data.x;\n  }\n}\n// ----\n// f(uint256): 7 -> 7, 8\n"
+        },
+        "free_runtimecode.sol": {
+            "content": "contract C {\n  uint public x = 2;\n}\n\nfunction test() returns (bool) {\n  return type(C).runtimeCode.length > 20;\n}\n\ncontract D {\n  function f() public returns (bool) {\n    return test();\n  }\n}\n// ----\n// f() -> true\n"
+        },
+        "overloads.sol": {
+            "content": "function f(uint) returns (uint) {\n    return 2;\n}\nfunction f(string memory) returns (uint) {\n    return 3;\n}\n\ncontract C {\n  function g() public returns (uint, uint) {\n      return (f(2), f(\"abc\"));\n  }\n}\n// ----\n// g() -> 2, 3\n"
+        },
+        "libraries_from_free.sol": {
+            "content": "library L {\n  function pub() public pure returns (uint) {\n    return 7;\n  }\n  function inter() internal pure returns (uint) {\n    return 8;\n  }\n}\n\nfunction fu() pure returns (uint, uint) {\n  return (L.pub(), L.inter());\n}\n\ncontract C {\n  function f() public pure returns (uint, uint) {\n    return fu();\n  }\n}\n// ----\n// library: L\n// f() -> 7, 8\n"
+        },
+        "easy.sol": {
+            "content": "function add(uint a, uint b) pure returns (uint) {\n  return a + b;\n}\n\ncontract C {\n  function f(uint x) public pure returns (uint) {\n    return add(x, 2);\n  }\n}\n// ----\n// f(uint256): 7 -> 9\n"
+        },
+        "new_operator.sol": {
+            "content": "contract C {\n  uint public x = 2;\n}\n\nfunction test() returns (uint) {\n  return (new C()).x();\n}\n\ncontract D {\n  function f() public returns (uint) {\n    return test();\n  }\n}\n// ----\n// f() -> 2\n// gas legacy: 76611\n// gas legacy code: 23600\n"
+        },
+        "free_namesake_contract_function.sol": {
+            "content": "function f() pure returns (uint) { return 1337; }\ncontract C {\n  function f() public pure returns (uint) {\n    return f();\n  }\n}\n// ----\n// f() -> FAILURE\n"
+        },
+        "recursion.sol": {
+            "content": "function exp(uint base, uint exponent) pure returns (uint power) {\n    if (exponent == 0)\n        return 1;\n    power = exp(base, exponent / 2);\n    power *= power;\n    if (exponent & 1 == 1)\n        power *= base;\n}\n\ncontract C {\n  function g(uint base, uint exponent) public pure returns (uint) {\n      return exp(base, exponent);\n  }\n}\n// ----\n// g(uint256,uint256): 0, 0 -> 1\n// g(uint256,uint256): 0, 1 -> 0x00\n// g(uint256,uint256): 1, 0 -> 1\n// g(uint256,uint256): 2, 3 -> 8\n// g(uint256,uint256): 3, 10 -> 59049\n// g(uint256,uint256): 2, 255 -> -57896044618658097711785492504343953926634992332820282019728792003956564819968\n"
+        },
+        "storage_calldata_refs.sol": {
+            "content": "contract C {\n    uint[] data;\n    function f(uint x, uint[] calldata input) public returns (uint, uint) {\n        data.push(x);\n        (uint a, uint[] calldata b) = fun(input, data);\n        return (a, b[1]);\n\n    }\n}\n\nfunction fun(uint[] calldata _x, uint[] storage _y) view  returns (uint, uint[] calldata) {\n\treturn (_y[0], _x);\n}\n// ----\n// f(uint256,uint256[]): 7, 0x40, 3, 8, 9, 10 -> 7, 9\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

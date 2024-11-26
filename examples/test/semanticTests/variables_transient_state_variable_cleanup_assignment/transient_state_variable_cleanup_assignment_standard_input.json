@@ -1,0 +1,37 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "delete_transient_state_variable.sol": {
+            "content": "contract C {\n    uint transient x;\n    function f() public returns (uint) {\n        x = 10;\n        delete x;\n        return x;\n    }\n}\n// ====\n// EVMVersion: >=cancun\n// ----\n// f() -> 0\n"
+        },
+        "transient_state_variable_cleanup_assignment.sol": {
+            "content": "contract C {\n    uint8 transient x;\n    function f() public returns(uint256 r) {\n        uint8 y;\n        assembly { y := 0xFFFF }\n        x = y;\n        assembly {\n            r := tload(x.slot)\n        }\n\n    }\n}\n// ====\n// EVMVersion: >=cancun\n// ----\n// f() -> 0xff\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

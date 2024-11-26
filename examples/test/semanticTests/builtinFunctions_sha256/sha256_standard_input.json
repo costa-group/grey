@@ -1,0 +1,61 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "keccak256_empty.sol": {
+            "content": "contract C {\n    function f() public returns (bytes32) {\n        return keccak256(\"\");\n    }\n}\n// ----\n// f() -> 0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470\n"
+        },
+        "ripemd160_packed.sol": {
+            "content": "contract C {\n    function f(int256 _input) public returns (bytes32 hash) {\n        uint24 b = 65536;\n        uint c = 256;\n        bytes32 input = bytes32(uint256(_input));\n        return ripemd160(abi.encodePacked(uint8(8), input, b, input, c));\n    }\n}\n// ----\n// f(int256): 4 -> 0xf93175303eba2a7b372174fc9330237f5ad202fc000000000000000000000000\n// f(int256): 5 -> 0x04f4fc112e2bfbe0d38f896a46629e08e2fcfad5000000000000000000000000\n// f(int256): -1 -> 0xc0a2e4b1f3ff766a9a0089e7a410391730872495000000000000000000000000\n"
+        },
+        "ripemd160.sol": {
+            "content": "contract C {\n    function f(int256 input) public returns (bytes32 sha256hash) {\n        return ripemd160(abi.encodePacked(bytes32(uint256(input))));\n    }\n}\n// ----\n// f(int256): 4 -> 0x1b0f3c404d12075c68c938f9f60ebea4f74941a0000000000000000000000000\n// f(int256): 5 -> 0xee54aa84fc32d8fed5a5fe160442ae84626829d9000000000000000000000000\n// f(int256): -1 -> 0x1cf4e77f5966e13e109703cd8a0df7ceda7f3dc3000000000000000000000000\n"
+        },
+        "keccak256_packed_complex_types.sol": {
+            "content": "contract C {\n    uint120[3] x;\n    function f() public returns (bytes32 hash1, bytes32 hash2, bytes32 hash3) {\n        uint120[] memory y = new uint120[](3);\n        x[0] = y[0] = uint120(type(uint).max - 1);\n        x[1] = y[1] = uint120(type(uint).max - 2);\n        x[2] = y[2] = uint120(type(uint).max - 3);\n        hash1 = keccak256(abi.encodePacked(x));\n        hash2 = keccak256(abi.encodePacked(y));\n        hash3 = keccak256(abi.encodePacked(this.f));\n    }\n}\n// ----\n// f() -> 0xba4f20407251e4607cd66b90bfea19ec6971699c03e4a4f3ea737d5818ac27ae, 0xba4f20407251e4607cd66b90bfea19ec6971699c03e4a4f3ea737d5818ac27ae, 0x0e9229fb1d2cd02cee4b6c9f25497777014a8766e3479666d1c619066d2887ec\n"
+        },
+        "iterated_keccak256_with_bytes.sol": {
+            "content": "contract c {\n    bytes data;\n\n    function foo() public returns (bytes32) {\n        data.push(\"x\");\n        data.push(\"y\");\n        data.push(\"z\");\n        return keccak256(abi.encodePacked(\"b\", keccak256(data), \"a\"));\n    }\n}\n// ----\n// foo() -> 0xb338eefce206f9f57b83aa738deecd5326dc4b72dd81ee6a7c621a6facb7acdc\n"
+        },
+        "keccak256_multiple_arguments.sol": {
+            "content": "contract c {\n    function foo(uint256 a, uint256 b, uint256 c) public returns (bytes32 d) {\n        d = keccak256(abi.encodePacked(a, b, c));\n    }\n}\n// ----\n// foo(uint256,uint256,uint256): 0xa, 0xc, 0xd -> 0xbc740a98aae5923e8f04c9aa798c9ee82f69e319997699f2782c40828db9fd81\n"
+        },
+        "ripemd160_empty.sol": {
+            "content": "contract C {\n    function f() public returns (bytes20) {\n        return ripemd160(\"\");\n    }\n}\n// ----\n// f() -> 0x9c1185a5c5e9fc54612808977ee8f548b2258d31000000000000000000000000\n"
+        },
+        "keccak256.sol": {
+            "content": "contract C {\n    function f(int256 input) public returns (bytes32 sha256hash) {\n        return keccak256(abi.encodePacked(bytes32(uint256(input))));\n    }\n}\n// ----\n// f(int256): 4 -> 0x8a35acfbc15ff81a39ae7d344fd709f28e8600b4aa8c65c6b64bfe7fe36bd19b\n// f(int256): 5 -> 0x036b6384b5eca791c62761152d0c79bb0604c104a5fb6f4eb0703f3154bb3db0\n// f(int256): -1 -> 0xa9c584056064687e149968cbab758a3376d22aedc6a55823d1b3ecbee81b8fb9\n"
+        },
+        "msg_sig.sol": {
+            "content": "contract test {\n    function foo(uint256 a) public returns (bytes4 value) {\n        return msg.sig;\n    }\n}\n// ----\n// foo(uint256): 0x0 -> 0x2fbebd3800000000000000000000000000000000000000000000000000000000\n"
+        },
+        "sha256.sol": {
+            "content": "contract C {\n    function f(int256 input) public returns (bytes32 sha256hash) {\n        return sha256(abi.encodePacked(bytes32(uint256(input))));\n    }\n}\n// ----\n// f(int256): 4 -> 0xe38990d0c7fc009880a9c07c23842e886c6bbdc964ce6bdd5817ad357335ee6f\n// f(int256): 5 -> 0x96de8fc8c256fa1e1556d41af431cace7dca68707c78dd88c3acab8b17164c47\n// f(int256): -1 -> 0xaf9613760f72635fbdb44a5a0a63c39f12af30f950a6ee5c971be188e89c4051\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

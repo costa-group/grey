@@ -1,0 +1,64 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "wei.sol": {
+            "content": "contract C {\n\tuint constant x = 1 wei;\n\n\tfunction f() public view returns(uint) { return x; }\n}\n// ----\n// f() -> 1\n"
+        },
+        "denominations_in_array_sizes.sol": {
+            "content": "contract C {\n    uint[2 wei] a;\n    uint[2 gwei] b;\n    uint[2 ether] c;\n    uint[2 seconds] d;\n    uint[2 minutes] e;\n    uint[2 hours] f;\n    uint[2 days] g;\n    uint[2 weeks] h;\n\n    function lengths() public returns (uint, uint, uint, uint, uint, uint, uint, uint) {\n        return (\n            a.length,\n            b.length,\n            c.length,\n            d.length,\n            e.length,\n            f.length,\n            g.length,\n            h.length\n        );\n    }\n}\n// ----\n// lengths() -> 2, 2000000000, 2000000000000000000, 2, 120, 7200, 172800, 1209600\n"
+        },
+        "hex_string_with_non_printable_characters.sol": {
+            "content": "contract C {\n    function f() public pure returns (bytes32 result) {\n        assembly {\n            result := hex\"000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f\"\n        }\n    }\n}\n// ----\n// f() -> 0x000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f\n"
+        },
+        "denominations.sol": {
+            "content": "contract C {\n\tuint constant x = 1 ether + 1 gwei + 1 wei;\n\n\tfunction f() public view returns(uint) { return x; }\n}\n// ----\n// f() -> 1000000001000000001\n"
+        },
+        "hex_string_with_underscore.sol": {
+            "content": "contract C {\n    function f() public pure returns(bytes memory) {\n        return hex\"12_34_5678_9A\";\n    }\n}\n// ----\n// f() -> 32, 5, left(0x123456789A)\n"
+        },
+        "scientific_notation.sol": {
+            "content": "contract C {\n    function f() public returns(uint) {\n        return 2e10 wei;\n    }\n\n    function g() public returns(uint) {\n        return 200e-2 wei;\n    }\n\n    function h() public returns(uint) {\n        return 2.5e1;\n    }\n\n    function i() public returns(int) {\n        return -2e10;\n    }\n\n    function j() public returns(int) {\n        return -200e-2;\n    }\n\n    function k() public returns(int) {\n        return -2.5e1;\n    }\n}\n// ----\n// f() -> 20000000000\n// g() -> 2\n// h() -> 25\n// i() -> -20000000000\n// j() -> -2\n// k() -> -25\n"
+        },
+        "fractional_denominations.sol": {
+            "content": "contract C {\n    uint public g = 1.5 gwei;\n    uint public e = 1.5 ether;\n    uint public m = 1.5 minutes;\n    uint public h = 1.5 hours;\n    uint public d = 1.5 days;\n    uint public w = 1.5 weeks;\n}\n// ----\n// g() -> 1500000000\n// e() -> 1500000000000000000\n// m() -> 90\n// h() -> 5400\n// d() -> 129600\n// w() -> 907200\n"
+        },
+        "escape.sol": {
+            "content": "pragma abicoder v2;\n\ncontract C\n{\n\tfunction f() public pure returns (uint, bytes1, bytes1) {\n\t\tbytes memory encoded = abi.encodePacked(\"\\\\\\\\\");\n\t\treturn (encoded.length, encoded[0], encoded[1]);\n\t}\n}\n// ----\n// f() -> 2, 0x5c00000000000000000000000000000000000000000000000000000000000000, 0x5c00000000000000000000000000000000000000000000000000000000000000\n"
+        },
+        "ternary_operator_with_literal_types_overflow.sol": {
+            "content": "contract TestTernary\n{\n    function h() pure public returns (uint16 b)\n    {\n        b = (true ? 63 : 255) + (false ? 63 : 255);\n    }\n\n    function g() pure public returns (uint16 a)\n    {\n        bool t = true;\n        bool f = false;\n        a = (t ? 63 : 255) + (f ? 63 : 255);\n    }\n}\n// ----\n// g() -> FAILURE, hex\"4e487b71\", 0x11\n// h() -> FAILURE, hex\"4e487b71\", 0x11\n"
+        },
+        "gwei.sol": {
+            "content": "contract C {\n\tuint constant x = 1 gwei;\n\n\tfunction f() public view returns(uint) { return x; }\n}\n// ----\n// f() -> 1000000000\n"
+        },
+        "ether.sol": {
+            "content": "contract C {\n\tuint constant x = 1 ether;\n\n\tfunction f() public view returns(uint) { return x; }\n}\n// ----\n// f() -> 1000000000000000000\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

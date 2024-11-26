@@ -1,0 +1,40 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "function_cast.sol": {
+            "content": "contract C {\n\tfunction f(uint x) public pure returns (uint) {\n\t\treturn 2 * x;\n\t}\n\tfunction g() public view returns (function (uint) external returns (uint)) {\n\t\treturn this.f;\n\t}\n\tfunction h(uint x) public returns (uint) {\n\t\treturn this.g()(x) + 1;\n\t}\n\tfunction t() external view returns (\n\t\t\tfunction(uint) external returns (uint) a,\n\t\t\tfunction(uint) external view returns (uint) b) {\n\t\ta = this.f;\n\t\tb = this.f;\n\t}\n}\n// ----\n// f(uint256): 2 -> 4\n// h(uint256): 2 -> 5\n// t() -> 0xc06afe3a8444fc0004668591e8306bfb9968e79eb3de648b0000000000000000, 0xc06afe3a8444fc0004668591e8306bfb9968e79eb3de648b0000000000000000\n"
+        },
+        "explicit_cast_assignment.sol": {
+            "content": "contract C {\n    function f() public pure returns (uint16 x) {\n        uint8 y = uint8(0x78);\n        x = y;\n    }\n}\n// ----\n// f() -> 0x78\n"
+        },
+        "implicit_cast_local_assignment.sol": {
+            "content": "// IRGeneratorForStatements::visit(VariableDeclarationStatement const& _varDeclStatement)\ncontract C {\n    function f() public pure returns (uint y) {\n        uint8 a;\n        assembly { a := 0x12345678 }\n        uint z = a;\n        y = z;\n    }\n}\n// ----\n// f() -> 0x78\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

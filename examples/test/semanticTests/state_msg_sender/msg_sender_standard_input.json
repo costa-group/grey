@@ -1,0 +1,40 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "block_chainid.sol": {
+            "content": "contract C {\n    function f() public returns (uint) {\n        return block.chainid;\n    }\n}\n// ====\n// EVMVersion: >=istanbul\n// ----\n// f() -> 1\n// f() -> 1\n// f() -> 1\n"
+        },
+        "uncalled_blockhash.sol": {
+            "content": "contract C {\n    function f() public returns (bytes32) {\n        return (blockhash)(block.number - 1);\n    }\n}\n// ----\n// f() -> 0x3737373737373737373737373737373737373737373737373737373737373738\n"
+        },
+        "msg_sender.sol": {
+            "content": "contract C {\n    function f() public returns (address) {\n        return msg.sender;\n    }\n}\n// ----\n// f() -> 0x1212121212121212121212121212120000000012\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

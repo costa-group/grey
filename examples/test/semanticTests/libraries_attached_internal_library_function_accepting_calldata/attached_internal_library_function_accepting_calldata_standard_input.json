@@ -1,0 +1,49 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "internal_library_function_attached_to_fixed_bytes.sol": {
+            "content": "library L {\n    function add(bytes2 a, bytes2 b) internal pure returns (bytes2) {\n        return bytes2(uint16(a) + uint16(b));\n    }\n}\n\ncontract C {\n    using L for bytes2;\n\n    function sum(bytes2 a, bytes2 b) public returns (bytes2) {\n        return a.add(b);\n    }\n}\n// ----\n// sum(bytes2,bytes2): left(0x1100), left(0x0022) -> left(0x1122)\n"
+        },
+        "using_for_storage_structs.sol": {
+            "content": "struct Struct { uint x; }\n\nlibrary L {\n    function f(Struct storage _x) internal view returns (uint256) {\n      return _x.x;\n    }\n}\n\ncontract C {\n  using L for Struct;\n\n  Struct s;\n\n  function h(Struct storage _s) internal view returns (uint) {\n    // _s is pointer\n    return _s.f();\n  }\n  function g() public returns (uint, uint) {\n    s.x = 7;\n    // s is reference\n    return (s.f(), h(s));\n  }\n}\n// ----\n// g() -> 7, 7\n"
+        },
+        "payable_function_calls_library.sol": {
+            "content": "library L {\n    function f() public returns (uint) { return 7; }\n}\ncontract C {\n    function f() public payable returns (uint) {\n        return L.f();\n    }\n}\n// ----\n// library: L\n// f(): 27 -> 7\n"
+        },
+        "internal_call_unattached_with_parentheses.sol": {
+            "content": "library L {\n\tfunction f() internal returns (uint) {\n\t\treturn 3;\n\t}\n}\n\ncontract C {\n\tfunction foo() public returns (uint) {\n\t\treturn (L.f)();\n\t}\n}\n// ----\n// foo() -> 3\n"
+        },
+        "internal_library_function_attached_to_internal_function_type.sol": {
+            "content": "library L {\n    function double(function(uint) internal pure returns (uint) f, uint x) internal pure returns (uint) {\n        return f(x) * 2;\n    }\n}\n\ncontract C {\n    using L for function(uint) internal pure returns (uint);\n\n    function identity(uint x) internal pure returns (uint) {\n        return x;\n    }\n\n    function test(uint value) public returns (uint) {\n        return identity.double(value);\n    }\n}\n// ----\n// test(uint256): 5 -> 10\n"
+        },
+        "attached_internal_library_function_accepting_calldata.sol": {
+            "content": "library D {\n    function f(bytes calldata _x) internal pure returns (bytes1) {\n        return _x[0];\n    }\n    function g(bytes memory _x) internal pure returns (bytes1) {\n        return _x[0];\n    }\n}\n\ncontract C {\n    using D for bytes;\n    function f(bytes calldata _x) public pure returns (bytes1, bytes1) {\n        return (_x.f(), _x.g());\n    }\n}\n// ----\n// f(bytes): 0x20, 4, \"abcd\" -> 0x6100000000000000000000000000000000000000000000000000000000000000, 0x6100000000000000000000000000000000000000000000000000000000000000\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

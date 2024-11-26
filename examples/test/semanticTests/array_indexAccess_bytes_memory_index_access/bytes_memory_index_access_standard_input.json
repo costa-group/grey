@@ -1,0 +1,58 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "fixed_bytes_index_access.sol": {
+            "content": "contract C {\n    bytes16[] public data;\n\n    function f(bytes32 x) public returns (bytes1) {\n        return x[2];\n    }\n\n    function g(bytes32 x) public returns (uint256) {\n        data = [x[0], x[1], x[2]];\n        data[0] = \"12345\";\n        return uint256(uint8(data[0][4]));\n    }\n}\n// ----\n// f(bytes32): \"789\" -> \"9\"\n// g(bytes32): \"789\" -> 0x35\n// data(uint256): 0x01 -> \"8\"\n"
+        },
+        "bytes_index_access_memory.sol": {
+            "content": "contract Main {\n    function f(bytes memory _s1, uint i1, uint i2, uint i3) public returns (bytes1 c1, bytes1 c2, bytes1 c3) {\n        c1 = _s1[i1];\n        c2 = intern(_s1, i2);\n        c3 = internIndirect(_s1)[i3];\n    }\n    function intern(bytes memory _s1, uint i) public returns (bytes1 c) {\n        return _s1[i];\n    }\n    function internIndirect(bytes memory _s1) public returns (bytes memory) {\n        return _s1;\n    }\n}\n// ----\n// f(bytes,uint256,uint256,uint256): 0x80, 3, 4, 5, 78, \"abcdefghijklmnopqrstuvwxyzabcdef\", \"ghijklmnopqrstuvwxyzabcdefghijkl\", \"mnopqrstuvwxyz\" -> \"d\", \"e\", \"f\"\n"
+        },
+        "arrays_complex_memory_index_access.sol": {
+            "content": "contract Test {\n    function set(uint24[3][] memory _data, uint256 a, uint256 b)\n        public\n        returns (uint256 l, uint256 e)\n    {\n        l = _data.length;\n        e = _data[a][b];\n    }\n}\n// ----\n// set(uint24[3][],uint256,uint256): 0x60, 0x03, 0x02, 0x06, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0x10, 0x11, 0x12 -> 0x06, 0x0c\n"
+        },
+        "memory_arrays_dynamic_index_access_write.sol": {
+            "content": "contract Test {\n    uint24[3][][4] data;\n\n    function set(uint24[3][][4] memory x)\n        internal\n        returns (uint24[3][][4] memory)\n    {\n        x[1][2][2] = 1;\n        x[1][3][2] = 7;\n        return x;\n    }\n\n    function f() public returns (uint24[3][] memory) {\n        while (data[1].length < 4) data[1].push();\n        return set(data)[1];\n    }\n}\n// ----\n// f() -> 0x20, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x07\n"
+        },
+        "index_access.sol": {
+            "content": "contract C {\n    function to_little_endian_64(uint64 value) public pure returns (bytes memory ret) {\n        ret = new bytes(8);\n        bytes8 bytesValue = bytes8(value);\n        // Byteswapping during copying to bytes.\n        ret[0] = bytesValue[7];\n        ret[1] = bytesValue[6];\n        ret[2] = bytesValue[5];\n        ret[3] = bytesValue[4];\n        ret[4] = bytesValue[3];\n        ret[5] = bytesValue[2];\n        ret[6] = bytesValue[1];\n        ret[7] = bytesValue[0];\n    }\n}\n// ----\n// to_little_endian_64(uint64): 0 -> 0x20, 8, 0x00\n// to_little_endian_64(uint64): 0x0102030405060708 -> 0x20, 8, 0x0807060504030201000000000000000000000000000000000000000000000000\n"
+        },
+        "inline_array_index_access_strings.sol": {
+            "content": "contract C {\n    string public tester;\n\n    function f() public returns (string memory) {\n        return ([\"abc\", \"def\", \"g\"][0]);\n    }\n\n    function test() public {\n        tester = f();\n    }\n}\n// ----\n// test() ->\n// tester() -> 0x20, 0x3, \"abc\"\n"
+        },
+        "memory_arrays_index_access_write.sol": {
+            "content": "contract Test {\n    function set(uint24[3][4] memory x) public {\n        x[2][2] = 1;\n        x[3][2] = 7;\n    }\n\n    function f() public returns (uint24[3][4] memory) {\n        uint24[3][4] memory data;\n        set(data);\n        return data;\n    }\n}\n// ----\n// f() -> 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x07\n"
+        },
+        "bytes_index_access.sol": {
+            "content": "contract c {\n    bytes data;\n    function direct(bytes calldata arg, uint index) external returns (uint) {\n        return uint(uint8(arg[index]));\n    }\n    function storageCopyRead(bytes calldata arg, uint index) external returns (uint) {\n        data = arg;\n        return uint(uint8(data[index]));\n    }\n    function storageWrite() external returns (uint) {\n        data = new bytes(35);\n        data[31] = 0x77;\n        data[32] = 0x14;\n\n        data[31] = 0x01;\n        data[31] |= 0x08;\n        data[30] = 0x01;\n        data[32] = 0x03;\n        return uint(uint8(data[30])) * 0x100 | uint(uint8(data[31])) * 0x10 | uint(uint8(data[32]));\n    }\n}\n// ----\n// direct(bytes,uint256): 0x40, 33, 34, 0x000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F, left(0x2021) -> 0x21\n// storageCopyRead(bytes,uint256): 0x40, 33, 34, 0x000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F, left(0x2021) -> 0x21\n// storageWrite() -> 0x193\n"
+        },
+        "bytes_memory_index_access.sol": {
+            "content": "contract Test {\n    function set(bytes memory _data, uint256 i)\n        public\n        returns (uint256 l, bytes1 c)\n    {\n        l = _data.length;\n        c = _data[i];\n    }\n}\n// ----\n// set(bytes,uint256): 0x40, 0x03, 0x08, \"abcdefgh\" -> 0x08, \"d\"\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

@@ -1,0 +1,37 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "array_copy_cleanup_uint128.sol": {
+            "content": "// Test to see if cleanup is performed properly during array copying\ncontract C {\n    uint128[] x;\n    function f() public returns(bool) {\n        x.push(42); x.push(42); x.push(42); x.push(42);\n        uint128[] memory y = new uint128[](1);\n        y[0] = 23;\n        x = y;\n        assembly { sstore(x.slot, 4) }\n\n        assert(x[0] == 23);\n        assert(x[1] == 0);\n\n        assert(x[2] == 0);\n        // Issue 9832: the cleanup was only performed for the first packed type leaving the rest of\n        // the slot dirty.\n        assert(x[3] == 0);\n\n        return true;\n    }\n}\n// ----\n// f() -> true\n// gas irOptimized: 92740\n// gas legacy: 93035\n// gas legacyOptimized: 92257\n"
+        },
+        "array_of_function_external_storage_to_storage_dynamic.sol": {
+            "content": "contract C {\n    function testFunction1() public {}\n    function testFunction2() public {}\n    function testFunction3() public {}\n\n\n    function() external [] externalArray0;\n    function() external [] externalArray1;\n\n    function() internal [] internalArray0;\n    function() internal [] internalArray1;\n\n    constructor() {\n        externalArray0 = new function() external[] (3);\n        externalArray1 = [\n            this.testFunction1,\n            this.testFunction2,\n            this.testFunction3\n        ];\n\n        internalArray0 = new function() internal[] (3);\n        internalArray1 = [\n            testFunction1,\n            testFunction2,\n            testFunction3\n        ];\n    }\n\n    function copyExternalStorageArrayOfFunctionType() external returns (bool) {\n        assert(keccak256(abi.encode(externalArray0)) != keccak256(abi.encode(externalArray1)));\n        externalArray0 = externalArray1;\n        return keccak256(abi.encode(externalArray0)) == keccak256(abi.encode(externalArray1));\n    }\n\n    function copyInternalArrayOfFunctionType() external returns (bool) {\n        internalArray0 = internalArray1;\n        assert(internalArray0.length == 3);\n\n        return\n            internalArray0.length == internalArray1.length &&\n            internalArray0[0] == internalArray1[0] &&\n            internalArray0[1] == internalArray1[1] &&\n            internalArray0[2] == internalArray1[2];\n    }\n}\n// ----\n// copyExternalStorageArrayOfFunctionType() -> true\n// gas irOptimized: 104566\n// gas legacy: 108554\n// gas legacyOptimized: 102405\n// copyInternalArrayOfFunctionType() -> true\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

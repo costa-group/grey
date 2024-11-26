@@ -1,0 +1,37 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "constructor_inheritance_init_order_2.sol": {
+            "content": "contract A {\n    uint x = 42;\n    function f() public returns(uint256) {\n        return x;\n    }\n}\ncontract B is A {\n    uint public y = f();\n}\n// ----\n// constructor() ->\n// gas irOptimized: 99436\n// gas irOptimized code: 20200\n// gas legacy: 100973\n// gas legacy code: 32600\n// gas legacyOptimized: 99137\n// gas legacyOptimized code: 16200\n// y() -> 42\n"
+        },
+        "constructor_with_params_inheritance_2.sol": {
+            "content": "contract C {\n    uint public i;\n    uint public k;\n\n    constructor(uint newI, uint newK) {\n        i = newI;\n        k = newK;\n    }\n}\ncontract D is C(2, 1) {}\n// ----\n// i() -> 2\n// k() -> 1\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

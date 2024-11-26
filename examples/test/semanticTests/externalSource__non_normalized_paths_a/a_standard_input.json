@@ -1,0 +1,40 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "d.sol": {
+            "content": "contract D {\n}\n"
+        },
+        "c.sol": {
+            "content": "contract C {\n}\n"
+        },
+        "a.sol": {
+            "content": "contract A {\n}\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

@@ -1,0 +1,82 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "struct_accessor.sol": {
+            "content": "contract test {\n    struct Data { uint a; uint8 b; mapping(uint => uint) c; bool d; }\n    mapping(uint => Data) public data;\n    constructor() {\n        data[7].a = 1;\n        data[7].b = 2;\n        data[7].c[0] = 3;\n        data[7].d = true;\n    }\n}\n// ----\n// data(uint256): 7 -> 1, 2, true\n"
+        },
+        "empty_nonempty_empty.sol": {
+            "content": "contract Test {\n    bytes x;\n    function set(bytes memory _a) public { x = _a; }\n}\n// ----\n// set(bytes): 0x20, 3, \"abc\"\n// storageEmpty -> 0\n// set(bytes): 0x20, 0\n// storageEmpty -> 1\n// set(bytes): 0x20, 31, \"1234567890123456789012345678901\"\n// storageEmpty -> 0\n// set(bytes): 0x20, 36, \"12345678901234567890123456789012\", \"XXXX\"\n// storageEmpty -> 0\n// set(bytes): 0x20, 3, \"abc\"\n// storageEmpty -> 0\n// set(bytes): 0x20, 0\n// storageEmpty -> 1\n// set(bytes): 0x20, 3, \"abc\"\n// storageEmpty -> 0\n// set(bytes): 0x20, 36, \"12345678901234567890123456789012\", \"XXXX\"\n// storageEmpty -> 0\n// set(bytes): 0x20, 0\n// storageEmpty -> 1\n// set(bytes): 0x20, 66, \"12345678901234567890123456789012\", \"12345678901234567890123456789012\", \"12\"\n// gas irOptimized: 111849\n// gas legacy: 112734\n// gas legacyOptimized: 112084\n// storageEmpty -> 0\n// set(bytes): 0x20, 3, \"abc\"\n// storageEmpty -> 0\n// set(bytes): 0x20, 0\n// storageEmpty -> 1\n"
+        },
+        "mappings_array2d_pop_delete.sol": {
+            "content": "contract C {\n\tmapping (uint => uint)[][] a;\n\n\tfunction n1(uint key, uint value) public {\n\t\ta.push();\n\t\tmapping (uint => uint)[] storage b = a[a.length - 1];\n\t\tb.push();\n\t\tb[b.length - 1][key] = value;\n\t}\n\n\tfunction n2() public {\n\t\ta.push();\n\t\tmapping (uint => uint)[] storage b = a[a.length - 1];\n\t\tb.push();\n\t}\n\n\tfunction map(uint key) public view returns (uint) {\n\t\tmapping (uint => uint)[] storage b = a[a.length - 1];\n\t\treturn b[b.length - 1][key];\n\t}\n\n\tfunction p() public {\n\t\ta.pop();\n\t}\n\n\tfunction d() public returns (uint) {\n\t\tdelete a;\n\t\treturn a.length;\n\t}\n}\n// ----\n// n1(uint256,uint256): 42, 64 ->\n// map(uint256): 42 -> 64\n// p() ->\n// n2() ->\n// map(uint256): 42 -> 64\n// d() -> 0\n// n2() ->\n// map(uint256): 42 -> 64\n"
+        },
+        "simple_accessor.sol": {
+            "content": "contract test {\n    uint256 public data;\n    constructor() {\n        data = 8;\n    }\n}\n// ----\n// data() -> 8\n"
+        },
+        "mapping_string_key.sol": {
+            "content": "contract C {\n    mapping (string => uint) m_nameToRecord;\n    function set(string calldata key, uint value) external {\n        m_nameToRecord[key] = value;\n    }\n    function get(string calldata key) external view returns (uint) {\n        return m_nameToRecord[key];\n    }\n    function setFixed(uint value) external {\n        m_nameToRecord[\"fixed\"] = value;\n    }\n    function getFixed() external view returns (uint) {\n        return m_nameToRecord[\"fixed\"];\n    }\n}\n// ----\n// set(string,uint256): 0x40, 8, 3, \"abc\" ->\n// get(string): 0x20, 3, \"abc\" -> 8\n// get(string): 0x20, 3, \"abe\" -> 0\n// getFixed() -> 0\n// setFixed(uint256): 9 ->\n// getFixed() -> 9\n"
+        },
+        "packed_storage_overflow.sol": {
+            "content": "contract C {\n    uint16 x = 0x1234;\n    uint16 a = 0xffff;\n    uint16 b;\n\n    function f() public returns (uint256, uint256, uint256, uint256) {\n        unchecked { a++; }\n        uint256 c = b;\n        delete b;\n        unchecked { a -= 2; }\n        return (x, c, b, a);\n    }\n}\n// ----\n// f() -> 0x1234, 0x0, 0x0, 0xfffe\n"
+        },
+        "packed_storage_signed.sol": {
+            "content": "contract C {\n    int8 a;\n    uint8 b;\n    int8 c;\n    uint8 d;\n\n    function test()\n        public\n        returns (uint256 x1, uint256 x2, uint256 x3, uint256 x4)\n    {\n        a = -2;\n        unchecked {\n            b = (0 - uint8(a)) * 2;\n            c = a * int8(120) * int8(121);\n        }\n        x1 = uint256(int256(a));\n        x2 = b;\n        x3 = uint256(int256(c));\n        x4 = d;\n    }\n}\n// ----\n// test() -> -2, 4, -112, 0\n"
+        },
+        "packed_storage_structs_bytes.sol": {
+            "content": "contract C {\n    struct s1 {\n        bytes1 a;\n        bytes1 b;\n        bytes10 c;\n        bytes9 d;\n        bytes10 e;\n    }\n    struct s2 {\n        bytes1 a;\n        s1 inner;\n        bytes1 b;\n        bytes1 c;\n    }\n    bytes1 x;\n    s2 data;\n    bytes1 y;\n\n    function test() public returns (bool) {\n        x = 0x01;\n        data.a = 0x02;\n        data.inner.a = 0x03;\n        data.inner.b = 0x04;\n        data.inner.c = \"1234567890\";\n        data.inner.d = \"123456789\";\n        data.inner.e = \"abcdefghij\";\n        data.b = 0x05;\n        data.c = bytes1(0x06);\n        y = 0x07;\n        return\n            x == 0x01 &&\n            data.a == 0x02 &&\n            data.inner.a == 0x03 &&\n            data.inner.b == 0x04 &&\n            data.inner.c == \"1234567890\" &&\n            data.inner.d == \"123456789\" &&\n            data.inner.e == \"abcdefghij\" &&\n            data.b == 0x05 &&\n            data.c == bytes1(0x06) &&\n            y == 0x07;\n    }\n}\n// ----\n// test() -> true\n// gas irOptimized: 132633\n// gas legacy: 136010\n// gas legacyOptimized: 133478\n"
+        },
+        "chop_sign_bits.sol": {
+            "content": "contract Test {\n    int16[] public x = [-1, -2];\n    int16[2] public y = [-5, -6];\n    int16 z;\n    function f() public returns (int16[] memory) {\n        int8[] memory t = new int8[](2);\n        t[0] = -3;\n        t[1] = -4;\n        x = t;\n        return x;\n    }\n    function g() public returns (int16[2] memory) {\n        int8[2] memory t = [-3, -4];\n        y = t;\n        return y;\n    }\n    function h(int8 t) public returns (int16) {\n        z = t;\n        return z;\n    }\n}\n// ----\n// x(uint256): 0 -> -1\n// x(uint256): 1 -> -2\n// y(uint256): 0 -> -5\n// y(uint256): 1 -> -6\n// f() -> 0x20, 2, -3, -4\n// g() -> -3, -4\n// h(int8): -10 -> -10\n"
+        },
+        "mappings_array_pop_delete.sol": {
+            "content": "contract C {\n\tmapping (uint => uint)[] a;\n\n\tfunction n1(uint key, uint value) public {\n\t\ta.push();\n\t\ta[a.length - 1][key] = value;\n\t}\n\n\tfunction n2() public {\n\t\ta.push();\n\t}\n\n\tfunction map(uint key) public view returns (uint) {\n\t\treturn a[a.length - 1][key];\n\t}\n\n\tfunction p() public {\n\t\ta.pop();\n\t}\n\n\tfunction d() public returns (uint) {\n\t\tdelete a;\n\t\treturn a.length;\n\t}\n}\n// ----\n// n1(uint256,uint256): 42, 64 ->\n// map(uint256): 42 -> 64\n// p() ->\n// n2() ->\n// map(uint256): 42 -> 64\n// d() -> 0\n// n2() ->\n// map(uint256): 42 -> 64\n"
+        },
+        "packed_storage_structs_enum.sol": {
+            "content": "contract C {\n    enum small {A, B, C, D}\n    enum larger {A, B, C, D, E}\n    struct str {\n        small a;\n        small b;\n        larger c;\n        larger d;\n    }\n    str data;\n\n    function test() public returns (uint256) {\n        data.a = small.B;\n        if (data.a != small.B) return 2;\n        data.b = small.C;\n        if (data.b != small.C) return 3;\n        data.c = larger.D;\n        if (data.c != larger.D) return 4;\n        if (data.a != small.B) return 5;\n        data.a = small.C;\n        if (data.a != small.C) return 6;\n        if (data.b != small.C) return 7;\n        data.b = small.D;\n        if (data.b != small.D) return 8;\n        if (data.c != larger.D) return 9;\n        data.c = larger.B;\n        if (data.c != larger.B) return 10;\n        return 1;\n    }\n}\n// ----\n// test() -> 1\n"
+        },
+        "state_smoke_test.sol": {
+            "content": "contract test {\n    uint256 value1;\n    uint256 value2;\n    function get(uint8 which) public returns (uint256 value) {\n        if (which == 0) return value1;\n        else return value2;\n    }\n    function set(uint8 which, uint256 value) public {\n        if (which == 0) value1 = value;\n        else value2 = value;\n    }\n}\n// ----\n// get(uint8): 0x00 -> 0\n// get(uint8): 0x01 -> 0\n// set(uint8,uint256): 0x00, 0x1234 ->\n// set(uint8,uint256): 0x01, 0x8765 ->\n// get(uint8): 0x00 -> 0x1234\n// get(uint8): 0x01 -> 0x8765\n// set(uint8,uint256): 0x00, 0x03 ->\n// get(uint8): 0x00 -> 0x03\n"
+        },
+        "complex_accessors.sol": {
+            "content": "contract test {\n    mapping(uint256 => bytes4) public to_string_map;\n    mapping(uint256 => bool) public to_bool_map;\n    mapping(uint256 => uint256) public to_uint_map;\n    mapping(uint256 => mapping(uint256 => uint256)) public to_multiple_map;\n    constructor() {\n        to_string_map[42] = \"24\";\n        to_bool_map[42] = false;\n        to_uint_map[42] = 12;\n        to_multiple_map[42][23] = 31;\n    }\n}\n// ----\n// to_string_map(uint256): 42 -> \"24\"\n// to_bool_map(uint256): 42 -> false\n// to_uint_map(uint256): 42 -> 12\n// to_multiple_map(uint256,uint256): 42, 23 -> 31\n"
+        },
+        "packed_storage_structs_uint.sol": {
+            "content": "contract C {\n    struct str {\n        uint8 a;\n        uint16 b;\n        uint248 c;\n    }\n    str data;\n\n    function test() public returns (uint256) {\n        data.a = 2;\n        if (data.a != 2) return 2;\n        data.b = 0xabcd;\n        if (data.b != 0xabcd) return 3;\n        data.c = 0x1234567890;\n        if (data.c != 0x1234567890) return 4;\n        if (data.a != 2) return 5;\n        data.a = 8;\n        if (data.a != 8) return 6;\n        if (data.b != 0xabcd) return 7;\n        data.b = 0xdcab;\n        if (data.b != 0xdcab) return 8;\n        if (data.c != 0x1234567890) return 9;\n        data.c = 0x9876543210;\n        if (data.c != 0x9876543210) return 10;\n        return 1;\n    }\n}\n// ----\n// test() -> 1\n"
+        },
+        "mapping_state.sol": {
+            "content": "contract Ballot {\n\tmapping(address => bool) canVote;\n\tmapping(address => uint) voteCount;\n\tmapping(address => bool) voted;\n\tfunction getVoteCount(address addr) public returns (uint retVoteCount) {\n\t\treturn voteCount[addr];\n\t}\n\tfunction grantVoteRight(address addr) public {\n\t\tcanVote[addr] = true;\n\t}\n\tfunction vote(address voter, address vote) public returns (bool success) {\n\t\tif (!canVote[voter] || voted[voter]) return false;\n\t\tvoted[voter] = true;\n\t\tvoteCount[vote] = voteCount[vote] + 1;\n\t\treturn true;\n\t}\n}\n// ----\n// getVoteCount(address): 0 -> 0\n// getVoteCount(address): 1 -> 0\n// getVoteCount(address): 2 -> 0\n// vote(address,address): 0, 2 -> false\n// getVoteCount(address): 0 -> 0\n// getVoteCount(address): 1 -> 0\n// getVoteCount(address): 2 -> 0\n// grantVoteRight(address): 0 ->\n// grantVoteRight(address): 1 ->\n// vote(address,address): 0, 2 -> true\n// getVoteCount(address): 0 -> 0\n// getVoteCount(address): 1 -> 0\n// getVoteCount(address): 2 -> 1\n// vote(address,address): 0, 1 -> false\n// getVoteCount(address): 0 -> 0\n// getVoteCount(address): 1 -> 0\n// getVoteCount(address): 2 -> 1\n// vote(address,address): 2, 1 -> false\n// getVoteCount(address): 0 -> 0\n// getVoteCount(address): 1 -> 0\n// getVoteCount(address): 2 -> 1\n// grantVoteRight(address): 2 ->\n// vote(address,address): 2, 1 -> true\n// getVoteCount(address): 0 -> 0\n// getVoteCount(address): 1 -> 1\n// getVoteCount(address): 2 -> 1\n"
+        },
+        "accessors_mapping_for_array.sol": {
+            "content": "contract test {\n    mapping(uint => uint[8]) public data;\n    mapping(uint => uint[]) public dynamicData;\n    constructor() {\n        data[2][2] = 8;\n        for (uint i = 0; i < 3; i++)\n            dynamicData[2].push();\n        dynamicData[2][2] = 8;\n    }\n}\n// ----\n// data(uint256,uint256): 2, 2 -> 8\n// data(uint256,uint256): 2, 8 -> FAILURE # NB: the original code contained a bug here #\n// dynamicData(uint256,uint256): 2, 2 -> 8\n// dynamicData(uint256,uint256): 2, 8 -> FAILURE\n"
+        },
+        "packed_functions.sol": {
+            "content": "contract C {\n    // these should take the same slot\n    function() internal returns (uint) a;\n    function() external returns (uint) b;\n    function() external returns (uint) c;\n    function() internal returns (uint) d;\n    uint8 public x;\n\n    function set() public {\n        x = 2;\n        d = g;\n        c = this.h;\n        b = this.h;\n        a = g;\n    }\n\n    function t1() public returns (uint256) {\n        return a();\n    }\n\n    function t2() public returns (uint256) {\n        return b();\n    }\n\n    function t3() public returns (uint256) {\n        return a();\n    }\n\n    function t4() public returns (uint256) {\n        return b();\n    }\n\n    function g() public returns (uint256) {\n        return 7;\n    }\n\n    function h() public returns (uint256) {\n        return 8;\n    }\n}\n// ----\n// set() ->\n// t1() -> 7\n// t2() -> 8\n// t3() -> 7\n// t4() -> 8\n// x() -> 2\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}
