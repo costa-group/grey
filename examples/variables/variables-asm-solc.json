@@ -1,46 +1,42 @@
+
+
 {
   ".code": [
     {
-      "begin": 143,
-      "end": 144,
-      "name": "PUSH",
-      "source": -1,
-      "value": "3"
-    },
-    {
-      "begin": 130,
-      "end": 145,
-      "name": "CALLDATALOAD",
-      "source": -1
-    },
-    {
-      "begin": 176,
-      "end": 177,
+      "begin": 88,
+      "end": 89,
       "name": "PUSH",
       "source": -1,
       "value": "4"
     },
     {
-      "begin": 163,
-      "end": 178,
+      "begin": 75,
+      "end": 90,
       "name": "CALLDATALOAD",
       "source": -1
     },
     {
-      "begin": 191,
-      "end": 203,
-      "name": "SWAP1",
+      "begin": 71,
+      "end": 72,
+      "name": "PUSH",
+      "source": -1,
+      "value": "3"
+    },
+    {
+      "begin": 58,
+      "end": 73,
+      "name": "CALLDATALOAD",
       "source": -1
     },
     {
-      "begin": 191,
-      "end": 203,
+      "begin": 51,
+      "end": 91,
       "name": "SSTORE",
       "source": -1
     },
     {
       "begin": 27,
-      "end": 219,
+      "end": 107,
       "name": "STOP",
       "source": -1
     }
