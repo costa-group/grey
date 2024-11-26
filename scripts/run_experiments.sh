@@ -24,11 +24,22 @@ find "$DIRECTORIO_BASE" -type f -name "*.yul" | while read -r yul_file; do
 
     sed -i '' '/^======= .* (EVM) =======$/d;/^EVM assembly:$/d' $yul_dir/$yul_base-asm-solc.json
     
-    python3 /Users/pablo/Repositorios/ethereum/grey/src/grey_main.py -s "$yul_dir/$yul_base.cfg" -g -v -if yul-cfg -solc examples/solc -o "/tmp/$yul_base"
-    
+    python3 /Users/pablo/Repositorios/ethereum/grey/src/grey_main.py -s "$yul_dir/$yul_base.cfg" -g -v -if yul-cfg -solc examples/solc -o "/tmp/$yul_base" &> "$yul_dir/yul_base.log"
+
     cp "/tmp/$yul_base"/*/*_asm.json "$yul_dir/"
 
     python3 extract_info.py "$yul_dir"
+
+    JSON_FILES=`ls $yul_dir/*_asm.json`
+
+    for JSON in $JSON_FILES; do
+
+        echo "Executing import of $JSON"
+        /Users/pablo/Repositorios/ethereum/grey/examples/solc --import-asm-json "$JSON" --asm-json --optimize &> "$yul_dir/$yul_base-asm-json-importer.json"
+        
+    done
+
+    echo "*************************************"
     
 done
 
