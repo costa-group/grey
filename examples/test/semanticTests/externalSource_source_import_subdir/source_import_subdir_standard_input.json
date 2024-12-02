@@ -1,10 +1,6 @@
 {
     "language": "Solidity",
-    "sources": {
-        "source_import_subdir.sol": {
-            "content": "==== ExternalSource: _external/import_with_subdir.sol ====\n==== ExternalSource: subdir/import.sol=_external/subdir/import.sol ====\n==== ExternalSource: sub_external.sol=_external/subdir/sub_external.sol ====\nimport {SubExternal} from \"sub_external.sol\";\ncontract C {\n}\n// ----\n// constructor()\n"
-        }
-    },
+    "sources": {},
     "settings": {
         "optimizer": {
             "enabled": true,

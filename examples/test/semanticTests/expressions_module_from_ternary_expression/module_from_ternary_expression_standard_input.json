@@ -1,8 +1,11 @@
 {
     "language": "Solidity",
     "sources": {
-        "module_from_ternary_expression.sol": {
-            "content": "==== Source: A ====\ncontract D {\n}\n==== Source: B ====\nimport \"A\" as M;\n\ncontract C {\n    function f() public pure returns (bool) {\n        bool flag;\n        ((flag = true) ? M : M).D;\n        return flag;\n    }\n}\n// ----\n// f() -> true\n"
+        "A": {
+            "content": "contract D {\n}"
+        },
+        "B": {
+            "content": "import \"A\" as M;\n\ncontract C {\n    function f() public pure returns (bool) {\n        bool flag;\n        ((flag = true) ? M : M).D;\n        return flag;\n    }\n}\n// ----\n// f() -> true"
         }
     },
     "settings": {

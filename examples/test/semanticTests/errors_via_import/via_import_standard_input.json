@@ -1,8 +1,14 @@
 {
     "language": "Solidity",
     "sources": {
-        "via_import.sol": {
-            "content": "==== Source: s1.sol ====\nerror E(uint);\n==== Source: s2.sol ====\nimport \"s1.sol\" as S;\n==== Source: s3.sol ====\nimport \"s1.sol\" as S;\nimport \"s2.sol\" as T;\nimport \"s1.sol\";\ncontract C {\n  function x() public pure {\n    revert E(1);\n  }\n  function y() public pure {\n    revert S.E(2);\n  }\n  function z() public pure {\n    revert T.S.E(3);\n  }\n}\n// ----\n// x() -> FAILURE, hex\"002ff067\", hex\"0000000000000000000000000000000000000000000000000000000000000001\"\n// y() -> FAILURE, hex\"002ff067\", hex\"0000000000000000000000000000000000000000000000000000000000000002\"\n// z() -> FAILURE, hex\"002ff067\", hex\"0000000000000000000000000000000000000000000000000000000000000003\"\n"
+        "s1.sol": {
+            "content": "error E(uint);"
+        },
+        "s2.sol": {
+            "content": "import \"s1.sol\" as S;"
+        },
+        "s3.sol": {
+            "content": "import \"s1.sol\" as S;\nimport \"s2.sol\" as T;\nimport \"s1.sol\";\ncontract C {\n  function x() public pure {\n    revert E(1);\n  }\n  function y() public pure {\n    revert S.E(2);\n  }\n  function z() public pure {\n    revert T.S.E(3);\n  }\n}\n// ----\n// x() -> FAILURE, hex\"002ff067\", hex\"0000000000000000000000000000000000000000000000000000000000000001\"\n// y() -> FAILURE, hex\"002ff067\", hex\"0000000000000000000000000000000000000000000000000000000000000002\"\n// z() -> FAILURE, hex\"002ff067\", hex\"0000000000000000000000000000000000000000000000000000000000000003\""
         }
     },
     "settings": {

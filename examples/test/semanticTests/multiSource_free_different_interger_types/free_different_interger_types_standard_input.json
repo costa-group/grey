@@ -1,8 +1,11 @@
 {
     "language": "Solidity",
     "sources": {
-        "free_different_interger_types.sol": {
-            "content": "==== Source: s1.sol ====\nfunction f(uint24) pure returns (uint) { return 24; }\nfunction g(bool) pure returns (bool) { return true; }\n==== Source: s2.sol ====\nimport {f as g, g as g} from \"s1.sol\";\ncontract C {\n  function foo() public pure returns (uint, bool) {\n    return (g(2), g(false));\n  }\n}\n// ----\n// foo() -> 24, true\n"
+        "s1.sol": {
+            "content": "function f(uint24) pure returns (uint) { return 24; }\nfunction g(bool) pure returns (bool) { return true; }"
+        },
+        "s2.sol": {
+            "content": "import {f as g, g as g} from \"s1.sol\";\ncontract C {\n  function foo() public pure returns (uint, bool) {\n    return (g(2), g(false));\n  }\n}\n// ----\n// foo() -> 24, true"
         }
     },
     "settings": {

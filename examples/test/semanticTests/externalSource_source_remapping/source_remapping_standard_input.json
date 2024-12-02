@@ -1,10 +1,6 @@
 {
     "language": "Solidity",
-    "sources": {
-        "source_remapping.sol": {
-            "content": "==== ExternalSource: ExtSource.sol=_external/external.sol ====\n==== ExternalSource: /ExtSource.sol=_external/other_external.sol ====\nimport \"ExtSource.sol\";\nimport \"/ExtSource.sol\";\ncontract C {\n    External _external;\n    OtherExternal _otherExternal;\n}\n// ----\n// constructor()\n"
-        }
-    },
+    "sources": {},
     "settings": {
         "optimizer": {
             "enabled": true,

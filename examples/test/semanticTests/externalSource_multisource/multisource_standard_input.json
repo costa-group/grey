@@ -1,8 +1,11 @@
 {
     "language": "Solidity",
     "sources": {
-        "multisource.sol": {
-            "content": "==== ExternalSource: _external/external.sol ====\n==== Source: s1.sol ====\nimport {External} from \"_external/external.sol\";\ncontract S1 {\n}\n==== Source: s2.sol ====\nimport {S1} from \"s1.sol\";\ncontract C {\n}\n// ----\n// constructor()\n\n"
+        "s1.sol": {
+            "content": "import {External} from \"_external/external.sol\";\ncontract S1 {\n}"
+        },
+        "s2.sol": {
+            "content": "import {S1} from \"s1.sol\";\ncontract C {\n}\n// ----\n// constructor()"
         }
     },
     "settings": {

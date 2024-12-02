@@ -1,8 +1,11 @@
 {
     "language": "Solidity",
     "sources": {
-        "circular_import_2.sol": {
-            "content": "==== Source: s1.sol ====\nimport {f as g, g as h} from \"s2.sol\";\nfunction f() pure returns (uint) { return 1000 + g() - h(); }\n==== Source: s2.sol ====\nimport {f as h} from \"s1.sol\";\nfunction f() pure returns (uint) { return 2; }\nfunction g() pure returns (uint) { return 4; }\ncontract C {\n  function foo() public pure returns (uint) {\n    return h() - f() - g();\n  }\n}\n// ----\n// foo() -> 992\n"
+        "s1.sol": {
+            "content": "import {f as g, g as h} from \"s2.sol\";\nfunction f() pure returns (uint) { return 1000 + g() - h(); }"
+        },
+        "s2.sol": {
+            "content": "import {f as h} from \"s1.sol\";\nfunction f() pure returns (uint) { return 2; }\nfunction g() pure returns (uint) { return 4; }\ncontract C {\n  function foo() public pure returns (uint) {\n    return h() - f() - g();\n  }\n}\n// ----\n// foo() -> 992"
         }
     },
     "settings": {

@@ -1,8 +1,11 @@
 {
     "language": "Solidity",
     "sources": {
-        "same_constants_different_files.sol": {
-            "content": "==== Source: s1.sol ====\n\n\nuint constant a = 89;\n\nfunction fre() pure returns (uint) {\n    return a;\n}\n\n==== Source: s2.sol ====\n\nimport {a as b, fre} from \"s1.sol\";\nimport \"s1.sol\" as M;\n\nuint256 constant a = 13;\n\ncontract C {\n    function f() public returns (uint, uint, uint, uint) {\n        return (a, fre(), M.a, b);\n    }\n}\n// ----\n// f() -> 0x0d, 0x59, 0x59, 0x59\n"
+        "s1.sol": {
+            "content": "uint constant a = 89;\n\nfunction fre() pure returns (uint) {\n    return a;\n}"
+        },
+        "s2.sol": {
+            "content": "import {a as b, fre} from \"s1.sol\";\nimport \"s1.sol\" as M;\n\nuint256 constant a = 13;\n\ncontract C {\n    function f() public returns (uint, uint, uint, uint) {\n        return (a, fre(), M.a, b);\n    }\n}\n// ----\n// f() -> 0x0d, 0x59, 0x59, 0x59"
         }
     },
     "settings": {

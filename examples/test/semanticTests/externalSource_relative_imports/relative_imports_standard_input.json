@@ -1,10 +1,6 @@
 {
     "language": "Solidity",
-    "sources": {
-        "relative_imports.sol": {
-            "content": "==== ExternalSource: _relative_imports/dir/contract.sol ====\n==== ExternalSource: _relative_imports/dir/a.sol ====\n==== ExternalSource: _relative_imports/dir/B/b.sol ====\n==== ExternalSource: _relative_imports/c.sol ====\n==== ExternalSource: _relative_imports/D/d.sol ====\n==== ExternalSource: _relative_imports/dir/G/g.sol ====\n==== ExternalSource: _relative_imports/h.sol ====\nimport {A, B, C, D, G, H, Contract} from \"_relative_imports/dir/contract.sol\";\ncontract CC {\n}\n// ----\n// constructor()\n"
-        }
-    },
+    "sources": {},
     "settings": {
         "optimizer": {
             "enabled": true,

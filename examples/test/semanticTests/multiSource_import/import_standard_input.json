@@ -1,8 +1,11 @@
 {
     "language": "Solidity",
     "sources": {
-        "import.sol": {
-            "content": "==== Source: A ====\ncontract A {\n\tfunction g(uint256 x) public view returns(uint256) { return x + 1; }\n}\n==== Source: B ====\nimport \"A\";\ncontract B is A {\n\tfunction f(uint256 x) public view returns(uint256) { return x; }\n}\n// ----\n// f(uint256): 1337 -> 1337\n// g(uint256): 1337 -> 1338\n"
+        "A": {
+            "content": "contract A {\n\tfunction g(uint256 x) public view returns(uint256) { return x + 1; }\n}"
+        },
+        "B": {
+            "content": "import \"A\";\ncontract B is A {\n\tfunction f(uint256 x) public view returns(uint256) { return x; }\n}\n// ----\n// f(uint256): 1337 -> 1337\n// g(uint256): 1337 -> 1338"
         }
     },
     "settings": {

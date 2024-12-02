@@ -1,8 +1,11 @@
 {
     "language": "Solidity",
     "sources": {
-        "imported_free_function_via_alias_direct_call.sol": {
-            "content": "==== Source: s1.sol ====\nfunction f() pure returns (uint) { return 1337; }\n==== Source: s2.sol ====\nimport {f as g} from \"s1.sol\";\nfunction f() pure returns (uint) { return 6; }\ncontract D {\n  function h() public pure returns (uint) {\n    return g() + f() * 10000;\n  }\n}\n// ----\n// h() -> 61337\n"
+        "s1.sol": {
+            "content": "function f() pure returns (uint) { return 1337; }"
+        },
+        "s2.sol": {
+            "content": "import {f as g} from \"s1.sol\";\nfunction f() pure returns (uint) { return 6; }\ncontract D {\n  function h() public pure returns (uint) {\n    return g() + f() * 10000;\n  }\n}\n// ----\n// h() -> 61337"
         }
     },
     "settings": {

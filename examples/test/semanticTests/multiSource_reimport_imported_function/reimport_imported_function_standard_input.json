@@ -1,8 +1,14 @@
 {
     "language": "Solidity",
     "sources": {
-        "reimport_imported_function.sol": {
-            "content": "==== Source: s1.sol ====\nfunction f() pure returns (uint) { return 1337; }\n==== Source: s2.sol ====\nimport {f as g} from \"s1.sol\";\n==== Source: s3.sol ====\nimport {g as h} from \"s2.sol\";\ncontract C {\n  function foo() public pure returns (uint) {\n    return h();\n  }\n}\n// ----\n// foo() -> 1337\n"
+        "s1.sol": {
+            "content": "function f() pure returns (uint) { return 1337; }"
+        },
+        "s2.sol": {
+            "content": "import {f as g} from \"s1.sol\";"
+        },
+        "s3.sol": {
+            "content": "import {g as h} from \"s2.sol\";\ncontract C {\n  function foo() public pure returns (uint) {\n    return h();\n  }\n}\n// ----\n// foo() -> 1337"
         }
     },
     "settings": {

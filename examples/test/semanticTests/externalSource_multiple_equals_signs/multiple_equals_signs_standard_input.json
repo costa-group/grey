@@ -1,10 +1,6 @@
 {
     "language": "Solidity",
-    "sources": {
-        "multiple_equals_signs.sol": {
-            "content": "==== ExternalSource: a=_external/external.sol=sol ====\nimport {External} from \"a\";\ncontract C {\n}\n// ----\n// constructor()\n"
-        }
-    },
+    "sources": {},
     "settings": {
         "optimizer": {
             "enabled": true,

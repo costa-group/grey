@@ -1,8 +1,11 @@
 {
     "language": "Solidity",
     "sources": {
-        "using_global_for_global.sol": {
-            "content": "==== Source: A ====\ntype global is uint;\nusing { f } for global global;\nfunction f(global x) pure returns (global) { return global.wrap(global.unwrap(x) + 1); }\n==== Source: B ====\nimport { global } from \"A\";\n\nfunction g(global x) pure returns (global) { return global.wrap(global.unwrap(x) + 10); }\n\ncontract C {\n    using { g } for global;\n    function f(global r) public pure returns (global) {\n        return r.f().g();\n    }\n}\n// ----\n// f(uint256): 100 -> 111"
+        "A": {
+            "content": "type global is uint;\nusing { f } for global global;\nfunction f(global x) pure returns (global) { return global.wrap(global.unwrap(x) + 1); }"
+        },
+        "B": {
+            "content": "import { global } from \"A\";\n\nfunction g(global x) pure returns (global) { return global.wrap(global.unwrap(x) + 10); }\n\ncontract C {\n    using { g } for global;\n    function f(global r) public pure returns (global) {\n        return r.f().g();\n    }\n}\n// ----\n// f(uint256): 100 -> 111"
         }
     },
     "settings": {

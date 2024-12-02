@@ -1,10 +1,6 @@
 {
     "language": "Solidity",
-    "sources": {
-        "source_name_starting_with_dots.sol": {
-            "content": "==== ExternalSource: ./a.sol=_source_name_starting_with_dots/dot_a.sol ====\n==== ExternalSource: ../b.sol=_source_name_starting_with_dots/dot_dot_b.sol ====\n==== ExternalSource: _source_name_starting_with_dots/dir/a.sol ====\n==== ExternalSource: _source_name_starting_with_dots/b.sol ====\n==== ExternalSource: _source_name_starting_with_dots/dir/contract.sol ====\nimport {A, B} from \"_source_name_starting_with_dots/dir/contract.sol\";\ncontract Contract {\n}\n// ----\n// constructor()\n"
-        }
-    },
+    "sources": {},
     "settings": {
         "optimizer": {
             "enabled": true,

@@ -1,8 +1,11 @@
 {
     "language": "Solidity",
     "sources": {
-        "multisource.sol": {
-            "content": "==== Source: A ====\ntype MyInt is int;\ntype MyAddress is address;\n==== Source: B ====\nimport {MyInt, MyAddress as OurAddress} from \"A\";\ncontract A {\n    function f(int x) external view returns(MyInt) { return MyInt.wrap(x); }\n    function f(address x) external view returns(OurAddress) { return OurAddress.wrap(x); }\n}\n// ----\n// f(int256): 5 -> 5\n// f(address): 1 -> 1\n"
+        "A": {
+            "content": "type MyInt is int;\ntype MyAddress is address;"
+        },
+        "B": {
+            "content": "import {MyInt, MyAddress as OurAddress} from \"A\";\ncontract A {\n    function f(int x) external view returns(MyInt) { return MyInt.wrap(x); }\n    function f(address x) external view returns(OurAddress) { return OurAddress.wrap(x); }\n}\n// ----\n// f(int256): 5 -> 5\n// f(address): 1 -> 1"
         }
     },
     "settings": {

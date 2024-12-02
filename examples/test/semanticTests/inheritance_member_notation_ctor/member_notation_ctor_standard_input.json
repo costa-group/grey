@@ -1,8 +1,11 @@
 {
     "language": "Solidity",
     "sources": {
-        "member_notation_ctor.sol": {
-            "content": "==== Source: A ====\ncontract C {\n\tint private x;\n\tconstructor (int p) public { x = p; }\n\tfunction getX() public returns (int) { return x; }\n}\n==== Source: B ====\nimport \"A\" as M;\n\ncontract D is M.C {\n\tconstructor (int p) M.C(p) public {}\n}\n\ncontract A {\n\tfunction g(int p) public returns (int) {\n\t\tD d = new D(p);\n\t\treturn d.getX();\n\t}\n}\n// ----\n// g(int256): -1 -> -1\n// gas legacy: 77876\n// gas legacy code: 24200\n// g(int256): 10 -> 10\n// gas legacy: 77504\n// gas legacy code: 24200\n"
+        "A": {
+            "content": "contract C {\n\tint private x;\n\tconstructor (int p) public { x = p; }\n\tfunction getX() public returns (int) { return x; }\n}"
+        },
+        "B": {
+            "content": "import \"A\" as M;\n\ncontract D is M.C {\n\tconstructor (int p) M.C(p) public {}\n}\n\ncontract A {\n\tfunction g(int p) public returns (int) {\n\t\tD d = new D(p);\n\t\treturn d.getX();\n\t}\n}\n// ----\n// g(int256): -1 -> -1\n// gas legacy: 77876\n// gas legacy code: 24200\n// g(int256): 10 -> 10\n// gas legacy: 77504\n// gas legacy code: 24200"
         }
     },
     "settings": {

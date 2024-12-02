@@ -1,10 +1,6 @@
 {
     "language": "Solidity",
-    "sources": {
-        "multiple_external_source.sol": {
-            "content": "==== ExternalSource: _external/external.sol ====\n==== ExternalSource: _external/other_external.sol ====\nimport {External} from \"_external/external.sol\";\nimport {OtherExternal} from \"_external/other_external.sol\";\ncontract C {\n}\n// ----\n// constructor()\n"
-        }
-    },
+    "sources": {},
     "settings": {
         "optimizer": {
             "enabled": true,

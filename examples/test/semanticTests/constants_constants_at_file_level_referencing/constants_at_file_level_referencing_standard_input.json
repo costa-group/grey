@@ -1,8 +1,11 @@
 {
     "language": "Solidity",
     "sources": {
-        "constants_at_file_level_referencing.sol": {
-            "content": "==== Source: s1.sol ====\n\n\nbytes constant a = b;\nbytes constant b = hex\"030102\";\n\nfunction fre() pure returns (bytes memory) {\n    return a;\n}\n\n==== Source: s2.sol ====\n\nimport \"s1.sol\";\n\nuint256 constant c = uint8(a[0]) + 2;\n\ncontract C {\n    function f() public returns (bytes memory) {\n        return a;\n    }\n\n    function g() public returns (bytes memory) {\n        return b;\n    }\n\n    function h() public returns (uint) {\n        return c;\n    }\n\n    function i() public returns (bytes memory) {\n        return fre();\n    }\n}\n// ----\n// f() -> 0x20, 3, \"\\x03\\x01\\x02\"\n// g() -> 0x20, 3, \"\\x03\\x01\\x02\"\n// h() -> 5\n// i() -> 0x20, 3, \"\\x03\\x01\\x02\"\n"
+        "s1.sol": {
+            "content": "bytes constant a = b;\nbytes constant b = hex\"030102\";\n\nfunction fre() pure returns (bytes memory) {\n    return a;\n}"
+        },
+        "s2.sol": {
+            "content": "import \"s1.sol\";\n\nuint256 constant c = uint8(a[0]) + 2;\n\ncontract C {\n    function f() public returns (bytes memory) {\n        return a;\n    }\n\n    function g() public returns (bytes memory) {\n        return b;\n    }\n\n    function h() public returns (uint) {\n        return c;\n    }\n\n    function i() public returns (bytes memory) {\n        return fre();\n    }\n}\n// ----\n// f() -> 0x20, 3, \"\\x03\\x01\\x02\"\n// g() -> 0x20, 3, \"\\x03\\x01\\x02\"\n// h() -> 5\n// i() -> 0x20, 3, \"\\x03\\x01\\x02\""
         }
     },
     "settings": {

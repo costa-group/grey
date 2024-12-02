@@ -1,8 +1,11 @@
 {
     "language": "Solidity",
     "sources": {
-        "free_function_resolution_override_virtual.sol": {
-            "content": "==== Source: s1.sol ====\nfunction f() pure returns (uint) { return 1337; }\ncontract C {\n  function g() public pure virtual returns (uint) {\n    return f() + 1;\n  }\n}\n==== Source: s2.sol ====\nimport \"s1.sol\";\ncontract D is C {\n  function g() public pure override returns (uint) {\n    return f();\n  }\n}\n// ----\n// g() -> 1337\n"
+        "s1.sol": {
+            "content": "function f() pure returns (uint) { return 1337; }\ncontract C {\n  function g() public pure virtual returns (uint) {\n    return f() + 1;\n  }\n}"
+        },
+        "s2.sol": {
+            "content": "import \"s1.sol\";\ncontract D is C {\n  function g() public pure override returns (uint) {\n    return f();\n  }\n}\n// ----\n// g() -> 1337"
         }
     },
     "settings": {

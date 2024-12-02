@@ -1,8 +1,11 @@
 {
     "language": "Solidity",
     "sources": {
-        "imported_functions.sol": {
-            "content": "==== Source: A ====\nfunction inc(uint x) pure returns (uint) {\n    return x + 1;\n}\n\n==== Source: B ====\ncontract C {\n\tfunction f(uint x) public returns (uint) {\n        return x.f() + x.inc();\n    }\n}\nusing {A.inc, f} for uint;\nimport {inc as f} from \"A\";\nimport \"A\" as A;\n// ----\n// f(uint256): 5 -> 12\n// f(uint256): 10 -> 0x16\n"
+        "A": {
+            "content": "function inc(uint x) pure returns (uint) {\n    return x + 1;\n}"
+        },
+        "B": {
+            "content": "contract C {\n\tfunction f(uint x) public returns (uint) {\n        return x.f() + x.inc();\n    }\n}\nusing {A.inc, f} for uint;\nimport {inc as f} from \"A\";\nimport \"A\" as A;\n// ----\n// f(uint256): 5 -> 12\n// f(uint256): 10 -> 0x16"
         }
     },
     "settings": {

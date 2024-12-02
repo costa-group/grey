@@ -1,8 +1,11 @@
 {
     "language": "Solidity",
     "sources": {
-        "panic_via_import.sol": {
-            "content": "==== Source: s1.sol ====\nerror E(uint);\n==== Source: s2.sol ====\nimport { E as Panic } from \"s1.sol\";\ncontract C {\n    error E(uint);\n    function a() public pure {\n        revert Panic(1);\n    }\n    function b() public pure {\n        revert E(1);\n    }\n}\n// ----\n// a() -> FAILURE, hex\"002ff067\", hex\"0000000000000000000000000000000000000000000000000000000000000001\"\n// b() -> FAILURE, hex\"002ff067\", hex\"0000000000000000000000000000000000000000000000000000000000000001\"\n"
+        "s1.sol": {
+            "content": "error E(uint);"
+        },
+        "s2.sol": {
+            "content": "import { E as Panic } from \"s1.sol\";\ncontract C {\n    error E(uint);\n    function a() public pure {\n        revert Panic(1);\n    }\n    function b() public pure {\n        revert E(1);\n    }\n}\n// ----\n// a() -> FAILURE, hex\"002ff067\", hex\"0000000000000000000000000000000000000000000000000000000000000001\"\n// b() -> FAILURE, hex\"002ff067\", hex\"0000000000000000000000000000000000000000000000000000000000000001\""
         }
     },
     "settings": {

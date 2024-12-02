@@ -1,8 +1,11 @@
 {
     "language": "Solidity",
     "sources": {
-        "abi_encode_v2_in_modifier_used_in_v1_contract.sol": {
-            "content": "==== Source: A ====\npragma abicoder v2;\n\nstruct Data {\n    uint value;\n}\n\ncontract A {\n    function get() public view returns (Data memory) {\n        return Data(5);\n    }\n}\n\ncontract B {\n    uint x = 10;\n    uint y = 10;\n\n    modifier updateStorage() {\n        A a = new A();\n        x = a.get().value;\n        _;\n        y = a.get().value;\n    }\n}\n==== Source: B ====\npragma abicoder v1;\n\nimport \"A\";\n\ncontract C is B {\n    function test()\n        public\n        updateStorage\n        returns (uint, uint)\n    {\n        return (x, y);\n    }\n}\n// ----\n// test() -> 5, 10\n// gas irOptimized: 87337\n// gas legacy: 66250\n// gas legacy code: 36400\n"
+        "A": {
+            "content": "pragma abicoder v2;\n\nstruct Data {\n    uint value;\n}\n\ncontract A {\n    function get() public view returns (Data memory) {\n        return Data(5);\n    }\n}\n\ncontract B {\n    uint x = 10;\n    uint y = 10;\n\n    modifier updateStorage() {\n        A a = new A();\n        x = a.get().value;\n        _;\n        y = a.get().value;\n    }\n}"
+        },
+        "B": {
+            "content": "pragma abicoder v1;\n\nimport \"A\";\n\ncontract C is B {\n    function test()\n        public\n        updateStorage\n        returns (uint, uint)\n    {\n        return (x, y);\n    }\n}\n// ----\n// test() -> 5, 10\n// gas irOptimized: 87337\n// gas legacy: 66250\n// gas legacy code: 36400"
         }
     },
     "settings": {

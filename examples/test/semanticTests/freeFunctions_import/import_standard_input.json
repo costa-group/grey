@@ -1,8 +1,11 @@
 {
     "language": "Solidity",
     "sources": {
-        "import.sol": {
-            "content": "==== Source: A ====\nstruct S { uint x; }\nfunction set(S storage a, uint v) { a.x = v; }\n\n==== Source: B ====\nimport \"A\";\nimport \"A\" as A;\ncontract C {\n  A.S data;\n  function f(uint v) public returns (uint one, uint two) {\n    A.set(data, v);\n    one = data.x;\n    set(data, v + 1);\n    two = data.x;\n  }\n}\n// ----\n// f(uint256): 7 -> 7, 8\n"
+        "A": {
+            "content": "struct S { uint x; }\nfunction set(S storage a, uint v) { a.x = v; }"
+        },
+        "B": {
+            "content": "import \"A\";\nimport \"A\" as A;\ncontract C {\n  A.S data;\n  function f(uint v) public returns (uint one, uint two) {\n    A.set(data, v);\n    one = data.x;\n    set(data, v + 1);\n    two = data.x;\n  }\n}\n// ----\n// f(uint256): 7 -> 7, 8"
         }
     },
     "settings": {

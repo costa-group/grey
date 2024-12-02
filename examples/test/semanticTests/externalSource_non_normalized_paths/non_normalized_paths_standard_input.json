@@ -1,10 +1,6 @@
 {
     "language": "Solidity",
-    "sources": {
-        "non_normalized_paths.sol": {
-            "content": "==== ExternalSource: _non_normalized_paths//a.sol ====\n==== ExternalSource: C/////c.sol=_non_normalized_paths/c.sol ====\n==== ExternalSource: C/../////D/d.sol=_non_normalized_paths///d.sol ====\nimport {A} from \"_non_normalized_paths//a.sol\";\nimport {C} from \"C/////c.sol\";\nimport {D} from \"C/../////D/d.sol\";\ncontract Contract {\n}\n// ----\n// constructor()\n"
-        }
-    },
+    "sources": {},
     "settings": {
         "optimizer": {
             "enabled": true,
