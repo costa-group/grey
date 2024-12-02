@@ -2,6 +2,29 @@ import os
 import json
 import shutil
 
+
+def parse_multisection_solidity(file_path):
+    # Diccionario para almacenar las secciones
+    sources = {}
+
+    # Leer el archivo Solidity
+    with open(file_path, 'r') as file:
+        content = file.read()
+
+    # Buscar las secciones con el patrón "==== Source: X ===="
+    sections = re.split(r"==== Source: (.*?) ====", content)
+
+    # Procesar las secciones
+    for i in range(1, len(sections), 2):
+        section_name = sections[i].strip()  # Nombre de la sección
+        section_content = sections[i + 1].strip()  # Contenido de la sección
+        sources[section_name] = {"content": section_content}
+
+    return sources
+
+
+def parse_single_solidity(file_path):
+
 def generate_standard_json_input(directory, out_dir):
     """
     Genera un archivo JSON estándar por cada archivo .sol en el directorio especificado.
@@ -9,7 +32,7 @@ def generate_standard_json_input(directory, out_dir):
     """
     # Estructura base del JSON input
     standard_json_input = {
-        "language": "Solidity",
+        "language": "Yul",
         "sources": {},
         "settings": {
             "optimizer": {
@@ -42,25 +65,37 @@ def generate_standard_json_input(directory, out_dir):
     
     # Iterar sobre los archivos .sol en el directorio especificado
     for filename in os.listdir(directory):
-        if filename.endswith(".sol"):
+        if filename.endswith(".yul"):
+            standard_json_input["sources"]= {}
             file_path = os.path.join(directory, filename)
-            with open(file_path, "r", encoding="utf-8") as file:
-                # Leer el contenido de cada archivo .sol
-                solidity_code = file.read()
-                # Añadir el contenido al JSON input
-                standard_json_input["sources"][filename] = {
-                    "content": solidity_code
-                }
+
+            f = open(file_path, "r")
+            file_content = f.read()
+            f.close()
+            
+            if (file_content.find("====") != -1 and file_content.find("Source: ") !=-1 ):
+                source = parse_multisection_solidity(file_path)
+                standard_json_input["sources"] = source
+
+            else:
+
+                with open(file_path, "r", encoding="utf-8") as file:
+                    # Leer el contenido de cada archivo .sol
+                    solidity_code = file.read()
+                    # Añadir el contenido al JSON input
+                    standard_json_input["sources"][filename] = {
+                        "content": solidity_code
+                    }
             
             # Crear subdirectorio con el nombre del archivo sin extensión
-            outdir_name = os.path.join(out_dir, filename.split(".sol")[0])
+            outdir_name = os.path.join(out_dir, filename.split(".yul")[0])
             os.makedirs(outdir_name, exist_ok=True)
 
             # Copiar el archivo .sol al subdirectorio
             shutil.copy(file_path, os.path.join(outdir_name, filename))
             
             # Generar el archivo JSON en el subdirectorio
-            output_file = os.path.join(outdir_name, f"{filename.split('.sol')[0]}_standard_input.json")
+            output_file = os.path.join(outdir_name, f"{filename.split('.yul')[0]}_standard_input.json")
             with open(output_file, "w", encoding="utf-8") as json_file:
                 json.dump(standard_json_input, json_file, indent=4)
     
