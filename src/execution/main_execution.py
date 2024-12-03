@@ -141,4 +141,7 @@ def main():
         cfg_dir = final_dir.joinpath(cfg_name)
         json_asm_contract = analyze_single_cfg(cfg, cfg_dir, args)
 
-        store_asm_output(json_asm_contract, cfg_dir)
+        stored_asm_list = store_asm_output(json_asm_contract, cfg_dir)
+
+        for asm_file in stored_asm_list:
+            print(SolidityCompilation.importer_assembly_file(asm_file, solc_executable=args.solc_executable))

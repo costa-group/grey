@@ -14,8 +14,10 @@ import shlex
 import logging
 import tempfile
 from pathlib import Path
-from typing import Dict, Any, Tuple, List, Optional
+from typing import Dict, Any, Tuple, List, Optional, Callable, Union
 from global_params.types import Yul_CFG_T
+
+headers = {"asm": "EVM assembly:", "bin": "Binary:", "yul": "Yul Control Flow Graph:"}
 
 
 def run_command(cmd):
@@ -72,9 +74,6 @@ def default_optimization_settings() -> Dict:
     Default values for te optimizer field
     """
     return {"enabled": True}
-
-
-headers = {"asm": "EVM assembly:", "bin": "Binary:", "yul": "Yul Control Flow Graph:"}
 
 
 def process_contract_output(contract_output: str, representations: Optional[List[str]] = None) -> Dict[str, Any]:
@@ -197,6 +196,36 @@ def extract_files_from_multisol_repr(source_code_dict: Dict[str, Dict[str, str]]
     return contract_to_compile
 
 
+def filter_information_from_contract(sol_output: str, deployed_contract: Optional[str],
+                                     selected_header: str) -> Dict[str, Any]:
+    """
+    Returns a dict with all the information from the given header
+    """
+    output_dict = process_sol_output(sol_output, [selected_header])
+
+    # We filter the corresponding contract
+    if deployed_contract is not None:
+        for deployed_filename, output_info in output_dict.items():
+            if deployed_contract in deployed_filename and output_info[selected_header] is not None:
+                return {deployed_contract: output_info[selected_header]}
+    else:
+        # Only return yul information
+        return {contract_name: contract_info[selected_header] for contract_name, contract_info in
+                output_dict.items()
+                if contract_info[selected_header] is not None}
+
+
+def process_importer_output(sol_output: str, deployed_contract: Optional[str], selected_header: str) -> str:
+    """
+    Given the compiler output from solc after the importer and (optionally) output representations, extracts the information
+    of the corresponding contract (importer can only import one contract)
+    """
+    assert selected_header in headers, f"Unknown representation specified. Only {headers.keys()} are allowed"
+
+    contract_header = r"Binary:\n(.*?)\n"
+    return re.search(contract_header, sol_output).group(1)
+
+
 class SolidityCompilation:
     """
     Compiler from different formats of the solc compiler that are also supported by Etherscan
@@ -213,6 +242,9 @@ class SolidityCompilation:
         self._via_ir = False
         self._yul_setting = False
 
+        # Function to select the information from the contract
+        self.process_output_function: Optional[Callable[[str, Optional[str], str], Union[Dict, str]]] = None
+
     @staticmethod
     def from_single_solidity_code(sol_file: str, deployed_contract: Optional[str] = None,
                                   final_file: Optional[str] = None, solc_executable: str = "solc") -> Optional[Dict[str, Yul_CFG_T]]:
@@ -221,7 +253,16 @@ class SolidityCompilation:
         """
         compilation = SolidityCompilation(final_file, solc_executable)
         compilation.flags = "--yul-cfg-json --optimize"
+        compilation.process_output_function = process_sol_output
         return compilation.compile_single_sol_file(sol_file, deployed_contract)
+
+    @staticmethod
+    def importer_assembly_file(json_file: str, deployed_contract: Optional[str] = None,
+                               final_file: Optional[str] = None, solc_executable: str = "solc"):
+        compilation = SolidityCompilation(final_file, solc_executable)
+        compilation.flags = "--import-asm-json --bin"
+        compilation.process_output_function = process_importer_output
+        return compilation.compile_single_sol_file(json_file, deployed_contract, "bin")
 
     @staticmethod
     def from_multi_sol(multi_sol_info: Dict[str, Any], deployed_contract: str,
@@ -356,9 +397,11 @@ class SolidityCompilation:
                     f.write(output)
         return True
 
-    def compile_single_sol_file(self, sol_file: str, deployed_contract: Optional[str] = None) -> Optional[Dict[str, Yul_CFG_T]]:
+    def compile_single_sol_file(self, sol_file: str,
+                                deployed_contract: Optional[str] = None,
+                                selected_header: str = "yul") -> Optional[Dict[str, Any]]:
         """
-        Compiles a single sol file using the file name
+        Compiles a single sol file using the file name and retrieves the information from a selected header
         """
         # Change to the path in which we have generated the files
         old_path = os.getcwd()
@@ -386,18 +429,7 @@ class SolidityCompilation:
         if not correct_compilation:
             return None
 
-        # Returns a dict with all the information for each contract
-        output_dict = process_sol_output(sol_output, ["yul"])
-        
-        # We filter the corresponding contract
-        if deployed_contract is not None:
-            for deployed_filename, output_info in output_dict.items():
-                if deployed_contract in deployed_filename and output_info["yul"] != None:
-                    return {deployed_contract: output_info["yul"]}
-        else:
-            # Only return yul information        
-        
-            return {contract_name: contract_info["yul"] for contract_name, contract_info in output_dict.items() if contract_info["yul"] != None}
+        return self.process_output_function(sol_output, deployed_contract, selected_header)
 
     def compile_sol_file_from_code(self, source_code_plain: str, deployed_contract: Optional[str] = None) -> Optional[Dict[str, Yul_CFG_T]]:
         """

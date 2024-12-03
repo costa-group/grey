@@ -329,8 +329,11 @@ def asm_from_cfg(cfg: CFG, asm_dicts: Dict[str, List[ASM_bytecode_T]], tags_dict
     return json_object
 
 
-def store_asm_output(json_object: Dict[str, Any], cfg_dir: Path):
+def store_asm_output(json_object: Dict[str, Any], cfg_dir: Path) -> List[Path]:
+    asm_files = []
     for object_name, object_asm in json_object.items():
         file_to_store = cfg_dir.joinpath(object_name + "_asm.json")
         with open(file_to_store, 'w') as f:
             json.dump(object_asm, f, indent=4)
+        asm_files.append(file_to_store)
+    return asm_files
