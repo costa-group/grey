@@ -364,18 +364,13 @@ class SMSgreedy:
                 if len(dep_graph.nodes) == 0:
                     break
 
-                next_id, location = self.choose_next_computation(cstate, dep_graph)
-                self._debug_choose_computation(next_id, location, cstate)
+                next_id = self.choose_next_computation(cstate, dep_graph)
+                next_instr = self._id2instr[next_id]
+                self.debug_logger.debug_choose_computation(next_id, cstate)
 
-                # It is already stored in a local
-                if location == 'local':
-                    # We just load the stack var
-                    x = cstate.local_with_value(next_id)
-                    cstate.lget(x)
-                    ops = [f'LGET_{x}']
-                elif location == 'cheap':
+                if cheap(next_instr):
                     # Cheap instructions are just computed, there is no need to erase elements from the lists
-                    ops = self.compute_instr(self._id2instr[next_id], cstate)
+                    ops = self.compute_instr(next_instr, cstate)
                 else:
                     next_instr = self._id2instr[next_id]
                     # After choosing a value that must be computed, we store intermediate values that are used in locals
@@ -440,68 +435,55 @@ class SMSgreedy:
         TODO: Here we should try to devise a good heuristics to select the terms
         """
 
-        # To determine the best candidate to compute, we choose a variable among the ones that can be placed in
-        # their position such that they can reuse a topmost element. If it is not possible,
-        # we compute a memory element
-        candidate = None
-        min_unsolved = len(cstate.locals) + 1
-        min_uses_top = False
+        candidates = self._compute_candidates(dep_graph)
+        candidate = self._score_candidate(candidates, cstate)
+        return candidate
+
+    def _compute_candidates(self, dependency_graph: networkx.DiGraph) -> List[instr_id_T]:
+        """
+        Retrieves all the candidates consider for choosing the next computation.
+        """
+        return [id_ for id_ in dependency_graph.nodes if dependency_graph.in_degree(id_) == 0]
+
+    def _score_candidate(self, candidates: List[instr_id_T], cstate: SymbolicState) -> instr_id_T:
         current_top = cstate.top_stack()
-
-        # First we try to assign an element from the list of final local values if it can be placed in all the gaps
-        # We also determine the element which has more
-        candidates = [id_ for id_ in dep_graph.nodes if dep_graph.in_degree(id_) == 0]
-
-        # First case: try to determine if there is an element (probably, LOAD or something) that is embedded into other
-        # term and can be both applied
-        for candidate in candidates:
-
-            # Traverse all the operations that use it as a term
-            direct_edges = self._direct_g.out_edges(candidate)
-            for _, out_node in direct_edges:
-
-                indirect_deps = [dep[0] for dep in dep_graph.in_edges(out_node)]
-
-                if len(indirect_deps) == 0 or indirect_deps == [candidate]:
-                    dep_graph.remove_node(candidate)
-                    self._indirect_g.remove_node(candidate)
-                    self._direct_g.remove_node(candidate)
-                    return out_node
+        best_candidate_info = False, dict()
+        candidate = None
 
         for id_ in candidates:
             top_instr = self._id2instr[id_]
+            deepest_pos = dict()
 
-            # If there is an operation whose produced elements can be placed in all locals, we choose that element
-            all_solved = True
-            not_solved = len(cstate.locals) + 1
-
-            # Call instructions might generate multiple values that we should take into account
+            # Function invocations might generate multiple values that we should take into account
             for out_var in top_instr['outpt_sk']:
-                # TODO consider in locals that can be solved how the operation could liberate some local registers
-                avail_solved_flocals = self._locals_that_can_be_solved(out_var, cstate)
-                pos_flocals = self._var2pos_locals[out_var]
+                # We detect which is the deepest position in which the element can be placed
+                deepest_occurrence = next(self._available_positions(out_var, cstate), None)
+                if deepest_occurrence is not None:
+                    deepest_pos[out_var] = deepest_occurrence
 
-                # Current heuristics: select as a candidate the instruction with the most number of positions that
-                # can be solved
-                all_solved = all_solved and len(pos_flocals) == len(avail_solved_flocals)
-                not_solved = min(not_solved, len(pos_flocals) - len(avail_solved_flocals))
-
+            # We can reuse the topmost element
             uses_top = current_top is not None and current_top in self._top_can_be_used[id_]
+            current_candidate_info = uses_top, deepest_pos
 
-            if all_solved and uses_top:
-                return id_, 'lops'
-            # Condition: now it reuses top or solves more operations
-            elif uses_top and (uses_top != min_uses_top or not_solved <= min_unsolved):
+            # To decide whether the current candidate is the best so far, we use the information from deepest_pos
+            # and reuses_pos
+            better_candidate = self._le_ranked_options(best_candidate_info, current_candidate_info)
+            if better_candidate:
                 candidate = id_
-                min_uses_top = not_solved
-                min_uses_top = uses_top
+                best_candidate_info = current_candidate_info
 
-        if candidate is None:
-            candidate = candidates[0]
+            self.debug_logger.debug_rank_candidates(id_, current_candidate_info, better_candidate)
 
-        # Finally, we just choose an element from locals that covers multiple gaps,
-        # which has been determined previously
-        return candidate, 'lops'
+        assert candidate is not None, "Loop of _score_candidate must assign one candidate"
+        return candidate
+
+    def _le_ranked_options(self, option1: Tuple[bool, Dict[var_id_T, int]], option2: Tuple[bool, Dict[var_id_T, int]]) -> bool:
+        # First we prioritize whether it can reuse the topmost element
+        if option1[0] != option2[0]:
+            return option2[0]
+        opt1_deepest = max(option1[1].values(), default=-1)
+        opt2_deepest = max(option2[1].values(), default=-1)
+        return opt1_deepest <= opt2_deepest
 
 
 class DebugLogger:
@@ -530,6 +512,19 @@ class DebugLogger:
         self._logger.debug("---- Drop term ----")
         self._logger.debug("Var Term", var_top)
         self._logger.debug('State', cstate)
+        self._logger.debug("")
+
+    def debug_rank_candidates(self, candidate: instr_id_T, candidate_score: Tuple[bool, Dict[var_id_T, int]], chosen: bool):
+        self._logger.debug("---- Score candidate ----")
+        self._logger.debug("Candidate", candidate)
+        self._logger.debug('Candidate score', candidate_score)
+        self._logger.debug("Candidate has been chosen" if chosen else "Candidate does not improve")
+        self._logger.debug("")
+
+    def debug_choose_computation(self, next_id: instr_id_T, cstate: SymbolicState):
+        self._logger.debug("---- Computation chosen ----")
+        self._logger.debug(next_id)
+        self._logger.debug(cstate)
         self._logger.debug("")
 
     def debug_after_permutation(self, cstate: SymbolicState, optg: List[instr_id_T]):
