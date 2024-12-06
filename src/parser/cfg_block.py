@@ -644,6 +644,7 @@ class CFGBlock:
         sto_deps, mem_deps = self._process_dependences(self.instructions_to_synthesize, map_positions)
         spec["storage_dependences"] = sto_deps
         spec["memory_dependences"] = mem_deps
+        spec["dependencies"] = [*sto_deps, *mem_deps]
 
         # Just to print information if it is not a jump
         if not self._jump_type in ["conditional", "unconditional"]:
