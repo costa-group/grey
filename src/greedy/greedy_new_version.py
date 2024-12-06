@@ -12,7 +12,7 @@ from enum import Enum, unique
 
 import networkx
 import networkx as nx
-from analysis.greedy_validation import check_execution_from_ids
+# from analysis.greedy_validation import check_execution_from_ids
 from global_params.types import var_id_T, instr_id_T, instr_JSON_T, SMS_T
 
 # Specific type to identify which positions corresponds to the ones
@@ -115,8 +115,10 @@ class SymbolicState:
         """
         Tee instruction in local with index x. in_position marks whether the element is solved in flocals
         """
-        assert 0 <= x < len(self.stack), f"Duplicating index {x} in a stack in {len(self.stack)} elements: {self.stack}"
-        self.stack.insert(0, self.stack[x])
+        idx = x - 1
+        assert 0 <= idx < len(self.stack), \
+            f"Duplicating index {x} in a stack in {len(self.stack)} elements: {self.stack}"
+        self.stack.insert(0, self.stack[idx])
 
         # Var uses: we increment the element that we have in its corresponding position
         self.var_uses[self.stack[0]] += 1
@@ -420,6 +422,7 @@ class SMSgreedy:
 
                 # Cheap instructions are just computed, there is no need to erase elements from the lists
                 dep_graph.remove_node(next_id)
+                nx.nx_agraph.write_dot(dep_graph, "dep_graph.dot")
 
                 optg.extend(ops)
 
@@ -453,7 +456,7 @@ class SMSgreedy:
         appears in the final stack (and it is not yet in its position)
         """
         topmost_idx_fstack = idx_wrt_fstack(0, cstate.stack, self._final_stack)
-        return (topmost_idx_fstack < 0 or self._final_stack[topmost_idx_fstack] != var_elem) and \
+        return (topmost_idx_fstack > 0 and self._final_stack[topmost_idx_fstack] != var_elem) and \
             next(self._available_positions(var_elem, cstate), None) is not None
 
     def move_top_to_position(self, var_elem: var_id_T, cstate: SymbolicState) -> List[instr_id_T]:
@@ -664,8 +667,8 @@ class DebugLogger:
     """
     
     def __init__(self):
-        self._logger = logging.Logger("greedy")
-    
+        self._logger = logging.getLogger("greedy")
+
     def debug_initial(self, ops: List[instr_id_T]):
         self._logger.debug("---- Initial Ops ----")
         self._logger.debug(f'Ops:{ops}')
@@ -674,21 +677,21 @@ class DebugLogger:
     def debug_loop(self, dep_graph, optg: List[instr_id_T],
                     cstate: SymbolicState):
         self._logger.debug("---- While loop ----")
-        self._logger.debug("Ops not computed", dep_graph.nodes)
-        self._logger.debug("Ops computed", optg)
+        self._logger.debug(f"Ops not computed {list(dep_graph.nodes)}")
+        self._logger.debug(f"Ops computed: {optg}")
         self._logger.debug(cstate)
         self._logger.debug("")
 
     def debug_pop(self, var_top: var_id_T, cstate: SymbolicState):
         self._logger.debug("---- Drop term ----")
-        self._logger.debug("Var Term", var_top)
-        self._logger.debug('State', cstate)
+        self._logger.debug(f"Var Term: {var_top}")
+        self._logger.debug(f'State {cstate}')
         self._logger.debug("")
 
     def debug_rank_candidates(self, candidate: instr_id_T, candidate_score: Tuple[bool, Dict[var_id_T, int]], chosen: bool):
         self._logger.debug("---- Score candidate ----")
-        self._logger.debug("Candidate", candidate)
-        self._logger.debug('Candidate score', candidate_score)
+        self._logger.debug(f"Candidate {candidate}")
+        self._logger.debug(f'Candidate score {candidate_score}')
         self._logger.debug("Candidate has been chosen" if chosen else "Candidate does not improve")
         self._logger.debug("")
 
@@ -722,5 +725,11 @@ def greedy_standalone(sms: Dict) -> Tuple[str, float, List[str]]:
         error = 1
         seq_ids = []
     optimization_outcome = "error" if error == 1 else "non_optimal"
-    print(seq_ids)
     return optimization_outcome, usage_stop.ru_utime + usage_stop.ru_stime - usage_start.ru_utime - usage_start.ru_stime, seq_ids
+
+
+if __name__ == "__main__":
+    logging.basicConfig(level=logging.DEBUG)
+    with open(sys.argv[1], "r") as f:
+        sfs = json.load(f)
+    outcome, time, ids = greedy_standalone(sfs)
