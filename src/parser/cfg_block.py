@@ -481,12 +481,12 @@ class CFGBlock:
             
             #stampe durante il loop delle istruzioni per investigare errore elementi stack
             #Giulia
-            print(f"=== DEBUG: Istruzione {i} ===")
-            print(f"Istruzione: {ins.get_op_name()}")
-            print(f"Input stack: {ins.get_in_args()}")
-            print(f"Output stack: {ins.get_out_args()}")
-            print(f"Stack corrente: {final_stack}")
-            print("===================================")
+            #print(f"=== DEBUG: Istruzione {i} ===")
+            #print(f"Istruzione: {ins.get_op_name()}")
+            #print(f"Input stack: {ins.get_in_args()}")
+            #print(f"Output stack: {ins.get_out_args()}")
+            #print(f"Stack corrente: {final_stack}")
+            #print("===================================")
             #fine Giulia
 
             # Check if it has been already created

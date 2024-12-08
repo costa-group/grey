@@ -18,12 +18,22 @@ def _uses_defines_from_instructions(instructions: List[CFGInstruction],
         uses.update([element for element in instruction.in_args if not element.startswith("0x")
                      and element not in defines])
         defines.update(instruction.out_args)
+        
+        #Giulia
+        #print(f"defines.update: " + defines.update(instruction.out_args))
+        #Giulia 
 
     # We also need to consider the assignment dict
     for out_arg, in_arg in assignment_dict.items():
         if not in_arg.startswith("0x"):
             uses.add(in_arg)
+            #Giulia
+            #print(f"uses.add: " +  uses.add(in_arg))
+            #Giulia 
         defines.add(out_arg)
+        #Giulia
+        #print(f"defines.add: " + defines.add(out_arg))
+        #Giulia 
 
     return uses, defines
 
@@ -120,6 +130,11 @@ def _ssa_liveness_definitions(instructions: List[CFGInstruction]) -> Dict[str, S
     combined_liveness_sets["Defs"] = defines
     combined_liveness_sets["UpwardExposed"] = upward
     combined_liveness_sets["PhiDefs"] = phi_defs
+    
+    #Giulia
+    #print(combined_liveness_sets)
+    #Giulia 
+
     return combined_liveness_sets
 
 

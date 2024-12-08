@@ -17,6 +17,9 @@ from parser.cfg import CFG
 # "terminal_blocks: the list of terminal block ids, in order to start the analysis
 cfg_info_T = Dict[str, Union[Dict[str, LivenessBlockInfo], List[str]]]
 
+#commenti giulia
+#print("Logging initialized")
+#commenti giulia
 
 class LivenessAnalysisInfo(BlockAnalysisInfo):
     """
@@ -29,19 +32,40 @@ class LivenessAnalysisInfo(BlockAnalysisInfo):
 
     def propagate_information(self) -> None:
         # If the output state is None, we need to propagate the information from the block and the input state
+       
+       #commenti giulia
+        #print(f"Propagating information for block {self.block_info.block_id}...")
+       #commenti giulia
+       
         if self.in_state is None:
             output_state = LivenessState()
             output_state.live_vars = self.block_info.uses.union(
                 self.out_state.live_vars.difference(self.block_info.defines))
             self.in_state = output_state
+            #commenti giulia
+            #print(f"Initial in_state: {self.in_state}")
+            #commenti giulia
 
         # Otherwise, the information from the block is already propagated
         else:
             self.in_state.live_vars = self.block_info.uses.union(
                 self.out_state.live_vars.difference(self.block_info.defines))
+        #commenti giulia
+            #print(f"Updated in_state: {self.in_state}")
+        #print(f"Propagated state: {self.in_state}")            
+        #commenti giulia
+
 
     def propagate_state(self, current_state: LivenessState) -> None:
+        #commento giulia
+        #print(f"Before lub: out_state = {self.out_state}, current_state = {current_state}")
+        #commento giulia
+        
         self.out_state.lub(current_state)
+        
+        #commento giulia
+        #print(f"After lub: out_state = {self.out_state}")
+        #commento giulia
 
     def dot_repr(self) -> str:
         instr_repr = '\n'.join([instr.dot_repr() for instr in self.block_info._instructions])
@@ -71,21 +95,42 @@ class LivenessAnalysisInfoSSA(BlockAnalysisInfo):
 
     def propagate_information(self) -> None:
         # If the output state is None, we need to propagate the information from the block and the input state
+        #commento giulia
+        #print(f"Propagating SSA information for block {self.block_info.block_id}...")
+        #commento giulia
+        
+        
         if self.in_state is None:
             output_state = LivenessState()
             self.in_state = output_state
+            #commento giulia
+            #print(f"Initial SSA in_state: {self.in_state}")
+            #commento giulia
 
         # Live in variables: remove from the out variables those that are defined (either as part of a
         # normal function or a phi function) and add the ones that are used with no preceding definition
         # TODO: check if it is correct (differs slightly from the book)
         self.in_state.live_vars = self.block_info.upward_exposed.union(
             self.out_state.live_vars.difference(self.block_info.defs.union(self.block_info.phi_defs)))
+        
+        #commento giulia
+        #print(f"Updated SSA in_state: {self.in_state} \n")
+        #commento giulia
+
 
     def propagate_state(self, current_state: LivenessState) -> None:
+        #commento giulia
+        #print(f"Before SSA lub: out_state = {self.out_state}, current_state = {current_state}")
+        #commento giulia
+        
         # Live out variables: the live in variables + those selected from the phi functions
         self.out_state.live_vars = set().union(self.out_state.live_vars,
                                                self.block_info.phi_uses,
                                                current_state.live_vars)
+        
+        #commento giulia
+        #print(f"After SSA lub: out_state = {self.out_state}")
+        #commento giulia
 
     def dot_repr(self) -> str:
         instr_repr = '\n'.join([instr.dot_repr() for instr in self.block_info._instructions])
@@ -109,12 +154,21 @@ def construct_analysis_info_from_cfgblocklist(block_list: CFGBlockList) -> cfg_i
     This information consists of a dict with two entries: "block_info", that contains the information needed per
     block and "terminal_blocks", which contain the list of terminal block ids
     """
+    #commento giulia
+    #print("\n Constructing analysis info from CFGBlockList...")
+    #commento giulia
+    
     # TODO: better initialization without requiring to pass block list for each construction
     block_info = {block_id: LivenessBlockInfoSSA(block, block_list.get_blocks_dict())
                   for block_id, block in block_list.get_blocks_dict().items()}
     # if any(block_id.startswith("extract_byte_array_length") for block_id in block_info.keys()):
     #     print("HERE")
     terminal_blocks = block_list.terminal_blocks.copy()
+    
+    #commento giulia
+    #print(f"Constructed block_info: {block_info.keys()}, terminal_blocks: {terminal_blocks}")
+    #commento giulia
+    
     return {"block_info": block_info, "terminal_blocks": terminal_blocks}
 
 
@@ -158,6 +212,10 @@ def perform_liveness_analysis_from_cfg_info(cfg_info: Dict[str, cfg_info_T]) -> 
     """
     Returns the information from the liveness analysis for each structure stored in the cfg info
     """
+    #commento giulia
+    #print("\n Performing liveness analysis from CFG info...")
+    #commento giulia
+    
     results = dict()
 
     for cfg_object_name, cfg_object in cfg_info.items():
@@ -197,5 +255,11 @@ def dot_from_analysis(cfg: CFG, final_dir: Path = Path(".")) -> Dict[str, Dict[s
         short_component_name = shorten_name(component_name)
 
         nx.nx_agraph.write_dot(renamed_digraph, final_dir.joinpath(f"{short_component_name}.dot"))
-
+        
+        
+        #commenti giulia
+        #print(f"\n Generating .dot file for {component_name}...")
+        #print(f"\n Renaming nodes with live variable data: {renaming_dict}")
+        #commenti giulia
+         
     return results

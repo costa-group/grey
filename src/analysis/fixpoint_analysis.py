@@ -55,11 +55,23 @@ class BlockAnalysisInfo(ABC):
         logging.debug(f"Block name: {self.block_info.block_id}")
         logging.debug("Stored state: " + str(self.out_state))
         logging.debug("Current state: " + str(current_state))
+        
+        
+        #Giulia
+        #print(f"Comparing...")
+        #print(f"Block name: {self.block_info.block_id}")
+        #print(f"Stored state: " + str(self.out_state))
+        #print(f"Current state: " + str(current_state))
+        #Giulia
 
         # If the state being considered is leq than the one
         # currently stored, then we return False
         leq = current_state.leq(self.out_state)
         logging.debug("Result: " + str(leq))
+        
+        #Giulia
+        #print(f"Result: " + str(leq))
+        #Giulia
 
         return not leq
 
@@ -84,12 +96,26 @@ class BlockAnalysisInfo(ABC):
         id_block = self.block_info.block_id
 
         logging.debug("Processing " + str(id_block) + " :: " + str(current_state))
+        
+        #Giulia
+        #print(f"Processing " + str(id_block) + " :: " + str(current_state))
+        #Giulia
+        
         self.propagate_information()
         logging.debug("Resulting state " + str(id_block) + " :: " + str(self._in))
+        
+        #Giulia
+        #print(f"Resulting state " + str(id_block) + " :: " + str(self._in))
+        #Giulia
 
     def __repr__(self):
         textual_repr = str(self.block_info.block_id) + "." + "Input State: " + str(self._out) + \
                        ". Output State: " + str(self._in) + "."
+                                            
+        #Giulia
+        #print(textual_repr)
+        #Giulia  
+                     
         return textual_repr
 
 
@@ -114,6 +140,10 @@ class BackwardsAnalysis:
         while len(self.pending) > 0:
             block_id = self.pending.pop()
             logging.debug(f"Processing {block_id}")
+            
+            #Giulia
+            #print(f"\n BackWordsAnalysys \n Processing {block_id}")
+            #Giulia
 
             # Process the block
             block_info = self.blocks_info[block_id]
@@ -122,6 +152,10 @@ class BackwardsAnalysis:
 
             # Returns the in state of the corresponding block
             in_state = block_info.in_state
+            
+            #Giulia
+            #print(f"\n Returns the in state of the corresponding block {block_id}: {in_state}")
+            #Giulia
 
             # Propagates the information
             self.process_jumps(block_id, in_state)
@@ -132,10 +166,26 @@ class BackwardsAnalysis:
         """
         logging.debug("Process JUMPS")
         logging.debug("Input State: " + str(input_state))
+        
+        #Giulia
+        #print(f"\n Process JUMPS")
+        #print(f"\n Input State: " + str(input_state))
+        #Giulia
+        
         basic_block = self.vertices[block_id]
         logging.debug("COMES " + str(basic_block.comes_from))
+        
+        #Giulia
+        #print(f"COMES " + str(basic_block.comes_from))
+        #Giulia        
+        
         for previous_block in basic_block.comes_from:
             logging.debug(f"Comes from {previous_block}")
+            
+            #Giulia
+            #print(f"\n Comes from {previous_block}")
+            #Giulia
+            
             previous_block_info = self.blocks_info.get(previous_block)
 
             # We create the corresponding information
