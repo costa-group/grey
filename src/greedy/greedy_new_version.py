@@ -379,7 +379,7 @@ class SMSgreedy:
         """
         Main implementation of the greedy algorithm (i.e. the instruction scheduling algorithm)
         """
-        cstate: SymbolicState = SymbolicState(self._initial_stack)
+        cstate: SymbolicState = SymbolicState(self._initial_stack.copy())
 
         dep_graph = self._trans_sub_graph.copy()
         optg = []
@@ -713,6 +713,9 @@ class DebugLogger:
         self._logger.debug(optg)
         self._logger.debug("")
 
+    def debug_message(self, message: str):
+        self._logger.debug(message)
+
 
 def greedy_standalone(sms: Dict) -> Tuple[str, float, List[str]]:
     """
@@ -734,8 +737,13 @@ def greedy_standalone(sms: Dict) -> Tuple[str, float, List[str]]:
     return optimization_outcome, usage_stop.ru_utime + usage_stop.ru_stime - usage_start.ru_utime - usage_start.ru_stime, seq_ids
 
 
-if __name__ == "__main__":
+def greedy_from_file(filename: str) -> Tuple[SMS_T, List[instr_id_T]]:
     logging.basicConfig(level=logging.DEBUG)
-    with open(sys.argv[1], "r") as f:
+    with open(filename, "r") as f:
         sfs = json.load(f)
     outcome, time, ids = greedy_standalone(sfs)
+    return sfs, ids
+
+
+if __name__ == "__main__":
+    greedy_from_file(sys.argv[1])
