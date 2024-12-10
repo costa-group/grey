@@ -237,7 +237,7 @@ class SMSgreedy:
         # We determine which elements must be computed in order to compute certain instruction
         self._values_used = {}
         for instr_id in self._relevant_ops:
-            self._compute_values_used(self._id2instr[instr_id], self._relevant_ops, self._values_used)
+            self._compute_values_used(self._id2instr[instr_id], self._values_used)
 
         # Determine which topmost elements can be reused in the graph
         self._top_can_be_used = {}
@@ -321,7 +321,8 @@ class SMSgreedy:
                                or direct_g.out_degree(instr["id"]) == 0]
         return relevant_operations
 
-    def _compute_top_can_used(self, instr: instr_JSON_T, top_can_be_used: Dict[var_id_T, Set[var_id_T]]) -> Set[var_id_T]:
+    def _compute_top_can_used(self, instr: instr_JSON_T, top_can_be_used: Dict[var_id_T, Set[var_id_T]]) -> Set[
+        var_id_T]:
         """
         Computes for each instruction if the topmost element of the stack can be reused directly
         at some point. It considers commutative operations
@@ -352,8 +353,7 @@ class SMSgreedy:
         top_can_be_used[instr["id"]] = current_uses
         return current_uses
 
-    def _compute_values_used(self, instr: instr_JSON_T, relevant_ops: List[instr_id_T],
-                             value_uses: Dict[var_id_T, Set[var_id_T]]) -> Set[var_id_T]:
+    def _compute_values_used(self, instr: instr_JSON_T, value_uses: Dict[var_id_T, Set[var_id_T]]) -> Set[var_id_T]:
         """
         For a given instruction, determines which stack elements must be computed
         """
@@ -367,14 +367,11 @@ class SMSgreedy:
             if instr_bef is not None:
                 instr_bef_id = instr_bef["id"]
                 if instr_bef_id not in value_uses:
-                    current_uses.update(self._compute_values_used(instr_bef, relevant_ops, value_uses))
+                    current_uses.update(self._compute_values_used(instr_bef, value_uses))
                 else:
                     current_uses.update(value_uses[instr_bef_id])
-                # Add only instructions that are relevant to our context
-                if instr_bef_id in relevant_ops:
-                    current_uses.add(stack_var)
-            else:
-                current_uses.add(stack_var)
+            current_uses.add(stack_var)
+
         value_uses[instr["id"]] = current_uses
         return current_uses
 
@@ -418,6 +415,8 @@ class SMSgreedy:
                 self.debug_logger.debug_choose_computation(next_id, cstate)
 
                 terms_to_dup = self._identify_subterms_to_dup(next_instr, cstate)
+                self.debug_logger.debug_terms_to_dup(terms_to_dup)
+
                 ops = self.compute_instr(next_instr, cstate, terms_to_dup)
 
                 # Cheap instructions are just computed, there is no need to erase elements from the lists
@@ -530,7 +529,8 @@ class SMSgreedy:
         assert candidate is not None, "Loop of _score_candidate must assign one candidate"
         return candidate
 
-    def _le_ranked_options(self, option1: Tuple[bool, Dict[var_id_T, int]], option2: Tuple[bool, Dict[var_id_T, int]]) -> bool:
+    def _le_ranked_options(self, option1: Tuple[bool, Dict[var_id_T, int]],
+                           option2: Tuple[bool, Dict[var_id_T, int]]) -> bool:
         # First we prioritize whether it can reuse the topmost element
         if option1[0] != option2[0]:
             return option2[0]
@@ -538,7 +538,8 @@ class SMSgreedy:
         opt2_deepest = max(option2[1].values(), default=-1)
         return opt1_deepest <= opt2_deepest
 
-    def compute_instr(self, instr: instr_JSON_T, cstate: SymbolicState, terms_to_dup: List[var_id_T]) -> List[instr_id_T]:
+    def compute_instr(self, instr: instr_JSON_T, cstate: SymbolicState, terms_to_dup: List[var_id_T]) -> List[
+        instr_id_T]:
         """
         Given an instr, the current state and the terms that need to be duplicated, computes the corresponding term.
         This function is separated from compute_op because there
@@ -557,16 +558,10 @@ class SMSgreedy:
 
         for stack_var in input_vars:
             top_elem = cstate.top_stack()
-            if first_element and top_elem is not None and top_elem == stack_var:
-                if cstate.var_uses[top_elem] < self._var_total_uses[top_elem]:
-                    top_instr = self._var2instr.get(top_elem, None)
-
-                    # Only storee it in a local if needed
-                    if not cheap(top_instr):
-                        seq.extend(self.move_top_to_position(top_elem, cstate))
-                    else:
-                        seq.extend(self.compute_var(top_elem, cstate))
-
+            # If we can reuse the first element and this element must be not consumed elsewhere
+            if first_element and top_elem is not None and top_elem == stack_var and \
+                    cstate.var_uses[top_elem] == self._var_total_uses[top_elem]:
+                self.fixed_elements += 1
             else:
                 # Otherwise, we must return generate it with a recursive call
                 seq.extend(self.compute_var(stack_var, cstate))
@@ -667,11 +662,10 @@ class SMSgreedy:
 
 
 class DebugLogger:
-
     """
     Class that contains the multiple debugging messages for the greedy algorithm
     """
-    
+
     def __init__(self):
         self._logger = logging.getLogger("greedy")
 
@@ -681,7 +675,7 @@ class DebugLogger:
         self._logger.debug("")
 
     def debug_loop(self, dep_graph, optg: List[instr_id_T],
-                    cstate: SymbolicState):
+                   cstate: SymbolicState):
         self._logger.debug("---- While loop ----")
         self._logger.debug(f"Ops not computed {list(dep_graph.nodes)}")
         self._logger.debug(f"Ops computed: {optg}")
@@ -694,7 +688,8 @@ class DebugLogger:
         self._logger.debug(f'State {cstate}')
         self._logger.debug("")
 
-    def debug_rank_candidates(self, candidate: instr_id_T, candidate_score: Tuple[bool, Dict[var_id_T, int]], chosen: bool):
+    def debug_rank_candidates(self, candidate: instr_id_T, candidate_score: Tuple[bool, Dict[var_id_T, int]],
+                              chosen: bool):
         self._logger.debug("---- Score candidate ----")
         self._logger.debug(f"Candidate {candidate}")
         self._logger.debug(f'Candidate score {candidate_score}')
@@ -705,6 +700,11 @@ class DebugLogger:
         self._logger.debug("---- Computation chosen ----")
         self._logger.debug(next_id)
         self._logger.debug(cstate)
+        self._logger.debug("")
+
+    def debug_terms_to_dup(self, terms_to_dup: List[var_id_T]):
+        self._logger.debug("---- Terms to duplicate before computation ----")
+        self._logger.debug(terms_to_dup)
         self._logger.debug("")
 
     def debug_after_permutation(self, cstate: SymbolicState, optg: List[instr_id_T]):
