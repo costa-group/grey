@@ -253,7 +253,7 @@ class SolidityCompilation:
         """
         compilation = SolidityCompilation(final_file, solc_executable)
         compilation.flags = "--yul-cfg-json --optimize"
-        compilation.process_output_function = process_sol_output
+        compilation.process_output_function = filter_information_from_contract
         return compilation.compile_single_sol_file(sol_file, deployed_contract)
 
     @staticmethod
@@ -272,6 +272,7 @@ class SolidityCompilation:
         """
         compilation = SolidityCompilation(final_file, solc_executable)
         compilation.flags = "--yul-cfg-json --optimize"
+        compilation.process_output_function = filter_information_from_contract
         return compilation.compile_multiple_sources(multi_sol_info, deployed_contract)
 
     @staticmethod
