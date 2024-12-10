@@ -450,6 +450,12 @@ class SMSgreedy:
             elif STACK_DEPTH >= fidx >= 0 and cstate.stack[fidx] != var_elem:
                 yield position
 
+    def _deepest_position(self, var_elem: var_id_T) -> Optional[int]:
+        """
+        Deepest position in the final stack of var_elem (if any). Used to determine which computation is chosen first
+        """
+        return self._var2pos_stack[var_elem][-1] if len(self._var2pos_stack[var_elem]) > 0 else None
+
     def var_must_be_moved(self, var_elem: var_id_T, cstate: SymbolicState) -> bool:
         """
         By construction, a var element must be moved if there is an available position in which it
@@ -504,7 +510,7 @@ class SMSgreedy:
             # Function invocations might generate multiple values that we should take into account
             for out_var in top_instr['outpt_sk']:
                 # We detect which is the deepest position in which the element can be placed
-                deepest_occurrence = next(self._available_positions(out_var, cstate), None)
+                deepest_occurrence = self._deepest_position(out_var)
                 if deepest_occurrence is not None:
                     deepest_pos[out_var] = deepest_occurrence
 
