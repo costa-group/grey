@@ -356,6 +356,7 @@ class SMSgreedy:
         self._id2instr = {ins['id']: ins for ins in self._user_instr}
         self._var2id = {var: ins['id'] for ins in self._user_instr for var in ins['outpt_sk']}
         self._var2pos_stack = self._compute_var2pos(self._final_stack)
+        self._instrs_with_deps = {instr_id for dep in self._deps for instr_id in dep}
 
         self._stack_var_copies_needed = self._compute_var_total_uses()
         self._dep_graph = self._compute_dependency_graph()
@@ -558,7 +559,7 @@ class SMSgreedy:
         """
         new_instr, cheap_stack_elems, dup_stack_elems = cstate.candidates()
         current_top = cstate.top_stack()
-        best_candidate_info = False, dict()
+        best_candidate_info = False, dict(), False
         candidate = None
 
         # TODO: pass candidates as arguments
@@ -585,7 +586,7 @@ class SMSgreedy:
 
             # We can reuse the topmost element and consume it
             uses_top = top_can_be_reused and current_top in self._top_can_be_used[id_]
-            current_candidate_info = uses_top, deepest_pos
+            current_candidate_info = uses_top, deepest_pos, top_instr["id"] in self._instrs_with_deps
 
             # To decide whether the current candidate is the best so far, we use the information from deepest_pos
             # and reuses_pos
@@ -643,14 +644,17 @@ class SMSgreedy:
 
         return None
 
-    def _le_ranked_options(self, option1: Tuple[bool, Dict[var_id_T, int]],
-                           option2: Tuple[bool, Dict[var_id_T, int]]) -> bool:
+    def _le_ranked_options(self, option1: Tuple[bool, Dict[var_id_T, int], bool],
+                           option2: Tuple[bool, Dict[var_id_T, int], bool]) -> bool:
         # First we prioritize whether it can reuse the topmost element
         if option1[0] != option2[0]:
             return option2[0]
         opt1_deepest = max(option1[1].values(), default=-1)
         opt2_deepest = max(option2[1].values(), default=-1)
-        return opt1_deepest <= opt2_deepest
+        if opt1_deepest != opt2_deepest:
+            return opt1_deepest < opt2_deepest
+
+        return not option1[2]
 
     def compute_instr(self, instr: instr_JSON_T, cstate: SymbolicState) -> List[instr_id_T]:
         """
@@ -700,11 +704,14 @@ class SMSgreedy:
             topmost_element = cstate.top_stack()
             first_arg_instr = self._var2instr.get(instr['inpt_sk'][0], None)
 
-            # Condition: the topmost element can be reused by the first argument instruction or is the first argument
-            if (topmost_element is not None and topmost_element in self._top_can_be_used[instr["id"]] and
-                    first_arg_instr is not None and
-                    (first_arg_instr["outpt_sk"][0] == topmost_element or
-                     topmost_element in self._top_can_be_used[first_arg_instr["id"]])):
+            # Condition1: the topmost element can be reused by the first argument instruction or is the first argument
+            condition1 = (topmost_element is not None and topmost_element in self._top_can_be_used[instr["id"]] and
+                          first_arg_instr is not None and (first_arg_instr["outpt_sk"][0] == topmost_element or
+                                                           topmost_element in self._top_can_be_used[first_arg_instr["id"]]))
+
+            # Condition2: the first argument just needs to be swapped
+            condition2 = cstate.stack_var_copies_needed[instr['inpt_sk'][0]] == 0
+            if condition1 or condition2:
                 input_vars = instr['inpt_sk']
             else:
                 input_vars = list(reversed(instr['inpt_sk']))
