@@ -79,26 +79,27 @@ def cheap(instr: instr_JSON_T) -> bool:
 
 class SymbolicState:
     """
-    A symbolic state includes a stack, and a dict indicating the number of total uses of each
-    instruction
+    A symbolic state includes a stack, a dict indicating the number of total uses of each instruction,
+    the instructions that can be computed and the variables that must be duplicated
     """
 
-    def __init__(self, stack: List[var_id_T]) -> None:
-        self.stack: List[var_id_T] = stack
-
-        # Var uses counts how many times the corresponding variables appears in the current stack
-        self.var_uses: Dict[var_id_T, int] = self._computer_var_uses()
-
+    def __init__(self, initial_stack: List[var_id_T], dependency_graph: nx.DiGraph,
+                 stack_var_copies_needed: Dict[var_id_T, int], user_instrs: List[instr_JSON_T]) -> None:
         self.debug_mode = True
 
-    def _computer_var_uses(self):
-        var_uses = defaultdict(lambda: 0)
+        self.stack: List[var_id_T] = initial_stack.copy()
 
-        # Count vars in the initial stack
-        for var_stack in self.stack:
-            var_uses[var_stack] += 1
+        # The dependency graph with the instructions that can be computed due to
+        # its arguments are already computed
+        self.dep_graph = dependency_graph.copy()
 
-        return var_uses
+        # Terms that are cheap to compute
+        self.cheap_terms_to_compute = {output_var for instr in user_instrs if cheap(instr)
+                                       for output_var in instr["outpt_sk"]}
+
+        self.variables_to_dup = {stack_var for stack_var in initial_stack if stack_var_copies_needed[stack_var] > 0}
+
+        self.stack_var_copies_needed = stack_var_copies_needed.copy()
 
     def swap(self, x: int) -> List[instr_id_T]:
         """
@@ -108,7 +109,7 @@ class SymbolicState:
         assert 0 <= x < len(self.stack), f"Swapping with index {x} a stack of {len(self.stack)} elements: {self.stack}"
         self.stack[0], self.stack[x] = self.stack[x], self.stack[0]
 
-        # Var uses: no modification, as we are just moving two elements
+        # Var copies: no modification, as we are just moving two elements
         return [f"SWAP{x}"]
 
     def dup(self, x: int) -> List[instr_id_T]:
@@ -120,8 +121,8 @@ class SymbolicState:
             f"Duplicating index {x} in a stack in {len(self.stack)} elements: {self.stack}"
         self.stack.insert(0, self.stack[idx])
 
-        # Var uses: we increment the element that we have in its corresponding position
-        self.var_uses[self.stack[0]] += 1
+        # Var copies: we increment the element that we have duplicated
+        self.stack_var_copies_needed[self.stack[0]] -= 1
         return [f"DUP{x}"]
 
     def pop(self) -> List[instr_id_T]:
@@ -130,8 +131,8 @@ class SymbolicState:
         """
         stack_var = self.stack.pop(0)
 
-        # Var uses: we subtract one because the stack var is totally removed from the encoding
-        self.var_uses[stack_var] -= 1
+        # Var copies: we add one because the stack var is totally removed from the encoding
+        self.stack_var_copies_needed[stack_var] += 1
         return ["POP"]
 
     def uf(self, instr: instr_JSON_T) -> List[instr_id_T]:
@@ -157,8 +158,22 @@ class SymbolicState:
         # We introduce the new elements
         for output_var in instr['outpt_sk']:
             self.stack.insert(0, output_var)
-            # Var uses: increase one for each generated stack var
-            self.var_uses[output_var] += 1
+            # Var copies: increase one for each generated stack var
+            self.stack_var_copies_needed[output_var] += 1
+
+            # First case: cheap instructions just require to remove the element from the cheap instructions
+            # if we have computed the necessary number of copies
+            if cheap(instr):
+                if self.stack_var_copies_needed[output_var] == 0:
+                    self.cheap_terms_to_compute.remove(output_var)
+            else:
+                # Second case: we add the produced terms that need to be
+                # duplicated to the corresponding list
+                if self.stack_var_copies_needed[output_var] > 0:
+                    self.variables_to_dup.add(output_var)
+
+        if not cheap(instr):
+            self.dep_graph.remove_node(instr["id"])
 
         return [instr["id"]]
 
@@ -169,7 +184,7 @@ class SymbolicState:
         self.stack.insert(0, var_elem)
 
         # Var uses: increase one for the variable
-        self.var_uses[var_elem] += 1
+        self.stack_var_copies_needed[var_elem] += 1
 
         return [f"MEM({var_elem})"]
 
@@ -206,6 +221,21 @@ class SymbolicState:
         except:
             return -1
 
+    def has_computations(self):
+        """
+        Checks if the current state has still computations left to do
+        """
+        # TODO: remove elements once they have 0 copies left and just check length
+        return any(value > 0 for value in self.stack_var_copies_needed.values())
+
+    def candidates(self) -> Tuple[List[instr_id_T], Set[var_id_T], Set[var_id_T]]:
+        """
+        Returns the possible candidates from the pool of available instructions, cheap instructions
+        and stack variables that are needed to be duplicated
+        """
+        return [id_ for id_ in self.dep_graph.nodes if self.dep_graph.out_degree(id_) == 0], \
+            self.cheap_terms_to_compute, self.variables_to_dup
+
     def __repr__(self):
         return str(self.stack)
 
@@ -228,35 +258,28 @@ class SMSgreedy:
         self._var2id = {var: ins['id'] for ins in self._user_instr for var in ins['outpt_sk']}
         self._var2pos_stack = self._compute_var2pos(self._final_stack)
 
-        self._var_total_uses = self._compute_var_total_uses()
-        direct_g, indirect_g = self._compute_dependency_graph()
-
-        self._relevant_ops = self.select_ops(direct_g)
-        self._indirect_g = _simplify_graph_to_selected_nodes(indirect_g, self._relevant_ops)
-        self._direct_g = _simplify_graph_to_selected_nodes(direct_g, self._relevant_ops)
+        self._stack_var_copies_needed = self._compute_var_total_uses()
+        self._dep_graph = self._compute_dependency_graph()
 
         # We determine which elements must be computed in order to compute certain instruction
         self._values_used = {}
-        for instr_id in self._relevant_ops:
-            self._compute_values_used(self._id2instr[instr_id], self._values_used)
 
         # Determine which topmost elements can be reused in the graph
         self._top_can_be_used = {}
-        for instr in self._user_instr:
-            self._compute_top_can_used(instr, self._top_can_be_used)
 
-        # We need to compute the sub graph over the full dependency graph, as edges could be lost if we use the
-        # transitive reduction instead. Hence, we need to compute the transitive_closure of the graph
-        self._trans_sub_graph = nx.transitive_reduction(nx.DiGraph([*self._direct_g.edges, *self._indirect_g.edges]))
-        for node in self._relevant_ops:
-            self._trans_sub_graph.add_node(node)
+        for instr in self._user_instr:
+            self._compute_values_used(instr, self._values_used)
+            self._compute_top_can_used(instr, self._top_can_be_used)
 
     def _compute_var_total_uses(self) -> Dict[var_id_T, int]:
         """
-        Computes how many times each var appears either in the final stack or as a subterm
-        for other terms.
+        Computes how many times each var must be computed due to appearing either in the final stack or as a subterm
+        for other terms. It can be negative for terms that must be popped
         """
         var_uses = defaultdict(lambda: 0)
+
+        for var_stack in self._initial_stack:
+            var_uses[var_stack] -= 1
 
         # Count vars in the final stack
         for var_stack in self._final_stack:
@@ -268,6 +291,7 @@ class SMSgreedy:
                 var_uses[subterm_var] += 1
 
         return var_uses
+
 
     def _compute_var2pos(self, var_list: List[var_id_T]) -> Dict[var_id_T, List[int]]:
         """
@@ -281,46 +305,28 @@ class SMSgreedy:
 
         return var2pos
 
-    def _compute_dependency_graph(self) -> Tuple[nx.DiGraph, nx.DiGraph]:
+    def _compute_dependency_graph(self) -> nx.DiGraph:
         """
         We generate two dependency graphs: one for direct relations (i.e. one term embedded into another)
         and other with the dependencies due to memory/storage accesses
         """
-        direct_graph = nx.DiGraph()
-        indirect_graph = nx.DiGraph()
+        graph = nx.DiGraph()
 
         for instr in self._user_instr:
             instr_id = instr['id']
-            direct_graph.add_node(instr_id)
-            indirect_graph.add_node(instr_id)
+            graph.add_node(instr_id)
 
             for stack_elem in instr['inpt_sk']:
                 # This means the stack element corresponds to another uninterpreted instruction
-                if stack_elem in self._var2instr:
-                    direct_graph.add_edge(self._var2id[stack_elem], instr_id)
+                associated_instr = self._var2instr.get(stack_elem, None)
+                if associated_instr and not cheap(associated_instr):
+                    graph.add_edge(instr_id, self._var2id[stack_elem])
 
         # We need to consider also the order given by the tuples
         for id1, id2 in self._deps:
-            indirect_graph.add_edge(id1, id2)
+            graph.add_edge(id2, id1)
 
-        return direct_graph, indirect_graph
-
-    def select_ops(self, direct_g: nx.DiGraph):
-        """
-        Selects which operations are considered in the algorithm. We consider mem operations (excluding loads with no
-        dependencies) and computations that are not subterms
-        """
-        dep_ids = set(elem for dep in self._deps for elem in dep)
-
-        # Relevant operations corresponds to memory operations (STORE in all cases, LOADs an KECCAKs if they have some
-        # some kind of dependency) and operations that are not used elsewhere. The idea here is that we want
-        # to consider the maximal elements to compute, as reusing computations is easier this way
-        relevant_operations = [instr["id"] for instr in self._user_instr if
-                               any(instr_name in instr["disasm"] for instr_name in ["STORE"])
-                               or (any(load_instr in instr["disasm"] for load_instr in ["LOAD", "KECCAK"])
-                                   and instr["id"] in dep_ids)
-                               or direct_g.out_degree(instr["id"]) == 0]
-        return relevant_operations
+        return graph
 
     def _compute_top_can_used(self, instr: instr_JSON_T, top_can_be_used: Dict[var_id_T, Set[var_id_T]]) -> Set[
         var_id_T]:
@@ -381,12 +387,11 @@ class SMSgreedy:
         """
         Main implementation of the greedy algorithm (i.e. the instruction scheduling algorithm)
         """
-        cstate: SymbolicState = SymbolicState(self._initial_stack.copy())
-
-        dep_graph = self._trans_sub_graph.copy()
+        cstate: SymbolicState = SymbolicState(self._initial_stack, self._dep_graph, self._stack_var_copies_needed,
+                                              self._user_instr)
         optg = []
 
-        self.debug_logger.debug_initial(dep_graph.nodes)
+        self.debug_logger.debug_initial(cstate.dep_graph.nodes)
 
         # For easier code, we end the while when we need to choose an
         # operation and there are no operations left
@@ -394,10 +399,10 @@ class SMSgreedy:
             var_top = cstate.top_stack()
             self.fixed_elements = 0
 
-            self.debug_logger.debug_loop(dep_graph, optg, cstate)
+            self.debug_logger.debug_loop(cstate.dep_graph, optg, cstate)
 
             # Case 1: Top of the stack must be removed, as it appears more time it is being used
-            if var_top is not None and cstate.var_uses[var_top] > self._var_total_uses[var_top]:
+            if var_top is not None and cstate.stack_var_copies_needed < 0:
                 self.debug_logger.debug_pop(var_top, cstate)
                 optg.extend(cstate.pop())
 
@@ -411,10 +416,10 @@ class SMSgreedy:
             # Hence, we just generate the following computation
             else:
                 # There are no operations left to choose, so we stop the search
-                if len(dep_graph.nodes) == 0:
+                if cstate.has_computations:
                     break
 
-                next_id = self.choose_next_computation(cstate, dep_graph)
+                next_id = self.choose_next_computation(cstate)
                 next_instr = self._id2instr[next_id]
                 self.debug_logger.debug_choose_computation(next_id, cstate)
 
@@ -422,10 +427,6 @@ class SMSgreedy:
                 self.debug_logger.debug_terms_to_dup(terms_to_dup)
 
                 ops = self.compute_instr(next_instr, cstate, terms_to_dup)
-
-                # Cheap instructions are just computed, there is no need to erase elements from the lists
-                dep_graph.remove_node(next_id)
-                nx.nx_agraph.write_dot(dep_graph, "dep_graph.dot")
 
                 optg.extend(ops)
 
@@ -473,21 +474,22 @@ class SMSgreedy:
             return next_available_pos is not None, next_available_pos
         return False, -1
 
-    def choose_next_computation(self, cstate: SymbolicState, dep_graph: networkx.DiGraph) -> instr_id_T:
+    def choose_next_computation(self, cstate: SymbolicState) -> instr_id_T:
         """
         Returns an element from mops, sops or lops and where it came from (mops, sops or lops)
         TODO: Here we should try to devise a good heuristics to select the terms
         """
 
-        candidates = self._compute_candidates(dep_graph)
+        candidates = self._compute_candidates(cstate)
         candidate = self._score_candidate(candidates, cstate)
         return candidate
 
     def _compute_candidates(self, dependency_graph: networkx.DiGraph) -> List[instr_id_T]:
         """
-        Retrieves all the candidates consider for choosing the next computation.
+        Retrieves all the candidates consider for choosing the next computation. This includes the list of instructions
+        with no other dependency and the stack variables that must be duplicated
         """
-        return [id_ for id_ in dependency_graph.nodes if dependency_graph.in_degree(id_) == 0]
+        return [id_ for id_ in dependency_graph.nodes if dependency_graph.out_degree(id_) == 0]
 
     def _score_candidate(self, candidates: List[instr_id_T], cstate: SymbolicState) -> instr_id_T:
         current_top = cstate.top_stack()
