@@ -151,7 +151,8 @@ class SymbolicState:
             else:
                 # Compare them as lists
                 assert consumed_elements == instr['inpt_sk'], \
-                    f"{instr['id']} is not consuming the correct elements from the stack"
+                    f"{instr['id']} is not consuming the correct elements from the stack.\n" \
+                    f"Consumed elements: {consumed_elements}\nRequired elements: {instr['inpt_sk']}"
 
         # We introduce the new elements
         for output_var in instr['outpt_sk']:
@@ -353,24 +354,25 @@ class SMSgreedy:
         top_can_be_used[instr["id"]] = current_uses
         return current_uses
 
-    def _compute_values_used(self, instr: instr_JSON_T, value_uses: Dict[var_id_T, Set[var_id_T]]) -> Set[var_id_T]:
+    def _compute_values_used(self, instr: instr_JSON_T, value_uses: Dict[var_id_T, List[var_id_T]]) -> List[var_id_T]:
         """
-        For a given instruction, determines which stack elements must be computed
+        For a given instruction, determines which stack elements must be computed in inorder
         """
         values_used = value_uses.get(instr["id"], None)
         if values_used is not None:
             return values_used
 
-        current_uses = set()
+        current_uses = []
         for stack_var in instr["inpt_sk"]:
             instr_bef = self._var2instr.get(stack_var, None)
             if instr_bef is not None:
                 instr_bef_id = instr_bef["id"]
                 if instr_bef_id not in value_uses:
-                    current_uses.update(self._compute_values_used(instr_bef, value_uses))
+                    current_uses.extend(self._compute_values_used(instr_bef, value_uses))
                 else:
-                    current_uses.update(value_uses[instr_bef_id])
-            current_uses.add(stack_var)
+                    current_uses.extend(value_uses[instr_bef_id])
+
+            current_uses.append(stack_var)
 
         value_uses[instr["id"]] = current_uses
         return current_uses
@@ -545,6 +547,8 @@ class SMSgreedy:
         This function is separated from compute_op because there
         are terms, such as var accesses or memory accesses that produce no var element as a result.
         """
+        self.debug_logger.debug_compute_instr(instr, cstate)
+
         seq = []
 
         # First, we compute the subterms to dup
@@ -616,6 +620,7 @@ class SMSgreedy:
         Given a stack_var and current state, computes the element and updates cstate accordingly. Returns the sequence of ids.
         Compute var considers it the var elem is already stored in the stack
         """
+        self.debug_logger.debug_compute_var(var_elem, cstate)
         # First case: the element has not been computed previously. We have to compute it, as it
         # corresponds to a stack variable
         if cstate.var_uses[var_elem] == 0:
@@ -639,18 +644,22 @@ class SMSgreedy:
                 if cstate.is_accessible_swap(var_elem) and cstate.var_uses[var_elem] == self._var_total_uses[var_elem] \
                         and self.fixed_elements == 0:
                     # We swap to the deepest accesible copy
-                    idx = cstate.last_accessible_occurrence(var_elem) + 1
+                    idx = cstate.last_accessible_occurrence(var_elem)
                     seq = cstate.swap(idx)
+                    self.debug_logger.debug_message(f"SWAP{idx} {cstate.stack}")
 
                 # Case II: we duplicate the element that is within reach
                 elif cstate.is_accessible_dup(var_elem):
                     idx = cstate.first_occurrence(var_elem) + 1
                     seq = cstate.dup(idx)
+                    self.debug_logger.debug_message(f"DUP{idx} {cstate.stack}")
 
                 # Case III: we retrieve the element from memory
                 else:
                     seq = cstate.from_memory(var_elem)
 
+                # We have computed the corresponding element
+                self.fixed_elements += 1
         return seq
 
     def solve_permutation(self, cstate: SymbolicState) -> List[instr_id_T]:
@@ -707,6 +716,18 @@ class DebugLogger:
         self._logger.debug(terms_to_dup)
         self._logger.debug("")
 
+    def debug_compute_instr(self, instr: instr_JSON_T, cstate: SymbolicState):
+        self._logger.debug("---- Computing instr ----")
+        self._logger.debug(instr)
+        self._logger.debug(f"Stack: {cstate.stack}")
+        self._logger.debug("")
+
+    def debug_compute_var(self, var: var_id_T, cstate: SymbolicState):
+        self._logger.debug("---- Computing variable ----")
+        self._logger.debug(var)
+        self._logger.debug(f"Stack: {cstate.stack}")
+        self._logger.debug("")
+
     def debug_after_permutation(self, cstate: SymbolicState, optg: List[instr_id_T]):
         self._logger.debug("---- State after solving permutation ----")
         self._logger.debug(cstate)
@@ -731,6 +752,7 @@ def greedy_standalone(sms: Dict) -> Tuple[str, float, List[str]]:
         usage_stop = resource.getrusage(resource.RUSAGE_SELF)
         _, _, tb = sys.exc_info()
         traceback.print_tb(tb)
+        print(e, file=sys.stderr)
         error = 1
         seq_ids = []
     optimization_outcome = "error" if error == 1 else "non_optimal"
