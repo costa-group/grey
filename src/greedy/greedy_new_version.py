@@ -5,7 +5,7 @@ import logging
 import resource
 import sys
 import os
-from typing import List, Dict, Tuple, Any, Set, Optional, Generator
+from typing import List, Dict, Tuple, Any, Set, Optional, Generator, Union
 from collections import defaultdict, Counter
 import traceback
 from enum import Enum, unique
@@ -84,22 +84,66 @@ class SymbolicState:
     """
 
     def __init__(self, initial_stack: List[var_id_T], dependency_graph: nx.DiGraph,
-                 stack_var_copies_needed: Dict[var_id_T, int], user_instrs: List[instr_JSON_T]) -> None:
+                 stack_var_copies_needed: Dict[var_id_T, int], user_instrs: List[instr_JSON_T],
+                 final_stack: List[var_id_T]) -> None:
         self.debug_mode = True
 
         self.stack: List[var_id_T] = initial_stack.copy()
+        self.final_stack: List[var_id_T] = final_stack # Not necessary to dup
 
         # The dependency graph with the instructions that can be computed due to
         # its arguments are already computed
-        self.dep_graph = dependency_graph.copy()
+        self.dep_graph: nx.DiGraph = dependency_graph.copy()
 
         # Terms that are cheap to compute
-        self.cheap_terms_to_compute = {output_var for instr in user_instrs if cheap(instr)
-                                       for output_var in instr["outpt_sk"]}
+        self.cheap_terms_to_compute: Set[var_id_T] = {output_var for instr in user_instrs if cheap(instr)
+                                                      for output_var in instr["outpt_sk"]}
 
-        self.variables_to_dup = {stack_var for stack_var in initial_stack if stack_var_copies_needed[stack_var] > 0}
+        self.variables_to_dup: Set[var_id_T] = {stack_var for stack_var in initial_stack
+                                                if stack_var_copies_needed[stack_var] > 0}
 
-        self.stack_var_copies_needed = stack_var_copies_needed.copy()
+        self.stack_var_copies_needed: Dict[var_id_T, int] = stack_var_copies_needed.copy()
+
+        # Solved: positions in the final stack that contain elements in the correct position
+        self.solved: Set[fstack_pos_T] = {len(final_stack) - i - 1
+                                          for i, (ini_var, fin_var) in enumerate(zip(reversed(initial_stack), reversed(final_stack)))
+                                          if ini_var == fin_var}
+
+    @property
+    def not_solved(self):
+        return set(range(len(self.final_stack))).difference(self.solved)
+
+    def _remove_solved(self, idx: fstack_pos_T):
+        """
+        Removes an element from the solved set, even if it is not there
+        """
+        try:
+            self.solved.remove(idx)
+        except KeyError:
+            pass
+
+    def _check_idx_solved_cstack(self, idx: cstack_pos_T):
+        """
+        Checks if the index in current stack is now solved or not
+        """
+        fstack_pos = self.idx_wrt_fstack(idx)
+        self._remove_solved(fstack_pos)
+        var_elem = self.stack[idx]
+        if 0 <= idx < len(self.final_stack) and self.final_stack[fstack_pos] == var_elem:
+            self.solved.add(fstack_pos)
+
+    def idx_wrt_fstack(self, idx: cstack_pos_T) -> fstack_pos_T:
+        """
+        Conversion of the idx in the current stack to its corresponding position in the final stack
+        """
+        return idx_wrt_fstack(idx, self.stack, self.final_stack)
+
+    def idx_wrt_cstack(self, idx: fstack_pos_T) -> cstack_pos_T:
+        """
+        Conversion of the idx in the final stack to its corresponding position in the current stack
+        """
+
+        return idx_wrt_cstack(idx, self.stack, self.final_stack)
 
     def swap(self, x: int) -> List[instr_id_T]:
         """
@@ -108,6 +152,10 @@ class SymbolicState:
         """
         assert 0 <= x < len(self.stack), f"Swapping with index {x} a stack of {len(self.stack)} elements: {self.stack}"
         self.stack[0], self.stack[x] = self.stack[x], self.stack[0]
+
+        # Check if either positions 0 or x are solved
+        self._check_idx_solved_cstack(0)
+        self._check_idx_solved_cstack(x)
 
         # Var copies: no modification, as we are just moving two elements
         return [f"SWAP{x}"]
@@ -119,10 +167,19 @@ class SymbolicState:
         idx = x - 1
         assert 0 <= idx < len(self.stack), \
             f"Duplicating index {x} in a stack in {len(self.stack)} elements: {self.stack}"
-        self.stack.insert(0, self.stack[idx])
+        new_topmost = self.stack[idx]
+        self.stack.insert(0, new_topmost)
 
         # Var copies: we increment the element that we have duplicated
-        self.stack_var_copies_needed[self.stack[0]] -= 1
+        self.stack_var_copies_needed[new_topmost] -= 1
+
+        # Solved: only the duplicated element can modify the solved elements, being added if
+        # in the new topmost element is correctly placed
+        fstack_idx = self.idx_wrt_fstack(0)
+
+        if fstack_idx >= 0 and self.final_stack[fstack_idx] == new_topmost:
+            self.solved.add(fstack_idx)
+
         return [f"DUP{x}"]
 
     def pop(self) -> List[instr_id_T]:
@@ -133,13 +190,56 @@ class SymbolicState:
 
         # Var copies: we add one because the stack var is totally removed from the encoding
         self.stack_var_copies_needed[stack_var] += 1
+
+        # Solved: just check whether the old topmost position was in solved
+        self._remove_solved(self.idx_wrt_fstack(-1))
+
         return ["POP"]
+
+    def consume_element(self) -> var_id_T:
+        """
+        Consumes element in order to compute an instruction
+        """
+        stack_var = self.stack.pop(0)
+
+        # Var copies: it is not affected, as we are just consuming the elements for an operation
+
+        # Solved: just check whether the old topmost position was in solved
+        self._remove_solved(self.idx_wrt_fstack(-1))
+
+        return stack_var
+
+    def insert_element(self, instr: instr_JSON_T, output_var: var_id_T) -> None:
+        """
+        Insert an element as a result of computing an instruction
+        """
+        self.stack.insert(0, output_var)
+        # Var copies: increase one for each generated stack var
+        self.stack_var_copies_needed[output_var] += 1
+
+        # First case: cheap instructions just require to remove the element from the cheap instructions
+        # if we have computed the necessary number of copies
+        if cheap(instr):
+            if self.stack_var_copies_needed[output_var] == 0:
+                self.cheap_terms_to_compute.remove(output_var)
+        else:
+            # Second case: we add the produced terms that need to be
+            # duplicated to the corresponding list
+            if self.stack_var_copies_needed[output_var] > 0:
+                self.variables_to_dup.add(output_var)
+
+        # Solved: only the introduced element can modify the solved elements, being added if
+        # in the new topmost element is correctly placed
+        fstack_idx = self.idx_wrt_fstack(0)
+
+        if fstack_idx >= 0 and self.final_stack[fstack_idx] == output_var:
+            self.solved.add(fstack_idx)
 
     def uf(self, instr: instr_JSON_T) -> List[instr_id_T]:
         """
         Symbolic execution of instruction instr. Additionally, checks the arguments match if debug mode flag is enabled
         """
-        consumed_elements = [self.stack.pop(0) for _ in range(len(instr['inpt_sk']))]
+        consumed_elements = [self.consume_element() for _ in range(len(instr['inpt_sk']))]
 
         # Neither liveness nor var uses are affected by consuming elements, as these elements are just being embedded
         # into a new term
@@ -157,20 +257,7 @@ class SymbolicState:
 
         # We introduce the new elements
         for output_var in instr['outpt_sk']:
-            self.stack.insert(0, output_var)
-            # Var copies: increase one for each generated stack var
-            self.stack_var_copies_needed[output_var] += 1
-
-            # First case: cheap instructions just require to remove the element from the cheap instructions
-            # if we have computed the necessary number of copies
-            if cheap(instr):
-                if self.stack_var_copies_needed[output_var] == 0:
-                    self.cheap_terms_to_compute.remove(output_var)
-            else:
-                # Second case: we add the produced terms that need to be
-                # duplicated to the corresponding list
-                if self.stack_var_copies_needed[output_var] > 0:
-                    self.variables_to_dup.add(output_var)
+            self.insert_element(instr, output_var)
 
         if not cheap(instr):
             self.dep_graph.remove_node(instr["id"])
@@ -185,6 +272,12 @@ class SymbolicState:
 
         # Var uses: increase one for the variable
         self.stack_var_copies_needed[var_elem] += 1
+
+        # Solved: same as duplication
+        fstack_idx = self.idx_wrt_fstack(0)
+
+        if fstack_idx >= 0 and self.final_stack[fstack_idx] == var_elem:
+            self.solved.add(fstack_idx)
 
         return [f"MEM({var_elem})"]
 
@@ -388,7 +481,7 @@ class SMSgreedy:
         Main implementation of the greedy algorithm (i.e. the instruction scheduling algorithm)
         """
         cstate: SymbolicState = SymbolicState(self._initial_stack, self._dep_graph, self._stack_var_copies_needed,
-                                              self._user_instr)
+                                              self._user_instr, self._final_stack)
         optg = []
 
         self.debug_logger.debug_initial(cstate.dep_graph.nodes)
@@ -402,7 +495,7 @@ class SMSgreedy:
             self.debug_logger.debug_loop(cstate.dep_graph, optg, cstate)
 
             # Case 1: Top of the stack must be removed, as it appears more time it is being used
-            if var_top is not None and cstate.stack_var_copies_needed < 0:
+            if var_top is not None and cstate.stack_var_copies_needed[var_top] < 0:
                 self.debug_logger.debug_pop(var_top, cstate)
                 optg.extend(cstate.pop())
 
@@ -423,11 +516,7 @@ class SMSgreedy:
                 next_instr = self._id2instr[next_id]
                 self.debug_logger.debug_choose_computation(next_id, cstate)
 
-                terms_to_dup = self._identify_subterms_to_dup(next_instr, cstate)
-                self.debug_logger.debug_terms_to_dup(terms_to_dup)
-
-                ops = self.compute_instr(next_instr, cstate, terms_to_dup)
-
+                ops = self.compute_instr(next_instr, cstate)
                 optg.extend(ops)
 
         optg.extend(self.solve_permutation(cstate))
@@ -474,29 +563,24 @@ class SMSgreedy:
             return next_available_pos is not None, next_available_pos
         return False, -1
 
-    def choose_next_computation(self, cstate: SymbolicState) -> instr_id_T:
+    def choose_next_computation(self, cstate: SymbolicState) -> Tuple[Union[instr_id_T, var_id_T], str]:
         """
-        Returns an element from mops, sops or lops and where it came from (mops, sops or lops)
-        TODO: Here we should try to devise a good heuristics to select the terms
+        Returns either a stack element or an instruction that must be computed
         """
-
-        candidates = self._compute_candidates(cstate)
-        candidate = self._score_candidate(candidates, cstate)
+        candidate = self._score_candidate(cstate)
         return candidate
 
-    def _compute_candidates(self, dependency_graph: networkx.DiGraph) -> List[instr_id_T]:
-        """
-        Retrieves all the candidates consider for choosing the next computation. This includes the list of instructions
-        with no other dependency and the stack variables that must be duplicated
-        """
-        return [id_ for id_ in dependency_graph.nodes if dependency_graph.out_degree(id_) == 0]
-
-    def _score_candidate(self, candidates: List[instr_id_T], cstate: SymbolicState) -> instr_id_T:
+    def _score_candidate(self, cstate: SymbolicState) -> Tuple[Union[instr_id_T, var_id_T], str]:
+        new_instr, cheap_stack_elems, dup_stack_elems = cstate.candidates()
         current_top = cstate.top_stack()
         best_candidate_info = False, dict()
         candidate = None
 
-        for id_ in candidates:
+        # First, we detect if there is an element that is about to become unreachable (and prioritize this element)
+
+
+        # First, we evaluate the remaining instructions
+        for id_ in new_instr:
             top_instr = self._id2instr[id_]
             deepest_pos = dict()
 
@@ -532,7 +616,7 @@ class SMSgreedy:
         opt2_deepest = max(option2[1].values(), default=-1)
         return opt1_deepest <= opt2_deepest
 
-    def compute_instr(self, instr: instr_JSON_T, cstate: SymbolicState, terms_to_dup: List[var_id_T]) -> List[
+    def compute_instr(self, instr: instr_JSON_T, cstate: SymbolicState) -> List[
         instr_id_T]:
         """
         Given an instr, the current state and the terms that need to be duplicated, computes the corresponding term.
@@ -542,11 +626,6 @@ class SMSgreedy:
         self.debug_logger.debug_compute_instr(instr, cstate)
 
         seq = []
-
-        # First, we compute the subterms to dup
-        for term in terms_to_dup:
-            # TODO: decide order in terms to dup
-            seq.extend(self.compute_var(term, cstate))
 
         # Decide in which order computations must be done (after computing the subterms)
         input_vars = self._computation_order(instr, cstate)
