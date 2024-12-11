@@ -109,6 +109,10 @@ class SymbolicState:
                                           for i, (ini_var, fin_var) in enumerate(zip(reversed(initial_stack), reversed(final_stack)))
                                           if ini_var == fin_var}
 
+        # Debug mode: store all the ops applied and the stacks before and after
+        if self.debug_mode:
+            self.trace: List[Tuple[List[var_id_T], instr_id_T]] = [(self.stack.copy(), "Initial")]
+
     @property
     def not_solved(self):
         return set(range(len(self.final_stack))).difference(self.solved)
@@ -159,6 +163,9 @@ class SymbolicState:
         self._check_idx_solved_cstack(0)
         self._check_idx_solved_cstack(x)
 
+        if self.debug_mode:
+            self.trace.append((self.stack.copy(), f"SWAP{x}"))
+
         return [f"SWAP{x}"]
 
     def dup(self, x: int) -> List[instr_id_T]:
@@ -185,6 +192,9 @@ class SymbolicState:
         if fstack_idx >= 0 and self.final_stack[fstack_idx] == new_topmost:
             self.solved.add(fstack_idx)
 
+        if self.debug_mode:
+            self.trace.append((self.stack.copy(), f"DUP{x}"))
+
         return [f"DUP{x}"]
 
     def pop(self) -> List[instr_id_T]:
@@ -198,6 +208,9 @@ class SymbolicState:
 
         # Solved: just check whether the old topmost position was in solved
         self._remove_solved(self.idx_wrt_fstack(-1))
+
+        if self.debug_mode:
+            self.trace.append((self.stack.copy(), "POP"))
 
         return ["POP"]
 
@@ -268,6 +281,9 @@ class SymbolicState:
         if not cheap(instr):
             self.dep_graph.remove_node(instr["id"])
 
+        if self.debug_mode:
+            self.trace.append((self.stack.copy(), instr["id"]))
+
         return [instr["id"]]
 
     def from_memory(self, var_elem: var_id_T) -> List[instr_id_T]:
@@ -284,6 +300,9 @@ class SymbolicState:
 
         if fstack_idx >= 0 and self.final_stack[fstack_idx] == var_elem:
             self.solved.add(fstack_idx)
+
+        if self.debug_mode:
+            self.trace.append((self.stack.copy(), f"MEM({var_elem})"))
 
         return [f"MEM({var_elem})"]
 
@@ -505,6 +524,18 @@ class SMSgreedy:
         optg.extend(self.solve_permutation(cstate))
         self.debug_logger.debug_after_permutation(cstate, optg)
 
+        if cstate.debug_mode:
+            list_strings = [str(t[0]) for t in cstate.trace]
+            max_list_len = max(len(ls) for ls in list_strings)
+
+            # Calculate the maximum length of the string part
+            max_str_len = max(len(t[1]) for t in cstate.trace)
+
+            print(list_strings)
+
+            # Print each tuple with aligned formatting
+            for (lst, string), list_str in zip(cstate.trace, list_strings):
+                print(f"{string:<{max_str_len}} {list_str:>{max_list_len}}")
         return optg
 
     def _available_positions(self, var_elem: var_id_T, cstate: SymbolicState) -> Generator[cstack_pos_T, None, None]:
