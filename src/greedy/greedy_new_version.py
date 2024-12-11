@@ -402,8 +402,10 @@ class SMSgreedy:
                 optg.extend(cstate.pop())
 
             # Case 2: Top of the stack must be placed in some other position
-            elif var_top is not None and self.var_must_be_moved(var_top, cstate):
-                optg.extend(self.move_top_to_position(var_top, cstate))
+            elif var_top is not None and (move_information := self.var_must_be_moved(var_top, cstate)) \
+                    and move_information[0]:
+                self.debug_logger.debug_move_var(var_top, move_information[1], cstate)
+                optg.extend(cstate.swap(move_information[1]))
 
             # Case 3: Top of the stack cannot be moved to the corresponding position.
             # Hence, we just generate the following computation
@@ -448,8 +450,8 @@ class SMSgreedy:
 
             # A variable must be moved when a positive index is found (less than STACK_DEPTH)
             # which does not contain yet the corresponding element
-            elif STACK_DEPTH >= fidx >= 0 and cstate.stack[fidx] != var_elem:
-                yield position
+            elif STACK_DEPTH >= fidx >= 0 and fidx < len(cstate.stack) and cstate.stack[fidx] != var_elem:
+                yield fidx
 
     def _deepest_position(self, var_elem: var_id_T) -> Optional[int]:
         """
@@ -457,31 +459,19 @@ class SMSgreedy:
         """
         return self._var2pos_stack[var_elem][-1] if len(self._var2pos_stack[var_elem]) > 0 else None
 
-    def var_must_be_moved(self, var_elem: var_id_T, cstate: SymbolicState) -> bool:
+    def var_must_be_moved(self, var_elem: var_id_T, cstate: SymbolicState) -> Tuple[bool, int]:
         """
         By construction, a var element must be moved if there is an available position in which it
-        appears in the final stack (and it is not yet in its position)
+        appears in the final stack (and it is not yet in its position). Return whether it is possible to
+        perform the movement and the position the var element must be placed
         """
         topmost_idx_fstack = idx_wrt_fstack(0, cstate.stack, self._final_stack)
-        return (topmost_idx_fstack > 0 and self._final_stack[topmost_idx_fstack] != var_elem) and \
-            next(self._available_positions(var_elem, cstate), None) is not None
-
-    def move_top_to_position(self, var_elem: var_id_T, cstate: SymbolicState) -> List[instr_id_T]:
-        """
-        Stores the current element in all the deepest available position.
-        """
-        # TODO: decide if we just want to move one element or duplicate it as many
-        #  times as it is possible
-        # We just need to retrieve the deepest element
-        deepest_position_available = next(self._available_positions(var_elem, cstate), None)
-
-        assert deepest_position_available is not None, f"There is no available position to move {var_elem}"
-
-        # There is no need to move the element to other position
-        if deepest_position_available == 0:
-            return []
-
-        return cstate.swap(deepest_position_available)
+        # Condition: the topmost element is not placed in its corresponding position yet
+        if topmost_idx_fstack < 0 or self._final_stack[topmost_idx_fstack] != var_elem:
+            # Find the first position to which it can be moved
+            next_available_pos = next(self._available_positions(var_elem, cstate), None)
+            return next_available_pos is not None, next_available_pos
+        return False, -1
 
     def choose_next_computation(self, cstate: SymbolicState, dep_graph: networkx.DiGraph) -> instr_id_T:
         """
@@ -694,6 +684,13 @@ class DebugLogger:
     def debug_pop(self, var_top: var_id_T, cstate: SymbolicState):
         self._logger.debug("---- Drop term ----")
         self._logger.debug(f"Var Term: {var_top}")
+        self._logger.debug(f'State {cstate}')
+        self._logger.debug("")
+
+    def debug_move_var(self, var_top: var_id_T, position: int, cstate: SymbolicState):
+        self._logger.debug("---- Move var to position ----")
+        self._logger.debug(f"Var Term: {var_top}")
+        self._logger.debug(f"Position: {position}")
         self._logger.debug(f'State {cstate}')
         self._logger.debug("")
 
