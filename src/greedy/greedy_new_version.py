@@ -129,7 +129,7 @@ class SymbolicState:
         fstack_pos = self.idx_wrt_fstack(idx)
         self._remove_solved(fstack_pos)
         var_elem = self.stack[idx]
-        if 0 <= idx < len(self.final_stack) and self.final_stack[fstack_pos] == var_elem:
+        if 0 <= fstack_pos < len(self.final_stack) and self.final_stack[fstack_pos] == var_elem:
             self.solved.add(fstack_pos)
 
     def idx_wrt_fstack(self, idx: cstack_pos_T) -> fstack_pos_T:
@@ -153,11 +153,12 @@ class SymbolicState:
         assert 0 <= x < len(self.stack), f"Swapping with index {x} a stack of {len(self.stack)} elements: {self.stack}"
         self.stack[0], self.stack[x] = self.stack[x], self.stack[0]
 
-        # Check if either positions 0 or x are solved
+        # Var copies: no modification, as we are just moving two elements
+
+        # Solved: Check if either positions 0 or x are solved
         self._check_idx_solved_cstack(0)
         self._check_idx_solved_cstack(x)
 
-        # Var copies: no modification, as we are just moving two elements
         return [f"SWAP{x}"]
 
     def dup(self, x: int) -> List[instr_id_T]:
@@ -172,6 +173,10 @@ class SymbolicState:
 
         # Var copies: we increment the element that we have duplicated
         self.stack_var_copies_needed[new_topmost] -= 1
+
+        # Variables to dup: remove the element from this list if we have computed all the copies
+        if self.stack_var_copies_needed[new_topmost] == 0:
+            self.variables_to_dup.remove(new_topmost)
 
         # Solved: only the duplicated element can modify the solved elements, being added if
         # in the new topmost element is correctly placed
@@ -214,8 +219,9 @@ class SymbolicState:
         Insert an element as a result of computing an instruction
         """
         self.stack.insert(0, output_var)
-        # Var copies: increase one for each generated stack var
-        self.stack_var_copies_needed[output_var] += 1
+
+        # Var copies: remove one, as we have introduced a stack variable
+        self.stack_var_copies_needed[output_var] -= 1
 
         # First case: cheap instructions just require to remove the element from the cheap instructions
         # if we have computed the necessary number of copies
@@ -270,8 +276,8 @@ class SymbolicState:
         """
         self.stack.insert(0, var_elem)
 
-        # Var uses: increase one for the variable
-        self.stack_var_copies_needed[var_elem] += 1
+        # Var uses: we increment the element that we have retrieved from memory
+        self.stack_var_copies_needed[var_elem] -= 1
 
         # Solved: same as duplication
         fstack_idx = self.idx_wrt_fstack(0)
@@ -319,7 +325,7 @@ class SymbolicState:
         Checks if the current state has still computations left to do
         """
         # TODO: remove elements once they have 0 copies left and just check length
-        return any(value > 0 for value in self.stack_var_copies_needed.values())
+        return any(value > 0 for value in self.stack_var_copies_needed.values()) or len(self.dep_graph) > 0
 
     def candidates(self) -> Tuple[List[instr_id_T], Set[var_id_T], Set[var_id_T]]:
         """
@@ -354,20 +360,16 @@ class SMSgreedy:
         self._stack_var_copies_needed = self._compute_var_total_uses()
         self._dep_graph = self._compute_dependency_graph()
 
-        # We determine which elements must be computed in order to compute certain instruction
-        self._values_used = {}
-
         # Determine which topmost elements can be reused in the graph
         self._top_can_be_used = {}
 
         for instr in self._user_instr:
-            self._compute_values_used(instr, self._values_used)
             self._compute_top_can_used(instr, self._top_can_be_used)
 
     def _compute_var_total_uses(self) -> Dict[var_id_T, int]:
         """
         Computes how many times each var must be computed due to appearing either in the final stack or as a subterm
-        for other terms. It can be negative for terms that must be popped
+        for other terms. It can be negative for stack variables that must be popped
         """
         var_uses = defaultdict(lambda: 0)
 
@@ -384,7 +386,6 @@ class SMSgreedy:
                 var_uses[subterm_var] += 1
 
         return var_uses
-
 
     def _compute_var2pos(self, var_list: List[var_id_T]) -> Dict[var_id_T, List[int]]:
         """
@@ -453,29 +454,6 @@ class SMSgreedy:
         top_can_be_used[instr["id"]] = current_uses
         return current_uses
 
-    def _compute_values_used(self, instr: instr_JSON_T, value_uses: Dict[var_id_T, List[var_id_T]]) -> List[var_id_T]:
-        """
-        For a given instruction, determines which stack elements must be computed in inorder
-        """
-        values_used = value_uses.get(instr["id"], None)
-        if values_used is not None:
-            return values_used
-
-        current_uses = []
-        for stack_var in instr["inpt_sk"]:
-            instr_bef = self._var2instr.get(stack_var, None)
-            if instr_bef is not None:
-                instr_bef_id = instr_bef["id"]
-                if instr_bef_id not in value_uses:
-                    current_uses.extend(self._compute_values_used(instr_bef, value_uses))
-                else:
-                    current_uses.extend(value_uses[instr_bef_id])
-
-            current_uses.append(stack_var)
-
-        value_uses[instr["id"]] = current_uses
-        return current_uses
-
     def greedy(self) -> List[instr_id_T]:
         """
         Main implementation of the greedy algorithm (i.e. the instruction scheduling algorithm)
@@ -509,14 +487,18 @@ class SMSgreedy:
             # Hence, we just generate the following computation
             else:
                 # There are no operations left to choose, so we stop the search
-                if cstate.has_computations:
+                if not cstate.has_computations():
                     break
 
-                next_id = self.choose_next_computation(cstate)
-                next_instr = self._id2instr[next_id]
-                self.debug_logger.debug_choose_computation(next_id, cstate)
+                next_id, how_to_compute = self.choose_next_computation(cstate)
+                self.debug_logger.debug_choose_computation(next_id, how_to_compute, cstate)
 
-                ops = self.compute_instr(next_instr, cstate)
+                if how_to_compute == "instr":
+                    next_instr = self._id2instr[next_id]
+                    ops = self.compute_instr(next_instr, cstate)
+                else:
+                    ops = self.compute_var(next_id, cstate)
+
                 optg.extend(ops)
 
         optg.extend(self.solve_permutation(cstate))
@@ -571,13 +553,23 @@ class SMSgreedy:
         return candidate
 
     def _score_candidate(self, cstate: SymbolicState) -> Tuple[Union[instr_id_T, var_id_T], str]:
+        """
+        Decides which stack variable or instruction must be computed using a scoring system
+        """
         new_instr, cheap_stack_elems, dup_stack_elems = cstate.candidates()
         current_top = cstate.top_stack()
         best_candidate_info = False, dict()
         candidate = None
 
-        # First, we detect if there is an element that is about to become unreachable (and prioritize this element)
+        # TODO: pass candidates as arguments
+        option = self._handle_too_deep(cstate)
 
+        # First case: too deep scenario
+        if option is not None:
+            return option
+
+        # The topmost element can be used if it does not need to be duplicated further
+        top_can_be_reused = current_top is not None and cstate.stack_var_copies_needed[current_top] == 0
 
         # First, we evaluate the remaining instructions
         for id_ in new_instr:
@@ -591,8 +583,8 @@ class SMSgreedy:
                 if deepest_occurrence is not None:
                     deepest_pos[out_var] = deepest_occurrence
 
-            # We can reuse the topmost element
-            uses_top = current_top is not None and current_top in self._top_can_be_used[id_]
+            # We can reuse the topmost element and consume it
+            uses_top = top_can_be_reused and current_top in self._top_can_be_used[id_]
             current_candidate_info = uses_top, deepest_pos
 
             # To decide whether the current candidate is the best so far, we use the information from deepest_pos
@@ -604,8 +596,52 @@ class SMSgreedy:
 
             self.debug_logger.debug_rank_candidates(id_, current_candidate_info, better_candidate)
 
+        # If the best candidate does not reuse the topmost element, we also try duplicating already existing elements
+        # or cheap computations
+        if not best_candidate_info[0]:
+            # Search among the positions not solved that are deepest than the one in the best candidate
+            deepest_position = max(best_candidate_info[1].values(), default=-1)
+            for position_not_solved in sorted(cstate.not_solved, reverse=True):
+
+                if position_not_solved < deepest_position:
+                    break
+
+                associated_stack_var = self._final_stack[position_not_solved]
+                if associated_stack_var in cheap_stack_elems or associated_stack_var in dup_stack_elems:
+                    return associated_stack_var, "var"
+
         assert candidate is not None, "Loop of _score_candidate must assign one candidate"
-        return candidate
+        return candidate, "instr"
+
+    def _handle_too_deep(self, cstate: SymbolicState) -> Optional[Tuple[Union[instr_id_T, var_id_T], str]]:
+        new_instr, cheap_stack_elems, dup_stack_elems = cstate.candidates()
+
+        if len(cstate.not_solved) == 0:
+            return None
+
+        # First, we detect if there is an element that is about to become unreachable (and prioritize computing
+        # this element)
+        max_not_solved_pos = cstate.idx_wrt_cstack(max(cstate.not_solved))
+        if max_not_solved_pos > STACK_DEPTH:
+            # TODO: handle this case
+            raise AssertionError("There is a position that cannot be accessed and whose stack element is not "
+                                 f"correctly placed\nPosition: {max_not_solved_pos}\nStack: {cstate.stack}\n"
+                                 f"Final stack: {self._final_stack}")
+        elif STACK_DEPTH - 2 <= max_not_solved_pos <= STACK_DEPTH:
+            # Returns either the instruction (if not computed yet) or the stack variable
+            # of the stack element associated to the instruction
+            final_stack_var = self._final_stack[max_not_solved_pos]
+
+            if final_stack_var in dup_stack_elems:
+                return final_stack_var, "var"
+
+            elif final_stack_var in cheap_stack_elems or cstate.dep_graph.out_degree(self._var2instr[final_stack_var]) == 0:
+                return self._var2instr[final_stack_var], "instr"
+
+            else:
+                raise ValueError("Case not handled: Swap the element to the position")
+
+        return None
 
     def _le_ranked_options(self, option1: Tuple[bool, Dict[var_id_T, int]],
                            option2: Tuple[bool, Dict[var_id_T, int]]) -> bool:
@@ -616,8 +652,7 @@ class SMSgreedy:
         opt2_deepest = max(option2[1].values(), default=-1)
         return opt1_deepest <= opt2_deepest
 
-    def compute_instr(self, instr: instr_JSON_T, cstate: SymbolicState) -> List[
-        instr_id_T]:
+    def compute_instr(self, instr: instr_JSON_T, cstate: SymbolicState) -> List[instr_id_T]:
         """
         Given an instr, the current state and the terms that need to be duplicated, computes the corresponding term.
         This function is separated from compute_op because there
@@ -635,7 +670,7 @@ class SMSgreedy:
             top_elem = cstate.top_stack()
             # If we can reuse the first element and this element must be not consumed elsewhere
             if first_element and top_elem is not None and top_elem == stack_var and \
-                    cstate.var_uses[top_elem] == self._var_total_uses[top_elem]:
+                    cstate.stack_var_copies_needed[top_elem] == 0:
                 self.fixed_elements += 1
             else:
                 # Otherwise, we must return generate it with a recursive call
@@ -677,15 +712,6 @@ class SMSgreedy:
             input_vars = list(reversed(instr['inpt_sk']))
         return input_vars
 
-    def _identify_subterms_to_dup(self, instr: instr_JSON_T, cstate: SymbolicState) -> List[var_id_T]:
-        """
-        First we identify which subterms must be duplicated in order to compute them first
-        """
-        # We return the variables that are not needed twice
-        return [stack_var for stack_var in self._values_used[instr["id"]]
-                if cstate.var_uses[stack_var] < self._var_total_uses[stack_var] - 1 and
-                (((associated_instr := self._var2instr.get(stack_var, None)) is None) or not cheap(associated_instr))]
-
     def compute_var(self, var_elem: var_id_T, cstate: SymbolicState) -> List[instr_id_T]:
         """
         Given a stack_var and current state, computes the element and updates cstate accordingly. Returns the sequence of ids.
@@ -694,9 +720,9 @@ class SMSgreedy:
         self.debug_logger.debug_compute_var(var_elem, cstate)
         # First case: the element has not been computed previously. We have to compute it, as it
         # corresponds to a stack variable
-        if cstate.var_uses[var_elem] == 0:
-            instr = self._var2instr[var_elem]
-            seq = self.compute_instr(instr, cstate, [])
+        instr = self._var2instr.get(var_elem, None)
+        if instr is not None and instr["id"] in cstate.dep_graph and cstate.stack_var_copies_needed[var_elem] == 0:
+            seq = self.compute_instr(instr, cstate)
 
         # Second case: the variable has already been computed (i.e. var_uses > 0).
         # In this case, we duplicate it or retrieve it from memory
@@ -705,14 +731,14 @@ class SMSgreedy:
             # If the instruction is cheap, we compute it again
             instr = self._var2instr.get(var_elem, None)
             if instr is not None and cheap(instr):
-                seq = self.compute_instr(instr, cstate, [])
+                seq = self.compute_instr(instr, cstate)
             else:
                 assert var_elem in cstate.stack, f"Variable {var_elem} must appear in the stack, " \
                                                  f"as it was previously computed and it is not a cheap computation"
                 # TODO: case for recomputing the element?
                 # Case I: We swap the element the number of copies required is met, the position is accessible
                 # and there is no fixed stack elements
-                if cstate.is_accessible_swap(var_elem) and cstate.var_uses[var_elem] == self._var_total_uses[var_elem] \
+                if cstate.is_accessible_swap(var_elem) and cstate.stack_var_copies_needed[var_elem] == 0 \
                         and self.fixed_elements == 0:
                     # We swap to the deepest accesible copy
                     idx = cstate.last_accessible_occurrence(var_elem)
@@ -731,6 +757,7 @@ class SMSgreedy:
 
                 # We have computed the corresponding element
                 self.fixed_elements += 1
+
         return seq
 
     def solve_permutation(self, cstate: SymbolicState) -> List[instr_id_T]:
@@ -783,15 +810,11 @@ class DebugLogger:
         self._logger.debug("Candidate has been chosen" if chosen else "Candidate does not improve")
         self._logger.debug("")
 
-    def debug_choose_computation(self, next_id: instr_id_T, cstate: SymbolicState):
+    def debug_choose_computation(self, next_id: instr_id_T, how_to_compute: str, cstate: SymbolicState):
         self._logger.debug("---- Computation chosen ----")
+        self._logger.debug(f"Computation method {how_to_compute}")
         self._logger.debug(next_id)
         self._logger.debug(cstate)
-        self._logger.debug("")
-
-    def debug_terms_to_dup(self, terms_to_dup: List[var_id_T]):
-        self._logger.debug("---- Terms to duplicate before computation ----")
-        self._logger.debug(terms_to_dup)
         self._logger.debug("")
 
     def debug_compute_instr(self, instr: instr_JSON_T, cstate: SymbolicState):
