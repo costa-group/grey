@@ -309,6 +309,25 @@ class SymbolicState:
     def top_stack(self) -> Optional[var_id_T]:
         return None if len(self.stack) == 0 else self.stack[0]
 
+    def negative_idx2positive(self, idx: int) -> int:
+        """
+        Converts a negative index (-1 from the last element and so on) to the corresponding positive one
+        """
+        positive_idx = idx + len(self.stack)
+        assert -1 <= positive_idx < len(self.stack), f"Attempting to convert an invalid negative index {idx}, " \
+                                                     f"in a stack with {len(self.stack)} elements"
+        return positive_idx
+
+    def positive_idx2negative(self, idx: int) -> int:
+        """
+        Converts a positive index to the corresponding positive one (-1 to the last one and so on).
+        It allows the index -1
+        """
+        negative_idx = idx - len(self.stack)
+        assert 0 > negative_idx >= -len(self.stack) - 1, f"Attempting to convert an invalid positive index {idx}, " \
+                                                         f"in a stack with {len(self.stack)} elements"
+        return negative_idx
+
     def is_accessible_swap(self, var_elem: var_id_T) -> bool:
         """
         Checks whether the variable element can be accessed for a swap instruction
@@ -715,10 +734,12 @@ class SMSgreedy:
 
         # Decide in which order computations must be done (after computing the subterms)
         input_vars = self._computation_order(instr, cstate)
-        self.debug_logger.debug_message(f"Fixed elements: {self.decide_fixed_elements(cstate, list(reversed(input_vars)))}")
+        initial_idx = self.decide_fixed_elements(cstate, list(reversed(input_vars)))
+        self.debug_logger.debug_message(f"Assuming elements are placed from index: {initial_idx}")
         first_element = True
 
-        for stack_var in input_vars:
+        for i, stack_var in enumerate(input_vars):
+            # The initial index is negative
             top_elem = cstate.top_stack()
             # If we can reuse the first element and this element must be not consumed elsewhere
             if first_element and top_elem is not None and top_elem == stack_var and \
@@ -769,13 +790,13 @@ class SMSgreedy:
 
     def decide_fixed_elements(self, cstate: SymbolicState, input_vars: List[var_id_T]):
         """
-        Decides from which position in the current stack we are computing the arguments of the corresponding element.
-        Assumes the input vars are given from top to bottom
+        Decides from which position in the current stack we are computing the arguments of the corresponding element,
+        expressed in a negative index (from the bottom). Assumes the input vars are given from top to bottom
         """
         # TODO: (possibly) combine with computation order and make it more efficient based on KMP
         # We start from
         best_possibility = 0
-        best_idx = -1
+        best_idx = cstate.positive_idx2negative(-1)
         idx = min(len(input_vars), len(cstate.stack)) - 1
 
         self.debug_logger.debug_message(f"FFF: {input_vars} {cstate.stack}")
@@ -792,7 +813,7 @@ class SMSgreedy:
                 stack_idx -= 1
 
             if count > best_possibility:
-                best_idx = idx
+                best_idx = cstate.positive_idx2negative(idx)
                 best_possibility = count
 
             idx -= 1
@@ -801,10 +822,9 @@ class SMSgreedy:
         # be swapped with the first element to consume
         if best_idx == -1:
             if cstate.stack_var_copies_needed[input_vars[-1]] == 0 and cstate.is_accessible_swap(input_vars[-1]):
-                return 0
+                return cstate.positive_idx2negative(0)
 
         return best_idx
-
 
     def compute_var(self, var_elem: var_id_T, cstate: SymbolicState) -> List[instr_id_T]:
         """
