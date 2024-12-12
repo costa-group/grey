@@ -703,9 +703,6 @@ class SMSgreedy:
 
         return [can_reuse_topmost, n_swappable, max_pos, deepest_to_place]
 
-    def _score_stack_var(self, instr: instr_JSON_T, cstate: SymbolicState) -> int:
-        pass
-
     def compute_instr(self, instr: instr_JSON_T, cstate: SymbolicState) -> List[instr_id_T]:
         """
         Given an instr, the current state and the terms that need to be duplicated, computes the corresponding term.
@@ -718,6 +715,7 @@ class SMSgreedy:
 
         # Decide in which order computations must be done (after computing the subterms)
         input_vars = self._computation_order(instr, cstate)
+        self.debug_logger.debug_message(f"Fixed elements: {self.decide_fixed_elements(cstate, list(reversed(input_vars)))}")
         first_element = True
 
         for stack_var in input_vars:
@@ -768,6 +766,45 @@ class SMSgreedy:
         else:
             input_vars = list(reversed(instr['inpt_sk']))
         return input_vars
+
+    def decide_fixed_elements(self, cstate: SymbolicState, input_vars: List[var_id_T]):
+        """
+        Decides from which position in the current stack we are computing the arguments of the corresponding element.
+        Assumes the input vars are given from top to bottom
+        """
+        # TODO: (possibly) combine with computation order and make it more efficient based on KMP
+        # We start from
+        best_possibility = 0
+        best_idx = -1
+        idx = min(len(input_vars), len(cstate.stack)) - 1
+
+        self.debug_logger.debug_message(f"FFF: {input_vars} {cstate.stack}")
+
+        while idx >= 0:
+            stack_idx, input_idx, count = idx, len(input_vars) - 1, 0
+            while stack_idx >= 0 and input_idx >= 0:
+                # We can reuse the element
+                # TODO: decide if we consider whether some of the positions are solved or not
+                if cstate.stack[stack_idx] == input_vars[input_idx] and \
+                        cstate.stack_var_copies_needed[input_vars[input_idx]] == 0:
+                    count += 1
+                input_idx -= 1
+                stack_idx -= 1
+
+            if count > best_possibility:
+                best_idx = idx
+                best_possibility = count
+
+            idx -= 1
+
+        # Last case: if there is no better alternative, we just consider whether to consider the first element to
+        # be swapped with the first element to consume
+        if best_idx == -1:
+            if cstate.stack_var_copies_needed[input_vars[-1]] == 0 and cstate.is_accessible_swap(input_vars[-1]):
+                return 0
+
+        return best_idx
+
 
     def compute_var(self, var_elem: var_id_T, cstate: SymbolicState) -> List[instr_id_T]:
         """
