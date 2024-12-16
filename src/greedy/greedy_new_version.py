@@ -99,6 +99,7 @@ class SymbolicState:
         self.cheap_terms_to_compute: Set[var_id_T] = {output_var for instr in user_instrs if cheap(instr)
                                                       for output_var in instr["outpt_sk"]}
 
+        # Variables that need to be duplicated and already in the stack
         self.variables_to_dup: Set[var_id_T] = {stack_var for stack_var in initial_stack
                                                 if stack_var_copies_needed[stack_var] > 0}
 
@@ -108,6 +109,9 @@ class SymbolicState:
         self.solved: Set[fstack_pos_T] = {len(final_stack) - i - 1
                                           for i, (ini_var, fin_var) in enumerate(zip(reversed(initial_stack), reversed(final_stack)))
                                           if ini_var == fin_var}
+
+        # Number of times each variable is computed in the stack
+        self.n_computed : Dict[var_id_T, int] = Counter(final_stack)
 
         # Debug mode: store all the ops applied and the stacks before and after
         if self.debug_mode:
@@ -163,6 +167,8 @@ class SymbolicState:
         self._check_idx_solved_cstack(0)
         self._check_idx_solved_cstack(x)
 
+        # N computed: no modification, as we are just moving two elements
+
         if self.debug_mode:
             self.trace.append((self.stack.copy(), f"SWAP{x}"))
 
@@ -192,6 +198,9 @@ class SymbolicState:
         if fstack_idx >= 0 and self.final_stack[fstack_idx] == new_topmost:
             self.solved.add(fstack_idx)
 
+        # N computed: add one to the element we have computed
+        self.n_computed[new_topmost] += 1
+
         if self.debug_mode:
             self.trace.append((self.stack.copy(), f"DUP{x}"))
 
@@ -209,6 +218,9 @@ class SymbolicState:
         # Solved: just check whether the old topmost position was in solved
         self._remove_solved(self.idx_wrt_fstack(-1))
 
+        # N computed: substract one to the element we have removed
+        self.n_computed[stack_var] += 1
+
         if self.debug_mode:
             self.trace.append((self.stack.copy(), "POP"))
 
@@ -224,6 +236,9 @@ class SymbolicState:
 
         # Solved: just check whether the old topmost position was in solved
         self._remove_solved(self.idx_wrt_fstack(-1))
+
+        # N computed: substract one to the element we have consumed
+        self.n_computed[stack_var] += 1
 
         return stack_var
 
@@ -253,6 +268,10 @@ class SymbolicState:
 
         if fstack_idx >= 0 and self.final_stack[fstack_idx] == output_var:
             self.solved.add(fstack_idx)
+
+        # N computed: add one to the element we have inserted
+        self.n_computed[output_var] += 1
+
 
     def uf(self, instr: instr_JSON_T) -> List[instr_id_T]:
         """
@@ -303,6 +322,9 @@ class SymbolicState:
 
         if self.debug_mode:
             self.trace.append((self.stack.copy(), f"MEM({var_elem})"))
+
+        # N computed: add one to the element we have added
+        self.n_computed[var_elem] += 1
 
         return [f"MEM({var_elem})"]
 
@@ -552,7 +574,7 @@ class SMSgreedy:
                     next_instr = self._id2instr[next_id]
                     ops = self.compute_instr(next_instr, cstate)
                 else:
-                    ops = self.compute_var(next_id, cstate)
+                    ops = self.compute_var(next_id, -1, cstate)
 
                 optg.extend(ops)
 
@@ -736,27 +758,27 @@ class SMSgreedy:
         input_vars = self._computation_order(instr, cstate)
         initial_idx = self.decide_fixed_elements(cstate, list(reversed(input_vars)))
         self.debug_logger.debug_message(f"Assuming elements are placed from index: {initial_idx}")
-        first_element = True
+
+        # The fixed element refer to the position from which the elements of the stack can be swapped through
+        self.fixed_elements = initial_idx
 
         for i, stack_var in enumerate(input_vars):
             # The initial index is negative
-            top_elem = cstate.top_stack()
-            # If we can reuse the first element and this element must be not consumed elsewhere
-            if first_element and top_elem is not None and top_elem == stack_var and \
-                    cstate.stack_var_copies_needed[top_elem] == 0:
-                self.fixed_elements += 1
+            # We have to consider the position in which we want to compute current element
+            position_to_place = cstate.negative_idx2positive(initial_idx - i)
+
+            # First case: the element is already placed in their position, and either it is not used elsewhere
+            # or we already have a copy
+            if 0 <= position_to_place < len(cstate.stack) and cstate.stack[position_to_place] == stack_var and \
+                    (cstate.n_computed[stack_var] > 1 or cstate.stack_var_copies_needed[stack_var] == 0):
+                pass
             else:
                 # Otherwise, we must return generate it with a recursive call
-                seq.extend(self.compute_var(stack_var, cstate))
-
-            first_element = False
+                seq.extend(self.compute_var(stack_var, position_to_place, cstate))
 
         # Finally, we compute the element
         seq.extend(cstate.uf(instr))
 
-        # Update the number of fixed elements afterwards
-        self.fixed_elements -= len(instr['inpt_sk'])
-        self.fixed_elements += len(instr['outpt_sk'])
         return seq
 
     def _computation_order(self, instr: instr_JSON_T, cstate: SymbolicState) -> List[var_id_T]:
@@ -826,10 +848,11 @@ class SMSgreedy:
 
         return best_idx
 
-    def compute_var(self, var_elem: var_id_T, cstate: SymbolicState) -> List[instr_id_T]:
+    def compute_var(self, var_elem: var_id_T, position_to_place: fstack_pos_T, cstate: SymbolicState) -> List[instr_id_T]:
         """
-        Given a stack_var and current state, computes the element and updates cstate accordingly. Returns the sequence of ids.
-        Compute var considers it the var elem is already stored in the stack
+        Given a stack_var, a position (possibly -1 for a new element) and current state, computes the element and places it in its
+        corresponding position, updating the cstate accordingly. Returns the sequence of ids. Compute var considers
+        it the var elem is already stored in the stack
         """
         self.debug_logger.debug_compute_var(var_elem, cstate)
         # First case: the element has not been computed previously. We have to compute it, as it
@@ -868,9 +891,6 @@ class SMSgreedy:
                 # Case III: we retrieve the element from memory
                 else:
                     seq = cstate.from_memory(var_elem)
-
-                # We have computed the corresponding element
-                self.fixed_elements += 1
 
         return seq
 
