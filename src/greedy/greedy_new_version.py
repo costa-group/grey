@@ -441,6 +441,13 @@ class SymbolicState:
         return [id_ for id_ in self.dep_graph.nodes if self.dep_graph.out_degree(id_) == 0], \
             self.cheap_terms_to_compute, self.variables_to_dup
 
+    def elements_to_dup(self) -> int:
+        """
+        Returns how many elements can be duplicated
+        """
+        return sum(self.stack_var_copies_needed[stack_var] for stack_var in self.variables_to_dup
+                   if self.is_accessible_dup(stack_var))
+
     def __repr__(self):
         return str(self.stack)
 
@@ -466,6 +473,9 @@ class SMSgreedy:
 
         self._stack_var_copies_needed = self._compute_var_total_uses()
         self._dep_graph = self._compute_dependency_graph()
+        self._condensed_graph = self._condense_graph(self._dep_graph)
+
+        nx.nx_agraph.write_dot(self._condensed_graph, "condensed.dot")
 
         # Determine which topmost elements can be reused in the graph
         self._top_can_be_used = {}
@@ -528,6 +538,60 @@ class SMSgreedy:
             graph.add_edge(id2, id1)
 
         return graph
+
+    def _condense_graph(self, dep_graph: nx.DiGraph) -> nx.DiGraph:
+        """
+        Given the complete dependency graph and the final stack, condenses all nodes so that only relevant memory
+        instructions and stack elements in the final stack are left.
+        """
+        condensed_graph = nx.DiGraph()
+        root_nodes = [node for node in dep_graph.nodes if dep_graph.in_degree(node) == 0]
+        visited = dict()
+        for root in root_nodes:
+            self._condense_tree(root, visited, condensed_graph, dep_graph, True)
+        return condensed_graph
+
+    def _condense_tree(self, node, visited: Dict[str, Set[str]], condensed_graph: nx.DiGraph,
+                       dep_graph: nx.DiGraph, is_root: bool = False) -> Set[str]:
+        """
+        Condenses the
+        """
+        successors = list(dep_graph.successors(node))
+        if not successors:
+            # Leaf node: just update the visited
+            node_relevant = set()
+            if self._is_condensed(node):
+                node_relevant.add(node)
+                condensed_graph.add_node(node)
+            visited[node] = node_relevant
+            return node_relevant
+
+        relevant_nodes = set()
+        for successor in successors:
+            relevant_successor = visited.get(successor, None)
+            if relevant_successor is not None:
+                relevant_nodes.update(relevant_successor)
+            else:
+                relevant_nodes.update(self._condense_tree(successor, visited, condensed_graph, dep_graph))
+
+        # Once we have all the relevant nodes from the successors, we distinguish whether the current node
+        # is relevant or not
+        if self._is_condensed(node) or is_root:
+            condensed_graph.add_node(node)
+            # We add a graph from each node of the relevant successors to the current one
+            for relevant_node in relevant_nodes:
+                condensed_graph.add_edge(node, relevant_node)
+
+            visited[node] = {node}
+            return {node}
+        else:
+            # Otherwise, we just assign the relevant nodes to the current node
+            visited[node] = relevant_nodes
+            return relevant_nodes
+
+    def _is_condensed(self, node):
+        return "STORE" in node or any(self._stack_var_copies_needed[out_stack] > 1
+                                      for out_stack in self._id2instr[node]["outpt_sk"])
 
     def _compute_top_can_used(self, instr: instr_JSON_T, top_can_be_used: Dict[var_id_T, Set[var_id_T]]) -> Set[
         var_id_T]:
@@ -802,7 +866,7 @@ class SMSgreedy:
 
             # First case: the element is already placed in their position, and either it is not used elsewhere
             # or we already have a copy
-            if 0 < position_to_place <= -len(cstate.stack) and cstate.stack[position_to_place] == stack_var and \
+            if cstate.is_in_negative_range(position_to_place) and cstate.stack[position_to_place] == stack_var and \
                     (cstate.n_computed[stack_var] > 1 or cstate.stack_var_copies_needed[stack_var] == 0):
                 pass
             else:
@@ -852,7 +916,8 @@ class SMSgreedy:
         # We start from
         best_possibility = 0
         best_idx = cstate.positive_idx2negative(-1)
-        idx = min(len(input_vars), len(cstate.stack)) - 1
+        elements_to_dup = cstate.elements_to_dup()
+        idx = min(len(input_vars) - 1, len(cstate.stack) - 1, elements_to_dup)
 
         while idx >= 0:
             stack_idx, input_idx, count = idx, len(input_vars) - 1, 0
@@ -913,28 +978,30 @@ class SMSgreedy:
                 # the position is accessible and it is not already part of the fixed size of the stack
                 position_reusing = cstate.var_elem_can_be_reused(var_elem, cstate.negative_idx2positive(self.fixed_elements))
                 self.debug_logger.debug_message(f"{cstate.n_computed} {cstate.stack_var_copies_needed} {cstate.stack}")
-                if position_reusing != -1:
+                self.debug_logger.debug_message(f"{cstate.is_in_negative_range(position_to_place)} {position_to_place}")
+                # Two subcases
+                # First, we can have enough elements to perform the swap
+                if position_reusing != -1 and cstate.is_in_negative_range(position_to_place):
 
-                    # Two subcases
-                    # First, we can have enough elements to perform the swap
-                    self.debug_logger.debug_message(f"{cstate.is_in_negative_range(position_to_place)} {position_to_place}")
-                    if cstate.is_in_negative_range(position_to_place):
-                        # We swap to the deepest accesible copy
-                        seq = cstate.swap(position_reusing)
-                        self.debug_logger.debug_message(f"SWAP{position_reusing} {cstate.stack}")
-                    else:
-                        assert position_to_place == -len(cstate.stack) - 1, f"Position to place {position_to_place} is " \
-                                                                            f"not coherent in stack {cstate}"
+                    # We swap to the deepest accesible copy
+                    seq = cstate.swap(position_reusing)
+                    self.debug_logger.debug_message(f"SWAP{position_reusing} {cstate.stack}")
 
-                        # TODO: decide how which computation to duplicate
-                        other_var_elem = self.intermediate_op_to_compute(cstate)
-                        self.debug_logger.debug_message(f"Other stack var element: {other_var_elem}")
-                        idx = cstate.first_occurrence(other_var_elem) + 1
-                        seq = cstate.dup(idx)
-                        self.debug_logger.debug_message(f"Computing other element to SWAP: DUP{idx} {cstate.stack}")
+                elif position_reusing != -1 and cstate.elements_to_dup() > 0:
+                    assert position_to_place == -len(cstate.stack) - 1, f"Position to place {position_to_place} is " \
+                                                                        f"not coherent in stack {cstate}"
 
-                        # Afterwards, we swap the element we have computed (considering we have added an extra element)
-                        seq.extend(cstate.swap(position_reusing + 1))
+                    # TODO: decide how which computation to duplicate
+                    other_var_elem = self.intermediate_op_to_compute(cstate)
+                    assert other_var_elem is not None, "No other element can be duplicated at this point"
+
+                    self.debug_logger.debug_message(f"Other stack var element: {other_var_elem}")
+                    idx = cstate.first_occurrence(other_var_elem) + 1
+                    seq = cstate.dup(idx)
+                    self.debug_logger.debug_message(f"Computing other element to SWAP: DUP{idx} {cstate.stack}")
+
+                    # Afterwards, we swap the element we have computed (considering we have added an extra element)
+                    seq.extend(cstate.swap(position_reusing + 1))
 
                 # Case II: we duplicate the element that is within reach
                 elif cstate.is_accessible_dup(var_elem):
