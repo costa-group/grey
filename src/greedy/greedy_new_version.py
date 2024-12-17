@@ -350,6 +350,18 @@ class SymbolicState:
                                                          f"in a stack with {len(self.stack)} elements"
         return negative_idx
 
+    def is_in_range(self, negative_idx: cstack_pos_T) -> bool:
+        """
+        Determines whether the idx is within the range of the stack
+        """
+        return 0 <= negative_idx < len(self.stack)
+
+    def is_in_negative_range(self, negative_idx: cstack_pos_T) -> bool:
+        """
+        Determines whether the idx is within the range of the stack, considering it is negative
+        """
+        return 0 > negative_idx >= - len(self.stack)
+
     def is_accessible_swap(self, var_elem: var_id_T) -> bool:
         """
         Checks whether the variable element can be accessed for a swap instruction
@@ -380,13 +392,14 @@ class SymbolicState:
                 return len(self.stack) - 1 - idx
         return -1
 
-    def last_swap_occurrence(self, var_elem: var_id_T) -> int:
+    def last_swap_occurrence(self, var_elem: var_id_T, min_pos: cstack_pos_T = 0) -> int:
         """
-        Returns the last accessible position in which the element appears and can be swapped
+        Returns the last accessible position in which the element appears and can be swapped, considering
+        positions lower or equal than min_pos cannot be accessed
         """
         current_idx = min(STACK_DEPTH, len(self.stack) - 1)
 
-        while current_idx > 0:
+        while current_idx > min_pos:
             stack_elem = self.stack[current_idx]
 
             # Find the last occurrence in which the element is not placed in its position
@@ -402,6 +415,17 @@ class SymbolicState:
         """
         # TODO: remove elements once they have 0 copies left and just check length
         return any(value > 0 for value in self.stack_var_copies_needed.values()) or len(self.dep_graph) > 0
+
+    def var_elem_can_be_reused(self, var_elem: var_id_T, min_pos: cstack_pos_T) -> int:
+        """
+        Checks if there is an accessible element that can be swapped and returns its position. Returns -1 if it
+        is not possible
+        """
+        # Two possible positions: the element is repeated more than one in the stack
+        # or no more copies are needed
+        if self.n_computed[var_elem] > 0 or self.stack_var_copies_needed[var_elem] == 0:
+            return self.last_swap_occurrence(var_elem, min_pos)
+        return -1
 
     def candidates(self) -> Tuple[List[instr_id_T], Set[var_id_T], Set[var_id_T]]:
         """
@@ -636,7 +660,7 @@ class SMSgreedy:
         """
         new_instr, cheap_stack_elems, dup_stack_elems = cstate.candidates()
         current_top = cstate.top_stack()
-        best_candidate_score = [-1]
+        best_candidate_score = -1,
         candidate = None
 
         # TODO: pass candidates as arguments
@@ -742,7 +766,7 @@ class SMSgreedy:
             if deepest_position is not None:
                 deepest_to_place = max(deepest_position, deepest_to_place)
 
-        return [can_reuse_topmost, n_swappable, max_pos, deepest_to_place]
+        return can_reuse_topmost, n_swappable, max_pos, deepest_to_place
 
     def compute_instr(self, instr: instr_JSON_T, cstate: SymbolicState) -> List[instr_id_T]:
         """
@@ -761,19 +785,21 @@ class SMSgreedy:
 
         # The fixed element refer to the position from which the elements of the stack can be swapped through
         self.fixed_elements = initial_idx
+        self.debug_logger.debug_message(f"Fixed elements {self.fixed_elements} {cstate}")
 
         for i, stack_var in enumerate(input_vars):
             # The initial index is negative
-            # We have to consider the position in which we want to compute current element
-            position_to_place = cstate.negative_idx2positive(initial_idx - i)
+            # We have to consider the negative position in which we want to compute current element
+            position_to_place = initial_idx - i
+            self.debug_logger.debug_message(f"Position to place {position_to_place}")
 
             # First case: the element is already placed in their position, and either it is not used elsewhere
             # or we already have a copy
-            if 0 <= position_to_place < len(cstate.stack) and cstate.stack[position_to_place] == stack_var and \
+            if 0 < position_to_place <= -len(cstate.stack) and cstate.stack[position_to_place] == stack_var and \
                     (cstate.n_computed[stack_var] > 1 or cstate.stack_var_copies_needed[stack_var] == 0):
                 pass
             else:
-                # Otherwise, we must return generate it with a recursive call
+                # Otherwise, we must return generate the element it with a recursive call
                 seq.extend(self.compute_var(stack_var, position_to_place, cstate))
 
         # Finally, we compute the element
@@ -821,8 +847,6 @@ class SMSgreedy:
         best_idx = cstate.positive_idx2negative(-1)
         idx = min(len(input_vars), len(cstate.stack)) - 1
 
-        self.debug_logger.debug_message(f"FFF: {input_vars} {cstate.stack}")
-
         while idx >= 0:
             stack_idx, input_idx, count = idx, len(input_vars) - 1, 0
             while stack_idx >= 0 and input_idx >= 0:
@@ -842,29 +866,33 @@ class SMSgreedy:
 
         # Last case: if there is no better alternative, we just consider whether to consider the first element to
         # be swapped with the first element to consume
-        if best_idx == -1:
+        if best_idx == cstate.positive_idx2negative(-1):
             if cstate.stack_var_copies_needed[input_vars[-1]] == 0 and cstate.is_accessible_swap(input_vars[-1]):
+                self.debug_logger.debug_message("Enters!")
+
                 return cstate.positive_idx2negative(0)
 
         return best_idx
 
-    def compute_var(self, var_elem: var_id_T, position_to_place: fstack_pos_T, cstate: SymbolicState) -> List[instr_id_T]:
+    def compute_var(self, var_elem: var_id_T, position_to_place: cstack_pos_T, cstate: SymbolicState) -> List[instr_id_T]:
         """
-        Given a stack_var, a position (possibly -1 for a new element) and current state, computes the element and places it in its
+        Given a stack_var, a negative position and current state, computes the element and places it in its
         corresponding position, updating the cstate accordingly. Returns the sequence of ids. Compute var considers
         it the var elem is already stored in the stack
         """
         self.debug_logger.debug_compute_var(var_elem, cstate)
+        # First, we compute the element we need if needed
+
         # First case: the element has not been computed previously. We have to compute it, as it
         # corresponds to a stack variable
         instr = self._var2instr.get(var_elem, None)
         if instr is not None and instr["id"] in cstate.dep_graph and cstate.stack_var_copies_needed[var_elem] == 0:
+            # First we compute the instruction
             seq = self.compute_instr(instr, cstate)
 
         # Second case: the variable has already been computed (i.e. var_uses > 0).
         # In this case, we duplicate it or retrieve it from memory
         else:
-
             # If the instruction is cheap, we compute it again
             instr = self._var2instr.get(var_elem, None)
             if instr is not None and cheap(instr):
@@ -873,14 +901,32 @@ class SMSgreedy:
                 assert var_elem in cstate.stack, f"Variable {var_elem} must appear in the stack, " \
                                                  f"as it was previously computed and it is not a cheap computation"
                 # TODO: case for recomputing the element?
-                # Case I: We swap the element the number of copies required is met, the position is accessible
-                # and there is no fixed stack elements
-                if cstate.is_accessible_swap(var_elem) and cstate.stack_var_copies_needed[var_elem] == 0 \
-                        and self.fixed_elements == 0:
-                    # We swap to the deepest accesible copy
-                    idx = cstate.last_swap_occurrence(var_elem)
-                    seq = cstate.swap(idx)
-                    self.debug_logger.debug_message(f"SWAP{idx} {cstate.stack}")
+
+                # Case I: We swap the element the number of copies required is met or we have enough copies,
+                # the position is accessible and it is not already part of the fixed size of the stack
+                position_reusing = cstate.var_elem_can_be_reused(var_elem, cstate.negative_idx2positive(self.fixed_elements))
+                if position_reusing != -1:
+
+                    # Two subcases
+                    # First, we can have enough elements to perform the swap
+                    self.debug_logger.debug_message(f"{cstate.is_in_negative_range(position_to_place)} {position_to_place}")
+                    if cstate.is_in_negative_range(position_to_place):
+                        # We swap to the deepest accesible copy
+                        seq = cstate.swap(position_reusing)
+                        self.debug_logger.debug_message(f"SWAP{position_reusing} {cstate.stack}")
+                    else:
+                        assert position_to_place == -len(cstate.stack) - 1, f"Position to place {position_to_place} is " \
+                                                                            f"not coherent in stack {cstate}"
+
+                        # TODO: decide how which computation to duplicate
+                        other_var_elem = self.intermediate_op_to_compute(cstate)
+                        self.debug_logger.debug_message(f"Other stack var element: {other_var_elem}")
+                        idx = cstate.first_occurrence(other_var_elem) + 1
+                        seq = cstate.dup(idx)
+                        self.debug_logger.debug_message(f"Computing other element to SWAP: DUP{idx} {cstate.stack}")
+
+                        # Afterwards, we swap the element we have computed (considering we have added an extra element)
+                        seq.extend(cstate.swap(position_reusing + 1))
 
                 # Case II: we duplicate the element that is within reach
                 elif cstate.is_accessible_dup(var_elem):
@@ -892,7 +938,29 @@ class SMSgreedy:
                 else:
                     seq = cstate.from_memory(var_elem)
 
+        # Finally, we place the topmost element that has been computed in the position to place
+        # TODO: case for multiple elements computed
+        self.debug_logger.debug_message(f"Pos {position_to_place}")
+        if cstate.is_in_negative_range(position_to_place) and cstate.stack[position_to_place] != var_elem:
+            assert cstate.top_stack() == var_elem, f"Var elem {var_elem} must be placed on top of the stack"
+            seq.extend(cstate.swap(position_to_place))
+
         return seq
+
+    def intermediate_op_to_compute(self, cstate: SymbolicState) -> Optional[var_id_T]:
+        """
+        Computes an intermediate computation that only increases by one the length
+        """
+        _, cheap_instrs, dup_stack_vars = cstate.candidates()
+
+        # First we try elements that must be duplicated
+        for stack_var in dup_stack_vars:
+            self.debug_logger.debug_message(f"Considered var element: {stack_var}")
+
+            if cstate.is_accessible_dup(stack_var):
+                return stack_var
+
+        return None
 
     def solve_permutation(self, cstate: SymbolicState) -> List[instr_id_T]:
         """
