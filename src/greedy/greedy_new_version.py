@@ -304,7 +304,7 @@ class SymbolicState:
         for output_var in instr['outpt_sk']:
             self.insert_element(instr, output_var)
 
-        if not cheap(instr):
+        if instr["id"] in self.dep_graph.nodes:
             self.dep_graph.remove_node(instr["id"])
 
         if self.debug_mode:
@@ -630,7 +630,7 @@ class SMSgreedy:
         """
         Main implementation of the greedy algorithm (i.e. the instruction scheduling algorithm)
         """
-        cstate: SymbolicState = SymbolicState(self._initial_stack, self._dep_graph, self._stack_var_copies_needed,
+        cstate: SymbolicState = SymbolicState(self._initial_stack, self._condensed_graph, self._stack_var_copies_needed,
                                               self._user_instr, self._final_stack)
         optg = []
 
@@ -962,15 +962,14 @@ class SMSgreedy:
         # First case: the element has not been computed previously. We have to compute it, as it
         # corresponds to a stack variable
         instr = self._var2instr.get(var_elem, None)
-        if instr is not None and instr["id"] in cstate.dep_graph and cstate.stack_var_copies_needed[var_elem] == 0:
+
+        if instr is not None and cstate.n_computed[var_elem] == 0 and cstate.stack_var_copies_needed[var_elem] > 0:
             # First we compute the instruction
             seq = self.compute_instr(instr, -len(cstate.stack) - 1, cstate)
 
         # Second case: the variable has already been computed (i.e. var_uses > 0).
         # In this case, we duplicate it or retrieve it from memory
         else:
-            # If the instruction is cheap, we compute it again
-            instr = self._var2instr.get(var_elem, None)
             if instr is not None and cheap(instr):
                 seq = self.compute_instr(instr, -len(cstate.stack) - 1, cstate)
             else:
