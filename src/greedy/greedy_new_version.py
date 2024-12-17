@@ -259,9 +259,8 @@ class SymbolicState:
 
         # First case: cheap instructions just require to remove the element from the cheap instructions
         # if we have computed the necessary number of copies
-        if cheap(instr):
-            if self.stack_var_copies_needed[output_var] == 0:
-                self.cheap_terms_to_compute.remove(output_var)
+        if cheap(instr) and self.stack_var_copies_needed[output_var] == 0:
+            self.cheap_terms_to_compute.remove(output_var)
         else:
             # Second case: we add the produced terms that need to be
             # duplicated to the corresponding list
@@ -476,6 +475,7 @@ class SMSgreedy:
         self._dep_graph = self._compute_dependency_graph()
         self._condensed_graph = self._condense_graph(self._dep_graph)
 
+        nx.nx_agraph.write_dot(self._dep_graph, "dependency.dot")
         nx.nx_agraph.write_dot(self._condensed_graph, "condensed.dot")
 
         # Determine which topmost elements can be reused in the graph
@@ -591,7 +591,10 @@ class SMSgreedy:
             return relevant_nodes
 
     def _is_condensed(self, node):
-        return "STORE" in node or any(self._stack_var_copies_needed[out_stack] > 1
+        """
+        Whether to consider the instruction associated to the node
+        """
+        return "STORE" in node or any(self._stack_var_copies_needed[out_stack] > 1 or out_stack in self._final_stack
                                       for out_stack in self._id2instr[node]["outpt_sk"])
 
     def _compute_top_can_used(self, instr: instr_JSON_T, top_can_be_used: Dict[var_id_T, Set[var_id_T]]) -> Set[
@@ -943,7 +946,7 @@ class SMSgreedy:
         # Last case: if there is no better alternative, we just consider whether to consider the first element to
         # be swapped with the first element to consume
         if best_idx == cstate.positive_idx2negative(-1):
-            if cstate.stack_var_copies_needed[input_vars[-1]] == 0 and cstate.is_accessible_swap(input_vars[-1]):
+            if len(input_vars) > 0 and cstate.stack_var_copies_needed[input_vars[-1]] == 0 and cstate.is_accessible_swap(input_vars[-1]):
                 self.debug_logger.debug_message("Enters!")
 
                 return cstate.positive_idx2negative(0)
