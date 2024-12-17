@@ -292,7 +292,8 @@ class SymbolicState:
             if instr['commutative']:
                 # Compare them as multisets
                 assert Counter(consumed_elements) == Counter(instr['inpt_sk']), \
-                    f"{instr['id']} is not consuming the correct elements from the stack"
+                    f"{instr['id']} is not consuming the correct elements from the stack" \
+                    f"Consumed elements: {consumed_elements}\nRequired elements: {instr['inpt_sk']}"
             else:
                 # Compare them as lists
                 assert consumed_elements == instr['inpt_sk'], \
@@ -666,8 +667,15 @@ class SMSgreedy:
 
                 if how_to_compute == "instr":
                     next_instr = self._id2instr[next_id]
-                    self.debug_logger.debug_message(f"{next_instr}")
-                    ops = self.compute_instr(next_instr, cstate)
+
+                    # First we decide from which point in the stack we are computing the element
+                    initial_idx = self.decide_fixed_elements(cstate, next_instr)
+                    self.debug_logger.debug_message(f"Unmovable stack element: {initial_idx}")
+
+                    # The fixed element refer to the position from which the elements of the stack can be swapped through
+                    self.fixed_elements = initial_idx
+
+                    ops = self.compute_instr(next_instr, initial_idx, cstate)
                 else:
                     ops = self.compute_var(next_id, -1, cstate)
 
@@ -839,10 +847,11 @@ class SMSgreedy:
 
         return can_reuse_topmost, n_swappable, max_pos, deepest_to_place
 
-    def compute_instr(self, instr: instr_JSON_T, cstate: SymbolicState) -> List[instr_id_T]:
+    def compute_instr(self, instr: instr_JSON_T, position_to_start_computing: cstack_pos_T,
+                      cstate: SymbolicState) -> List[instr_id_T]:
         """
-        Given an instr, the current state and the terms that need to be duplicated, computes the corresponding term.
-        This function is separated from compute_op because there
+        Given an instr, the (negative) position in which it is being started computed and the current state,
+        computes the corresponding term. This function is separated from compute_var because there
         are terms, such as var accesses or memory accesses that produce no var element as a result.
         """
         self.debug_logger.debug_compute_instr(instr, cstate)
@@ -851,17 +860,12 @@ class SMSgreedy:
 
         # Decide in which order computations must be done (after computing the subterms)
         input_vars = self._computation_order(instr, cstate)
-        initial_idx = self.decide_fixed_elements(cstate, list(reversed(input_vars)))
-        self.debug_logger.debug_message(f"Assuming elements are placed from index: {initial_idx}")
-
-        # The fixed element refer to the position from which the elements of the stack can be swapped through
-        self.fixed_elements = initial_idx
         self.debug_logger.debug_message(f"Fixed elements {self.fixed_elements} {cstate}")
 
         for i, stack_var in enumerate(input_vars):
             # The initial index is negative
             # We have to consider the negative position in which we want to compute current element
-            position_to_place = initial_idx - i
+            position_to_place = position_to_start_computing - i
             self.debug_logger.debug_message(f"Position to place {position_to_place}")
 
             # First case: the element is already placed in their position, and either it is not used elsewhere
@@ -907,13 +911,13 @@ class SMSgreedy:
             input_vars = list(reversed(instr['inpt_sk']))
         return input_vars
 
-    def decide_fixed_elements(self, cstate: SymbolicState, input_vars: List[var_id_T]):
+    def decide_fixed_elements(self, cstate: SymbolicState, instr: instr_JSON_T) -> cstack_pos_T:
         """
         Decides from which position in the current stack we are computing the arguments of the corresponding element,
         expressed in a negative index (from the bottom). Assumes the input vars are given from top to bottom
         """
         # TODO: (possibly) combine with computation order and make it more efficient based on KMP
-        # We start from
+        input_vars = instr["inpt_sk"]
         best_possibility = 0
         best_idx = cstate.positive_idx2negative(-1)
         elements_to_dup = cstate.elements_to_dup()
@@ -960,7 +964,7 @@ class SMSgreedy:
         instr = self._var2instr.get(var_elem, None)
         if instr is not None and instr["id"] in cstate.dep_graph and cstate.stack_var_copies_needed[var_elem] == 0:
             # First we compute the instruction
-            seq = self.compute_instr(instr, cstate)
+            seq = self.compute_instr(instr, -len(cstate.stack) - 1, cstate)
 
         # Second case: the variable has already been computed (i.e. var_uses > 0).
         # In this case, we duplicate it or retrieve it from memory
@@ -968,7 +972,7 @@ class SMSgreedy:
             # If the instruction is cheap, we compute it again
             instr = self._var2instr.get(var_elem, None)
             if instr is not None and cheap(instr):
-                seq = self.compute_instr(instr, cstate)
+                seq = self.compute_instr(instr, -len(cstate.stack) - 1, cstate)
             else:
                 assert var_elem in cstate.stack, f"Variable {var_elem} must appear in the stack, " \
                                                  f"as it was previously computed and it is not a cheap computation"
