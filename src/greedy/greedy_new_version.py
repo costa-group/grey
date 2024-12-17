@@ -77,6 +77,12 @@ def cheap(instr: instr_JSON_T) -> bool:
     return len(instr['inpt_sk']) == 0 and instr["size"] <= 2
 
 
+def decrement_and_clean(counter: Counter, key):
+    counter[key] -= 1  # Decrement the count
+    if counter[key] == 0:  # Remove the key if the count reaches zero
+        del counter[key]
+
+
 class SymbolicState:
     """
     A symbolic state includes a stack, a dict indicating the number of total uses of each instruction,
@@ -111,7 +117,7 @@ class SymbolicState:
                                           if ini_var == fin_var}
 
         # Number of times each variable is computed in the stack
-        self.n_computed : Dict[var_id_T, int] = Counter(final_stack)
+        self.n_computed: Counter = Counter(initial_stack)
 
         # Debug mode: store all the ops applied and the stacks before and after
         if self.debug_mode:
@@ -219,7 +225,7 @@ class SymbolicState:
         self._remove_solved(self.idx_wrt_fstack(-1))
 
         # N computed: substract one to the element we have removed
-        self.n_computed[stack_var] += 1
+        decrement_and_clean(self.n_computed, stack_var)
 
         if self.debug_mode:
             self.trace.append((self.stack.copy(), "POP"))
@@ -238,7 +244,7 @@ class SymbolicState:
         self._remove_solved(self.idx_wrt_fstack(-1))
 
         # N computed: substract one to the element we have consumed
-        self.n_computed[stack_var] += 1
+        decrement_and_clean(self.n_computed, stack_var)
 
         return stack_var
 
@@ -423,7 +429,7 @@ class SymbolicState:
         """
         # Two possible positions: the element is repeated more than one in the stack
         # or no more copies are needed
-        if self.n_computed[var_elem] > 0 or self.stack_var_copies_needed[var_elem] == 0:
+        if self.n_computed[var_elem] > 1 or self.stack_var_copies_needed[var_elem] == 0:
             return self.last_swap_occurrence(var_elem, min_pos)
         return -1
 
@@ -596,6 +602,7 @@ class SMSgreedy:
 
                 if how_to_compute == "instr":
                     next_instr = self._id2instr[next_id]
+                    self.debug_logger.debug_message(f"{next_instr}")
                     ops = self.compute_instr(next_instr, cstate)
                 else:
                     ops = self.compute_var(next_id, -1, cstate)
@@ -905,6 +912,7 @@ class SMSgreedy:
                 # Case I: We swap the element the number of copies required is met or we have enough copies,
                 # the position is accessible and it is not already part of the fixed size of the stack
                 position_reusing = cstate.var_elem_can_be_reused(var_elem, cstate.negative_idx2positive(self.fixed_elements))
+                self.debug_logger.debug_message(f"{cstate.n_computed} {cstate.stack_var_copies_needed} {cstate.stack}")
                 if position_reusing != -1:
 
                     # Two subcases
@@ -943,7 +951,9 @@ class SMSgreedy:
         self.debug_logger.debug_message(f"Pos {position_to_place}")
         if cstate.is_in_negative_range(position_to_place) and cstate.stack[position_to_place] != var_elem:
             assert cstate.top_stack() == var_elem, f"Var elem {var_elem} must be placed on top of the stack"
-            seq.extend(cstate.swap(position_to_place))
+            positive_idx_to_place = cstate.negative_idx2positive(position_to_place)
+            seq.extend(cstate.swap(positive_idx_to_place))
+            self.debug_logger.debug_message(f"SWAP{positive_idx_to_place} {cstate.stack}")
 
         return seq
 
