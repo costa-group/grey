@@ -456,6 +456,8 @@ class SMSgreedy:
 
     def __init__(self, json_format: SMS_T):
         self.debug_mode: bool = True
+
+        self.name = json_format["name"]
         # How many elements are placed in the correct position and cannot be moved further in a computation
         self.fixed_elements: int = 0
         self._user_instr: List[instr_JSON_T] = json_format['user_instrs']
@@ -646,6 +648,7 @@ class SMSgreedy:
             self.fixed_elements = 0
 
             self.debug_logger.debug_loop(cstate.dep_graph, optg, cstate)
+            self.debug_logger.debug_message(self.name)
 
             # Case 1: Top of the stack must be removed, as it appears more time it is being used
             if var_top is not None and cstate.stack_var_copies_needed[var_top] < 0:
@@ -1160,12 +1163,12 @@ def greedy_standalone(sms: Dict) -> Tuple[str, float, List[str]]:
     return optimization_outcome, usage_stop.ru_utime + usage_stop.ru_stime - usage_start.ru_utime - usage_start.ru_stime, seq_ids
 
 
-def greedy_from_file(filename: str) -> Tuple[SMS_T, List[instr_id_T]]:
+def greedy_from_file(filename: str) -> Tuple[SMS_T, List[instr_id_T], str]:
     logging.basicConfig(level=logging.DEBUG)
     with open(filename, "r") as f:
         sfs = json.load(f)
     outcome, time, ids = greedy_standalone(sfs)
-    return sfs, ids
+    return sfs, ids, outcome
 
 
 if __name__ == "__main__":
