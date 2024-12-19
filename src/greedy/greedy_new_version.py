@@ -645,7 +645,6 @@ class SMSgreedy:
         # operation and there are no operations left
         while True:
             var_top = cstate.top_stack()
-            self.fixed_elements = 0
 
             self.debug_logger.debug_loop(cstate.dep_graph, optg, cstate)
             self.debug_logger.debug_message(self.name)
@@ -683,7 +682,7 @@ class SMSgreedy:
 
                     ops = self.compute_instr(next_instr, initial_idx, cstate)
                 else:
-                    ops = self.compute_var(next_id, -1, cstate)
+                    ops = self.compute_var(next_id, cstate.positive_idx2negative(-1), cstate)
 
                 optg.extend(ops)
 
@@ -854,25 +853,25 @@ class SMSgreedy:
         return can_reuse_topmost, n_swappable, max_pos, deepest_to_place
 
     def compute_instr(self, instr: instr_JSON_T, position_to_start_computing: cstack_pos_T,
-                      cstate: SymbolicState) -> List[instr_id_T]:
+                      cstate: SymbolicState, depth: int = 0) -> List[instr_id_T]:
         """
         Given an instr, the (negative) position in which it is being started computed and the current state,
         computes the corresponding term. This function is separated from compute_var because there
         are terms, such as var accesses or memory accesses that produce no var element as a result.
         """
-        self.debug_logger.debug_compute_instr(instr, cstate)
+        self.debug_logger.debug_compute_instr(instr, position_to_start_computing, cstate, depth)
 
         seq = []
 
         # Decide in which order computations must be done (after computing the subterms)
         input_vars = self._computation_order(instr, cstate)
-        self.debug_logger.debug_message(f"Fixed elements {self.fixed_elements} {cstate}")
+        self.debug_logger.debug_message(f"Fixed elements {self.fixed_elements} {cstate}", depth)
 
         for i, stack_var in enumerate(input_vars):
             # The initial index is negative
             # We have to consider the negative position in which we want to compute current element
             position_to_place = position_to_start_computing - i
-            self.debug_logger.debug_message(f"Position to place {position_to_place}")
+            self.debug_logger.debug_message(f"Position to place {position_to_place}", depth)
 
             # First case: the element is already placed in their position, and either it is not used elsewhere
             # or we already have a copy
@@ -881,7 +880,7 @@ class SMSgreedy:
                 pass
             else:
                 # Otherwise, we must return generate the element it with a recursive call
-                seq.extend(self.compute_var(stack_var, position_to_place, cstate))
+                seq.extend(self.compute_var(stack_var, position_to_place, cstate, depth + 1))
 
         # Finally, we compute the element
         seq.extend(cstate.uf(instr))
@@ -926,8 +925,7 @@ class SMSgreedy:
         input_vars = instr["inpt_sk"]
         best_possibility = 0
         best_idx = cstate.positive_idx2negative(-1)
-        elements_to_dup = cstate.elements_to_dup()
-        idx = min(len(input_vars) - 1, len(cstate.stack) - 1, elements_to_dup)
+        idx = min(len(input_vars) - 1, len(cstate.stack) - 1)
 
         while idx >= 0:
             stack_idx, input_idx, count = idx, len(input_vars) - 1, 0
@@ -949,6 +947,11 @@ class SMSgreedy:
         # Last case: if there is no better alternative, we just consider whether to consider the first element to
         # be swapped with the first element to consume
         if best_idx == cstate.positive_idx2negative(-1):
+            elements_to_dup = cstate.elements_to_dup()
+
+            if len(input_vars) > elements_to_dup:
+                return cstate.positive_idx2negative(len(input_vars) - elements_to_dup)
+
             if len(input_vars) > 0 and cstate.stack_var_copies_needed[input_vars[-1]] == 0 and cstate.is_accessible_swap(input_vars[-1]):
                 self.debug_logger.debug_message("Enters!")
 
@@ -956,13 +959,14 @@ class SMSgreedy:
 
         return best_idx
 
-    def compute_var(self, var_elem: var_id_T, position_to_place: cstack_pos_T, cstate: SymbolicState) -> List[instr_id_T]:
+    def compute_var(self, var_elem: var_id_T, position_to_place: cstack_pos_T, cstate: SymbolicState,
+                    depth: int = 0) -> List[instr_id_T]:
         """
         Given a stack_var, a negative position and current state, computes the element and places it in its
         corresponding position, updating the cstate accordingly. Returns the sequence of ids. Compute var considers
         it the var elem is already stored in the stack
         """
-        self.debug_logger.debug_compute_var(var_elem, cstate)
+        self.debug_logger.debug_compute_var(var_elem, position_to_place, cstate, depth)
         # First, we compute the element we need if needed
 
         # First case: the element has not been computed previously. We have to compute it, as it
@@ -971,13 +975,13 @@ class SMSgreedy:
 
         if instr is not None and cstate.n_computed[var_elem] == 0 and cstate.stack_var_copies_needed[var_elem] > 0:
             # First we compute the instruction
-            seq = self.compute_instr(instr, -len(cstate.stack) - 1, cstate)
+            seq = self.compute_instr(instr, position_to_place, cstate, depth + 1)
 
         # Second case: the variable has already been computed (i.e. var_uses > 0).
         # In this case, we duplicate it or retrieve it from memory
         else:
             if instr is not None and cheap(instr):
-                seq = self.compute_instr(instr, -len(cstate.stack) - 1, cstate)
+                seq = self.compute_instr(instr, position_to_place, cstate, depth + 1)
             else:
                 assert var_elem in cstate.stack, f"Variable {var_elem} must appear in the stack, " \
                                                  f"as it was previously computed and it is not a cheap computation"
@@ -986,8 +990,8 @@ class SMSgreedy:
                 # Case I: We swap the element the number of copies required is met or we have enough copies,
                 # the position is accessible and it is not already part of the fixed size of the stack
                 position_reusing = cstate.var_elem_can_be_reused(var_elem, cstate.negative_idx2positive(self.fixed_elements))
-                self.debug_logger.debug_message(f"{cstate.n_computed} {cstate.stack_var_copies_needed} {cstate.stack}")
-                self.debug_logger.debug_message(f"{cstate.is_in_negative_range(position_to_place)} {position_to_place}")
+                self.debug_logger.debug_message(f"{cstate.n_computed} {cstate.stack_var_copies_needed} {cstate.stack}", depth)
+                self.debug_logger.debug_message(f"{cstate.is_in_negative_range(position_to_place)} {position_to_place}", depth)
                 # Two subcases
                 # First, we can have enough elements to perform the swap
                 if position_reusing != -1 and cstate.is_in_negative_range(position_to_place):
@@ -1004,10 +1008,10 @@ class SMSgreedy:
                     other_var_elem = self.intermediate_op_to_compute(cstate)
                     assert other_var_elem is not None, "No other element can be duplicated at this point"
 
-                    self.debug_logger.debug_message(f"Other stack var element: {other_var_elem}")
+                    self.debug_logger.debug_message(f"Other stack var element: {other_var_elem}", depth)
                     idx = cstate.first_occurrence(other_var_elem) + 1
                     seq = cstate.dup(idx)
-                    self.debug_logger.debug_message(f"Computing other element to SWAP: DUP{idx} {cstate.stack}")
+                    self.debug_logger.debug_message(f"Computing other element to SWAP: DUP{idx} {cstate.stack}", depth)
 
                     # Afterwards, we swap the element we have computed (considering we have added an extra element)
                     seq.extend(cstate.swap(position_reusing + 1))
@@ -1016,7 +1020,7 @@ class SMSgreedy:
                 elif cstate.is_accessible_dup(var_elem):
                     idx = cstate.first_occurrence(var_elem) + 1
                     seq = cstate.dup(idx)
-                    self.debug_logger.debug_message(f"DUP{idx} {cstate.stack}")
+                    self.debug_logger.debug_message(f"DUP{idx} {cstate.stack}", depth)
 
                 # Case III: we retrieve the element from memory
                 else:
@@ -1029,7 +1033,7 @@ class SMSgreedy:
             assert cstate.top_stack() == var_elem, f"Var elem {var_elem} must be placed on top of the stack"
             positive_idx_to_place = cstate.negative_idx2positive(position_to_place)
             seq.extend(cstate.swap(positive_idx_to_place))
-            self.debug_logger.debug_message(f"SWAP{positive_idx_to_place} {cstate.stack}")
+            self.debug_logger.debug_message(f"SWAP{positive_idx_to_place} {cstate.stack}", depth)
 
         return seq
 
@@ -1120,17 +1124,21 @@ class DebugLogger:
         self._logger.debug(cstate)
         self._logger.debug("")
 
-    def debug_compute_instr(self, instr: instr_JSON_T, cstate: SymbolicState):
-        self._logger.debug("---- Computing instr ----")
-        self._logger.debug(instr)
-        self._logger.debug(f"Stack: {cstate.stack}")
-        self._logger.debug("")
+    def debug_compute_instr(self, instr: instr_JSON_T, position: cstack_pos_T, cstate: SymbolicState, depth: int = 0):
+        INDENT = " " * 4 * depth
+        self._logger.debug(f"{INDENT}---- Computing instr ----")
+        self._logger.debug(f"{INDENT}{instr}")
+        self._logger.debug(f"{INDENT}Position: {position}")
+        self._logger.debug(f"{INDENT}Stack: {cstate.stack}")
+        self._logger.debug(INDENT)
 
-    def debug_compute_var(self, var: var_id_T, cstate: SymbolicState):
-        self._logger.debug("---- Computing variable ----")
-        self._logger.debug(var)
-        self._logger.debug(f"Stack: {cstate.stack}")
-        self._logger.debug("")
+    def debug_compute_var(self, var: var_id_T, position: cstack_pos_T, cstate: SymbolicState, depth: int = 0):
+        INDENT = " " * 4 * depth
+        self._logger.debug(f"{INDENT}---- Computing variable ----")
+        self._logger.debug(INDENT + var)
+        self._logger.debug(f"{INDENT}Position: {position}")
+        self._logger.debug(f"{INDENT}Stack: {cstate.stack}")
+        self._logger.debug(INDENT)
 
     def debug_after_permutation(self, cstate: SymbolicState, optg: List[instr_id_T]):
         self._logger.debug("---- State after solving permutation ----")
@@ -1138,8 +1146,9 @@ class DebugLogger:
         self._logger.debug(optg)
         self._logger.debug("")
 
-    def debug_message(self, message: str):
-        self._logger.debug(message)
+    def debug_message(self, message: str, depth: int = 0):
+        INDENT = " " * 4 * depth
+        self._logger.debug(f"{INDENT}{message}")
 
 
 def greedy_standalone(sms: Dict) -> Tuple[str, float, List[str]]:
