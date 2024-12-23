@@ -116,7 +116,13 @@ class SymbolicState:
                                      for i, (ini_var, fin_var) in enumerate(zip(reversed(initial_stack), 
                                                                                 reversed(final_stack)))
                                           if ini_var == fin_var}
+
+        # We store instead the elements not solved, as these are the ones we need to study
         self.not_solved = set(range(len(self.final_stack))).difference(solved)
+
+        # Maximum element that is sorted (i.e. elements from that point on must not be modified
+        # in the current stack)
+        self.max_solved = max(self.not_solved) + 1
 
         # Number of times each variable is computed in the stack
         self.n_computed: Counter = Counter(initial_stack)
@@ -136,10 +142,18 @@ class SymbolicState:
 
     def _add_solved(self, idx: fstack_pos_T):
         """
-        Annotates that the idx is solved
+        Annotates that the idx is solved, updating the maximum value if necessary
         """
         try:
             self.not_solved.remove(idx)
+
+            # TODO: use here an ordered set that preserves order when inserting and removing elements
+            if idx + 1 == self.max_solved:
+                if len(self.not_solved) == 0:
+                    self.max_solved = 0
+                else:
+                    self.max_solved = max(self.not_solved) + 1
+
         except KeyError:
             pass
 
@@ -1102,6 +1116,7 @@ class DebugLogger:
         self._logger.debug(f"Ops not computed {list(dep_graph.nodes)}")
         self._logger.debug(f"Ops computed: {optg}")
         self._logger.debug(cstate)
+        self._logger.debug(cstate.max_solved)
         self._logger.debug("")
 
     def debug_pop(self, var_top: var_id_T, cstate: SymbolicState):
