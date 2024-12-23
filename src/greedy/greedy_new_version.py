@@ -995,58 +995,54 @@ class SMSgreedy:
         # corresponds to a stack variable
         instr = self._var2instr.get(var_elem, None)
 
-        if instr is not None and cstate.n_computed[var_elem] == 0 and cstate.stack_var_copies_needed[var_elem] > 0:
+        if instr is not None and (cstate.n_computed[var_elem] == 0 or cheap(instr)) and cstate.stack_var_copies_needed[var_elem] > 0:
             # First we compute the instruction
             seq = self.compute_instr(instr, position_to_place, cstate, depth + 1)
 
         # Second case: the variable has already been computed (i.e. var_uses > 0).
         # In this case, we duplicate it or retrieve it from memory
         else:
-            if instr is not None and cheap(instr):
-                seq = self.compute_instr(instr, position_to_place, cstate, depth + 1)
+            assert var_elem in cstate.stack, f"Variable {var_elem} must appear in the stack, " \
+                                             f"as it was previously computed and it is not a cheap computation"
+            # TODO: case for recomputing the element?
+
+            # Case I: We swap the element the number of copies required is met or we have enough copies,
+            # the position is accessible and it is not already part of the fixed size of the stack
+            position_reusing = cstate.var_elem_can_be_reused(var_elem, cstate.negative_idx2positive(self.fixed_elements))
+
+            # Subcase I.1: we can have enough elements to perform the swap
+            if position_reusing != -1 and cstate.is_in_negative_range(position_to_place):
+
+                # We swap to the deepest accesible copy
+                seq = cstate.swap(position_reusing)
+                self.debug_logger.debug_message(f"SWAP{position_reusing} {cstate.stack}")
+
+            # Subcase I.2: there is an element to use for duplicating and then swapping
+            elif position_reusing != -1 and cstate.elements_to_dup() > 0:
+                assert position_to_place == -len(cstate.stack) - 1, f"Position to place {position_to_place} is " \
+                                                                    f"not coherent in stack {cstate}"
+
+                # TODO: decide how which computation to duplicate
+                other_var_elem = self.intermediate_op_to_compute(cstate)
+                assert other_var_elem is not None, "No other element can be duplicated at this point"
+
+                self.debug_logger.debug_message(f"Other stack var element: {other_var_elem}", depth)
+                idx = cstate.first_occurrence(other_var_elem) + 1
+                seq = cstate.dup(idx)
+                self.debug_logger.debug_message(f"Computing other element to SWAP: DUP{idx} {cstate.stack}", depth)
+
+                # Afterwards, we swap the element we have computed (considering we have added an extra element)
+                seq.extend(cstate.swap(position_reusing + 1))
+
+            # Case II: we duplicate the element that is within reach
+            elif cstate.is_accessible_dup(var_elem):
+                idx = cstate.first_occurrence(var_elem) + 1
+                seq = cstate.dup(idx)
+                self.debug_logger.debug_message(f"DUP{idx} {cstate.stack}", depth)
+
+            # Case III: we retrieve the element from memory
             else:
-                assert var_elem in cstate.stack, f"Variable {var_elem} must appear in the stack, " \
-                                                 f"as it was previously computed and it is not a cheap computation"
-                # TODO: case for recomputing the element?
-
-                # Case I: We swap the element the number of copies required is met or we have enough copies,
-                # the position is accessible and it is not already part of the fixed size of the stack
-                position_reusing = cstate.var_elem_can_be_reused(var_elem, cstate.negative_idx2positive(self.fixed_elements))
-                self.debug_logger.debug_message(f"{cstate.n_computed} {cstate.stack_var_copies_needed} {cstate.stack}", depth)
-                self.debug_logger.debug_message(f"{cstate.is_in_negative_range(position_to_place)} {position_to_place}", depth)
-                # Two subcases
-                # First, we can have enough elements to perform the swap
-                if position_reusing != -1 and cstate.is_in_negative_range(position_to_place):
-
-                    # We swap to the deepest accesible copy
-                    seq = cstate.swap(position_reusing)
-                    self.debug_logger.debug_message(f"SWAP{position_reusing} {cstate.stack}")
-
-                elif position_reusing != -1 and cstate.elements_to_dup() > 0:
-                    assert position_to_place == -len(cstate.stack) - 1, f"Position to place {position_to_place} is " \
-                                                                        f"not coherent in stack {cstate}"
-
-                    # TODO: decide how which computation to duplicate
-                    other_var_elem = self.intermediate_op_to_compute(cstate)
-                    assert other_var_elem is not None, "No other element can be duplicated at this point"
-
-                    self.debug_logger.debug_message(f"Other stack var element: {other_var_elem}", depth)
-                    idx = cstate.first_occurrence(other_var_elem) + 1
-                    seq = cstate.dup(idx)
-                    self.debug_logger.debug_message(f"Computing other element to SWAP: DUP{idx} {cstate.stack}", depth)
-
-                    # Afterwards, we swap the element we have computed (considering we have added an extra element)
-                    seq.extend(cstate.swap(position_reusing + 1))
-
-                # Case II: we duplicate the element that is within reach
-                elif cstate.is_accessible_dup(var_elem):
-                    idx = cstate.first_occurrence(var_elem) + 1
-                    seq = cstate.dup(idx)
-                    self.debug_logger.debug_message(f"DUP{idx} {cstate.stack}", depth)
-
-                # Case III: we retrieve the element from memory
-                else:
-                    seq = cstate.from_memory(var_elem)
+                seq = cstate.from_memory(var_elem)
 
         # Finally, we place the topmost element that has been computed in the position to place
         # TODO: case for multiple elements computed
