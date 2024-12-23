@@ -596,8 +596,9 @@ class SMSgreedy:
         """
         Whether to consider the instruction associated to the node
         """
-        return "STORE" in node or any(self._stack_var_copies_needed[out_stack] > 1 or out_stack in self._final_stack
-                                      for out_stack in self._id2instr[node]["outpt_sk"])
+        return "STORE" in node or self._id2instr[node]["outpt_sk"] > 1 or \
+            any(self._stack_var_copies_needed[out_stack] > 1 or out_stack in self._final_stack
+                for out_stack in self._id2instr[node]["outpt_sk"])
 
     def _compute_top_can_used(self, instr: instr_JSON_T, top_can_be_used: Dict[var_id_T, Set[var_id_T]]) -> Set[
         var_id_T]:
