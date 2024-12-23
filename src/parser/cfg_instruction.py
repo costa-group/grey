@@ -269,7 +269,11 @@ class CFGInstruction:
     def translate_memoryguard(self) :
         #It is trabslated as a push directly
         self.op = "push"
-        self.translate_builtin_args = self.builtin_args
+        new_builtin = []
+        for o in self.builtin_args:
+            hex_val = hex(int(o))
+            new_builtin.append(hex_val)
+        self.translate_builtin_args = new_builtin
         
         
     def translate_datasize(self, subobjects_keys: List[str]) :
