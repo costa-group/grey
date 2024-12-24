@@ -694,15 +694,7 @@ class SMSgreedy:
 
                 if how_to_compute == "instr":
                     next_instr = self._id2instr[next_id]
-
-                    # First we decide from which point in the stack we are computing the element
-                    initial_idx = self.decide_fixed_elements(cstate, next_instr)
-                    self.debug_logger.debug_message(f"Unmovable stack element: {initial_idx}")
-
-                    # The fixed element refer to the position from which the elements of the stack can be swapped through
-                    self.fixed_elements = initial_idx
-
-                    ops = self.compute_instr(next_instr, initial_idx, cstate)
+                    ops = self.compute_instr(next_instr, self.fixed_elements, cstate)
                 else:
                     ops = self.compute_var(next_id, cstate.positive_idx2negative(-1), cstate)
 
@@ -757,16 +749,20 @@ class SMSgreedy:
         """
         Returns either a stack element or an instruction that must be computed
         """
-        candidate = self._select_candidate(cstate)
-        return candidate
+        candidate_name, candidate_type, pos_to_place = self._select_candidate(cstate)
 
-    def _select_candidate(self, cstate: SymbolicState) -> Tuple[Union[instr_id_T, var_id_T], str]:
+        if pos_to_place is not None:
+            self.fixed_elements = pos_to_place
+
+        return candidate_name, candidate_type
+
+    def _select_candidate(self, cstate: SymbolicState) -> Tuple[Union[instr_id_T, var_id_T], str, Optional[int]]:
         """
         Decides which stack variable or instruction must be computed using a scoring system
         """
         new_instr, cheap_stack_elems, dup_stack_elems = cstate.candidates()
-        current_top = cstate.top_stack()
         best_candidate_score = -1,
+        best_candidate_position = None
         candidate = None
 
         # TODO: pass candidates as arguments
@@ -776,12 +772,9 @@ class SMSgreedy:
         if option is not None:
             return option
 
-        # The topmost element can be used if it does not need to be duplicated further
-        top_can_be_reused = current_top is not None and cstate.stack_var_copies_needed[current_top] == 0
-
         # First, we evaluate the remaining instructions
         for id_ in new_instr:
-            score_id = self._score_instr(self._id2instr[id_], cstate, top_can_be_reused)
+            score_id, pos_to_place = self._score_instr(self._id2instr[id_], cstate)
 
             # To decide whether the current candidate is the best so far, we use the information from deepest_pos
             # and reuses_pos
@@ -789,6 +782,7 @@ class SMSgreedy:
             if better_candidate:
                 candidate = id_
                 best_candidate_score = score_id
+                best_candidate_position = pos_to_place
 
             self.debug_logger.debug_rank_candidates(id_, score_id, better_candidate)
 
@@ -804,12 +798,12 @@ class SMSgreedy:
 
                 associated_stack_var = self._final_stack[position_not_solved]
                 if associated_stack_var in cheap_stack_elems or associated_stack_var in dup_stack_elems:
-                    return associated_stack_var, "var"
+                    return associated_stack_var, "var", None
 
         assert candidate is not None, "Loop of _score_candidate must assign one candidate"
-        return candidate, "instr"
+        return candidate, "instr", best_candidate_position
 
-    def _handle_too_deep(self, cstate: SymbolicState) -> Optional[Tuple[Union[instr_id_T, var_id_T], str]]:
+    def _handle_too_deep(self, cstate: SymbolicState) -> Optional[Tuple[Union[instr_id_T, var_id_T], str, Optional[cstack_pos_T]]]:
         new_instr, cheap_stack_elems, dup_stack_elems = cstate.candidates()
 
         if len(cstate.not_solved) == 0:
@@ -817,52 +811,66 @@ class SMSgreedy:
 
         # First, we detect if there is an element that is about to become unreachable (and prioritize computing
         # this element)
-        max_not_solved_pos = cstate.idx_wrt_cstack(max(cstate.not_solved))
+        max_not_solved_pos = cstate.idx_wrt_cstack(cstate.max_solved - 1)
+
         if max_not_solved_pos > STACK_DEPTH:
-            # TODO: handle this case
+            # TODO: handle this case. Probably select elements that can reduce the number of elements
             raise AssertionError("There is a position that cannot be accessed and whose stack element is not "
                                  f"correctly placed\nPosition: {max_not_solved_pos}\nStack: {cstate.stack}\n"
                                  f"Final stack: {self._final_stack}")
+
         elif STACK_DEPTH - 2 <= max_not_solved_pos <= STACK_DEPTH:
             # Returns either the instruction (if not computed yet) or the stack variable
             # of the stack element associated to the instruction
             final_stack_var = self._final_stack[max_not_solved_pos]
 
             if final_stack_var in dup_stack_elems:
-                return final_stack_var, "var"
+                return final_stack_var, "var", None
 
             elif final_stack_var in cheap_stack_elems or cstate.dep_graph.out_degree(self._var2instr[final_stack_var]) == 0:
-                return self._var2instr[final_stack_var], "instr"
+                instr = self._var2instr[final_stack_var]
+                _, initial_position = self.decide_fixed_elements(cstate, instr)
+                return instr, "instr", initial_position
 
             else:
                 raise ValueError("Case not handled: Swap the element to the position")
 
         return None
 
-    def _score_instr(self, instr: instr_JSON_T, cstate: SymbolicState, top_can_reused: bool) -> Tuple[int, int, int, int]:
+    def _score_instr(self, instr: instr_JSON_T, cstate: SymbolicState) -> Tuple[Tuple[int, int, int, int], int]:
         """
         We score the instructions according to the following lexicographic order:
-        1) Can reuse the topmost element
-        2) Number of stack elements that can consume by swapping
+        1) Number of elements that can be reused
+        2) Number of stack elements that can be consumed by swapping
         3) Deepest position that needs to access. If > STACK_DEPTH, then, we assign to -1
         4) Deepest position in which one of the produced stack vars can be consumed
+
+        Moreover, we return the position from which to start computing
         """
-        can_reuse_topmost = int(top_can_reused and self._top_can_be_used.get(cstate.top_stack(), False))
         n_swappable = 0
         max_pos = -1
 
+        n_reused, initial_position = self.decide_fixed_elements(cstate, instr)
+
+        # We must check the position in which we start computing the elements
+        position_to_start = cstate.negative_idx2positive(initial_position)
+
         # From the input stack, retrieves how many stack elements can be consumed by swapping
         # and the deepest position needed to access
-        for input_var in instr['inpt_sk']:
+        for i, input_var in enumerate(instr['inpt_sk']):
 
+            # We have to consider the position in which it should be either duplicated or swapped
+            diff_pos = min(position_to_start - i, 0)
             # Does not need to be duplicated
-            if cstate.stack_var_copies_needed[input_var] == 0:
-                swap_position = cstate.last_swap_occurrence(input_var)
-                if swap_position != -1:
+
+            swap_position = cstate.first_occurrence(input_var)
+
+            if 0 <= swap_position < STACK_DEPTH + diff_pos:
+                if cstate.stack_var_copies_needed[input_var] == 0:
                     n_swappable += 1
-                max_pos = max(max_pos, swap_position)
-            else:
-                max_pos = max(max_pos, cstate.first_occurrence(input_var))
+                    max_pos = max(max_pos, swap_position)
+                elif swap_position == STACK_DEPTH + diff_pos:
+                    max_pos = max(max_pos, swap_position)
 
         deepest_to_place = -1
         # Function invocations might generate multiple values that we should take into account
@@ -872,7 +880,7 @@ class SMSgreedy:
             if deepest_position is not None:
                 deepest_to_place = max(deepest_position, deepest_to_place)
 
-        return can_reuse_topmost, n_swappable, max_pos, deepest_to_place
+        return (n_reused, n_swappable, max_pos, deepest_to_place), initial_position
 
     def compute_instr(self, instr: instr_JSON_T, position_to_start_computing: cstack_pos_T,
                       cstate: SymbolicState, depth: int = 0) -> List[instr_id_T]:
@@ -938,7 +946,7 @@ class SMSgreedy:
             input_vars = list(reversed(instr['inpt_sk']))
         return input_vars
 
-    def decide_fixed_elements(self, cstate: SymbolicState, instr: instr_JSON_T) -> cstack_pos_T:
+    def decide_fixed_elements(self, cstate: SymbolicState, instr: instr_JSON_T) -> Tuple[int, cstack_pos_T]:
         """
         Decides from which position in the current stack we are computing the arguments of the corresponding element,
         expressed in a negative index (from the bottom). Assumes the input vars are given from top to bottom
@@ -947,7 +955,8 @@ class SMSgreedy:
         input_vars = instr["inpt_sk"]
         best_possibility = 0
         best_idx = cstate.positive_idx2negative(-1)
-        idx = min(len(input_vars) - 1, len(cstate.stack) - 1)
+        idx = min(len(input_vars) - 1, len(cstate.stack) - 1, cstate.idx_wrt_cstack(cstate.max_solved - 1))
+        count = 0
 
         while idx >= 0:
             stack_idx, input_idx, count = idx, len(input_vars) - 1, 0
@@ -971,15 +980,16 @@ class SMSgreedy:
         if best_idx == cstate.positive_idx2negative(-1):
             elements_to_dup = cstate.elements_to_dup()
 
+            # There are not enough elements to duplicate and swap. Hence, we need to reuse some of them
             if len(input_vars) > elements_to_dup:
-                return cstate.positive_idx2negative(len(input_vars) - elements_to_dup)
+                return 0, cstate.positive_idx2negative(len(input_vars) - elements_to_dup)
 
-            if len(input_vars) > 0 and cstate.stack_var_copies_needed[input_vars[-1]] == 0 and cstate.is_accessible_swap(input_vars[-1]):
-                self.debug_logger.debug_message("Enters!")
+            # If I need to swap one of the arguments, I take the first element
+            if len(input_vars) > 0 and cstate.stack_var_copies_needed[input_vars[-1]] == 0 \
+                    and cstate.is_accessible_swap(input_vars[-1]):
+                return 0, cstate.positive_idx2negative(0)
 
-                return cstate.positive_idx2negative(0)
-
-        return best_idx
+        return count, best_idx
 
     def compute_var(self, var_elem: var_id_T, position_to_place: cstack_pos_T, cstate: SymbolicState,
                     depth: int = 0) -> List[instr_id_T]:
