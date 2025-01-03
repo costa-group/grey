@@ -181,7 +181,7 @@ def parser_CFG_from_JSON(json_dict: Dict, built_in_op: bool):
     object_keys = [key for key in json_dict if key not in ["type", "subObjects"]]
 
     subobjects_keys = [key for key in json_dict.get("subObjects") if key not in ["type", "subObjects"]] if json_dict.get("subObjects",{}) != {} else []
-
+    
     obj_json_keys = object_keys+subobjects_keys
     
     assert len(object_keys) >= 1, "[ERROR]: JSON file does not contain a valid key for the code"
@@ -190,7 +190,7 @@ def parser_CFG_from_JSON(json_dict: Dict, built_in_op: bool):
         json_object = json_dict.get(obj,False)
         json_functions = json_object.get("functions", {})
 
-        cfg_object = parse_object(obj, json_object, built_in_op, obj_json_keys)
+        cfg_object = parse_object(obj, json_object, built_in_op, subobjects_keys)
 
         for f in json_functions:
             obj_function = parse_function(f, json_functions[f], built_in_op, obj_json_keys)
@@ -223,6 +223,7 @@ def parse_CFG_from_json_dict(json_dict: Dict[str, Yul_CFG_T], built_in_op=False)
     """
     cfg_dicts = {}
     for cfg_name, json_dict in json_dict.items():
+        print("CFG NAME: "+cfg_name)
         cfg = parser_CFG_from_JSON(json_dict, built_in_op)
         cfg_dicts[cfg_name] = cfg
     return cfg_dicts
