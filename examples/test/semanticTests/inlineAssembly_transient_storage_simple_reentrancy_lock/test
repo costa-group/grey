@@ -1,0 +1,37 @@
+{
+    "semanticTests/inlineAssembly/transient_storage_simple_reentrancy_lock.sol": {
+        "bytecode": "608080604052346013576080908160188239f35b5f80fdfe608060405260043610156010575f80fd5b5f3560e01c6398c3a6c1146022575f80fd5b34605157602036600319011260515760043580151581036051575f5c605157604c9060015f5d6072565b5f805d005b5f80fd5b5f5c60515760015f5d6067575b5f805d565b606e5f6055565b6062565b607757565b607e5f6055565b56",
+        "contract": ":C",
+        "tests": [
+            {
+                "input": {
+                    "calldata": "",
+                    "value": "0"
+                },
+                "kind": "constructor"
+            },
+            {
+                "input": {
+                    "calldata": "98c3a6c10000000000000000000000000000000000000000000000000000000000000000",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "",
+                    "status": "success"
+                }
+            },
+            {
+                "input": {
+                    "calldata": "98c3a6c10000000000000000000000000000000000000000000000000000000000000001",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "",
+                    "status": "failure"
+                }
+            }
+        ]
+    }
+}

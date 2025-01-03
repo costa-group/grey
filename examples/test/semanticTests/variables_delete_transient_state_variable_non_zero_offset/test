@@ -1,0 +1,26 @@
+{
+    "semanticTests/variables/delete_transient_state_variable_non_zero_offset.sol": {
+        "bytecode": "6080806040523460135760bb908160188239f35b5f80fdfe60808060405260043610156011575f80fd5b5f3560e01c6326121ff0146023575f80fd5b3460b7575f36600319011260b7576060906dffffffffffffffffffffffffffff80195f5c16175f5d5f805c63ffffffff60701b191663ffffffff60701b17905d6001600160901b03196001600160901b035f5c16175f5d5f805c63ffffffff60701b1916905d5f5c60901b63ffffffff5f5c60701c165f5c60901c916001600160901b031916835260208301526040820152f35b5f80fd",
+        "contract": ":C",
+        "tests": [
+            {
+                "input": {
+                    "calldata": "",
+                    "value": "0"
+                },
+                "kind": "constructor"
+            },
+            {
+                "input": {
+                    "calldata": "26121ff0",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "ffffffffffffffffffffffffffff0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000ffffffffffffffffffffffffffff",
+                    "status": "success"
+                }
+            }
+        ]
+    }
+}

@@ -1,0 +1,26 @@
+{
+    "semanticTests/constantEvaluator/negative_fractional_mod.sol": {
+        "bytecode": "608080604052346013576045908160188239f35b5f80fdfe608060405260043610156010575f80fd5b5f3560e01c6326121ff0146022575f80fd5b346041575f36600319011260415760408051600b8152600a6020820152f35b5f80fd",
+        "contract": ":C",
+        "tests": [
+            {
+                "input": {
+                    "calldata": "",
+                    "value": "0"
+                },
+                "kind": "constructor"
+            },
+            {
+                "input": {
+                    "calldata": "26121ff0",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "000000000000000000000000000000000000000000000000000000000000000b000000000000000000000000000000000000000000000000000000000000000a",
+                    "status": "success"
+                }
+            }
+        ]
+    }
+}

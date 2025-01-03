@@ -1,0 +1,26 @@
+{
+    "semanticTests/various/crazy_elementary_typenames_on_stack.sol": {
+        "bytecode": "60808060405234601357603f908160188239f35b5f80fdfe60808060405260043610156011575f80fd5b5f3560e01c6326121ff0146023575f80fd5b34603b575f366003190112603b576006198152602090f35b5f80fd",
+        "contract": ":C",
+        "tests": [
+            {
+                "input": {
+                    "calldata": "",
+                    "value": "0"
+                },
+                "kind": "constructor"
+            },
+            {
+                "input": {
+                    "calldata": "26121ff0",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff9",
+                    "status": "success"
+                }
+            }
+        ]
+    }
+}

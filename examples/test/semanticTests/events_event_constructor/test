@@ -1,0 +1,15 @@
+{
+    "semanticTests/events/event_constructor.sol": {
+        "bytecode": "60808060405234604857600781526261626360e81b907f19dacbf83c5de6658e14cbf7bcae5c15eca2eedecf1c66fbca928e4d351bea0f60203392a360405160039081604d8239f35b5f80fdfe5f80fd",
+        "contract": ":ClientReceipt",
+        "tests": [
+            {
+                "input": {
+                    "calldata": "",
+                    "value": "0"
+                },
+                "kind": "constructor"
+            }
+        ]
+    }
+}

@@ -1,0 +1,26 @@
+{
+    "semanticTests/events/event_struct_storage_v2.sol": {
+        "bytecode": "608080604052346013576065908160188239f35b5f80fdfe60808060405260043610156011575f80fd5b5f3560e01c63977d996d146023575f80fd5b34606157602036600319011260615760207fdb7c15eb416c7028693224ffb718d13661df9f900b8db24786c57612ee461dd491600435805f558152a1005b5f80fd",
+        "contract": ":C",
+        "tests": [
+            {
+                "input": {
+                    "calldata": "",
+                    "value": "0"
+                },
+                "kind": "constructor"
+            },
+            {
+                "input": {
+                    "calldata": "977d996d000000000000000000000000000000000000000000000000000000000000002a",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "",
+                    "status": "success"
+                }
+            }
+        ]
+    }
+}

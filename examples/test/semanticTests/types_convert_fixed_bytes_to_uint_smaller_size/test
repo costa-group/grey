@@ -1,0 +1,26 @@
+{
+    "semanticTests/types/convert_fixed_bytes_to_uint_smaller_size.sol": {
+        "bytecode": "608080604052346013576058908160188239f35b5f80fdfe60808060405260043610156011575f80fd5b5f3560e01c635ad298bd146023575f80fd5b346054576020366003190112605457600435906001600160e01b03198216820360545761ffff60209260e01c168152f35b5f80fd",
+        "contract": ":Test",
+        "tests": [
+            {
+                "input": {
+                    "calldata": "",
+                    "value": "0"
+                },
+                "kind": "constructor"
+            },
+            {
+                "input": {
+                    "calldata": "5ad298bd6162636400000000000000000000000000000000000000000000000000000000",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "0000000000000000000000000000000000000000000000000000000000006364",
+                    "status": "success"
+                }
+            }
+        ]
+    }
+}

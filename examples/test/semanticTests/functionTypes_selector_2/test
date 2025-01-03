@@ -1,0 +1,26 @@
+{
+    "semanticTests/functionTypes/selector_2.sol": {
+        "bytecode": "608080604052346013576051908160188239f35b5f80fdfe60808060405260043610156011575f80fd5b5f3560e01c63f8a8fd6d146023575f80fd5b34604d575f366003190112604d5763cf9f23b560e01b81526307defb4160e41b6020820152604090f35b5f80fd",
+        "contract": ":D",
+        "tests": [
+            {
+                "input": {
+                    "calldata": "",
+                    "value": "0"
+                },
+                "kind": "constructor"
+            },
+            {
+                "input": {
+                    "calldata": "f8a8fd6d",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "cf9f23b5000000000000000000000000000000000000000000000000000000007defb41000000000000000000000000000000000000000000000000000000000",
+                    "status": "success"
+                }
+            }
+        ]
+    }
+}

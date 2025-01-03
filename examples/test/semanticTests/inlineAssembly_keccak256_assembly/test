@@ -1,0 +1,26 @@
+{
+    "semanticTests/inlineAssembly/keccak256_assembly.sol": {
+        "bytecode": "60808060405234601357603b908160188239f35b5f80fdfe6004361015600b575f80fd5b5f3560e01c6326121ff014601d575f80fd5b346037575f3660031901126037575f802060805260206080f35b5f80fd",
+        "contract": ":C",
+        "tests": [
+            {
+                "input": {
+                    "calldata": "",
+                    "value": "0"
+                },
+                "kind": "constructor"
+            },
+            {
+                "input": {
+                    "calldata": "26121ff0",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "c5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470",
+                    "status": "success"
+                }
+            }
+        ]
+    }
+}

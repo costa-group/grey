@@ -1,0 +1,26 @@
+{
+    "semanticTests/events/event_emit.sol": {
+        "bytecode": "608080604052346013576061908160188239f35b5f80fdfe60808060405260043610156011575f80fd5b5f3560e01c63b214faa5146023575f80fd5b6020366003190112605d57348152600435907f19dacbf83c5de6658e14cbf7bcae5c15eca2eedecf1c66fbca928e4d351bea0f60203392a3005b5f80fd",
+        "contract": ":ClientReceipt",
+        "tests": [
+            {
+                "input": {
+                    "calldata": "",
+                    "value": "0"
+                },
+                "kind": "constructor"
+            },
+            {
+                "input": {
+                    "calldata": "b214faa50000000000000000000000000000000000000000000000000000000000001234",
+                    "value": "18"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "",
+                    "status": "success"
+                }
+            }
+        ]
+    }
+}

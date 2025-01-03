@@ -1,0 +1,26 @@
+{
+    "semanticTests/expressions/uncalled_address_transfer_send.sol": {
+        "bytecode": "60808060405234601357602d908160188239f35b5f80fdfe6004361015600957005b5f3560e01c6326121ff014601957005b346029575f366003190112602957005b5f80fd",
+        "contract": ":TransferTest",
+        "tests": [
+            {
+                "input": {
+                    "calldata": "",
+                    "value": "0"
+                },
+                "kind": "constructor"
+            },
+            {
+                "input": {
+                    "calldata": "26121ff0",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "",
+                    "status": "success"
+                }
+            }
+        ]
+    }
+}

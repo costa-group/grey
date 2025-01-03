@@ -1,0 +1,37 @@
+{
+    "semanticTests/reverts/error_struct.sol": {
+        "bytecode": "60808060405234601357606c908160188239f35b5f80fdfe608060405260043610156010575f80fd5b5f3560e01c806326121ff014604f5763e420264a14602c575f80fd5b34604b576020366003190112604b576020600435805f55604051908152f35b5f80fd5b34604b575f366003190112604b5763f8a8fd6d60e01b5f5260045ffd",
+        "contract": ":C",
+        "tests": [
+            {
+                "input": {
+                    "calldata": "",
+                    "value": "0"
+                },
+                "kind": "constructor"
+            },
+            {
+                "input": {
+                    "calldata": "26121ff0",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "f8a8fd6d",
+                    "status": "failure"
+                }
+            },
+            {
+                "input": {
+                    "calldata": "e420264a0000000000000000000000000000000000000000000000000000000000000007",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "0000000000000000000000000000000000000000000000000000000000000007",
+                    "status": "success"
+                }
+            }
+        ]
+    }
+}

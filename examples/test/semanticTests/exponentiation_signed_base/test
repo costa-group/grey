@@ -1,0 +1,26 @@
+{
+    "semanticTests/exponentiation/signed_base.sol": {
+        "bytecode": "60808060405234601557610121908161001a8239f35b5f80fdfe60806040526004361015610011575f80fd5b5f3560e01c6326121ff014610024575f80fd5b3461011d575f36600319011261011d576009600180805b8082116100f257505081637fffffff0481115f8213166100b35781637fffffff190581125f8212166100b3576002199102600960015b600181116100c7575080637fffffff0483115f8413166100b35780637fffffff190583125f8412166100b3576040920282519160030b825260030b6020820152f35b634e487b7160e01b5f52601160045260245ffd5b9080637fffffff0481116100b357600182166100e9575b80029060011c610071565b809302926100de565b909280637fffffff0481116100b357818416610114575b800292811c9061003b565b80920291610109565b5f80fd",
+        "contract": ":test",
+        "tests": [
+            {
+                "input": {
+                    "calldata": "",
+                    "value": "0"
+                },
+                "kind": "constructor"
+            },
+            {
+                "input": {
+                    "calldata": "26121ff0",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "0000000000000000000000000000000000000000000000000000000000000009ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe5",
+                    "status": "success"
+                }
+            }
+        ]
+    }
+}

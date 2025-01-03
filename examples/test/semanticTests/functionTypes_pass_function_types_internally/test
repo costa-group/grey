@@ -1,0 +1,26 @@
+{
+    "semanticTests/functionTypes/pass_function_types_internally.sol": {
+        "bytecode": "60808060405234601357606b908160188239f35b5f80fdfe608060405260043610156010575f80fd5b5f3560e01c8063b3de648b14602c5763e420264a14602c575f80fd5b34606757602036600319011260675760043560018101809111605357602090604051908152f35b634e487b7160e01b5f52601160045260245ffd5b5f80fd",
+        "contract": ":C",
+        "tests": [
+            {
+                "input": {
+                    "calldata": "",
+                    "value": "0"
+                },
+                "kind": "constructor"
+            },
+            {
+                "input": {
+                    "calldata": "b3de648b0000000000000000000000000000000000000000000000000000000000000007",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "0000000000000000000000000000000000000000000000000000000000000008",
+                    "status": "success"
+                }
+            }
+        ]
+    }
+}

@@ -1,0 +1,48 @@
+{
+    "semanticTests/various/single_copy_with_multiple_inheritance.sol": {
+        "bytecode": "60808060405234601357608e908160188239f35b5f80fdfe60808060405260043610156011575f80fd5b5f3560e01c908163099bd978146077575080635b4b73a91460615780639f68d7ca1460615763a531d066146043575f80fd5b34605d575f366003190112605d5760205f54604051908152f35b5f80fd5b34605d576020366003190112605d576004355f55005b34605d575f366003190112605d576020905f548152f3",
+        "contract": ":Derived",
+        "tests": [
+            {
+                "input": {
+                    "calldata": "",
+                    "value": "0"
+                },
+                "kind": "constructor"
+            },
+            {
+                "input": {
+                    "calldata": "a531d066",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "0000000000000000000000000000000000000000000000000000000000000000",
+                    "status": "success"
+                }
+            },
+            {
+                "input": {
+                    "calldata": "9f68d7ca0000000000000000000000000000000000000000000000000000000000000017",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "",
+                    "status": "success"
+                }
+            },
+            {
+                "input": {
+                    "calldata": "a531d066",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "0000000000000000000000000000000000000000000000000000000000000017",
+                    "status": "success"
+                }
+            }
+        ]
+    }
+}

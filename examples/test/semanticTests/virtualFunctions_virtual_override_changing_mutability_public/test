@@ -1,0 +1,26 @@
+{
+    "semanticTests/virtualFunctions/virtual_override_changing_mutability_public.sol": {
+        "bytecode": "608080604052346013576054908160188239f35b5f80fdfe608060405260043610156010575f80fd5b5f3560e01c80637977622f1460405780638e109c81146040578063ae4894711460405763c0406226146040575f80fd5b346050575f366003190112605057005b5f80fd",
+        "contract": ":C",
+        "tests": [
+            {
+                "input": {
+                    "calldata": "",
+                    "value": "0"
+                },
+                "kind": "constructor"
+            },
+            {
+                "input": {
+                    "calldata": "c0406226",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "",
+                    "status": "success"
+                }
+            }
+        ]
+    }
+}

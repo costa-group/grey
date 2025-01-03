@@ -1,0 +1,26 @@
+{
+    "semanticTests/ecrecover/failing_ecrecover_invalid_input_asm.sol": {
+        "bytecode": "6080806040523460135760d7908160188239f35b5f80fdfe608060405260043610156010575f80fd5b5f3560e01c6326121ff0146022575f80fd5b3460d3575f36600319011260d3577f77e5189111eb6557e8a637b27ef8fbb15bc61d61c2f00cc48878f3a296e5e0ca6080525f60a0527f6944c77849b18048f6abe0db8084b0d0d0689cdddb53d2671c36967b58691ad460c0527fef4f06ba4f78319baafd0424365777241af4dfd3da840471b4b4b087b7750d0d60e0525f805260205f60808060015afa1560c8575f516040516001600160a01b039091168152602090f35b6040513d5f823e3d90fd5b5f80fd",
+        "contract": ":C",
+        "tests": [
+            {
+                "input": {
+                    "calldata": "",
+                    "value": "0"
+                },
+                "kind": "constructor"
+            },
+            {
+                "input": {
+                    "calldata": "26121ff0",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "0000000000000000000000000000000000000000000000000000000000000000",
+                    "status": "success"
+                }
+            }
+        ]
+    }
+}

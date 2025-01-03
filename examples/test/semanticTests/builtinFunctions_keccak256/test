@@ -1,0 +1,48 @@
+{
+    "semanticTests/builtinFunctions/keccak256.sol": {
+        "bytecode": "608080604052346013576078908160188239f35b5f80fdfe60806004361015600d575f80fd5b5f3560e01c631c008df914601f575f80fd5b34607457602036600319011260745760208101600435815260208252604082019082821067ffffffffffffffff831117606057602092826040525190208152f35b634e487b7160e01b5f52604160045260245ffd5b5f80fd",
+        "contract": ":C",
+        "tests": [
+            {
+                "input": {
+                    "calldata": "",
+                    "value": "0"
+                },
+                "kind": "constructor"
+            },
+            {
+                "input": {
+                    "calldata": "1c008df90000000000000000000000000000000000000000000000000000000000000004",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "8a35acfbc15ff81a39ae7d344fd709f28e8600b4aa8c65c6b64bfe7fe36bd19b",
+                    "status": "success"
+                }
+            },
+            {
+                "input": {
+                    "calldata": "1c008df90000000000000000000000000000000000000000000000000000000000000005",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "036b6384b5eca791c62761152d0c79bb0604c104a5fb6f4eb0703f3154bb3db0",
+                    "status": "success"
+                }
+            },
+            {
+                "input": {
+                    "calldata": "1c008df9ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "a9c584056064687e149968cbab758a3376d22aedc6a55823d1b3ecbee81b8fb9",
+                    "status": "success"
+                }
+            }
+        ]
+    }
+}

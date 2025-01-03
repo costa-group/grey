@@ -1,0 +1,26 @@
+{
+    "semanticTests/ecrecover/failing_ecrecover_invalid_input.sol": {
+        "bytecode": "608080604052346013576080908160188239f35b5f80fdfe60808060405260043610156011575f80fd5b5f3560e01c6326121ff0146023575f80fd5b34607c575f366003190112607c575f608060209282198152600184820152600260408201526003606082015282805260015afa156071575f516040516001600160a01b039091168152602090f35b6040513d5f823e3d90fd5b5f80fd",
+        "contract": ":C",
+        "tests": [
+            {
+                "input": {
+                    "calldata": "",
+                    "value": "0"
+                },
+                "kind": "constructor"
+            },
+            {
+                "input": {
+                    "calldata": "26121ff0",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "0000000000000000000000000000000000000000000000000000000000000000",
+                    "status": "success"
+                }
+            }
+        ]
+    }
+}

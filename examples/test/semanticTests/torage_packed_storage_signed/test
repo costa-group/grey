@@ -1,0 +1,26 @@
+{
+    "semanticTests/storage/packed_storage_signed.sol": {
+        "bytecode": "608080604052346013576090908160188239f35b5f80fdfe60808060405260043610156011575f80fd5b5f3560e01c63f8a8fd6d146023575f80fd5b34608c575f366003190112608c5760809060ff6104005f5460fe607960786104fe61ffff198516175f0b025f0b0260101b62ff0000169162ffffff1916171717805f55805f0b8352818160081c1660208401528060101c5f0b604084015260181c166060820152f35b5f80fd",
+        "contract": ":C",
+        "tests": [
+            {
+                "input": {
+                    "calldata": "",
+                    "value": "0"
+                },
+                "kind": "constructor"
+            },
+            {
+                "input": {
+                    "calldata": "f8a8fd6d",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe0000000000000000000000000000000000000000000000000000000000000004ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff900000000000000000000000000000000000000000000000000000000000000000",
+                    "status": "success"
+                }
+            }
+        ]
+    }
+}

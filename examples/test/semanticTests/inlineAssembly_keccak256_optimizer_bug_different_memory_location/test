@@ -1,0 +1,26 @@
+{
+    "semanticTests/inlineAssembly/keccak256_optimizer_bug_different_memory_location.sol": {
+        "bytecode": "608080604052346013576049908160188239f35b5f80fdfe6004361015600b575f80fd5b5f358060e01c6326121ff014601e575f80fd5b346045575f366003190112604557805f5260205260045f2060086020201460805260206080f35b5f80fd",
+        "contract": ":C",
+        "tests": [
+            {
+                "input": {
+                    "calldata": "",
+                    "value": "0"
+                },
+                "kind": "constructor"
+            },
+            {
+                "input": {
+                    "calldata": "26121ff0",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "0000000000000000000000000000000000000000000000000000000000000000",
+                    "status": "success"
+                }
+            }
+        ]
+    }
+}

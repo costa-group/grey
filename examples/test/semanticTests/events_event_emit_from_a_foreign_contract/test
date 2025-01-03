@@ -1,0 +1,26 @@
+{
+    "semanticTests/events/event_emit_from_a_foreign_contract.sol": {
+        "bytecode": "608080604052346013576055908160188239f35b5f80fdfe6004361015600b575f80fd5b5f3560e01c63f8a8fd6d14601d575f80fd5b346051575f3660031901126051577f92bbf6e823a631f3c8e09b1c8df90f378fb56f7fbc9701827e1ff8aad7f6a0285f80a1005b5f80fd",
+        "contract": ":D",
+        "tests": [
+            {
+                "input": {
+                    "calldata": "",
+                    "value": "0"
+                },
+                "kind": "constructor"
+            },
+            {
+                "input": {
+                    "calldata": "f8a8fd6d",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "",
+                    "status": "success"
+                }
+            }
+        ]
+    }
+}
