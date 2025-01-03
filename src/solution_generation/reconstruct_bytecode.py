@@ -20,7 +20,7 @@ def asm_from_op_info(op: str, value: Optional[Union[int, str]] = None,
     """
     JSON asm initialized with default values
     """
-
+    
     default_asm = {"name": op, "begin": -1, "end": -1, "source": source}
 
     if value is not None:
@@ -207,7 +207,7 @@ def traverse_cfg_block_list(block_list: CFGBlockList, function_name2entry: Dict[
                                                               asm_dicts, function_name2entry)
         else:
             asm_block = asm_dicts.get(block_id, None)
-
+            
             if next_block.split_instruction is not None:
                 asm_last = asm_for_split_instruction(next_block, tags_dict, function_name2entry)
             else:
@@ -215,6 +215,11 @@ def traverse_cfg_block_list(block_list: CFGBlockList, function_name2entry: Dict[
                 # Otherwise it is jump or jumpi
                 asm_last = []
 
+            if asm_block ==[] and next_block.get_jump_type() == "terminal":
+                assert(len(next_block.get_instructions()) == 1)
+                ins = next_block.get_instructions()[0]
+                asm_block = [asm_from_op_info(ins.get_op_name().upper())]
+                
             asm_block += asm_last
 
         if block_id in tags_dict:
@@ -337,3 +342,8 @@ def store_asm_output(json_object: Dict[str, Any], cfg_dir: Path) -> List[Path]:
             json.dump(object_asm, f, indent=4)
         asm_files.append(file_to_store)
     return asm_files
+
+def store_binary_output(object_name: str, evm_code: str, cfg_dir: Path) -> None:
+    file_to_store = cfg_dir.joinpath(object_name + "_bin.evm")
+    with open(file_to_store, 'w') as f:
+        f.write(evm_code)
