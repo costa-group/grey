@@ -278,12 +278,9 @@ class CFGInstruction:
         
     def translate_datasize(self, subobjects_keys: List[str]) :
         self.op = "push #[$]"
-
-        print("datasize")
-        print(subobjects_keys)
         
         builtin_val = self.builtin_args[0]
-        print(builtin_val)
+
         try:
             pos = subobjects_keys.index(builtin_val)
             self.translate_builtin_args = ["{0:064X}".format(pos)]
