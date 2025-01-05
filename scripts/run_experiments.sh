@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Directorio base (cambiar por la ruta deseada o pasar como argumento)
-DIRECTORIO_BASE=/Users/pablo/Repositorios/ethereum/grey/scripts/prueba
+DIRECTORIO_BASE=/Users/pablo/Repositorios/ethereum/grey/scripts/test
 
 # Comprobar si el directorio existe
 if [ ! -d "$DIRECTORIO_BASE" ]; then
@@ -10,34 +10,34 @@ if [ ! -d "$DIRECTORIO_BASE" ]; then
 fi
 
 # Recorrer todos los subdirectorios y buscar archivos .yul
-find "$DIRECTORIO_BASE" -type f -name "*.yul" | while read -r yul_file; do
+# find "$DIRECTORIO_BASE" -type f -name "*.sol" | while read -r yul_file; do
+find "$DIRECTORIO_BASE" -type f -name "*standard_input.json" | while read -r yul_file; do
+
     # Obtener el directorio y el nombre base del archivo
 
     yul_dir=$(dirname "$yul_file")
-    yul_base=$(basename "$yul_file" .yul)
+    yul_base=$(basename "$yul_file" _standard_input.json)
 
     echo "Procesando archivo: $yul_file"
 
-    /Users/pablo/Repositorios/ethereum/grey/examples/solc "$yul_file" --optimize --strict-assembly --yul-cfg-json --pretty-json &> "$yul_dir/$yul_base.cfg"
+    # /Users/pablo/Repositorios/ethereum/grey/examples/solc "$yul_file" --optimize --yul-cfg-json --pretty-json &> "$yul_dir/$yul_base.cfg"
 
-    /Users/pablo/Repositorios/ethereum/grey/examples/solc "$yul_file" --optimize --strict-assembly --pretty-json --asm-json &> "$yul_dir/$yul_base-asm-solc.json"
+    # /Users/pablo/Repositorios/ethereum/grey/examples/solc "$yul_file" --optimize --strict-assembly --pretty-json --asm-json &> "$yul_dir/$yul_base-asm-solc.json"
 
-    sed -i '' '/^======= .* (EVM) =======$/d;/^EVM assembly:$/d' $yul_dir/$yul_base-asm-solc.json
+    # /Users/pablo/Repositorios/ethereum/grey/examples/solc "$yul_file" --optimize --pretty-json --asm-json &> "$yul_dir/$yul_base-asm-solc.json"
+
+    # sed -i '' '/^======= .* (EVM) =======$/d;/^EVM assembly:$/d' $yul_dir/$yul_base-asm-solc.json
     
-    python3 /Users/pablo/Repositorios/ethereum/grey/src/grey_main.py -s "$yul_dir/$yul_base.cfg" -g -v -if yul-cfg -solc examples/solc -o "/tmp/$yul_base" &> "$yul_dir/yul_base.log"
+    # python3 /Users/pablo/Repositorios/ethereum/grey/src/grey_main.py -s "$yul_dir/$yul_base.cfg" -g -v -if yul-cfg -solc examples/solc -o "/tmp/$yul_base" &> "$yul_dir/yul_base.log"
+    
+    python3 /Users/pablo/Repositorios/ethereum/grey/src/grey_main.py -s "$yul_file" -g -v -if standard-json -solc /Users/pablo/Repositorios/ethereum/grey/examples/solc -o "/tmp/$yul_base" &> "$yul_dir/yul_base.log"
+
+    echo "python3 /Users/pablo/Repositorios/ethereum/grey/src/grey_main.py -s $yul_file -g -v -if standard-json -solc /Users/pablo/Repositorios/ethereum/grey/examples/solc -o /tmp/$yul_base"
 
     cp "/tmp/$yul_base"/*/*_asm.json "$yul_dir/"
 
-    python3 extract_info.py "$yul_dir"
+    # python3 extract_info.py "$yul_dir"
 
-    JSON_FILES=`ls $yul_dir/*_asm.json`
-
-    for JSON in $JSON_FILES; do
-
-        echo "Executing import of $JSON"
-        /Users/pablo/Repositorios/ethereum/grey/examples/solc --import-asm-json "$JSON" --asm-json --optimize &> "$yul_dir/$yul_base-asm-json-importer.json"
-        
-    done
 
     echo "*************************************"
     
