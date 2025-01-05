@@ -1,43 +1,39 @@
 import json
 import sys
 
-def update_bytecode(json_file_path, contract_name, new_bytecode, output_file_path=None):
+def update_bytecode(json_file_path, contract_name, new_bytecode):
     """
     Lee un archivo JSON, sustituye el valor de la clave 'bytecode' y guarda el archivo actualizado.
 
-    :param json_file_path: Ruta del archivo JSON de entrada.
+    :param json_file_path: Fichero con el JSON de entrada.
+    :param  contract_name: Nombre del contrato cuyo bytecode se va a sustituir.
     :param new_bytecode: Nuevo valor para la clave 'bytecode'.
-    :param output_file_path: Ruta del archivo JSON de salida. Si no se proporciona, se sobrescribe el original.
     """
-    try:
-        # Leer el archivo JSON
-        with open(json_file_path, 'r') as file:
-            data = json.load(file)
-        
-        # Verificar si 'bytecode' está en el JSON
-        if "bytecode" in data:
-            data["bytecode"] = new_bytecode
-            print(f"Clave 'bytecode' actualizada a: {new_bytecode}")
-        else:
-            print("La clave 'bytecode' no existe en el JSON. Será añadida.")
-            data["bytecode"] = new_bytecode
 
-        # Determinar la ruta de salida
-        if output_file_path is None:
-            output_file_path = json_file_path
-        
-        # Guardar el archivo JSON actualizado
-        with open(output_file_path, 'w') as file:
-            json.dump(data, file, indent=4)
-        
-        print(f"Archivo JSON actualizado guardado en: {output_file_path}")
-    except FileNotFoundError:
-        print(f"El archivo {json_file_path} no fue encontrado.")
-    except json.JSONDecodeError:
-        print("Error al decodificar el archivo JSON. Asegúrate de que tenga un formato válido.")
-    except Exception as e:
-        print(f"Ocurrió un error: {e}")
+    for c in json_file_path:
+        json_contract = json_file_path[c]
 
+        if contract_name.startswith(json_contract["contract"]):
+            # Verificar si 'bytecode' está en el JSON
+            json_contract["bytecode"] = new_bytecode             
+
+def get_evm_code(log_file):
+
+    f = open(log_file, "r")
+    all_lines = f.readlines()
+
+    lines = list(filter(lambda x: x.find("Contract") != -1 and x.find("EVM") != -1, all_lines))
+
+    res = {}
+    
+    for l in lines:
+        elems = l.split("->")
+        c_name = elems[0].split(":")[-1]
+        evm_code = elems[-1].split(":")[-1]
+
+        res[c_name] = evm_code
+
+    return res
 
 
 if __name__ == '__main__':
@@ -52,5 +48,18 @@ if __name__ == '__main__':
     path_to_test = test_file.split("/")[::-2]
 
     result_file = "/".join(path_to_test)+"/test_grey"
+
+
+    # Leer el archivo JSON
+    with open(test_file, 'r') as file:
+        data = json.load(file)
+
+    for c in evm_codes:
+        evm = evm_codes[c]
+        
+        update_bytecode(data, c, evm)
+
+    # Guardar el archivo JSON actualizado
+    with open(result_file, 'w') as file:
+        json.dump(data, file, indent=4)
     
-    update_bytecode(test_file, contract_name, evm_codes, result_file)
