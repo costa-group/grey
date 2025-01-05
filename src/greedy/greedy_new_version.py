@@ -894,7 +894,7 @@ class SMSgreedy:
         seq = []
 
         # Decide in which order computations must be done (after computing the subterms)
-        input_vars = self._computation_order(instr, cstate)
+        input_vars = self._computation_order(instr, position_to_start_computing, cstate)
         self.debug_logger.debug_message(f"Fixed elements {self.fixed_elements} {cstate}", depth)
 
         for i, stack_var in enumerate(input_vars):
@@ -917,24 +917,26 @@ class SMSgreedy:
 
         return seq
 
-    def _computation_order(self, instr: instr_JSON_T, cstate: SymbolicState) -> List[var_id_T]:
+    def _computation_order(self, instr: instr_JSON_T, start_position: cstack_pos_T,
+                           cstate: SymbolicState) -> List[var_id_T]:
         """
         Decides in which order the arguments of the instruction must be computed
         """
-        if instr['commutative']:
+        self.debug_logger.debug_message(f"{start_position} {len(cstate.stack)}")
+        if instr['commutative'] and -len(cstate.stack) <= start_position:
             # If it's commutative, study its dependencies.
             if self.debug_mode:
                 assert len(instr['inpt_sk']) == 2, \
                     f'Commutative instruction {instr["id"]} has arity != 2'
 
             # Condition: the top of the stack can be reused
-            topmost_element = cstate.top_stack()
+            first_consumed_element = cstate.stack[start_position]
             first_arg_instr = self._var2instr.get(instr['inpt_sk'][0], None)
 
             # Condition1: the topmost element can be reused by the first argument instruction or is the first argument
-            condition1 = (topmost_element is not None and topmost_element in self._top_can_be_used[instr["id"]] and
-                          first_arg_instr is not None and (first_arg_instr["outpt_sk"][0] == topmost_element or
-                                                           topmost_element in self._top_can_be_used[first_arg_instr["id"]]))
+            condition1 = (first_consumed_element is not None and first_consumed_element in self._top_can_be_used[instr["id"]] and
+                          first_arg_instr is not None and (first_arg_instr["outpt_sk"][0] == first_consumed_element or
+                                                           first_consumed_element in self._top_can_be_used[first_arg_instr["id"]]))
 
             # Condition2: the first argument just needs to be swapped
             condition2 = cstate.stack_var_copies_needed[instr['inpt_sk'][0]] == 0
@@ -944,6 +946,7 @@ class SMSgreedy:
                 input_vars = list(reversed(instr['inpt_sk']))
         else:
             input_vars = list(reversed(instr['inpt_sk']))
+
         return input_vars
 
     def decide_fixed_elements(self, cstate: SymbolicState, instr: instr_JSON_T) -> Tuple[int, cstack_pos_T]:
