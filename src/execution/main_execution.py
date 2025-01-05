@@ -148,7 +148,6 @@ def main():
 
         for asm_file in stored_asm_list:
             synt_binary = SolidityCompilation.importer_assembly_file(asm_file, solc_executable=args.solc_executable)
-            print("Binary for "+cfg_name)
-            print(synt_binary)
+            print("Contract: "+cfg_name +" -> EVM Code: "+synt_binary)
 
             store_binary_output(cfg_name, synt_binary, cfg_dir)
