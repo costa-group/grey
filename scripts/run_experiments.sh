@@ -30,7 +30,7 @@ find "$DIRECTORIO_BASE" -type f -name "*standard_input.json" | while read -r yul
     
     # python3 /Users/pablo/Repositorios/ethereum/grey/src/grey_main.py -s "$yul_dir/$yul_base.cfg" -g -v -if yul-cfg -solc examples/solc -o "/tmp/$yul_base" &> "$yul_dir/yul_base.log"
     
-    python3 /Users/pablo/Repositorios/ethereum/grey/src/grey_main.py -s "$yul_file" -g -v -if standard-json -solc /Users/pablo/Repositorios/ethereum/grey/examples/solc -o "/tmp/$yul_base" &> "$yul_dir/yul_base.log"
+    python3 /Users/pablo/Repositorios/ethereum/grey/src/grey_main.py -s "$yul_file" -g -v -if standard-json -solc /Users/pablo/Repositorios/ethereum/grey/examples/solc -o "/tmp/$yul_base" &> "$yul_dir/$yul_base.log"
 
     echo "python3 /Users/pablo/Repositorios/ethereum/grey/src/grey_main.py -s $yul_file -g -v -if standard-json -solc /Users/pablo/Repositorios/ethereum/grey/examples/solc -o /tmp/$yul_base"
 
@@ -38,7 +38,8 @@ find "$DIRECTORIO_BASE" -type f -name "*standard_input.json" | while read -r yul
 
     # python3 extract_info.py "$yul_dir"
 
-
+    python3 replace_bytecode_test.py "$yul_dir/test" "$yul_dir/$yul_base.log"
+    
     echo "*************************************"
     
 done
