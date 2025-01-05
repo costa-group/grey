@@ -45,21 +45,28 @@ if __name__ == '__main__':
 
     evm_codes = get_evm_code(log_file)
 
-    path_to_test = test_file.split("/")[::-2]
+    path_to_test = test_file.split("/")[:-2]
 
+    print(path_to_test)
     result_file = "/".join(path_to_test)+"/test_grey"
 
 
-    # Leer el archivo JSON
-    with open(test_file, 'r') as file:
-        data = json.load(file)
+    try:
+        # Leer el archivo JSON
+        with open(test_file, 'r') as file:
+            data = json.load(file)
 
-    for c in evm_codes:
-        evm = evm_codes[c]
+        for c in evm_codes:
+            evm = evm_codes[c]
         
-        update_bytecode(data, c, evm)
+            update_bytecode(data, c, evm)
 
-    # Guardar el archivo JSON actualizado
-    with open(result_file, 'w') as file:
-        json.dump(data, file, indent=4)
+        # Guardar el archivo JSON actualizado
+        with open(result_file, 'w') as file:
+            json.dump(data, file, indent=4)
+            
+    except:
+        print("NO TEST: "+test_file)
+
+
     
