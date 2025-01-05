@@ -722,7 +722,7 @@ class SMSgreedy:
 
             # A variable must be moved when a positive index is found (less than STACK_DEPTH)
             # which does not contain yet the corresponding element
-            elif STACK_DEPTH >= fidx >= 0 and fidx < len(cstate.stack) and cstate.stack[fidx] != var_elem:
+            elif min(len(cstate.stack), STACK_DEPTH) >= fidx >= 0 and cstate.stack[fidx] != var_elem:
                 yield fidx
 
     def _deepest_position(self, var_elem: var_id_T) -> Optional[int]:
@@ -806,6 +806,7 @@ class SMSgreedy:
     def _handle_too_deep(self, cstate: SymbolicState) -> Optional[Tuple[Union[instr_id_T, var_id_T], str, Optional[cstack_pos_T]]]:
         new_instr, cheap_stack_elems, dup_stack_elems = cstate.candidates()
 
+        # All elements are placed in their corresponding position
         if len(cstate.not_solved) == 0:
             return None
 
@@ -1075,6 +1076,7 @@ class SMSgreedy:
         _, cheap_instrs, dup_stack_vars = cstate.candidates()
 
         # First we try elements that must be duplicated
+        # TODO: better heuristics for choosing the intermediate operation
         for stack_var in dup_stack_vars:
             self.debug_logger.debug_message(f"Considered var element: {stack_var}")
 
@@ -1085,10 +1087,62 @@ class SMSgreedy:
 
     def solve_permutation(self, cstate: SymbolicState) -> List[instr_id_T]:
         """
-        Places all the elements in their corresponding positions
+        Places all the elements in their corresponding positions, after having
+        computing every element. Note that we might need to remove some elements
+        (if they were not accessible to be removed).
         """
         # TODO: complete code
-        return []
+        permutation_ops = []
+
+        while cstate.stack != self._final_stack:
+            topmost_element = cstate.top_stack()
+            assert topmost_element is not None, "Topmost element cannot be None in solve permutation"
+
+            # First case: pop the element
+            if cstate.stack_var_copies_needed[topmost_element] < 0:
+                permutation_ops.extend(cstate.pop())
+
+            else:
+                # Second case: there is a position in which the element must appear
+                misplaced = False
+                for position_available in self._available_positions(topmost_element, cstate):
+                    current_index = cstate.idx_wrt_fstack(position_available)
+
+                    # Search for an available position in which the element is not already there
+                    if cstate.stack[current_index] != topmost_element:
+                        misplaced = True
+                        break
+
+                if misplaced:
+                    permutation_ops.extend(cstate.swap(current_index))
+
+                # Third case: the element is in its position, so we need to swap it with
+                # another element that is incorrectly placed
+                elif (next_position := self.find_not_solved(cstate)) is not None:
+                    permutation_ops.extend(cstate.swap(next_position))
+
+                # Forth case (worst case): there is no available element in its incorrect
+                # position, as it is too deep within the stack
+                else:
+                    permutation_ops.extend(self.clean_stack(cstate))
+
+        return permutation_ops
+
+    def find_not_solved(self, cstate: SymbolicState) -> Optional[cstack_pos_T]:
+        """
+        Finds an element that is not already solved.
+        """
+        for position in cstate.not_solved:
+            if position <= STACK_DEPTH:
+                return position
+        return None
+
+    def clean_stack(self, cstate: SymbolicState) -> List[instr_id_T]:
+        """
+        Tries to remove elements that are no longer used in order to reach the corresponding (negative) position
+        in the stack. Otherwise, it stores elements in the memory.
+        """
+        pass
 
     def print_traces(self, cstate: SymbolicState) -> None:
         """
