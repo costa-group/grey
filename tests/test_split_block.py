@@ -1,7 +1,7 @@
 from hypothesis import given, strategies as st
 from parser.cfg_block import CFGBlock
 from parser.cfg_block_list import CFGBlockList
-from parser.cfg_block_actions.split_block import SplitBlock
+from cfg_methods.cfg_block_actions.split_block import SplitBlock
 from utils import cfg_instruction_list
 
 

@@ -1,7 +1,7 @@
-from hypothesis import given, strategies as st
+from hypothesis import given
 from parser.cfg_block import CFGBlock
 from parser.cfg_block_list import CFGBlockList
-from parser.cfg_block_actions.merge_blocks import MergeBlocks, merged_block_id
+from cfg_methods.cfg_block_actions.merge_blocks import MergeBlocks, merged_block_id
 from utils import cfg_instruction_list
 
 
