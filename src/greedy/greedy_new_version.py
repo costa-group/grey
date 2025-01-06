@@ -1002,12 +1002,14 @@ class SMSgreedy:
 
         # Last case: if there is no better alternative, we just consider whether to consider the first element to
         # be swapped with the first element to consume
-        if best_idx == cstate.positive_idx2negative(-1):
+        if len(cstate.stack) > 0 and best_idx == cstate.positive_idx2negative(-1):
             elements_to_dup = cstate.elements_to_dup()
 
             # There are not enough elements to duplicate and swap. Hence, we need to reuse some of them
             if len(input_vars) > elements_to_dup:
-                return 0, cstate.positive_idx2negative(len(input_vars) - elements_to_dup)
+                self.debug_logger.debug_message(f"{len(input_vars) - elements_to_dup} {cstate.max_solved - 1}")
+                return 0, cstate.positive_idx2negative(min(len(input_vars) - elements_to_dup, cstate.max_solved - 1,
+                                                           len(cstate.stack) - 1))
 
             # If I need to swap one of the arguments, I take the first element
             if len(input_vars) > 0 and cstate.stack_var_copies_needed[input_vars[-1]] == 0 \
