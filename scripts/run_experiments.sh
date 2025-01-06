@@ -39,6 +39,9 @@ find "$DIRECTORIO_BASE" -type f -name "*standard_input.json" | while read -r yul
     # python3 extract_info.py "$yul_dir"
 
     python3 replace_bytecode_test.py "$yul_dir/test" "$yul_dir/$yul_base.log"
+
+    echo "python3 replace_bytecode_test.py $yul_dir/test $yul_dir/$yul_base.log"
+
     
     echo "*************************************"
     
