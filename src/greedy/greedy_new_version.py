@@ -185,7 +185,7 @@ class SymbolicState:
         Stores the top of the stack in the local with index x. in_position marks whether the element is
         solved in flocals
         """
-        assert 0 <= x < len(self.stack), f"Swapping with index {x} a stack of {len(self.stack)} elements: {self.stack}"
+        assert 0 < x < len(self.stack), f"Swapping with index {x} a stack of {len(self.stack)} elements: {self.stack}"
         self.stack[0], self.stack[x] = self.stack[x], self.stack[0]
 
         # Var copies: no modification, as we are just moving two elements
@@ -298,7 +298,6 @@ class SymbolicState:
         # N computed: add one to the element we have inserted
         self.n_computed[output_var] += 1
 
-
     def uf(self, instr: instr_JSON_T) -> List[instr_id_T]:
         """
         Symbolic execution of instruction instr. Additionally, checks the arguments match if debug mode flag is enabled
@@ -353,7 +352,27 @@ class SymbolicState:
         # N computed: add one to the element we have added
         self.n_computed[var_elem] += 1
 
-        return [f"MEM({var_elem})"]
+        return [f"GET({var_elem})"]
+
+    def store_in_memory(self):
+        """
+        Stores the topmost value in memory. Its behaviour is similar to POP
+        """
+        stack_var = self.stack.pop(0)
+
+        # Var copies: we add one because the stack var is totally removed from the encoding
+        self.stack_var_copies_needed[stack_var] += 1
+
+        # Solved: just check whether the old topmost position was in solved
+        self._remove_solved(self.idx_wrt_fstack(-1))
+
+        # N computed: substract one to the element we have removed
+        decrement_and_clean(self.n_computed, stack_var)
+
+        if self.debug_mode:
+            self.trace.append((self.stack.copy(), f"SET({stack_var})"))
+
+        return [f"SET({stack_var})"]
 
     def top_stack(self) -> Optional[var_id_T]:
         return None if len(self.stack) == 0 else self.stack[0]
@@ -695,6 +714,10 @@ class SMSgreedy:
                 if how_to_compute == "instr":
                     next_instr = self._id2instr[next_id]
                     ops = self.compute_instr(next_instr, self.fixed_elements, cstate)
+                elif how_to_compute == "deep":
+                    # First, we clean the stack and then we compute the corresponding variable
+                    ops = self.reach_position_stack()
+                    ops.extend(self.compute_var(next_id, cstate.positive_idx2negative(-1), cstate))
                 else:
                     ops = self.compute_var(next_id, cstate.positive_idx2negative(-1), cstate)
 
@@ -815,10 +838,8 @@ class SMSgreedy:
         max_not_solved_pos = cstate.idx_wrt_cstack(cstate.max_solved - 1)
 
         if max_not_solved_pos > STACK_DEPTH:
-            # TODO: handle this case. Probably select elements that can reduce the number of elements
-            raise AssertionError("There is a position that cannot be accessed and whose stack element is not "
-                                 f"correctly placed\nPosition: {max_not_solved_pos}\nStack: {cstate.stack}\n"
-                                 f"Final stack: {self._final_stack}")
+            # We try to compute the corresponding element in the deepest position
+            return self._final_stack[cstate.max_solved - 1], "deep", None
 
         elif STACK_DEPTH - 2 <= max_not_solved_pos <= STACK_DEPTH:
             # Returns either the instruction (if not computed yet) or the stack variable
@@ -834,7 +855,7 @@ class SMSgreedy:
                 return instr, "instr", initial_position
 
             else:
-                raise ValueError("Case not handled: Swap the element to the position")
+                return final_stack_var, "var", None
 
         return None
 
@@ -1124,7 +1145,7 @@ class SMSgreedy:
                 # Forth case (worst case): there is no available element in its incorrect
                 # position, as it is too deep within the stack
                 else:
-                    permutation_ops.extend(self.clean_stack(cstate))
+                    permutation_ops.extend(self.reach_position_stack(cstate, cstate.max_solved - 1))
 
         return permutation_ops
 
@@ -1137,12 +1158,56 @@ class SMSgreedy:
                 return position
         return None
 
-    def clean_stack(self, cstate: SymbolicState) -> List[instr_id_T]:
+    def reach_position_stack(self, cstate: SymbolicState, final_position: fstack_pos_T) -> List[instr_id_T]:
         """
-        Tries to remove elements that are no longer used in order to reach the corresponding (negative) position
-        in the stack. Otherwise, it stores elements in the memory.
+        Stores elements in memory in order to make space for the stack. Otherwise, it stores elements in the memory.
         """
-        pass
+
+        # First we try to pop the unused elements in the stack
+        pop_elements = self.pop_unused_elements(cstate)
+
+        # Let's see if trying to store unused elements is enough to reach that position
+        current_position = cstate.idx_wrt_cstack(final_position)
+        if len(pop_elements) > 0 and current_position <= STACK_DEPTH:
+            return pop_elements
+
+        store_memory = self.move_vars_to_memory(current_position, cstate)
+        return pop_elements + store_memory
+
+    def pop_unused_elements(self, cstate: SymbolicState) -> List[instr_id_T]:
+        """
+        Scans the current stack trying to remove all unnecessary elements
+        """
+        current_idx = 0
+        var_top = cstate.top_stack()
+        if var_top is None:
+            return []
+
+        pop_ops = []
+
+        while current_idx <= min(STACK_DEPTH, len(cstate.stack)):
+
+            if cstate.stack_var_copies_needed[cstate.stack[current_idx]] < 0:
+                # First swap the corresponding element
+                if current_idx > 0:
+                    pop_ops.extend(cstate.swap(current_idx))
+
+                pop_ops.extend(cstate.pop())
+            else:
+                current_idx += 1
+
+        return pop_ops
+
+    def move_vars_to_memory(self, current_position: cstack_pos_T, cstate: SymbolicState) -> List[instr_id_T]:
+        """
+        Stores variables in memory in order to make enough space to reach element in "current_position"
+        """
+        # TODO: better heuristics?
+        move_vars_ops = []
+        while current_position > STACK_DEPTH:
+            move_vars_ops.extend(cstate.store_in_memory())
+            current_position -= 1
+        return move_vars_ops
 
     def print_traces(self, cstate: SymbolicState) -> None:
         """
