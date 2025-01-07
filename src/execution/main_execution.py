@@ -92,6 +92,7 @@ def analyze_single_cfg(cfg: CFG, final_dir: Path, args: argparse.Namespace):
             for block_name, sfs in jsons.items():
                 cfg_sfs_dir = sfs_final_dir.joinpath(str(i))
                 cfg_sfs_dir.mkdir(exist_ok=True, parents=True)
+                sfs["name"] = block_name
                 store_sfs_json(block_name, sfs, cfg_sfs_dir)
                 try:
                     _, time, solution_found = greedy_standalone(sfs)
