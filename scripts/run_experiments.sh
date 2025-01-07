@@ -38,20 +38,27 @@ find "$DIRECTORIO_BASE" -type f -name "*standard_input.json" | while read -r yul
 
     # python3 extract_info.py "$yul_dir"
 
-    python3 replace_bytecode_test.py "$yul_dir/test" "$yul_dir/$yul_base.log"
 
-    echo "python3 replace_bytecode_test.py $yul_dir/test $yul_dir/$yul_base.log"
-
-    /Users/pablo/Repositorios/ethereum/solidity/build/test/tools/testrunner  /Users/pablo/Repositorios/ethereum/evmone/build/lib/libevmone.dylib $yul_dir/test $yul_dir/resultOriginal.json
-
-    /Users/pablo/Repositorios/ethereum/solidity/build/test/tools/testrunner  /Users/pablo/Repositorios/ethereum/evmone/build/lib/libevmone.dylib $yul_dir/test_grey $yul_dir/resultGrey.json
-
-    if diff $yul_dir/resultOriginal.json $yul_dir/resultGrey.json > /dev/null; then
-    echo "[RES]: Test passed."
-else
-    echo "[RES]: Test failed."
-fi
+    if [ -f "/ruta/al/directorio/nombre_del_archivo" ]; then
     
+        python3 replace_bytecode_test.py "$yul_dir/test" "$yul_dir/$yul_base.log"
+
+        echo "python3 replace_bytecode_test.py $yul_dir/test $yul_dir/$yul_base.log"
+
+        /Users/pablo/Repositorios/ethereum/solidity/build/test/tools/testrunner  /Users/pablo/Repositorios/ethereum/evmone/build/lib/libevmone.dylib $yul_dir/test $yul_dir/resultOriginal.json
+
+        /Users/pablo/Repositorios/ethereum/solidity/build/test/tools/testrunner  /Users/pablo/Repositorios/ethereum/evmone/build/lib/libevmone.dylib $yul_dir/test_grey $yul_dir/resultGrey.json
+
+        if diff $yul_dir/resultOriginal.json $yul_dir/resultGrey.json > /dev/null; then
+            echo "[RES]: Test passed."
+        else
+            echo "[RES]: Test failed."
+        fi
+
+    else
+        echo "Test not found"
+
+    fi
     
     echo "*************************************"
 
