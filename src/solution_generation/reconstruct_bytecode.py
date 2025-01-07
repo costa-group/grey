@@ -294,54 +294,76 @@ def traverse_cfg(cfg_object: CFGObject, asm_dicts: Dict[block_id_T, List[ASM_byt
     return object_code + function_code_list
 
 
-# Combine information from the greedy algorithm and the CFG
-def asm_from_cfg(cfg: CFG, asm_dicts: Dict[str, List[ASM_bytecode_T]], tags_dict: Dict,
-                 filename: str) -> ASM_contract_T:
+def recursive_runtime_asm_from_cfg(cfg: CFG, asm_dicts: Dict[str, List[ASM_bytecode_T]],
+                                   tags_dict: Dict, object_name: str) -> ASM_contract_T:
+    """
+    Returns the level of the form {.code: ..., .auxdata: ..., [.data: ...]}
+    """
     objects_cfg = cfg.get_objects()
 
-    if cfg.get_subobject() is not None:
-        subobjects = cfg.get_subobject().get_objects()
-    else:
-        subobjects = []
+    # Represents the structure
+    multiple_object_json = {}
+    deployed_object_name = f"{object_name}_deployed"
+    obj = objects_cfg[deployed_object_name]
+    tags = tags_dict[deployed_object_name]
 
-    json_object = {}
-    for obj_name in objects_cfg.keys():
+    asm = traverse_cfg(obj, asm_dicts, tags)
+
+    aux_data = "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+    current_object_json = {".code": asm, ".auxdata": aux_data}
+
+    sub_object = cfg.get_subobject()
+    if sub_object is not None:
+        json_asm_subobjects = recursive_init_asm_from_cfg(sub_object, asm_dicts, tags_dict)
+        current_object_json[".data"] = {"0": json_asm_subobjects}
+
+    return current_object_json
+
+
+def recursive_init_asm_from_cfg(cfg: CFG, asm_dicts: Dict[str, List[ASM_bytecode_T]], tags_dict: Dict) -> ASM_contract_T:
+    """
+    Returns the level of the form {"i": {.code: ..., .data: ...}}. Note that .auxdata does not appear and .data must
+    appear (as the init code has some runtime code associated)
+    """
+    objects_cfg = cfg.get_objects()
+
+    # Represents the structure of the multiple possible contracts {"0": ..., "1:..."}
+    multiple_object_json = {}
+    for i, obj_name in enumerate(objects_cfg):
         obj = objects_cfg[obj_name]
-
         tags = tags_dict[obj_name]
 
         asm = traverse_cfg(obj, asm_dicts, tags)
-        json_asm = {".code": asm}
+        current_object_json = {".code": asm}
 
-        json_asm_subobjects = {}
-        for idx, deployed_obj in enumerate(subobjects):
-            subobj = subobjects[deployed_obj]
-            tags = tags_dict[deployed_obj]
-            asm_subobj = traverse_cfg(subobj, asm_dicts, tags)
+        sub_object = cfg.get_subobject()
+        assert sub_object is not None, "Init code must be followed by the runtime code"
+        json_asm_subobjects = recursive_runtime_asm_from_cfg(sub_object, asm_dicts, tags_dict, obj_name)
 
-            aux_data = "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
-            subobj_asm_code = {".auxdata": aux_data, ".code": asm_subobj}
+        # It has only one subobject at this point (the deployed code)
+        current_object_json[".data"] = {f"0": json_asm_subobjects}
 
-            # TODO: Comprobar el 0
-            json_asm_subobjects[str(idx)] = subobj_asm_code
+        multiple_object_json[f"{i}"] = current_object_json
 
-        json_asm[".data"] = json_asm_subobjects
-
-        json_asm["sourceList"] = [filename]
-
-        json_object[obj_name] = json_asm
-
-    return json_object
+    return multiple_object_json
 
 
-def store_asm_output(json_object: Dict[str, Any], cfg_dir: Path) -> List[Path]:
-    asm_files = []
-    for object_name, object_asm in json_object.items():
-        file_to_store = cfg_dir.joinpath(object_name + "_asm.json")
-        with open(file_to_store, 'w') as f:
-            json.dump(object_asm, f, indent=4)
-        asm_files.append(file_to_store)
-    return asm_files
+def asm_from_cfg(cfg: CFG, asm_dicts: Dict[str, List[ASM_bytecode_T]], tags_dict: Dict, filename: str) -> ASM_contract_T:
+    """
+    Generates an assembly JSON from a CFG structure and the results of the optimization
+    """
+    #We have to access key "0" (there is only one contract at root level)
+    asm_json = recursive_init_asm_from_cfg(cfg, asm_dicts, tags_dict)["0"]
+    asm_json["sourceList"] = [filename]
+
+    return asm_json
+
+
+def store_asm_output(json_object: Dict[str, Any], object_name: str, cfg_dir: Path) -> Path:
+    file_to_store = cfg_dir.joinpath(object_name + "_asm.json")
+    with open(file_to_store, 'w') as f:
+        json.dump(json_object, f, indent=4)
+    return file_to_store
 
 def store_binary_output(object_name: str, evm_code: str, cfg_dir: Path) -> None:
     file_to_store = cfg_dir.joinpath(object_name + "_bin.evm")

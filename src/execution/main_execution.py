@@ -140,14 +140,11 @@ def main():
         print("Synthesizing...", cfg_name)
         cfg_dir = final_dir.joinpath(cfg_name)
         
-        json_asm_contract = analyze_single_cfg(cfg, cfg_dir, args)
+        asm_contract = analyze_single_cfg(cfg, cfg_dir, args)
 
-        # print(json_asm_contract)
-        
-        stored_asm_list = store_asm_output(json_asm_contract, cfg_dir)
+        assembly_path = store_asm_output(asm_contract, cfg_name, cfg_dir)
 
-        for asm_file in stored_asm_list:
-            synt_binary = SolidityCompilation.importer_assembly_file(asm_file, solc_executable=args.solc_executable)
-            print("Contract: "+cfg_name +" -> EVM Code: "+synt_binary)
+        synt_binary = SolidityCompilation.importer_assembly_file(assembly_path, solc_executable=args.solc_executable)
+        print("Contract: " + cfg_name + " -> EVM Code: " + synt_binary)
 
-            store_binary_output(cfg_name, synt_binary, cfg_dir)
+        store_binary_output(cfg_name, synt_binary, cfg_dir)
