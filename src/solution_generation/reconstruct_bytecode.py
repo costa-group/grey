@@ -329,9 +329,9 @@ def recursive_init_asm_from_cfg(cfg: CFG, asm_dicts: Dict[str, List[ASM_bytecode
 
     # Represents the structure of the multiple possible contracts {"0": ..., "1:..."}
     multiple_object_json = {}
-    for i, obj_name in enumerate(objects_cfg):
-        obj = objects_cfg[obj_name]
+    for obj_name, obj in objects_cfg.items():
         tags = tags_dict[obj_name]
+        asm_idx = cfg.get_object_idx(obj_name)
 
         asm = traverse_cfg(obj, asm_dicts, tags)
         current_object_json = {".code": asm}
@@ -343,7 +343,7 @@ def recursive_init_asm_from_cfg(cfg: CFG, asm_dicts: Dict[str, List[ASM_bytecode
         # It has only one subobject at this point (the deployed code)
         current_object_json[".data"] = {f"0": json_asm_subobjects}
 
-        multiple_object_json[f"{i}"] = current_object_json
+        multiple_object_json[f"{asm_idx}"] = current_object_json
 
     return multiple_object_json
 

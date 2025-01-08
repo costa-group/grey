@@ -24,8 +24,12 @@ class CFG:
         self.objectCFG: Dict[str, CFGObject] = {}
         self.subObjects: Optional[CFG] = None
 
+        # Stores an index for each object
+        self.objectCFG2idx: Dict[str, int] = {}
+
     def add_object(self, name: str, cfg_object: CFGObject) -> None:
         self.objectCFG[name] = cfg_object
+        self.objectCFG2idx[name] = len(self.objectCFG2idx)
 
     def get_object(self, name:str) -> CFGObject:
         return self.objectCFG[name]
@@ -38,6 +42,12 @@ class CFG:
 
     def get_subobject(self) -> 'CFG':
         return self.subObjects
+
+    def get_object_idx(self, object_name: str) -> int:
+        return self.objectCFG2idx[object_name]
+
+    def get_objectCFG2idx(self) -> Dict[str, int]:
+        return self.objectCFG2idx
 
     def get_as_json(self):
         json_cfg = {}
