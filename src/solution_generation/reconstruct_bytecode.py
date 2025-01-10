@@ -9,6 +9,7 @@ from parser.cfg_object import CFGObject
 from parser.cfg_function import CFGFunction
 from parser.cfg_block_list import CFGBlockList
 from parser.cfg_block import CFGBlock
+from parser.cfg_instruction import CFGInstruction
 from pathlib import Path
 
 
@@ -74,17 +75,12 @@ def asm_from_ids(sms: SMS_T, id_seq: List[str]) -> List[ASM_bytecode_T]:
     return id_seq_to_asm_bytecode(instr_id_to_instr, id_seq)
 
 
-def asm_for_split_instruction(block: CFGBlock, tag_dict: Dict[block_id_T, int],
+def asm_for_split_instruction(split_ins: CFGInstruction,
                               function_name2entry: Dict[block_id_T, block_id_T]) -> List[ASM_bytecode_T]:
     """
     Reconstructs the assembly from a block with a single split instruction. If the split instruction is a
     function invocation, then it replaces it by the corresponding JUMP instruction
     """
-
-    assert block.split_instruction is not None, \
-        f"[ERROR]: Block {block.block_id} split_instructions has to contain a value in a subblock"
-
-    split_ins = block.split_instruction
     entry_block = function_name2entry.get(split_ins.get_op_name(), None)
     if entry_block is not None:
         # Introduce a JUMP instruction to invoke the function
@@ -122,7 +118,9 @@ def generate_asm_split_blocks(init_block_id: block_id_T, blocks: Dict[block_id_T
 
         if jump_type == "sub_block":
             asm_subblock = asm_dicts.get(block_id, [])
-            asm_last = asm_for_split_instruction(block, tags_dict, function_name2entry)
+            assert block.split_instruction is not None, \
+                f"[ERROR]: Block {block.block_id} split_instructions has to contain a value in a subblock"
+            asm_last = asm_for_split_instruction(block.split_instruction, function_name2entry)
 
         else:
             raise Exception("[ERROR]: Jump type can only be sub_block")
@@ -138,7 +136,7 @@ def generate_asm_split_blocks(init_block_id: block_id_T, blocks: Dict[block_id_T
 
     # Split instruction contains both jumps and not handled instructions
     if block.split_instruction is not None:
-        asm_last = asm_for_split_instruction(block, tags_dict, function_name2entry)
+        asm_last = asm_for_split_instruction(block.split_instruction, function_name2entry)
     else:
         asm_last = []
 
@@ -209,16 +207,18 @@ def traverse_cfg_block_list(block_list: CFGBlockList, function_name2entry: Dict[
             asm_block = asm_dicts.get(block_id, None)
             
             if next_block.split_instruction is not None:
-                asm_last = asm_for_split_instruction(next_block, tags_dict, function_name2entry)
+                asm_last = asm_for_split_instruction(next_block.split_instruction, function_name2entry)
             else:
                 # if it is a falls_to or terminal split_instruction is None
                 # Otherwise it is jump or jumpi
                 asm_last = []
 
-            if asm_block ==[] and next_block.get_jump_type() == "terminal":
+            if asm_block == [] and next_block.get_jump_type() == "terminal":
                 assert(len(next_block.get_instructions()) == 1)
                 ins = next_block.get_instructions()[0]
-                asm_block = [asm_from_op_info(ins.get_op_name().upper())]
+
+                # Terminal blocks might contain calls to terminal functions (i.e. not so terminal...)
+                asm_block = asm_for_split_instruction(ins, function_name2entry)
                 
             asm_block += asm_last
 
