@@ -67,7 +67,7 @@ class CFG:
 
     def generate_id2block_list(self) -> Dict[component_name_T, CFGBlockList]:
         """
-        Returns the list of all blocks inside the same object, function and subobjects
+        Returns the list of all blocks inside the same object, function (excluding subObjects)
         """
         name2block_list = dict()
         for object_id, cfg_object in self.objectCFG.items():
@@ -76,11 +76,6 @@ class CFG:
             # We also consider the information per function
             for function_name, cfg_function in cfg_object.functions.items():
                 name2block_list[function_name] = cfg_function.blocks
-
-            subobject = self.get_subobject()
-
-            if subobject is not None:
-                name2block_list.update(subobject.generate_id2block_list())
 
         return name2block_list
 
