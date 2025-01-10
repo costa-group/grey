@@ -1129,7 +1129,7 @@ class SMSgreedy:
         # (as subsequent elements that must be placed are more shallow)
         self.debug_logger.debug_message(f"{cstate.max_solved - 1}")
         if cstate.max_solved - 1 > STACK_DEPTH:
-            self.reach_position_stack(cstate, cstate.max_solved - 1)
+            permutation_ops.extend(self.reach_position_stack(cstate, cstate.max_solved - 1))
 
         while cstate.stack != self._final_stack:
             topmost_element = cstate.top_stack()
