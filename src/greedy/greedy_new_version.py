@@ -126,6 +126,9 @@ class SymbolicState:
 
         # Number of times each variable is computed in the stack
         self.n_computed: Counter = Counter(initial_stack)
+        
+        # Stack variables that have been moved to the memory due to accessing deeper elements
+        self.vars_in_memory: List[var_id_T] = []
 
         # Debug mode: store all the ops applied and the stacks before and after
         if self.debug_mode:
@@ -359,6 +362,7 @@ class SymbolicState:
         Stores the topmost value in memory. Its behaviour is similar to POP
         """
         stack_var = self.stack.pop(0)
+        self.vars_in_memory.append(stack_var)
 
         # Var copies: we add one because the stack var is totally removed from the encoding
         self.stack_var_copies_needed[stack_var] += 1
@@ -1156,7 +1160,7 @@ class SMSgreedy:
         Finds an element that is not already solved.
         """
         for position in cstate.not_solved:
-            if position <= STACK_DEPTH:
+            if 0 < position <= STACK_DEPTH:
                 return position
         return None
 
@@ -1207,8 +1211,10 @@ class SMSgreedy:
         # TODO: better heuristics?
         move_vars_ops = []
         while current_position > STACK_DEPTH:
+            self.debug_logger.debug_message(f"Current_position: {current_position}")
             move_vars_ops.extend(cstate.store_in_memory())
             current_position -= 1
+            self.debug_logger.debug_message(f"Afterwards: {current_position}")
         return move_vars_ops
 
     def print_traces(self, cstate: SymbolicState) -> None:
