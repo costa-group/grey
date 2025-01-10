@@ -740,6 +740,7 @@ class SMSgreedy:
         # We just need to check that the positions in which the element appears in the
         # final stack are in range and not contain the element
         for position in reversed(self._var2pos_stack[var_elem]):
+            self.debug_logger.debug_message(f"{var_elem} Position {position}")
             fidx = idx_wrt_cstack(position, cstate.stack, self._final_stack)
 
             # When the index is negative, it means there are not enough elements in cstack
@@ -750,6 +751,8 @@ class SMSgreedy:
             # A variable must be moved when a positive index is found (less than STACK_DEPTH)
             # which does not contain yet the corresponding element
             elif min(len(cstate.stack), STACK_DEPTH) >= fidx >= 0 and cstate.stack[fidx] != var_elem:
+                self.debug_logger.debug_message(f"{fidx}")
+
                 yield fidx
 
     def _deepest_position(self, var_elem: var_id_T) -> Optional[int]:
@@ -1121,6 +1124,13 @@ class SMSgreedy:
         # TODO: complete code
         permutation_ops = []
 
+        # Previous step: if the deepest element that is not placed in its correct position cannot
+        # be reached directly, we have to make enough room to access it. This only needs to be done once
+        # (as subsequent elements that must be placed are more shallow)
+        self.debug_logger.debug_message(f"{cstate.max_solved - 1}")
+        if cstate.max_solved - 1 > STACK_DEPTH:
+            self.reach_position_stack(cstate, cstate.max_solved - 1)
+
         while cstate.stack != self._final_stack:
             topmost_element = cstate.top_stack()
             assert topmost_element is not None, "Topmost element cannot be None in solve permutation"
@@ -1133,36 +1143,28 @@ class SMSgreedy:
                 # Second case: there is a position in which the element must appear
                 misplaced = False
                 for position_available in self._available_positions(topmost_element, cstate):
-                    current_index = cstate.idx_wrt_fstack(position_available)
-
                     # Search for an available position in which the element is not already there
-                    if cstate.stack[current_index] != topmost_element:
+                    if cstate.stack[position_available] != topmost_element:
                         misplaced = True
                         break
 
                 if misplaced:
-                    permutation_ops.extend(cstate.swap(current_index))
+                    permutation_ops.extend(cstate.swap(position_available))
 
-                # Third case: the element is in its position, so we need to swap it with
-                # another element that is incorrectly placed
-                elif (next_position := self.find_not_solved(cstate)) is not None:
-                    permutation_ops.extend(cstate.swap(next_position))
-
-                # Forth case (worst case): there is no available element in its incorrect
-                # position, as it is too deep within the stack
                 else:
-                    permutation_ops.extend(self.reach_position_stack(cstate, cstate.max_solved - 1))
+                    assert cstate.idx_wrt_cstack(cstate.max_solved - 1) <= STACK_DEPTH, \
+                        "Solve Permutation loop has all elements within reach"
+
+                    # Third case: we need to load the element from the memory if it is not already in the stack
+                    last_misplaced_element = self._final_stack[cstate.max_solved - 1]
+                    if last_misplaced_element not in cstate.stack:
+                        permutation_ops.extend(cstate.from_memory(last_misplaced_element))
+
+                    # Forth case: just swap current element with the element at max_solved, as that one is misplaced
+                    else:
+                        permutation_ops.extend(cstate.swap(cstate.idx_wrt_cstack(cstate.max_solved - 1)))
 
         return permutation_ops
-
-    def find_not_solved(self, cstate: SymbolicState) -> Optional[cstack_pos_T]:
-        """
-        Finds an element that is not already solved.
-        """
-        for position in cstate.not_solved:
-            if 0 < position <= STACK_DEPTH:
-                return position
-        return None
 
     def reach_position_stack(self, cstate: SymbolicState, final_position: fstack_pos_T) -> List[instr_id_T]:
         """
@@ -1210,7 +1212,11 @@ class SMSgreedy:
         """
         # TODO: better heuristics?
         move_vars_ops = []
-        while current_position > STACK_DEPTH:
+
+        # There are two options: if the memory contains the corresponding element, then we store an extra element
+        # to be able to load it from memory
+        stored_in_memory = self._final_stack[cstate.idx_wrt_fstack(current_position)] in cstate.vars_in_memory
+        while (current_position > STACK_DEPTH and stored_in_memory) or current_position >= STACK_DEPTH:
             self.debug_logger.debug_message(f"Current_position: {current_position}")
             move_vars_ops.extend(cstate.store_in_memory())
             current_position -= 1
