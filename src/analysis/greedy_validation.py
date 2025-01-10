@@ -7,8 +7,12 @@ import json
 from typing import List, Dict, Tuple
 import sys
 from global_params.types import var_id_T, instr_id_T, instr_JSON_T
+import re
 
 DEBUG_MODE = False
+
+get_re = re.compile('GET\((.*)\)')
+set_re = re.compile('SET\((.*)\)')
 
 
 def extract_idx_from_id(instr_id: str) -> int:
@@ -34,6 +38,16 @@ def execute_instr_id(instr_id: str, cstack: List[var_id_T], user_instr: List[ins
         idx = int(instr_id[3:]) - 1
         assert 0 <= idx < len(cstack), f"Duplicating index {idx} in a stack in {len(cstack)} elements: {cstack}"
         cstack.insert(0, cstack[idx])
+
+    # GET x: just inserts the corresponding element in the memory
+    elif (get_match := get_re.match(instr_id)) is not None:
+        cstack.insert(0, get_match.group(1))
+
+    # SET x: just pops the element from the stack (as if it was stored in memory)
+    elif (set_match := set_re.match(instr_id)) is not None:
+        stack_var = set_match.group(1)
+        popped_var = cstack.pop(0)
+        assert stack_var == popped_var, "Attempting to store an unexpected variable in memory"
 
     # Otherwise, the remaining uninterpreted instructions
     else:
@@ -104,9 +118,15 @@ def check_execution_from_ids(sfs: Dict, instr_ids: List[instr_id_T]) -> bool:
     cstack, fstack = sfs['src_ws'].copy(), sfs['tgt_ws']
 
     for instr_id in instr_ids:
+        print(instr_id, cstack)
         execute_instr_id(instr_id, cstack, user_instr)
 
-    assert cstack == fstack, 'Ids - Stack do not match'
+    assert cstack == fstack, f"""
+                             Ids - Stack do not match. 
+                             Cstack {cstack}
+                             Fstack {fstack}
+                             """
+
     assert check_deps(instr_ids, dependencies), 'Dependencies are not coherent'
     for instr in user_instr:
         if any(instr_name in instr["disasm"] for instr_name in ["STORE"]):
