@@ -128,7 +128,7 @@ class SymbolicState:
         self.n_computed: Counter = Counter(initial_stack)
         
         # Stack variables that have been moved to the memory due to accessing deeper elements
-        self.vars_in_memory: List[var_id_T] = []
+        self.vars_in_memory: Set[var_id_T] = set()
 
         # Debug mode: store all the ops applied and the stacks before and after
         if self.debug_mode:
@@ -362,7 +362,7 @@ class SymbolicState:
         Stores the topmost value in memory. Its behaviour is similar to POP
         """
         stack_var = self.stack.pop(0)
-        self.vars_in_memory.append(stack_var)
+        self.vars_in_memory.add(stack_var)
 
         # Var copies: we add one because the stack var is totally removed from the encoding
         self.stack_var_copies_needed[stack_var] += 1
@@ -1215,12 +1215,19 @@ class SMSgreedy:
 
         # There are two options: if the memory contains the corresponding element, then we store an extra element
         # to be able to load it from memory
+        element_in_position = self._final_stack[cstate.idx_wrt_fstack(current_position)]
         stored_in_memory = self._final_stack[cstate.idx_wrt_fstack(current_position)] in cstate.vars_in_memory
-        while (current_position > STACK_DEPTH and stored_in_memory) or current_position >= STACK_DEPTH:
-            self.debug_logger.debug_message(f"Current_position: {current_position}")
+
+        while current_position > STACK_DEPTH or (current_position == STACK_DEPTH and stored_in_memory):
+            topmost_element = cstate.top_stack()
+
+            # The elements we are storing could be the one we will have to swap
+            if topmost_element == element_in_position:
+                stored_in_memory = True
+
             move_vars_ops.extend(cstate.store_in_memory())
             current_position -= 1
-            self.debug_logger.debug_message(f"Afterwards: {current_position}")
+
         return move_vars_ops
 
     def print_traces(self, cstate: SymbolicState) -> None:
