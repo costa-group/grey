@@ -8,6 +8,7 @@ import os
 from typing import List, Dict, Tuple, Any, Set, Optional, Generator, Union
 from collections import defaultdict, Counter
 import traceback
+from networkx.algorithms.traversal.depth_first_search import dfs_tree
 from enum import Enum, unique
 
 import networkx
@@ -82,6 +83,9 @@ def decrement_and_clean(counter: Counter, key):
     counter[key] -= 1  # Decrement the count
     if counter[key] == 0:  # Remove the key if the count reaches zero
         del counter[key]
+
+def subgraph_from_root(root: str, condensed_graph: nx.DiGraph) -> nx.DiGraph:
+    return condensed_graph.subgraph(nx.nodes(dfs_tree(condensed_graph, root)))
 
 
 class SymbolicState:
@@ -716,8 +720,8 @@ class SMSgreedy:
         """
         Main implementation of the greedy algorithm (i.e. the instruction scheduling algorithm)
         """
-        cstate: SymbolicState = SymbolicState(self._initial_stack, self._condensed_graph, self._stack_var_copies_needed,
-                                              self._user_instr, self._final_stack)
+        cstate: SymbolicState = self._initialize_initial_state()
+
         optg = []
 
         self.debug_logger.debug_initial(cstate.dep_graph.nodes)
@@ -774,6 +778,11 @@ class SMSgreedy:
         self.print_traces(cstate)
         return optg
 
+    def _initialize_initial_state(self) -> SymbolicState:
+        return SymbolicState(self._initial_stack, self._condensed_graph, self._stack_var_copies_needed,
+                             self._user_instr, self._final_stack)
+
+
     def _available_positions(self, var_elem: var_id_T, cstate: SymbolicState) -> Generator[cstack_pos_T, None, None]:
         """
         Generator for the set of available positions in cstack where the var element can be placed
@@ -827,6 +836,28 @@ class SMSgreedy:
             self.fixed_elements = pos_to_place
 
         return candidate_name, candidate_type
+
+    def _deepest_position_op(self, instr: instr_JSON_T, cstate: SymbolicState) -> int:
+        """
+        Studies which is the deepest position that needs to be accessed starting at start_position
+        with the current state. It also considers conmutative cases
+        """
+        input_vars = instr["inpt_sk"]
+        deepest_position = 0
+
+        for i, stack_var in enumerate(input_vars):
+
+            # If we need to compute another instruction, check it as well
+            associated_instr = self._var2instr.get(stack_var, None)
+            if associated_instr is not None and cstate.n_computed[stack_var] == 0 and \
+                    cstate.stack_var_copies_needed[stack_var] > 0:
+                # First we compute the instruction
+                deepest_position = max(deepest_position,
+                                       self._deepest_position_op(associated_instr, cstate))
+            else:
+                deepest_position = max(deepest_position, cstate.first_occurrence(stack_var))
+
+        return deepest_position
 
     def _select_candidate(self, current_candidates: List[instr_id_T],
                           cstate: SymbolicState) -> Tuple[Union[instr_id_T, var_id_T], str, Optional[int]]:
@@ -994,12 +1025,11 @@ class SMSgreedy:
 
         return seq
 
-    def _computation_order(self, instr: instr_JSON_T, start_position: cstack_pos_T,
-                           cstate: SymbolicState) -> List[var_id_T]:
+    def _must_be_reversed(self, instr: instr_JSON_T, start_position: cstack_pos_T,
+                           cstate: SymbolicState):
         """
-        Decides in which order the arguments of the instruction must be computed
+        Checks whether the arguments for a computation must be reversed or not
         """
-        self.debug_logger.debug_message(f"{start_position} {len(cstate.stack)}")
         if instr['commutative'] and -len(cstate.stack) <= start_position:
             # If it's commutative, study its dependencies.
             if self.debug_mode:
@@ -1017,10 +1047,17 @@ class SMSgreedy:
 
             # Condition2: the first argument just needs to be swapped
             condition2 = cstate.stack_var_copies_needed[instr['inpt_sk'][0]] == 0
-            if condition1 or condition2:
+            return condition1 or condition2
+        return False
+
+    def _computation_order(self, instr: instr_JSON_T, start_position: cstack_pos_T,
+                           cstate: SymbolicState) -> List[var_id_T]:
+        """
+        Decides in which order the arguments of the instruction must be computed
+        """
+        self.debug_logger.debug_message(f"{start_position} {len(cstate.stack)}")
+        if self._must_be_reversed(instr, start_position, cstate):
                 input_vars = instr['inpt_sk']
-            else:
-                input_vars = list(reversed(instr['inpt_sk']))
         else:
             input_vars = list(reversed(instr['inpt_sk']))
 
