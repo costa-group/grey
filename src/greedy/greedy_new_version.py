@@ -1075,26 +1075,32 @@ class SMSgreedy:
 
         # The value from instr2max_n_elems stores the maximum number of elements
         # that can appear in the stack in order to apply an operation
-        idx = min(len(input_vars) - 1, self._instr2max_n_elems[instr["id"]] - 1,
+        max_idx = min(len(input_vars) - 1, self._instr2max_n_elems[instr["id"]] - 1,
                   cstate.idx_wrt_cstack(cstate.max_solved - 1))
         count = 0
+        idx = 0
+        matching = True
 
-        while idx >= 0:
+        # We only consider elements until some of them need to be copied
+        while matching and max_idx >= idx:
             stack_idx, input_idx, count = idx, len(input_vars) - 1, 0
-            while stack_idx >= 0 and input_idx >= 0:
+            while matching and stack_idx >= 0 and input_idx >= 0:
                 # We can reuse the element
-                # TODO: decide if we consider whether some of the positions are solved or not
-                if cstate.stack[stack_idx] == input_vars[input_idx] and \
-                        cstate.stack_var_copies_needed[input_vars[input_idx]] == 0:
-                    count += 1
-                input_idx -= 1
-                stack_idx -= 1
+                # Only consider elements until some of them cannot be swapped
+                if cstate.stack_var_copies_needed[input_vars[input_idx]] == 0:
+                    if cstate.stack[stack_idx] == input_vars[input_idx]:
+                        count += 1
+                    input_idx -= 1
+                    stack_idx -= 1
+                else:
+                    matching = False
 
-            if count > best_possibility:
+            # We try to swap as much elements as possible
+            if matching and count >= best_possibility:
                 best_idx = cstate.positive_idx2negative(idx)
                 best_possibility = count
 
-            idx -= 1
+            idx += 1
 
         # Last case: if there is no better alternative, we just consider whether to consider the first element to
         # be swapped with the first element to consume
@@ -1150,8 +1156,9 @@ class SMSgreedy:
                 seq = cstate.swap(position_reusing)
                 self.debug_logger.debug_message(f"SWAP{position_reusing} {cstate.stack}")
 
-            # Subcase I.2: there is an element to use for duplicating and then swapping
-            elif position_reusing != -1 and cstate.elements_to_dup() > 0:
+            # Subcase I.2: there is an element to use for duplicating and then swapping. We only
+            # consider positions till the final stack, as they must be swapped at some point
+            elif position_reusing != -1 and cstate.elements_to_dup() > 0 and position_to_place >= - len(cstate.final_stack):
                 assert position_to_place == -len(cstate.stack) - 1, f"Position to place {position_to_place} is " \
                                                                     f"not coherent in stack {cstate}"
 
