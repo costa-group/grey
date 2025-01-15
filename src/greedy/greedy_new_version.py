@@ -14,6 +14,7 @@ import networkx
 import networkx as nx
 # from analysis.greedy_validation import check_execution_from_ids
 from global_params.types import var_id_T, instr_id_T, instr_JSON_T, SMS_T
+from greedy.utils import compute_max_n_elements
 
 # Specific type to identify which positions corresponds to the ones
 # in the current and final stacks
@@ -524,7 +525,8 @@ class SMSgreedy:
         nx.nx_agraph.write_dot(self._dep_graph, "dependency.dot")
         nx.nx_agraph.write_dot(self._condensed_graph, "condensed.dot")
 
-        self._determine_stack_vars_position(self._condensed_graph.nodes)
+        self._tree_dict = self._generate_dataflow_tree(self._condensed_graph.nodes)
+        self._instr2max_n_elems = self._max_n_elements_from_tree(self._tree_dict)
 
         # Determine which topmost elements can be reused in the graph
         self._top_can_be_used = {}
@@ -646,33 +648,36 @@ class SMSgreedy:
             any(self._stack_var_copies_needed[out_stack] > 1 or out_stack in self._final_stack
                 for out_stack in self._id2instr[node]["outpt_sk"])
 
-    def _determine_stack_vars_instr(self, original_instr_id: instr_id_T, instr: instr_JSON_T, term_graph: nx.DiGraph(),
-                                    relevant_nodes: Set[instr_id_T], stack_var_to_op: Dict[var_id_T, List[instr_id_T]]):
+    def _generate_dataflow_tree_instr(self, original_instr_id: instr_id_T, instr: instr_JSON_T, term_graph: nx.DiGraph(),
+                                      relevant_nodes: Set[instr_id_T]):
         instr_id = instr["id"]
-        term_graph.add_node(instr_id)
-        for input_var in instr["inpt_sk"]:
+        term_graph.add_node(instr_id, commutative=instr["commutative"])
+        for i, input_var in enumerate(instr["inpt_sk"]):
             subterm = self._var2instr.get(input_var, None)
             if subterm is not None and subterm["id"] not in relevant_nodes:
-                term_graph.add_edge(instr_id, subterm["id"])
-                self._determine_stack_vars_instr(original_instr_id, subterm, term_graph, relevant_nodes, stack_var_to_op)
+                term_graph.add_edge(instr_id, subterm["id"], position=i)
+                self._generate_dataflow_tree_instr(original_instr_id, subterm, term_graph, relevant_nodes)
             else:
-                term_graph.add_edge(instr_id, input_var)
-                stack_var_to_op[input_var].append(original_instr_id)
+                term_graph.add_edge(instr_id, input_var, position=i)
 
-    def _determine_stack_vars_position(self, relevant_nodes: Set[instr_id_T]):
+    def _generate_dataflow_tree(self, relevant_nodes: Set[instr_id_T]):
         """
-        Determines which stack vars must be placed in which position in order to compute a relevant
-        instruction, considering nested subterms. For instance, ADD(x0, SUB(x1, x2))
+        Generates a dataflow tree of a given node, considering only instructions that are not relevant
         """
         generated_graphs = dict()
-        stack_var_to_op = defaultdict(lambda: [])
         for relevant_node in relevant_nodes:
             instr = self._id2instr[relevant_node]
             instr_graph = nx.DiGraph()
-            self._determine_stack_vars_instr(instr["id"], instr, instr_graph, relevant_nodes, stack_var_to_op)
+            self._generate_dataflow_tree_instr(instr["id"], instr, instr_graph, relevant_nodes)
             generated_graphs[relevant_node] = instr_graph
-            nx.nx_agraph.write_dot(instr_graph, relevant_node + ".dot")
-        print(stack_var_to_op)
+            # nx.nx_agraph.write_dot(instr_graph, relevant_node + ".dot")
+        return generated_graphs
+
+    def _max_n_elements_from_tree(self, dataflow_tree_dict: Dict[str, nx.DiGraph]):
+        max_stack_size = dict()
+        for relevant_node, tree in dataflow_tree_dict.items():
+            max_stack_size[relevant_node] = compute_max_n_elements(relevant_node, tree)[0]
+        return max_stack_size
 
     def _compute_top_can_used(self, instr: instr_JSON_T, top_can_be_used: Dict[var_id_T, Set[var_id_T]]) -> Set[
         var_id_T]:
@@ -1017,7 +1022,8 @@ class SMSgreedy:
         input_vars = instr["inpt_sk"]
         best_possibility = 0
         best_idx = cstate.positive_idx2negative(-1)
-        idx = min(len(input_vars) - 1, len(cstate.stack) - 1, cstate.idx_wrt_cstack(cstate.max_solved - 1))
+        idx = min(len(input_vars) - 1, self._instr2max_n_elems[instr["id"]] - 1,
+                  cstate.idx_wrt_cstack(cstate.max_solved - 1))
         count = 0
 
         while idx >= 0:
