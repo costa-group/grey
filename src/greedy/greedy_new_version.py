@@ -755,7 +755,7 @@ class SMSgreedy:
                     ops = self.compute_instr(next_instr, self.fixed_elements, cstate)
                 elif how_to_compute == "deep":
                     # First, we clean the stack and then we compute the corresponding variable
-                    ops = self.reach_position_stack()
+                    ops = self.reach_position_stack(cstate, cstate.max_solved - 1)
                     ops.extend(self.compute_var(next_id, cstate.positive_idx2negative(-1), cstate))
                 else:
                     ops = self.compute_var(next_id, cstate.positive_idx2negative(-1), cstate)
@@ -1022,6 +1022,9 @@ class SMSgreedy:
         input_vars = instr["inpt_sk"]
         best_possibility = 0
         best_idx = cstate.positive_idx2negative(-1)
+
+        # The value from instr2max_n_elems stores the maximum number of elements
+        # that can appear in the stack in order to apply an operation
         idx = min(len(input_vars) - 1, self._instr2max_n_elems[instr["id"]] - 1,
                   cstate.idx_wrt_cstack(cstate.max_solved - 1))
         count = 0
