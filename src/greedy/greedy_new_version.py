@@ -87,6 +87,9 @@ def decrement_and_clean(counter: Counter, key):
 def subgraph_from_root(root: str, condensed_graph: nx.DiGraph) -> nx.DiGraph:
     return condensed_graph.subgraph(nx.nodes(dfs_tree(condensed_graph, root)))
 
+def subgraph_nodes(root: str, condensed_graph: nx.DiGraph):
+    return list(nx.nodes(dfs_tree(condensed_graph, root)))
+
 
 class SymbolicState:
     """
@@ -539,6 +542,8 @@ class SMSgreedy:
         for instr in self._user_instr:
             self._compute_top_can_used(instr, self._top_can_be_used)
 
+        self.must_compute_all = False
+
     def _compute_var_total_uses(self) -> Dict[var_id_T, int]:
         """
         Computes how many times each var must be computed due to appearing either in the final stack or as a subterm
@@ -672,7 +677,7 @@ class SMSgreedy:
         generated_graphs = dict()
         for relevant_node in relevant_nodes:
             instr = self._id2instr[relevant_node]
-            instr_graph = nx.DiGraph()
+            instr_graph = nx.MultiDiGraph()
             self._generate_dataflow_tree_instr(instr["id"], instr, instr_graph, relevant_nodes)
             generated_graphs[relevant_node] = instr_graph
             # nx.nx_agraph.write_dot(instr_graph, relevant_node + ".dot")
@@ -727,6 +732,9 @@ class SMSgreedy:
         self.debug_logger.debug_initial(cstate.dep_graph.nodes)
         current_candidates = []
 
+        # Whether we are computing an element that is very deep and we must compute everything
+        self.must_compute_all = False
+
         # For easier code, we end the while when we need to choose an
         # operation and there are no operations left
         while True:
@@ -751,7 +759,8 @@ class SMSgreedy:
             else:
                 # If there are no candidates remaining, we reload the ones from the state
                 if not current_candidates:
-                    current_candidates = cstate.dep_graph
+                    current_candidates = list(cstate.dep_graph.nodes)
+                    self.must_compute_all = False
 
                 # There are no operations left to choose, so we stop the search
                 if not cstate.has_computations():
@@ -763,10 +772,17 @@ class SMSgreedy:
                 if how_to_compute == "instr":
                     next_instr = self._id2instr[next_id]
                     ops = self.compute_instr(next_instr, self.fixed_elements, cstate)
+                    # Remove the instruction we are computing
+                    current_candidates.remove(next_id)
+
                 elif how_to_compute == "deep":
-                    # First, we clean the stack and then we compute the corresponding variable
-                    ops = self.reach_position_stack(cstate, cstate.max_solved - 1)
-                    ops.extend(self.compute_var(next_id, cstate.positive_idx2negative(-1), cstate))
+                    # We must compute all elements and place it in their position
+                    self.must_compute_all = True
+                    root_id = self._var2id[next_id]
+
+                    # We set the candidates from the element we want to compute
+                    current_candidates = subgraph_nodes(root_id, self._tree_dict[root_id])
+                    ops = []
                 else:
                     ops = self.compute_var(next_id, cstate.positive_idx2negative(-1), cstate)
 
@@ -781,7 +797,6 @@ class SMSgreedy:
     def _initialize_initial_state(self) -> SymbolicState:
         return SymbolicState(self._initial_stack, self._condensed_graph, self._stack_var_copies_needed,
                              self._user_instr, self._final_stack)
-
 
     def _available_positions(self, var_elem: var_id_T, cstate: SymbolicState) -> Generator[cstack_pos_T, None, None]:
         """
@@ -869,9 +884,12 @@ class SMSgreedy:
         best_candidate_score = -1,
         best_candidate_position = None
         candidate = None
+        option = None
 
-        # TODO: pass candidates as arguments
-        option = self._handle_too_deep(cstate)
+        # Only handle too deep choosing elements when we are not computing
+        # a deep element
+        if not self.must_compute_all:
+            option = self._handle_too_deep(cstate)
 
         # First case: too deep scenario
         if option is not None:
@@ -897,7 +915,7 @@ class SMSgreedy:
 
         # If the best candidate does not reuse the topmost element, we also try duplicating already existing elements
         # or cheap computations
-        if best_candidate_score[0] <= 0:
+        if not self.must_compute_all and best_candidate_score[0] <= 0:
             # Search among the positions not solved that are deepest than the one in the best candidate
             deepest_position = best_candidate_score[3] if len(best_candidate_score) == 4 else -1
             for position_not_solved in sorted(cstate.not_solved, reverse=True):
@@ -1105,13 +1123,6 @@ class SMSgreedy:
         # Last case: if there is no better alternative, we just consider whether to consider the first element to
         # be swapped with the first element to consume
         if len(cstate.stack) > 0 and best_idx == cstate.positive_idx2negative(-1):
-            elements_to_dup = cstate.elements_to_dup()
-
-            # There are not enough elements to duplicate and swap. Hence, we need to reuse some of them
-            if len(input_vars) > elements_to_dup:
-                self.debug_logger.debug_message(f"{len(input_vars) - elements_to_dup} {cstate.max_solved - 1}")
-                return 0, cstate.positive_idx2negative(min(len(input_vars) - elements_to_dup, cstate.max_solved - 1,
-                                                           len(cstate.stack) - 1))
 
             # If I need to swap one of the arguments, I take the first element
             if len(input_vars) > 0 and cstate.stack_var_copies_needed[input_vars[-1]] == 0 \
@@ -1172,6 +1183,7 @@ class SMSgreedy:
                 self.debug_logger.debug_message(f"Computing other element to SWAP: DUP{idx} {cstate.stack}", depth)
 
                 # Afterwards, we swap the element we have computed (considering we have added an extra element)
+                # Strange case: we might just have computed the element we needed
                 seq.extend(cstate.swap(position_reusing + 1))
 
             # Case II: we duplicate the element that is within reach
