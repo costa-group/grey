@@ -123,7 +123,7 @@ class SymbolicState:
 
         # Maximum element that is sorted (i.e. elements from that point on must not be modified
         # in the current stack)
-        self.max_solved = max(self.not_solved) + 1
+        self.max_solved = 0 if len(self.not_solved) == 0 else max(self.not_solved) + 1
 
         # Number of times each variable is computed in the stack
         self.n_computed: Counter = Counter(initial_stack)
@@ -140,7 +140,8 @@ class SymbolicState:
         Annotates that the idx is no longer solved
         """
         try:
-            self.not_solved.add(idx)
+            if idx >= 0:
+                self.not_solved.add(idx)
         except KeyError:
             pass
 
@@ -720,6 +721,7 @@ class SMSgreedy:
         optg = []
 
         self.debug_logger.debug_initial(cstate.dep_graph.nodes)
+        current_candidates = []
 
         # For easier code, we end the while when we need to choose an
         # operation and there are no operations left
@@ -743,11 +745,15 @@ class SMSgreedy:
             # Case 3: Top of the stack cannot be moved to the corresponding position.
             # Hence, we just generate the following computation
             else:
+                # If there are no candidates remaining, we reload the ones from the state
+                if not current_candidates:
+                    current_candidates = cstate.dep_graph
+
                 # There are no operations left to choose, so we stop the search
                 if not cstate.has_computations():
                     break
 
-                next_id, how_to_compute = self.choose_next_computation(cstate)
+                next_id, how_to_compute = self.choose_next_computation(current_candidates, cstate)
                 self.debug_logger.debug_choose_computation(next_id, how_to_compute, cstate)
 
                 if how_to_compute == "instr":
@@ -810,22 +816,25 @@ class SMSgreedy:
             return next_available_pos is not None, next_available_pos
         return False, -1
 
-    def choose_next_computation(self, cstate: SymbolicState) -> Tuple[Union[instr_id_T, var_id_T], str]:
+    def choose_next_computation(self, current_candidates: List[instr_id_T],
+                                cstate: SymbolicState) -> Tuple[Union[instr_id_T, var_id_T], str]:
         """
         Returns either a stack element or an instruction that must be computed
         """
-        candidate_name, candidate_type, pos_to_place = self._select_candidate(cstate)
+        candidate_name, candidate_type, pos_to_place = self._select_candidate(current_candidates, cstate)
 
         if pos_to_place is not None:
             self.fixed_elements = pos_to_place
 
         return candidate_name, candidate_type
 
-    def _select_candidate(self, cstate: SymbolicState) -> Tuple[Union[instr_id_T, var_id_T], str, Optional[int]]:
+    def _select_candidate(self, current_candidates: List[instr_id_T],
+                          cstate: SymbolicState) -> Tuple[Union[instr_id_T, var_id_T], str, Optional[int]]:
         """
         Decides which stack variable or instruction must be computed using a scoring system
         """
-        new_instr, cheap_stack_elems, dup_stack_elems = cstate.candidates()
+        _, cheap_stack_elems, dup_stack_elems = cstate.candidates()
+
         best_candidate_score = -1,
         best_candidate_position = None
         candidate = None
@@ -837,8 +846,12 @@ class SMSgreedy:
         if option is not None:
             return option
 
+        # We filter candidates that have no dependencies from the current list
+        not_dependent_candidates = [candidate for candidate in current_candidates
+                                    if cstate.dep_graph.out_degree(candidate) == 0]
+
         # First, we evaluate the remaining instructions
-        for id_ in new_instr:
+        for id_ in not_dependent_candidates:
             score_id, pos_to_place = self._score_instr(self._id2instr[id_], cstate)
 
             # To decide whether the current candidate is the best so far, we use the information from deepest_pos
