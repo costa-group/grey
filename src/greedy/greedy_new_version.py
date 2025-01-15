@@ -524,6 +524,8 @@ class SMSgreedy:
         nx.nx_agraph.write_dot(self._dep_graph, "dependency.dot")
         nx.nx_agraph.write_dot(self._condensed_graph, "condensed.dot")
 
+        self._determine_stack_vars_position(self._condensed_graph.nodes)
+
         # Determine which topmost elements can be reused in the graph
         self._top_can_be_used = {}
 
@@ -643,6 +645,34 @@ class SMSgreedy:
         return "STORE" in node or len(self._id2instr[node]["outpt_sk"]) > 1 or \
             any(self._stack_var_copies_needed[out_stack] > 1 or out_stack in self._final_stack
                 for out_stack in self._id2instr[node]["outpt_sk"])
+
+    def _determine_stack_vars_instr(self, original_instr_id: instr_id_T, instr: instr_JSON_T, term_graph: nx.DiGraph(),
+                                    relevant_nodes: Set[instr_id_T], stack_var_to_op: Dict[var_id_T, List[instr_id_T]]):
+        instr_id = instr["id"]
+        term_graph.add_node(instr_id)
+        for input_var in instr["inpt_sk"]:
+            subterm = self._var2instr.get(input_var, None)
+            if subterm is not None and subterm["id"] not in relevant_nodes:
+                term_graph.add_edge(instr_id, subterm["id"])
+                self._determine_stack_vars_instr(original_instr_id, subterm, term_graph, relevant_nodes, stack_var_to_op)
+            else:
+                term_graph.add_edge(instr_id, input_var)
+                stack_var_to_op[input_var].append(original_instr_id)
+
+    def _determine_stack_vars_position(self, relevant_nodes: Set[instr_id_T]):
+        """
+        Determines which stack vars must be placed in which position in order to compute a relevant
+        instruction, considering nested subterms. For instance, ADD(x0, SUB(x1, x2))
+        """
+        generated_graphs = dict()
+        stack_var_to_op = defaultdict(lambda: [])
+        for relevant_node in relevant_nodes:
+            instr = self._id2instr[relevant_node]
+            instr_graph = nx.DiGraph()
+            self._determine_stack_vars_instr(instr["id"], instr, instr_graph, relevant_nodes, stack_var_to_op)
+            generated_graphs[relevant_node] = instr_graph
+            nx.nx_agraph.write_dot(instr_graph, relevant_node + ".dot")
+        print(stack_var_to_op)
 
     def _compute_top_can_used(self, instr: instr_JSON_T, top_can_be_used: Dict[var_id_T, Set[var_id_T]]) -> Set[
         var_id_T]:
