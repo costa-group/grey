@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "inline_assembly_storage_access_inside_function.sol": {
+            "content": "contract C {\n    uint16 x;\n    uint16 public y;\n    uint256 public z;\n\n    function f() public returns (bool) {\n        uint256 off1;\n        uint256 off2;\n        assembly {\n            function f() -> o1 {\n                sstore(z.slot, 7)\n                o1 := y.offset\n            }\n            off2 := f()\n        }\n        assert(off2 == 2);\n        return true;\n    }\n}\n// ----\n// f() -> true\n// z() -> 7\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

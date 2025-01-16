@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "copy_struct_to_array_stored_in_mapping.sol": {
+            "content": "pragma abicoder v2;\n\ncontract C {\n    struct S {\n        uint8 x;\n    }\n\n    constructor() {\n        s = S({x: 7});\n        m2[0].push();\n    }\n\n    S s;\n\n    mapping (uint8 => S[2]) m1;\n    mapping (uint8 => S[]) m2;\n\n    function from_storage_to_static_array() public returns (S[2] memory) {\n        m1[0][1] = s;\n        return m1[0];\n    }\n\n    function from_storage_to_dynamic_array() public returns (S[] memory) {\n        m2[0][0] = s;\n        return m2[0];\n    }\n\n    function from_memory_to_static_array() public returns (S[2] memory) {\n        S memory sLocal = s;\n        m1[0][1] = sLocal;\n        return m1[0];\n    }\n\n    function from_memory_to_dynamic_array() public returns (S[] memory) {\n        S memory sLocal = s;\n        m2[0][0] = sLocal;\n        return m2[0];\n    }\n\n    function from_calldata_to_static_array(S calldata sCalldata) public returns (S[2] memory) {\n        m1[0][1] = sCalldata;\n        return m1[0];\n    }\n\n    function from_calldata_to_dynamic_array(S calldata sCalldata) public returns (S[] memory) {\n        m2[0][0] = sCalldata;\n        return m2[0];\n    }\n}\n// ----\n// from_storage_to_static_array() -> 0, 7\n// from_storage_to_dynamic_array() -> 0x20, 1, 7\n// from_memory_to_static_array() -> 0, 7\n// from_memory_to_dynamic_array() -> 0x20, 1, 7\n// from_calldata_to_static_array((uint8)): 8 -> 0, 8\n// from_calldata_to_dynamic_array((uint8)): 8 -> 0x20, 1, 8\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

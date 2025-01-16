@@ -1,0 +1,26 @@
+{
+    "semanticTests/constants/function_unreferenced.sol": {
+        "bytecode": "608080604052346013576060908160188239f35b5f80fdfe60808060405260043610156011575f80fd5b5f3560e01c90816326121ff0146043575063e2179b8e14602f575f80fd5b34603f575f366003190112603f57005b5f80fd5b34603f575f366003190112603f5763710bcdc760e11b8152602090f3",
+        "contract": ":C",
+        "tests": [
+            {
+                "input": {
+                    "calldata": "",
+                    "value": "0"
+                },
+                "kind": "constructor"
+            },
+            {
+                "input": {
+                    "calldata": "26121ff0",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "e2179b8e00000000000000000000000000000000000000000000000000000000",
+                    "status": "success"
+                }
+            }
+        ]
+    }
+}

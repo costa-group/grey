@@ -1,0 +1,26 @@
+{
+    "semanticTests/viaYul/storage/dirty_storage_static_array.sol": {
+        "bytecode": "608080604052346013576057908160188239f35b5f80fdfe608060405260043610156010575f80fd5b5f3560e01c6326121ff0146022575f80fd5b346053575f3660031901126053576101015f5560206001806049565b506040519015158152f35b60019150145f603e565b5f80fd",
+        "contract": ":C",
+        "tests": [
+            {
+                "input": {
+                    "calldata": "",
+                    "value": "0"
+                },
+                "kind": "constructor"
+            },
+            {
+                "input": {
+                    "calldata": "26121ff0",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "0000000000000000000000000000000000000000000000000000000000000001",
+                    "status": "success"
+                }
+            }
+        ]
+    }
+}

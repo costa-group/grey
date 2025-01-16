@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "external_call_to_nonexisting.sol": {
+            "content": "// This tests skipping the extcodesize check.\n\ninterface I {\n    function a() external pure;\n    function b() external;\n    function c() external payable;\n    function x() external returns (uint);\n    function y() external returns (string memory);\n}\ncontract C {\n    I i = I(address(0xcafecafe));\n    constructor() payable {}\n    function f(uint c) external returns (uint) {\n        if (c == 0) i.a();\n        else if (c == 1) i.b();\n        else if (c == 2) i.c();\n        else if (c == 3) i.c{value: 1}();\n        else if (c == 4) i.x();\n        else if (c == 5) i.y();\n        return 1 + c;\n    }\n}\n// ----\n// constructor(), 1 ether ->\n// gas irOptimized: 88853\n// gas irOptimized code: 164400\n// gas legacy: 102721\n// gas legacy code: 334400\n// gas legacyOptimized: 91499\n// gas legacyOptimized code: 196400\n// f(uint256): 0 -> FAILURE\n// f(uint256): 1 -> FAILURE\n// f(uint256): 2 -> FAILURE\n// f(uint256): 3 -> FAILURE\n// f(uint256): 4 -> FAILURE\n// f(uint256): 5 -> FAILURE\n// f(uint256): 6 -> 7\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

@@ -12,7 +12,8 @@ from parser.cfg import store_sfs_json, CFG
 from execution.sol_compilation import SolidityCompilation
 from greedy.greedy_new_version import greedy_standalone
 from solution_generation.statistics import generate_statistics_info
-from solution_generation.reconstruct_bytecode import asm_from_ids, asm_from_cfg, store_asm_output
+from solution_generation.reconstruct_bytecode import asm_from_ids, asm_from_cfg, store_asm_output,  store_binary_output
+
 from liveness.layout_generation import layout_generation
 from cfg_methods.preprocessing_methods import preprocess_cfg
 
@@ -114,7 +115,7 @@ def analyze_single_cfg(cfg: CFG, final_dir: Path, args: argparse.Namespace):
         
 
 def main():
-    print("Green Main")
+    print("Grey Main")
     args = parse_args()
 
     x = dtimer()
@@ -138,6 +139,12 @@ def main():
     for cfg_name, cfg in cfgs.items():
         print("Synthesizing...", cfg_name)
         cfg_dir = final_dir.joinpath(cfg_name)
-        json_asm_contract = analyze_single_cfg(cfg, cfg_dir, args)
+        
+        asm_contract = analyze_single_cfg(cfg, cfg_dir, args)
 
-        store_asm_output(json_asm_contract, cfg_dir)
+        assembly_path = store_asm_output(asm_contract, cfg_name, cfg_dir)
+
+        synt_binary = SolidityCompilation.importer_assembly_file(assembly_path, solc_executable=args.solc_executable)
+        print("Contract: " + cfg_name + " -> EVM Code: " + synt_binary)
+
+        store_binary_output(cfg_name, synt_binary, cfg_dir)

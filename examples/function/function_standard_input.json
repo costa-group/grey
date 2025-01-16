@@ -1,0 +1,34 @@
+{
+    "language": "Yul",
+    "sources": {
+        "function.yul": {
+            "content": "{\n    function f(a, b) -> r {\n        let x := add(a,b)\n        r := sub(x,a)\n    }\n    function g() {\n        sstore(0x01, 0x0101)\n    }\n    function h(x) {\n        h(f(x, 0))\n        g()\n    }\n    function i() -> v, w {\n        v := 0x0202\n        w := 0x0303\n    }\n    let x, y := i()\n    h(x)\n    h(y)\n}\n// ----\n// digraph CFG {\n// nodesep=0.7;\n// node[shape=box];\n//\n// Entry [label=\"Entry\"];\n// Entry -> Block0;\n// Block0 [label=\"\\\n// i: [ RET[i] ] => [ TMP[i, 0] TMP[i, 1] ]\\l\\\n// Assignment(x, y): [ TMP[i, 0] TMP[i, 1] ] => [ x y ]\\l\\\n// h: [ x ] => [ ]\\l\\\n// \"];\n// Block0Exit [label=\"Terminated\"];\n// Block0 -> Block0Exit;\n//\n// FunctionEntry_f_1 [label=\"function f(a, b) -> r\"];\n// FunctionEntry_f_1 -> Block1;\n// Block1 [label=\"\\\n// add: [ b a ] => [ TMP[add, 0] ]\\l\\\n// Assignment(x): [ TMP[add, 0] ] => [ x ]\\l\\\n// sub: [ a x ] => [ TMP[sub, 0] ]\\l\\\n// Assignment(r): [ TMP[sub, 0] ] => [ r ]\\l\\\n// \"];\n// Block1Exit [label=\"FunctionReturn[f]\"];\n// Block1 -> Block1Exit;\n//\n// FunctionEntry_g_2 [label=\"function g()\"];\n// FunctionEntry_g_2 -> Block2;\n// Block2 [label=\"\\\n// sstore: [ 0x0101 0x01 ] => [ ]\\l\\\n// \"];\n// Block2Exit [label=\"FunctionReturn[g]\"];\n// Block2 -> Block2Exit;\n//\n// FunctionEntry_h_3 [label=\"function h(x)\"];\n// FunctionEntry_h_3 -> Block3;\n// Block3 [label=\"\\\n// f: [ RET[f] 0x00 x ] => [ TMP[f, 0] ]\\l\\\n// h: [ TMP[f, 0] ] => [ ]\\l\\\n// \"];\n// Block3Exit [label=\"Terminated\"];\n// Block3 -> Block3Exit;\n//\n// FunctionEntry_i_4 [label=\"function i() -> v, w\"];\n// FunctionEntry_i_4 -> Block4;\n// Block4 [label=\"\\\n// Assignment(v): [ 0x0202 ] => [ v ]\\l\\\n// Assignment(w): [ 0x0303 ] => [ w ]\\l\\\n// \"];\n// Block4Exit [label=\"FunctionReturn[i]\"];\n// Block4 -> Block4Exit;\n//\n// }\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

@@ -1,0 +1,40 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "s1.sol": {
+            "content": "function f() pure returns (uint) { return 1337; }\ncontract C {\n  function g() public pure virtual returns (uint) {\n    return f();\n  }\n}"
+        },
+        "s2.sol": {
+            "content": "import \"s1.sol\";\ncontract D is C {\n  function g() public pure virtual override returns (uint) {\n    return super.g() + 1;\n  }\n}"
+        },
+        "s3.sol": {
+            "content": "import \"s2.sol\";\ncontract E is D {\n  function g() public pure override returns (uint) {\n    return super.g() + 1;\n  }\n}\n// ----\n// g() -> 1339"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

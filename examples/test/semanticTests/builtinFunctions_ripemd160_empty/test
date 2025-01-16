@@ -1,0 +1,26 @@
+{
+    "semanticTests/builtinFunctions/ripemd160_empty.sol": {
+        "bytecode": "60808060405234601357606a908160188239f35b5f80fdfe608060405260043610156010575f80fd5b5f3560e01c6326121ff0146022575f80fd5b346066575f36600319011260665760205f808060035afa15605b5760205f5160601b604051906bffffffffffffffffffffffff19168152f35b6040513d5f823e3d90fd5b5f80fd",
+        "contract": ":C",
+        "tests": [
+            {
+                "input": {
+                    "calldata": "",
+                    "value": "0"
+                },
+                "kind": "constructor"
+            },
+            {
+                "input": {
+                    "calldata": "26121ff0",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "9c1185a5c5e9fc54612808977ee8f548b2258d31000000000000000000000000",
+                    "status": "success"
+                }
+            }
+        ]
+    }
+}

@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "value_complex.sol": {
+            "content": "contract helper {\n    function getBalance() public payable returns (uint256 myBalance) {\n        return address(this).balance;\n    }\n}\n\n\ncontract test {\n    helper h;\n\n    constructor() payable {\n        h = new helper();\n    }\n\n    function sendAmount(uint256 amount) public payable returns (uint256 bal) {\n        uint256 someStackElement = 20;\n        return h.getBalance{value: amount + 3, gas: 1000}();\n    }\n}\n// ----\n// constructor(), 20 wei ->\n// gas irOptimized: 114463\n// gas irOptimized code: 58800\n// gas legacy: 120091\n// gas legacy code: 132400\n// gas legacyOptimized: 114536\n// gas legacyOptimized code: 65800\n// sendAmount(uint256): 5 -> 8\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

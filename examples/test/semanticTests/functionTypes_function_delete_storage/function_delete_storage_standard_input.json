@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "function_delete_storage.sol": {
+            "content": "contract C {\n    function a() public returns (uint256) {\n        return 7;\n    }\n\n    function() returns (uint256) internal y;\n\n    function set() public returns (uint256) {\n        y = a;\n        return y();\n    }\n\n    function d() public returns (uint256) {\n        delete y;\n        return 1;\n    }\n\n    function ca() public returns (uint256) {\n        return y();\n    }\n}\n// ----\n// set() -> 7\n// ca() -> 7\n// d() -> 1\n// ca() -> FAILURE, hex\"4e487b71\", 0x51\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

@@ -1,0 +1,37 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "A": {
+            "content": "enum E {A, B}\nstruct S { uint x; }\ntype T is uint;\nusing L for E global;\nusing L for S global;\nusing L for T global;\nlibrary L {\n    function f(E e) internal pure returns (uint) {\n        return uint(e);\n    }\n    function f(S memory s) internal pure returns (uint) {\n        return s.x;\n    }\n    function f(T t) internal pure returns (uint) {\n        return T.unwrap(t);\n    }\n}"
+        },
+        "B": {
+            "content": "contract C {\n    function f() public pure returns (uint a, uint b, uint c) {\n        E e = E.B;\n        a = e.f();\n        S memory s;\n        s.x = 7;\n        b = s.f();\n        T t = T.wrap(9);\n        c = t.f();\n    }\n}\n\nimport {E, S, T} from \"A\";\n\n// ----\n// f() -> 1, 7, 9"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "byte_array_storage_layout.sol": {
+            "content": "contract c {\n    bytes data;\n    function test_short() public returns (uint256 r) {\n        assembly {\n            sstore(data.slot, 0)\n        }\n        for (uint8 i = 0; i < 15; i++) {\n            data.push(bytes1(i));\n        }\n        assembly {\n            r := sload(data.slot)\n        }\n    }\n\n    function test_long() public returns (uint256 r) {\n        assembly {\n            sstore(data.slot, 0)\n        }\n        for (uint8 i = 0; i < 33; i++) {\n            data.push(bytes1(i));\n        }\n        assembly {\n            r := sload(data.slot)\n        }\n    }\n\n    function test_pop() public returns (uint256 r) {\n        assembly {\n            sstore(data.slot, 0)\n        }\n        for (uint8 i = 0; i < 32; i++) {\n            data.push(bytes1(i));\n        }\n        data.pop();\n        data.pop();\n        assembly {\n            r := sload(data.slot)\n        }\n    }\n}\n// ----\n// storageEmpty -> 1\n// test_short() -> 1780731860627700044960722568376587075150542249149356309979516913770823710\n// gas legacy: 59838\n// gas legacyOptimized: 58606\n// storageEmpty -> 0\n// test_long() -> 67\n// gas irOptimized: 89148\n// gas legacy: 101607\n// gas legacyOptimized: 100479\n// storageEmpty -> 0\n// test_pop() -> 1780731860627700044960722568376592200742329637303199754547598369979433020\n// gas legacy: 61930\n// gas legacyOptimized: 59404\n// storageEmpty -> 0\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

@@ -269,30 +269,40 @@ class CFGInstruction:
     def translate_memoryguard(self) :
         #It is trabslated as a push directly
         self.op = "push"
-        self.translate_builtin_args = self.builtin_args
+        new_builtin = []
+        for o in self.builtin_args:
+            hex_val = hex(int(o))
+            new_builtin.append(hex_val)
+        self.translate_builtin_args = new_builtin
         
         
-    def translate_datasize(self, subobjects_keys: List[str]) :
+    def translate_datasize(self, subobjects_keys: Dict[str, int]):
         self.op = "push #[$]"
-
+        
         builtin_val = self.builtin_args[0]
-        try:
-            pos = subobjects_keys.index(builtin_val)
+
+        pos = subobjects_keys.get(builtin_val, None)
+        if pos is not None:
             self.translate_builtin_args = ["{0:064X}".format(pos)]
-        except:
-            raise Exception("[ERROR]: Identifier not found in subobjects keys")
+        else:
+            print("[WARNING ERROR]: Identifier not found in subobjects keys")
+            self.translate_builtin_args = ["{0:064X}".format(0)]
+                       
+#            raise Exception("[ERROR]: Identifier not found in subobjects keys")
 
-
-    def translate_dataoffset(self, subobjects_keys: List[str]) :
+    def translate_dataoffset(self, subobjects_keys: Dict[str, int]):
         self.op = "push [$]"
 
         builtin_val = self.builtin_args[0]
-        try:
-            pos = subobjects_keys.index(builtin_val)
+
+        pos = subobjects_keys.get(builtin_val, None)
+        if pos is not None:
             self.translate_builtin_args = ["{0:064X}".format(pos)]
-        except:
-            raise Exception("[ERROR]: Identifier not found in subobjects keys")
-        
+        else:
+            print("[WARNING ERROR]: Identifier not found in subobjects keys")
+            self.translate_builtin_args = ["{0:064X}".format(0)]
+
+            # raise Exception("[ERROR]: Identifier not found in subobjects keys")
 
     def translate_datacopy(self) :
         self.op = "codecopy"
@@ -306,7 +316,7 @@ class CFGInstruction:
        self.op = "pushimmutable"
        self.translate_builtin_args = self.builtin_args
 
-    def translate_built_in_function(self, subobjects_keys: List[str]):
+    def translate_built_in_function(self, subobjects_keys: Dict[str, int]):
         self.builtin_op = self.op
         
         if self.op == "linkersymbol":
@@ -326,7 +336,7 @@ class CFGInstruction:
         else:
             raise Exception("[ERROR]: Built-in function is not recognized")
         
-    def translate_opcode(self, subobjects_keys: List[str]):
+    def translate_opcode(self, subobjects_keys: Dict[str, int]):
         if self.op in ["linkersymbol","memoryguard", "datasize", "dataoffset", "datacopy", "setimmutable", "loadimmutable"]:
             self.translate_built_in_function(subobjects_keys)
 

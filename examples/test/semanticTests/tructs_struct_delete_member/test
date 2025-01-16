@@ -1,0 +1,26 @@
+{
+    "semanticTests/structs/struct_delete_member.sol": {
+        "bytecode": "6080806040523460175760025f5560409081601c8239f35b5f80fdfe60808060405260043610156011575f80fd5b5f3560e01c63278be33f146023575f80fd5b34603c575f366003190112603c576020905f80555f8152f35b5f80fd",
+        "contract": ":test",
+        "tests": [
+            {
+                "input": {
+                    "calldata": "",
+                    "value": "0"
+                },
+                "kind": "constructor"
+            },
+            {
+                "input": {
+                    "calldata": "278be33f",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "0000000000000000000000000000000000000000000000000000000000000000",
+                    "status": "success"
+                }
+            }
+        ]
+    }
+}

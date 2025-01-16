@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "shift_left_uint8.sol": {
+            "content": "contract C {\n    function f(uint8 a, uint8 b) public returns (uint256) {\n        return a << b;\n    }\n}\n// ----\n// f(uint8,uint8): 0x66, 0x0 -> 0x66\n// f(uint8,uint8): 0x66, 0x8 -> 0\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

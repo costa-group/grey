@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "address_code_complex.sol": {
+            "content": "contract A {\n    constructor() {\n        assembly {\n            // This is only 7 bytes here.\n            mstore(0, 0x48aa5566000000)\n            return(0, 32)\n        }\n    }\n}\n\ncontract C {\n    function f() public returns (bytes memory) { return address(new A()).code; }\n    function g() public returns (uint) { return address(new A()).code.length; }\n}\n// ----\n// f() -> 0x20, 0x20, 0x48aa5566000000\n// g() -> 0x20\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

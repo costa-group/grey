@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "using_for_storage_structs.sol": {
+            "content": "struct Struct { uint x; }\n\nlibrary L {\n    function f(Struct storage _x) internal view returns (uint256) {\n      return _x.x;\n    }\n}\n\ncontract C {\n  using L for Struct;\n\n  Struct s;\n\n  function h(Struct storage _s) internal view returns (uint) {\n    // _s is pointer\n    return _s.f();\n  }\n  function g() public returns (uint, uint) {\n    s.x = 7;\n    // s is reference\n    return (s.f(), h(s));\n  }\n}\n// ----\n// g() -> 7, 7\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

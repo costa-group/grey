@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "interfaceId_events.sol": {
+            "content": "interface HelloWorld {\n    function hello() external pure;\n    function world(int) external pure;\n}\n\ninterface HelloWorldWithEvent {\n    event Event();\n    function hello() external pure;\n    function world(int) external pure;\n}\n\ncontract Test {\n    bytes4 public hello_world = type(HelloWorld).interfaceId;\n    bytes4 public hello_world_with_event = type(HelloWorldWithEvent).interfaceId;\n}\n// ----\n// hello_world() -> left(0xc6be8b58)\n// hello_world_with_event() -> left(0xc6be8b58)\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

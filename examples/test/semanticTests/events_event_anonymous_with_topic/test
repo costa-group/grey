@@ -1,0 +1,26 @@
+{
+    "semanticTests/events/event_anonymous_with_topics.sol": {
+        "bytecode": "60808060405234601357604b908160188239f35b5f80fdfe60808060405260043610156011575f80fd5b5f3560e01c63b214faa5146023575f80fd5b6020366003190112604757806261626360e81b6002925234906004359060203391a4005b5f80fd",
+        "contract": ":ClientReceipt",
+        "tests": [
+            {
+                "input": {
+                    "calldata": "",
+                    "value": "0"
+                },
+                "kind": "constructor"
+            },
+            {
+                "input": {
+                    "calldata": "b214faa50000000000000000000000000000000000000000000000000000000000001234",
+                    "value": "18"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "",
+                    "status": "success"
+                }
+            }
+        ]
+    }
+}

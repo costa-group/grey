@@ -1,0 +1,26 @@
+{
+    "semanticTests/builtinFunctions/sha256_empty.sol": {
+        "bytecode": "608080604052346013576058908160188239f35b5f80fdfe608060405260043610156010575f80fd5b5f3560e01c6326121ff0146022575f80fd5b346054575f36600319011260545760205f808060025afa1560495760205f51604051908152f35b6040513d5f823e3d90fd5b5f80fd",
+        "contract": ":C",
+        "tests": [
+            {
+                "input": {
+                    "calldata": "",
+                    "value": "0"
+                },
+                "kind": "constructor"
+            },
+            {
+                "input": {
+                    "calldata": "26121ff0",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                    "status": "success"
+                }
+            }
+        ]
+    }
+}

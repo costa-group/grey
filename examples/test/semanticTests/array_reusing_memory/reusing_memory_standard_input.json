@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "reusing_memory.sol": {
+            "content": "// Invoke some features that use memory and test that they do not interfere with each other.\ncontract Helper {\n    uint256 public flag;\n\n    constructor(uint256 x) {\n        flag = x;\n    }\n}\n\n\ncontract Main {\n    mapping(uint256 => uint256) map;\n\n    function f(uint256 x) public returns (uint256) {\n        map[x] = x;\n        return\n            (new Helper(uint256(keccak256(abi.encodePacked(this.g(map[x]))))))\n                .flag();\n    }\n\n    function g(uint256 a) public returns (uint256) {\n        return map[a];\n    }\n}\n// ----\n// f(uint256): 0x34 -> 0x46bddb1178e94d7f2892ff5f366840eb658911794f2c3a44c450aa2c505186c1\n// gas irOptimized: 99552\n// gas irOptimized code: 12400\n// gas legacy: 101551\n// gas legacy code: 23600\n// gas legacyOptimized: 99612\n// gas legacyOptimized code: 13400\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

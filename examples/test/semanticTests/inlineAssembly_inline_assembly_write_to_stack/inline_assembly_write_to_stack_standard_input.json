@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "inline_assembly_write_to_stack.sol": {
+            "content": "contract C {\n    function f() public returns (uint256 r, bytes32 r2) {\n        assembly {\n            r := 7\n            r2 := \"abcdef\"\n        }\n    }\n}\n// ----\n// f() -> 7, \"abcdef\"\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

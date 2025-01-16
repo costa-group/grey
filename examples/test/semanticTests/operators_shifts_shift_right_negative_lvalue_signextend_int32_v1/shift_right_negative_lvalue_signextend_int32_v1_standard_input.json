@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "shift_right_negative_lvalue_signextend_int32_v1.sol": {
+            "content": "pragma abicoder v1;\ncontract C {\n    function f(int32 a, uint32 b) public returns (int32) {\n        return a >> b;\n    }\n}\n// ====\n// ABIEncoderV1Only: true\n// compileViaYul: false\n// ----\n// f(int32,uint32): 0xffffff99, 0x00 -> 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff99\n// f(int32,uint32): 0xffffff99, 0x01 -> 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffcc\n// f(int32,uint32): 0xffffff99, 0x02 -> 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe6\n// f(int32,uint32): 0xffffff99, 0x04 -> 0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff9\n// f(int32,uint32): 0xffffff99, 0x08 -> 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

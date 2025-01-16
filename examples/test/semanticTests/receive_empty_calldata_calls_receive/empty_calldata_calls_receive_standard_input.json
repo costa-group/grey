@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "empty_calldata_calls_receive.sol": {
+            "content": "contract A {\n    uint public x;\n    receive () external payable { ++x; }\n}\n// ----\n// x() -> 0\n// ()\n// x() -> 1\n// (), 1 wei\n// x() -> 2\n// x(), 1 wei -> FAILURE\n// (): hex\"00\" -> FAILURE\n// (), 1 ether: hex\"00\" -> FAILURE\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

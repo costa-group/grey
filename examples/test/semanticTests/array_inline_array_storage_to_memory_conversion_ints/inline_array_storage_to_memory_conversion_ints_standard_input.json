@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "inline_array_storage_to_memory_conversion_ints.sol": {
+            "content": "contract C {\n    function f() public returns (uint256 x, uint256 y) {\n        x = 3;\n        y = 6;\n        uint256[2] memory z = [x, y];\n        return (z[0], z[1]);\n    }\n}\n// ----\n// f() -> 3, 6\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

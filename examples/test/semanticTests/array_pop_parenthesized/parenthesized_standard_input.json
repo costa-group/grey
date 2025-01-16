@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "parenthesized.sol": {
+            "content": "contract C {\n  int[] data;\n  function f() public returns (uint) {\n    data.push(1);\n    (data.pop)();\n    return data.length;\n  }\n}\n// ----\n// f() -> 0\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

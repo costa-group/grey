@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "duplicated_function_definition_with_same_id_in_internal_dispatcher.sol": {
+            "content": "contract C {\n    function a() internal {}\n    function f() public {\n        function() ptr1 = a;\n        function() ptr2 = a;\n    }\n}\n// ----\n// f()\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

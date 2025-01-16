@@ -7,6 +7,7 @@ from typing import Set, Dict, Tuple, List
 from collections import defaultdict
 
 import networkx as nx
+import numpy as np
 
 from global_params.types import block_id_T, component_name_T, function_name_T, block_list_id_T, var_id_T
 from parser.cfg_block import CFGBlock
@@ -159,11 +160,15 @@ def _adjust_phi_function_idx_misalignment(block: CFGBlock) -> int:
 
 
 def _must_be_inlined(function_name: function_name_T, call_info_list: List[call_info_T], function2costs: function2costs_T,
-                     n_function_exits: int):
+                     n_function_exits: int) -> bool:
     """
     Returns whether a function must be inlined or not, according to the call and costs info
     """
     gas_cost, size_cost = function2costs[function_name]
+
+    # We don't inline recursive functions (i.e. functions with infinite gas cost means they are in a recursion)
+    if gas_cost == np.inf:
+        return False
 
     # "Extra costs" with no inlining: introducing two tags + 2 JUMPDEST + 1 entry jump + multiple exit jumps
     no_inlining_extra_gas = (3 * 3) + 2 * 1 + 3 * (1 + n_function_exits)

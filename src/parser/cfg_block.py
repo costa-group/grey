@@ -549,7 +549,6 @@ class CFGBlock:
                 self.assignment_dict[stack_value] = "0x00" if stack_value == "bottom" else stack_value
                 assignments_out_to_remove.add(stack_value)
 
-        assignment2stack_var = dict()
         # Assignments might be generated from phi functions
         for out_val, in_val in self.assignment_dict.items():
             # if is_used:
@@ -565,9 +564,9 @@ class CFGBlock:
                     map_instructions[("PUSH", tuple([in_val]))] = push_ins
 
                     uninter_functions.append(push_ins)
-                    assignment2stack_var[out_val] = out_val
+                    aliasing_dict[out_val] = out_val
                 else:
-                    assignment2stack_var[out_val] = func["outpt_sk"][0]
+                    aliasing_dict[out_val] = func["outpt_sk"][0]
 
         # After constructing the specification, we remove the auxiliary values we have introduced in the
         # assignment dict
@@ -586,7 +585,7 @@ class CFGBlock:
 
         # Some of the final stack values can correspond to constant values already assigned, so we need to
         # unify the format with the corresponding representative stack variable
-        spec["tgt_ws"] = [assignment2stack_var.get(stack_value, stack_value) for stack_value in final_stack_bef_jump]
+        spec["tgt_ws"] = [aliasing_dict.get(stack_value, stack_value) for stack_value in final_stack_bef_jump]
 
         spec["user_instrs"] = uninter_functions
         spec["variables"] = self._get_vars_spec(uninter_functions)

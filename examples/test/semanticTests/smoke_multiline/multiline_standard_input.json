@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "multiline.sol": {
+            "content": "contract C {\n    function f(uint a, uint b, uint c, uint d, uint e) public returns (uint) {\n        return a + b + c + d + e;\n    }\n}\n// ====\n// allowNonExistingFunctions: true\n// ----\n// f(uint256,uint256,uint256,uint256,uint256): 1, 1, 1, 1, 1\n// -> 5\n// g()\n// # g() does not exist #\n// -> FAILURE\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

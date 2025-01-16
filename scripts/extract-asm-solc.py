@@ -17,11 +17,11 @@ def procesar_fichero(input_path):
         
         # Eliminar la línea "EVM assembly:"
         contenido_contrato = re.sub(r"EVM assembly:\n", "", contenido_contrato)
-        
+        dict_contenido = json.loads(contenido_contrato)
         # Crear el archivo JSON
         nombre_archivo = f"{nombre_contrato.replace(':', '_')}-asm-solc.json"
         with open(nombre_archivo, 'w') as output_file:
-            json.dump({"data": contenido_contrato.strip()}, output_file, indent=4)
+            json.dump(dict_contenido, output_file, indent=4)
         
         print(f"Archivo creado: {nombre_archivo}")
 

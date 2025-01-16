@@ -1,0 +1,26 @@
+{
+    "semanticTests/immutable/immutable_signed.sol": {
+        "bytecode": "60e08060405234603e576001196080526130b160f11b60a052600160c052608390816100438239608051816036015260a051816059015260c051815050f35b5f80fdfe60808060405260043610156011575f80fd5b5f3560e01c63a11426b6146023575f80fd5b34607f575f366003190112607f576040907f000000000000000000000000000000000000000000000000000000000000000081527f00000000000000000000000000000000000000000000000000000000000000006020820152f35b5f80fd",
+        "contract": ":C",
+        "tests": [
+            {
+                "input": {
+                    "calldata": "",
+                    "value": "0"
+                },
+                "kind": "constructor"
+            },
+            {
+                "input": {
+                    "calldata": "a11426b6",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe6162000000000000000000000000000000000000000000000000000000000000",
+                    "status": "success"
+                }
+            }
+        ]
+    }
+}

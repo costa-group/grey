@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "blockhash.sol": {
+            "content": "contract C {\n    function f() public returns(bytes32) {\n        return blockhash(1);\n    }\n    function g() public returns(bytes32) {\n        return blockhash(2);\n    }\n    function h() public returns(bytes32) {\n        return blockhash(3);\n    }\n}\n// ----\n// f() -> 0x3737373737373737373737373737373737373737373737373737373737373738\n// g() -> 0x3737373737373737373737373737373737373737373737373737373737373739\n// h() -> 0x373737373737373737373737373737373737373737373737373737373737373a\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "bytes_concat_different_types.sol": {
+            "content": "contract C {\n    bytes s = \"bcdef\";\n\n    function f(bytes memory a) public returns (bytes memory) {\n        return bytes.concat(a, \"bcdef\");\n    }\n    function g(bytes calldata a) public returns (bytes memory) {\n        return bytes.concat(a, \"abcdefghabcdefghabcdefghabcdefghab\");\n    }\n    function h(bytes calldata a) public returns (bytes memory) {\n        return bytes.concat(a, s);\n    }\n    function j(bytes calldata a) public returns (bytes memory) {\n        bytes storage ref = s;\n        return bytes.concat(a, ref, s);\n    }\n    function k(bytes calldata a, string memory b) public returns (bytes memory) {\n        return bytes.concat(a, bytes(b));\n    }\n    function slice(bytes calldata a) public returns (bytes memory) {\n        require(a.length > 2, \"\");\n        return bytes.concat(a[:2], a[2:]);\n    }\n    function strParam(string calldata a) public returns (bytes memory) {\n        return bytes.concat(bytes(a), \"bcdef\");\n    }\n    function fixedBytesParam(bytes16 b1, bytes15 b2, bytes31 b3) public returns (\n        bytes memory,\n        bytes memory,\n        bytes memory,\n        bytes memory\n    ) {\n        return (\n            bytes.concat(b1, b2),\n            bytes.concat(b1, b3),\n            bytes.concat(b1, \"bcdef\"),\n            bytes.concat(b1, s)\n        );\n    }\n    function fixedBytesParam2(bytes calldata c, bytes6 b1, bytes6 b2) public returns (bytes memory, bytes memory) {\n        return (\n            bytes.concat(s, b1, c),\n            bytes.concat(b1, c, b2)\n        );\n    }\n}\n// ====\n// revertStrings: debug\n// ----\n// f(bytes): 0x20, 32, \"abcdabcdabcdabcdabcdabcdabcdabcd\" -> 0x20, 37, \"abcdabcdabcdabcdabcdabcdabcdabcd\", \"bcdef\"\n// g(bytes): 0x20, 32, \"abcdabcdabcdabcdabcdabcdabcdabcd\" -> 0x20, 66, \"abcdabcdabcdabcdabcdabcdabcdabcd\", \"abcdefghabcdefghabcdefghabcdefgh\", \"ab\"\n// h(bytes): 0x20, 32, \"abcdabcdabcdabcdabcdabcdabcdabcd\" -> 0x20, 37, \"abcdabcdabcdabcdabcdabcdabcdabcd\", \"bcdef\"\n// j(bytes): 0x20, 32, \"abcdabcdabcdabcdabcdabcdabcdabcd\" -> 0x20, 42, \"abcdabcdabcdabcdabcdabcdabcdabcd\", \"bcdefbcdef\"\n// k(bytes,string): 0x40, 0x80, 32, \"abcdabcdabcdabcdabcdabcdabcdabcd\", 5, \"bcdef\" -> 0x20, 37, \"abcdabcdabcdabcdabcdabcdabcdabcd\", \"bcdef\"\n// slice(bytes): 0x20, 4, \"abcd\" -> 0x20, 4, \"abcd\"\n// strParam(string): 0x20, 32, \"abcdabcdabcdabcdabcdabcdabcdabcd\" -> 0x20, 37, \"abcdabcdabcdabcdabcdabcdabcdabcd\", \"bcdef\"\n// fixedBytesParam(bytes16,bytes15,bytes31):\n//  \"aabbccddeeffgghh\",\n//  \"abcdefghabcdefg\",\n//  \"0123456789012345678901234567890\" ->\n//  0x80, 0xc0, 0x120, 0x160,\n//  31, \"aabbccddeeffgghhabcdefghabcdefg\",\n//  47, \"aabbccddeeffgghh0123456789012345\", \"678901234567890\",\n//  21, \"aabbccddeeffgghhbcdef\",\n//  21, \"aabbccddeeffgghhbcdef\"\n// fixedBytesParam2(bytes,bytes6,bytes6): 0x60, left(0x010203040506), left(0x0708090A0B0C), 20, left(0x1011121314151617181920212223242526272829) ->\n//   0x40, 0x80,\n//   31, left(0x62636465660102030405061011121314151617181920212223242526272829),\n//   32, 0x01020304050610111213141516171819202122232425262728290708090A0B0C\n// fixedBytesParam2(bytes,bytes6,bytes6): 0x60, left(0x01), left(0x02), 5, left(0x03) ->\n//   0x40, 0x80,\n//   16, left(0x6263646566010000000000030000000000),\n//   17, left(0x010000000000030000000002000000000000)\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

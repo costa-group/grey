@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "require_error_function_pointer_parameter.sol": {
+            "content": "error CustomError(function(uint256) external pure returns (uint256));\n\ncontract C\n{\n    function e(uint256 x) external pure returns (uint256)\n    {\n        return x;\n    }\n\n    function f() external view\n    {\n        // more than one stack slot\n        require(false, CustomError(this.e));\n    }\n}\n\n// ----\n// f() -> FAILURE, hex\"271b1dfa\", hex\"c06afe3a8444fc0004668591e8306bfb9968e79ef37cdc8e0000000000000000\"\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "calldata_array_short_no_revert_string.sol": {
+            "content": "contract C {\n\tfunction f(uint[] calldata) public {}\n}\n// ----\n// f(uint256[]): 0x20, 0 ->\n// f(uint256[]): 0x20, 1 -> FAILURE\n// f(uint256[]): 0x20, 2 -> FAILURE\n\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "external_functions_with_calldata_args_assigned_to_function_pointers_with_memory_type.sol": {
+            "content": "contract C {\n    function g(string calldata) external returns (bool) { return true; }\n\n    function main() external returns (bool) {\n        function (string memory) external returns (bool) ptr = this.g;\n        return ptr(\"testString\");\n    }\n}\n// ----\n// main() -> true\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

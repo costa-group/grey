@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "calldata_structs.sol": {
+            "content": "pragma abicoder               v2;\n\n\ncontract C {\n    struct S1 {\n        uint256 a;\n        uint256 b;\n    }\n    struct S2 {\n        uint256 a;\n    }\n\n    function f(S1 calldata s1, S2 calldata s2, S1 calldata s3)\n        external\n        pure\n        returns (uint256 a, uint256 b, uint256 c, uint256 d, uint256 e)\n    {\n        a = s1.a;\n        b = s1.b;\n        c = s2.a;\n        d = s3.a;\n        e = s3.b;\n    }\n}\n// ----\n// f((uint256,uint256),(uint256),(uint256,uint256)): 1, 2, 3, 4, 5 -> 1, 2, 3, 4, 5\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

@@ -1,0 +1,37 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "A": {
+            "content": "type global is uint;\nusing { f } for global global;\nfunction f(global x) pure returns (global) { return global.wrap(global.unwrap(x) + 1); }"
+        },
+        "B": {
+            "content": "import { global } from \"A\";\n\nfunction g(global x) pure returns (global) { return global.wrap(global.unwrap(x) + 10); }\n\ncontract C {\n    using { g } for global;\n    function f(global r) public pure returns (global) {\n        return r.f().g();\n    }\n}\n// ----\n// f(uint256): 100 -> 111"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

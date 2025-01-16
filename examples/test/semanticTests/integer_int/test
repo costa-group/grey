@@ -1,0 +1,103 @@
+{
+    "semanticTests/integer/int.sol": {
+        "bytecode": "60808060405234601357609e908160188239f35b5f80fdfe60808060405260043610156011575f80fd5b5f3560e01c908162ab3179146087575080634b523bcf14606a5780637cf49c8014606a578063976555c514606a578063ccf14a6614606a578063dc74a33914606a578063e280e26c14606a5763ef91542614606a575f80fd5b346083575f366003190112608357602060405160018152f35b5f80fd5b346083575f36600319011260835780600160209252f3",
+        "contract": ":test",
+        "tests": [
+            {
+                "input": {
+                    "calldata": "",
+                    "value": "0"
+                },
+                "kind": "constructor"
+            },
+            {
+                "input": {
+                    "calldata": "4b523bcf",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "0000000000000000000000000000000000000000000000000000000000000001",
+                    "status": "success"
+                }
+            },
+            {
+                "input": {
+                    "calldata": "ccf14a66",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "0000000000000000000000000000000000000000000000000000000000000001",
+                    "status": "success"
+                }
+            },
+            {
+                "input": {
+                    "calldata": "7cf49c80",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "0000000000000000000000000000000000000000000000000000000000000001",
+                    "status": "success"
+                }
+            },
+            {
+                "input": {
+                    "calldata": "ef915426",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "0000000000000000000000000000000000000000000000000000000000000001",
+                    "status": "success"
+                }
+            },
+            {
+                "input": {
+                    "calldata": "dc74a339",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "0000000000000000000000000000000000000000000000000000000000000001",
+                    "status": "success"
+                }
+            },
+            {
+                "input": {
+                    "calldata": "976555c5",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "0000000000000000000000000000000000000000000000000000000000000001",
+                    "status": "success"
+                }
+            },
+            {
+                "input": {
+                    "calldata": "00ab3179",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "0000000000000000000000000000000000000000000000000000000000000001",
+                    "status": "success"
+                }
+            },
+            {
+                "input": {
+                    "calldata": "e280e26c",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "0000000000000000000000000000000000000000000000000000000000000001",
+                    "status": "success"
+                }
+            }
+        ]
+    }
+}

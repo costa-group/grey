@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "virtual_function_calls.sol": {
+            "content": "contract Base {\n    function f() public returns (uint256 i) {\n        return g();\n    }\n\n    function g() public virtual returns (uint256 i) {\n        return 1;\n    }\n}\n\n\ncontract Derived is Base {\n    function g() public override returns (uint256 i) {\n        return 2;\n    }\n}\n// ----\n// g() -> 2\n// f() -> 2\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

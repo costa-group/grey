@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "gas_and_value_basic.sol": {
+            "content": "contract helper {\n    bool flag;\n\n    function getBalance() public payable returns (uint256 myBalance) {\n        return address(this).balance;\n    }\n\n    function setFlag() public {\n        flag = true;\n    }\n\n    function getFlag() public returns (bool fl) {\n        return flag;\n    }\n}\n\n\ncontract test {\n    helper h;\n\n    constructor() payable {\n        h = new helper();\n    }\n\n    function sendAmount(uint256 amount) public payable returns (uint256 bal) {\n        return h.getBalance{value: amount}();\n    }\n\n    function outOfGas() public returns (bool ret) {\n        h.setFlag{gas: 2}(); // should fail due to OOG\n        return true;\n    }\n\n    function checkState() public returns (bool flagAfter, uint256 myBal) {\n        flagAfter = h.getFlag();\n        myBal = address(this).balance;\n    }\n}\n// ----\n// constructor(), 20 wei ->\n// gas irOptimized: 120218\n// gas irOptimized code: 132000\n// gas legacy: 130583\n// gas legacy code: 261200\n// gas legacyOptimized: 121069\n// gas legacyOptimized code: 147000\n// sendAmount(uint256): 5 -> 5\n// outOfGas() -> FAILURE # call to helper should not succeed but amount should be transferred anyway #\n// checkState() -> false, 15\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

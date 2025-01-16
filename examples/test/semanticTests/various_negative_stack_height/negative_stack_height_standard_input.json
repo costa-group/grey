@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "negative_stack_height.sol": {
+            "content": "contract C {\n    mapping(uint256 => Invoice) public invoices;\n    struct Invoice {\n        uint256 AID;\n        bool Aboola;\n        bool Aboolc;\n        bool exists;\n    }\n\n    function nredit(uint256 startindex)\n        public\n        pure\n        returns (\n            uint256[500] memory CIDs,\n            uint256[500] memory dates,\n            uint256[500] memory RIDs,\n            bool[500] memory Cboolas,\n            uint256[500] memory amounts\n        )\n    {}\n\n    function return500InvoicesByDates(\n        uint256 begindate,\n        uint256 enddate,\n        uint256 startindex\n    )\n        public\n        view\n        returns (\n            uint256[500] memory AIDs,\n            bool[500] memory Aboolas,\n            uint256[500] memory dates,\n            bytes32[3][500] memory Abytesas,\n            bytes32[3][500] memory bytesbs,\n            bytes32[2][500] memory bytescs,\n            uint256[500] memory amounts,\n            bool[500] memory Aboolbs,\n            bool[500] memory Aboolcs\n        )\n    {}\n\n    function return500PaymentsByDates(\n        uint256 begindate,\n        uint256 enddate,\n        uint256 startindex\n    )\n        public\n        view\n        returns (\n            uint256[500] memory BIDs,\n            uint256[500] memory dates,\n            uint256[500] memory RIDs,\n            bool[500] memory Bboolas,\n            bytes32[3][500] memory bytesbs,\n            bytes32[2][500] memory bytescs,\n            uint256[500] memory amounts,\n            bool[500] memory Bboolbs\n        )\n    {}\n}\n\n// via yul disabled because of stack issues.\n\n// ====\n// compileViaYul: false\n// ----\n// constructor() ->\n// gas legacy: 92268\n// gas legacy code: 483000\n// gas legacyOptimized: 75022\n// gas legacyOptimized code: 270000\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "code_length.sol": {
+            "content": "// SPDX-License-Identifier: GPL-3.0\ncontract C {\n    uint len1;\n    uint len2;\n    constructor() {\n        uint mem_ptr_before;\n        uint mem_ptr_after;\n\n        assembly {\n            mem_ptr_before := mload(64)\n        }\n\n        len1 = address(0).code.length;\n\n        assembly {\n            mem_ptr_after := mload(64)\n        }\n\n        // To check that no memory was allocated and written.\n        assert(mem_ptr_before == mem_ptr_after);\n\n        len2 = address(this).code.length;\n\n        // To check that no memory was allocated and written.\n        assembly {\n            mem_ptr_after := mload(64)\n        }\n\n        assert(mem_ptr_before == mem_ptr_after);\n\n    }\n\n    function f() public view returns (bool r1, bool r2) {\n        uint mem_ptr_before;\n        uint mem_ptr_after;\n\n        assembly {\n            mem_ptr_before := mload(64)\n        }\n\n        r1 = address(this).code.length > 50;\n\n        assembly {\n            mem_ptr_after := mload(64)\n        }\n\n        // To check that no memory was allocated and written.\n        assert(mem_ptr_before == mem_ptr_after);\n\n        address a = address(0);\n        r2 = a.code.length == 0;\n\n        // To check that no memory was allocated and written.\n        assembly {\n            mem_ptr_after := mload(64)\n        }\n\n    }\n}\n// ----\n// constructor()\n// gas legacy: 66989\n// gas legacy code: 57800\n// f(): true, true -> true, true\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

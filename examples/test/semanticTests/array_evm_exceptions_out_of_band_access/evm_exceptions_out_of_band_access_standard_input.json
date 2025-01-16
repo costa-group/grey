@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "evm_exceptions_out_of_band_access.sol": {
+            "content": "contract A {\n    uint256[3] arr;\n    bool public test = false;\n\n    function getElement(uint256 i) public returns (uint256) {\n        return arr[i];\n    }\n\n    function testIt() public returns (bool) {\n        uint256 i = this.getElement(5);\n        test = true;\n        return true;\n    }\n}\n// ----\n// test() -> false\n// testIt() -> FAILURE, hex\"4e487b71\", 0x32\n// test() -> false\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

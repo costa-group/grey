@@ -1,0 +1,48 @@
+{
+    "semanticTests/functionCall/transaction_status.sol": {
+        "bytecode": "60808060405234601357605c908160188239f35b5f80fdfe6004361015600b575f80fd5b5f3560e01c806326121ff014604c578063b8c9d36514602a57505b5f80fd5b346026575f366003190112602657634e487b7160e01b5f52600160045260245ffd5b346026575f36600319011260265700",
+        "contract": ":test",
+        "tests": [
+            {
+                "input": {
+                    "calldata": "",
+                    "value": "0"
+                },
+                "kind": "constructor"
+            },
+            {
+                "input": {
+                    "calldata": "26121ff0",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "",
+                    "status": "success"
+                }
+            },
+            {
+                "input": {
+                    "calldata": "e2179b8e",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "",
+                    "status": "failure"
+                }
+            },
+            {
+                "input": {
+                    "calldata": "b8c9d365",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "4e487b710000000000000000000000000000000000000000000000000000000000000001",
+                    "status": "failure"
+                }
+            }
+        ]
+    }
+}

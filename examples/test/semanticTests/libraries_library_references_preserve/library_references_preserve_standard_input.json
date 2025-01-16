@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "library_references_preserve.sol": {
+            "content": "library L1 {\n    function add(uint256 a, uint256 b) external pure returns (uint256) {\n        return a + b + 1;\n    }\n}\n\nlibrary L2 {\n    function add(uint256 a, uint256 b) external pure returns (uint256) {\n        return a + b + 2;\n    }\n}\n\ncontract A {\n    uint256 sum;\n    constructor() {\n        sum = L1.add(1, 2);\n    }\n    function getSum() external view returns(uint256) {\n        return sum;\n    }\n}\n\ncontract B {\n    uint256 sum;\n    constructor() {\n        sum = L2.add(1, 2);\n    }\n    function getSum() external view returns(uint256) {\n        return sum;\n    }\n}\n\ncontract C {\n    A a = new A();\n    B b = new B();\n    function aSum() external view returns(uint256) {\n        return a.getSum();\n    }\n    function bSum() external view returns(uint256) {\n        return b.getSum();\n    }\n}\n// ----\n// library: L1\n// library: L2\n// aSum() -> 4\n// bSum() -> 5\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

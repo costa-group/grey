@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "internal_library_function_attached_to_bool.sol": {
+            "content": "library L {\n    function xor(bool a, bool b) internal pure returns (bool) {\n        return a != b;\n    }\n}\n\ncontract C {\n    using L for bool;\n\n    function foo(bool a, bool b) public returns (bool) {\n        return a.xor(b);\n    }\n}\n// ----\n// foo(bool,bool): true, true -> false\n// foo(bool,bool): true, false -> true\n// foo(bool,bool): false, true -> true\n// foo(bool,bool): false, false -> false\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

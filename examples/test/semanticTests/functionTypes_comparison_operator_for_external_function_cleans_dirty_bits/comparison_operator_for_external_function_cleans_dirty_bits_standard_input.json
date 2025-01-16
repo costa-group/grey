@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "comparison_operator_for_external_function_cleans_dirty_bits.sol": {
+            "content": "contract C {\n  function g() external {}\n  function comparison_operators_for_external_function_pointers_with_dirty_bits() external returns (bool) {\n        function() external g_ptr_dirty = this.g;\n        assembly {\n                g_ptr_dirty.address := or(g_ptr_dirty.address, shl(160, sub(0,1)))\n                g_ptr_dirty.selector := or(g_ptr_dirty.selector, shl(32, sub(0,1)))\n        }\n        function() external g_ptr = this.g;\n        return g_ptr == g_ptr_dirty;\n  }\n}\n// ====\n// EVMVersion: >=constantinople\n// ----\n// comparison_operators_for_external_function_pointers_with_dirty_bits() -> true\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

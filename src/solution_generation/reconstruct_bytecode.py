@@ -9,6 +9,7 @@ from parser.cfg_object import CFGObject
 from parser.cfg_function import CFGFunction
 from parser.cfg_block_list import CFGBlockList
 from parser.cfg_block import CFGBlock
+from parser.cfg_instruction import CFGInstruction
 from pathlib import Path
 
 
@@ -20,7 +21,7 @@ def asm_from_op_info(op: str, value: Optional[Union[int, str]] = None,
     """
     JSON asm initialized with default values
     """
-
+    
     default_asm = {"name": op, "begin": -1, "end": -1, "source": source}
 
     if value is not None:
@@ -74,17 +75,12 @@ def asm_from_ids(sms: SMS_T, id_seq: List[str]) -> List[ASM_bytecode_T]:
     return id_seq_to_asm_bytecode(instr_id_to_instr, id_seq)
 
 
-def asm_for_split_instruction(block: CFGBlock, tag_dict: Dict[block_id_T, int],
+def asm_for_split_instruction(split_ins: CFGInstruction,
                               function_name2entry: Dict[block_id_T, block_id_T]) -> List[ASM_bytecode_T]:
     """
     Reconstructs the assembly from a block with a single split instruction. If the split instruction is a
     function invocation, then it replaces it by the corresponding JUMP instruction
     """
-
-    assert block.split_instruction is not None, \
-        f"[ERROR]: Block {block.block_id} split_instructions has to contain a value in a subblock"
-
-    split_ins = block.split_instruction
     entry_block = function_name2entry.get(split_ins.get_op_name(), None)
     if entry_block is not None:
         # Introduce a JUMP instruction to invoke the function
@@ -122,7 +118,9 @@ def generate_asm_split_blocks(init_block_id: block_id_T, blocks: Dict[block_id_T
 
         if jump_type == "sub_block":
             asm_subblock = asm_dicts.get(block_id, [])
-            asm_last = asm_for_split_instruction(block, tags_dict, function_name2entry)
+            assert block.split_instruction is not None, \
+                f"[ERROR]: Block {block.block_id} split_instructions has to contain a value in a subblock"
+            asm_last = asm_for_split_instruction(block.split_instruction, function_name2entry)
 
         else:
             raise Exception("[ERROR]: Jump type can only be sub_block")
@@ -138,7 +136,7 @@ def generate_asm_split_blocks(init_block_id: block_id_T, blocks: Dict[block_id_T
 
     # Split instruction contains both jumps and not handled instructions
     if block.split_instruction is not None:
-        asm_last = asm_for_split_instruction(block, tags_dict, function_name2entry)
+        asm_last = asm_for_split_instruction(block.split_instruction, function_name2entry)
     else:
         asm_last = []
 
@@ -207,14 +205,21 @@ def traverse_cfg_block_list(block_list: CFGBlockList, function_name2entry: Dict[
                                                               asm_dicts, function_name2entry)
         else:
             asm_block = asm_dicts.get(block_id, None)
-
+            
             if next_block.split_instruction is not None:
-                asm_last = asm_for_split_instruction(next_block, tags_dict, function_name2entry)
+                asm_last = asm_for_split_instruction(next_block.split_instruction, function_name2entry)
             else:
                 # if it is a falls_to or terminal split_instruction is None
                 # Otherwise it is jump or jumpi
                 asm_last = []
 
+            if asm_block == [] and next_block.get_jump_type() == "terminal":
+                assert(len(next_block.get_instructions()) == 1)
+                ins = next_block.get_instructions()[0]
+
+                # Terminal blocks might contain calls to terminal functions (i.e. not so terminal...)
+                asm_block = asm_for_split_instruction(ins, function_name2entry)
+                
             asm_block += asm_last
 
         if block_id in tags_dict:
@@ -289,48 +294,78 @@ def traverse_cfg(cfg_object: CFGObject, asm_dicts: Dict[block_id_T, List[ASM_byt
     return object_code + function_code_list
 
 
-# Combine information from the greedy algorithm and the CFG
-def asm_from_cfg(cfg: CFG, asm_dicts: Dict[str, List[ASM_bytecode_T]], tags_dict: Dict,
-                 filename: str) -> ASM_contract_T:
+def recursive_runtime_asm_from_cfg(cfg: CFG, asm_dicts: Dict[str, List[ASM_bytecode_T]],
+                                   tags_dict: Dict, object_name: str) -> ASM_contract_T:
+    """
+    Returns the level of the form {.code: ..., .auxdata: ..., [.data: ...]}
+    """
     objects_cfg = cfg.get_objects()
 
-    if cfg.get_subobject() is not None:
-        subobjects = cfg.get_subobject().get_objects()
-    else:
-        subobjects = []
+    # Represents the structure
+    multiple_object_json = {}
+    deployed_object_name = f"{object_name}_deployed"
+    obj = objects_cfg[deployed_object_name]
+    tags = tags_dict[deployed_object_name]
 
-    json_object = {}
-    for obj_name in objects_cfg.keys():
-        obj = objects_cfg[obj_name]
+    asm = traverse_cfg(obj, asm_dicts, tags)
 
+    aux_data = "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+    current_object_json = {".code": asm, ".auxdata": aux_data}
+
+    sub_object = cfg.get_subobject()
+    if sub_object is not None:
+        json_asm_subobjects = recursive_init_asm_from_cfg(sub_object, asm_dicts, tags_dict)
+        current_object_json[".data"] = {"0": json_asm_subobjects}
+
+    return current_object_json
+
+
+def recursive_init_asm_from_cfg(cfg: CFG, asm_dicts: Dict[str, List[ASM_bytecode_T]], tags_dict: Dict) -> ASM_contract_T:
+    """
+    Returns the level of the form {"i": {.code: ..., .data: ...}}. Note that .auxdata does not appear and .data must
+    appear (as the init code has some runtime code associated)
+    """
+    objects_cfg = cfg.get_objects()
+
+    # Represents the structure of the multiple possible contracts {"0": ..., "1:..."}
+    multiple_object_json = {}
+    for obj_name, obj in objects_cfg.items():
         tags = tags_dict[obj_name]
+        asm_idx = cfg.get_object_idx(obj_name)
 
         asm = traverse_cfg(obj, asm_dicts, tags)
-        json_asm = {".code": asm}
+        current_object_json = {".code": asm}
 
-        json_asm_subobjects = {}
-        for idx, deployed_obj in enumerate(subobjects):
-            subobj = subobjects[deployed_obj]
-            tags = tags_dict[deployed_obj]
-            asm_subobj = traverse_cfg(subobj, asm_dicts, tags)
+        sub_object = cfg.get_subobject()
+        assert sub_object is not None, "Init code must be followed by the runtime code"
+        json_asm_subobjects = recursive_runtime_asm_from_cfg(sub_object, asm_dicts, tags_dict, obj_name)
 
-            aux_data = "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
-            subobj_asm_code = {".auxdata": aux_data, ".code": asm_subobj}
+        # It has only one subobject at this point (the deployed code)
+        current_object_json[".data"] = {f"0": json_asm_subobjects}
 
-            # TODO: Comprobar el 0
-            json_asm_subobjects[str(idx)] = subobj_asm_code
+        multiple_object_json[f"{asm_idx}"] = current_object_json
 
-        json_asm[".data"] = json_asm_subobjects
-
-        json_asm["sourceList"] = [filename]
-
-        json_object[obj_name] = json_asm
-
-    return json_object
+    return multiple_object_json
 
 
-def store_asm_output(json_object: Dict[str, Any], cfg_dir: Path):
-    for object_name, object_asm in json_object.items():
-        file_to_store = cfg_dir.joinpath(object_name + "_asm.json")
-        with open(file_to_store, 'w') as f:
-            json.dump(object_asm, f, indent=4)
+def asm_from_cfg(cfg: CFG, asm_dicts: Dict[str, List[ASM_bytecode_T]], tags_dict: Dict, filename: str) -> ASM_contract_T:
+    """
+    Generates an assembly JSON from a CFG structure and the results of the optimization
+    """
+    #We have to access key "0" (there is only one contract at root level)
+    asm_json = recursive_init_asm_from_cfg(cfg, asm_dicts, tags_dict)["0"]
+    asm_json["sourceList"] = [filename]
+
+    return asm_json
+
+
+def store_asm_output(json_object: Dict[str, Any], object_name: str, cfg_dir: Path) -> Path:
+    file_to_store = cfg_dir.joinpath(object_name + "_asm.json")
+    with open(file_to_store, 'w') as f:
+        json.dump(json_object, f, indent=4)
+    return file_to_store
+
+def store_binary_output(object_name: str, evm_code: str, cfg_dir: Path) -> None:
+    file_to_store = cfg_dir.joinpath(object_name + "_bin.evm")
+    with open(file_to_store, 'w') as f:
+        f.write(evm_code)

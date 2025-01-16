@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "library_address.sol": {
+            "content": "library L {\n    function f(uint256 v) external pure returns (uint) {\n        return v * v;\n    }\n    function g(uint256 v) external returns (uint) {\n        return v * v;\n    }\n}\ncontract C {\n    function addr() public view returns (bool) {\n        return address(L) == address(0);\n    }\n    function g(uint256 v) public view returns (uint256) {\n        return L.f(v);\n    }\n    function h(uint256 v) public returns (uint256) {\n        (bool success, bytes memory result) = address(L).delegatecall(abi.encodeWithSignature(\"f(uint256)\", v));\n        assert(success);\n        return abi.decode(result, (uint256));\n    }\n    function i(uint256 v) public returns (uint256) {\n        (bool success, bytes memory result) = address(L).call(abi.encodeWithSignature(\"f(uint256)\", v));\n        assert(success);\n        return abi.decode(result, (uint256));\n    }\n    function j(uint256 v) public returns (uint256) {\n        (bool success, bytes memory result) = address(L).delegatecall(abi.encodeWithSignature(\"g(uint256)\", v));\n        assert(success);\n        return abi.decode(result, (uint256));\n    }\n    function k(uint256 v) public returns (uint256) {\n        (bool success, bytes memory result) = address(L).call(abi.encodeWithSignature(\"g(uint256)\", v));\n        assert(success);\n        return abi.decode(result, (uint256));\n    }\n}\n// ====\n// EVMVersion: >=byzantium\n// ----\n// library: L\n// addr() -> false\n// g(uint256): 1 -> 1\n// g(uint256): 2 -> 4\n// g(uint256): 4 -> 16\n// h(uint256): 1 -> 1\n// h(uint256): 2 -> 4\n// h(uint256): 4 -> 16\n// i(uint256): 1 -> 1\n// i(uint256): 2 -> 4\n// i(uint256): 4 -> 16\n// j(uint256): 1 -> 1\n// j(uint256): 2 -> 4\n// j(uint256): 4 -> 16\n// k(uint256): 1 -> FAILURE, hex\"4e487b71\", 0x01\n// k(uint256): 2 -> FAILURE, hex\"4e487b71\", 0x01\n// k(uint256): 4 -> FAILURE, hex\"4e487b71\", 0x01\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

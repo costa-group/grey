@@ -24,8 +24,12 @@ class CFG:
         self.objectCFG: Dict[str, CFGObject] = {}
         self.subObjects: Optional[CFG] = None
 
+        # Stores an index for each object
+        self.objectCFG2idx: Dict[str, int] = {}
+
     def add_object(self, name: str, cfg_object: CFGObject) -> None:
         self.objectCFG[name] = cfg_object
+        self.objectCFG2idx[name] = len(self.objectCFG2idx)
 
     def get_object(self, name:str) -> CFGObject:
         return self.objectCFG[name]
@@ -38,6 +42,12 @@ class CFG:
 
     def get_subobject(self) -> 'CFG':
         return self.subObjects
+
+    def get_object_idx(self, object_name: str) -> int:
+        return self.objectCFG2idx[object_name]
+
+    def get_objectCFG2idx(self) -> Dict[str, int]:
+        return self.objectCFG2idx
 
     def get_as_json(self):
         json_cfg = {}
@@ -57,7 +67,7 @@ class CFG:
 
     def generate_id2block_list(self) -> Dict[component_name_T, CFGBlockList]:
         """
-        Returns the list of all blocks inside the same object, function and subobjects
+        Returns the list of all blocks inside the same object, function (excluding subObjects)
         """
         name2block_list = dict()
         for object_id, cfg_object in self.objectCFG.items():
@@ -66,11 +76,6 @@ class CFG:
             # We also consider the information per function
             for function_name, cfg_function in cfg_object.functions.items():
                 name2block_list[function_name] = cfg_function.blocks
-
-            subobject = self.get_subobject()
-
-            if subobject is not None:
-                name2block_list.update(subobject.generate_id2block_list())
 
         return name2block_list
 

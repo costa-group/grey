@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "call_internal_function_with_multislot_arguments_via_pointer.sol": {
+            "content": "contract C {\n    function m(\n        function() external returns (uint) a,\n        function() external returns (uint) b\n    ) internal returns (function() external returns (uint)) {\n        return a;\n    }\n\n    function s(uint a, uint b) internal returns (uint) {\n        return a + b;\n    }\n\n    function foo() external returns (uint) {\n        return 6;\n    }\n\n    function test() public returns (uint) {\n        function(uint, uint) internal returns (uint) single_slot_function = s;\n\n        function(\n            function() external returns (uint),\n            function() external returns (uint)\n        ) internal returns (function() external returns (uint)) multi_slot_function = m;\n\n        return multi_slot_function(this.foo, this.foo)() + single_slot_function(5, 1);\n    }\n}\n// ----\n// test() -> 12\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

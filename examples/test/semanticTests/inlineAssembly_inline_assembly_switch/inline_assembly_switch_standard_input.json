@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "inline_assembly_switch.sol": {
+            "content": "contract C {\n    function f(uint256 a) public returns (uint256 b) {\n        assembly {\n            switch a\n                case 1 {\n                    b := 8\n                }\n                case 2 {\n                    b := 9\n                }\n                default {\n                    b := 2\n                }\n        }\n    }\n}\n// ----\n// f(uint256): 0 -> 2\n// f(uint256): 1 -> 8\n// f(uint256): 2 -> 9\n// f(uint256): 3 -> 2\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

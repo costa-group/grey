@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "memory_arrays_index_access_write.sol": {
+            "content": "contract Test {\n    function set(uint24[3][4] memory x) public {\n        x[2][2] = 1;\n        x[3][2] = 7;\n    }\n\n    function f() public returns (uint24[3][4] memory) {\n        uint24[3][4] memory data;\n        set(data);\n        return data;\n    }\n}\n// ----\n// f() -> 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x07\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "calldata_struct_assign.sol": {
+            "content": "pragma abicoder v2;\n\ncontract C {\n\tstruct S { uint256 x; }\n\tstruct S2 { uint256 x; uint256 y; }\n\tfunction f(S calldata s, S2 calldata s2) public pure returns (uint256 r, uint256 r2) {\n\t\tassembly {\n\t\t\ts := s2\n\t\t\ts2 := 4\n\t\t}\n\t\tr = s.x;\n\t\tr2 = s2.x;\n\t}\n}\n// ----\n// f((uint256),(uint256,uint256)): 0x42, 0x07, 0x77 -> 0x07, 0x42\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

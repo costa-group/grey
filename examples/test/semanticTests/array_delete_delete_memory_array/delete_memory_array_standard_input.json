@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "delete_memory_array.sol": {
+            "content": "contract C {\n\n    function len() public returns (uint ret) {\n        uint[] memory data = new uint[](2);\n        data[0] = 234;\n        data[1] = 123;\n        delete data;\n        assembly {\n            ret := mload(data)\n        }\n    }\n}\n// ----\n// len() -> 0\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

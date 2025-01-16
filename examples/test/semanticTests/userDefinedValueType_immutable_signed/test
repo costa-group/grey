@@ -1,0 +1,37 @@
+{
+    "semanticTests/userDefinedValueType/immutable_signed.sol": {
+        "bytecode": "60e08060405234604a576001196080526130b160f11b60a052600160c05260f9908161004f82396080518181816043015260a0015260a0518181816066015260c6015260c051815050f35b5f80fdfe60808060405260043610156011575f80fd5b5f3560e01c908163222b1407146090575063a11426b614602f575f80fd5b34608c575f366003190112608c57604080517f000000000000000000000000000000000000000000000000000000000000000081527f00000000000000000000000000000000000000000000000000000000000000006020820152f35b5f80fd5b34608c575f366003190112608c577f000000000000000000000000000000000000000000000000000000000000000060010b81527f00000000000000000000000000000000000000000000000000000000000000006001600160f01b0319166020820152604090f3",
+        "contract": ":C",
+        "tests": [
+            {
+                "input": {
+                    "calldata": "",
+                    "value": "0"
+                },
+                "kind": "constructor"
+            },
+            {
+                "input": {
+                    "calldata": "222b1407",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe6162000000000000000000000000000000000000000000000000000000000000",
+                    "status": "success"
+                }
+            },
+            {
+                "input": {
+                    "calldata": "a11426b6",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe6162000000000000000000000000000000000000000000000000000000000000",
+                    "status": "success"
+                }
+            }
+        ]
+    }
+}

@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "dirty_storage_static_array.sol": {
+            "content": "contract C {\n    uint8[1] s;\n    function f() public returns (bool correct) {\n        assembly {\n            sstore(s.slot, 257)\n        }\n        uint8 x = s[0];\n        uint r;\n        assembly {\n            r := x\n        }\n        correct = (s[0] == 0x01) && (r == 0x01);\n    }\n}\n// ----\n// f() -> true\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "assembly_access_bytes2_abicoder_v2.sol": {
+            "content": "pragma abicoder v2;\n\ntype MyBytes2 is bytes2;\n\ncontract C {\n    function f(MyBytes2 val) external returns (bytes2 ret) {\n        assembly {\n            ret := val\n        }\n    }\n\n    function g(bytes2 val) external returns (bytes2 ret) {\n        assembly {\n            ret := val\n        }\n    }\n\n    function h(uint256 val) external returns (MyBytes2) {\n        MyBytes2 ret;\n        assembly {\n            ret := val\n        }\n        return ret;\n    }\n\n}\n// ----\n// f(bytes2): \"ab\" -> 0x6162000000000000000000000000000000000000000000000000000000000000\n// g(bytes2): \"ab\" -> 0x6162000000000000000000000000000000000000000000000000000000000000\n// f(bytes2): \"abcdef\" -> FAILURE\n// g(bytes2): \"abcdef\" -> FAILURE\n// h(uint256): \"ab\" -> 0x6162000000000000000000000000000000000000000000000000000000000000\n// h(uint256): \"abcdef\" -> 0x6162000000000000000000000000000000000000000000000000000000000000\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

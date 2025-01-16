@@ -1,0 +1,26 @@
+{
+    "semanticTests/libraries/internal_library_function_attached_to_string_accepting_memory.sol": {
+        "bytecode": "608080604052346013576080908160188239f35b5f80fdfe60806004361015600d575f80fd5b5f3560e01c63d39d44b314601f575f80fd5b34607c575f366003190112607c576040810181811067ffffffffffffffff821117606857602091602191604052600381526261626360e81b83820152015160f81c604051908152f35b634e487b7160e01b5f52604160045260245ffd5b5f80fd",
+        "contract": ":C",
+        "tests": [
+            {
+                "input": {
+                    "calldata": "",
+                    "value": "0"
+                },
+                "kind": "constructor"
+            },
+            {
+                "input": {
+                    "calldata": "d39d44b3",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "0000000000000000000000000000000000000000000000000000000000000062",
+                    "status": "success"
+                }
+            }
+        ]
+    }
+}

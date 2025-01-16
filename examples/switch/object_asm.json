@@ -1,0 +1,73 @@
+{
+    ".code": [
+        {
+            "name": "PUSH",
+            "begin": -1,
+            "end": -1,
+            "source": -1,
+            "value": "101"
+        },
+        {
+            "name": "DUP1",
+            "begin": -1,
+            "end": -1,
+            "source": -1
+        },
+        {
+            "name": "PUSH",
+            "begin": -1,
+            "end": -1,
+            "source": -1,
+            "value": "4"
+        },
+        {
+            "name": "SSTORE",
+            "begin": -1,
+            "end": -1,
+            "source": -1
+        },
+        {
+            "name": "PUSH",
+            "begin": -1,
+            "end": -1,
+            "source": -1,
+            "value": "1"
+        },
+        {
+            "name": "SSTORE",
+            "begin": -1,
+            "end": -1,
+            "source": -1
+        },
+        {
+            "name": "PUSH",
+            "begin": -1,
+            "end": -1,
+            "source": -1,
+            "value": "0"
+        },
+        {
+            "name": "PUSH",
+            "begin": -1,
+            "end": -1,
+            "source": -1,
+            "value": "0"
+        },
+        {
+            "name": "SSTORE",
+            "begin": -1,
+            "end": -1,
+            "source": -1
+        },
+        {
+            "name": "STOP",
+            "begin": -1,
+            "end": -1,
+            "source": -1
+        }
+    ],
+    ".data": {},
+    "sourceList": [
+        "/Users/pablo/Repositorios/ethereum/grey/scripts/prueba/cfgs/yul-files/switch.cfg"
+    ]
+}

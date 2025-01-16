@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "value_for_constructor.sol": {
+            "content": "contract Helper {\n    bytes3 name;\n    bool flag;\n\n    constructor(bytes3 x, bool f) payable {\n        name = x;\n        flag = f;\n    }\n\n    function getName() public returns (bytes3 ret) {\n        return name;\n    }\n\n    function getFlag() public returns (bool ret) {\n        return flag;\n    }\n}\n\n\ncontract Main {\n    Helper h;\n\n    constructor() payable {\n        h = (new Helper){value: 10}(\"abc\", true);\n    }\n\n    function getFlag() public returns (bool ret) {\n        return h.getFlag();\n    }\n\n    function getName() public returns (bytes3 ret) {\n        return h.getName();\n    }\n\n    function getBalances() public returns (uint256 me, uint256 them) {\n        me = address(this).balance;\n        them = address(h).balance;\n    }\n}\n// ----\n// constructor(), 22 wei ->\n// gas irOptimized: 143864\n// gas irOptimized code: 118000\n// gas legacy: 156599\n// gas legacy code: 236400\n// gas legacyOptimized: 143592\n// gas legacyOptimized code: 118000\n// getFlag() -> true\n// getName() -> \"abc\"\n// getBalances() -> 12, 10\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

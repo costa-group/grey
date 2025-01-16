@@ -1,0 +1,48 @@
+{
+    "semanticTests/errors/via_import.sol": {
+        "bytecode": "608080604052346013576098908160188239f35b5f80fdfe6004361015600b575f80fd5b5f3560e01c80630c55699c146077578063a56dfe4a1460565763c5d7802e146031575f80fd5b346052575f366003190112605257622ff06760e01b5f52600360045260245ffd5b5f80fd5b346052575f366003190112605257622ff06760e01b5f52600260045260245ffd5b346052575f366003190112605257622ff06760e01b5f52600160045260245ffd",
+        "contract": "s3.sol:C",
+        "tests": [
+            {
+                "input": {
+                    "calldata": "",
+                    "value": "0"
+                },
+                "kind": "constructor"
+            },
+            {
+                "input": {
+                    "calldata": "0c55699c",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "002ff0670000000000000000000000000000000000000000000000000000000000000001",
+                    "status": "failure"
+                }
+            },
+            {
+                "input": {
+                    "calldata": "a56dfe4a",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "002ff0670000000000000000000000000000000000000000000000000000000000000002",
+                    "status": "failure"
+                }
+            },
+            {
+                "input": {
+                    "calldata": "c5d7802e",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "002ff0670000000000000000000000000000000000000000000000000000000000000003",
+                    "status": "failure"
+                }
+            }
+        ]
+    }
+}

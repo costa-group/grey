@@ -1,0 +1,15 @@
+{
+    "semanticTests/constructor/payable_constructor.sol": {
+        "bytecode": "6080806040526003908160108239f3fe5f80fd",
+        "contract": ":C",
+        "tests": [
+            {
+                "input": {
+                    "calldata": "",
+                    "value": "27"
+                },
+                "kind": "constructor"
+            }
+        ]
+    }
+}

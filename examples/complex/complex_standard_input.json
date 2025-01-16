@@ -1,0 +1,34 @@
+{
+    "language": "Yul",
+    "sources": {
+        "complex.yul": {
+            "content": "{\n    function f(a, b) -> c {\n        for { let x := 42 } lt(x, a) {\n            x := add(x, 1)\n            if calldataload(x)\n            {\n                sstore(0, x)\n                leave\n                sstore(0x01, 0x0101)\n            }\n            sstore(0xFF, 0xFFFF)\n        }\n        {\n            switch mload(x)\n            case 0 {\n                sstore(0x02, 0x0202)\n                break\n                sstore(0x03, 0x0303)\n            }\n            case 1 {\n                sstore(0x04, 0x0404)\n                leave\n                sstore(0x05, 0x0505)\n            }\n            case 2 {\n                sstore(0x06, 0x0606)\n                revert(0, 0)\n                sstore(0x07, 0x0707)\n            }\n            case 3 {\n                sstore(0x08, 0x0808)\n            }\n            default {\n                if mload(b) {\n                    return(0, 0)\n                    sstore(0x09, 0x0909)\n                }\n                    sstore(0x0A, 0x0A0A)\n            }\n            sstore(0x0B, 0x0B0B)\n        }\n        sstore(0x0C, 0x0C0C)\n    }\n    pop(f(1,2))\n}\n// ----\n// digraph CFG {\n// nodesep=0.7;\n// node[shape=box];\n//\n// Entry [label=\"Entry\"];\n// Entry -> Block0;\n// Block0 [label=\"\\\n// f: [ RET[f] 0x02 0x01 ] => [ TMP[f, 0] ]\\l\\\n// pop: [ TMP[f, 0] ] => [ ]\\l\\\n// \"];\n// Block0Exit [label=\"MainExit\"];\n// Block0 -> Block0Exit;\n//\n// FunctionEntry_f_1 [label=\"function f(a, b) -> c\"];\n// FunctionEntry_f_1 -> Block1;\n// Block1 [label=\"\\\n// Assignment(x): [ 0x2a ] => [ x ]\\l\\\n// \"];\n// Block1 -> Block1Exit [arrowhead=none];\n// Block1Exit [label=\"Jump\" shape=oval];\n// Block1Exit -> Block2;\n//\n// Block2 [label=\"\\\n// lt: [ a x ] => [ TMP[lt, 0] ]\\l\\\n// \"];\n// Block2 -> Block2Exit;\n// Block2Exit [label=\"{ TMP[lt, 0]| { <0> Zero | <1> NonZero }}\" shape=Mrecord];\n// Block2Exit:0 -> Block3;\n// Block2Exit:1 -> Block4;\n//\n// Block3 [label=\"\\\n// sstore: [ 0x0c0c 0x0c ] => [ ]\\l\\\n// \"];\n// Block3Exit [label=\"FunctionReturn[f]\"];\n// Block3 -> Block3Exit;\n//\n// Block4 [label=\"\\\n// mload: [ x ] => [ TMP[mload, 0] ]\\l\\\n// Assignment(GHOST[0]): [ TMP[mload, 0] ] => [ GHOST[0] ]\\l\\\n// eq: [ GHOST[0] 0x00 ] => [ TMP[eq, 0] ]\\l\\\n// \"];\n// Block4 -> Block4Exit;\n// Block4Exit [label=\"{ TMP[eq, 0]| { <0> Zero | <1> NonZero }}\" shape=Mrecord];\n// Block4Exit:0 -> Block5;\n// Block4Exit:1 -> Block6;\n//\n// Block5 [label=\"\\\n// eq: [ GHOST[0] 0x01 ] => [ TMP[eq, 0] ]\\l\\\n// \"];\n// Block5 -> Block5Exit;\n// Block5Exit [label=\"{ TMP[eq, 0]| { <0> Zero | <1> NonZero }}\" shape=Mrecord];\n// Block5Exit:0 -> Block7;\n// Block5Exit:1 -> Block8;\n//\n// Block6 [label=\"\\\n// sstore: [ 0x0202 0x02 ] => [ ]\\l\\\n// \"];\n// Block6 -> Block6Exit [arrowhead=none];\n// Block6Exit [label=\"Jump\" shape=oval];\n// Block6Exit -> Block3;\n//\n// Block7 [label=\"\\\n// eq: [ GHOST[0] 0x02 ] => [ TMP[eq, 0] ]\\l\\\n// \"];\n// Block7 -> Block7Exit;\n// Block7Exit [label=\"{ TMP[eq, 0]| { <0> Zero | <1> NonZero }}\" shape=Mrecord];\n// Block7Exit:0 -> Block9;\n// Block7Exit:1 -> Block10;\n//\n// Block8 [label=\"\\\n// sstore: [ 0x0404 0x04 ] => [ ]\\l\\\n// \"];\n// Block8Exit [label=\"FunctionReturn[f]\"];\n// Block8 -> Block8Exit;\n//\n// Block9 [label=\"\\\n// eq: [ GHOST[0] 0x03 ] => [ TMP[eq, 0] ]\\l\\\n// \"];\n// Block9 -> Block9Exit;\n// Block9Exit [label=\"{ TMP[eq, 0]| { <0> Zero | <1> NonZero }}\" shape=Mrecord];\n// Block9Exit:0 -> Block11;\n// Block9Exit:1 -> Block12;\n//\n// Block10 [label=\"\\\n// sstore: [ 0x0606 0x06 ] => [ ]\\l\\\n// revert: [ 0x00 0x00 ] => [ ]\\l\\\n// \"];\n// Block10Exit [label=\"Terminated\"];\n// Block10 -> Block10Exit;\n//\n// Block11 [label=\"\\\n// mload: [ b ] => [ TMP[mload, 0] ]\\l\\\n// \"];\n// Block11 -> Block11Exit;\n// Block11Exit [label=\"{ TMP[mload, 0]| { <0> Zero | <1> NonZero }}\" shape=Mrecord];\n// Block11Exit:0 -> Block13;\n// Block11Exit:1 -> Block14;\n//\n// Block12 [label=\"\\\n// sstore: [ 0x0808 0x08 ] => [ ]\\l\\\n// \"];\n// Block12 -> Block12Exit [arrowhead=none];\n// Block12Exit [label=\"Jump\" shape=oval];\n// Block12Exit -> Block15;\n//\n// Block13 [label=\"\\\n// sstore: [ 0x0a0a 0x0a ] => [ ]\\l\\\n// \"];\n// Block13 -> Block13Exit [arrowhead=none];\n// Block13Exit [label=\"Jump\" shape=oval];\n// Block13Exit -> Block15;\n//\n// Block14 [label=\"\\\n// return: [ 0x00 0x00 ] => [ ]\\l\\\n// \"];\n// Block14Exit [label=\"Terminated\"];\n// Block14 -> Block14Exit;\n//\n// Block15 [label=\"\\\n// sstore: [ 0x0b0b 0x0b ] => [ ]\\l\\\n// \"];\n// Block15 -> Block15Exit [arrowhead=none];\n// Block15Exit [label=\"Jump\" shape=oval];\n// Block15Exit -> Block16;\n//\n// Block16 [label=\"\\\n// add: [ 0x01 x ] => [ TMP[add, 0] ]\\l\\\n// Assignment(x): [ TMP[add, 0] ] => [ x ]\\l\\\n// calldataload: [ x ] => [ TMP[calldataload, 0] ]\\l\\\n// \"];\n// Block16 -> Block16Exit;\n// Block16Exit [label=\"{ TMP[calldataload, 0]| { <0> Zero | <1> NonZero }}\" shape=Mrecord];\n// Block16Exit:0 -> Block17;\n// Block16Exit:1 -> Block18;\n//\n// Block17 [label=\"\\\n// sstore: [ 0xffff 0xff ] => [ ]\\l\\\n// \"];\n// Block17 -> Block17Exit [arrowhead=none];\n// Block17Exit [label=\"BackwardsJump\" shape=oval];\n// Block17Exit -> Block2;\n//\n// Block18 [label=\"\\\n// sstore: [ x 0x00 ] => [ ]\\l\\\n// \"];\n// Block18Exit [label=\"FunctionReturn[f]\"];\n// Block18 -> Block18Exit;\n//\n// }\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "dirty_storage_bytes_long.sol": {
+            "content": "contract C {\n    bytes b;\n    function f() public returns (bool correct) {\n        assembly {\n            sstore(b.slot, 0x41)\n            mstore(0, b.slot)\n            sstore(keccak256(0, 0x20), \"deadbeefdeadbeefdeadbeefdeadbeef\")\n        }\n        bytes1 s = b[31];\n        uint r;\n        assembly {\n            r := s\n        }\n        correct = r == (0x66 << 248);\n    }\n}\n// ----\n// f() -> true\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

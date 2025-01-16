@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "function_return_parameter.sol": {
+            "content": "// The IR of this contract used to throw\ncontract B {\n    function f(uint8 a) mod1(a, true) mod2(r) pure public returns (bytes7 r) { }\n    modifier mod1(uint a, bool b) { if (b) _; }\n    modifier mod2(bytes7 a) { while (a == \"1234567\") _; }\n}\n// ----\n// f(uint8): 5 -> 0x00\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

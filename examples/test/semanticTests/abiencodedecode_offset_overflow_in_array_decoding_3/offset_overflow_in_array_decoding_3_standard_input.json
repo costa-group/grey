@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "offset_overflow_in_array_decoding_3.sol": {
+            "content": "pragma abicoder v2;\ncontract Test {\n\tstruct MemoryUint {\n\t\tuint field;\n\t}\n\tfunction test() public pure returns (uint) {\n\t\tuint[] memory before = new uint[](1); // at offset 0x80\n\t\tbytes memory corrupt = abi.encode(\n            uint(32),\n            uint(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff80),\n            uint(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff80)\n        );\n\t\tMemoryUint memory afterCorrupt;\n\t\tafterCorrupt.field = uint(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff80);\n\t\tbefore[0] = 123456;\n\t\tuint[][2] memory decoded = abi.decode(corrupt, (uint[][2]));\n\t\treturn decoded[1][0];\n\t}\n}\n// ----\n// test() -> FAILURE\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

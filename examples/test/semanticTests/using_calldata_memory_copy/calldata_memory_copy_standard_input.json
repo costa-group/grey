@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "calldata_memory_copy.sol": {
+            "content": "\ncontract C {\n    function f(uint[] calldata arr) external returns (uint) {\n        return arr.sum();\n    }\n}\n\nfunction sum(uint[] memory arr) returns (uint result) {\n    for(uint i = 0; i < arr.length; i++) {\n        result += arr[i];\n    }\n}\n\nusing {sum} for uint[];\n\n// ----\n// f(uint256[]): 0x20, 3, 1, 2, 8 -> 11\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

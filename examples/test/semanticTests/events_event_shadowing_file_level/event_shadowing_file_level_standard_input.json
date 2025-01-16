@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "event_shadowing_file_level.sol": {
+            "content": "event E();\n\nlibrary L1 {\n    event E(string);\n}\n\nlibrary L2 {\n    event E();\n}\n\nlibrary K {\n    function main() internal pure returns (bytes32, bytes32, bytes32) {\n        // Here E is the global event.\n        assert(E.selector != L1.E.selector);\n        assert(E.selector == L2.E.selector);\n\n        return (E.selector, L1.E.selector, L2.E.selector);\n    }\n}\n\ncontract C {\n    event E(string);\n\n    function main() external pure returns (bytes32, bytes32, bytes32) {\n        // Here E is the local event.\n        assert(E.selector == L1.E.selector);\n        assert(E.selector != L2.E.selector);\n\n        return (E.selector, L1.E.selector, L2.E.selector);\n    }\n\n    function k_main() external pure returns (bytes32, bytes32, bytes32) {\n        return K.main();\n    }\n}\n// ----\n// main() -> 0x3e9992c940c54ea252d3a34557cc3d3014281525c43d694f89d5f3dfd820b07d, 0x3e9992c940c54ea252d3a34557cc3d3014281525c43d694f89d5f3dfd820b07d, 0x92bbf6e823a631f3c8e09b1c8df90f378fb56f7fbc9701827e1ff8aad7f6a028\n// k_main() -> 0x92bbf6e823a631f3c8e09b1c8df90f378fb56f7fbc9701827e1ff8aad7f6a028, 0x3e9992c940c54ea252d3a34557cc3d3014281525c43d694f89d5f3dfd820b07d, 0x92bbf6e823a631f3c8e09b1c8df90f378fb56f7fbc9701827e1ff8aad7f6a028\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

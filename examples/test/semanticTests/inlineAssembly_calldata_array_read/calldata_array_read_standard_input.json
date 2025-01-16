@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "calldata_array_read.sol": {
+            "content": "contract C {\n    function f(uint[2][] calldata x) public returns (uint o, uint l, uint s) {\n        assembly { l := x.length o := x.offset }\n        uint[2] calldata t = x[1];\n        // statically-sized arrays only use one slot, so we read directly.\n        assembly { s := t }\n    }\n}\n// ----\n// f(uint256[2][]): 0x20, 2, 1, 2, 3, 4 -> 0x44, 2, 0x84\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

@@ -1,0 +1,37 @@
+{
+    "semanticTests/functionCall/call_internal_function_via_expression.sol": {
+        "bytecode": "608080604052346013576049908160188239f35b5f80fdfe608060405260043610156010575f80fd5b5f3560e01c806332d2393d14602c5763fa114c4514602c575f80fd5b346045575f3660031901126045576020604051602a8152f35b5f80fd",
+        "contract": ":C",
+        "tests": [
+            {
+                "input": {
+                    "calldata": "",
+                    "value": "0"
+                },
+                "kind": "constructor"
+            },
+            {
+                "input": {
+                    "calldata": "32d2393d",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "000000000000000000000000000000000000000000000000000000000000002a",
+                    "status": "success"
+                }
+            },
+            {
+                "input": {
+                    "calldata": "fa114c45",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "000000000000000000000000000000000000000000000000000000000000002a",
+                    "status": "success"
+                }
+            }
+        ]
+    }
+}

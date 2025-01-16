@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "require_error_uint256.sol": {
+            "content": "error CustomError(uint256);\n\ncontract C\n{\n    function f() external pure\n    {\n        require(false, CustomError(1));\n    }\n\n    function g() external pure\n    {\n        require(false, CustomError(2));\n    }\n}\n\n// ----\n// f() -> FAILURE, hex\"110b3655\", 1\n// g() -> FAILURE, hex\"110b3655\", 2\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

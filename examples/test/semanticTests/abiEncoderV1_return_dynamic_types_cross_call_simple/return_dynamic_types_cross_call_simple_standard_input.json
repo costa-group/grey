@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "return_dynamic_types_cross_call_simple.sol": {
+            "content": "contract C {\n    function dyn() public returns (bytes memory) {\n        return \"1234567890123456789012345678901234567890\";\n    }\n    function f() public returns (bytes memory) {\n        return this.dyn();\n    }\n}\n// ====\n// EVMVersion: >homestead\n// ----\n// f() -> 0x20, 40, \"12345678901234567890123456789012\", \"34567890\"\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

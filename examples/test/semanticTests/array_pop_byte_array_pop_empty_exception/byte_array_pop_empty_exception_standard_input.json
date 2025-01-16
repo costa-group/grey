@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "byte_array_pop_empty_exception.sol": {
+            "content": "contract c {\n    uint256 a;\n    uint256 b;\n    uint256 c;\n    bytes data;\n\n    function test() public returns (bool) {\n        data.pop();\n        return true;\n    }\n}\n// ----\n// test() -> FAILURE, hex\"4e487b71\", 0x31\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}
