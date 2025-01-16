@@ -16,14 +16,9 @@ def compute_max_n_elements(node: str, instr_graph: nx.DiGraph()) -> Tuple[int, b
         second_arg_nodes, second_args_inserting = compute_max_n_elements(edges[1][1], instr_graph)
 
         # If one of them can insert elements
-        if first_args_inserting or second_args_inserting:
-            return first_args_inserting + second_args_inserting, False
-
-        elif first_arg_nodes > second_arg_nodes:
-            return first_arg_nodes, False
-
-        else:
-            return second_arg_nodes, False
+        # Ensure every path can be computed
+        # TODO: improve strategy
+        return min(first_arg_nodes, second_arg_nodes), False
 
     # Non-Commutative case
     else:

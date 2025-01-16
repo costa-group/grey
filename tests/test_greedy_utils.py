@@ -45,3 +45,7 @@ class TestGreedyPermutation:
         """
         sfs, seq, outcome = greedy_from_file("sfs/var_elem_reused_split.json")
         assert outcome != "error", "Error in test json"
+
+    def test_fails_16_1(self):
+        sfs, seq, outcome = greedy_from_file("sfs/fails_16_1.json")
+        assert outcome != "error", "Error in test json"

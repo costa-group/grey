@@ -107,11 +107,11 @@ def analyze_single_cfg(cfg: CFG, final_dir: Path, args: argparse.Namespace):
 
         # Generate complete asm from CFG object + dict
 
-        json_asm_contract = asm_from_cfg(cfg, block_name2asm, tags_dict, args.source)
+        # json_asm_contract = asm_from_cfg(cfg, block_name2asm, tags_dict, args.source)
         df = pd.DataFrame(csv_rows)
         df.to_csv(final_dir.joinpath("statistics.csv"))
 
-    return json_asm_contract
+    return {} # json_asm_contract
         
 
 def main():
@@ -145,6 +145,6 @@ def main():
         assembly_path = store_asm_output(asm_contract, cfg_name, cfg_dir)
 
         synt_binary = SolidityCompilation.importer_assembly_file(assembly_path, solc_executable=args.solc_executable)
-        print("Contract: " + cfg_name + " -> EVM Code: " + synt_binary)
+        # print("Contract: " + cfg_name + " -> EVM Code: " + synt_binary)
 
-        store_binary_output(cfg_name, synt_binary, cfg_dir)
+        # store_binary_output(cfg_name, synt_binary, cfg_dir)
