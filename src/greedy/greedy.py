@@ -15,7 +15,7 @@ instr_T = Dict[str, Any]
 var_instr_map_T = Dict[var_T, instr_T]
 opid_instr_map_T = Dict[var_T, instr_T]
 
-VERBOSE = 0
+VERBOSE = 3
 
 
 def get_ops_map(instructions: List[Dict[str, Any]], op: id_T) -> Dict[var_T, id_T]:
@@ -1715,10 +1715,11 @@ def greedy_from_json(json_data: Dict[str, Any], verb=False) -> Tuple[
             # print(name, encoding._b0, encoding._b0)
         error = 0
     except Exception as e:
-        # print(e)
+        if VERBOSE > 0:
+            print(e)
         # print(json_data)
-        # _, _, tb = sys.exc_info()
-        # traceback.print_tb(tb)
+            _, _, tb = sys.exc_info()
+            traceback.print_tb(tb)
         # print("Error")
         res = None
         resids = None
@@ -1760,6 +1761,13 @@ def greedy_standalone(sms: Dict) -> Tuple[str, float, List[str]]:
     return optimization_outcome, usage_stop.ru_utime + usage_stop.ru_stime - usage_start.ru_utime - usage_start.ru_stime, seq_ids
 
 
+def greedy_from_file(filename: str):
+    with open(filename, "r") as f:
+        sfs = json.load(f)
+    outcome, time, ids = greedy_standalone(sfs)
+    return sfs, ids, outcome
+
+
 if __name__ == "__main__":
     with open(sys.argv[1]) as f:
         json_read = json.load(f)
@@ -1774,7 +1782,7 @@ if __name__ == "__main__":
         name = name[p + 1:]
 
     json_info, encod, rs, rsids, error = greedy_from_json(json_read)  # ,True) if verbose
-    print("Solution", rsids)
+    print(f"Solution {len(rsids)} instrs: ", rsids)
 
     # if error == 0:
     #    print(name, "m:", minst, "g:", len(rs), "e:", error)
