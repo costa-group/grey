@@ -714,7 +714,9 @@ class SMSgreedy:
             pos = stack.index(o)
 
             # o is only needed once more
-            if o in needed_stack and needed_stack[o] == 1:
+            # AH: and there is a copy that can be used to swap
+            if o in needed_stack and needed_stack[o] == 1 and (pos >= self._dup_stack_ini
+                                                               or o in stack[self._dup_stack_ini:]):
 
                 # Ignore the one that has just been computed
                 if pos < self._dup_stack_ini:

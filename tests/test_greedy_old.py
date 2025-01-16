@@ -11,5 +11,14 @@ import json
 class TestGreedyOld:
 
     def test_array_allocation(self):
-        _, _, error = greedy_from_file("greedy_old/array_allocation_size_t_bytes_memory_ptr_Block2_split_0.json")
+        """
+        If the stack already contains all the copies needed and is a subterm of current computation, it tries
+        to reuse it using a swap instruction. However, if one of the copies is already part of a computation,
+        it tries to access one copy that is not part of it. In this case, there are no other copies and it fails
+        when trying to retrieve the position (ask Albert)
+        
+        FIX: adding condition "pos >= self._dup_stack_ini or o in stack[self._dup_stack_ini:])" to ensure
+        we only try to swap it there is an available element
+        """
+        _, _, error = greedy_from_file("greedy_old/swap_only_if_available.json")
         assert error != "error", "Falla test"
