@@ -1,0 +1,78 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "c9 = push[0x36bf3325]\nv14 = eq(v2772,c9)\n9 = PUSH [tag]\nJUMPI(9,v14)",
+    "src_ws": [
+        "v2772"
+    ],
+    "tgt_ws": [
+        "9",
+        "v14",
+        "v2772"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH_0",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                918500133
+            ],
+            "outpt_sk": [
+                "c9"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 5
+        },
+        {
+            "id": "EQ_0",
+            "opcode": "14",
+            "disasm": "EQ",
+            "inpt_sk": [
+                "v2772",
+                "c9"
+            ],
+            "outpt_sk": [
+                "v14"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "9"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "9",
+        "v2772",
+        "c9",
+        "v14"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 0,
+    "max_progr_len": 0,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "dependencies": [],
+    "name": "DirectStaking_5749_deployed_Block23"
+}

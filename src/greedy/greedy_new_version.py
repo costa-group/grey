@@ -475,7 +475,7 @@ class SymbolicState:
         # TODO: remove elements once they have 0 copies left and just check length
         return any(value > 0 for value in self.stack_var_copies_needed.values()) or len(self.dep_graph) > 0
 
-    def var_elem_can_be_reused(self, var_elem: var_id_T, min_pos: cstack_pos_T) -> int:
+    def var_elem_can_be_reused(self, var_elem: var_id_T, min_pos: cstack_pos_T) -> bool:
         """
         Checks if there is an accessible element that can be swapped and returns its position. Returns -1 if it
         is not possible
@@ -483,8 +483,15 @@ class SymbolicState:
         # Two possible positions: the element is repeated more than one in the stack (from min_pos)
         # or no more copies are needed. In order to simplify the computation, we add a first check
         # with self.n_computed[var_elem]
-        if (self.n_computed[var_elem] > 1 and self.stack[(min_pos + 1):].count(var_elem) > 1) \
-                or self.stack_var_copies_needed[var_elem] == 0:
+        return (self.n_computed[var_elem] > 1 and self.stack[(min_pos + 1):].count(var_elem) > 1) \
+                or self.stack_var_copies_needed[var_elem] == 0
+
+    def position_to_swap(self, var_elem: var_id_T, min_pos: cstack_pos_T) -> int:
+        """
+        Returns an available position to which the current element can be placed, ranging from min_pos onwards. Returns
+        -1 if either there is no such position or there is no element to reuse
+        """
+        if self.var_elem_can_be_reused(var_elem, min_pos):
             return self.last_swap_occurrence(var_elem, min_pos)
         return -1
 
@@ -1032,9 +1039,9 @@ class SMSgreedy:
             self.debug_logger.debug_message(f"Position to place {position_to_place}", depth)
 
             # First case: the element is already placed in their position, and either it is not used elsewhere
-            # or we already have a copy
+            # or we already have a copy (i.e. there is an element that can be reused)
             if cstate.is_in_negative_range(position_to_place) and cstate.stack[position_to_place] == stack_var and \
-                    (cstate.n_computed[stack_var] > 1 or cstate.stack_var_copies_needed[stack_var] == 0):
+                    cstate.var_elem_can_be_reused(stack_var, cstate.negative_idx2positive(self.fixed_elements)):
                 pass
             else:
                 # Otherwise, we must return generate the element it with a recursive call
@@ -1160,7 +1167,7 @@ class SMSgreedy:
 
             # Case I: We swap the element the number of copies required is met or we have enough copies,
             # the position is accessible and it is not already part of the fixed size of the stack
-            position_reusing = cstate.var_elem_can_be_reused(var_elem, cstate.negative_idx2positive(self.fixed_elements))
+            position_reusing = cstate.position_to_swap(var_elem, cstate.negative_idx2positive(self.fixed_elements))
 
             # Subcase I.1: we can have enough elements to perform the swap
             if position_reusing != -1 and cstate.is_in_negative_range(position_to_place):

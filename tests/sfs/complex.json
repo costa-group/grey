@@ -1,0 +1,268 @@
+{
+    "name": "complex.json",
+    "original_instrs": "",
+    "yul_expressions": "mstore(v1539,c121)\nv1540 = add(v1539,c122)\nv682 = add(v1540,c123)\nv683 = sub(v682,v1540)\nv684 = add(v1540,c124)\nmstore(v684,v683)\nmstore(v682,c125)\nv895_f38_13 = add(v682,c123)\nv2860 = add(v895_f38_13,c124)\nmstore(v2860,c126)\nv441 = add(v895_f38_13,c123)\nv1542 = sub(v441,v1539)\nrevert(v1539,v1542)",
+    "src_ws": [
+        "v1539",
+        "c124",
+        "c126",
+        "c123",
+        "c121",
+        "c122",
+        "c125"
+    ],
+    "tgt_ws": [
+        "v1539",
+        "v1542"
+    ],
+    "user_instrs": [
+        {
+            "id": "MSTORE_0",
+            "opcode": "52",
+            "disasm": "MSTORE",
+            "inpt_sk": [
+                "v1539",
+                "c121"
+            ],
+            "outpt_sk": [],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": true,
+            "size": 1
+        },
+        {
+            "id": "ADD_0",
+            "opcode": "01",
+            "disasm": "ADD",
+            "inpt_sk": [
+                "v1539",
+                "c122"
+            ],
+            "outpt_sk": [
+                "v1540"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "ADD_1",
+            "opcode": "01",
+            "disasm": "ADD",
+            "inpt_sk": [
+                "v1540",
+                "c123"
+            ],
+            "outpt_sk": [
+                "v682"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "SUB_0",
+            "opcode": "03",
+            "disasm": "SUB",
+            "inpt_sk": [
+                "v682",
+                "v1540"
+            ],
+            "outpt_sk": [
+                "v683"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "ADD_2",
+            "opcode": "01",
+            "disasm": "ADD",
+            "inpt_sk": [
+                "v1540",
+                "c124"
+            ],
+            "outpt_sk": [
+                "v684"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "MSTORE_1",
+            "opcode": "52",
+            "disasm": "MSTORE",
+            "inpt_sk": [
+                "v684",
+                "v683"
+            ],
+            "outpt_sk": [],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": true,
+            "size": 1
+        },
+        {
+            "id": "MSTORE_2",
+            "opcode": "52",
+            "disasm": "MSTORE",
+            "inpt_sk": [
+                "v682",
+                "c125"
+            ],
+            "outpt_sk": [],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": true,
+            "size": 1
+        },
+        {
+            "id": "ADD_3",
+            "opcode": "01",
+            "disasm": "ADD",
+            "inpt_sk": [
+                "v682",
+                "c123"
+            ],
+            "outpt_sk": [
+                "v895_f38_13"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "ADD_4",
+            "opcode": "01",
+            "disasm": "ADD",
+            "inpt_sk": [
+                "v895_f38_13",
+                "c124"
+            ],
+            "outpt_sk": [
+                "v2860"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "MSTORE_3",
+            "opcode": "52",
+            "disasm": "MSTORE",
+            "inpt_sk": [
+                "v2860",
+                "c126"
+            ],
+            "outpt_sk": [],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": true,
+            "size": 1
+        },
+        {
+            "id": "ADD_5",
+            "opcode": "01",
+            "disasm": "ADD",
+            "inpt_sk": [
+                "v895_f38_13",
+                "c123"
+            ],
+            "outpt_sk": [
+                "v441"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "SUB_1",
+            "opcode": "03",
+            "disasm": "SUB",
+            "inpt_sk": [
+                "v441",
+                "v1539"
+            ],
+            "outpt_sk": [
+                "v1542"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        }
+    ],
+    "variables": [
+        "c125",
+        "c122",
+        "v1542",
+        "v895_f38_13",
+        "v684",
+        "c121",
+        "c124",
+        "v441",
+        "v2860",
+        "c123",
+        "v1540",
+        "c126",
+        "v1539",
+        "v682",
+        "v683"
+    ],
+    "memory_dependences": [
+        [
+            "MSTORE_0",
+            "MSTORE_1"
+        ],
+        [
+            "MSTORE_1",
+            "MSTORE_2"
+        ],
+        [
+            "MSTORE_2",
+            "MSTORE_3"
+        ]
+    ],
+    "storage_dependences": [],
+    "init_progr_len": 0,
+    "max_progr_len": 0,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "dependencies": [
+        [
+            "MSTORE_0",
+            "MSTORE_1"
+        ],
+        [
+            "MSTORE_1",
+            "MSTORE_2"
+        ],
+        [
+            "MSTORE_2",
+            "MSTORE_3"
+        ]
+    ]
+}
