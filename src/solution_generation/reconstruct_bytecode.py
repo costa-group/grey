@@ -315,8 +315,9 @@ def recursive_runtime_asm_from_cfg(cfg: CFG, asm_dicts: Dict[str, List[ASM_bytec
     sub_object = cfg.get_subobject()
     if sub_object is not None:
         json_asm_subobjects = recursive_init_asm_from_cfg(sub_object, asm_dicts, tags_dict)
-        current_object_json[".data"] = {"0": json_asm_subobjects}
-
+        current_object_json[".data"] = {}
+        current_object_json[".data"]["0"] = json_asm_subobjects["0"]
+        
     return current_object_json
 
 
@@ -335,7 +336,7 @@ def recursive_init_asm_from_cfg(cfg: CFG, asm_dicts: Dict[str, List[ASM_bytecode
 
         asm = traverse_cfg(obj, asm_dicts, tags)
         current_object_json = {".code": asm}
-
+        
         sub_object = cfg.get_subobject()
         assert sub_object is not None, "Init code must be followed by the runtime code"
         json_asm_subobjects = recursive_runtime_asm_from_cfg(sub_object, asm_dicts, tags_dict, obj_name)
