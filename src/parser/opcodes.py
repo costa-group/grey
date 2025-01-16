@@ -67,6 +67,8 @@ opcodes = {
     "JUMPDEST": [0x5b, 0, 0],
     "SLOADEXT": [0x5c, 2, 1],
     "SSTOREEXT": [0x5d, 3, 0],
+    "TLOAD": [0x5c, 1, 1],
+    "TSTORE": [0x5d, 2, 0],
     "SLOADBYTESEXT": [0x5c, 4, 0],
     "SSTOREBYTESEXT": [0x5d, 4, 0],
     "LOG0": [0xa0, 2, 0],
@@ -295,7 +297,10 @@ def get_ins_cost(opcode, params=None, already=False, store_changed_original_valu
         return (GCOST["Gcoldsload"] if not already else 0) + (GCOST["Gwarmaccess"] if store_changed_original_value else GCOST["Gsreset"])
     elif opcode == "KECCAK256":
         return GCOST["Gsha3"]
-
+    elif opcode == "TLOAD":
+        return 100
+    elif opcode == "TSTORE":
+        return 100
     elif opcode == "SELFDESTRUCT":
         return GCOST["Gsuicide"]
     return 0
