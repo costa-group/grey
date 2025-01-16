@@ -34,7 +34,7 @@ class TestGreedyPermutation:
         sfs, seq, outcome = greedy_from_file("sfs/repeated_argument_tree_dataflow.json")
         assert outcome != "error", "Error in test json"
 
-    def test_fails_16_1(self):
+    def test_var_elem_reused_split(self):
         """
         It assumed there was an element that was not already placed in their position due because
         the method var_elem_can_be_reused returned -1 either if there were no elements to swap or the element to
@@ -43,5 +43,5 @@ class TestGreedyPermutation:
         Fix: split function var_elem_can_be_reused into another method position_to_swap. var_elem_can_be_reused just
         checks if an element can be used safely and position_to_swap returns in which position we can reuse an element.
         """
-        sfs, seq, outcome = greedy_from_file("sfs/fails_16_1.json")
+        sfs, seq, outcome = greedy_from_file("sfs/var_elem_reused_split.json")
         assert outcome != "error", "Error in test json"
