@@ -48,7 +48,6 @@ def parse_args() -> argparse.Namespace:
                                    help="Keeps the original builtin opcodes")
 
     args = parser.parse_args()
-    print(args)
     return args
 
 
