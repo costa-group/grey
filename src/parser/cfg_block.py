@@ -499,7 +499,7 @@ class CFGBlock:
                         # generate no instruction unless their output stack value is different
                         ins_spec = None
                     else:
-                        map_positions_instructions[i] = ins_spec
+                        map_positions_instructions[i] = ins_spec["id"]
 
             if ins_spec is None:
                 result, new_out_idx = ins.build_spec(new_out_idx, instrs_idx, map_instructions)
