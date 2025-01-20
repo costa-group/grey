@@ -18,10 +18,10 @@ class CFGObject:
         self.subObject: Optional['CFG'] = None
 
     def set_subobject(self, subobject: 'CFG'):
-        self.subObjects = subobject
+        self.subObject = subobject
 
     def get_subobject(self) -> 'CFG':
-        return self.subObjects
+        return self.subObject
 
     def add_function(self, function:CFGFunction) -> None:
         function_name = function.get_name()

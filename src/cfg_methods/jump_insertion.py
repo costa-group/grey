@@ -29,7 +29,7 @@ def insert_jumps_tags_cfg(cfg: CFG) -> Dict[cfg_object_T, Dict[block_id_T, int]]
 
         combined_tags[object_id] = tags_object
 
-        sub_object = cfg.get_subobject()
+        sub_object = cfg_object.get_subobject()
 
         if sub_object is not None:
             tags_sub_object = insert_jumps_tags_cfg(sub_object)

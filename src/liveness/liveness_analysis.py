@@ -202,14 +202,19 @@ def dot_from_analysis_cfg(cfg: CFG, final_dir: Path = Path(".")) -> Dict[str, Di
     return results
 
 
-def dot_from_analysis(cfg: CFG, final_dir: Path = Path("."), position: int = 0) -> Dict[str, Dict[str, LivenessAnalysisInfo]]:
+def dot_from_analysis(cfg: CFG, final_dir: Path = Path("."), positions: List[str] = None) -> Dict[str, Dict[str, LivenessAnalysisInfo]]:
     """
     Returns the information from the liveness analysis and also stores a dot file for each analyzed structure
     in "final_dir"
     """
-    sub_cfg = final_dir.joinpath(f"{position}")
+    if positions is None:
+        positions = ["0"]
+
+    sub_cfg = final_dir.joinpath(f"{'_'.join(positions)}")
     sub_cfg.mkdir(exist_ok=True, parents=True)
+    # It only analyzes the code from one CFG level
     analysis_cfg = dot_from_analysis_cfg(cfg, sub_cfg)
-    if cfg.subObjects is not None:
-        analysis_cfg.update(dot_from_analysis(cfg.subObjects, final_dir, position + 1))
+    for idx, cfg_object in enumerate(cfg.objectCFG.values()):
+        if cfg_object.subObject is not None:
+            analysis_cfg.update(dot_from_analysis(cfg_object.subObject, final_dir, positions + [str(i)]))
     return analysis_cfg
