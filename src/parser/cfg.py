@@ -1,10 +1,11 @@
 import json
 from pathlib import Path
-from global_params.types import component_name_T
+from global_params.types import component_name_T, cfg_object_T
 from parser.cfg_object import CFGObject
 from parser.cfg_block_list import CFGBlockList
 from parser.utils_parser import shorten_name
-from typing import Dict, List, Optional, Callable
+from typing import Dict, List, Optional, Callable, Tuple
+from collections import defaultdict
 
 
 def store_sfs_json(block_name: str, block: Dict[str, Dict], final_path: Path) -> None:
@@ -57,17 +58,17 @@ class CFG:
 
         return json_cfg
 
-    def generate_id2block_list(self) -> Dict[component_name_T, CFGBlockList]:
+    def generate_id2block_list(self) -> Dict[cfg_object_T, Dict[component_name_T, CFGBlockList]]:
         """
         Returns the list of all blocks inside the same object, function (excluding subObjects)
         """
-        name2block_list = dict()
+        name2block_list = defaultdict(lambda: {})
         for object_id, cfg_object in self.objectCFG.items():
-            name2block_list[object_id] = cfg_object.blocks
+            name2block_list[object_id][object_id] = cfg_object.blocks
 
             # We also consider the information per function
             for function_name, cfg_function in cfg_object.functions.items():
-                name2block_list[function_name] = cfg_function.blocks
+                name2block_list[object_id][function_name] = cfg_function.blocks
 
         return name2block_list
 

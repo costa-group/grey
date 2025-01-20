@@ -10,8 +10,9 @@ from typing import Dict, List, Type, Any, Set, Tuple, Optional
 import networkx as nx
 from pathlib import Path
 from itertools import zip_longest
+from collections import defaultdict
 
-from global_params.types import SMS_T, component_name_T, var_id_T, block_id_T
+from global_params.types import SMS_T, component_name_T, var_id_T, block_id_T, cfg_object_T, block_list_id_T
 from parser.cfg import CFG
 from parser.cfg_block_list import CFGBlockList
 from parser.cfg_block import CFGBlock
@@ -417,34 +418,33 @@ class LayoutGeneration:
         return json_info
 
 
-def layout_generation_cfg(cfg: CFG, final_dir: Path = Path(".")) -> Dict[str, SMS_T]:
+def layout_generation_cfg(cfg: CFG, final_dir: Path = Path(".")) -> Dict[cfg_object_T, Dict[component_name_T, Dict[block_id_T, SMS_T]]]:
     """
     Returns the information from the liveness analysis and also stores a dot file for each analyzed structure
-    in "final_dir"
+    in "final_dir". It does not consider sub objects
     """
     cfg_info = construct_analysis_info(cfg)
     component2inputs = functions_inputs_from_components(cfg)
     results = perform_liveness_analysis_from_cfg_info(cfg_info)
     component2block_list = cfg.generate_id2block_list()
 
-    jsons = dict()
+    jsons = defaultdict(lambda: {})
 
-    for component_name, liveness in results.items():
-        cfg_info_suboject = cfg_info[component_name]["block_info"]
-        digraph = digraph_from_block_info(cfg_info_suboject.values())
+    for object_name, object_liveness in results.items():
+        for component_name, component_liveness in object_liveness.items():
+            cfg_info_suboject = cfg_info[object_name][component_name]["block_info"]
+            digraph = digraph_from_block_info(cfg_info_suboject.values())
 
-        short_component_name = shorten_name(component_name)
+            layout = LayoutGeneration(component_name, component2block_list[object_name][component_name], component_liveness,
+                                      component2inputs, final_dir, digraph)
 
-        layout = LayoutGeneration(component_name, component2block_list[component_name], liveness, component2inputs,
-                                  final_dir, digraph)
-
-        layout_blocks = layout.build_layout()
-        jsons.update(layout_blocks)
+            layout_blocks = layout.build_layout()
+            jsons[object_name][component_name] = layout_blocks
 
     return jsons
 
 
-def layout_generation(cfg: CFG, final_dir: Path = Path("."), positions: List[str] = None) -> List[Dict[str, SMS_T]]:
+def layout_generation(cfg: CFG, final_dir: Path = Path("."), positions: List[str] = None) -> Tuple[Dict[str, SMS_T], Dict[str, Any]]:
     """
     Returns the information from the liveness analysis and also stores a dot file for each analyzed structure
     in "final_dir"
@@ -454,11 +454,12 @@ def layout_generation(cfg: CFG, final_dir: Path = Path("."), positions: List[str
 
     layout_dir = final_dir.joinpath('_'.join([str(position) for position in positions]))
     layout_dir.mkdir(parents=True, exist_ok=True)
-    current_layouts = [layout_generation_cfg(cfg, layout_dir)]
-    for i, cfg_object in enumerate(cfg.get_objects().values()):
+    current_layout = layout_generation_cfg(cfg, layout_dir)
+    object_layouts = dict()
+    for i, (cfg_name, cfg_object) in enumerate(cfg.get_objects().items()):
 
         sub_object = cfg_object.get_subobject()
         if sub_object is not None:
-            current_layouts.extend(layout_generation(sub_object, final_dir, positions + [str(i)]))
+            object_layouts[cfg_name] = layout_generation(sub_object, final_dir, positions + [str(i)])
 
-    return current_layouts
+    return current_layout, object_layouts
