@@ -48,6 +48,7 @@ def parse_args() -> argparse.Namespace:
                                    help="Keeps the original builtin opcodes")
 
     args = parser.parse_args()
+    print(args)
     return args
 
 
@@ -114,9 +115,8 @@ def analyze_single_cfg(cfg: CFG, final_dir: Path, args: argparse.Namespace):
     return json_asm_contract
         
 
-def main():
+def main(args):
     print("Grey Main")
-    args = parse_args()
 
     x = dtimer()
     json_dict = yul_cfg_dict_from_format(args.input_format, args.source,
