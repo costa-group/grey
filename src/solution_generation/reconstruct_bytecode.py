@@ -297,57 +297,36 @@ def traverse_cfg(cfg_object: CFGObject, asm_dicts: Dict[block_id_T, List[ASM_byt
     return object_code + function_code_list
 
 
-def recursive_runtime_asm_from_cfg(cfg: CFG, asm_dicts: Dict[str, List[ASM_bytecode_T]],
-                                   tags_dict: Dict, object_name: str) -> ASM_contract_T:
+def recursive_asm_from_cfg_object(cfg_object: CFGObject, asm_dicts: Dict[str, List[ASM_bytecode_T]],
+                                  tags_dict: Dict) -> ASM_contract_T:
     """
     Returns the level of the form {.code: ..., .auxdata: ..., [.data: ...]}
     """
-    objects_cfg = cfg.get_objects()
-
     # Represents the structure
-    multiple_object_json = {}
-    deployed_object_name = f"{object_name}_deployed"
-    obj = objects_cfg[deployed_object_name]
-    tags = tags_dict[deployed_object_name]
-
-    asm = traverse_cfg(obj, asm_dicts, tags)
+    tags = tags_dict[cfg_object.name]
+    asm = traverse_cfg(cfg_object, asm_dicts, tags)
 
     aux_data = "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
     current_object_json = {".code": asm, ".auxdata": aux_data}
 
-    sub_object = cfg.get_subobject()
+    sub_object = cfg_object.get_subobject()
     if sub_object is not None:
-        json_asm_subobjects = recursive_init_asm_from_cfg(sub_object, asm_dicts, tags_dict)
+        json_asm_subobjects = recursive_asm_from_cfg(sub_object, asm_dicts, tags_dict)
         current_object_json[".data"] = {}
-        current_object_json[".data"]["0"] = json_asm_subobjects["0"]
+        for i, json_asm_subobject in enumerate(json_asm_subobjects):
+            current_object_json[".data"][str(i)] = json_asm_subobject
         
     return current_object_json
 
 
-def recursive_init_asm_from_cfg(cfg: CFG, asm_dicts: Dict[str, List[ASM_bytecode_T]], tags_dict: Dict) -> ASM_contract_T:
+def recursive_asm_from_cfg(cfg: CFG, asm_dicts: Dict[str, List[ASM_bytecode_T]], tags_dict: Dict) -> List[ASM_contract_T]:
     """
-    Returns the level of the form {"i": {.code: ..., .data: ...}}. Note that .auxdata does not appear and .data must
-    appear (as the init code has some runtime code associated)
+    Returns the level of the form [{.code: ..., .auxdata: ..., [.data: ...]}]. This is later passed to the data object
     """
-    objects_cfg = cfg.get_objects()
 
-    # Represents the structure of the multiple possible contracts {"0": ..., "1:..."}
-    multiple_object_json = {}
-    for obj_name, obj in objects_cfg.items():
-        tags = tags_dict[obj_name]
-        asm_idx = cfg.get_object_idx(obj_name)
-
-        asm = traverse_cfg(obj, asm_dicts, tags)
-        current_object_json = {".code": asm}
-        
-        sub_object = cfg.get_subobject()
-        assert sub_object is not None, "Init code must be followed by the runtime code"
-        json_asm_subobjects = recursive_runtime_asm_from_cfg(sub_object, asm_dicts, tags_dict, obj_name)
-
-        # It has only one subobject at this point (the deployed code)
-        current_object_json[".data"] = {f"0": json_asm_subobjects}
-
-        multiple_object_json[f"{asm_idx}"] = current_object_json
+    multiple_object_json = []
+    for obj_name, obj in cfg.get_objects().items():
+        multiple_object_json.append(recursive_asm_from_cfg_object(obj, asm_dicts, tags_dict))
 
     return multiple_object_json
 
@@ -356,8 +335,9 @@ def asm_from_cfg(cfg: CFG, asm_dicts: Dict[str, List[ASM_bytecode_T]], tags_dict
     """
     Generates an assembly JSON from a CFG structure and the results of the optimization
     """
-    #We have to access key "0" (there is only one contract at root level)
-    asm_json = recursive_init_asm_from_cfg(cfg, asm_dicts, tags_dict)["0"]
+    #We have to access index 0 (there is only one contract at root level)
+    asm_json = recursive_asm_from_cfg(cfg, asm_dicts, tags_dict)[0]
+    asm_json.pop(".auxdata")
     asm_json["sourceList"] = [filename]
 
     return asm_json
@@ -368,6 +348,7 @@ def store_asm_output(json_object: Dict[str, Any], object_name: str, cfg_dir: Pat
     with open(file_to_store, 'w') as f:
         json.dump(json_object, f, indent=4)
     return file_to_store
+
 
 def store_binary_output(object_name: str, evm_code: str, cfg_dir: Path) -> None:
     file_to_store = cfg_dir.joinpath(object_name + "_bin.evm")

@@ -444,16 +444,21 @@ def layout_generation_cfg(cfg: CFG, final_dir: Path = Path(".")) -> Dict[str, SM
     return jsons
 
 
-def layout_generation(cfg: CFG, final_dir: Path = Path("."), position: int = 0) -> List[Dict[str, SMS_T]]:
+def layout_generation(cfg: CFG, final_dir: Path = Path("."), positions: List[str] = None) -> List[Dict[str, SMS_T]]:
     """
     Returns the information from the liveness analysis and also stores a dot file for each analyzed structure
     in "final_dir"
     """
-    layout_dir = final_dir.joinpath(str(position))
+    if positions is None:
+        positions = ["0"]
+
+    layout_dir = final_dir.joinpath('_'.join([str(position) for position in positions]))
     layout_dir.mkdir(parents=True, exist_ok=True)
+    current_layouts = [layout_generation_cfg(cfg, layout_dir)]
+    for i, cfg_object in enumerate(cfg.get_objects().values()):
 
-    layouts_per_cfg = [layout_generation_cfg(cfg, layout_dir)]
-    if cfg.subObjects is not None:
-        layouts_per_cfg.extend(layout_generation(cfg.subObjects, final_dir, position + 1))
+        sub_object = cfg_object.get_subobject()
+        if sub_object is not None:
+            current_layouts.extend(layout_generation(sub_object, final_dir, positions + [str(i)]))
 
-    return layouts_per_cfg
+    return current_layouts
