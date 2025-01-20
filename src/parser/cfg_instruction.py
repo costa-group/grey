@@ -132,6 +132,9 @@ class CFGInstruction:
         self.translate_builtin_args = None
         self.assignments = None
 
+        if self.op.find("_")!=-1:
+            self.out_args = self.out_args[::-1]
+        
         if op.startswith("verbatim"):
             constants.add_verbatim_to_split_block(op)
 
@@ -154,6 +157,10 @@ class CFGInstruction:
     def set_builtin_args(self, builtin: List[str]) -> None:
         self.builtin_args = builtin
 
+    #Only for function calls
+    def reverse_out_args(self):
+        self.out_args = self.out_args[::-1]
+        
     def get_as_json(self):
         instruction = {"in": self.in_args, "out": self.out_args, "op": self.op}
 
