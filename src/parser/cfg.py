@@ -22,7 +22,6 @@ class CFG:
     def __init__(self, nodeType: str):
         self.nodeType = nodeType
         self.objectCFG: Dict[str, CFGObject] = {}
-        self.subObjects: Optional[CFG] = None
 
         # Stores an index for each object
         self.objectCFG2idx: Dict[str, int] = {}
@@ -36,12 +35,6 @@ class CFG:
 
     def get_objects(self) -> Dict[str, CFGObject]:
         return self.objectCFG
-    
-    def set_subobject(self, subobject: 'CFG'):
-        self.subObjects = subobject
-
-    def get_subobject(self) -> 'CFG':
-        return self.subObjects
 
     def get_object_idx(self, object_name: str) -> int:
         return self.objectCFG2idx[object_name]
@@ -61,7 +54,6 @@ class CFG:
         json_obj = {"blocks": json_blocks, "name": self.objectCFG.get("name", "object")}
 
         json_cfg["object"] = json_obj
-        json_cfg["subObjects"] = self.subObjects
 
         return json_cfg
 
@@ -92,7 +84,7 @@ class CFG:
                 modified_block_list = f(cfg_function.blocks)
                 cfg_function.blocks = modified_block_list
 
-            subobject = self.get_subobject()
+            subobject = cfg_object.get_subobject()
 
             if subobject is not None:
                 subobject.modify_cfg_block_list(f)
