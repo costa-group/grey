@@ -46,7 +46,7 @@ def id_to_asm_bytecode(uf_instrs: Dict[str, Dict[str, Any]], instr_id: str) -> A
             return asm_from_op_info("PUSH", "0")
         # Special PUSH cases that were transformed to decimal are analyzed separately
         elif associated_instr['disasm'] == "PUSH" or associated_instr['disasm'] == "PUSH data" \
-                or associated_instr['disasm'] == "PUSHIMMUTABLE":
+                or associated_instr['disasm'] == "PUSHIMMUTABLE" or associated_instr['disasm'] == "ASSIGNIMMUTABLE":
             value = to_hex_default(associated_instr['value'][0])
             return asm_from_op_info(associated_instr['disasm'], value)
         elif associated_instr["disasm"] == "PUSH [TAG]":
@@ -93,7 +93,12 @@ def asm_for_split_instruction(split_ins: CFGInstruction,
 
     elif split_ins.get_op_name().startswith("verbatim"):
         asm_ins = asm_from_op_info("VERBATIM",0) #WARNING: Value assigned to verbatim is 0
-        
+
+    elif split_ins.get_op_name().startswith("assignimmutable"):
+        builtin_args = split_ins.get_builtin_args()
+        value = to_hex_default(builtin_args[0])
+        asm_ins = asm_from_op_info(split_ins.get_op_name().upper(), value if builtin_args is not None and len(builtin_args) > 0 else None)
+
     else:
         # Just include the corresponding instruction and the value field for builtin translations
         builtin_args = split_ins.get_builtin_args()
