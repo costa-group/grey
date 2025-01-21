@@ -6,6 +6,7 @@ in this module the greedy algorithm itself is invoked
 """
 import heapq
 import itertools
+import json
 from typing import Dict, List, Type, Any, Set, Tuple, Optional
 import networkx as nx
 from pathlib import Path
@@ -283,6 +284,9 @@ class LayoutGeneration:
         self._layout_dir = name.joinpath("layouts")
         self._layout_dir.mkdir(exist_ok=True, parents=True)
 
+        self._sfs_dir = name.joinpath("sfs")
+        self._sfs_dir.mkdir(exist_ok=True, parents=True)
+
         # Guess: we need to traverse the code following the dominance tree in topological order
         # This is because in the dominance tree together with the SSA, all the nodes
 
@@ -357,8 +361,9 @@ class LayoutGeneration:
             # We store the output stack in the dict, as we have built a new element
             output_stacks[block_id] = output_stack
 
-        # We build the corresponding specification
+        # We build the corresponding specification and store it in the block
         block_json = block.build_spec(input_stack, output_stack)
+        block.spec = block_json
 
         return block_json
 
@@ -402,49 +407,45 @@ class LayoutGeneration:
 
         return json_info
 
-    def build_layout(self):
+    def build_layout(self) -> None:
         """
-        Builds the layout of the blocks from the given representation
+        Builds the layout of the blocks from the given representation and stores it inside the CFG
         """
         json_info = self._construct_code_from_block_list()
 
+        # Here we just store the layouts and the sfs
         renamed_graph = information_on_graph(self._cfg_graph,
                                              {block_name: print_stacks(block_name, json_info[block_name])
                                               for block_name in
                                               self._block_list.blocks})
 
         nx.nx_agraph.write_dot(renamed_graph, self._layout_dir.joinpath(f"{self._component_id}.dot"))
+        for block_name, specification in json_info.items():
+            with open(self._sfs_dir.joinpath(block_name + ".json"), 'w') as f:
+                json.dump(specification, f)
 
-        return json_info
 
-
-def layout_generation_cfg(cfg: CFG, final_dir: Path = Path(".")) -> Dict[cfg_object_T, Dict[component_name_T, Dict[block_id_T, SMS_T]]]:
+def layout_generation_cfg(cfg: CFG, final_dir: Path = Path(".")) -> None:
     """
-    Returns the information from the liveness analysis and also stores a dot file for each analyzed structure
-    in "final_dir". It does not consider sub objects
+    Generates the layout for all the blocks in the objects inside the CFG level, excluding sub-objects
     """
     cfg_info = construct_analysis_info(cfg)
     component2inputs = functions_inputs_from_components(cfg)
     results = perform_liveness_analysis_from_cfg_info(cfg_info)
     component2block_list = cfg.generate_id2block_list()
 
-    jsons = defaultdict(lambda: {})
-
     for object_name, object_liveness in results.items():
         for component_name, component_liveness in object_liveness.items():
             cfg_info_suboject = cfg_info[object_name][component_name]["block_info"]
             digraph = digraph_from_block_info(cfg_info_suboject.values())
 
-            layout = LayoutGeneration(component_name, component2block_list[object_name][component_name], component_liveness,
-                                      component2inputs, final_dir, digraph)
+            layout = LayoutGeneration(component_name, component2block_list[object_name][component_name],
+                                      component_liveness, component2inputs, final_dir, digraph)
 
-            layout_blocks = layout.build_layout()
-            jsons[object_name][component_name] = layout_blocks
-
-    return jsons
+            layout.build_layout()
 
 
-def layout_generation(cfg: CFG, final_dir: Path = Path("."), positions: List[str] = None) -> Tuple[Dict[str, SMS_T], Dict[str, Any]]:
+def layout_generation(cfg: CFG, final_dir: Path = Path("."), positions: List[str] = None) -> None:
     """
     Returns the information from the liveness analysis and also stores a dot file for each analyzed structure
     in "final_dir"
@@ -454,12 +455,9 @@ def layout_generation(cfg: CFG, final_dir: Path = Path("."), positions: List[str
 
     layout_dir = final_dir.joinpath('_'.join([str(position) for position in positions]))
     layout_dir.mkdir(parents=True, exist_ok=True)
-    current_layout = layout_generation_cfg(cfg, layout_dir)
-    object_layouts = dict()
+    layout_generation_cfg(cfg, layout_dir)
     for i, (cfg_name, cfg_object) in enumerate(cfg.get_objects().items()):
 
         sub_object = cfg_object.get_subobject()
         if sub_object is not None:
-            object_layouts[cfg_name] = layout_generation(sub_object, final_dir, positions + [str(i)])
-
-    return current_layout, object_layouts
+            layout_generation(sub_object, final_dir, positions + [str(i)])

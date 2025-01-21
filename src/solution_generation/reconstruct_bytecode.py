@@ -72,6 +72,7 @@ def asm_from_ids(sms: SMS_T, id_seq: List[str]) -> List[ASM_bytecode_T]:
     """
     Converts the result from the greedy algorithm and the block specification into a list of JSON asm opcodes
     """
+    print(sms["name"], id_seq)
     instr_id_to_instr = {instr['id']: instr for instr in sms['user_instrs']}
     return id_seq_to_asm_bytecode(instr_id_to_instr, id_seq)
 
@@ -111,7 +112,6 @@ def asm_for_split_instruction(split_ins: CFGInstruction,
 
 
 def generate_asm_split_blocks(init_block_id: block_id_T, blocks: Dict[block_id_T, CFGBlock],
-                              tags_dict: Dict[block_id_T, int], asm_dicts: Dict[block_id_T, List[ASM_bytecode_T]],
                               function_name2entry: Dict[function_name_T, block_id_T]) -> Tuple[CFGBlock, List[ASM_bytecode_T]]:
     """
     Joins all the instructions inside all the sub blocks
@@ -119,13 +119,12 @@ def generate_asm_split_blocks(init_block_id: block_id_T, blocks: Dict[block_id_T
     asm_block = []
 
     block = blocks[init_block_id]
-    block_id = init_block_id
 
     jump_type = block.get_jump_type()
     while jump_type in ["sub_block"]:
 
         if jump_type == "sub_block":
-            asm_subblock = asm_dicts.get(block_id, [])
+            asm_subblock = asm_from_ids(block.spec, block.greedy_ids)
             assert block.split_instruction is not None, \
                 f"[ERROR]: Block {block.block_id} split_instructions has to contain a value in a subblock"
             asm_last = asm_for_split_instruction(block.split_instruction, function_name2entry)
@@ -140,7 +139,7 @@ def generate_asm_split_blocks(init_block_id: block_id_T, blocks: Dict[block_id_T
         jump_type = block.get_jump_type()
 
     # We translate the last block
-    asm_subblock = asm_dicts.get(block_id, [])
+    asm_subblock = asm_from_ids(block.spec, block.greedy_ids)
 
     # Split instruction contains both jumps and not handled instructions
     if block.split_instruction is not None:
@@ -181,7 +180,6 @@ def generate_function_name2entry(functions: Iterable[CFGFunction]) -> Dict[funct
 
 
 def traverse_cfg_block_list(block_list: CFGBlockList, function_name2entry: Dict[function_name_T, block_id_T],
-                            asm_dicts: Dict[block_id_T, List[ASM_bytecode_T]],
                             tags_dict: Dict[block_id_T, int]) -> List[ASM_bytecode_T]:
     """
     Traverses the blocks in the block list to generate the serialized assembly code
@@ -209,10 +207,9 @@ def traverse_cfg_block_list(block_list: CFGBlockList, function_name2entry: Dict[
         # If the block has been split we regenerate the whole block together
         # next block contains the last block of the sequence
         if next_block.get_jump_type() in ["sub_block"]:
-            next_block, asm_block = generate_asm_split_blocks(block_id, blocks, tags_dict,
-                                                              asm_dicts, function_name2entry)
+            next_block, asm_block = generate_asm_split_blocks(block_id, blocks, function_name2entry)
         else:
-            asm_block = asm_dicts.get(block_id, None)
+            asm_block = asm_from_ids(next_block.spec, next_block.greedy_ids)
             
             if next_block.split_instruction is not None:
                 asm_last = asm_for_split_instruction(next_block.split_instruction, function_name2entry)
@@ -287,36 +284,34 @@ def traverse_cfg_block_list(block_list: CFGBlockList, function_name2entry: Dict[
     return asm_instructions
 
 
-def traverse_cfg(cfg_object: CFGObject, asm_dicts: Dict[block_id_T, List[ASM_bytecode_T]],
-                 tags_dict: Dict[block_id_T, int]) -> List[ASM_bytecode_T]:
+def traverse_cfg(cfg_object: CFGObject, tags_dict: Dict[block_id_T, int]) -> List[ASM_bytecode_T]:
     """
     Traverses the blocks in the CFG to generate the serialized assembly code
     """
     function_name2entry = generate_function_name2entry(cfg_object.functions.values())
-    object_code = traverse_cfg_block_list(cfg_object.blocks, function_name2entry, asm_dicts, tags_dict)
+    object_code = traverse_cfg_block_list(cfg_object.blocks, function_name2entry, tags_dict)
 
     function_code_list = []
     # TODO: devise better strategies to decide in which order the functions are included in the code
     for function_name, function in cfg_object.functions.items():
-        function_code_list.extend(traverse_cfg_block_list(function.blocks, function_name2entry, asm_dicts, tags_dict))
+        function_code_list.extend(traverse_cfg_block_list(function.blocks, function_name2entry, tags_dict))
     return object_code + function_code_list
 
 
-def recursive_asm_from_cfg_object(cfg_object: CFGObject, asm_dicts: Dict[str, List[ASM_bytecode_T]],
-                                  tags_dict: Dict) -> ASM_contract_T:
+def recursive_asm_from_cfg_object(cfg_object: CFGObject, tags_dict: Dict) -> ASM_contract_T:
     """
     Returns the level of the form {.code: ..., .auxdata: ..., [.data: ...]}
     """
     # Represents the structure
     tags = tags_dict[cfg_object.name]
-    asm = traverse_cfg(cfg_object, asm_dicts, tags)
+    asm = traverse_cfg(cfg_object, tags)
 
     aux_data = "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
     current_object_json = {".code": asm, ".auxdata": aux_data}
 
     sub_object = cfg_object.get_subobject()
     if sub_object is not None:
-        json_asm_subobjects = recursive_asm_from_cfg(sub_object, asm_dicts, tags_dict)
+        json_asm_subobjects = recursive_asm_from_cfg(sub_object, tags_dict)
         current_object_json[".data"] = {}
         for i, json_asm_subobject in enumerate(json_asm_subobjects):
             current_object_json[".data"][str(i)] = json_asm_subobject
@@ -324,24 +319,24 @@ def recursive_asm_from_cfg_object(cfg_object: CFGObject, asm_dicts: Dict[str, Li
     return current_object_json
 
 
-def recursive_asm_from_cfg(cfg: CFG, asm_dicts: Dict[str, List[ASM_bytecode_T]], tags_dict: Dict) -> List[ASM_contract_T]:
+def recursive_asm_from_cfg(cfg: CFG, tags_dict: Dict) -> List[ASM_contract_T]:
     """
     Returns the level of the form [{.code: ..., .auxdata: ..., [.data: ...]}]. This is later passed to the data object
     """
 
     multiple_object_json = []
     for obj_name, obj in cfg.get_objects().items():
-        multiple_object_json.append(recursive_asm_from_cfg_object(obj, asm_dicts, tags_dict))
+        multiple_object_json.append(recursive_asm_from_cfg_object(obj, tags_dict))
 
     return multiple_object_json
 
 
-def asm_from_cfg(cfg: CFG, asm_dicts: Dict[str, List[ASM_bytecode_T]], tags_dict: Dict, filename: str) -> ASM_contract_T:
+def asm_from_cfg(cfg: CFG, tags_dict: Dict, filename: str) -> ASM_contract_T:
     """
     Generates an assembly JSON from a CFG structure and the results of the optimization
     """
     #We have to access index 0 (there is only one contract at root level)
-    asm_json = recursive_asm_from_cfg(cfg, asm_dicts, tags_dict)[0]
+    asm_json = recursive_asm_from_cfg(cfg, tags_dict)[0]
     asm_json.pop(".auxdata")
     asm_json["sourceList"] = [filename]
 
