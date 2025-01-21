@@ -497,7 +497,7 @@ class CFGBlock:
                 ins_spec = map_instructions.get((ins.get_op_name().upper(), tuple(ins.get_in_args())), None)
 
                 if ins_spec is not None:
-                    if len(ins_spec["outpt_sk"]) == 0 or ins_spec["outpt_sk"] == ins.get_out_args():
+                    if len(ins_spec["outpt_sk"]) == 0 or ins_spec["outpt_sk"] != ins.get_out_args():
                         # Memory operations have an extra check: repeated keccaks or loads with the same arguments
                         # generate no instruction unless their output stack value is different
                         ins_spec = None

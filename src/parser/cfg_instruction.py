@@ -152,7 +152,8 @@ class CFGInstruction:
         Memory operation: STORE operations and function calls
         """
         # TODO: handle keccaks and loads better
-        return "STORE" in self.op or self.op not in opcodes.opcodes or "LOAD" in self.op or "KECCAK" in self.op
+        upper_repr = self.op.upper()
+        return any(op in upper_repr for op in ["STORE", "LOAD", "KECCAK"]) or self.op not in opcodes.opcodes
         
     def set_builtin_args(self, builtin: List[str]) -> None:
         self.builtin_args = builtin
