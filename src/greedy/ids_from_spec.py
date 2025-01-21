@@ -17,7 +17,7 @@ from solution_generation.statistics import generate_statistics_info
 
 def cfg_block_spec_ids(cfg_block: CFGBlock) -> Tuple[str, float, List[instr_id_T]]:
     outcome, time, greedy_ids = greedy_standalone(cfg_block.spec)
-    cfg_block.greedy_ids = greedy_ids
+    cfg_block.greedy_ids = greedy_ids if greedy_ids is not None else []
     return outcome, time, greedy_ids
 
 
