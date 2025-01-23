@@ -4,6 +4,7 @@ In this case, we build different heuristics to choose the best layout transforma
 As there are heuristics that can be based on the results of preceeding blocks with the greedy algorithm,
 in this module the greedy algorithm itself is invoked
 """
+import collections
 import heapq
 import itertools
 import json
@@ -171,24 +172,35 @@ def unify_stacks_brothers(target_block_id: block_id_T, predecessor_blocks: List[
     considering the PhiFunctions
     """
     # TODO: uses the input stacks for all the brother stacks for a better combination
-    # First we extract the information from the phi functions
-    phi_func = {(phi_function.out_args[0], predecessor_block): input_arg for phi_function in phi_functions
-                for input_arg, predecessor_block in zip(phi_function.in_args, predecessor_blocks)}
+    # First we extract the information from the phi functions. For each predecessor block, we generate a dict
+    # that maps each variable with each input arg. These nested dicts are important because we want to link the
+    # variables that are linked to each predecessor block
+    phi_func = collections.defaultdict(lambda: {})
+    for phi_function in phi_functions:
+        for input_arg, predecessor_block in zip(phi_function.in_args, predecessor_blocks):
+            phi_func[predecessor_block][phi_function.out_args[0]] = input_arg
 
     # The variables that appear in some of the liveness set of the variables but not in the successor must be
     # accounted as well. In order to do so, we introduce some kind of "PhiFunction" that combines these values
     # in the resulting block
 
-    # First we identify these variables, removing the variables that are already part of a phi functions
-    variables_to_remove = {predecessor_block: live_vars_dict[predecessor_block].difference(live_vars_dict[target_block_id].union(phi_func.values()))
+    # First we identify these variables, removing the variables that are already part of a phi functions of that block.
+    # We want to remove variables related to the phi functions of the considered block,as there can be values in
+    # some phi functions that affect other blocks (see an explanation in explanations/23_01_unify_stack_brothers)
+    variables_to_remove = {predecessor_block: live_vars_dict[predecessor_block].difference(
+        live_vars_dict[target_block_id].union(phi_func.get(predecessor_block, {}).values()))
                            for predecessor_block in predecessor_blocks}
 
     # Then we combine them as new phi functions. We fill with bottom values if there are not enought values to combine
     pseudo_phi_functions = {f"b{i}": in_args for i, in_args in enumerate(zip_longest(*(variables_to_remove[predecessor_block]
                                                                                        for predecessor_block in predecessor_blocks),
                                                                                      fillvalue="bottom"))}
-    phi_func.update({(out_arg, predecessor_block): input_arg for out_arg, in_args in pseudo_phi_functions.items()
-                     for input_arg, predecessor_block in zip(in_args, predecessor_blocks)})
+    for out_arg, in_args in pseudo_phi_functions.items():
+        for input_arg, predecessor_block in zip(in_args, predecessor_blocks):
+            # We must consider that the phi function might not have assigned a value to phi_func[predecessor_block]
+            if phi_func.get(predecessor_block, None) is None:
+                phi_func[predecessor_block] = dict()
+            phi_func[predecessor_block][out_arg] = input_arg
 
     # We generate the input stack of the combined information, considering the pseudo phi functions
     combined_output_stack = output_stack_layout([], [], live_vars_dict[target_block_id].union(pseudo_phi_functions.keys()),
@@ -205,8 +217,10 @@ def unify_stacks_brothers(target_block_id: block_id_T, predecessor_blocks: List[
             if out_var in live_vars_dict[predecessor_id]:
                 predecessor_output_stack.append(out_var)
             else:
-                in_arg = phi_func.get((out_var, predecessor_id), None)
                 # The argument corresponds to the input of a phi function
+                # We need to access two dicts
+                phi_funcs_pred = phi_func.get(predecessor_id, None)
+                in_arg = phi_funcs_pred.get(out_var, None) if phi_funcs_pred is not None else None
                 if in_arg is not None:
                     predecessor_output_stack.append(in_arg)
                 # Otherwise, we have to introduce a bottom value
