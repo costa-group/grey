@@ -15,7 +15,7 @@ instr_T = Dict[str, Any]
 var_instr_map_T = Dict[var_T, instr_T]
 opid_instr_map_T = Dict[var_T, instr_T]
 
-VERBOSE = 3
+VERBOSE = 1
 
 
 def get_ops_map(instructions: List[Dict[str, Any]], op: id_T) -> Dict[var_T, id_T]:
@@ -549,7 +549,7 @@ class SMSgreedy:
                 current_stack.pop(0)
                 opcode += ['POP']
                 opcodeids += ['POP']
-                if VERBOSE > 0: print('POP', current_stack, len(current_stack))
+                if VERBOSE > 1: print('POP', current_stack, len(current_stack))
             else:
                 if len(current_stack) > len(final_stack) and current_stack[0] in final_stack:
                     pos = final_stack.index(current_stack[0]) - len(
@@ -570,7 +570,7 @@ class SMSgreedy:
                     opcodeids += ['SWAP' + str(pos_in_stack)]
                     current_stack = [current_stack[pos_in_stack]] + current_stack[1:pos_in_stack] + [
                         current_stack[0]] + current_stack[pos_in_stack + 1:]
-                    if VERBOSE > 0: print('SWAP' + str(pos_in_stack), current_stack, len(current_stack))
+                    if VERBOSE > 1: print('SWAP' + str(pos_in_stack), current_stack, len(current_stack))
         solved = []
         i = len(current_stack) - 1
         j = len(final_stack) - 1
@@ -672,14 +672,14 @@ class SMSgreedy:
                         # tag = tag[2:]
                         opcode = self._var_instr_map[o]['disasm']
                         opcodeid = self._var_instr_map[o]['id']
-                        if VERBOSE > 0: print(opcode + ' ' + tag, [o] + stack, len([o] + stack))
+                        if VERBOSE > 1: print(opcode + ' ' + tag, [o] + stack, len([o] + stack))
                         self._dup_stack_ini += 1
                         return ([opcode + ' ' + tag], [opcodeid], [o] + stack)
                     else:
                         h = hex(self._var_instr_map[o]['value'][0])
                         h = h[2:]
                         n = (len(h) + 1) // 2
-                        if VERBOSE > 0: print('PUSH' + str(n) + ' ' + h, [o] + stack, len([o] + stack))
+                        if VERBOSE > 1: print('PUSH' + str(n) + ' ' + h, [o] + stack, len([o] + stack))
                         opcodeid = self._var_instr_map[o]['id']
                         if "[" in self._var_instr_map[o]['disasm'] or 'data' in self._var_instr_map[o]['disasm']:
                             opcode = self._var_instr_map[o]['disasm']
@@ -691,7 +691,7 @@ class SMSgreedy:
                     h = hex(o)
                     h = h[2:]
                     n = (len(h) + 1) // 2
-                    if VERBOSE > 0: print('PUSH' + str(n) + ' ' + h, [o] + stack, len([o] + stack))
+                    if VERBOSE > 1: print('PUSH' + str(n) + ' ' + h, [o] + stack, len([o] + stack))
                     self._dup_stack_ini += 1
                     return (['PUSH' + str(n) + ' 0x' + h], ['PUSH' + str(n) + ' 0x' + h], [o] + stack)
                 assert (len(self._var_instr_map[o]['inpt_sk']) == 0)
@@ -736,7 +736,7 @@ class SMSgreedy:
                         #                        print("here")
                         swaps = ['SWAP' + str(pos)]
                         tstack = [stack[pos]] + stack[1:pos] + [stack[0]] + stack[pos + 1:]
-                        if VERBOSE > 0: print('SWAP' + str(pos), tstack, len(tstack))
+                        if VERBOSE > 1: print('SWAP' + str(pos), tstack, len(tstack))
                         self._dup_stack_ini += 1
                         return (swaps, swaps.copy(), tstack)
                     solved_before = False
@@ -753,7 +753,7 @@ class SMSgreedy:
                                 #                                print("here1")
                                 swaps += ['SWAP' + str(i)]
                                 tstack = [tstack[i]] + tstack[1:i] + [tstack[0]] + tstack[i + 1:]
-                                if VERBOSE > 0: print('SWAP' + str(i), tstack, len(tstack))
+                                if VERBOSE > 1: print('SWAP' + str(i), tstack, len(tstack))
                             for i in range(pos):
                                 if len(self._final_stack) + i - len(stack) in solved:
                                     assert (False)
@@ -771,7 +771,7 @@ class SMSgreedy:
                         nn = needed_one(n, o, set(needed_stack.keys()), self._opid_instr_map, self._var_instr_map)
                         assert (nn <= needed_stack[n])
                         needed_stack[n] -= nn
-            if VERBOSE > 0:
+            if VERBOSE > 1:
                 print('DUP' + str(stack.index(o) + 1), [o] + stack, len([o] + stack))
 
             self._dup_stack_ini += 1
@@ -781,7 +781,7 @@ class SMSgreedy:
             h = hex(o)
             h = h[2:]
             n = (len(h) + 1) // 2
-            if VERBOSE > 0: print('PUSH' + str(n) + ' ' + h, [o] + stack, len([o] + stack))
+            if VERBOSE > 1: print('PUSH' + str(n) + ' ' + h, [o] + stack, len([o] + stack))
             self._dup_stack_ini += 1
             return ['PUSH' + str(n) + ' 0x' + h], ['PUSH' + str(n) + ' 0x' + h], [o] + stack
         else:
@@ -799,14 +799,14 @@ class SMSgreedy:
                     # tag = tag[2:]
                     opcode = self._var_instr_map[o]['disasm']
                     opcodeid = self._var_instr_map[o]['id']
-                    if VERBOSE > 0: print(opcode + ' ' + tag, [o] + stack, len([o] + stack))
+                    if VERBOSE > 1: print(opcode + ' ' + tag, [o] + stack, len([o] + stack))
                     self._dup_stack_ini += 1
                     return ([opcode + ' ' + tag], [opcodeid], [o] + stack)
                 else:
                     h = hex(self._var_instr_map[o]['value'][0])
                     h = h[2:]
                     n = (len(h) + 1) // 2
-                    if VERBOSE > 0: print('PUSH' + str(n) + ' ' + h, [o] + stack, len([o] + stack))
+                    if VERBOSE > 1: print('PUSH' + str(n) + ' ' + h, [o] + stack, len([o] + stack))
                     opcodeid = self._var_instr_map[o]['id']
                     if "[" in self._var_instr_map[o]['disasm'] or 'data' in self._var_instr_map[o]['disasm']:
                         opcode = self._var_instr_map[o]['disasm']
@@ -832,7 +832,7 @@ class SMSgreedy:
                                 needed_stack.pop(op1, None)
                                 needed_stack.pop(op2, None)
                                 self._dup_stack_ini += 1
-                                if VERBOSE > 0: print(opcode, stack, len(stack))
+                                if VERBOSE > 1: print(opcode, stack, len(stack))
                                 return [opcode], [opcodeid], outs + stack[len(inpts):]
             if len(inpts) == 2 and len(stack) >= 1 and self._dup_stack_ini == 0:
                 op = stack[0]
@@ -850,7 +850,7 @@ class SMSgreedy:
                             self._dup_stack_ini -= len(inpts)
                             self._dup_stack_ini += len(outs)
                             stack = outs + stack[len(inpts):]
-                            if VERBOSE > 0: print(opcode, stack, len(stack))
+                            if VERBOSE > 1: print(opcode, stack, len(stack))
                             return (opcodes, opcodeids, stack)
             if o in self._var_instr_map and self._var_instr_map[o]['commutative']:
                 inpts.reverse()
@@ -869,7 +869,7 @@ class SMSgreedy:
             stack = outs + stack[len(inpts):]
             self._dup_stack_ini -= len(inpts)
             self._dup_stack_ini += len(outs)
-            if VERBOSE > 0: print(opcode, stack, len(stack))
+            if VERBOSE > 1: print(opcode, stack, len(stack))
             if (o in needed_stack and o not in stack[1:]):
                 # first time computed inside the term --> ERROR
                 assert (False)
@@ -1066,10 +1066,10 @@ class SMSgreedy:
                 # print("Enter:",opr,current_stack,needed_stack,solved)
                 ops += ['SWAP' + str(i)]
                 stack = [stack[i]] + stack[1:i] + [stack[0]] + stack[i + 1:]
-                if VERBOSE > 0: print('SWAP' + str(i), stack, len(stack))
+                if VERBOSE > 1: print('SWAP' + str(i), stack, len(stack))
                 ops += ['POP']
                 stack.pop(0)
-                if VERBOSE > 0: print('POP', stack, len(stack))
+                if VERBOSE > 1: print('POP', stack, len(stack))
                 needed_stack.pop(opr, None)
                 # print("Exit:",opr,current_stack,needed_stack,solved)
             else:
@@ -1131,7 +1131,7 @@ class SMSgreedy:
             opcodeids += popcodeids
             opcodeids += [opcodeid]
             cstack = outs + cstack[len(inpts):]
-            if VERBOSE > 0: print(opcode, cstack, len(cstack))
+            if VERBOSE > 1: print(opcode, cstack, len(cstack))
         return (opcodes, opcodeids, cstack)
 
     def compute_memory_op(self, o, cstack, cneeded_in_stack_map, solved, max_to_swap):
@@ -1221,7 +1221,7 @@ class SMSgreedy:
                 topcodes += ['POP']
                 topcodeids += ['POP']
                 cstack.pop(0)
-                if VERBOSE > 0:
+                if VERBOSE > 1:
                     print('POP', cstack, len(cstack))
 
             # Either the next element is a STORE instruction or the stack is too long to access case 3
@@ -1251,7 +1251,7 @@ class SMSgreedy:
                     topcodeids += ['SWAP' + str(pos_in_stack)]
                     lens = len(cstack)
                     cstack = [cstack[pos_in_stack]] + cstack[1:pos_in_stack] + [cstack[0]] + cstack[pos_in_stack + 1:]
-                    if VERBOSE > 0: print('SWAP' + str(pos_in_stack), cstack, len(cstack))
+                    if VERBOSE > 1: print('SWAP' + str(pos_in_stack), cstack, len(cstack))
                     assert (lens == len(cstack))
 
             # Case 1: compute an element from the final stack in pos
@@ -1338,7 +1338,7 @@ class SMSgreedy:
                     topcodeids += ['SWAP' + str(pos_in_stack)]
                     lens = len(cstack)
                     cstack = [cstack[pos_in_stack]] + cstack[1:pos_in_stack] + [cstack[0]] + cstack[pos_in_stack + 1:]
-                    if VERBOSE > 0: print('SWAP' + str(pos_in_stack), cstack, len(cstack))
+                    if VERBOSE > 1: print('SWAP' + str(pos_in_stack), cstack, len(cstack))
                     assert (lens == len(cstack))
             # Case 3: Next instruction in dependency instrs is a STORE or there is a memory instruction that uses
             # an inaccesible element in the stack
