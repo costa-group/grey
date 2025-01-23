@@ -1,0 +1,315 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "c35 = push[0xffffffffffffffff]\nc34 = push[0x40]\nc33 = push[0x20]\nc32 = push[0x1f]\nv84_f9_0 = not(c32)\nv85_f9_0 = add(v20,c32)\nv86_f9_0 = and(v85_f9_0,v84_f9_0)\nv54 = add(v86_f9_0,c33)\nv50_f8_0 = mload(c34)\nv84_f9_1 = not(c32)\nv85_f9_1 = add(v54,c32)\nv86_f9_1 = and(v85_f9_1,v84_f9_1)\nv72 = add(v50_f8_0,v86_f9_1)\nv73 = lt(v72,v50_f8_0)\nv74 = gt(v72,c35)\nv75 = or(v74,v73)\n7 = PUSH [tag]\nJUMPI(7,v75)",
+    "src_ws": [
+        "v20",
+        "v21",
+        "v63"
+    ],
+    "tgt_ws": [
+        "7",
+        "v75",
+        "v72",
+        "v50_f8_0",
+        "v20",
+        "v21",
+        "v63"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH_0",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                18446744073709551615
+            ],
+            "outpt_sk": [
+                "c35"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 9
+        },
+        {
+            "id": "PUSH_1",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                64
+            ],
+            "outpt_sk": [
+                "c34"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "PUSH_2",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                32
+            ],
+            "outpt_sk": [
+                "c33"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "PUSH_3",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                31
+            ],
+            "outpt_sk": [
+                "c32"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "NOT_0",
+            "opcode": "19",
+            "disasm": "NOT",
+            "inpt_sk": [
+                "c32"
+            ],
+            "outpt_sk": [
+                "v84_f9_0"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "ADD_0",
+            "opcode": "01",
+            "disasm": "ADD",
+            "inpt_sk": [
+                "v20",
+                "c32"
+            ],
+            "outpt_sk": [
+                "v85_f9_0"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "AND_0",
+            "opcode": "16",
+            "disasm": "AND",
+            "inpt_sk": [
+                "v85_f9_0",
+                "v84_f9_0"
+            ],
+            "outpt_sk": [
+                "v86_f9_0"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "ADD_1",
+            "opcode": "01",
+            "disasm": "ADD",
+            "inpt_sk": [
+                "v86_f9_0",
+                "c33"
+            ],
+            "outpt_sk": [
+                "v54"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "MLOAD_0",
+            "opcode": "51",
+            "disasm": "MLOAD",
+            "inpt_sk": [
+                "c34"
+            ],
+            "outpt_sk": [
+                "v50_f8_0"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "ADD_2",
+            "opcode": "01",
+            "disasm": "ADD",
+            "inpt_sk": [
+                "v54",
+                "c32"
+            ],
+            "outpt_sk": [
+                "v85_f9_1"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "AND_1",
+            "opcode": "16",
+            "disasm": "AND",
+            "inpt_sk": [
+                "v85_f9_1",
+                "v84_f9_0"
+            ],
+            "outpt_sk": [
+                "v86_f9_1"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "ADD_3",
+            "opcode": "01",
+            "disasm": "ADD",
+            "inpt_sk": [
+                "v50_f8_0",
+                "v86_f9_1"
+            ],
+            "outpt_sk": [
+                "v72"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "LT_0",
+            "opcode": "10",
+            "disasm": "LT",
+            "inpt_sk": [
+                "v72",
+                "v50_f8_0"
+            ],
+            "outpt_sk": [
+                "v73"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "GT_0",
+            "opcode": "11",
+            "disasm": "GT",
+            "inpt_sk": [
+                "v72",
+                "c35"
+            ],
+            "outpt_sk": [
+                "v74"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "OR_0",
+            "opcode": "17",
+            "disasm": "OR",
+            "inpt_sk": [
+                "v74",
+                "v73"
+            ],
+            "outpt_sk": [
+                "v75"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "7"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "7",
+        "v73",
+        "v75",
+        "v74",
+        "v54",
+        "v85_f9_0",
+        "v72",
+        "v20",
+        "c35",
+        "v84_f9_1",
+        "c32",
+        "v85_f9_1",
+        "v86_f9_1",
+        "v86_f9_0",
+        "v50_f8_0",
+        "c34",
+        "c33",
+        "v84_f9_0"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 0,
+    "max_progr_len": 0,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": ""
+}

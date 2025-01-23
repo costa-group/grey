@@ -132,6 +132,9 @@ class CFGInstruction:
         self.translate_builtin_args = None
         self.assignments = None
 
+        if self.op.find("_")!=-1:
+            self.out_args = self.out_args[::-1]
+        
         if op.startswith("verbatim"):
             constants.add_verbatim_to_split_block(op)
 
@@ -149,11 +152,16 @@ class CFGInstruction:
         Memory operation: STORE operations and function calls
         """
         # TODO: handle keccaks and loads better
-        return "STORE" in self.op or self.op not in opcodes.opcodes or "LOAD" in self.op or "KECCAK" in self.op
+        upper_repr = self.op.upper()
+        return any(op in upper_repr for op in ["STORE", "LOAD", "KECCAK"]) or self.op not in opcodes.opcodes
         
     def set_builtin_args(self, builtin: List[str]) -> None:
         self.builtin_args = builtin
 
+    #Only for function calls
+    def reverse_out_args(self):
+        self.out_args = self.out_args[::-1]
+        
     def get_as_json(self):
         instruction = {"in": self.in_args, "out": self.out_args, "op": self.op}
 

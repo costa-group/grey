@@ -101,9 +101,9 @@ def analyze_single_cfg(cfg: CFG, final_dir: Path, args: argparse.Namespace):
                     csv_rows.append(csv_row)
                     solution_asm = asm_from_ids(sfs, solution_found)
                     block_name2asm[block_name] = solution_asm
-                except:
+                except Exception as e:
                     block_name2asm[block_name] = []
-                    print(f"Error in the greedy algorithm processing {block_name}")
+                    print(f"Error in the greedy algorithm processing {block_name}: {e}")
 
         # Generate complete asm from CFG object + dict
 
@@ -114,9 +114,8 @@ def analyze_single_cfg(cfg: CFG, final_dir: Path, args: argparse.Namespace):
     return {} # json_asm_contract
         
 
-def main():
+def main(args):
     print("Grey Main")
-    args = parse_args()
 
     x = dtimer()
     json_dict = yul_cfg_dict_from_format(args.input_format, args.source,
