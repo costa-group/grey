@@ -1,7 +1,7 @@
 import itertools
 import logging
 
-from global_params.types import instr_id_T, dependencies_T, var_id_T, block_id_T, function_name_T
+from global_params.types import instr_id_T, dependencies_T, var_id_T, block_id_T, function_name_T, SMS_T
 from parser.cfg_instruction import CFGInstruction, build_push_spec, build_pushtag_spec
 from parser.utils_parser import is_in_input_stack, is_in_output_stack, are_dependent_interval, get_empty_spec, \
     get_expression, are_dependent_accesses, replace_pos_instrsid, generate_dep, get_interval, replace_aliasing_spec
@@ -99,6 +99,9 @@ class CFGBlock:
         # at position i is generated. Hence, all phi functions must define the values in the same order
         self._entries: List[block_id_T] = []
 
+        self._spec: SMS_T = None
+        self._greedy_ids: List[instr_id_T] = None
+
     @property
     def final_stack_elements(self) -> List[str]:
         """
@@ -158,7 +161,7 @@ class CFGBlock:
         Removes the instruction at position instr_index, updating the last split instruction if it affects
         the last instruction
         """
-        
+
         instr_idx = (len(self._instructions) + instr_idx) % len(self._instructions)
         if instr_idx >= len(self._instructions):
             raise ValueError("Attempting to remove an instruction index out of bounds")
@@ -223,7 +226,7 @@ class CFGBlock:
         """
         # Add a PUSH tag instruction
         self._instructions.append(CFGInstruction("PUSH [tag]", [], [tag_value]))
-            
+
         # Add a JUMP instruction
         jump_instr = CFGInstruction("JUMP", [tag_value], [])
         self._instructions.append(jump_instr)
@@ -470,7 +473,7 @@ class CFGBlock:
         Builds the specification for a sequence of instructions. "map_instructions" is passed as an argument
         to reuse declarations from other blocks, as we might have split the corresponding basic block
         """
-        
+
         spec = {}
 
         uninter_functions = []
@@ -481,7 +484,7 @@ class CFGBlock:
 
         #Key is the original variable and the value is the one that we use
         aliasing_dict = {}
-        
+
         unprocessed_instr = None
 
         for i, ins in enumerate(instructions):
@@ -518,7 +521,7 @@ class CFGBlock:
 
                 out_var = out_var_list[0]
                 new_out_var = new_out_var_list[0]
-                
+
                 candidate_instructions = filter(lambda x: out_var in x["inpt_sk"],uninter_functions)
                 for uninter in candidate_instructions:
                     pos = uninter["inpt_sk"].index(out_var)
@@ -528,7 +531,7 @@ class CFGBlock:
             else:
                 old_variable = ins.get_out_args()[0]
                 aliasing_dict[old_variable] = ins_spec["outpt_sk"][0]
-                
+
         # We must remove the final output variable from the unprocessed instruction and
         # add the inputs from that instruction
         if self.split_instruction is not None:
@@ -600,13 +603,14 @@ class CFGBlock:
         spec["min_length_bounds"] = 0
         spec["min_length"] = 0
         spec["rules"] = ""
+        spec["name"] = self.block_id
 
         vars_list = spec["variables"]
         tgt_stack = spec["tgt_ws"]
-        
+
         if aliasing_dict != {}:
             replace_aliasing_spec(aliasing_dict, uninter_functions, vars_list, tgt_stack)
-          
+
         return spec, new_out_idx, map_positions_instructions
 
     def _include_jump_tag(self, block_spec: Dict, out_idx: int, block_tags_dict: Dict, block_tag_idx: int) -> \
@@ -651,6 +655,26 @@ class CFGBlock:
             logging.debug(json.dumps(spec, indent=4))
 
         return spec
+
+    @property
+    def spec(self) -> SMS_T:
+        return self._spec
+
+    @spec.setter
+    def spec(self, spec: SMS_T) -> None:
+        if self._spec is not None:
+            raise ValueError("Specification already computed")
+        self._spec = spec
+
+    @property
+    def greedy_ids(self) -> List[instr_id_T]:
+        return self._greedy_ids
+
+    @greedy_ids.setter
+    def greedy_ids(self, greedy_ids: List[instr_id_T]) -> None:
+        if self._greedy_ids is not None:
+            raise ValueError("Greedy ids already computed")
+        self._greedy_ids = greedy_ids
 
     def __str__(self):
         s = "BlockID: " + self.block_id + "\n"

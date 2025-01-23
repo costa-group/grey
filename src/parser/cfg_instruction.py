@@ -279,7 +279,7 @@ class CFGInstruction:
         self.op = "push"
         new_builtin = []
         for o in self.builtin_args:
-            hex_val = hex(int(o))
+            hex_val = hex(int(o, 16))
             new_builtin.append(hex_val)
         self.translate_builtin_args = new_builtin
         

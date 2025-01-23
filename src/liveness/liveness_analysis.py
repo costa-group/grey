@@ -1,9 +1,11 @@
 import copy
 import logging
 import networkx as nx
-from typing import Dict, List, Union, Any
+from typing import Dict, List, Union, Any, Tuple
 from pathlib import Path
+from collections import defaultdict
 
+from global_params.types import cfg_object_T, component_name_T
 from analysis.fixpoint_analysis import BlockAnalysisInfo, BackwardsAnalysis, state_T
 from analysis.abstract_state import digraph_from_block_info
 from liveness.liveness_state import LivenessState, LivenessBlockInfo, LivenessBlockInfoSSA
@@ -119,21 +121,21 @@ def construct_analysis_info_from_cfgblocklist(block_list: CFGBlockList) -> cfg_i
     return {"block_info": block_info, "terminal_blocks": terminal_blocks}
 
 
-def construct_analysis_info(cfg: CFG) -> Dict[str, cfg_info_T]:
+def construct_analysis_info(cfg: CFG) -> Dict[cfg_object_T, Dict[component_name_T, cfg_info_T]]:
     """
     Constructs the info needed for the liveness analysis for all the code in a CFG: the main blocks and the functions
     inside (excludes the CFG stored in the subObject field). The dictionary contains an item for each structure
     """
-    cfg_info = dict()
+    cfg_info = defaultdict(lambda: dict())
 
     # Construct the cfg information for the blocks in the objects
     for object_id, cfg_object in cfg.objectCFG.items():
         block_list = cfg_object.blocks
-        cfg_info[object_id] = construct_analysis_info_from_cfgblocklist(block_list)
+        cfg_info[object_id][object_id] = construct_analysis_info_from_cfgblocklist(block_list)
 
         # We also consider the information per function
         for function_name, cfg_function in cfg_object.functions.items():
-            cfg_info[function_name] = construct_analysis_info_from_cfgblocklist(cfg_function.blocks)
+            cfg_info[object_id][function_name] = construct_analysis_info_from_cfgblocklist(cfg_function.blocks)
 
     return cfg_info
 
@@ -148,68 +150,75 @@ def liveness_analysis_from_vertices(vertices: Dict[str, LivenessBlockInfo],
     return liveness_analysis
 
 
-def perform_liveness_analysis_from_cfg_info(cfg_info: Dict[str, cfg_info_T]) -> Dict[
-    str, Dict[str, LivenessAnalysisInfo]]:
+def perform_liveness_analysis_from_cfg_info(cfg_info: Dict[cfg_object_T, Dict[component_name_T, Dict[str, cfg_info_T]]]) \
+        -> Dict[cfg_object_T, Dict[component_name_T, Dict[str, LivenessAnalysisInfo]]]:
     """
     Returns the information from the liveness analysis for each structure stored in the cfg info
     """
-    results = dict()
+    results = defaultdict(lambda: {})
 
-    for cfg_object_name, cfg_object in cfg_info.items():
-        logging.debug(f"Start analysis for {cfg_object_name}...")
-        liveness_analysis = liveness_analysis_from_vertices(cfg_object["block_info"],
-                                                            cfg_object["terminal_blocks"])
-        logging.debug(f"End analysis for {cfg_object_name}...")
-        results[cfg_object_name] = liveness_analysis.get_analysis_results()
+    for cfg_object_name, cfg_object_info in cfg_info.items():
+        for cfg_component_name, cfg_component_info in cfg_object_info.items():
+            logging.debug(f"Start analysis for {cfg_object_name}...")
+            liveness_analysis = liveness_analysis_from_vertices(cfg_component_info["block_info"],
+                                                                cfg_component_info["terminal_blocks"])
+            logging.debug(f"End analysis for {cfg_object_name}...")
+            results[cfg_object_name][cfg_component_name] = liveness_analysis.get_analysis_results()
     logging.debug("RESULTS" + str(results))
     return results
 
 
-def perform_liveness_analysis(cfg: CFG) -> Dict[str, Dict[str, LivenessAnalysisInfo]]:
+def perform_liveness_analysis(cfg: CFG) -> Dict[cfg_object_T, Dict[cfg_object_T, Dict[str, LivenessAnalysisInfo]]]:
     """
-    Returns the information from the liveness analysis
+    Returns the information from the liveness analysis for each object and each component in that object
     """
     cfg_info = construct_analysis_info(cfg)
     return perform_liveness_analysis_from_cfg_info(cfg_info)
 
 
-def dot_from_analysis_cfg(cfg: CFG, final_dir: Path = Path(".")) -> Dict[str, Dict[str, LivenessAnalysisInfo]]:
+def dot_from_analysis_cfg(cfg: CFG, final_dir: Path = Path(".")) -> Dict[cfg_object_T, Dict[component_name_T, Dict[str, LivenessAnalysisInfo]]]:
     """
     Returns the information from the liveness analysis and also stores a dot file for each analyzed structure
     in "final_dir"
     """
     cfg_info = construct_analysis_info(cfg)
     results = perform_liveness_analysis_from_cfg_info(cfg_info)
-    for component_name, liveness in results.items():
-        cfg_info_suboject = cfg_info[component_name]["block_info"]
-        digraph = digraph_from_block_info(cfg_info_suboject.values())
+    for cfg_object_name, object_liveness in results.items():
+        for component_name, liveness in object_liveness.items():
+            cfg_info_suboject = cfg_info[cfg_object_name][component_name]["block_info"]
+            digraph = digraph_from_block_info(cfg_info_suboject.values())
 
-        renaming_dict = dict()
-        for block_live, live_vars in liveness.items():
-            renaming_dict[block_live] = live_vars.dot_repr()
-        renamed_digraph = nx.relabel_nodes(digraph, renaming_dict)
+            renaming_dict = dict()
+            for block_live, live_vars in liveness.items():
+                renaming_dict[block_live] = live_vars.dot_repr()
+            renamed_digraph = nx.relabel_nodes(digraph, renaming_dict)
 
-        short_component_name = shorten_name(component_name)
-        try:
-            nx.nx_agraph.write_dot(renamed_digraph, final_dir.joinpath(f"{short_component_name}.dot"))
-        except:
+            short_component_name = shorten_name(component_name)
+            try:
+                nx.nx_agraph.write_dot(renamed_digraph, final_dir.joinpath(f"{short_component_name}.dot"))
+            except:
 
-            global i
+                global i
 
-            nx.nx_agraph.write_dot(renamed_digraph, final_dir.joinpath(f"too_long_name_{i}.dot"))
-            i += 1
+                nx.nx_agraph.write_dot(renamed_digraph, final_dir.joinpath(f"too_long_name_{i}.dot"))
+                i += 1
 
     return results
 
 
-def dot_from_analysis(cfg: CFG, final_dir: Path = Path("."), position: int = 0) -> Dict[str, Dict[str, LivenessAnalysisInfo]]:
+def dot_from_analysis(cfg: CFG, final_dir: Path = Path("."), positions: List[str] = None) -> Dict[Tuple[str, str], Dict[str, LivenessAnalysisInfo]]:
     """
     Returns the information from the liveness analysis and also stores a dot file for each analyzed structure
     in "final_dir"
     """
-    sub_cfg = final_dir.joinpath(f"{position}")
+    if positions is None:
+        positions = ["0"]
+
+    sub_cfg = final_dir.joinpath(f"{'_'.join(positions)}")
     sub_cfg.mkdir(exist_ok=True, parents=True)
+    # It only analyzes the code from one CFG level
     analysis_cfg = dot_from_analysis_cfg(cfg, sub_cfg)
-    if cfg.subObjects is not None:
-        analysis_cfg.update(dot_from_analysis(cfg.subObjects, final_dir, position + 1))
+    for idx, cfg_object in enumerate(cfg.objectCFG.values()):
+        if cfg_object.subObject is not None:
+            analysis_cfg.update(dot_from_analysis(cfg_object.subObject, final_dir, positions + [str(i)]))
     return analysis_cfg

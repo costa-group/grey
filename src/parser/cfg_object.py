@@ -1,9 +1,12 @@
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:  # Only imports the below statements during type checking
+    from parser.cfg import CFG
 import json
 import logging
 from global_params.types import component_name_T
 from parser.cfg_block_list import CFGBlockList
 from parser.cfg_function import CFGFunction
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 
 class CFGObject:
@@ -12,7 +15,14 @@ class CFGObject:
         self.blocks: CFGBlockList = blocks
         self.functions: Dict[str, CFGFunction] = {}
         self.block_tag_idx = 0
-        
+        self.subObject: Optional['CFG'] = None
+
+    def set_subobject(self, subobject: 'CFG'):
+        self.subObject = subobject
+
+    def get_subobject(self) -> 'CFG':
+        return self.subObject
+
     def add_function(self, function:CFGFunction) -> None:
         function_name = function.get_name()
 
@@ -25,7 +35,6 @@ class CFGObject:
     def add_functions(self, functions_list:List[CFGFunction]) -> None:
         for f in functions_list:
             self.add_function(f)
-
     
     def get_name(self):
         return self.name

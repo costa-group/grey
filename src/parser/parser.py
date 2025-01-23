@@ -176,19 +176,6 @@ def parser_CFG_from_JSON(json_dict: Dict, built_in_op: bool):
     
     cfg = CFG(nodeType)
 
-    # First, we parse the subObjects in order to generate the corresponding keys dict
-    subObjects = json_dict.get("subObjects", -1)
-
-    if subObjects == -1:
-        raise Exception("[ERROR]: JSON file does not contain key subObjects")
-
-    key_dict = dict()
-
-    if subObjects != {}:
-        sub_object = parser_CFG_from_JSON(subObjects, built_in_op)
-        cfg.set_subobject(sub_object)
-        key_dict = sub_object.get_objectCFG2idx()
-
     # The contract key corresponds to the key that is neither type nor subobjects
     # For yul blocks, it is "object"
     object_keys = [key for key in json_dict if key not in ["type", "subObjects"]]
@@ -196,10 +183,22 @@ def parser_CFG_from_JSON(json_dict: Dict, built_in_op: bool):
     assert len(object_keys) >= 1, "[ERROR]: JSON file does not contain a valid key for the code"
 
     for obj in object_keys:
-        json_object = json_dict.get(obj,False)
+        json_object = json_dict.get(obj, False)
         json_functions = json_object.get("functions", {})
 
+        # First, we parse the subObjects in order to generate the corresponding keys dict
+        subObjects = json_object.get("subObjects", {})
+
+        key_dict = dict()
+
+        if subObjects != {}:
+            sub_object = parser_CFG_from_JSON(subObjects, built_in_op)
+            key_dict = sub_object.get_objectCFG2idx()
+
         cfg_object = parse_object(obj, json_object, built_in_op, key_dict)
+
+        if subObjects != {}:
+            cfg_object.set_subobject(sub_object)
 
         for f in json_functions:
             obj_function = parse_function(f, json_functions[f], built_in_op, key_dict)

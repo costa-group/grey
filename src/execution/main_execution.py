@@ -1,19 +1,16 @@
 import argparse
 import json
-from typing import Dict, Any, Optional
+from typing import Dict, Optional
 from pathlib import Path
 from timeit import default_timer as dtimer
-import pandas as pd
 
 from parser.utils_parser import split_json
 from global_params.types import Yul_CFG_T
 from parser.parser import parse_CFG_from_json_dict
-from parser.cfg import store_sfs_json, CFG
+from parser.cfg import CFG
 from execution.sol_compilation import SolidityCompilation
-from greedy.greedy_new_version import greedy_standalone
-from solution_generation.statistics import generate_statistics_info
-from solution_generation.reconstruct_bytecode import asm_from_ids, asm_from_cfg, store_asm_output,  store_binary_output
-
+from solution_generation.reconstruct_bytecode import asm_from_cfg, store_asm_output,  store_binary_output
+from greedy.ids_from_spec import cfg_spec_ids
 from liveness.layout_generation import layout_generation
 from cfg_methods.preprocessing_methods import preprocess_cfg
 
@@ -75,44 +72,14 @@ def analyze_single_cfg(cfg: CFG, final_dir: Path, args: argparse.Namespace):
     tags_dict = preprocess_cfg(cfg, dot_file_dir, args.visualize)
 
     x = dtimer()
-    jsons_list = layout_generation(cfg, final_dir.joinpath("stack_layouts"))
-
-    sfs_final_dir = final_dir.joinpath("sfs")
-    sfs_final_dir.mkdir(exist_ok=True, parents=True)
+    layout_generation(cfg, final_dir.joinpath("stack_layouts"))
     y = dtimer()
 
     print("Layout generation: " + str(y - x) + "s")
+    cfg_spec_ids(cfg, final_dir.joinpath("statistics.csv"))
 
-    block_name2asm = dict()
-
-    json_asm_contract = {}
-    
-    if args.greedy:
-        csv_rows = []
-        for i, jsons in enumerate(jsons_list):
-            for block_name, sfs in jsons.items():
-                cfg_sfs_dir = sfs_final_dir.joinpath(str(i))
-                cfg_sfs_dir.mkdir(exist_ok=True, parents=True)
-                sfs["name"] = block_name
-                store_sfs_json(block_name, sfs, cfg_sfs_dir)
-                try:
-                    _, time, solution_found = greedy_standalone(sfs)
-                    csv_row = generate_statistics_info(block_name, solution_found, time, sfs)
-                    csv_rows.append(csv_row)
-                    solution_asm = asm_from_ids(sfs, solution_found)
-                    block_name2asm[block_name] = solution_asm
-                except Exception as e:
-                    block_name2asm[block_name] = []
-                    print(f"Error in the greedy algorithm processing {block_name}: {e}")
-
-        # Generate complete asm from CFG object + dict
-
-        # json_asm_contract = asm_from_cfg(cfg, block_name2asm, tags_dict, args.source)
-        df = pd.DataFrame(csv_rows)
-        df.to_csv(final_dir.joinpath("statistics.csv"))
-
-    return {} # json_asm_contract
-        
+    json_asm_contract = asm_from_cfg(cfg, tags_dict, args.source)
+    return json_asm_contract
 
 def main(args):
     print("Grey Main")
@@ -144,6 +111,6 @@ def main(args):
         assembly_path = store_asm_output(asm_contract, cfg_name, cfg_dir)
 
         synt_binary = SolidityCompilation.importer_assembly_file(assembly_path, solc_executable=args.solc_executable)
-        # print("Contract: " + cfg_name + " -> EVM Code: " + synt_binary)
+        print("Contract: " + cfg_name + " -> EVM Code: " + synt_binary)
 
-        # store_binary_output(cfg_name, synt_binary, cfg_dir)
+        store_binary_output(cfg_name, synt_binary, cfg_dir)
