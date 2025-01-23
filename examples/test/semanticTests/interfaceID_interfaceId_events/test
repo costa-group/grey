@@ -1,0 +1,37 @@
+{
+    "semanticTests/interfaceID/interfaceId_events.sol": {
+        "bytecode": "60808060405234602c575f80546001600160401b03191667c6be8b58c6be8b58179055607d908160318239f35b5f80fdfe60808060405260043610156011575f80fd5b5f3560e01c9081633232b21e1460595750639476f92214602f575f80fd5b346055575f36600319011260555760205f5460e01b6040519063ffffffff60e01b168152f35b5f80fd5b346055575f3660031901126055575f5460c01b6001600160e01b0319168152602090f3",
+        "contract": ":Test",
+        "tests": [
+            {
+                "input": {
+                    "calldata": "",
+                    "value": "0"
+                },
+                "kind": "constructor"
+            },
+            {
+                "input": {
+                    "calldata": "9476f922",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "c6be8b5800000000000000000000000000000000000000000000000000000000",
+                    "status": "success"
+                }
+            },
+            {
+                "input": {
+                    "calldata": "3232b21e",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "c6be8b5800000000000000000000000000000000000000000000000000000000",
+                    "status": "success"
+                }
+            }
+        ]
+    }
+}

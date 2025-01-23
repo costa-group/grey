@@ -1,0 +1,26 @@
+{
+    "semanticTests/constructor_inheritance_init_order.sol": {
+        "bytecode": "60808060405234601c57602a5f55602a6001556065908160218239f35b5f80fdfe60808060405260043610156011575f80fd5b5f3560e01c90816326121ff014604e575063a56dfe4a14602f575f80fd5b34604a575f366003190112604a576020600154604051908152f35b5f80fd5b34604a575f366003190112604a576020905f548152f3",
+        "contract": ":B",
+        "tests": [
+            {
+                "input": {
+                    "calldata": "",
+                    "value": "0"
+                },
+                "kind": "constructor"
+            },
+            {
+                "input": {
+                    "calldata": "a56dfe4a",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "000000000000000000000000000000000000000000000000000000000000002a",
+                    "status": "success"
+                }
+            }
+        ]
+    }
+}

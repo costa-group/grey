@@ -1,0 +1,59 @@
+{
+    "semanticTests/various/multi_modifiers.sol": {
+        "bytecode": "6080806040523460135760bd908160188239f35b5f80fdfe60808060405260043610156011575f80fd5b5f3560e01c9081630c55699c146099575080639942ec6f1460755763c27fc305146039575f80fd5b346071575f366003190112607157604f5f5460b0565b60078101809111605d575f55005b634e487b7160e01b5f52601160045260245ffd5b5f80fd5b346071575f366003190112607157608b5f5460b0565b60038101809111605d575f55005b346071575f3660031901126071576020905f548152f35b5f198114605d576001019056",
+        "contract": ":C",
+        "tests": [
+            {
+                "input": {
+                    "calldata": "",
+                    "value": "0"
+                },
+                "kind": "constructor"
+            },
+            {
+                "input": {
+                    "calldata": "c27fc305",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "",
+                    "status": "success"
+                }
+            },
+            {
+                "input": {
+                    "calldata": "0c55699c",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "0000000000000000000000000000000000000000000000000000000000000008",
+                    "status": "success"
+                }
+            },
+            {
+                "input": {
+                    "calldata": "9942ec6f",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "",
+                    "status": "success"
+                }
+            },
+            {
+                "input": {
+                    "calldata": "0c55699c",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "000000000000000000000000000000000000000000000000000000000000000c",
+                    "status": "success"
+                }
+            }
+        ]
+    }
+}
