@@ -34,7 +34,7 @@ def inline_functions(cfg: CFG) -> None:
 
     for object_id, cfg_object in cfg.objectCFG.items():
         inline_functions_cfg_object(cfg_object, cfg_object2modify[object_id])
-        sub_object = cfg.get_subobject()
+        sub_object = cfg_object.get_subobject()
 
         if sub_object is not None:
             inline_functions(sub_object)
@@ -58,7 +58,7 @@ def generate_function2information(cfg: CFG) -> Dict[function_name_T, function2ca
             generate_function2blocks_block_list(cfg_function.blocks, function_names, current_object2call_info)
 
         function2blocks[object_id] = current_object2call_info
-        sub_object = cfg.get_subobject()
+        sub_object = cfg_object.get_subobject()
 
         if sub_object is not None:
             function2blocks.update(generate_function2information(sub_object))

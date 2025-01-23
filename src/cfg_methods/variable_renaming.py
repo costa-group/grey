@@ -22,7 +22,7 @@ def rename_variables_cfg(cfg: CFG) -> None:
         for cfg_function in cfg_object.functions.values():
             free_index = new_variables_function(cfg_function, free_index)
 
-        sub_object = cfg.get_subobject()
+        sub_object = cfg_object.get_subobject()
 
         if sub_object is not None:
             rename_variables_cfg(sub_object)

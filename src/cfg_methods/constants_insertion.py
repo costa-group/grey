@@ -36,7 +36,7 @@ def insert_variables_for_constants(cfg: CFG) -> None:
 
             insert_constants_block_list(cfg_function.blocks, constants_per_block)
 
-        sub_object = cfg.get_subobject()
+        sub_object = cfg_object.get_subobject()
         if sub_object is not None:
             insert_variables_for_constants(sub_object)
 

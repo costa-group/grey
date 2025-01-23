@@ -27,7 +27,7 @@ def split_blocks_cfg(cfg: CFG, tags_object: Dict[cfg_object_T, Dict[block_id_T, 
         for function_name, cfg_function in cfg_object.functions.items():
             modify_block_list_split(cfg_function.blocks, function_names, tag_dict)
 
-        sub_object = cfg.get_subobject()
+        sub_object = cfg_object.get_subobject()
 
         if sub_object is not None:
             split_blocks_cfg(sub_object, tags_object)
@@ -103,7 +103,7 @@ def combine_remove_blocks_cfg(cfg: CFG):
         for function_name, cfg_function in cfg_object.functions.items():
             combine_remove_blocks_block_list(cfg_function.blocks, function_names)
 
-        sub_object = cfg.get_subobject()
+        sub_object = cfg_object.get_subobject()
 
         if sub_object is not None:
             combine_remove_blocks_cfg(sub_object)
