@@ -23,10 +23,11 @@ def unify_stacks(predecessor_stacks: List[List[str]], variable_depth_info: Dict[
 
 
 def compute_variable_depth(liveness_info: Dict[str, LivenessAnalysisInfoSSA], topological_order: List) -> Dict[
-    str, Dict[str, int]]:
+    str, Dict[str, Tuple[int, int]]]:
     """
-    For each variable at every point in the CFG, returns the corresponding depth. Useful for
-    determining in which order the blocks can be traversed
+    For each variable at every point in the CFG, returns the corresponding depth of the last time a variable was used
+    and the position being used in the current block (if any). Useful for determining in which order
+    variables are placed in a layout
     TODO: improve the efficiency
     """
     variable_depth_out = dict()
@@ -35,12 +36,16 @@ def compute_variable_depth(liveness_info: Dict[str, LivenessAnalysisInfoSSA], to
 
     for node in reversed(topological_order):
         block_info = liveness_info[node].block_info
+        instructions = block_info.instructions
+        max_instr_idx = len(instructions) + 1
 
         current_variable_depth_out = dict()
 
         # Initialize variables in the live_in set to len(topological_order) + 1
         for input_variable in liveness_info[node].in_state.live_vars:
-            current_variable_depth_out[input_variable] = max_depth
+            current_variable_depth_out[input_variable] = max_depth, max_instr_idx
+
+        # Link each variable to the position being used in the instructions
 
         # For each successor, compute the variable depth information and update the corresponding map
         for succ_node in block_info.successors:
@@ -51,16 +56,20 @@ def compute_variable_depth(liveness_info: Dict[str, LivenessAnalysisInfoSSA], to
 
             for variable, depth in previous_variable_depth.items():
                 # Update the depth if it already appears in the dict
-                if variable in current_variable_depth_out:
-                    current_variable_depth_out[variable] = min(current_variable_depth_out[variable], depth + 1)
+                variable_info = current_variable_depth_out.get(variable, None)
+                if variable_info is not None:
+                    var_depth, instr_pos = variable_info
+                    # If the depth of the successor variable is less than the one we have actually
+                    if variable_info >= depth:
+                        current_variable_depth_out[variable] = variable_info
                 else:
-                    current_variable_depth_out[variable] = depth + 1
+                    current_variable_depth_out[variable] = depth[0] + 1, max_instr_idx
 
         current_variable_depth_in = current_variable_depth_out.copy()
 
         # Finally, we update the corresponding variables that are defined in the blocks
-        for used_variable in set(block_info.uses).union(block_info.phi_uses):
-            current_variable_depth_out[used_variable] = 0
+        # for used_variable in set(block_info.uses).union(block_info.phi_uses):
+        #     current_variable_depth_out[used_variable] = 0
 
         variable_depth_out[node] = current_variable_depth_out
         variable_depth_in[node] = current_variable_depth_in
@@ -122,7 +131,7 @@ def output_stack_layout(input_stack: List[str], final_stack_elements: List[str],
     vars_to_place = live_vars.difference(set(final_stack_elements + bottom_output_stack))
 
     # Sort the vars to place according to the variable depth info order in reversed order
-    vars_to_place_sorted = sorted(vars_to_place, key=lambda x: -variable_depth_info[x])
+    vars_to_place_sorted = sorted(vars_to_place, key=lambda x: variable_depth_info[x], reverse=True)
 
     # Try to place the variables in reversed order
     i, j = len(bottom_output_stack) - 1, 0
@@ -188,7 +197,7 @@ def unify_stacks_brothers(target_block_id: block_id_T, predecessor_blocks: List[
 
     # We generate the input stack of the combined information, considering the pseudo phi functions
     combined_output_stack = output_stack_layout([], [], live_vars_dict[target_block_id].union(pseudo_phi_functions.keys()),
-                                                dict(variable_depth_info, **{key: 0 for key in pseudo_phi_functions.keys()}))
+                                                dict(variable_depth_info, **{key: (0,) for key in pseudo_phi_functions.keys()}))
 
     # Reconstruct all the output stacks
     predecessor_output_stacks = dict()
