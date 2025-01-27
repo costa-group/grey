@@ -14,15 +14,13 @@ from pathlib import Path
 from itertools import zip_longest
 from collections import defaultdict
 
-from global_params.types import SMS_T, component_name_T, var_id_T, block_id_T, cfg_object_T, block_list_id_T
+from global_params.types import SMS_T, component_name_T, var_id_T
 from parser.cfg import CFG
 from parser.cfg_block_list import CFGBlockList
 from parser.cfg_block import CFGBlock
-from parser.cfg_instruction import CFGInstruction
-from parser.utils_parser import shorten_name
 from analysis.abstract_state import digraph_from_block_info
 from graphs.algorithms import condense_to_dag, information_on_graph
-from liveness.liveness_analysis import LivenessAnalysisInfo, construct_analysis_info, \
+from liveness.liveness_analysis import LivenessAnalysisInfoSSA, construct_analysis_info, \
     perform_liveness_analysis_from_cfg_info
 from liveness.utils import functions_inputs_from_components
 from liveness.stack_layout_methods import compute_variable_depth, output_stack_layout, unify_stacks_brothers, \
@@ -50,7 +48,7 @@ def print_stacks(block_name: str, json_dict: Dict[str, Any]) -> str:
 
 class LayoutGeneration:
 
-    def __init__(self, object_id: str, block_list: CFGBlockList, liveness_info: Dict[str, LivenessAnalysisInfo],
+    def __init__(self, object_id: str, block_list: CFGBlockList, liveness_info: Dict[str, LivenessAnalysisInfoSSA],
                  function_inputs: Dict[component_name_T, List[var_id_T]], name: Path,
                  cfg_graph: Optional[nx.Graph] = None):
         self._component_id = object_id

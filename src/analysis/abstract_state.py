@@ -3,9 +3,10 @@ Module that implements an AbstractState and an AbstractAnalysisInfo in order to 
 fixpoint analysis.
 """
 
-from typing import Any, Iterable
+from typing import Any, Iterable, List
 from abc import ABC, abstractmethod
 import networkx as nx
+from parser.cfg_instruction import CFGInstruction
 
 
 class AbstractBlockInfo(ABC):
@@ -32,6 +33,11 @@ class AbstractBlockInfo(ABC):
     @property
     @abstractmethod
     def block_type(self) -> Any:
+        raise NotImplementedError
+
+    @property
+    @abstractmethod
+    def instructions(self) -> List[CFGInstruction]:
         raise NotImplementedError
 
 

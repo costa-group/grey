@@ -9,7 +9,7 @@ from itertools import zip_longest
 from global_params.types import var_id_T, block_id_T
 from parser.cfg_block_list import CFGBlockList
 from parser.cfg_instruction import CFGInstruction
-from liveness.liveness_analysis import LivenessAnalysisInfo
+from liveness.liveness_analysis import LivenessAnalysisInfoSSA
 
 
 def unify_stacks(predecessor_stacks: List[List[str]], variable_depth_info: Dict[str, int]) -> List[str]:
@@ -22,7 +22,7 @@ def unify_stacks(predecessor_stacks: List[List[str]], variable_depth_info: Dict[
     return [elem[1] for elem in sorted(pairs)]
 
 
-def compute_variable_depth(liveness_info: Dict[str, LivenessAnalysisInfo], topological_order: List) -> Dict[
+def compute_variable_depth(liveness_info: Dict[str, LivenessAnalysisInfoSSA], topological_order: List) -> Dict[
     str, Dict[str, int]]:
     """
     For each variable at every point in the CFG, returns the corresponding depth. Useful for
