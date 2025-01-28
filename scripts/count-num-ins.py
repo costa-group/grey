@@ -154,12 +154,21 @@ def count_evm_instructions(bytecode: str) -> int:
 
     return count
 
+
+def remove_auxdata(evm: str):
+    """
+    Removes the .auxdata introduced by grey. It is always of the same form
+    """
+    return evm.replace("000000000000000000000000000000000000000000000000000000000000000000"
+                       "000000000000000000000000000000000000000000000000000000000000000000"
+                       "00000000000000000000000000000000000053", "")
+
 def count_num_ins(evm: str):
     """
     Assumes the evm bytecode has no CBOR metadata appended
     """
     code_regions = split_evm_instructions(evm)
-    return sum(count_evm_instructions(region) for region in code_regions)
+    return sum(count_evm_instructions(remove_auxdata(region)) for region in code_regions)
 
 
 def execute_script():
