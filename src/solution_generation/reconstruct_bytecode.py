@@ -305,7 +305,8 @@ def recursive_asm_from_cfg_object(cfg_object: CFGObject, tags_dict: Dict) -> ASM
     tags = tags_dict[cfg_object.name]
     asm = traverse_cfg(cfg_object, tags)
 
-    aux_data = "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+    # 83 bytes of 0 + 0053 in CBOR encoding (see https://playground.sourcify.dev/)
+    aux_data = "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000053"
     current_object_json = {".code": asm, ".auxdata": aux_data}
 
     sub_object = cfg_object.get_subobject()
