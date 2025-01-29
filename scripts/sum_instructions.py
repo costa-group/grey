@@ -25,6 +25,8 @@ lines = ff.readlines()
 origin = list(filter(lambda x: x.find("ORIGIN")!= -1, lines))
 origin_number = list(map(lambda x: int(x.split(":")[-1].strip()), origin))
 
+f_names = list(map(lambda x: x.split(":")[0].rstrip(" ORIGIN NUM INS"),origin))
+
 total_origin = sum(origin_number)
 
 
@@ -46,6 +48,8 @@ total_peor = 0
 optimizado_peor = 0
 
 cuartiles_res = [0,0,0,0]
+
+worse_files = {}
 for i in range(len(origin_number)):
     original = origin_number[i]
     optimizado = opt_number[i]
@@ -59,12 +63,21 @@ for i in range(len(origin_number)):
         igual+=1
     else:
 
+        fname = f_names[i]
+        worse_files[fname] = (original, optimizado)
         print("PAREJA: ("+str(original)+","+str(optimizado)+")")
         total_peor+= original
         optimizado_peor+=optimizado
         cuartiles(original, optimizado, cuartiles_res)
         mayor+=1
 
+s = ""
+for k,v in worse_files.items():
+    s+=k+":"+str(v)+"\n"
+    
+worse_file = open("worse_contracts.txt", "w")
+worse_file.write(s)
+worse_file.close()
 
 # print("CASOS EN EL QUE SOMOS MEJOR: "+str(menor))
 print("CASOS EN LOS QUE SOMOS IGUALES: "+str(igual))
