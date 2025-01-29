@@ -53,11 +53,14 @@ def remove_backwards_edges(current_node, visited: Set, current_path: Set, cfg:nx
 
 
 def compute_variable_depth(liveness_info: Dict[str, LivenessAnalysisInfoSSA], topological_order: List) -> Dict[
-    str, Dict[str, Tuple[int, int]]]:
+    str, Tuple[Dict[str, Tuple[int, int]], Dict[str, Tuple[int, int]]]]:
     """
-    For each variable at every point in the CFG, returns the corresponding depth of the last time a variable was used
-    and the position being used in the current block (if any). Useful for determining in which order
-    variables are placed in a layout
+    For each variable at every point in the CFG, returns the score we assign for the live in and live out sets.
+    This score is based on the following lexicographic order:
+    1. How deep was the variable last read from current node
+    2. The position of the instruction in which it is last used inside current block
+
+    Useful for determining in which order variables are placed in a layout
     TODO: improve the efficiency
     """
     variable_depth_out = dict()
@@ -68,14 +71,14 @@ def compute_variable_depth(liveness_info: Dict[str, LivenessAnalysisInfoSSA], to
         block_info = liveness_info[node].block_info
         instructions = block_info.instructions
         max_instr_idx = len(instructions) + 1
+        in_vars = liveness_info[node].in_state.live_vars
+        out_vars = liveness_info[node].out_state.live_vars
 
         current_variable_depth_out = dict()
 
-        # Initialize variables in the live_in set to len(topological_order) + 1
-        for input_variable in liveness_info[node].in_state.live_vars:
+        # Initialize variables in the live-out set to len(topological_order) + 1
+        for input_variable in out_vars:
             current_variable_depth_out[input_variable] = max_depth, max_instr_idx
-
-        # Link each variable to the position being used in the instructions
 
         # For each successor, compute the variable depth information and update the corresponding map
         for succ_node in block_info.successors:
@@ -85,26 +88,50 @@ def compute_variable_depth(liveness_info: Dict[str, LivenessAnalysisInfoSSA], to
             previous_variable_depth = variable_depth_in.get(succ_node, dict())
 
             for variable, depth in previous_variable_depth.items():
-                # Update the depth if it already appears in the dict
+                # Update the depth if it already appears in the dict (i.e. it is a live variable)
                 variable_info = current_variable_depth_out.get(variable, None)
                 if variable_info is not None:
                     var_depth, instr_pos = variable_info
                     # If the depth of the successor variable is less than the one we have actually
-                    if variable_info >= depth:
+                    if variable_info < depth:
                         current_variable_depth_out[variable] = variable_info
-                else:
-                    current_variable_depth_out[variable] = depth[0] + 1, max_instr_idx
+                    else:
+                        # Otherwise, we just update the depth to one plus
+                        current_variable_depth_out[variable] = depth[0] + 1, depth[1]
 
-        current_variable_depth_in = current_variable_depth_out.copy()
+        # After combining the information from the predecessor blocks, we now generate the
+        # information for the live-in set
+        current_variable_depth_in = {variable: current_variable_depth_out[variable]
+                                     for variable in in_vars.intersection(current_variable_depth_out.keys())}
+        visited = set(current_variable_depth_in.keys())
 
-        # Finally, we update the corresponding variables that are defined in the blocks
-        # for used_variable in set(block_info.uses).union(block_info.phi_uses):
-        #     current_variable_depth_out[used_variable] = 0
+        # We search for those values in the "in_set" that did not appear in the successors
+        # (i.e. they were lastly used in the current block). For those values, we assign depth = 0
+        # and the last position in which it was used as an index
+        for i, instruction in enumerate(reversed(instructions)):
+            idx = len(instructions) - i
+            for in_arg in instruction.in_args:
+                variable_info = current_variable_depth_in.get(in_arg, None)
+                # We only want to set the values that are assigned for the last time
+                if variable_info is None and in_arg in in_vars:
+                    visited.add(in_arg)
+                    # Current score
+                    current_variable_depth_in[in_arg] = 0, idx
 
-        variable_depth_out[node] = current_variable_depth_out
+            # Special case for values defined in PhiFunctions: if the introduced value has not been assigned
+            # then we consider the position in which it is being used
+            # if instruction.get_op_name() == "PhiFunction":
+            #     for out_arg
+
+        # Finally, pop values correspond to those values that were visited neither in the successors
+        # nor in the used values. Those values are removed
+        for input_variable in in_vars.difference(visited):
+            current_variable_depth_in[input_variable] = 0, -1
+
         variable_depth_in[node] = current_variable_depth_in
+        variable_depth_out[node] = current_variable_depth_out
 
-    return variable_depth_out
+    return variable_depth_in, variable_depth_out
 
 
 def compute_block_level(dominance_tree: nx.DiGraph, start: str) -> Dict[str, int]:

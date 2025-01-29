@@ -24,7 +24,7 @@ from liveness.liveness_analysis import LivenessAnalysisInfoSSA, construct_analys
     perform_liveness_analysis_from_cfg_info
 from liveness.utils import functions_inputs_from_components
 from liveness.stack_layout_methods import compute_variable_depth, output_stack_layout, unify_stacks_brothers, \
-    compute_block_level, unification_block_dict
+    compute_block_level, unification_block_dict, build_acyclic_graph_from_CFG
 
 
 def var_order_repr(block_name: str, var_info: Dict[str, int]):
@@ -67,20 +67,26 @@ class LayoutGeneration:
         _tree_dir = name.joinpath("tree")
         _tree_dir.mkdir(exist_ok=True, parents=True)
 
+        _acyclic_dir = name.joinpath("acyclic")
+        _acyclic_dir.mkdir(exist_ok=True, parents=True)
+
         immediate_dominators = nx.immediate_dominators(self._cfg_graph, self._start)
         self._dominance_tree = nx.DiGraph([v, u] for u, v in immediate_dominators.items() if u != self._start)
         self._dominance_tree.add_node(self._start)
-
         nx.nx_agraph.write_dot(self._dominance_tree, _tree_dir.joinpath(f"{object_id}.dot"))
-        self._block_order = list(nx.topological_sort(self._dominance_tree))
 
-        self._variable_order = compute_variable_depth(liveness_info, self._block_order)
+        self._acyclic_graph = build_acyclic_graph_from_CFG(self._cfg_graph, self._start)
+        nx.nx_agraph.write_dot(self._acyclic_graph, _acyclic_dir.joinpath(f"{object_id}.dot"))
 
-        renamed_graph = information_on_graph(self._cfg_graph, {name: var_order_repr(name, assignments)
-                                                               for name, assignments in self._variable_order.items()})
-        _var_dir = name.joinpath("var_order")
-        _var_dir.mkdir(exist_ok=True, parents=True)
-        nx.nx_agraph.write_dot(renamed_graph, _var_dir.joinpath(f"{object_id}.dot"))
+        self._block_order = list(nx.topological_sort(self._acyclic_graph))
+        self._in_args_order, self._out_args_order = compute_variable_depth(liveness_info, self._block_order)
+
+        for order_dict, t in zip([self._in_args_order, self._out_args_order], ["in", "out"]):
+            renamed_graph = information_on_graph(self._cfg_graph, {name: var_order_repr(name, assignments)
+                                                                   for name, assignments in order_dict.items()})
+            _var_dir = name.joinpath(f"{t}_var_order")
+            _var_dir.mkdir(exist_ok=True, parents=True)
+            nx.nx_agraph.write_dot(renamed_graph, _var_dir.joinpath(f"{object_id}_{t}.dot"))
 
         self._layout_dir = name.joinpath("layouts")
         self._layout_dir.mkdir(exist_ok=True, parents=True)
@@ -146,7 +152,7 @@ class LayoutGeneration:
                                                                                      elements_to_unify,
                                                                                      combined_liveness_info,
                                                                                      phi_instructions,
-                                                                                     self._variable_order[next_block_id])
+                                                                                     self._in_args_order[next_block_id])
 
                 # Update the output stacks with the ones generated from the unification
                 output_stacks.update(output_stacks_unified)
@@ -156,9 +162,11 @@ class LayoutGeneration:
                 input_stacks[next_block_id] = combined_output_stack
 
         if output_stack is None:
+            if block_id == "abi_decode_available_length_bytes_Block2_split_1":
+                print("HOLA")
             output_stack = output_stack_layout(input_stack, block.final_stack_elements,
                                                liveness_info.out_state.live_vars,
-                                               self._variable_order[block_id])
+                                               self._out_args_order[block_id])
             # We store the output stack in the dict, as we have built a new element
             output_stacks[block_id] = output_stack
 
