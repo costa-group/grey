@@ -16,7 +16,7 @@ def execute_yul_test(yul_file: str) -> None:
 
     # Run external commands
     solc_command = [
-        "./solc-objects",
+        "./solc-latest",
         yul_file,
         "--standard-json",
     ]
@@ -30,7 +30,7 @@ def execute_yul_test(yul_file: str) -> None:
         "-s", yul_file,
         "-g", "-v",
         "-if", "standard-json",
-        "-solc", "./solc-objects",
+        "-solc", "./solc-latest",
         "-o", f"/tmp/{yul_base}",
     ]
     log_file = os.path.join(yul_dir, f"{yul_base}.log")
