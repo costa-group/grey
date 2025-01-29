@@ -16,7 +16,7 @@ def execute_yul_test(yul_file: str) -> None:
 
     # Run external commands
     solc_command = [
-        "./solc-objects",
+        "./solc-latest",
         yul_file,
         "--standard-json",
     ]
@@ -30,7 +30,7 @@ def execute_yul_test(yul_file: str) -> None:
         "-s", yul_file,
         "-g", "-v",
         "-if", "standard-json",
-        "-solc", "./solc-objects",
+        "-solc", "./solc-latest",
         "-o", f"/tmp/{yul_base}",
     ]
     log_file = os.path.join(yul_dir, f"{yul_base}.log")
@@ -57,16 +57,16 @@ def execute_yul_test(yul_file: str) -> None:
         print(" ".join(replace_command))
 
         testrunner_command_original = [
-            "../solidity/build/test/tools/testrunner",
-            "../evmone/lib/libevmone.so.0.13.0",
+            "/experiments/Systems/solidity/build/test/tools/testrunner",
+            "/experiments/Systems/evmone/build/lib/libevmone.so.0.13.0",
             test_file,
             os.path.join(yul_dir, "resultOriginal.json"),
         ]
         subprocess.run(testrunner_command_original)
 
         testrunner_command_grey = [
-            "../solidity/build/test/tools/testrunner",
-            "../evmone/lib/libevmone.so.0.13.0",
+            "/experiments/Systems/solidity/build/test/tools/testrunner",
+            "/experiments/Systems/evmone/build/lib/libevmone.so.0.13.0",
             f"{yul_dir}/test",
             os.path.join(yul_dir, "resultGrey.json"),
         ]
