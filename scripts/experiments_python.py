@@ -80,7 +80,7 @@ def execute_yul_test(yul_file: str, csv_folder: Path) -> None:
         if filecmp.cmp(result_original, result_grey, shallow=False):
             print("[RES]: Test passed.")
             result_dict = instrs_from_opcodes(output_file, log_file)
-            csv_file = csv_folder.joinpath("comparison.csv")
+            csv_file = csv_folder.joinpath(yul_base + ".csv")
             pd.DataFrame(result_dict).to_csv(csv_file)
         else:
             print("[RES]: Test failed.")
@@ -92,7 +92,7 @@ def run_experiments(n_cpus):
     # Change the directory to the root
 
     os.chdir("..")
-    DIRECTORIO_TESTS = "tests_evmone"
+    DIRECTORIO_TESTS = "examples/test/semanticTests"
     CSV_FOLDER = Path("csvs")
     CSV_FOLDER.mkdir(exist_ok=True, parents=True)
 
