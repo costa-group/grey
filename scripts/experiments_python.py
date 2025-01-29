@@ -5,6 +5,8 @@ import filecmp
 from pathlib import Path
 import multiprocessing as mp
 import sys
+import pandas as pd
+from .count_num_ins import instrs_from_opcodes
 
 
 def execute_yul_test(yul_file: str) -> None:
@@ -77,14 +79,9 @@ def execute_yul_test(yul_file: str) -> None:
         result_grey = os.path.join(yul_dir, "resultGrey.json")
         if filecmp.cmp(result_original, result_grey, shallow=False):
             print("[RES]: Test passed.")
-            count_command = [
-                "python3",
-                "scripts/count-num-ins.py",
-                output_file,
-                log_file,
-            ]
-            subprocess.run(count_command)
-            print(" ".join(count_command))
+            result_dict = instrs_from_opcodes(output_file, log_file)
+            csv_file = os.path.join(yul_dir, "comparison.csv")
+            pd.DataFrame(result_dict).to_csv(csv_file)
         else:
             print("[RES]: Test failed.")
     else:
