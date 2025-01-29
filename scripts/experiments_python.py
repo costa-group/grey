@@ -6,10 +6,10 @@ from pathlib import Path
 import multiprocessing as mp
 import sys
 import pandas as pd
-from .count_num_ins import instrs_from_opcodes
+from count_num_ins import instrs_from_opcodes
 
 
-def execute_yul_test(yul_file: str) -> None:
+def execute_yul_test(yul_file: str, csv_folder: Path) -> None:
     yul_file = str(yul_file)
     yul_dir = os.path.dirname(yul_file)
     yul_base = os.path.basename(yul_file).replace("_standard_input.json", "")
@@ -80,7 +80,7 @@ def execute_yul_test(yul_file: str) -> None:
         if filecmp.cmp(result_original, result_grey, shallow=False):
             print("[RES]: Test passed.")
             result_dict = instrs_from_opcodes(output_file, log_file)
-            csv_file = os.path.join(yul_dir, "comparison.csv")
+            csv_file = csv_folder.joinpath("comparison.csv")
             pd.DataFrame(result_dict).to_csv(csv_file)
         else:
             print("[RES]: Test failed.")
@@ -93,6 +93,8 @@ def run_experiments(n_cpus):
 
     os.chdir("..")
     DIRECTORIO_TESTS = "tests_evmone"
+    CSV_FOLDER = Path("csvs")
+    CSV_FOLDER.mkdir(exist_ok=True, parents=True)
 
     # Check if the directory exists
     if not os.path.isdir(DIRECTORIO_TESTS):
@@ -102,7 +104,7 @@ def run_experiments(n_cpus):
     # Find all files matching "*standard_input.json" in the directory
     yul_files = list(Path(DIRECTORIO_TESTS).rglob("*standard_input.json"))
     with mp.Pool(n_cpus) as p:
-        p.map(execute_yul_test, yul_files)
+        p.starmap(execute_yul_test, [[file, CSV_FOLDER] for file in yul_files])
     print("Procesamiento completado.")
 
 
