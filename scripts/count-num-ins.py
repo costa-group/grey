@@ -196,12 +196,40 @@ def execute_script():
 
             if c.strip() in json:
                 bytecode = json[c.strip()]["evm"]["bytecode"]["object"]
-                origin_ins = count_num_ins(bytecode.strip())
+                origin_ins += count_num_ins(bytecode.strip())
 
     if origin_ins != 0:
         print(log_opt_file + " ORIGIN NUM INS: " + str(origin_ins))
         print(log_opt_file + " OPT NUM INS: " + str(opt))
 
+
+def instrs_from_opcodes(origin_file, log_opt_file):
+    with open(origin_file, 'r') as f:
+        evm_origin = f.read()
+
+    evm_opt = get_evm_code(log_opt_file)
+
+    instrs_list = []
+    for c in evm_opt:
+        evm = evm_opt[c]
+
+        opt = count_num_ins(evm.strip())
+        
+        evm_dict = js.loads(evm_origin)
+        contracts = evm_dict["contracts"]
+
+        origin_ins = 0
+
+        for cc in contracts:
+            json = contracts[cc]
+
+            if c.strip() in json:
+                bytecode = json[c.strip()]["evm"]["bytecode"]["object"]
+                origin_ins += count_num_ins(bytecode.strip())
+
+        instrs_list.append({"name": c, "original": origin_ins, "optimized": opt}) 
+        
+    return instrs_list
 
 def measure_from_evm(evm_file) -> int:
     with open(evm_file, 'r') as f:
@@ -212,3 +240,4 @@ def measure_from_evm(evm_file) -> int:
 if __name__ == '__main__':
     execute_script()
     # measure_from_evm(sys.argv[1])
+    # print(instrs_from_opcodes(sys.argv[1], sys.argv[2]))
