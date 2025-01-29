@@ -9,6 +9,14 @@ import pandas as pd
 from count_num_ins import instrs_from_opcodes
 
 
+def combine_dfs(csv_folder: Path, combined_csv: Path):
+    dfs = []
+    for csv_file in csv_folder.glob("*.csv"):
+        dfs.append(pd.read_csv(csv_file))
+    combined_df = pd.concat(dfs)
+    combined_df.to_csv(combined_csv)
+
+
 def execute_yul_test(yul_file: str, csv_folder: Path) -> None:
     yul_file = str(yul_file)
     yul_dir = os.path.dirname(yul_file)
@@ -106,6 +114,7 @@ def run_experiments(n_cpus):
     with mp.Pool(n_cpus) as p:
         p.starmap(execute_yul_test, [[file, CSV_FOLDER] for file in yul_files])
     print("Procesamiento completado.")
+    combine_dfs(CSV_FOLDER, Path("combined.csv"))
 
 
 if __name__ == "__main__":
