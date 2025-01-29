@@ -67,10 +67,12 @@ def compute_variable_depth(liveness_info: Dict[str, LivenessAnalysisInfoSSA], to
     variable_depth_in = dict()
     max_depth = len(topological_order) + 1
 
+    # The max id corresponds to the max number of instructions in any of the blocks
+    max_instr_idx = max(len(concrete_liveness.block_info.instructions) for concrete_liveness in liveness_info.values()) + 1
+
     for node in reversed(topological_order):
         block_info = liveness_info[node].block_info
         instructions = block_info.instructions
-        max_instr_idx = len(instructions) + 1
         in_vars = liveness_info[node].in_state.live_vars
         out_vars = liveness_info[node].out_state.live_vars
 
@@ -81,6 +83,8 @@ def compute_variable_depth(liveness_info: Dict[str, LivenessAnalysisInfoSSA], to
             current_variable_depth_out[input_variable] = max_depth, max_instr_idx
 
         # For each successor, compute the variable depth information and update the corresponding map
+        succ_phi_dict = liveness_info[node].block_info.in_phi2out_phi
+
         for succ_node in block_info.successors:
 
             # The succesor node might not be analyzed yet if there is a cycle. We just ignore it,
@@ -88,12 +92,20 @@ def compute_variable_depth(liveness_info: Dict[str, LivenessAnalysisInfoSSA], to
             previous_variable_depth = variable_depth_in.get(succ_node, dict())
 
             for variable, depth in previous_variable_depth.items():
+                # We must consider the changes related to phi values. If the variable is defined by the
+                # phi function, we must consider the value assigned to the phi function
+                phi_use_var = succ_phi_dict.get(variable, None)
+
+                if phi_use_var is not None:
+                    variable = phi_use_var
+
                 # Update the depth if it already appears in the dict (i.e. it is a live variable)
                 variable_info = current_variable_depth_out.get(variable, None)
+
                 if variable_info is not None:
-                    var_depth, instr_pos = variable_info
+
                     # If the depth of the successor variable is less than the one we have actually
-                    if variable_info < depth:
+                    if variable_info <= depth:
                         current_variable_depth_out[variable] = variable_info
                     else:
                         # Otherwise, we just update the depth to one plus

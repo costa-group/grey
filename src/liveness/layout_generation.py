@@ -162,8 +162,6 @@ class LayoutGeneration:
                 input_stacks[next_block_id] = combined_output_stack
 
         if output_stack is None:
-            if block_id == "abi_decode_available_length_bytes_Block2_split_1":
-                print("HOLA")
             output_stack = output_stack_layout(input_stack, block.final_stack_elements,
                                                liveness_info.out_state.live_vars,
                                                self._out_args_order[block_id])

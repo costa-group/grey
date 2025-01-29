@@ -102,7 +102,7 @@ def _block_id_to_uses_defs(instructions: List[CFGInstruction], entries_list: Lis
 
 
 def _block_id_to_phi_uses(block_id: block_id_T, successor_instructions: List[CFGInstruction],
-                          successor_entry_list: List[block_id_T]) -> Tuple[Set[var_id_T], Set[var_id_T]]:
+                          successor_entry_list: List[block_id_T]) -> Tuple[Set[var_id_T], Set[var_id_T], Dict[var_id_T, var_id_T]]:
     """
     Given the instructions from one of the successors of block_id, generates the corresponding PhiUses and PhiDefs sets
     """
@@ -110,15 +110,16 @@ def _block_id_to_phi_uses(block_id: block_id_T, successor_instructions: List[CFG
     i = 0
 
     corresponding_arg = successor_entry_list.index(block_id)
-    phi_uses, phi_defs = set(), set()
+    phi_uses, phi_defs, out2in = set(), set(), dict()
     while i < len(successor_instructions) and successor_instructions[i].get_op_name() == "PhiFunction":
         arg = successor_instructions[i].get_in_args()[corresponding_arg]
         if not arg.startswith("0x"):
             phi_uses.add(arg)
+            out2in[successor_instructions[i].get_out_args()[0]] = arg
         phi_defs.update(successor_instructions[i].get_out_args())
         i += 1
 
-    return phi_uses, phi_defs
+    return phi_uses, phi_defs, out2in
 
 
 class LivenessBlockInfoSSA(AbstractBlockInfo):
@@ -129,24 +130,28 @@ class LivenessBlockInfoSSA(AbstractBlockInfo):
         super().__init__()
         self._id = basic_block.block_id
         self._successors = basic_block.successors
-
+        instructions = basic_block.get_instructions()
         self._block_type = basic_block.get_jump_type()
         self._comes_from = basic_block.get_comes_from()
-        self.liveness_sets = _ssa_liveness_definitions(basic_block.get_instructions())
+        self.liveness_sets = _ssa_liveness_definitions(instructions)
         self._instructions = basic_block.get_instructions()
         self._assignment_dict = basic_block.assignment_dict
         self._entries = basic_block.entries
 
         self._phi_uses = set()
         self._pred_phi_defs = set()
+        self._out_phi2in_phi = dict()
+        self._assign_phi_functions(basic_block, block_dict)
+
+    def _assign_phi_functions(self, basic_block: CFGBlock, block_dict: Dict[block_id_T, CFGBlock]):
         for successor in self._successors:
             successor_block = block_dict[successor]
             if len(successor_block.entries) > 0:
-                phi_uses, phi_defs = _block_id_to_phi_uses(basic_block.block_id, successor_block.get_instructions(),
-                                                           successor_block.entries)
+                phi_uses, phi_defs, phi_dict = _block_id_to_phi_uses(basic_block.block_id, successor_block.get_instructions(),
+                                                                     successor_block.entries)
                 self._phi_uses.update(phi_uses)
                 self._pred_phi_defs.update(phi_defs)
-
+                self._out_phi2in_phi.update(phi_dict)
     @property
     def block_id(self) -> Any:
         return self._id
@@ -195,6 +200,9 @@ class LivenessBlockInfoSSA(AbstractBlockInfo):
     def pred_phi_defs(self) -> Set[var_id_T]:
         return self._pred_phi_defs
 
+    @property
+    def in_phi2out_phi(self) -> Dict[var_id_T, var_id_T]:
+        return self._out_phi2in_phi
 
     def __repr__(self):
         text_repr = [f"Block id: {self._id}", f"Block type: {self.block_type}", f"Successors: {self.successors}"]
