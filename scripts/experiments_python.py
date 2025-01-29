@@ -12,8 +12,10 @@ from count_num_ins import instrs_from_opcodes
 def combine_dfs(csv_folder: Path, combined_csv: Path):
     dfs = []
     for csv_file in csv_folder.glob("*.csv"):
-        dfs.append(pd.read_csv(csv_file))
-    combined_df = pd.concat(dfs)
+        df = pd.read_csv(csv_file, index_col=0)
+        df.reset_index(drop=True, inplace=True)
+        dfs.append(df)
+    combined_df = pd.concat(dfs, ignore_index=True)
     combined_df.to_csv(combined_csv)
 
 
@@ -100,7 +102,8 @@ def run_experiments(n_cpus):
     # Change the directory to the root
 
     os.chdir("..")
-    DIRECTORIO_TESTS = "examples/test/semanticTests"
+    # DIRECTORIO_TESTS = "examples/test/semanticTests"
+    DIRECTORIO_TESTS = "tests_evmone"
     CSV_FOLDER = Path("csvs")
     CSV_FOLDER.mkdir(exist_ok=True, parents=True)
 
