@@ -5,9 +5,21 @@ import filecmp
 from pathlib import Path
 import multiprocessing as mp
 import sys
+import pandas as pd
+from count_num_ins import instrs_from_opcodes
 
 
-def execute_yul_test(yul_file: str) -> None:
+def combine_dfs(csv_folder: Path, combined_csv: Path):
+    dfs = []
+    for csv_file in csv_folder.glob("*.csv"):
+        df = pd.read_csv(csv_file, index_col=0)
+        df.reset_index(drop=True, inplace=True)
+        dfs.append(df)
+    combined_df = pd.concat(dfs, ignore_index=True)
+    combined_df.to_csv(combined_csv)
+
+
+def execute_yul_test(yul_file: str, csv_folder: Path) -> None:
     yul_file = str(yul_file)
     yul_dir = os.path.dirname(yul_file)
     yul_base = os.path.basename(yul_file).replace("_standard_input.json", "")
@@ -77,14 +89,9 @@ def execute_yul_test(yul_file: str) -> None:
         result_grey = os.path.join(yul_dir, "resultGrey.json")
         if filecmp.cmp(result_original, result_grey, shallow=False):
             print("[RES]: Test passed.")
-            count_command = [
-                "python3",
-                "scripts/count-num-ins.py",
-                output_file,
-                log_file,
-            ]
-            subprocess.run(count_command)
-            print(" ".join(count_command))
+            result_dict = instrs_from_opcodes(output_file, log_file)
+            csv_file = csv_folder.joinpath(yul_base + ".csv")
+            pd.DataFrame(result_dict).to_csv(csv_file)
         else:
             print("[RES]: Test failed.")
     else:
@@ -95,7 +102,10 @@ def run_experiments(n_cpus):
     # Change the directory to the root
 
     os.chdir("..")
+    # DIRECTORIO_TESTS = "examples/test/semanticTests"
     DIRECTORIO_TESTS = "tests_evmone"
+    CSV_FOLDER = Path("csvs")
+    CSV_FOLDER.mkdir(exist_ok=True, parents=True)
 
     # Check if the directory exists
     if not os.path.isdir(DIRECTORIO_TESTS):
@@ -105,8 +115,9 @@ def run_experiments(n_cpus):
     # Find all files matching "*standard_input.json" in the directory
     yul_files = list(Path(DIRECTORIO_TESTS).rglob("*standard_input.json"))
     with mp.Pool(n_cpus) as p:
-        p.map(execute_yul_test, yul_files)
+        p.starmap(execute_yul_test, [[file, CSV_FOLDER] for file in yul_files])
     print("Procesamiento completado.")
+    combine_dfs(CSV_FOLDER, Path("combined.csv"))
 
 
 if __name__ == "__main__":
