@@ -64,6 +64,52 @@ def get_evm_code(log_file):
     return res
 
 
+def get_blocks(bytecode):
+
+    i = 0
+    count = 0
+
+    blocks = []
+    block = []
+    
+    while i < len(bytecode):
+        try:
+            # Leer un byte (dos caracteres hexadecimales)
+            opcode = int(bytecode[i:i+2], 16)
+            count += 1  # Contar la instrucción
+            opcode_name = instructions.get(opcode)
+            
+            
+            if opcode_name == "JUMPDEST":
+                if block != []:
+                    blocks.append(block)
+                block = [opcode_name]
+            elif opcode_name in ["JUMP","JUMPI","STOP","REVERT","INVALID","RETURN","SELFDESTRUCT"]:
+                block.append(opcode_name)
+                blocks.append(block)
+                block = []
+
+            else:
+                block.append(opcode_name)
+
+                
+            # Manejar instrucciones PUSH (PUSH0 no requiere datos adicionales)
+            if 0x60 <= opcode <= 0x7f:
+                push_size = opcode - 0x60 + 1
+                i += 2 + (push_size * 2)  # Saltar el tamaño de los datos incluidos
+
+            elif instructions.get(opcode, "") == "INVALID":
+                i += 2
+
+            else:
+                i += 2  # Avanzar 1 byte (2 caracteres hexadecimales)
+        except ValueError:
+            print(f"Error al leer el bytecode en posición {i}. Asegúrate de que sea válido.")
+            break
+
+    print(blocks)
+    return blocks
+    
 def split_evm_instructions(bytecode: str) -> List[str]:
     """
     Separa en distintos
@@ -109,16 +155,46 @@ def remove_auxdata(evm: str):
                        "000000000000000000000000000000000000000000000000000000000000000000"
                        "00000000000000000000000000000000000053", "")
 
+
+
+def process_pops(block, num_pops):
+    npops = list(filter(lambda x: x.find("POP")!=-1, block))
+    num_pops.append(len(npops))
+
+
+def is_terminal(block):
+    bl_set = set(block)
+    terminal = set(["RETURN","REVERT","INVALID","STOP","SELFDESTRUCT"])
+
+    inter = bl_set.intersection(terminal)
+
+    return len(inter)!=0
+    
+def process_terminal_blocks(blocks, num_pops):
+    terminal_blocks = 0
+    for bl in blocks:
+        if is_terminal(bl):
+            terminal_blocks+=1
+            process_pops(bl,num_pops)
+
+    return terminal_blocks
+
 def count_num_ins(evm: str):
     """
     Assumes the evm bytecode has no CBOR metadata appended
     """
     code_regions = split_evm_instructions(evm)
-    for region in code_regions:
-        blocks = get_blocks(region)
+    print(code_regions)
+    num_pop = []
+    terminal_blocks = 0
+    for region in code_regions: 
+        blocks = get_blocks(remove_auxdata(region))
+        terminal_blocks+=process_terminal_blocks(blocks, num_pop)
 
 
-
+    #print("TERMINAL BLOCKS: " +str(terminal_blocks))
+    #print("NUM_POPS: "+ str(sum(num_pop)))
+    return (terminal_blocks, sum(num_pop))
 
 if __name__ == '__main__':
     origin_file = sys.argv[1]
@@ -130,11 +206,20 @@ if __name__ == '__main__':
 
     evm_opt = get_evm_code(log_opt_file)
 
+    total_terminal = 0
+    total_pops = 0
+
+    total_sol_terminal = 0
+    total_sol_pops = 0
+    
     for c in evm_opt:
         evm = evm_opt[c]
 
         opt = count_num_ins(evm.strip())
 
+        total_terminal+=opt[0]
+        total_pops+=opt[1]
+        
         evm_dict = js.loads(evm_origin)
         contracts = evm_dict["contracts"]
 
@@ -145,4 +230,12 @@ if __name__ == '__main__':
 
             if c.strip() in json:
                 bytecode = json[c.strip()]["evm"]["bytecode"]["object"]
-                origin_ins += count_num_ins(bytecode.strip())
+                origin_ins =count_num_ins(bytecode.strip())
+                total_sol_terminal+=origin_ins[0]
+                total_sol_pops+=origin_ins[1]
+
+    print("TOTAL TERMINAL OPT: "+str(total_terminal))
+    print("TOTAL POPS OPT: "+str(total_pops))
+
+    print("TOTAL TERMINAL SOLC: "+str(total_sol_terminal))
+    print("TOTAL POPS SOLC: "+str(total_sol_pops))
