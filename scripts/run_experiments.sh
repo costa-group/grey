@@ -60,7 +60,7 @@ find "$DIRECTORIO_BASE" -type f -name "*standard_input.json" | while read -r yul
         fi
 
     else
-        echo "Test not found"
+        echo "Test not found: $yul_dir/"
 
     fi
     
