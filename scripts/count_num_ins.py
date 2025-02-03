@@ -227,7 +227,8 @@ def instrs_from_opcodes(origin_file, log_opt_file):
                 bytecode = json[c.strip()]["evm"]["bytecode"]["object"]
                 origin_ins += count_num_ins(bytecode.strip())
 
-        instrs_list.append({"name": c, "original": origin_ins, "optimized": opt}) 
+        instrs_list.append({"file": origin_file.stem, "name": c,
+                            "original": origin_ins, "optimized": opt})
         
     return instrs_list
 

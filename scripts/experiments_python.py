@@ -90,9 +90,11 @@ def execute_yul_test(yul_file: str, csv_folder: Path) -> None:
         if filecmp.cmp(result_original, result_grey, shallow=False):
             print("[RES]: Test passed.")
             result_dict = instrs_from_opcodes(output_file, log_file)
-            csv_file = csv_folder.joinpath(yul_base + ".csv")
+            csv_file = csv_folder.joinpath("correctos").joinpath(yul_base + ".csv")
             pd.DataFrame(result_dict).to_csv(csv_file)
         else:
+            csv_file = csv_folder.joinpath("fallan").joinpath(yul_base + ".csv")
+            pd.DataFrame({"archivo": yul_base}).to_csv(csv_file)
             print("[RES]: Test failed.")
     else:
         print("Test not found")
@@ -106,6 +108,8 @@ def run_experiments(n_cpus):
     DIRECTORIO_TESTS = "tests_evmone"
     CSV_FOLDER = Path("csvs")
     CSV_FOLDER.mkdir(exist_ok=True, parents=True)
+    CSV_FOLDER.joinpath("correctos").mkdir(exist_ok=True, parents=True)
+    CSV_FOLDER.joinpath("fallan").mkdir(exist_ok=True, parents=True)
 
     # Check if the directory exists
     if not os.path.isdir(DIRECTORIO_TESTS):
