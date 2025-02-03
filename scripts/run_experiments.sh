@@ -52,15 +52,15 @@ find "$DIRECTORIO_BASE" -type f -name "*standard_input.json" | while read -r yul
         if diff $yul_dir/resultOriginal.json $yul_dir/resultGrey.json > /dev/null; then
             echo "[RES]: Test passed."
 
-            echo "python3 count-num-ins.py $yul_dir/$yul_base.output $yul_dir/$yul_base.log"
-            python3 count-num-ins.py "$yul_dir/$yul_base.output" "$yul_dir/$yul_base.log"
+            echo "python3 count_num_ins.py $yul_dir/$yul_base.output $yul_dir/$yul_base.log"
+            python3 count_num_ins.py "$yul_dir/$yul_base.output" "$yul_dir/$yul_base.log"
             
         else
             echo "[RES]: Test failed."
         fi
 
     else
-        echo "Test not found"
+        echo "Test not found: $yul_dir/"
 
     fi
     

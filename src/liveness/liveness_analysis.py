@@ -8,7 +8,7 @@ from collections import defaultdict
 from global_params.types import cfg_object_T, component_name_T
 from analysis.fixpoint_analysis import BlockAnalysisInfo, BackwardsAnalysis, state_T
 from analysis.abstract_state import digraph_from_block_info
-from liveness.liveness_state import LivenessState, LivenessBlockInfo, LivenessBlockInfoSSA
+from liveness.liveness_state import LivenessState, LivenessBlockInfoSSA
 from graphs.algorithms import condense_to_dag
 from parser.utils_parser import shorten_name
 from parser.cfg_block_list import CFGBlockList
@@ -17,50 +17,9 @@ from parser.cfg import CFG
 # The information from the CFG consists of a dict with two keys:
 # "block_info": a dictionary that contains for each block id a LivenessBlockInfo object
 # "terminal_blocks: the list of terminal block ids, in order to start the analysis
-cfg_info_T = Dict[str, Union[Dict[str, LivenessBlockInfo], List[str]]]
+cfg_info_T = Dict[str, Union[Dict[str, LivenessBlockInfoSSA], List[str]]]
 
 i = 0
-
-class LivenessAnalysisInfo(BlockAnalysisInfo):
-    """
-    Assumes self.input_stack and self.block_info are updated accordingly
-    """
-
-    def __init__(self, block_info: LivenessBlockInfo, input_state: LivenessState) -> None:
-        # We need to copy the input state given, as it corresponds to the output state of a given previous state
-        super().__init__(block_info, copy.deepcopy(input_state))
-
-    def propagate_information(self) -> None:
-        # If the output state is None, we need to propagate the information from the block and the input state
-        if self.in_state is None:
-            output_state = LivenessState()
-            output_state.live_vars = self.block_info.uses.union(
-                self.out_state.live_vars.difference(self.block_info.defines))
-            self.in_state = output_state
-
-        # Otherwise, the information from the block is already propagated
-        else:
-            self.in_state.live_vars = self.block_info.uses.union(
-                self.out_state.live_vars.difference(self.block_info.defines))
-
-    def propagate_state(self, current_state: LivenessState) -> None:
-        self.out_state.lub(current_state)
-
-    def dot_repr(self) -> str:
-        instr_repr = '\n'.join([instr.dot_repr() for instr in self.block_info._instructions])
-        assignment_repr = '\n'.join([f"{out_value} = {in_value}"
-                                     for out_value, in_value in self.block_info._assignment_dict.items()])
-
-        combined_repr = '\n'.join(repr_ for repr_ in [assignment_repr, instr_repr] if repr_ != "") \
-            if assignment_repr != "" or instr_repr != "" else "[]"
-
-        text_repr_list = [f"{self.block_info.block_id}:", f"{self.in_state}", combined_repr, f"{self.out_state}"]
-        return '\n'.join(text_repr_list)
-
-    def __repr__(self) -> str:
-        text_repr_list = [f"In state: {self.out_state}", f"Out state: {self.in_state}",
-                          f"Block info: {self.block_info}"]
-        return '\n'.join(text_repr_list)
 
 
 class LivenessAnalysisInfoSSA(BlockAnalysisInfo):
@@ -140,7 +99,7 @@ def construct_analysis_info(cfg: CFG) -> Dict[cfg_object_T, Dict[component_name_
     return cfg_info
 
 
-def liveness_analysis_from_vertices(vertices: Dict[str, LivenessBlockInfo],
+def liveness_analysis_from_vertices(vertices: Dict[str, LivenessBlockInfoSSA],
                                     initial_blocks: List[str]) -> BackwardsAnalysis:
     """
     Performs the liveness analysis and returns a BackwardsAnalysis object with the corresponding info
@@ -151,7 +110,7 @@ def liveness_analysis_from_vertices(vertices: Dict[str, LivenessBlockInfo],
 
 
 def perform_liveness_analysis_from_cfg_info(cfg_info: Dict[cfg_object_T, Dict[component_name_T, Dict[str, cfg_info_T]]]) \
-        -> Dict[cfg_object_T, Dict[component_name_T, Dict[str, LivenessAnalysisInfo]]]:
+        -> Dict[cfg_object_T, Dict[component_name_T, Dict[str, LivenessAnalysisInfoSSA]]]:
     """
     Returns the information from the liveness analysis for each structure stored in the cfg info
     """
@@ -168,7 +127,7 @@ def perform_liveness_analysis_from_cfg_info(cfg_info: Dict[cfg_object_T, Dict[co
     return results
 
 
-def perform_liveness_analysis(cfg: CFG) -> Dict[cfg_object_T, Dict[cfg_object_T, Dict[str, LivenessAnalysisInfo]]]:
+def perform_liveness_analysis(cfg: CFG) -> Dict[cfg_object_T, Dict[cfg_object_T, Dict[str, LivenessAnalysisInfoSSA]]]:
     """
     Returns the information from the liveness analysis for each object and each component in that object
     """
@@ -176,7 +135,7 @@ def perform_liveness_analysis(cfg: CFG) -> Dict[cfg_object_T, Dict[cfg_object_T,
     return perform_liveness_analysis_from_cfg_info(cfg_info)
 
 
-def dot_from_analysis_cfg(cfg: CFG, final_dir: Path = Path(".")) -> Dict[cfg_object_T, Dict[component_name_T, Dict[str, LivenessAnalysisInfo]]]:
+def dot_from_analysis_cfg(cfg: CFG, final_dir: Path = Path(".")) -> Dict[cfg_object_T, Dict[component_name_T, Dict[str, LivenessAnalysisInfoSSA]]]:
     """
     Returns the information from the liveness analysis and also stores a dot file for each analyzed structure
     in "final_dir"
@@ -206,7 +165,7 @@ def dot_from_analysis_cfg(cfg: CFG, final_dir: Path = Path(".")) -> Dict[cfg_obj
     return results
 
 
-def dot_from_analysis(cfg: CFG, final_dir: Path = Path("."), positions: List[str] = None) -> Dict[Tuple[str, str], Dict[str, LivenessAnalysisInfo]]:
+def dot_from_analysis(cfg: CFG, final_dir: Path = Path("."), positions: List[str] = None) -> Dict[Tuple[str, str], Dict[str, LivenessAnalysisInfoSSA]]:
     """
     Returns the information from the liveness analysis and also stores a dot file for each analyzed structure
     in "final_dir"

@@ -3,8 +3,8 @@ import logging
 
 from global_params.types import instr_id_T, dependencies_T, var_id_T, block_id_T, function_name_T, SMS_T
 from parser.cfg_instruction import CFGInstruction, build_push_spec, build_pushtag_spec
-from parser.utils_parser import is_in_input_stack, is_in_output_stack, are_dependent_interval, get_empty_spec, \
-    get_expression, are_dependent_accesses, replace_pos_instrsid, generate_dep, get_interval, replace_aliasing_spec
+from parser.utils_parser import  replace_pos_instrsid, replace_aliasing_spec
+from analysis.instruction_dependencies import compute_memory_dependences, compute_storage_dependences, simplify_dependences
 import parser.constants as constants
 import json
 import networkx as nx
@@ -332,92 +332,14 @@ class CFGBlock:
         Given the list of instructions and a dict that maps each position in a sequence to the instruction id, generates
         a list of dependencies
         """
-        sto_dep = self._compute_storage_dependences(instructions)
-        sto_dep = self._simplify_dependences(sto_dep)
+        sto_dep = compute_storage_dependences(instructions)
+        sto_dep = simplify_dependences(sto_dep)
         sto_deps = replace_pos_instrsid(sto_dep, map_positions)
 
-        mem_dep = self._compute_memory_dependences(instructions)
-        mem_dep = self._simplify_dependences(mem_dep)
+        mem_dep = compute_memory_dependences(instructions)
+        mem_dep = simplify_dependences(mem_dep)
         mem_deps = replace_pos_instrsid(mem_dep, map_positions)
         return sto_deps, mem_deps
-
-    def _compute_storage_dependences(self, instructions: List[CFGInstruction]) -> List[List[int]]:
-        """
-        Returns a list with the positions that have storage dependencies
-        """
-        sto_ins = []
-        # print(instructions)
-        for i, ins in enumerate(instructions):
-
-            if ins.get_op_name() in ["sload", "sstore"]:
-                v = ins.get_in_args()[0]
-                input_val = get_expression(v, instructions[:i])
-
-                # Store instructions have an empty offset
-                interval = (input_val, 0)
-
-                # We store the position of the store access, the position accessed and the type (whether write or read)
-                sto_ins.append([i, interval, ins.get_type_mem_op()])
-
-            # elif ins.get_op_name() in ["call","delegatecall","staticcall","callcode"]:
-            #    sto_ins.append([i,["inf"],"write"])
-
-        deps = [[first_sto_access[0], second_sto_access[0]]
-                for i, first_sto_access in enumerate(sto_ins) for second_sto_access in sto_ins[i + 1:]
-                if are_dependent_accesses(first_sto_access[1], second_sto_access[1])
-                and generate_dep(first_sto_access[2], second_sto_access[2])]
-
-        # print("DEPS: "+str(deps))
-        # print("******")
-        return deps
-
-    def _compute_memory_dependences(self, instructions: List[CFGInstruction]):
-        mem_ins = []
-
-        mem_instrs_access = ["mload", "mstore", "mstore8"]
-        mem_instrs_offset = [
-            "keccak256"]  # , "codecopy","extcodecopy","calldatacopy","returndatacopy","mcopy","log0","log1","log2","log3","log4","create","create2","call","delegatecall","staticcall","callcode"]
-
-        for i, ins in enumerate(instructions):
-
-            if ins.get_op_name() in mem_instrs_access:
-                v = ins.get_in_args()[0]
-                input_val = get_expression(v, instructions[:i])
-                interval = (input_val, 32)
-                mem_ins.append([i, interval, ins.get_type_mem_op()])
-
-            elif ins.get_op_name() in mem_instrs_offset:
-                values = ins.get_in_args()
-                interval_args = get_interval(ins.get_op_name(), values)
-
-                if ins.get_op_name() not in ["call", "callcode", "delegatecall", "staticcall"]:
-                    input_vals = list(map(lambda x: get_expression(x, instructions[:i]), interval_args))
-                    interval = (input_vals[0], input_vals[1])
-                    mem_ins.append([i, interval, ins.get_type_mem_op()])
-
-                # else:
-
-                #     input_vals = list(map(lambda x: get_expression(x, instructions[:i]), interval_args[0]))
-                #     interval = [input_vals[0],input_vals[1]]
-                #     mem_ins.append([i,interval,"read"])
-
-                #     input_vals = list(map(lambda x: get_expression(x, instructions[:i]), interval_args[1]))
-                #     interval = [input_vals[0],input_vals[1]]
-                #     mem_ins.append([i,interval, "write"])
-
-        deps = [[first_mem_ins[0], second_mem_ins[0]]
-                for i, first_mem_ins in enumerate(mem_ins) for second_mem_ins in mem_ins[i + 1:]
-                if generate_dep(first_mem_ins[2], second_mem_ins[2]) and
-                are_dependent_interval(first_mem_ins[1], second_mem_ins[1])]
-
-        # print("DEPS: "+str(deps))
-        # print("******")
-        return deps
-
-    def _simplify_dependences(self, deps: List[Tuple[int, int]]) -> List[Tuple[int, int]]:
-        dg = nx.DiGraph(deps)
-        tr = nx.transitive_reduction(dg)
-        return list(tr.edges)
 
     def get_as_json(self):
         block_json = {}
