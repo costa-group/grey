@@ -18,6 +18,7 @@ import re
 import sys
 import json as js
 from typing import Dict, List
+from pathlib import Path
 
 
 # Diccionario de las instrucciones EVM
@@ -227,7 +228,7 @@ def instrs_from_opcodes(origin_file, log_opt_file):
                 bytecode = json[c.strip()]["evm"]["bytecode"]["object"]
                 origin_ins += count_num_ins(bytecode.strip())
 
-        instrs_list.append({"file": origin_file.stem, "name": c,
+        instrs_list.append({"file": origin_file, "name": c,
                             "original": origin_ins, "optimized": opt})
         
     return instrs_list

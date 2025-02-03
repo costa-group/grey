@@ -58,6 +58,9 @@ def execute_yul_test(yul_file: str, csv_folder: Path) -> None:
             shutil.copy(str(asm_file), yul_dir)
 
     test_file = os.path.join(yul_dir, "test")
+    csv_name = f"{Path(Path(yul_file).parent).stem}:{yul_base}.csv"
+    print("CSV NAME", csv_name)
+
     if os.path.isfile(test_file):
         replace_command = [
             "python3",
@@ -90,13 +93,15 @@ def execute_yul_test(yul_file: str, csv_folder: Path) -> None:
         if filecmp.cmp(result_original, result_grey, shallow=False):
             print("[RES]: Test passed.")
             result_dict = instrs_from_opcodes(output_file, log_file)
-            csv_file = csv_folder.joinpath("correctos").joinpath(yul_base + ".csv")
+            csv_file = csv_folder.joinpath("correctos").joinpath(csv_name)
             pd.DataFrame(result_dict).to_csv(csv_file)
         else:
-            csv_file = csv_folder.joinpath("fallan").joinpath(yul_base + ".csv")
-            pd.DataFrame({"archivo": yul_base}).to_csv(csv_file)
+            csv_file = csv_folder.joinpath("fallan").joinpath(csv_name)
+            pd.DataFrame([{"archivo": yul_base}]).to_csv(csv_file)
             print("[RES]: Test failed.")
     else:
+        csv_file = csv_folder.joinpath("no_test").joinpath(csv_name)
+        pd.DataFrame([{"archivo": yul_base}]).to_csv(csv_file)
         print("Test not found")
 
 
@@ -104,13 +109,14 @@ def run_experiments(n_cpus):
     # Change the directory to the root
 
     os.chdir("..")
-    # DIRECTORIO_TESTS = "examples/test/semanticTests"
-    DIRECTORIO_TESTS = "tests_evmone"
+    DIRECTORIO_TESTS = "examples/test/semanticTests"
+    # DIRECTORIO_TESTS = "tests_evmone"
     CSV_FOLDER = Path("csvs")
     CSV_FOLDER.mkdir(exist_ok=True, parents=True)
     CSV_FOLDER.joinpath("correctos").mkdir(exist_ok=True, parents=True)
     CSV_FOLDER.joinpath("fallan").mkdir(exist_ok=True, parents=True)
-
+    CSV_FOLDER.joinpath("no_test").mkdir(exist_ok=True, parents=True)
+    
     # Check if the directory exists
     if not os.path.isdir(DIRECTORIO_TESTS):
         print(f"El directorio {DIRECTORIO_TESTS} no existe.")
