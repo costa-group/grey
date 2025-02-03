@@ -1,24 +1,8 @@
-"""
-Binary: can be split into chunks filtering by the separator 'fe'.
-We have to be careful though because bytes after PUSHx instructions must
-not be considered. There are two types of chunk we can find:
-- Code: usually starts with '6080' o some PUSHx 20/40/80 value.
-- Metadata: encoded in CBOR (see https://playground.sourcify.dev/)
-  and usually starts with "a264" for some reason (when generating the binary
-  from the compiler). The last two bytes of the
-  metadata correspond to the size of the metadata file; it is usually 0053.
-  There can be multiple metadata fields combined into the same chunk (they
-  are not separated with fe)
-
-- Strategy: filter the chunks and identify metada. Ignore metadata for counting
-instructions
-"""
-
-import re
 import sys
+import os
+import re
 import json as js
 from typing import Dict, List
-from pathlib import Path
 
 
 # Diccionario de las instrucciones EVM
@@ -80,16 +64,52 @@ def get_evm_code(log_file):
     return res
 
 
-def extract_binary_from_solc_output(compiler_output: str) -> Dict[str, str]:
+def get_blocks(bytecode):
 
-    # For now, we assume only the yul cfg option is enabled
-    yul_cfg_regex = r"\n======= (.*?) =======\nBinary(.*?)\n(.*?)\n"
+    i = 0
+    count = 0
 
-    contracts = re.findall(yul_cfg_regex, compiler_output)
-    contracts = {contract[0]: contract[2] for contract in contracts if contract[1]}
-    return contracts
+    blocks = []
+    block = []
+    
+    while i < len(bytecode):
+        try:
+            # Leer un byte (dos caracteres hexadecimales)
+            opcode = int(bytecode[i:i+2], 16)
+            count += 1  # Contar la instrucción
+            opcode_name = instructions.get(opcode)
+            
+            
+            if opcode_name == "JUMPDEST":
+                if block != []:
+                    blocks.append(block)
+                block = [opcode_name]
+            elif opcode_name in ["JUMP","JUMPI","STOP","REVERT","INVALID","RETURN","SELFDESTRUCT"]:
+                block.append(opcode_name)
+                blocks.append(block)
+                block = []
 
+            else:
+                block.append(opcode_name)
 
+                
+            # Manejar instrucciones PUSH (PUSH0 no requiere datos adicionales)
+            if 0x60 <= opcode <= 0x7f:
+                push_size = opcode - 0x60 + 1
+                i += 2 + (push_size * 2)  # Saltar el tamaño de los datos incluidos
+
+            elif instructions.get(opcode, "") == "INVALID":
+                i += 2
+
+            else:
+                i += 2  # Avanzar 1 byte (2 caracteres hexadecimales)
+        except ValueError:
+            print(f"Error al leer el bytecode en posición {i}. Asegúrate de que sea válido.")
+            break
+
+    print(blocks)
+    return blocks
+    
 def split_evm_instructions(bytecode: str) -> List[str]:
     """
     Separa en distintos
@@ -127,35 +147,6 @@ def split_evm_instructions(bytecode: str) -> List[str]:
         partitions.append(bytecode[split_init:])
     return partitions
 
-
-def count_evm_instructions(bytecode: str) -> int:
-    """
-    Cuenta las instrucciones en el bytecode de un archivo EVM.
-
-    :param bytecode: Bytecode hexadecimal como una cadena.
-    :return: Número total de instrucciones.
-    """
-    i = 0
-    count = 0
-    while i < len(bytecode):
-        try:
-            # Leer un byte (dos caracteres hexadecimales)
-            opcode = int(bytecode[i:i+2], 16)
-            count += 1  # Contar la instrucción
-
-            # Manejar instrucciones PUSH (PUSH0 no requiere datos adicionales)
-            if 0x60 <= opcode <= 0x7f:
-                push_size = opcode - 0x60 + 1
-                i += 2 + (push_size * 2)  # Saltar el tamaño de los datos incluidos
-            else:
-                i += 2  # Avanzar 1 byte (2 caracteres hexadecimales)
-        except ValueError:
-            print(f"Error al leer el bytecode en posición {i}. Asegúrate de que sea válido.")
-            break
-
-    return count
-
-
 def remove_auxdata(evm: str):
     """
     Removes the .auxdata introduced by grey. It is always of the same form
@@ -164,15 +155,48 @@ def remove_auxdata(evm: str):
                        "000000000000000000000000000000000000000000000000000000000000000000"
                        "00000000000000000000000000000000000053", "")
 
+
+
+def process_pops(block, num_pops):
+    npops = list(filter(lambda x: x.find("POP")!=-1, block))
+    num_pops.append(len(npops))
+
+
+def is_terminal(block):
+    bl_set = set(block)
+    terminal = set(["RETURN","REVERT","INVALID","STOP","SELFDESTRUCT"])
+
+    inter = bl_set.intersection(terminal)
+
+    return len(inter)!=0
+    
+def process_terminal_blocks(blocks, num_pops):
+    terminal_blocks = 0
+    for bl in blocks:
+        if is_terminal(bl):
+            terminal_blocks+=1
+            process_pops(bl,num_pops)
+
+    return terminal_blocks
+
 def count_num_ins(evm: str):
     """
     Assumes the evm bytecode has no CBOR metadata appended
     """
     code_regions = split_evm_instructions(evm)
-    return sum(count_evm_instructions(remove_auxdata(region)) for region in code_regions)
+    print(code_regions)
+    num_pop = []
+    terminal_blocks = 0
+    for region in code_regions: 
+        blocks = get_blocks(remove_auxdata(region))
+        terminal_blocks+=process_terminal_blocks(blocks, num_pop)
 
 
-def execute_script():
+    #print("TERMINAL BLOCKS: " +str(terminal_blocks))
+    #print("NUM_POPS: "+ str(sum(num_pop)))
+    return (terminal_blocks, sum(num_pop))
+
+if __name__ == '__main__':
     origin_file = sys.argv[1]
     log_opt_file = sys.argv[2]
 
@@ -182,39 +206,19 @@ def execute_script():
 
     evm_opt = get_evm_code(log_opt_file)
 
+    total_terminal = 0
+    total_pops = 0
+
+    total_sol_terminal = 0
+    total_sol_pops = 0
+    
     for c in evm_opt:
         evm = evm_opt[c]
 
         opt = count_num_ins(evm.strip())
 
-        evm_dict = js.loads(evm_origin)
-        contracts = evm_dict["contracts"]
-
-        origin_ins = 0
-
-        for cc in contracts:
-            json = contracts[cc]
-
-            if c.strip() in json:
-                bytecode = json[c.strip()]["evm"]["bytecode"]["object"]
-                origin_ins += count_num_ins(bytecode.strip())
-
-    if origin_ins != 0:
-        print(log_opt_file + " ORIGIN NUM INS: " + str(origin_ins))
-        print(log_opt_file + " OPT NUM INS: " + str(opt))
-
-
-def instrs_from_opcodes(origin_file, log_opt_file):
-    with open(origin_file, 'r') as f:
-        evm_origin = f.read()
-
-    evm_opt = get_evm_code(log_opt_file)
-
-    instrs_list = []
-    for c in evm_opt:
-        evm = evm_opt[c]
-
-        opt = count_num_ins(evm.strip())
+        total_terminal+=opt[0]
+        total_pops+=opt[1]
         
         evm_dict = js.loads(evm_origin)
         contracts = evm_dict["contracts"]
@@ -226,20 +230,12 @@ def instrs_from_opcodes(origin_file, log_opt_file):
 
             if c.strip() in json:
                 bytecode = json[c.strip()]["evm"]["bytecode"]["object"]
-                origin_ins += count_num_ins(bytecode.strip())
+                origin_ins =count_num_ins(bytecode.strip())
+                total_sol_terminal+=origin_ins[0]
+                total_sol_pops+=origin_ins[1]
 
-        instrs_list.append({"file": origin_file, "name": c,
-                            "original": origin_ins, "optimized": opt})
-        
-    return instrs_list
+    print("TOTAL TERMINAL OPT: "+str(total_terminal))
+    print("TOTAL POPS OPT: "+str(total_pops))
 
-def measure_from_evm(evm_file) -> int:
-    with open(evm_file, 'r') as f:
-        evm = f.read().strip()
-        return count_num_ins(evm)
-    raise ValueError("Error opening file")
-
-if __name__ == '__main__':
-    execute_script()
-    # measure_from_evm(sys.argv[1])
-    # print(instrs_from_opcodes(sys.argv[1], sys.argv[2]))
+    print("TOTAL TERMINAL SOLC: "+str(total_sol_terminal))
+    print("TOTAL POPS SOLC: "+str(total_sol_pops))
