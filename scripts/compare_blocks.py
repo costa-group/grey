@@ -59,7 +59,7 @@ def get_evm_code(log_file):
 
         res[c_name] = evm_code
 
-    print(res)
+    #print(res)
         
     return res
 
@@ -107,7 +107,7 @@ def get_blocks(bytecode):
             print(f"Error al leer el bytecode en posición {i}. Asegúrate de que sea válido.")
             break
 
-    print(blocks)
+    #print(blocks)
     return blocks
     
 def split_evm_instructions(bytecode: str) -> List[str]:
@@ -184,7 +184,7 @@ def count_num_ins(evm: str):
     Assumes the evm bytecode has no CBOR metadata appended
     """
     code_regions = split_evm_instructions(evm)
-    print(code_regions)
+    #print(code_regions)
     num_pop = []
     terminal_blocks = 0
     for region in code_regions: 
@@ -196,10 +196,8 @@ def count_num_ins(evm: str):
     #print("NUM_POPS: "+ str(sum(num_pop)))
     return (terminal_blocks, sum(num_pop))
 
-if __name__ == '__main__':
-    origin_file = sys.argv[1]
-    log_opt_file = sys.argv[2]
 
+def execute_function(origin_file, log_opt_file):
     f = open(origin_file, "r")
 
     evm_origin = f.read()
@@ -233,6 +231,14 @@ if __name__ == '__main__':
                 origin_ins =count_num_ins(bytecode.strip())
                 total_sol_terminal+=origin_ins[0]
                 total_sol_pops+=origin_ins[1]
+
+    return (total_terminal, total_pops, total_sol_terminal, total_sol_pops)
+
+if __name__ == '__main__':
+    origin_file = sys.argv[1]
+    log_opt_file = sys.argv[2]
+
+    total_terminal, total_pops, total_sol_terminal, total_sol_pops = execute_function(origin_file, log_opt_file)
 
     print("TOTAL TERMINAL OPT: "+str(total_terminal))
     print("TOTAL POPS OPT: "+str(total_pops))

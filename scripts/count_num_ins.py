@@ -20,7 +20,6 @@ import json as js
 from typing import Dict, List
 from pathlib import Path
 
-
 # Diccionario de las instrucciones EVM
 instructions = {
     0x00: "STOP", 0x01: "ADD", 0x02: "MUL", 0x03: "SUB",
