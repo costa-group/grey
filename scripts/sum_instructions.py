@@ -1,3 +1,6 @@
+import compare_blocks
+
+
 def cuartiles(original, optimizado, res):
     original25 = original+original*0.25
     original50 = original+original*0.5
@@ -50,6 +53,15 @@ optimizado_peor = 0
 cuartiles_res = [0,0,0,0]
 
 worse_files = {}
+
+total_sol_terminal = 0
+total_sol_pops = 0
+all_pops_sol = 0
+
+total_origin_terminal = 0
+total_origin_pops = 0
+all_pops_origin = 0
+
 for i in range(len(origin_number)):
     original = origin_number[i]
     optimizado = opt_number[i]
@@ -64,6 +76,18 @@ for i in range(len(origin_number)):
     else:
 
         fname = f_names[i]
+
+        fname_without_ext = fname.rstrip("log")
+
+        tsol, pops_sol, allpops, torigin, pops_origin , allpops_orig = compare_blocks.execute_function(fname_without_ext+"output", fname_without_ext+"log")
+
+        total_sol_terminal+=tsol
+        total_sol_pops+=pops_sol
+        all_pops_sol+= allpops
+        total_origin_terminal+=torigin
+        total_origin_pops+=pops_origin
+        all_pops_origin+=allpops_orig
+        
         worse_files[fname] = (original, optimizado)
         print("PAREJA: ("+str(original)+","+str(optimizado)+")")
         total_peor+= original
@@ -78,6 +102,16 @@ for k,v in worse_files.items():
 worse_file = open("worse_contracts.txt", "w")
 worse_file.write(s)
 worse_file.close()
+
+print()
+print("TOTAL TERMINAL BLOCKS IN SOLUTION: "+str(total_sol_terminal))
+print("TOTAL POPS IN TERMINAL SOLUTION: "+str(total_sol_pops))
+
+print("TOTAL TERMINAL BLOCKS IN ORIGINAL: "+str(total_origin_terminal))
+print("TOTAL POPS IN TERMINAL ORIGINAL: "+str(total_origin_pops))
+
+print("TOTAL POPS IN SOLUTION: "+str(all_pops_sol))
+print("TOTAL POPS IN ORIGINAL: "+str(all_pops_origin))
 
 # print("CASOS EN EL QUE SOMOS MEJOR: "+str(menor))
 print("CASOS EN LOS QUE SOMOS IGUALES: "+str(igual))
