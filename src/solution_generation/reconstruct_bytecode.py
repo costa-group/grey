@@ -12,6 +12,7 @@ from parser.cfg_block_list import CFGBlockList
 from parser.cfg_block import CFGBlock
 from parser.cfg_instruction import CFGInstruction
 from pathlib import Path
+import networkx as nx
 
 
 # Solution ids to EVM assembly
@@ -179,7 +180,7 @@ def generate_function_name2entry(functions: Iterable[CFGFunction]) -> Dict[funct
 
 
 def traverse_cfg_block_list(block_list: CFGBlockList, function_name2entry: Dict[function_name_T, block_id_T],
-                            tags_dict: Dict[block_id_T, int]) -> List[ASM_bytecode_T]:
+                            tags_dict: Dict[block_id_T, int], asm_dir: Optional[Path] = None) -> List[ASM_bytecode_T]:
     """
     Traverses the blocks in the block list to generate the serialized assembly code
     """
@@ -196,12 +197,16 @@ def traverse_cfg_block_list(block_list: CFGBlockList, function_name2entry: Dict[
     init_pos_dict = []
 
     asm_instructions = []
+    graph = nx.DiGraph()
+    relabel_dict = dict()
 
     while pending_blocks:
         next_block = pending_blocks.pop()
 
         block_id = next_block.get_block_id()
         visited.append(block_id)
+
+        asm_index = len(asm_instructions)
 
         # If the block has been split we regenerate the whole block together
         # next block contains the last block of the sequence
@@ -232,6 +237,7 @@ def traverse_cfg_block_list(block_list: CFGBlockList, function_name2entry: Dict[
             asm_block = [tag_asm, jumpdest_asm] + asm_block
 
         jump_type = next_block.get_jump_type()
+        falls_to, jump_to = None, None
         if jump_type == "conditional":
 
             jump_to = next_block.get_jump_to()
@@ -280,30 +286,47 @@ def traverse_cfg_block_list(block_list: CFGBlockList, function_name2entry: Dict[
 
         visited.append(block_id)
 
+        if asm_dir is not None:
+            if falls_to is not None:
+                graph.add_node(falls_to)
+                graph.add_edge(block_id, falls_to)
+
+            if jump_to is not None:
+                graph.add_node(jump_to)
+                graph.add_edge(block_id, jump_to)
+
+            relabel_dict[block_id] = '\n'.join([block_id] +
+                                               [' '.join([instruction["name"], instruction.get("value", '')])
+                                                for instruction in asm_instructions[asm_index:]])
+
+    if asm_dir is not None:
+        renamed_digraph = nx.relabel_nodes(graph, relabel_dict)
+        nx.nx_agraph.write_dot(renamed_digraph, asm_dir.joinpath(block_list.name + ".dot"))
+
     return asm_instructions
 
 
-def traverse_cfg(cfg_object: CFGObject, tags_dict: Dict[block_id_T, int]) -> List[ASM_bytecode_T]:
+def traverse_cfg(cfg_object: CFGObject, tags_dict: Dict[block_id_T, int], asm_dir: Optional[Path] = None) -> List[ASM_bytecode_T]:
     """
     Traverses the blocks in the CFG to generate the serialized assembly code
     """
     function_name2entry = generate_function_name2entry(cfg_object.functions.values())
-    object_code = traverse_cfg_block_list(cfg_object.blocks, function_name2entry, tags_dict)
+    object_code = traverse_cfg_block_list(cfg_object.blocks, function_name2entry, tags_dict, asm_dir)
 
     function_code_list = []
     # TODO: devise better strategies to decide in which order the functions are included in the code
     for function_name, function in cfg_object.functions.items():
-        function_code_list.extend(traverse_cfg_block_list(function.blocks, function_name2entry, tags_dict))
+        function_code_list.extend(traverse_cfg_block_list(function.blocks, function_name2entry, tags_dict, asm_dir))
     return object_code + function_code_list
 
 
-def recursive_asm_from_cfg_object(cfg_object: CFGObject, tags_dict: Dict) -> ASM_contract_T:
+def recursive_asm_from_cfg_object(cfg_object: CFGObject, tags_dict: Dict, asm_dir: Optional[Path] = None) -> ASM_contract_T:
     """
     Returns the level of the form {.code: ..., .auxdata: ..., [.data: ...]}
     """
     # Represents the structure
     tags = tags_dict[cfg_object.name]
-    asm = traverse_cfg(cfg_object, tags)
+    asm = traverse_cfg(cfg_object, tags, asm_dir)
 
     # 83 bytes of 0 + 0053 in CBOR encoding (see https://playground.sourcify.dev/)
     aux_data = "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000053"
@@ -311,7 +334,7 @@ def recursive_asm_from_cfg_object(cfg_object: CFGObject, tags_dict: Dict) -> ASM
 
     sub_object = cfg_object.get_subobject()
     if sub_object is not None:
-        json_asm_subobjects = recursive_asm_from_cfg(sub_object, tags_dict)
+        json_asm_subobjects = recursive_asm_from_cfg(sub_object, tags_dict, asm_dir)
         current_object_json[".data"] = {}
         for i, json_asm_subobject in enumerate(json_asm_subobjects):
             current_object_json[".data"][str(i)] = json_asm_subobject
@@ -319,24 +342,24 @@ def recursive_asm_from_cfg_object(cfg_object: CFGObject, tags_dict: Dict) -> ASM
     return current_object_json
 
 
-def recursive_asm_from_cfg(cfg: CFG, tags_dict: Dict) -> List[ASM_contract_T]:
+def recursive_asm_from_cfg(cfg: CFG, tags_dict: Dict, asm_dir: Optional[Path] = None) -> List[ASM_contract_T]:
     """
     Returns the level of the form [{.code: ..., .auxdata: ..., [.data: ...]}]. This is later passed to the data object
     """
 
     multiple_object_json = []
     for obj_name, obj in cfg.get_objects().items():
-        multiple_object_json.append(recursive_asm_from_cfg_object(obj, tags_dict))
+        multiple_object_json.append(recursive_asm_from_cfg_object(obj, tags_dict, asm_dir))
 
     return multiple_object_json
 
 
-def asm_from_cfg(cfg: CFG, tags_dict: Dict, filename: str) -> ASM_contract_T:
+def asm_from_cfg(cfg: CFG, tags_dict: Dict, filename: str, final_path: Optional[Path] = None) -> ASM_contract_T:
     """
     Generates an assembly JSON from a CFG structure and the results of the optimization
     """
     #We have to access index 0 (there is only one contract at root level)
-    asm_json = recursive_asm_from_cfg(cfg, tags_dict)[0]
+    asm_json = recursive_asm_from_cfg(cfg, tags_dict, final_path)[0]
     asm_json.pop(".auxdata")
     asm_json["sourceList"] = [filename]
 
