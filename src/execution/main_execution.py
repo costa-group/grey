@@ -79,7 +79,9 @@ def analyze_single_cfg(cfg: CFG, final_dir: Path, args: argparse.Namespace):
 
     cfg_spec_ids(cfg, final_dir.joinpath("statistics.csv"))
 
-    json_asm_contract = asm_from_cfg(cfg, tags_dict, args.source)
+    asm_code = final_dir.joinpath("asm")
+    asm_code.mkdir(exist_ok=True, parents=True)
+    json_asm_contract = asm_from_cfg(cfg, tags_dict, args.source, asm_code)
     return json_asm_contract
 
 
