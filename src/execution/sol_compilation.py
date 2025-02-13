@@ -260,7 +260,7 @@ class SolidityCompilation:
     def importer_assembly_file(json_file: str, deployed_contract: Optional[str] = None,
                                final_file: Optional[str] = None, solc_executable: str = "solc"):
         compilation = SolidityCompilation(final_file, solc_executable)
-        compilation.flags = "--import-asm-json --bin"
+        compilation.flags = "--import-asm-json --bin --optimize"
         compilation.process_output_function = process_importer_output
         return compilation.compile_single_sol_file(json_file, deployed_contract, "bin")
 
