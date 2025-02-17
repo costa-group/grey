@@ -205,7 +205,7 @@ def traverse_cfg_block_list(block_list: CFGBlockList, function_name2entry: Dict[
 
         block_id = next_block.get_block_id()
         visited.append(block_id)
-
+        
         asm_index = len(asm_instructions)
 
         # If the block has been split we regenerate the whole block together
@@ -223,11 +223,18 @@ def traverse_cfg_block_list(block_list: CFGBlockList, function_name2entry: Dict[
                 asm_last = []
 
             if asm_block == [] and next_block.get_jump_type() == "terminal":
+
+                
                 assert(len(next_block.get_instructions()) == 1)
                 ins = next_block.get_instructions()[0]
 
+                
+                
                 # Terminal blocks might contain calls to terminal functions (i.e. not so terminal...)
                 asm_block = asm_for_split_instruction(ins, function_name2entry)
+                if(ins == next_block.split_instruction):
+                    asm_block = []
+                
                 
             asm_block += asm_last
 
@@ -274,6 +281,7 @@ def traverse_cfg_block_list(block_list: CFGBlockList, function_name2entry: Dict[
                                                                    asm_instructions, asm_block, pending_blocks)
 
         elif jump_type == "terminal" or jump_type == "FunctionReturn":
+
             asm_instructions += asm_block
             init_pos_dict += [block_id] * len(asm_block)
 
