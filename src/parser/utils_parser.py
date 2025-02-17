@@ -138,7 +138,7 @@ def replace_pos_instrsid(dependences: List[Tuple[int, int]], map_positions_instr
     for (i, j) in dependences:
         assert (i in map_positions_instructions) and (j in map_positions_instructions), \
             f"[ERROR]: position not found in map of instructions when genereting the dependences {i} {j}"
-        deps.append((map_positions_instructions[i], map_positions_instructions[j]))
+        deps.append([map_positions_instructions[i], map_positions_instructions[j]])
 
     return deps
 
