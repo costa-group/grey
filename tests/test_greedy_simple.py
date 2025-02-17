@@ -4,7 +4,7 @@ import pytest
 from typing import Dict
 from parser.cfg_block import CFGBlock
 from parser.cfg_instruction import build_instr_spec, build_verbatim_spec, build_push_spec, CFGInstruction
-from greedy.greedy_new_version import greedy_from_file, STACK_DEPTH
+from greedy.greedy_refactored import greedy_from_file, STACK_DEPTH
 
 class TestCFGInstruction:
 

@@ -526,6 +526,7 @@ class SMSgreedy:
         self._initial_stack: List[var_id_T] = json_format['src_ws']
         self._final_stack: List[var_id_T] = json_format['tgt_ws']
         self._deps: List[Tuple[var_id_T, var_id_T]] = json_format['dependencies']
+        self._deps_ids: Set[var_id_T] = {instr_id for dep in self._deps for instr_id in dep}
         self.debug_logger = DebugLogger()
 
         # Note: we assume function invocations might have several variables in 'outpt_sk'
@@ -661,9 +662,14 @@ class SMSgreedy:
 
     def _is_condensed(self, node):
         """
-        Whether to consider the instruction associated to the node
+        Whether to consider the instruction associated to the node. 4 cases (so far):
+
+        * STORE instructions (need to be extended to other instructions that MUST be performed)
+        * Instructions with dependencies (hence, only consider LOADs and KECCAKs if they have some kind of dep)
+        * Instructions that produce more than one element
+        * Instructions whose stack variable is in the final stack
         """
-        return "STORE" in node or len(self._id2instr[node]["outpt_sk"]) > 1 or \
+        return "STORE" in node or node in self._deps_ids or len(self._id2instr[node]["outpt_sk"]) > 1 or \
             any(out_stack in self._final_stack for out_stack in self._id2instr[node]["outpt_sk"])
 
     def _generate_dataflow_tree_instr(self, original_instr_id: instr_id_T, instr: instr_JSON_T, term_graph: nx.DiGraph(),
