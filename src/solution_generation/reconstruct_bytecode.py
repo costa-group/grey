@@ -78,23 +78,18 @@ def asm_from_ids(sms: SMS_T, id_seq: List[str]) -> List[ASM_bytecode_T]:
     return id_seq_to_asm_bytecode(instr_id_to_instr, id_seq)
 
 
-def asm_for_split_instruction(next_block_name: str, split_ins: CFGInstruction, tags_dict: Dict[block_id_T, int],
-                              function_name2entry: Dict[block_id_T, block_id_T]) -> Tuple[List[ASM_bytecode_T], bool]:
+def asm_for_split_instruction(split_ins: CFGInstruction, function_name2entry: Dict[block_id_T, block_id_T]) -> List[ASM_bytecode_T]:
     """
     Reconstructs the assembly from a block with a single split instruction. If the split instruction is a
-    function invocation, then it replaces it by the corresponding JUMP instruction and returns True.
+    function invocation, then it replaces it by the corresponding JUMP instruction
     """
     entry_block = function_name2entry.get(split_ins.get_op_name(), None)
-    is_function = False
     if entry_block is not None:
-        is_function = True
         # Introduces two tags: one for jumping to the instruction and one for returning.
         # Afterwards, introduce a JUMP instruction to invoke the function
-        return_dir = asm_from_op_info("PUSH [tag]", tag_from_tag_dict(next_block_name, tags_dict))
-        target_dir = asm_from_op_info("PUSH [tag]", tag_from_tag_dict(entry_block, tags_dict))
         asm_ins = asm_from_op_info("JUMP", jump_type="[in]")
 
-        asm_subblock = [return_dir, target_dir, asm_ins]
+        asm_subblock = [asm_ins]
 
     elif split_ins.get_op_name() == "functionReturn":
         # For function returns, we replace them by a JUMP instruction
@@ -113,7 +108,7 @@ def asm_for_split_instruction(next_block_name: str, split_ins: CFGInstruction, t
         builtin_args = split_ins.get_builtin_args()
         asm_subblock = [asm_from_op_info(split_ins.get_op_name().upper(), builtin_args[0] if builtin_args is not None and
                                                                                        len(builtin_args) > 0 else None)]
-    return asm_subblock, is_function
+    return asm_subblock
 
 
 def generate_asm_split_blocks(init_block_id: block_id_T, blocks: Dict[block_id_T, CFGBlock], tags_dict: Dict[block_id_T, int],
@@ -126,15 +121,14 @@ def generate_asm_split_blocks(init_block_id: block_id_T, blocks: Dict[block_id_T
     block = blocks[init_block_id]
 
     jump_type = block.get_jump_type()
-    is_function_call = False
+    is_function_call = block.split_instruction.op in function_name2entry
     while jump_type == "sub_block" and not is_function_call:
 
         if jump_type == "sub_block":
             asm_subblock = asm_from_ids(block.spec, block.greedy_ids)
             assert block.split_instruction is not None, \
                 f"[ERROR]: Block {block.block_id} split_instructions has to contain a value in a subblock"
-            asm_last, is_function_call = asm_for_split_instruction(block.get_falls_to(), block.split_instruction,
-                                                                   tags_dict, function_name2entry)
+            asm_last = asm_for_split_instruction(block.split_instruction, function_name2entry)
 
         else:
             raise Exception("[ERROR]: Jump type can only be sub_block")
@@ -144,7 +138,18 @@ def generate_asm_split_blocks(init_block_id: block_id_T, blocks: Dict[block_id_T
         block = blocks[block_id]
 
         jump_type = block.get_jump_type()
+        is_function_call = block.split_instruction.op in function_name2entry
 
+    # We translate the last block
+    asm_subblock = asm_from_ids(block.spec, block.greedy_ids)
+
+    # Split instruction contains both jumps and not handled instructions
+    if block.split_instruction is not None:
+        asm_last = asm_for_split_instruction(block.split_instruction, function_name2entry)
+    else:
+        asm_last = []
+
+    asm_block += asm_subblock + asm_last
     return block, asm_block
 
 
@@ -212,8 +217,7 @@ def traverse_cfg_block_list(block_list: CFGBlockList, function_name2entry: Dict[
             asm_block = asm_from_ids(next_block.spec, next_block.greedy_ids)
             
             if next_block.split_instruction is not None:
-                asm_last, _ = asm_for_split_instruction(next_block.get_falls_to(), next_block.split_instruction,
-                                                        tags_dict, function_name2entry)
+                asm_last = asm_for_split_instruction(next_block.split_instruction, function_name2entry)
             else:
                 # if it is a falls_to or terminal split_instruction is None
                 # Otherwise it is jump or jumpi
@@ -225,7 +229,7 @@ def traverse_cfg_block_list(block_list: CFGBlockList, function_name2entry: Dict[
                 ins = next_block.get_instructions()[0]
 
                 # Terminal blocks might contain calls to terminal functions (i.e. not so terminal...)
-                asm_block, _ = asm_for_split_instruction(next_block.get_falls_to(), ins, tags_dict, function_name2entry)
+                asm_block = asm_for_split_instruction(ins, function_name2entry)
 
                 if ins == next_block.split_instruction:
                     asm_block = []

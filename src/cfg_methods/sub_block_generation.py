@@ -9,9 +9,11 @@ from itertools import chain
 from parser.cfg_block_list import CFGBlockList
 from cfg_methods.cfg_block_actions.merge_blocks import MergeBlocks
 from parser.cfg import CFG
+from parser.cfg_instruction import CFGInstruction
 import parser.constants as constants
 from cfg_methods.cfg_block_actions.split_block import SplitBlock
 from cfg_methods.utils import union_find_search
+from cfg_methods.jump_insertion import tag_from_tag_dict
 
 
 def split_blocks_cfg(cfg: CFG, tags_object: Dict[cfg_object_T, Dict[block_id_T, int]]) -> None:
@@ -20,12 +22,13 @@ def split_blocks_cfg(cfg: CFG, tags_object: Dict[cfg_object_T, Dict[block_id_T, 
     """
     for object_id, cfg_object in cfg.objectCFG.items():
         tag_dict = tags_object[object_id]
-        function_names = list(cfg_object.functions.keys())
-        modify_block_list_split(cfg_object.blocks, function_names, tag_dict)
+        function2tag = {function_name: tag_dict[function.blocks.start_block]
+                        for function_name, function in cfg_object.functions.items()}
+        modify_block_list_split(cfg_object.blocks, function2tag, tag_dict)
 
         # We also consider the information per function
         for function_name, cfg_function in cfg_object.functions.items():
-            modify_block_list_split(cfg_function.blocks, function_names, tag_dict)
+            modify_block_list_split(cfg_function.blocks, function2tag, tag_dict)
 
         sub_object = cfg_object.get_subobject()
 
@@ -33,7 +36,7 @@ def split_blocks_cfg(cfg: CFG, tags_object: Dict[cfg_object_T, Dict[block_id_T, 
             split_blocks_cfg(sub_object, tags_object)
 
 
-def modify_block_list_split(block_list: CFGBlockList, function_calls: List[function_name_T],
+def modify_block_list_split(block_list: CFGBlockList, function2tag: Dict[function_name_T, int],
                             tag_dict: Dict[block_id_T, int]) -> None:
     """
     Modifies a CFGBlockList by splitting blocks when function calls and split instructions are found
@@ -52,7 +55,7 @@ def modify_block_list_split(block_list: CFGBlockList, function_calls: List[funct
             instr = current_block.get_instructions()[instr_idx]
 
             is_split_instr = instr.get_op_name() in constants.split_block
-            is_function_call = instr.get_op_name() in function_calls
+            is_function_call = instr.get_op_name() in function2tag
 
             if is_split_instr or is_function_call:
                 # Sub blocks contain a split instruction or a function call as the last instruction
@@ -77,13 +80,27 @@ def modify_block_list_split(block_list: CFGBlockList, function_calls: List[funct
 
                 current_block = split_block_action.second_half
                 instr_idx = 0
+
+                # Finally, we need to introduce the PUSH [tag] values in a function call
+                if is_function_call:
+                    # Add a new tag for current block
+                    second_half_tag = str(tag_from_tag_dict(current_block.block_id, tag_dict))
+                    function_call_tag = str(function2tag[instr.get_op_name()])
+
+                    # In the first half, introduce both the target and returning tags
+                    first_sub_block.insert_instruction(0, CFGInstruction("PUSH [tag]", [], [second_half_tag]))
+                    first_sub_block.insert_instruction(0, CFGInstruction("PUSH [tag]", [], [function_call_tag]))
+
+                    # The split instruction of the first sub block must contain the tags
+                    instr.in_args = [function_call_tag] + instr.in_args + [second_half_tag]
+
             else:
                 instr_idx += 1
 
         # Nevertheless, we check if the last instruction is a split one and set it
         last_instr = current_block.get_instructions()[-1] if len(current_block.get_instructions()) > 0 else None
         if last_instr is not None and \
-                last_instr.get_op_name() in itertools.chain(constants.split_block, function_calls, ["JUMP", "JUMPI"],
+                last_instr.get_op_name() in itertools.chain(constants.split_block, function2tag.keys(), ["JUMP", "JUMPI"],
                                                             constants.terminal_ops):
             current_block.split_instruction = last_instr
 
