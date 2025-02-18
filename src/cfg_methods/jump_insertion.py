@@ -57,7 +57,7 @@ def insert_jumps_tags_block_list(cfg_block_list: CFGBlockList, tags_dict: Dict[s
             return_instruction = block.get_instructions()[-1]
             assert return_instruction.op == "functionReturn", "Function return blocks must " \
                                                               f"have functionReturn instructions: {return_instruction}"
-            return_instruction.in_args.append(0, jump_value)
+            return_instruction.in_args.insert(0, jump_value)
 
 
 def tag_from_tag_dict(block_id: block_id_T, tags_dict: Dict[block_id_T, int]) -> int:
