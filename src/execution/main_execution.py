@@ -9,7 +9,7 @@ from global_params.types import Yul_CFG_T
 from parser.parser import parse_CFG_from_json_dict
 from parser.cfg import CFG
 from execution.sol_compilation import SolidityCompilation
-from solution_generation.reconstruct_bytecode import asm_from_cfg, store_asm_output,  store_binary_output
+from solution_generation.reconstruct_bytecode import asm_from_cfg, store_asm_output,  store_binary_output, store_asm_standard_json_output
 from greedy.ids_from_spec import cfg_spec_ids
 from liveness.layout_generation import layout_generation
 from cfg_methods.preprocessing_methods import preprocess_cfg
@@ -114,7 +114,11 @@ def main(args):
 
         assembly_path = store_asm_output(asm_contract, cfg_name, cfg_dir)
 
-        synt_binary = SolidityCompilation.importer_assembly_file(assembly_path, solc_executable=args.solc_executable)
-        print("Contract: " + cfg_name + " -> EVM Code: " + synt_binary)
+        std_assembly_path = store_asm_standard_json_output(asm_contract, cfg_name, cfg_dir)
+        
+        #synt_binary = SolidityCompilation.importer_assembly_file(assembly_path, solc_executable=args.solc_executable)
+        synt_binary_stdjson = SolidityCompilation.importer_assembly_standard_json_file(std_assembly_path, deployed_contract = cfg_name, solc_executable = args.solc_executable)
+        
+        print("Contract: " + cfg_name + " -> EVM Code: " + synt_binary_stdjson)
 
-        store_binary_output(cfg_name, synt_binary, cfg_dir)
+        store_binary_output(cfg_name, synt_binary_stdjson, cfg_dir)

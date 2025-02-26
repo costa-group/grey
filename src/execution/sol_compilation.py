@@ -225,6 +225,22 @@ def process_importer_output(sol_output: str, deployed_contract: Optional[str], s
     contract_header = r"Binary:\n(.*?)\n"
     return re.search(contract_header, sol_output).group(1)
 
+def process_importer_standard_output(sol_output: str, deployed_contract: Optional[str], selected_header: str) -> str:
+    """
+    Given the compiler output from solc after the importer standard-json option, extracts the information
+    of the corresponding contract (binary)
+    """
+
+    json_output = json.loads(sol_output)
+    
+    contracts = json_output["contracts"]
+    assert deployed_contract in contracts, f"Contract {deployed_contract} not deployed"
+
+    deployed_contract_info = contracts[deployed_contract][""]
+    
+    return deployed_contract_info["evm"]["bytecode"]["object"]
+
+
 
 class SolidityCompilation:
     """
@@ -239,7 +255,7 @@ class SolidityCompilation:
         self._solc_command: str = solc_command
 
         # TODO: decide how to represent via-ir
-        self._via_ir = False
+        self._via_ir = True
         self._yul_setting = False
 
         # Function to select the information from the contract
@@ -262,6 +278,14 @@ class SolidityCompilation:
         compilation = SolidityCompilation(final_file, solc_executable)
         compilation.flags = "--import-asm-json --bin --optimize"
         compilation.process_output_function = process_importer_output
+        return compilation.compile_single_sol_file(json_file, deployed_contract, "bin")
+
+    @staticmethod
+    def importer_assembly_standard_json_file(json_file: str, deployed_contract: Optional[str] = None,
+                               final_file: Optional[str] = None, solc_executable: str = "solc"):
+        compilation = SolidityCompilation(final_file, solc_executable)
+        compilation.flags = "--standard-json"
+        compilation.process_output_function = process_importer_standard_output
         return compilation.compile_single_sol_file(json_file, deployed_contract, "bin")
 
     @staticmethod
