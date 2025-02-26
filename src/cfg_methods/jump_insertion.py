@@ -25,9 +25,12 @@ def insert_jumps_tags_cfg(cfg: CFG) -> Dict[cfg_object_T, Dict[block_id_T, int]]
             # Insert a tag for the initial block of the function
             tag_from_tag_dict(start_block_id, tags_object)
 
-            # We need to pass an additional parameter as the initial value
-            return_value = f"out_{function_name}"
-            cfg_function.arguments.insert(0, return_value)
+            return_value = None
+            # We only insert a return value if the function has any return block
+            if len(cfg_function.blocks.function_return_blocks) > 0:
+                # We need to pass an additional parameter as the initial value
+                return_value = f"out_{function_name}"
+                cfg_function.arguments.insert(0, return_value)
 
             # Insert the tags and jumps of the block list
             insert_jumps_tags_block_list(cfg_function.blocks, tags_object, return_value)
@@ -57,6 +60,8 @@ def insert_jumps_tags_block_list(cfg_block_list: CFGBlockList, tags_dict: Dict[s
             return_instruction = block.get_instructions()[-1]
             assert return_instruction.op == "functionReturn", "Function return blocks must " \
                                                               f"have functionReturn instructions: {return_instruction}"
+            assert jump_value is not None, "When inserting the tags of a function return, " \
+                                           "the jump_value must be not None"
             return_instruction.in_args.insert(0, jump_value)
 
 

@@ -22,8 +22,12 @@ def split_blocks_cfg(cfg: CFG, tags_object: Dict[cfg_object_T, Dict[block_id_T, 
     """
     for object_id, cfg_object in cfg.objectCFG.items():
         tag_dict = tags_object[object_id]
-        function2tag = {function_name: tag_dict[function.blocks.start_block]
-                        for function_name, function in cfg_object.functions.items()}
+        function2tag = {}
+        for function_name, function in cfg_object.functions.items():
+            # We obtain the tag from the initial block (generate a new one)
+            start_block_tag = tag_from_tag_dict(function.blocks.start_block, tag_dict)
+            function2tag[function_name] = start_block_tag
+
         modify_block_list_split(cfg_object.blocks, function2tag, tag_dict)
 
         # We also consider the information per function
@@ -102,10 +106,33 @@ def modify_block_list_split(block_list: CFGBlockList, function2tag: Dict[functio
 
         # Nevertheless, we check if the last instruction is a split one and set it
         last_instr = current_block.get_instructions()[-1] if len(current_block.get_instructions()) > 0 else None
-        if last_instr is not None and \
-                last_instr.get_op_name() in itertools.chain(constants.split_block, function2tag.keys(), ["JUMP", "JUMPI"],
-                                                            constants.terminal_ops):
-            current_block.split_instruction = last_instr
+        if last_instr is not None:
+
+            # First case: function call. We have to introduce the jumps to invoke the function.
+            # If this is the last instruction, it means we don't need to jump back, as there is no function return.
+            # We only jump to the function
+            tag_function = function2tag.get(last_instr.get_op_name(), None)
+            if tag_function is not None:
+
+                # Again, we need to skip the phi functions for inserting the jump tag
+                i = 0
+                while i < len(current_block.get_instructions()) and \
+                        current_block.get_instructions()[i].get_op_name() == "PhiFunction":
+                    i += 1
+
+                # We just need to introduce one tag (to invoke the function)
+                current_block.insert_instruction(i, CFGInstruction("PUSH [tag]", [], [str(tag_function)]))
+
+                # We update the in args accordingly
+                last_instr.in_args = [str(tag_function)] + last_instr.in_args
+
+                # The function call is still the split instruction
+                current_block.split_instruction = last_instr
+
+            # Other split instructions: we set the last instruction as a split instruction
+            elif last_instr.get_op_name() in itertools.chain(constants.split_block, ["JUMP", "JUMPI"],
+                                                             constants.terminal_ops):
+                current_block.split_instruction = last_instr
 
 
 # Methods for generating the CFG graph after the inlining and identifying the sub-blocks
