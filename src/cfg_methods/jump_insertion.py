@@ -27,6 +27,7 @@ def insert_jumps_tags_cfg(cfg: CFG) -> Dict[cfg_object_T, Dict[block_id_T, int]]
 
             return_value = None
             # We only insert a return value if the function has any return block
+            # See example: strings_unicode_string/unicode_string_standard_input.json
             if len(cfg_function.blocks.function_return_blocks) > 0:
                 # We need to pass an additional parameter as the initial value
                 return_value = f"out_{function_name}"

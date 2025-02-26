@@ -111,6 +111,7 @@ def modify_block_list_split(block_list: CFGBlockList, function2tag: Dict[functio
             # First case: function call. We have to introduce the jumps to invoke the function.
             # If this is the last instruction, it means we don't need to jump back, as there is no function return.
             # We only jump to the function
+            # See example: strings_unicode_string/unicode_string_standard_input.json
             tag_function = function2tag.get(last_instr.get_op_name(), None)
             if tag_function is not None:
 
