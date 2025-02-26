@@ -48,7 +48,6 @@ def modify_block_list_split(block_list: CFGBlockList, function2tag: Dict[functio
         # It can be reassigned if the block is split multiple times
         current_block = cfg_block
         instr_idx = 0
-        first_split = True
 
         # We cannot split the last instruction, as it would result in an empty block
         while instr_idx < len(current_block.get_instructions()) - 1:
@@ -70,13 +69,11 @@ def modify_block_list_split(block_list: CFGBlockList, function2tag: Dict[functio
                 if new_start_block is None and current_block.block_id == block_list.start_block:
                     new_start_block = first_sub_block
 
-                # We need to update the tag dict with the previous value. It only happens with the first split
-                if first_split and current_block.block_id in tag_dict:
+                # We need to update the tag dict with the previous value. We have to be careful
+                # because there might be several tags
+                if current_block.block_id in tag_dict:
                     tag_value = tag_dict.pop(current_block.block_id)
                     tag_dict[first_sub_block.block_id] = tag_value
-
-                # Even if the split block had no tag, we don't need to check it further
-                first_split = False
 
                 current_block = split_block_action.second_half
                 instr_idx = 0
