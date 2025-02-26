@@ -84,9 +84,15 @@ def modify_block_list_split(block_list: CFGBlockList, function2tag: Dict[functio
                     second_half_tag = str(tag_from_tag_dict(current_block.block_id, tag_dict))
                     function_call_tag = str(function2tag[instr.get_op_name()])
 
+                    i = 0
+                    # Phi instructions must always come first
+                    while i < len(first_sub_block.get_instructions()) and \
+                            first_sub_block.get_instructions()[i].get_op_name() == "PhiFunction":
+                        i += 1
+
                     # In the first half, introduce both the target and returning tags
-                    first_sub_block.insert_instruction(0, CFGInstruction("PUSH [tag]", [], [second_half_tag]))
-                    first_sub_block.insert_instruction(0, CFGInstruction("PUSH [tag]", [], [function_call_tag]))
+                    first_sub_block.insert_instruction(i, CFGInstruction("PUSH [tag]", [], [second_half_tag]))
+                    first_sub_block.insert_instruction(i, CFGInstruction("PUSH [tag]", [], [function_call_tag]))
 
                     # The split instruction of the first sub block must contain the tags
                     instr.in_args = [function_call_tag] + instr.in_args + [second_half_tag]
