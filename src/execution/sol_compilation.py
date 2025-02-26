@@ -239,7 +239,7 @@ class SolidityCompilation:
         self._solc_command: str = solc_command
 
         # TODO: decide how to represent via-ir
-        self._via_ir = False
+        self._via_ir = True
         self._yul_setting = False
 
         # Function to select the information from the contract
