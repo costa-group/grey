@@ -7,6 +7,7 @@ import multiprocessing as mp
 import sys
 import pandas as pd
 from count_num_ins import instrs_from_opcodes
+from compare_outputs import compare_files
 
 
 def combine_dfs(csv_folder: Path, combined_csv: Path):
@@ -72,25 +73,31 @@ def execute_yul_test(yul_file: str, csv_folder: Path) -> None:
         print(" ".join(replace_command))
 
         testrunner_command_original = [
-            "/experiments/Systems/solidity/build/test/tools/testrunner",
-            "/experiments/Systems/evmone/build/lib/libevmone.so.0.13.0",
+            "/system/experiments/Systems/solidity/build/test/tools/testrunner",
+            "/system/experiments/Systems/evmone_ahernandez/build/lib/libevmone.so",
             test_file,
             os.path.join(yul_dir, "resultOriginal.json"),
         ]
         subprocess.run(testrunner_command_original)
 
         testrunner_command_grey = [
-            "/experiments/Systems/solidity/build/test/tools/testrunner",
-            "/experiments/Systems/evmone/build/lib/libevmone.so.0.13.0",
-            f"{yul_dir}/test",
+            "/system/experiments/Systems/solidity/build/test/tools/testrunner",
+            "/system/experiments/Systems/evmone_ahernandez/build/lib/libevmone.so",
+            f"{yul_dir}/test_grey",
             os.path.join(yul_dir, "resultGrey.json"),
         ]
+        # print(' '.join(testrunner_command_grey))
         subprocess.run(testrunner_command_grey)
 
         # Compare results
         result_original = os.path.join(yul_dir, "resultOriginal.json")
         result_grey = os.path.join(yul_dir, "resultGrey.json")
-        if filecmp.cmp(result_original, result_grey, shallow=False):
+
+        # We need to compare them dropping the gas usage
+        file_comparison = compare_files(result_original, result_grey)
+
+        # If file_comparison is empty, it means that the match is precise
+        if len(file_comparison) == 0:
             print("[RES]: Test passed.")
             result_dict = instrs_from_opcodes(output_file, log_file)
             csv_file = csv_folder.joinpath("correctos").joinpath(csv_name)
@@ -109,8 +116,9 @@ def run_experiments(n_cpus):
     # Change the directory to the root
 
     os.chdir("..")
-    DIRECTORIO_TESTS = "examples/test/semanticTests"
+    # DIRECTORIO_TESTS = "examples/test/semanticTests"
     # DIRECTORIO_TESTS = "tests_evmone"
+    DIRECTORIO_TESTS = "falla_test/"
     CSV_FOLDER = Path("csvs")
     CSV_FOLDER.mkdir(exist_ok=True, parents=True)
     CSV_FOLDER.joinpath("correctos").mkdir(exist_ok=True, parents=True)
@@ -127,7 +135,7 @@ def run_experiments(n_cpus):
     with mp.Pool(n_cpus) as p:
         p.starmap(execute_yul_test, [[file, CSV_FOLDER] for file in yul_files])
     print("Procesamiento completado.")
-    combine_dfs(CSV_FOLDER, Path("combined.csv"))
+    # combine_dfs(CSV_FOLDER, Path("combined.csv"))
 
 
 if __name__ == "__main__":

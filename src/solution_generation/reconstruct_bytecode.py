@@ -376,8 +376,55 @@ def store_asm_output(json_object: Dict[str, Any], object_name: str, cfg_dir: Pat
         json.dump(json_object, f, indent=4)
     return file_to_store
 
+def store_asm_standard_json_output(json_object: Dict[str, Any], object_name: str, cfg_dir: Path) -> Path:
+    file_to_store = cfg_dir.joinpath(object_name + "_standard_json_output.json")
+    output_file = build_standard_json_output(json_object, object_name)
+    with open(file_to_store, 'w') as f:
+        json.dump(output_file, f, indent=4)
+    return file_to_store
 
 def store_binary_output(object_name: str, evm_code: str, cfg_dir: Path) -> None:
     file_to_store = cfg_dir.joinpath(object_name + "_bin.evm")
     with open(file_to_store, 'w') as f:
         f.write(evm_code)
+
+
+def build_standard_json_output(json_object: Dict[str, Any], object_name : str) -> Dict[str,Any]:
+    output = {}
+
+    output["language"] = "EVMAssembly"
+    build_standard_json_settings(output)
+
+    output["sources"] = {}
+    output["sources"][object_name] = {}
+    output["sources"][object_name]["assemblyJson"] = json_object
+
+    
+    return output
+    
+def build_standard_json_settings(output_json):
+    output_json["settings"] = {}
+
+    output = build_output_selection()
+    output_json["settings"]["outputSelection"] = output
+
+    opt_config = build_optimizer_configuration()
+    output_json["settings"]["optimizer"] = opt_config
+
+    output_json["settings"]["viaIR"] = True
+    output_json["settings"]["metadata"] = {}
+    output_json["settings"]["metadata"]["appendCBOR"] = False
+    
+def build_output_selection():
+    output_selection = {}
+    output_selection["*"] = {}
+    output_selection["*"][""] = ["*"]
+
+    return output_selection
+
+def build_optimizer_configuration():
+    config = {}
+    config["enabled"] = True
+    config["runs"] = 200
+
+    return config
