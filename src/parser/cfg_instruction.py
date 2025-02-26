@@ -293,8 +293,10 @@ class CFGInstruction:
         if pos is not None:
             self.translate_builtin_args = ["{0:064X}".format(pos)]
         else:
+            # TODO Maybe pass the element itself just in case?
+            self.op = "PUSHSIZE"
             print("[WARNING ERROR]: Identifier not found in subobjects keys")
-            self.translate_builtin_args = ["{0:064X}".format(0)]
+            # self.translate_builtin_args = ["{0:064X}".format(0)]
                        
 #            raise Exception("[ERROR]: Identifier not found in subobjects keys")
 
