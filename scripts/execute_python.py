@@ -97,7 +97,7 @@ def execute_yul_test(yul_file: str, csv_folder: Path) -> None:
         file_comparison = compare_files(result_original, result_grey)
 
         # If file_comparison is empty, it means that the match is precise
-        if len(file_comparison) == 0:
+        if file_comparison == 0:
             print("[RES]: Test passed.")
             result_dict = instrs_from_opcodes(output_file, log_file)
             csv_file = csv_folder.joinpath("correctos").joinpath(csv_name)

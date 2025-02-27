@@ -1,5 +1,7 @@
+import sys
 import json
 from jsondiff import diff
+
 
 def compare_files(json_file1, json_file2):
     with open(json_file1, 'r') as f:
@@ -10,7 +12,7 @@ def compare_files(json_file1, json_file2):
 
     if json1.keys() != json2.keys():
         print("JSONS have different contract fields")
-        return False
+        return 1
 
     # Drop keys for gas
     for key, json1_answers in json1.items():
@@ -22,7 +24,12 @@ def compare_files(json_file1, json_file2):
 
     answer = diff(json1, json2)
     print("FINAL", answer)
-    return answer
+    # Empty diff means they are the same
+    if diff == {}:
+        return 0
+
+    return 1
+
 
 if __name__ == "__main__":
-    pass
+    print(compare_files(sys.argv[1], sys.argv[2]))
