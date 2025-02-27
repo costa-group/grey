@@ -23,12 +23,10 @@ def compare_files(json_file1, json_file2):
             answer.pop("gasUsedForDeposit")
 
     answer = diff(json1, json2)
-    print("FINAL", answer)
-    # Empty diff means they are the same
-    if diff == {}:
-        return 0
+    print("FINAL", answer, type(answer))
 
-    return 1
+    # Empty diff means they are the same
+    return 0 if len(answer) == 0 else 1
 
 
 if __name__ == "__main__":
