@@ -1,0 +1,26 @@
+{
+    "semanticTests/libraries/internal_library_function_attached_to_interface.sol": {
+        "bytecode": "6080806040523460135760a0908160188239f35b5f80fdfe60808060405260043610156011575f80fd5b5f3560e01c63f8a8fd6d146023575f80fd5b346080575f366003190112608057601b80820182811067ffffffffffffffff821117606c5782916085833903905ff0156061576020604051602a8152f35b6040513d5f823e3d90fd5b634e487b7160e01b5f52604160045260245ffd5b5f80fdfe608080604052346013576003908160188239f35b5f80fdfe5f80fd",
+        "contract": ":C",
+        "tests": [
+            {
+                "input": {
+                    "calldata": "",
+                    "value": "0"
+                },
+                "kind": "constructor"
+            },
+            {
+                "input": {
+                    "calldata": "f8a8fd6d",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "000000000000000000000000000000000000000000000000000000000000002a",
+                    "status": "success"
+                }
+            }
+        ]
+    }
+}

@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "keccak.sol": {
+            "content": "contract C {\n    function keccak1() public pure returns (bytes32) {\n\t\treturn keccak256(\"123\");\n    }\n    function keccak2() public pure returns (bytes32) {\n\t\tbytes memory a = \"123\";\n\t\treturn keccak256(a);\n    }\n}\n// ----\n// keccak1() -> 0x64e604787cbf194841e7b68d7cd28786f6c9a0a3ab9f8b0a0e87cb4387ab0107\n// keccak2() -> 0x64e604787cbf194841e7b68d7cd28786f6c9a0a3ab9f8b0a0e87cb4387ab0107\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

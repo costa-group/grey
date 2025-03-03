@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "inline_assembly_in_modifiers.sol": {
+            "content": "contract C {\n    modifier m {\n        uint256 a = 1;\n        assembly {\n            a := 2\n        }\n        if (a != 2) revert();\n        _;\n    }\n\n    function f() public m returns (bool) {\n        return true;\n    }\n\n    modifier n {\n        uint256 a = 1;\n        assembly {\n            a := 2\n        }\n        if (a != 2)\n            _;\n        revert();\n    }\n\n    function g() public n returns (bool) {\n        // This statement should never execute.\n        return true;\n    }\n}\n// ====\n// bytecodeFormat: legacy,>=EOFv1\n// ----\n// f() -> true\n// g() -> FAILURE\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

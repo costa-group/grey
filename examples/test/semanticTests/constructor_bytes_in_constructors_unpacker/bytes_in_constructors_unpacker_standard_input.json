@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "bytes_in_constructors_unpacker.sol": {
+            "content": "contract Test {\n    uint public m_x;\n    bytes public m_s;\n    constructor(uint x, bytes memory s) {\n        m_x = x;\n        m_s = s;\n    }\n}\n// ====\n// bytecodeFormat: legacy,>=EOFv1\n// ----\n// constructor(): 7, 0x40, 78, \"abcdefghijklmnopqrstuvwxyzabcdef\", \"ghijklmnopqrstuvwxyzabcdefghijkl\", \"mnopqrstuvwxyz\" ->\n// gas irOptimized: 181465\n// gas irOptimized code: 78400\n// gas legacy: 195212\n// gas legacy code: 109400\n// gas legacyOptimized: 181608\n// gas legacyOptimized code: 71400\n// m_x() -> 7\n// m_s() -> 0x20, 78, \"abcdefghijklmnopqrstuvwxyzabcdef\", \"ghijklmnopqrstuvwxyzabcdefghijkl\", \"mnopqrstuvwxyz\"\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

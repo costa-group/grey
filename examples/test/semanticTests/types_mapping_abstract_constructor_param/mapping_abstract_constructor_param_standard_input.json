@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "mapping_abstract_constructor_param.sol": {
+            "content": "abstract contract A {\n    constructor (mapping (uint => uint) storage m) {\n        m[5] = 20;\n    }\n}\n\ncontract C is A {\n    mapping (uint => uint) public m;\n\n    constructor() A(m) {\n    }\n}\n// ----\n// m(uint256): 1 -> 0\n// m(uint256): 5 -> 20\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

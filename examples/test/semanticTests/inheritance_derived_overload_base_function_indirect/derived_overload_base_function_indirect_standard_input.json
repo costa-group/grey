@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "derived_overload_base_function_indirect.sol": {
+            "content": "contract A {\n    function f(uint256 a) public returns (uint256) {\n        return 2 * a;\n    }\n}\n\n\ncontract B {\n    function f() public returns (uint256) {\n        return 10;\n    }\n}\n\n\ncontract C is A, B {\n    function g() public returns (uint256) {\n        return f();\n    }\n\n    function h() public returns (uint256) {\n        return f(1);\n    }\n}\n// ----\n// g() -> 10\n// h() -> 2\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

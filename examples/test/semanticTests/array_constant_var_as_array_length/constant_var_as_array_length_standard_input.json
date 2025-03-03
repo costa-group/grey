@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "constant_var_as_array_length.sol": {
+            "content": "contract C {\n    uint256 constant LEN = 3;\n    uint256[LEN] public a;\n\n    constructor(uint256[LEN] memory _a) {\n        a = _a;\n    }\n}\n// ----\n// constructor(): 1, 2, 3 ->\n// gas irOptimized: 124991\n// gas irOptimized code: 14800\n// gas legacy: 134317\n// gas legacy code: 46200\n// gas legacyOptimized: 127166\n// gas legacyOptimized code: 23400\n// a(uint256): 0 -> 1\n// a(uint256): 1 -> 2\n// a(uint256): 2 -> 3\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

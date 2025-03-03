@@ -1,0 +1,26 @@
+{
+    "semanticTests/functionCall/calling_uninitialized_function_in_detail.sol": {
+        "bytecode": "608080604052346013576054908160188239f35b5f80fdfe6004361015600b575f80fd5b5f3560e01c6392d0d15314601d575f80fd5b346050575f3660031901126050575f60015413604757634e487b7160e01b5f52605160045260245ffd5b60075f5260205ff35b5f80fd",
+        "contract": ":C",
+        "tests": [
+            {
+                "input": {
+                    "calldata": "",
+                    "value": "0"
+                },
+                "kind": "constructor"
+            },
+            {
+                "input": {
+                    "calldata": "92d0d153",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "4e487b710000000000000000000000000000000000000000000000000000000000000051",
+                    "status": "failure"
+                }
+            }
+        ]
+    }
+}

@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "weird_name.sol": {
+            "content": "error error(uint a);\ncontract C {\n    function f() public pure {\n        revert error(2);\n    }\n}\n// ----\n// f() -> FAILURE, hex\"b48fb6cf\", hex\"0000000000000000000000000000000000000000000000000000000000000002\"\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

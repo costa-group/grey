@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "storing_invalid_boolean.sol": {
+            "content": "contract C {\n    event Ev(bool);\n    bool public perm;\n    function set() public returns(uint) {\n        bool tmp;\n        assembly {\n            tmp := 5\n        }\n        perm = tmp;\n        return 1;\n    }\n    function ret() public returns(bool) {\n        bool tmp;\n        assembly {\n            tmp := 5\n        }\n        return tmp;\n    }\n    function ev() public returns(uint) {\n        bool tmp;\n        assembly {\n            tmp := 5\n        }\n        emit Ev(tmp);\n        return 1;\n    }\n}\n// ----\n// set() -> 1\n// perm() -> true\n// ret() -> true\n// ev() -> 1\n// ~ emit Ev(bool): true\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

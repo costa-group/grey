@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "array_push.sol": {
+            "content": "contract c {\n    uint256[] data;\n\n    function test()\n        public\n        returns (uint256 x, uint256 y, uint256 z, uint256 l)\n    {\n        data.push(5);\n        x = data[0];\n        data.push(4);\n        y = data[1];\n        data.push(3);\n        l = data.length;\n        z = data[2];\n    }\n}\n// ----\n// test() -> 5, 4, 3, 3\n// gas irOptimized: 111834\n// gas legacy: 111804\n// gas legacyOptimized: 111122\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

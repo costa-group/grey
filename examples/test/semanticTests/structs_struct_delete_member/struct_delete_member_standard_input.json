@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "struct_delete_member.sol": {
+            "content": "contract test {\n    struct testStruct {\n        uint256 m_value;\n    }\n    testStruct data1;\n\n    constructor() {\n        data1.m_value = 2;\n    }\n\n    function deleteMember() public returns (uint256 ret_value) {\n        testStruct storage x = data1; //should not copy the data. data1.m_value == 2 but x.m_value = 0\n        x.m_value = 4;\n        delete x.m_value;\n        ret_value = data1.m_value;\n    }\n}\n// ----\n// deleteMember() -> 0\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

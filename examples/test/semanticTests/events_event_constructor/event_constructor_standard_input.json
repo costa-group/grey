@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "event_constructor.sol": {
+            "content": "contract ClientReceipt {\n    event Deposit(address indexed _from, bytes32 indexed _id, uint _value);\n    constructor() {\n        emit Deposit(msg.sender, bytes32(\"abc\"), 7);\n    }\n}\n// ----\n// constructor()\n// ~ emit Deposit(address,bytes32,uint256): #0x1212121212121212121212121212120000000012, #\"abc\", 0x07\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

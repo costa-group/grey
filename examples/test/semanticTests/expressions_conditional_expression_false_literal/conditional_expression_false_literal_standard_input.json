@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "conditional_expression_false_literal.sol": {
+            "content": "contract test {\n    function f() public returns(uint d) {\n        return false ? 5 : 10;\n    }\n}\n// ----\n// f() -> 10\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

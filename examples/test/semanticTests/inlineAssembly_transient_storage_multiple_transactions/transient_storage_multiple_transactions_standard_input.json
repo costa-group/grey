@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "transient_storage_multiple_transactions.sol": {
+            "content": "contract C {\n    function set(uint value) private {\n        assembly {\n            tstore(0, value)\n        }\n    }\n\n    function get() private view returns (uint value) {\n        assembly {\n            value := tload(0)\n        }\n    }\n\n    function f() external {\n        assembly {\n            tstore(0, 42)\n        }\n    }\n\n    function g() external view returns(uint r) {\n        assembly {\n            r := tload(0)\n        }\n    }\n\n    function h() external returns (uint x) {\n        set(99);\n        x = get();\n    }\n}\n// ====\n// EVMVersion: >=cancun\n// ----\n// g() -> 0\n// f() ->\n// g() -> 0\n// h() -> 0x63\n// g() -> 0\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

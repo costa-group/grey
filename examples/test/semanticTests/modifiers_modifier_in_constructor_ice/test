@@ -1,0 +1,15 @@
+{
+    "semanticTests/modifiers/modifier_in_constructor_ice.sol": {
+        "bytecode": "608080604052346013576003908160188239f35b5f80fdfe5f80fd",
+        "contract": ":B",
+        "tests": [
+            {
+                "input": {
+                    "calldata": "",
+                    "value": "0"
+                },
+                "kind": "constructor"
+            }
+        ]
+    }
+}

@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "chainid.sol": {
+            "content": "contract C {\n    function f() public returns (uint id) {\n        assembly {\n            id := chainid()\n        }\n    }\n}\n// ====\n// EVMVersion: >=istanbul\n// ----\n// f() -> 1\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

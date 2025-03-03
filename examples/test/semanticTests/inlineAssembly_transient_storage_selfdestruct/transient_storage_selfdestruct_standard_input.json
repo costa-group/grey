@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "transient_storage_selfdestruct.sol": {
+            "content": "contract C {\n    function set(uint value) external {\n        assembly {\n            tstore(0, value)\n        }\n    }\n\n    function get() external view returns (uint value) {\n        assembly {\n            value := tload(0)\n        }\n    }\n\n    function terminate(address payable a) external {\n        selfdestruct(a);\n    }\n}\n\ncontract D {\n    C public c;\n\n    constructor() {\n        c = new C();\n    }\n\n    function destroy() external {\n        c.set(42);\n        c.terminate(payable(address(this)));\n        assert(c.get() == 42);\n    }\n\n    function createAndDestroy() external {\n        c = new C();\n        c.set(42);\n        c.terminate(payable(address(this)));\n        assert(c.get() == 42);\n    }\n}\n// ====\n// EVMVersion: >=cancun\n// bytecodeFormat: legacy\n// ----\n// constructor() ->\n// gas irOptimized: 127596\n// gas irOptimized code: 221000\n// gas legacy: 149480\n// gas legacy code: 501200\n// gas legacyOptimized: 125846\n// gas legacyOptimized code: 203400\n// destroy() ->\n// createAndDestroy() ->\n// gas legacy: 67048\n// gas legacy code: 92600\n// gas legacyOptimized: 65677\n// gas legacyOptimized code: 39400\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "event_selector.sol": {
+            "content": "library L {\n    event E();\n}\n\nlibrary S {\n    event E(uint);\n}\n\nlibrary T {\n    event E();\n}\n\ninterface I {\n    event E();\n}\n\ncontract B {\n    event E();\n}\n\ncontract D {\n    event F();\n}\n\ncontract C is D {\n    function test1() external pure returns (bytes32, bytes32, bytes32, bytes32) {\n        assert(L.E.selector == T.E.selector);\n        assert(I.E.selector == L.E.selector);\n        assert(T.E.selector == I.E.selector);\n        assert(B.E.selector == T.E.selector);\n\n        assert(L.E.selector != S.E.selector);\n        assert(T.E.selector != S.E.selector);\n        assert(I.E.selector != S.E.selector);\n        assert(B.E.selector != S.E.selector);\n\n        return (L.E.selector, S.E.selector, I.E.selector, B.E.selector);\n    }\n\n    bytes32 s1 = L.E.selector;\n    bytes32 s2 = S.E.selector;\n    bytes32 s3 = T.E.selector;\n    bytes32 s4 = I.E.selector;\n    bytes32 s5 = B.E.selector;\n    function test2() external returns (bytes32, bytes32, bytes32, bytes32, bytes32) {\n        return (s1, s2, s3, s4, s5);\n    }\n\n    function test3() external returns (bytes32) {\n        return (F.selector);\n    }\n}\n// ====\n// compileViaYul: also\n// ----\n// test1() -> 0x92bbf6e823a631f3c8e09b1c8df90f378fb56f7fbc9701827e1ff8aad7f6a028, 0x2ff0672f372fbe844b353429d4510ea5e43683af134c54f75f789ff57bc0c0, 0x92bbf6e823a631f3c8e09b1c8df90f378fb56f7fbc9701827e1ff8aad7f6a028, 0x92bbf6e823a631f3c8e09b1c8df90f378fb56f7fbc9701827e1ff8aad7f6a028\n// test2() -> 0x92bbf6e823a631f3c8e09b1c8df90f378fb56f7fbc9701827e1ff8aad7f6a028, 0x2ff0672f372fbe844b353429d4510ea5e43683af134c54f75f789ff57bc0c0, 0x92bbf6e823a631f3c8e09b1c8df90f378fb56f7fbc9701827e1ff8aad7f6a028, 0x92bbf6e823a631f3c8e09b1c8df90f378fb56f7fbc9701827e1ff8aad7f6a028, 0x92bbf6e823a631f3c8e09b1c8df90f378fb56f7fbc9701827e1ff8aad7f6a028\n// test3() -> 0x28811f5935c16a099486acb976b3a6b4942950a1425a74e9eb3e9b7f7135e12a\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "denominations_in_array_sizes.sol": {
+            "content": "contract C {\n    uint[2 wei] a;\n    uint[2 gwei] b;\n    uint[2 ether] c;\n    uint[2 seconds] d;\n    uint[2 minutes] e;\n    uint[2 hours] f;\n    uint[2 days] g;\n    uint[2 weeks] h;\n\n    function lengths() public returns (uint, uint, uint, uint, uint, uint, uint, uint) {\n        return (\n            a.length,\n            b.length,\n            c.length,\n            d.length,\n            e.length,\n            f.length,\n            g.length,\n            h.length\n        );\n    }\n}\n// ----\n// lengths() -> 2, 2000000000, 2000000000000000000, 2, 120, 7200, 172800, 1209600\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

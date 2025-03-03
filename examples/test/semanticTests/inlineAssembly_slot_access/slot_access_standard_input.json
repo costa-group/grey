@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "slot_access.sol": {
+            "content": "contract C {\n    struct S {\n        uint a;\n        uint b;\n    }\n\n    mapping(uint => S) public mappingAccess;\n\n    function data() internal view returns (S storage _data) {\n        // We need to assign it from somewhere, otherwise we would\n        // get an \"uninitialized access\" error.\n        _data = mappingAccess[20];\n\n        bytes32 slot = keccak256(abi.encode(uint(1), uint(0)));\n        assembly {\n            _data.slot := slot\n        }\n    }\n\n    function set(uint x) public {\n        data().a = x;\n    }\n\n    function get() public view returns (uint) {\n        return data().a;\n    }\n}\n// ----\n// get() -> 0\n// mappingAccess(uint256): 1 -> 0, 0\n// set(uint256): 4\n// get() -> 4\n// mappingAccess(uint256): 1 -> 4, 0\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

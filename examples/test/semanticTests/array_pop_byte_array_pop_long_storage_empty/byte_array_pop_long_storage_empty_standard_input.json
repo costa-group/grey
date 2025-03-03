@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "byte_array_pop_long_storage_empty.sol": {
+            "content": "contract c {\n    uint256 a;\n    uint256 b;\n    uint256 c;\n    bytes data;\n    function test() public returns (bool) {\n        for (uint8 i = 0; i <= 40; i++)\n            data.push(bytes1(i+1));\n        for (int8 j = 40; j >= 0; j--) {\n            require(data[uint8(j)] == bytes1(uint8(j+1)));\n            require(data.length == uint8(j+1));\n            data.pop();\n        }\n        return true;\n    }\n}\n// ----\n// test() -> true\n// gas irOptimized: 138795\n// gas legacy: 178396\n// gas legacyOptimized: 163832\n// storageEmpty -> 1\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

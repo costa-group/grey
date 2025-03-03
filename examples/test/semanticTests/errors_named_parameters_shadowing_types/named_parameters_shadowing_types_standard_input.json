@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "named_parameters_shadowing_types.sol": {
+            "content": "pragma abicoder v2;\n\ncontract C {\n    enum EnumType {A, B, C}\n\n    struct StructType {\n        uint x;\n    }\n\n    error E1(StructType StructType);\n    error E2(EnumType StructType, StructType EnumType);\n\n    function f() public {\n        revert E1({StructType: StructType(42)});\n    }\n\n    function g() public {\n        revert E2({EnumType: StructType(42), StructType: EnumType.B});\n    }\n}\n// ----\n// f() -> FAILURE, hex\"33a54193\", hex\"000000000000000000000000000000000000000000000000000000000000002a\"\n// g() -> FAILURE, hex\"374b9387\", hex\"0000000000000000000000000000000000000000000000000000000000000001\", hex\"000000000000000000000000000000000000000000000000000000000000002a\"\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

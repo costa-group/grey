@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "dynamic_array.sol": {
+            "content": "pragma abicoder               v2;\n\ncontract C {\n    function ggg(uint8[] calldata s) external pure returns (bytes memory) {\n        s[0]; // only this will validate.\n        return msg.data;\n    }\n    function f(uint256[] calldata a) external returns (bytes memory) {\n        uint8[] memory m = new uint8[](a.length);\n        assembly {\n            calldatacopy(add(m, 0x20), 0x44, mul(calldataload(4), 0x20))\n        }\n        return this.ggg(m);\n    }\n}\n// ====\n// EVMVersion: >homestead\n// ----\n// f(uint256[]): 0x20, 2, 1, 1 -> 0x20, 0x84, hex\"304a4c23\", 0x20, 2, 1, 1, hex\"00000000000000000000000000000000000000000000000000000000\"\n// ggg(uint8[]): 0x20, 2, 1, 1 -> 0x20, 0x84, hex\"304a4c23\", 0x20, 2, 1, 1, hex\"00000000000000000000000000000000000000000000000000000000\"\n// f(uint256[]): 0x20, 2, 0x0101, 0x0101 -> 0x20, 0x84, hex\"304a4c23\", 0x20, 2, 1, 1, hex\"00000000000000000000000000000000000000000000000000000000\"\n// ggg(uint8[]): 0x20, 2, 0x0101, 0x0101 -> FAILURE\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

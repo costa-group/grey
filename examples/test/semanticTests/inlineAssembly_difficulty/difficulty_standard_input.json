@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "difficulty.sol": {
+            "content": "contract C {\n    function f() public view returns (uint ret) {\n        assembly {\n            ret := difficulty()\n        }\n    }\n}\n// ====\n// EVMVersion: <paris\n// ----\n// f() -> 200000000\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

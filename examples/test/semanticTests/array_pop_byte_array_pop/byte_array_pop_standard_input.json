@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "byte_array_pop.sol": {
+            "content": "contract c {\n    bytes data;\n\n    function test() public returns (uint256 x, uint256 y, uint256 l) {\n        data.push(0x07);\n        data.push(0x03);\n        x = data.length;\n        data.pop();\n        data.pop();\n        data.push(0x02);\n        y = data.length;\n        l = data.length;\n    }\n}\n// ----\n// test() -> 2, 1, 1\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "external_call_at_construction_time.sol": {
+            "content": "// This tests skipping the extcodesize check.\n\ncontract T {\n    constructor() { this.f(); }\n    function f() external {}\n}\ncontract U {\n    constructor() { this.f(); }\n    function f() external returns (uint) {}\n}\n\ncontract C {\n    function f(uint c) external returns (uint) {\n        if (c == 0) new T();\n        else if (c == 1) new U();\n        return 1 + c;\n    }\n}\n// ====\n// bytecodeFormat: >=EOFv1\n// ----\n// f(uint256): 0 -> 1\n// f(uint256): 1 -> FAILURE\n// f(uint256): 2 -> 3\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

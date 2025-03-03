@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "struct_delete_storage.sol": {
+            "content": "contract C {\n    struct S {\n        uint256 x;\n        uint128 y;\n        uint32 z;\n    }\n    uint8 b = 23;\n    S s;\n    uint8 a = 17;\n    function f() public {\n        s.x = 42; s.y = 42; s.y = 42;\n        delete s;\n        assert(s.x == 0);\n        assert(s.y == 0);\n        assert(s.z == 0);\n        assert(b == 23);\n        assert(a == 17);\n    }\n}\n// ----\n// f() ->\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

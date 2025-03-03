@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "constructor_function_argument.sol": {
+            "content": "// The IR of this test used to throw\ncontract D {\n    constructor(function() external returns (uint)) {\n    }\n}\n// ====\n// bytecodeFormat: legacy,>=EOFv1\n// ----\n// constructor(): 0xfdd67305928fcac8d213d1e47bfa6165cd0b87b946644cd0000000000000000 ->\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

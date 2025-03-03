@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "convert_fixed_bytes_to_fixed_bytes_greater_size.sol": {
+            "content": "contract Test {\n    function bytesToBytes(bytes2 input) public returns (bytes4 ret) {\n        return bytes4(input);\n    }\n}\n// ----\n// bytesToBytes(bytes2): \"ab\" -> \"ab\"\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

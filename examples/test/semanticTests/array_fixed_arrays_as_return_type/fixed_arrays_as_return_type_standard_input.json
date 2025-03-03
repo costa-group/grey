@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "fixed_arrays_as_return_type.sol": {
+            "content": "contract A {\n    function f(uint16 input) public pure returns (uint16[5] memory arr) {\n        arr[0] = input;\n        arr[1] = ++input;\n        arr[2] = ++input;\n        arr[3] = ++input;\n        arr[4] = ++input;\n    }\n}\n\n\ncontract B {\n    function f() public returns (uint16[5] memory res, uint16[5] memory res2) {\n        A a = new A();\n        res = a.f(2);\n        res2 = a.f(1000);\n    }\n}\n// ----\n// f() -> 2, 3, 4, 5, 6, 1000, 1001, 1002, 1003, 1004\n// gas irOptimized: 59212\n// gas irOptimized code: 56600\n// gas legacy: 68001\n// gas legacy code: 162000\n// gas legacyOptimized: 59997\n// gas legacyOptimized code: 70600\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

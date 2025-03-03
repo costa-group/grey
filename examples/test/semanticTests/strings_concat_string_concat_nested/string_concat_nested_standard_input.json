@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "string_concat_nested.sol": {
+            "content": "contract C {\n    function f(string memory a, string memory b, string memory c) public returns (string memory) {\n        return string.concat(string.concat(a, b), c);\n    }\n}\n// ----\n// f(string,string,string): 0x60, 0x60, 0x60, 2, \"ab\" -> 0x20, 6, \"ababab\"\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

@@ -1,0 +1,48 @@
+{
+    "semanticTests/builtinFunctions/sha256.sol": {
+        "bytecode": "6080806040523460135760a8908160188239f35b5f80fdfe60806004361015600d575f80fd5b5f3560e01c631c008df914601f575f80fd5b3460a457602036600319011260a457602081016004358152602082526040820182811067ffffffffffffffff82111760905760209260405f9383825282518091855e8201918482840152603f19920301019060025afa1560855760205f51604051908152f35b6040513d5f823e3d90fd5b634e487b7160e01b5f52604160045260245ffd5b5f80fd",
+        "contract": ":C",
+        "tests": [
+            {
+                "input": {
+                    "calldata": "",
+                    "value": "0"
+                },
+                "kind": "constructor"
+            },
+            {
+                "input": {
+                    "calldata": "1c008df90000000000000000000000000000000000000000000000000000000000000004",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "e38990d0c7fc009880a9c07c23842e886c6bbdc964ce6bdd5817ad357335ee6f",
+                    "status": "success"
+                }
+            },
+            {
+                "input": {
+                    "calldata": "1c008df90000000000000000000000000000000000000000000000000000000000000005",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "96de8fc8c256fa1e1556d41af431cace7dca68707c78dd88c3acab8b17164c47",
+                    "status": "success"
+                }
+            },
+            {
+                "input": {
+                    "calldata": "1c008df9ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "af9613760f72635fbdb44a5a0a63c39f12af30f950a6ee5c971be188e89c4051",
+                    "status": "success"
+                }
+            }
+        ]
+    }
+}

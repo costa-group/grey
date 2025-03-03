@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "calldata_array_as_argument_internal_function.sol": {
+            "content": "pragma abicoder v2;\ncontract Test {\n    function f(uint256[] calldata c) internal returns (uint a, uint b) {\n        return (c.length, c[0]);\n    }\n\n    function g(uint256[] calldata c) external returns (uint a, uint b) {\n        return f(c);\n    }\n\n    function h(uint256[] calldata c, uint start, uint end) external returns (uint a, uint b) {\n        return f(c[start: end]);\n    }\n}\n// ----\n// g(uint256[]): 0x20, 4, 1, 2, 3, 4 -> 4, 1\n// h(uint256[],uint256,uint256): 0x60, 1, 3, 4, 1, 2, 3, 4 -> 2, 2\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

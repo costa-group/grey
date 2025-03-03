@@ -1,0 +1,37 @@
+{
+    "semanticTests/viaYul/keccak.sol": {
+        "bytecode": "6080806040523460135760e2908160188239f35b5f80fdfe60808060405260043610156011575f80fd5b5f3560e01c90816307a37f9f1460ac57506327179ae614602f575f80fd5b3460a8575f36600319011260a857604051604081019080821067ffffffffffffffff8311176094576040918252600381526231323360e81b60209182015290517f64e604787cbf194841e7b68d7cd28786f6c9a0a3ab9f8b0a0e87cb4387ab01078152f35b634e487b7160e01b5f52604160045260245ffd5b5f80fd5b3460a8575f36600319011260a857807f64e604787cbf194841e7b68d7cd28786f6c9a0a3ab9f8b0a0e87cb4387ab010760209252f3",
+        "contract": ":C",
+        "tests": [
+            {
+                "input": {
+                    "calldata": "",
+                    "value": "0"
+                },
+                "kind": "constructor"
+            },
+            {
+                "input": {
+                    "calldata": "07a37f9f",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "64e604787cbf194841e7b68d7cd28786f6c9a0a3ab9f8b0a0e87cb4387ab0107",
+                    "status": "success"
+                }
+            },
+            {
+                "input": {
+                    "calldata": "27179ae6",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "64e604787cbf194841e7b68d7cd28786f6c9a0a3ab9f8b0a0e87cb4387ab0107",
+                    "status": "success"
+                }
+            }
+        ]
+    }
+}

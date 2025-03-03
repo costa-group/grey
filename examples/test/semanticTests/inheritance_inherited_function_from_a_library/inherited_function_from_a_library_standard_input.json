@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "inherited_function_from_a_library.sol": {
+            "content": "library A {\n    function f() internal returns (uint256) {\n        return 1;\n    }\n}\n\n\ncontract B {\n    function f() internal returns (uint256) {\n        return 2;\n    }\n\n    function g() public returns (uint256) {\n        return A.f();\n    }\n}\n// ----\n// g() -> 1\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

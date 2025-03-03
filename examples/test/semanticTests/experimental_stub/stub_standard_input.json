@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "stub.sol": {
+            "content": "pragma experimental solidity;\n\ntype word = __builtin(\"word\");\ntype bool = __builtin(\"bool\");\ntype integer = __builtin(\"integer\");\n\ntype uint256 = word;\n\ninstantiation uint256: + {\n    function add(x, y) -> uint256 {\n        let a = uint256.rep(x);\n        let b = uint256.rep(y);\n        assembly {\n            a := add(a,b)\n        }\n        return uint256.abs(a);\n    }\n}\n\n\ninstantiation uint256: * {\n    function mul(x, y) -> uint256 {\n        let a = uint256.rep(x);\n        let b = uint256.rep(y);\n        assembly {\n            a := mul(a,b)\n        }\n        return uint256.abs(a);\n    }\n}\ninstantiation word: * {\n    function mul(x, y) -> word {\n        let z: word;\n        assembly {\n            z := mul(x,y)\n        }\n        return z;\n    }\n}\n\ninstantiation word: Integer {\n    function fromInteger(x:integer) -> word {\n        //x + x;\n    }\n}\n\ninstantiation word: == {\n    function eq(x, y) -> bool {\n        assembly {\n            x := eq(x, y)\n        }\n    }\n}\n\n\nfunction f(x:uint256->uint256,y:uint256) -> uint256\n{\n    return x(y);\n}\n\nfunction g(x:uint256) -> uint256\n{\n    return x;\n}\n\ncontract C {\n    fallback() external {\n        let arg;\n        assembly {\n            arg := calldataload(0)\n        }\n        let x : word;\n        if (bool.abs(arg)) {\n            assembly {\n                x := 0x10\n            }\n        }\n        let w = uint256.abs(x);\n//        w = f(g, w);\n        w = w * w + w;\n        let y : word;\n        let z : (uint256,uint256);\n        assembly { y := 2 }\n        y = uint256.rep(w) * y;\n        assembly {\n            mstore(0, y)\n            return(0, 32)\n        }\n    }\n}\n// ====\n// EVMVersion: >=constantinople\n// ====\n// compileViaYul: true\n// bytecodeFormat: legacy\n// ----\n// (): 0 -> 0\n// (): 1 -> 544\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "array_copy_storage_abi_signed.sol": {
+            "content": "// NOTE: This does not really test copying from storage to ABI directly,\n// because it will always copy to memory first.\ncontract c {\n    int16[] x;\n\n    function test() public returns (int16[] memory) {\n        x.push(int16(-1));\n        x.push(int16(-1));\n        x.push(int16(8));\n        x.push(int16(-16));\n        x.push(int16(-2));\n        x.push(int16(6));\n        x.push(int16(8));\n        x.push(int16(-1));\n        return x;\n    }\n}\n// ----\n// test() -> 0x20, 0x8, -1, -1, 8, -16, -2, 6, 8, -1\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "create_memory_byte_array.sol": {
+            "content": "contract C {\n    function f() public returns (bytes1) {\n        bytes memory x = new bytes(35);\n        assert(x.length == 35);\n        x[34] = \"A\";\n        return (x[34]);\n    }\n}\n// ----\n// f() -> \"A\"\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

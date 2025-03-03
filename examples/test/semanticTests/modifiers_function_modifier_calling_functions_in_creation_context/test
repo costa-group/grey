@@ -1,0 +1,26 @@
+{
+    "semanticTests/modifiers/function_modifier_calling_functions_in_creation_context.sol": {
+        "bytecode": "60808060405234601b576143005f54175f5560b2908160208239f35b5f80fdfe60808060405260043610156011575f80fd5b5f3560e01c9081633bc5de3014609b575080639942ec6f146083578063aaf05f3d14606a578063c27fc30514606a5763c3f9020214604d575f80fd5b346066575f3660031901126066575f8054614000179055005b5f80fd5b346066575f3660031901126066575f8054610300179055005b346066575f3660031901126066575f80546020179055005b346066575f3660031901126066576020905f548152f3",
+        "contract": ":C",
+        "tests": [
+            {
+                "input": {
+                    "calldata": "",
+                    "value": "0"
+                },
+                "kind": "constructor"
+            },
+            {
+                "input": {
+                    "calldata": "3bc5de30",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "0000000000000000000000000000000000000000000000000000000000004300",
+                    "status": "success"
+                }
+            }
+        ]
+    }
+}

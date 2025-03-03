@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "constructor_inheritance_init_order_3_viaIR.sol": {
+            "content": "contract A {\n    uint public x = 2;\n    constructor(uint) {}\n    function f() public returns(uint) { x = 4; }\n}\ncontract B is A {\n    constructor() A(f()) {}\n}\n// ====\n// compileViaYul: true\n// ----\n// x() -> 2\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "storage_memory_nested.sol": {
+            "content": "contract C {\n    uint72[5][] a;\n\n    function f() public returns (uint72, uint72, uint72, uint72, uint72, uint72, uint72) {\n        for (uint i = 0; i < 4; i++)\n            a.push();\n        a[0][0] = 1;\n        a[0][3] = 2;\n        a[1][1] = 3;\n        a[1][4] = 4;\n        a[2][0] = 5;\n        a[3][2] = 6;\n        a[3][3] = 7;\n        uint72[5][] memory m = a;\n        return (m[0][0], m[0][3], m[1][1], m[1][4], m[2][0], m[3][2], m[3][3]);\n    }\n}\n// ----\n// f() -> 1, 2, 3, 4, 5, 6, 7\n// gas irOptimized: 206440\n// gas legacy: 211758\n// gas legacyOptimized: 211179\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

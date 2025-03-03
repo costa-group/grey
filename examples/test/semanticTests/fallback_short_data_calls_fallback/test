@@ -1,0 +1,125 @@
+{
+    "semanticTests/fallback/short_data_calls_fallback.sol": {
+        "bytecode": "608080604052346013576067908160188239f35b5f80fdfe6080806040526004361015601d575b503460195760025f55005b5f80fd5b5f3560e01c9081630c55699c146050575063d88e0b0014603c575f600e565b346019575f36600319011260195760035f55005b346019575f3660031901126019576020905f548152f3",
+        "contract": ":A",
+        "tests": [
+            {
+                "input": {
+                    "calldata": "",
+                    "value": "0"
+                },
+                "kind": "constructor"
+            },
+            {
+                "input": {
+                    "calldata": "d88e0b",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "",
+                    "status": "success"
+                }
+            },
+            {
+                "input": {
+                    "calldata": "0c55699c",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "0000000000000000000000000000000000000000000000000000000000000002",
+                    "status": "success"
+                }
+            },
+            {
+                "input": {
+                    "calldata": "d88e0b00",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "",
+                    "status": "success"
+                }
+            },
+            {
+                "input": {
+                    "calldata": "0c55699c",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "0000000000000000000000000000000000000000000000000000000000000003",
+                    "status": "success"
+                }
+            },
+            {
+                "input": {
+                    "calldata": "d88e",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "",
+                    "status": "success"
+                }
+            },
+            {
+                "input": {
+                    "calldata": "0c55699c",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "0000000000000000000000000000000000000000000000000000000000000002",
+                    "status": "success"
+                }
+            },
+            {
+                "input": {
+                    "calldata": "d88e0b00",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "",
+                    "status": "success"
+                }
+            },
+            {
+                "input": {
+                    "calldata": "0c55699c",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "0000000000000000000000000000000000000000000000000000000000000003",
+                    "status": "success"
+                }
+            },
+            {
+                "input": {
+                    "calldata": "d8",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "",
+                    "status": "success"
+                }
+            },
+            {
+                "input": {
+                    "calldata": "0c55699c",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "0000000000000000000000000000000000000000000000000000000000000002",
+                    "status": "success"
+                }
+            }
+        ]
+    }
+}

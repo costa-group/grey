@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "packed_storage.sol": {
+            "content": "contract C {\n    uint16 x;\n    bytes1 y;\n    uint16 z;\n    function f(uint8 a) public returns (uint _x) {\n        x = a;\n        y = bytes1(uint8(x) + 1);\n        z = uint8(y) + 1;\n        x = z + 1;\n        _x = x;\n    }\n}\n// ----\n// f(uint8): 6 -> 9\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

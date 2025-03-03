@@ -1,0 +1,37 @@
+{
+    "semanticTests/viaYul/function_selector.sol": {
+        "bytecode": "60808060405234601357608d908160188239f35b5f80fdfe60808060405260043610156011575f80fd5b5f3560e01c90816326121ff0146070575063f46552a514602f575f80fd5b34606c576020366003190112606c5760043567ffffffffffffffff1981168103606c5760405160a09190911b6001600160e01b0319168152602090f35b5f80fd5b34606c575f366003190112606c5763026121ff60e41b8152602090f3",
+        "contract": ":C",
+        "tests": [
+            {
+                "input": {
+                    "calldata": "",
+                    "value": "0"
+                },
+                "kind": "constructor"
+            },
+            {
+                "input": {
+                    "calldata": "26121ff0",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "26121ff000000000000000000000000000000000000000000000000000000000",
+                    "status": "success"
+                }
+            },
+            {
+                "input": {
+                    "calldata": "f46552a51122334400112233445566778899aabbccddeeff424242420000000000000000",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "4242424200000000000000000000000000000000000000000000000000000000",
+                    "status": "success"
+                }
+            }
+        ]
+    }
+}

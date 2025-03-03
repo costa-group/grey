@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "internal_library_function_attached_to_literal.sol": {
+            "content": "library L {\n    function double(uint a) internal pure returns (uint) {\n        return a * 2;\n    }\n\n    function double(bytes memory a) internal pure returns (bytes memory) {\n        return bytes.concat(a, a);\n    }\n}\n\ncontract C {\n    using L for *;\n\n    function double42() public returns (uint) {\n        return 42.double();\n    }\n\n    function doubleABC() public returns (bytes memory) {\n        return \"abc\".double();\n    }\n}\n// ----\n// double42() -> 84\n// doubleABC() -> 0x20, 6, \"abcabc\"\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

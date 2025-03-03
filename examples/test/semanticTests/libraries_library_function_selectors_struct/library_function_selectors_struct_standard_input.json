@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "library_function_selectors_struct.sol": {
+            "content": "pragma abicoder               v2;\nlibrary L {\n    struct S { uint256 a; }\n    function f(S storage s) external returns (uint) { return s.a; }\n    function g(S memory m) public returns (uint) { return m.a; }\n}\ncontract C {\n    L.S s;\n    constructor() { s.a = 42; }\n\n    function f() public returns (bool, bool, uint256) {\n\t\tuint256 s_ptr;\n\t\tassembly { s_ptr := s.slot }\n\t\t(bool success, bytes memory data) = address(L).delegatecall(abi.encodeWithSelector(L.f.selector, s_ptr));\n\t\treturn (L.f.selector == bytes4(keccak256(\"f(L.S storage)\")), success, abi.decode(data, (uint256)));\n    }\n    function g() public returns (bool, bool, uint256) {\n\t\t(bool success, bytes memory data) = address(L).delegatecall(abi.encodeWithSelector(L.g.selector, L.S(23)));\n\t\treturn (L.g.selector == bytes4(keccak256(\"g(L.S)\")), success, abi.decode(data, (uint256)));\n    }\n}\n// ====\n// EVMVersion: >homestead\n// ----\n// library: L\n// f() -> true, true, 42\n// g() -> true, true, 23\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

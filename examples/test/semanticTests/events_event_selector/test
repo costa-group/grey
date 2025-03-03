@@ -1,0 +1,48 @@
+{
+    "semanticTests/events/event_selector.sol": {
+        "bytecode": "60808060405234607b575f5160206101e25f395f51905f525f557e2ff0672f372fbe844b353429d4510ea5e43683af134c54f75f789ff57bc0c06001555f5160206101e25f395f51905f526002555f5160206101e25f395f51905f526003555f5160206101e25f395f51905f5260045561016290816100808239f35b5f80fdfe6080806040526004361015610012575f80fd5b5f3560e01c9081630a8e8e011461012a5750806366e41cb7146100ec57636b59084d1461003d575f80fd5b346100e8575f3660031901126100e85760806040517f92bbf6e823a631f3c8e09b1c8df90f378fb56f7fbc9701827e1ff8aad7f6a02881527e2ff0672f372fbe844b353429d4510ea5e43683af134c54f75f789ff57bc0c060208201527f92bbf6e823a631f3c8e09b1c8df90f378fb56f7fbc9701827e1ff8aad7f6a02860408201527f92bbf6e823a631f3c8e09b1c8df90f378fb56f7fbc9701827e1ff8aad7f6a0286060820152f35b5f80fd5b346100e8575f3660031901126100e85760a05f5460015460025460035490600454926040519485526020850152604084015260608301526080820152f35b346100e8575f3660031901126100e857807f28811f5935c16a099486acb976b3a6b4942950a1425a74e9eb3e9b7f7135e12a60209252f392bbf6e823a631f3c8e09b1c8df90f378fb56f7fbc9701827e1ff8aad7f6a028",
+        "contract": ":C",
+        "tests": [
+            {
+                "input": {
+                    "calldata": "",
+                    "value": "0"
+                },
+                "kind": "constructor"
+            },
+            {
+                "input": {
+                    "calldata": "6b59084d",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "92bbf6e823a631f3c8e09b1c8df90f378fb56f7fbc9701827e1ff8aad7f6a028002ff0672f372fbe844b353429d4510ea5e43683af134c54f75f789ff57bc0c092bbf6e823a631f3c8e09b1c8df90f378fb56f7fbc9701827e1ff8aad7f6a02892bbf6e823a631f3c8e09b1c8df90f378fb56f7fbc9701827e1ff8aad7f6a028",
+                    "status": "success"
+                }
+            },
+            {
+                "input": {
+                    "calldata": "66e41cb7",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "92bbf6e823a631f3c8e09b1c8df90f378fb56f7fbc9701827e1ff8aad7f6a028002ff0672f372fbe844b353429d4510ea5e43683af134c54f75f789ff57bc0c092bbf6e823a631f3c8e09b1c8df90f378fb56f7fbc9701827e1ff8aad7f6a02892bbf6e823a631f3c8e09b1c8df90f378fb56f7fbc9701827e1ff8aad7f6a02892bbf6e823a631f3c8e09b1c8df90f378fb56f7fbc9701827e1ff8aad7f6a028",
+                    "status": "success"
+                }
+            },
+            {
+                "input": {
+                    "calldata": "0a8e8e01",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "28811f5935c16a099486acb976b3a6b4942950a1425a74e9eb3e9b7f7135e12a",
+                    "status": "success"
+                }
+            }
+        ]
+    }
+}

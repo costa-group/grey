@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "code_access_padding.sol": {
+            "content": "contract D {\n    function f() public pure returns (uint256) {\n        return 7;\n    }\n}\n\n\ncontract C {\n    function diff() public pure returns (uint256 remainder) {\n        bytes memory a = type(D).creationCode;\n        bytes memory b = type(D).runtimeCode;\n        assembly {\n            remainder := mod(sub(b, a), 0x20)\n        }\n    }\n}\n// ====\n// bytecodeFormat: legacy\n// ----\n// diff() -> 0 # This checks that the allocation function pads to multiples of 32 bytes #\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

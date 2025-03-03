@@ -1,0 +1,37 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "A": {
+            "content": "contract C {\n\tint private x;\n\tconstructor (int p) public { x = p; }\n\tfunction getX() public returns (int) { return x; }\n}"
+        },
+        "B": {
+            "content": "import \"A\" as M;\n\ncontract D is M.C {\n\tconstructor (int p) M.C(p) public {}\n}\n\ncontract A {\n\tfunction g(int p) public returns (int) {\n\t\tD d = new D{salt: bytes32(uint256(p))}(p);\n\t\treturn d.getX();\n\t}\n}\n// ====\n// EVMVersion: >=constantinople\n// ----\n// g(int256): -1 -> -1\n// gas legacy: 77955\n// gas legacy code: 24200\n// g(int256): 10 -> 10\n// gas legacy: 77583\n// gas legacy code: 24200"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

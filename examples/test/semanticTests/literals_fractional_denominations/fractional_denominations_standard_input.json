@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "fractional_denominations.sol": {
+            "content": "contract C {\n    uint public g = 1.5 gwei;\n    uint public e = 1.5 ether;\n    uint public m = 1.5 minutes;\n    uint public h = 1.5 hours;\n    uint public d = 1.5 days;\n    uint public w = 1.5 weeks;\n}\n// ----\n// g() -> 1500000000\n// e() -> 1500000000000000000\n// m() -> 90\n// h() -> 5400\n// d() -> 129600\n// w() -> 907200\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

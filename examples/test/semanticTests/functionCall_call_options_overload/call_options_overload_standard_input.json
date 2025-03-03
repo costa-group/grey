@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "call_options_overload.sol": {
+            "content": "contract C {\n    function f(uint x) external payable returns (uint) { return 1; }\n    function f(uint x, uint y) external payable returns (uint) { return 2; }\n    function call() public payable returns (uint v, uint x, uint y, uint z) {\n        v = this.f{value: 10}(2);\n        x = this.f{gas: 10000}(2, 3);\n        y = this.f{gas: 10000, value: 10}(2, 3);\n        z = this.f{value: 10, gas: 10000}(2, 3);\n    }\n    function bal() external returns (uint) { return address(this).balance; }\n    receive() external payable {}\n}\n// ====\n// bytecodeFormat: legacy\n// ----\n// (), 1 ether\n// call() -> 1, 2, 2, 2\n// bal() -> 1000000000000000000\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

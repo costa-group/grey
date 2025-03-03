@@ -1,0 +1,26 @@
+{
+    "semanticTests/constructor/store_internal_unused_function_in_constructor.sol": {
+        "bytecode": "608080604052346025575f80546001600160401b031916600117905560669081602a8239f35b5f80fdfe608060405260043610156010575f80fd5b5f3560e01c6392d0d153146022575f80fd5b346062575f36600319011260625767ffffffffffffffff5f5416600114605657634e487b7160e01b5f52605160045260245ffd5b60206007604051908152f35b5f80fd",
+        "contract": ":C",
+        "tests": [
+            {
+                "input": {
+                    "calldata": "",
+                    "value": "0"
+                },
+                "kind": "constructor"
+            },
+            {
+                "input": {
+                    "calldata": "92d0d153",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "0000000000000000000000000000000000000000000000000000000000000007",
+                    "status": "success"
+                }
+            }
+        ]
+    }
+}

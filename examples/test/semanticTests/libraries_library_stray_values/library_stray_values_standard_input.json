@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "library_stray_values.sol": {
+            "content": "library Lib { function m(uint x, uint y) public returns (uint) { return x * y; } }\ncontract Test {\n    function f(uint x) public returns (uint) {\n        Lib;\n        Lib.m;\n        return x + 9;\n    }\n}\n// ----\n// library: Lib\n// f(uint256): 33 -> 0x2a\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

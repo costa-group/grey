@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "abi_functions_member_access.sol": {
+            "content": "contract C {\n    function f() public pure {\n        abi.encode;\n        abi.encodePacked;\n        abi.encodeWithSelector;\n        abi.encodeWithSignature;\n        abi.decode;\n    }\n}\n// ----\n// f() ->\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

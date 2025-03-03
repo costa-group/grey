@@ -1,0 +1,26 @@
+{
+    "semanticTests/libraries/internal_call_unattached_with_parentheses.sol": {
+        "bytecode": "60808060405234601357603f908160188239f35b5f80fdfe608060405260043610156010575f80fd5b5f3560e01c63c2985578146022575f80fd5b34603b575f366003190112603b57602060405160038152f35b5f80fd",
+        "contract": ":C",
+        "tests": [
+            {
+                "input": {
+                    "calldata": "",
+                    "value": "0"
+                },
+                "kind": "constructor"
+            },
+            {
+                "input": {
+                    "calldata": "c2985578",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "0000000000000000000000000000000000000000000000000000000000000003",
+                    "status": "success"
+                }
+            }
+        ]
+    }
+}

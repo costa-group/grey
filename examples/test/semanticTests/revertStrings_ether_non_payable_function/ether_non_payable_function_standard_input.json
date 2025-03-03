@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "ether_non_payable_function.sol": {
+            "content": "contract C {\n\tfunction f() public {}\n}\n// ====\n// EVMVersion: >=byzantium\n// revertStrings: debug\n// ----\n// f(), 1 ether -> FAILURE, hex\"08c379a0\", 0x20, 34, \"Ether sent to non-payable functi\", \"on\"\n// () -> FAILURE, hex\"08c379a0\", 0x20, 53, \"Contract does not have fallback \", \"nor receive functions\"\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

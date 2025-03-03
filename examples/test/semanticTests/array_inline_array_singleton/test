@@ -1,0 +1,26 @@
+{
+    "semanticTests/array/inline_array_singleton.sol": {
+        "bytecode": "60808060405234601357606f908160188239f35b5f80fdfe60806004361015600d575f80fd5b5f3560e01c6326121ff014601f575f80fd5b34606b575f366003190112606b576020810181811067ffffffffffffffff821117605757604090815260049182905251908152602090f35b634e487b7160e01b5f52604160045260245ffd5b5f80fd",
+        "contract": ":C",
+        "tests": [
+            {
+                "input": {
+                    "calldata": "",
+                    "value": "0"
+                },
+                "kind": "constructor"
+            },
+            {
+                "input": {
+                    "calldata": "26121ff0",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "0000000000000000000000000000000000000000000000000000000000000004",
+                    "status": "success"
+                }
+            }
+        ]
+    }
+}

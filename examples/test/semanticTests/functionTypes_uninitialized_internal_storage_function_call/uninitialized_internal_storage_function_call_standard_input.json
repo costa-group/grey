@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "uninitialized_internal_storage_function_call.sol": {
+            "content": "contract Test {\n    function() internal x;\n\n    function f() public returns (uint256 r) {\n        x();\n        return 2;\n    }\n}\n// ----\n// f() -> FAILURE, hex\"4e487b71\", 0x51\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

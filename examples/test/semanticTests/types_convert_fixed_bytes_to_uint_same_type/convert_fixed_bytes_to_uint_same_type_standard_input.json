@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "convert_fixed_bytes_to_uint_same_type.sol": {
+            "content": "contract Test {\n    function bytesToUint(bytes32 s) public returns (uint256 h) {\n        return uint(s);\n    }\n}\n// ----\n// bytesToUint(bytes32): \"abc2\" -> left(0x61626332)\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

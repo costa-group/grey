@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "external_public_calldata.sol": {
+            "content": "abstract contract A {\n    function f(uint256[] calldata a) external virtual returns (uint256[] calldata);\n}\n\ncontract B is A {\n    function f(uint256[] memory a) public override returns (uint256[] memory) {\n        return a;\n    }\n\n    function g(uint[] calldata x) public returns (uint256[] memory) {\n        return f(x);\n    }\n}\n// ====\n// compileViaYul: also\n// ----\n// f(uint256[]): 0x20, 2, 9, 8 -> 0x20, 2, 9, 8\n// g(uint256[]): 0x20, 2, 9, 8 -> 0x20, 2, 9, 8\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

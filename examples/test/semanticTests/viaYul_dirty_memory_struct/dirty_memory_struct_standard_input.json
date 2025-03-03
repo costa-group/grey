@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "dirty_memory_struct.sol": {
+            "content": "contract C {\n    struct S {\n        uint8[] m;\n    }\n    function f() public pure returns (bool correct) {\n        S memory s;\n        s.m = new uint8[](1);\n        assembly {\n            mstore(add(s, 64), 257)\n        }\n        uint8 x = s.m[0];\n        uint r;\n        assembly {\n            r := x\n        }\n        correct = r == 0x01;\n    }\n}\n// ====\n// compileViaYul: true\n// ----\n// f() -> true\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "calldata_offset_read.sol": {
+            "content": "contract C {\n    function f(bytes calldata x) public returns (uint r) {\n        assembly { r := x.offset }\n    }\n\n    function f(uint, bytes calldata x, uint) public returns (uint r, uint v) {\n        assembly {\n            r := x.offset\n            v := x.length\n        }\n    }\n}\n// ----\n// f(bytes): 0x20, 0, 0 -> 0x44\n// f(bytes): 0x22, 0, 0, 0 -> 0x46\n// f(uint256,bytes,uint256): 7, 0x60, 8, 2, 0 -> 0x84, 2\n// f(uint256,bytes,uint256): 0, 0, 0 -> 0x24, 0x00\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

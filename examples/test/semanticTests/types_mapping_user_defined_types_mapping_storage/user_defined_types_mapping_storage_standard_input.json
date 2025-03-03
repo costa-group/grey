@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "user_defined_types_mapping_storage.sol": {
+            "content": "type A is uint;\ntype B is uint;\n\nlibrary L {\n  function f(mapping(A=>B) storage _m, B _v) public { _m[A.wrap(uint(2))] = _v; }\n  function f(mapping(uint=>uint) storage _m, uint _v) public { _m[uint(3)] = _v; }\n}\n\ncontract C {\n\tmapping(uint=>uint) uintMap;\n\tmapping(A=>B) abMap;\n\n\tfunction testAB() public returns (bool) {\n\t\tL.f(abMap, B.wrap(3));\n\t\treturn B.unwrap(abMap[A.wrap(uint(2))]) == 3;\n\t}\n\tfunction testUint() public returns (bool) {\n\t\tL.f(uintMap, 4);\n\t\treturn uintMap[3] == 4;\n\t}\n}\n// ----\n// library: L\n// testAB() -> true\n// testUint() -> true\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

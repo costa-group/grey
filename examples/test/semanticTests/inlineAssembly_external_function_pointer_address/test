@@ -1,0 +1,37 @@
+{
+    "semanticTests/inlineAssembly/external_function_pointer_address.sol": {
+        "bytecode": "608080604052346013576068908160188239f35b5f80fdfe608060405260043610156010575f80fd5b5f3560e01c8063e16b4a9b14603a578063eda107c01460365763fc1249ee146036575f80fd5b604e565b34604a575f366003190112604a57005b5f80fd5b34604a575f366003190112604a5760206040516112348152f3",
+        "contract": ":C",
+        "tests": [
+            {
+                "input": {
+                    "calldata": "",
+                    "value": "0"
+                },
+                "kind": "constructor"
+            },
+            {
+                "input": {
+                    "calldata": "fc1249ee",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "0000000000000000000000000000000000000000000000000000000000001234",
+                    "status": "success"
+                }
+            },
+            {
+                "input": {
+                    "calldata": "eda107c0",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "0000000000000000000000000000000000000000000000000000000000001234",
+                    "status": "success"
+                }
+            }
+        ]
+    }
+}

@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "cleanup_during_multi_element_per_slot_copy.sol": {
+            "content": "contract C {\n    uint32[] s;\n    constructor()\n    {\n        s.push();\n        s.push();\n    }\n    function f() external returns (uint)\n    {\n        (s[1], s) = (4, [0]);\n        s = [0];\n        s.push();\n        return s[1];\n        // used to return 4 via IR.\n    }\n}\n// ----\n// constructor()\n// gas irOptimized: 90065\n// gas irOptimized code: 149000\n// gas legacy: 89553\n// gas legacy code: 126200\n// gas legacyOptimized: 83556\n// gas legacyOptimized code: 98200\n// f() -> 0\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

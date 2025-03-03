@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "calldata_struct_member_offset.sol": {
+            "content": "pragma abicoder               v2;\n\ncontract C {\n    struct A {\n        uint256 a;\n        uint256[] b;\n    }\n    struct B {\n        A a;\n        uint256 b;\n    }\n    function g(B calldata b) external pure returns(uint256) {\n        return b.b;\n    }\n    function f() public view returns(uint256, uint256) {\n        uint256[] memory arr = new uint256[](20);\n        arr[0] = 31; arr[2] = 84;\n        B memory b = B(A(420, arr), 11);\n        return (b.b, this.g(b));\n    }\n}\n// ----\n// f() -> 11, 11\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

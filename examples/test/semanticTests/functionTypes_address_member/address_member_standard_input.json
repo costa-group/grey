@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "address_member.sol": {
+            "content": "contract C {\n    function f() public view returns (address a1, address a2) {\n        a1 = C(address(0x1234)).f.address;\n        C(address(0x1234)).f.address;\n        [C(address(0x1234)).f.address][0];\n        a2 = [C(address(0x1234)).f.address][0];\n    }\n}\n// ----\n// f() -> 0x1234, 0x1234\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

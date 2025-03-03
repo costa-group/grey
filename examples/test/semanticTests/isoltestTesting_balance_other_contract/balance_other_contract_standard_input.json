@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "balance_other_contract.sol": {
+            "content": "contract C {\n    constructor() payable {\n        payable(address(0x1234)).transfer(500);\n    }\n}\n// ----\n// constructor(), 2000 wei ->\n// balance -> 1500\n// balance: 0x0000000000000000000000000000000000001234 -> 500\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

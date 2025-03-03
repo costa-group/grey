@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "abi_encode_call_special_args.sol": {
+            "content": "pragma abicoder v2;\n\ncontract C {\n\tbool sideEffectRan = false;\n\n\tfunction fNoArgs() external {}\n\tfunction fArray(uint[] memory x) external {}\n\tfunction fUint(uint x, uint y) external returns (uint a, uint b) {}\n\n\tfunction fSignatureFromLiteralNoArgs() public pure returns (bytes memory) {\n\t\treturn abi.encodeWithSignature(\"fNoArgs()\");\n\t}\n\tfunction fPointerNoArgs() public view returns (bytes memory) {\n\t\treturn abi.encodeCall(this.fNoArgs, ());\n\t}\n\n\tfunction fSignatureFromLiteralArray() public pure returns (bytes memory) {\n\t\tuint[] memory x;\n\t\treturn abi.encodeWithSignature(\"fArray(uint256[])\", x);\n\t}\n\tfunction fPointerArray() public view returns (bytes memory) {\n\t\tuint[] memory x;\n\t\treturn abi.encodeCall(this.fArray, x);\n\t}\n\n\tfunction fSignatureFromLiteralUint() public pure returns (bytes memory) {\n\t\treturn abi.encodeWithSignature(\"fUint(uint256,uint256)\", 12, 13);\n\t}\n\tfunction fPointerUint() public view returns (bytes memory) {\n\t\treturn abi.encodeCall(this.fUint, (12,13));\n\t}\n\n\tfunction assertConsistentSelectors() public view {\n\t\tassert(keccak256(fSignatureFromLiteralNoArgs()) == keccak256(fPointerNoArgs()));\n\t\tassert(keccak256(fSignatureFromLiteralArray()) == keccak256(fPointerArray()));\n\t\tassert(keccak256(fSignatureFromLiteralUint()) == keccak256(fPointerUint()));\n\t}\n}\n// ----\n// assertConsistentSelectors() ->\n// fSignatureFromLiteralNoArgs() -> 0x20, 0x04, 12200448252684243758085936796735499259670113115893304444050964496075123064832\n// fPointerNoArgs() -> 0x20, 4, 12200448252684243758085936796735499259670113115893304444050964496075123064832\n// fSignatureFromLiteralArray() -> 0x20, 0x44, 4612216551196396486909126966576324289294165774260092952932219511233230929920, 862718293348820473429344482784628181556388621521298319395315527974912, 0\n// fPointerArray() -> 0x20, 0x44, 4612216551196396486909126966576324289294165774260092952932219511233230929920, 862718293348820473429344482784628181556388621521298319395315527974912, 0\n// fPointerUint() -> 0x20, 0x44, 30372892641494467502622535050667754357470287521126424526399600764424271429632, 323519360005807677536004181044235568083645733070486869773243322990592, 350479306672958317330671196131255198757282877493027442254346933239808\n// fSignatureFromLiteralUint() -> 0x20, 0x44, 30372892641494467502622535050667754357470287521126424526399600764424271429632, 323519360005807677536004181044235568083645733070486869773243322990592, 350479306672958317330671196131255198757282877493027442254346933239808\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

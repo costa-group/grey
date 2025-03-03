@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "no_callvalue_check.sol": {
+            "content": "contract A1 {}\ncontract B1 is A1 { constructor() payable {} }\n\ncontract A2 { constructor() {} }\ncontract B2 is A2 { constructor() payable {} }\n\ncontract B3 { constructor() payable {} }\n\ncontract C {\n\tfunction f() public payable returns (bool) {\n\t\t// Make sure none of these revert.\n\t\tnew B1{value: 10, salt: hex\"00\"}();\n\t\tnew B2{value: 10, salt: hex\"01\"}();\n\t\tnew B3{value: 10, salt: hex\"02\"}();\n\t\treturn true;\n\t}\n}\n// ====\n// EVMVersion: >=constantinople\n// ----\n// f(), 2000 ether -> true\n// gas irOptimized: 117688\n// gas irOptimized code: 1800\n// gas legacy: 117889\n// gas legacy code: 4800\n// gas legacyOptimized: 117761\n// gas legacyOptimized code: 4800\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

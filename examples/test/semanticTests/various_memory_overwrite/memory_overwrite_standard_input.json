@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "memory_overwrite.sol": {
+            "content": "contract C {\n    function f() public returns (bytes memory x) {\n        x = \"12345\";\n        x[3] = 0x61;\n        x[0] = 0x62;\n    }\n}\n// ----\n// f() -> 0x20, 5, \"b23a5\"\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

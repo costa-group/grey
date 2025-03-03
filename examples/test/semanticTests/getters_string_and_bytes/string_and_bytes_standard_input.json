@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "string_and_bytes.sol": {
+            "content": "contract C {\n    string public a;\n    string public b;\n    bytes public c;\n    string public d = \"abcd\";\n    constructor() {\n        a = \"hello world\";\n        b = hex\"41424344\";\n        c = hex\"ff077fff\";\n    }\n}\n// ----\n// a() -> 0x20, 11, \"hello world\"\n// b() -> 0x20, 4, \"ABCD\"\n// c() -> 0x20, 4, -439061522557375173052089223601630338202760422010735733633791622124826263552\n// d() -> 0x20, 4, \"abcd\"\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

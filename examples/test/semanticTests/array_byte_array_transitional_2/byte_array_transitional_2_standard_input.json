@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "byte_array_transitional_2.sol": {
+            "content": "// Tests transition between short and long encoding both ways\ncontract c {\n    bytes data;\n\n    function test() public returns (uint256) {\n        for (uint8 i = 0; i < 33; i++) {\n            data.push(bytes1(i));\n        }\n        for (uint8 i = 0; i < data.length; i++)\n            if (data[i] != bytes1(i)) return i;\n        data.pop();\n        data.pop();\n        for (uint8 i = 0; i < data.length; i++)\n            if (data[i] != bytes1(i)) return i;\n        return 0;\n    }\n}\n// ----\n// test() -> 0\n// gas irOptimized: 122717\n// gas legacy: 147108\n// gas legacyOptimized: 144200\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

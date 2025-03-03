@@ -1,0 +1,59 @@
+{
+    "semanticTests/abiEncoderV2/struct/struct_validation.sol": {
+        "bytecode": "60808060405234601357609c908160188239f35b5f80fdfe6004361015600b575f80fd5b5f3560e01c639a869a7414601d575f80fd5b34607357606036600319011260735760e06040526004358060010b810360735760805260466077565b60a052604f6086565b60c081905260805160a05160e091909152610100526101205260df196101400160e0f35b5f80fd5b6024359060ff82168203607357565b604435906001600160f01b03198216820360735756",
+        "contract": ":C",
+        "tests": [
+            {
+                "input": {
+                    "calldata": "",
+                    "value": "0"
+                },
+                "kind": "constructor"
+            },
+            {
+                "input": {
+                    "calldata": "9a869a74ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff0100000000000000000000000000000000000000000000000000000000000000ff6162000000000000000000000000000000000000000000000000000000000000",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff0100000000000000000000000000000000000000000000000000000000000000ff6162000000000000000000000000000000000000000000000000000000000000",
+                    "status": "success"
+                }
+            },
+            {
+                "input": {
+                    "calldata": "9a869a7400000000000000000000000000000000000000000000000000000000000ff01000000000000000000000000000000000000000000000000000000000000000ff6162000000000000000000000000000000000000000000000000000000000000",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "",
+                    "status": "failure"
+                }
+            },
+            {
+                "input": {
+                    "calldata": "9a869a74ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff010000000000000000000000000000000000000000000000000000000000ff00026162000000000000000000000000000000000000000000000000000000000000",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "",
+                    "status": "failure"
+                }
+            },
+            {
+                "input": {
+                    "calldata": "9a869a74ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff0100000000000000000000000000000000000000000000000000000000000000ff6162636400000000000000000000000000000000000000000000000000000000",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "",
+                    "status": "failure"
+                }
+            }
+        ]
+    }
+}

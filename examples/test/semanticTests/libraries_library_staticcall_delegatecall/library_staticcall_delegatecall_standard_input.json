@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "library_staticcall_delegatecall.sol": {
+            "content": "library Lib {\n    function x() public view returns (uint) {\n        return 1;\n    }\n}\ncontract Test {\n    uint t;\n    function f() public returns (uint) {\n        t = 2;\n        return this.g();\n    }\n    function g() public view returns (uint) {\n        return Lib.x();\n    }\n}\n// ----\n// library: Lib\n// f() -> 1\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

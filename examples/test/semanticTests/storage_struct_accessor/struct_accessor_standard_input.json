@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "struct_accessor.sol": {
+            "content": "contract test {\n    struct Data { uint a; uint8 b; mapping(uint => uint) c; bool d; }\n    mapping(uint => Data) public data;\n    constructor() {\n        data[7].a = 1;\n        data[7].b = 2;\n        data[7].c[0] = 3;\n        data[7].d = true;\n    }\n}\n// ----\n// data(uint256): 7 -> 1, 2, true\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "exp_operator_const_signed.sol": {
+            "content": "contract test {\n    function f() public returns(int d) { return (-2) ** 3; }\n}\n// ----\n// f() -> -8\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

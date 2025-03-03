@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "failing_ecrecover_invalid_input.sol": {
+            "content": "contract C {\n    // ecrecover should return zero for malformed input\n    // (v should be 27 or 28, not 1)\n    // Note that the precompile does not return zero but returns nothing.\n    function f() public returns (address) {\n        return ecrecover(bytes32(type(uint256).max), 1, bytes32(uint(2)), bytes32(uint(3)));\n    }\n}\n// ----\n// f() -> 0\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

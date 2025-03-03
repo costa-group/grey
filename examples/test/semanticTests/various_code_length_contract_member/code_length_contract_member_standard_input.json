@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "code_length_contract_member.sol": {
+            "content": "// Test to see if type.code.length does extcodesize(type) only when type is an address.\nstruct S {\n    bytes32 code;\n    bytes32 another;\n}\n\ncontract C {\n    S s;\n\n    function f() public returns (uint, uint, bool) {\n        return (s.code.length, s.another.length, address(this).code.length > 50);\n    }\n}\n// ====\n// bytecodeFormat: legacy\n// ----\n// f() -> 0x20, 0x20, true\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

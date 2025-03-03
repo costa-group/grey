@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "bytes_concat_empty_strings.sol": {
+            "content": "contract C {\n    function f() public returns (bytes memory) {\n        bytes memory b = \"\";\n        return bytes.concat(\n            bytes.concat(b),\n            bytes.concat(b, b),\n            bytes.concat(\"\", b),\n            bytes.concat(b, \"\")\n        );\n    }\n\n    function g() public returns (bytes memory) {\n        return bytes.concat(\"\", \"abc\", hex\"\", \"abc\", unicode\"\");\n    }\n\n    function h() public returns (bytes memory) {\n        bytes memory b = \"\";\n        return bytes.concat(b, \"abc\", b, \"abc\", b);\n    }\n}\n// ----\n// f() -> 0x20, 0\n// g() -> 0x20, 6, \"abcabc\"\n// h() -> 0x20, 6, \"abcabc\"\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

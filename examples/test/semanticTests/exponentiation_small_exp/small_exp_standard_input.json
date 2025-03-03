@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "small_exp.sol": {
+            "content": "contract test {\n    function f() public pure returns (uint r) {\n        uint32 x;\n        uint8 y;\n        assembly {\n            x := 0xfffffffffe\n            y := 0x102\n        }\n        unchecked { r = x**y; }\n        return r;\n    }\n}\n// ----\n// f() -> 4\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

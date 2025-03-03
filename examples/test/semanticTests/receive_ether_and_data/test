@@ -1,0 +1,37 @@
+{
+    "semanticTests/receive/ether_and_data.sol": {
+        "bytecode": "60808060405234601357600a908160188239f35b5f80fdfe36156008575f80fd5b00",
+        "contract": ":C",
+        "tests": [
+            {
+                "input": {
+                    "calldata": "",
+                    "value": "0"
+                },
+                "kind": "constructor"
+            },
+            {
+                "input": {
+                    "calldata": "",
+                    "value": "1000000000000000000"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "",
+                    "status": "success"
+                }
+            },
+            {
+                "input": {
+                    "calldata": "0000000000000000000000000000000000000000000000000000000000000001",
+                    "value": "1000000000000000000"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "",
+                    "status": "failure"
+                }
+            }
+        ]
+    }
+}

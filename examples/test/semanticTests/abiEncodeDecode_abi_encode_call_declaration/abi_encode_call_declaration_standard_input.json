@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "abi_encode_call_declaration.sol": {
+            "content": "pragma abicoder v2;\n\ncontract X {\n    // no \"returns\" on purpose\n    function a(uint) public pure {}\n    function b(uint) external pure {}\n}\n\ncontract Base {\n    function a(uint x) external pure returns (uint) { return x + 1; }\n}\n\ncontract C is Base {\n\tfunction test() public view returns (uint r) {\n        bool success;\n        bytes memory result;\n        (success, result) = address(this).staticcall(abi.encodeCall(X.a, 1));\n        require(success && result.length == 32);\n        r += abi.decode(result, (uint));\n        require(r == 2);\n\n        (success, result) = address(this).staticcall(abi.encodeCall(X.b, 10));\n        require(success && result.length == 32);\n        r += abi.decode(result, (uint));\n        require(r == 13);\n\n        (success, result) = address(this).staticcall(abi.encodeCall(Base.a, 100));\n        require(success && result.length == 32);\n        r += abi.decode(result, (uint));\n        require(r == 114);\n\n        (success, result) = address(this).staticcall(abi.encodeCall(this.a, 1000));\n        require(success && result.length == 32);\n        r += abi.decode(result, (uint));\n        require(r == 1115);\n\n        (success, result) = address(this).staticcall(abi.encodeCall(C.b, 10000));\n        require(success && result.length == 32);\n        r += abi.decode(result, (uint));\n        require(r == 11116);\n\n        return r;\n\t}\n    function b(uint x) external view returns (uint) {\n        return this.a(x);\n    }\n\n}\n// ====\n// EVMVersion: >=byzantium\n// ----\n// test() -> 11116\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

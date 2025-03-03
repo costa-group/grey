@@ -1,0 +1,59 @@
+{
+    "semanticTests/inheritance/base_access_to_function_type_variables.sol": {
+        "bytecode": "6080806040523460135760b6908160188239f35b5f80fdfe608060405260043610156010575f80fd5b5f3560e01c8063b8c9d365146076578063b8e010de1460535763e2179b8e146036575f80fd5b34604f575f366003190112604f57602060405160028152f35b5f80fd5b34604f575f366003190112604f575f805467ffffffffffffffff19166001179055005b34604f575f366003190112604f5767ffffffffffffffff5f541660011460aa57634e487b7160e01b5f52605160045260245ffd5b60206002604051908152f3",
+        "contract": ":C",
+        "tests": [
+            {
+                "input": {
+                    "calldata": "",
+                    "value": "0"
+                },
+                "kind": "constructor"
+            },
+            {
+                "input": {
+                    "calldata": "e2179b8e",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "0000000000000000000000000000000000000000000000000000000000000002",
+                    "status": "success"
+                }
+            },
+            {
+                "input": {
+                    "calldata": "b8c9d365",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "4e487b710000000000000000000000000000000000000000000000000000000000000051",
+                    "status": "failure"
+                }
+            },
+            {
+                "input": {
+                    "calldata": "b8e010de",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "",
+                    "status": "success"
+                }
+            },
+            {
+                "input": {
+                    "calldata": "b8c9d365",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "0000000000000000000000000000000000000000000000000000000000000002",
+                    "status": "success"
+                }
+            }
+        ]
+    }
+}

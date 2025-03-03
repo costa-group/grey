@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "exp_cleanup.sol": {
+            "content": "contract C {\n    function f() public pure returns (uint x) {\n        unchecked {\n            uint8 y = uint8(2)**uint8(8);\n            return 0**y;\n        }\n    }\n}\n// ----\n// f() -> 0x1\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

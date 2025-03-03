@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "optimize_memory_store_multi_block.sol": {
+            "content": "contract C {\n\tfunction f() external returns (uint256 x) {\n\t\tassembly {\n\t\t\tmstore(0, 0x42)\n\t\t}\n\t\tassembly {\n\t\t\tx := mload(0)\n\t\t}\n\t}\n\tfunction g() external returns (bool) {\n\t\tuint initialFreeMemoryPointer;\n\t\tassembly {\n\t\t\tinitialFreeMemoryPointer := mload(0x40)\n\t\t}\n\t\tassembly {\n\t\t\tlet ptr := mload(0x40)\n\t\t\tmstore(0x40, add(ptr, 0x20))\n\t\t}\n\t\tuint finalFreeMemoryPointer;\n\t\tassembly {\n\t\t\tfinalFreeMemoryPointer := mload(0x40)\n\t\t}\n\t\tassert(initialFreeMemoryPointer != finalFreeMemoryPointer);\n\t\treturn true;\n\t}\n}\n// ----\n// f() -> 0x42\n// g() -> true\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

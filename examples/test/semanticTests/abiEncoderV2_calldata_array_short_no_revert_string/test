@@ -1,0 +1,48 @@
+{
+    "semanticTests/abiEncoderV2/calldata_array_short_no_revert_string.sol": {
+        "bytecode": "60808060405234601357606f908160188239f35b5f80fdfe6004361015600b575f80fd5b5f3560e01c637bc5bbbf14601d575f80fd5b34606b576020366003190112606b5760043567ffffffffffffffff8111606b5736602382011215606b5780600401359067ffffffffffffffff8211606b57602490369260051b010111606b57005b5f80fd",
+        "contract": ":C",
+        "tests": [
+            {
+                "input": {
+                    "calldata": "",
+                    "value": "0"
+                },
+                "kind": "constructor"
+            },
+            {
+                "input": {
+                    "calldata": "7bc5bbbf00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000000",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "",
+                    "status": "success"
+                }
+            },
+            {
+                "input": {
+                    "calldata": "7bc5bbbf00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000001",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "",
+                    "status": "failure"
+                }
+            },
+            {
+                "input": {
+                    "calldata": "7bc5bbbf00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000002",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "",
+                    "status": "failure"
+                }
+            }
+        ]
+    }
+}

@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "empty_nonempty_empty.sol": {
+            "content": "contract Test {\n    bytes x;\n    function set(bytes memory _a) public { x = _a; }\n}\n// ----\n// set(bytes): 0x20, 3, \"abc\"\n// storageEmpty -> 0\n// set(bytes): 0x20, 0\n// storageEmpty -> 1\n// set(bytes): 0x20, 31, \"1234567890123456789012345678901\"\n// storageEmpty -> 0\n// set(bytes): 0x20, 36, \"12345678901234567890123456789012\", \"XXXX\"\n// storageEmpty -> 0\n// set(bytes): 0x20, 3, \"abc\"\n// storageEmpty -> 0\n// set(bytes): 0x20, 0\n// storageEmpty -> 1\n// set(bytes): 0x20, 3, \"abc\"\n// storageEmpty -> 0\n// set(bytes): 0x20, 36, \"12345678901234567890123456789012\", \"XXXX\"\n// storageEmpty -> 0\n// set(bytes): 0x20, 0\n// storageEmpty -> 1\n// set(bytes): 0x20, 66, \"12345678901234567890123456789012\", \"12345678901234567890123456789012\", \"12\"\n// gas irOptimized: 111849\n// gas legacy: 112734\n// gas legacyOptimized: 112084\n// storageEmpty -> 0\n// set(bytes): 0x20, 3, \"abc\"\n// storageEmpty -> 0\n// set(bytes): 0x20, 0\n// storageEmpty -> 1\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

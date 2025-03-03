@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "single_copy_with_multiple_inheritance.sol": {
+            "content": "contract Base {\n    uint256 data;\n\n    function setData(uint256 i) public {\n        data = i;\n    }\n\n    function getViaBase() public returns (uint256 i) {\n        return data;\n    }\n}\n\n\ncontract A is Base {\n    function setViaA(uint256 i) public {\n        setData(i);\n    }\n}\n\n\ncontract B is Base {\n    function getViaB() public returns (uint256 i) {\n        return getViaBase();\n    }\n}\n\n\ncontract Derived is Base, B, A {}\n// ----\n// getViaB() -> 0\n// setViaA(uint256): 23 ->\n// getViaB() -> 23\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

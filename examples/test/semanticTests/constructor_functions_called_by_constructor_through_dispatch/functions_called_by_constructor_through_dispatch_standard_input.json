@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "functions_called_by_constructor_through_dispatch.sol": {
+            "content": "contract Test {\n    bytes6 name;\n\n    constructor() {\n        function (bytes6 _name) internal setter = setName;\n        setter(\"abcdef\");\n\n        applyShift(leftByteShift, 3);\n    }\n\n    function getName() public returns (bytes6 ret) {\n        return name;\n    }\n\n    function setName(bytes6 _name) private {\n        name = _name;\n    }\n\n    function leftByteShift(bytes6 _value, uint _shift) public returns (bytes6) {\n        return _value << _shift * 8;\n    }\n\n    function applyShift(function (bytes6 _value, uint _shift) internal returns (bytes6) _shiftOperator, uint _bytes) internal {\n        name = _shiftOperator(name, _bytes);\n    }\n}\n// ====\n// bytecodeFormat: legacy,>=EOFv1\n// ----\n// getName() -> \"def\\x00\\x00\\x00\"\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

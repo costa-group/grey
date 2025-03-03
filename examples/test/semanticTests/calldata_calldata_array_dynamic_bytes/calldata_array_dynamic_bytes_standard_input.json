@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "calldata_array_dynamic_bytes.sol": {
+            "content": "pragma abicoder               v2;\n\n\ncontract C {\n    function f1(bytes[1] calldata a)\n        external\n        returns (uint256, uint256, uint256, uint256)\n    {\n        return (a[0].length, uint8(a[0][0]), uint8(a[0][1]), uint8(a[0][2]));\n    }\n\n    function f2(bytes[1] calldata a, bytes[1] calldata b)\n        external\n        returns (uint256, uint256, uint256, uint256, uint256, uint256, uint256)\n    {\n        return (\n            a[0].length,\n            uint8(a[0][0]),\n            uint8(a[0][1]),\n            uint8(a[0][2]),\n            b[0].length,\n            uint8(b[0][0]),\n            uint8(b[0][1])\n        );\n    }\n\n    function g1(bytes[2] calldata a)\n        external\n        returns (\n            uint256,\n            uint256,\n            uint256,\n            uint256,\n            uint256,\n            uint256,\n            uint256,\n            uint256\n        )\n    {\n        return (\n            a[0].length,\n            uint8(a[0][0]),\n            uint8(a[0][1]),\n            uint8(a[0][2]),\n            a[1].length,\n            uint8(a[1][0]),\n            uint8(a[1][1]),\n            uint8(a[1][2])\n        );\n    }\n\n    function g2(bytes[] calldata a) external returns (uint256[8] memory) {\n        return [\n            a.length,\n            a[0].length,\n            uint8(a[0][0]),\n            uint8(a[0][1]),\n            a[1].length,\n            uint8(a[1][0]),\n            uint8(a[1][1]),\n            uint8(a[1][2])\n        ];\n    }\n}\n\n// via yul disabled because of stack issues.\n\n// ====\n// compileViaYul: false\n// ----\n// f1(bytes[1]): 0x20, 0x20, 0x3, hex\"0102030000000000000000000000000000000000000000000000000000000000\" -> 0x3, 0x1, 0x2, 0x3\n// f2(bytes[1],bytes[1]): 0x40, 0xa0, 0x20, 0x3, hex\"0102030000000000000000000000000000000000000000000000000000000000\", 0x20, 0x2, hex\"0102000000000000000000000000000000000000000000000000000000000000\" -> 0x3, 0x1, 0x2, 0x3, 0x2, 0x1, 0x2\n// g1(bytes[2]): 0x20, 0x40, 0x80, 0x3, hex\"0102030000000000000000000000000000000000000000000000000000000000\", 0x3, hex\"0405060000000000000000000000000000000000000000000000000000000000\" -> 0x3, 0x1, 0x2, 0x3, 0x3, 0x4, 0x5, 0x6\n// g1(bytes[2]): 0x20, 0x40, 0x40, 0x3, hex\"0102030000000000000000000000000000000000000000000000000000000000\" -> 0x3, 0x1, 0x2, 0x3, 0x3, 0x1, 0x2, 0x3\n// g2(bytes[]): 0x20, 0x2, 0x40, 0x80, 0x2, hex\"0102000000000000000000000000000000000000000000000000000000000000\", 0x3, hex\"0405060000000000000000000000000000000000000000000000000000000000\" -> 0x2, 0x2, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "array_of_struct_calldata_to_memory.sol": {
+            "content": "pragma abicoder v2;\n\ncontract C {\n    struct S {\n        uint128 a;\n        uint64 b;\n        uint128 c;\n    }\n    function f(S[3] calldata c) public returns (uint128, uint64, uint128) {\n        S[3] memory m = c;\n        return (m[2].a, m[1].b, m[0].c);\n    }\n    function g(S[] calldata c) public returns (uint128, uint64, uint128) {\n        S[] memory m = c;\n        return (m[2].a, m[1].b, m[0].c);\n    }\n}\n// ----\n// f((uint128,uint64,uint128)[3]): 0, 0, 12, 0, 11, 0, 10, 0, 0 -> 10, 11, 12\n// g((uint128,uint64,uint128)[]): 0x20, 3, 0, 0, 12, 0, 11, 0, 10, 0, 0 -> 10, 11, 12\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "access_through_contract_name.sol": {
+            "content": "contract A {\n    uint public x = 7;\n    modifier m virtual { x = 2; _; }\n}\ncontract C is A {\n    modifier m override { x = 1; _; }\n\n    function f() public A.m returns (uint) {\n        return 9;\n    }\n    function g() public m returns (uint) {\n        return 10;\n    }\n}\n// ----\n// x() -> 7\n// f() -> 9\n// x() -> 2\n// g() -> 0x0a\n// x() -> 1\n// f() -> 9\n// x() -> 2\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

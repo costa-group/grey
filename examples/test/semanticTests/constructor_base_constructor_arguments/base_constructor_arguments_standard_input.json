@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "base_constructor_arguments.sol": {
+            "content": "contract BaseBase {\n    uint256 m_a;\n\n    constructor(uint256 a) {\n        m_a = a;\n    }\n}\n\n\ncontract Base is BaseBase(7) {\n    constructor() {\n        m_a *= m_a;\n    }\n}\n\n\ncontract Derived is Base {\n    function getA() public returns (uint256 r) {\n        return m_a;\n    }\n}\n// ====\n// bytecodeFormat: legacy,>=EOFv1\n// ----\n// getA() -> 49\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

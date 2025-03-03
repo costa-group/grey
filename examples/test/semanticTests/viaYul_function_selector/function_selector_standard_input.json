@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "function_selector.sol": {
+            "content": "contract C {\n    function f() external returns (bytes4) {\n        return this.f.selector;\n    }\n    function h(function() external a) public returns (bytes4) {\n        return a.selector;\n    }\n}\n// ----\n// f() -> left(0x26121ff0)\n// h(function): left(0x1122334400112233445566778899AABBCCDDEEFF42424242) -> left(0x42424242)\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

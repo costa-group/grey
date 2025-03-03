@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "basefee_berlin_function.sol": {
+            "content": "contract C {\n    function f() public view returns (uint ret) {\n        assembly {\n            let basefee := sload(0)\n            ret := basefee\n        }\n    }\n    function g() public pure returns (uint ret) {\n        assembly {\n            function basefee() -> r {\n                r := 1000\n            }\n            ret := basefee()\n        }\n    }\n}\n// ====\n// EVMVersion: <=berlin\n// ----\n// f() -> 0\n// g() -> 1000\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

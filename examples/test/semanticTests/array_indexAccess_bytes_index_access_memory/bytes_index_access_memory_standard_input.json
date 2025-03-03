@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "bytes_index_access_memory.sol": {
+            "content": "contract Main {\n    function f(bytes memory _s1, uint i1, uint i2, uint i3) public returns (bytes1 c1, bytes1 c2, bytes1 c3) {\n        c1 = _s1[i1];\n        c2 = intern(_s1, i2);\n        c3 = internIndirect(_s1)[i3];\n    }\n    function intern(bytes memory _s1, uint i) public returns (bytes1 c) {\n        return _s1[i];\n    }\n    function internIndirect(bytes memory _s1) public returns (bytes memory) {\n        return _s1;\n    }\n}\n// ----\n// f(bytes,uint256,uint256,uint256): 0x80, 3, 4, 5, 78, \"abcdefghijklmnopqrstuvwxyzabcdef\", \"ghijklmnopqrstuvwxyzabcdefghijkl\", \"mnopqrstuvwxyz\" -> \"d\", \"e\", \"f\"\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}
