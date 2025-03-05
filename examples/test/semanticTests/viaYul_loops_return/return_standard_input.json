@@ -1,1 +1,34 @@
-{"language": "Solidity", "sources": {"return.sol": {"content": "contract C {\n    function f() public returns (uint x) {\n        x = 1;\n        uint a;\n        for (; a < 10; a = a + 1) {\n            return x;\n            x = x + x;\n        }\n        x = x + a;\n    }\n    function g() public returns (uint x) {\n        x = 1;\n        uint a;\n        while (a < 10) {\n            return x;\n            x = x + x;\n            a = a + 1;\n        }\n        x = x + a;\n    }\n    function h() public returns (uint x) {\n        x = 1;\n        do {\n            x = x + 1;\n            return x;\n        } while (x < 3);\n    }\n}\n// ----\n// f() -> 1\n// g() -> 1\n// h() -> 2\n"}}, "settings": {"optimizer": {"enabled": true, "runs": 200, "details": {"peephole": false, "inliner": false, "jumpdestRemover": false, "orderLiterals": false, "deduplicate": false, "cse": false, "constantOptimizer": false}}, "outputSelection": {"*": {"*": ["abi", "metadata", "evm.bytecode", "evm.deployedBytecode", "evm.methodIdentifiers"]}}, "metadata": {"appendCBOR": false}}}
+{
+    "language": "Solidity",
+    "sources": {
+        "return.sol": {
+            "content": "contract C {\n    function f() public returns (uint x) {\n        x = 1;\n        uint a;\n        for (; a < 10; a = a + 1) {\n            return x;\n            x = x + x;\n        }\n        x = x + a;\n    }\n    function g() public returns (uint x) {\n        x = 1;\n        uint a;\n        while (a < 10) {\n            return x;\n            x = x + x;\n            a = a + 1;\n        }\n        x = x + a;\n    }\n    function h() public returns (uint x) {\n        x = 1;\n        do {\n            x = x + 1;\n            return x;\n        } while (x < 3);\n    }\n}\n// ----\n// f() -> 1\n// g() -> 1\n// h() -> 2\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

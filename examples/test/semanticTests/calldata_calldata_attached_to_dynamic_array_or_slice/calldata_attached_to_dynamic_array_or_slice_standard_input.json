@@ -1,1 +1,34 @@
-{"language": "Solidity", "sources": {"calldata_attached_to_dynamic_array_or_slice.sol": {"content": "pragma abicoder v2;\n\nlibrary L {\n    function reverse(uint[] calldata _a) internal pure returns (uint, uint) {\n        return (_a[1], _a[0]);\n    }\n}\n\ncontract C {\n    using L for *;\n\n    function testArray(uint, uint[] calldata _a, uint) external pure returns (uint, uint) {\n        return _a.reverse();\n    }\n\n    function testSlice(uint, uint[] calldata _a, uint) external pure returns (uint, uint) {\n        return _a[:].reverse();\n    }\n}\n// ----\n// testArray(uint256,uint256[],uint256): 7, 0x60, 4, 2, 66, 77 -> 77, 66\n// testSlice(uint256,uint256[],uint256): 7, 0x60, 4, 2, 66, 77 -> 77, 66\n"}}, "settings": {"optimizer": {"enabled": true, "runs": 200, "details": {"peephole": false, "inliner": false, "jumpdestRemover": false, "orderLiterals": false, "deduplicate": false, "cse": false, "constantOptimizer": false}}, "outputSelection": {"*": {"*": ["abi", "metadata", "evm.bytecode", "evm.deployedBytecode", "evm.methodIdentifiers"]}}, "metadata": {"appendCBOR": false}}}
+{
+    "language": "Solidity",
+    "sources": {
+        "calldata_attached_to_dynamic_array_or_slice.sol": {
+            "content": "pragma abicoder v2;\n\nlibrary L {\n    function reverse(uint[] calldata _a) internal pure returns (uint, uint) {\n        return (_a[1], _a[0]);\n    }\n}\n\ncontract C {\n    using L for *;\n\n    function testArray(uint, uint[] calldata _a, uint) external pure returns (uint, uint) {\n        return _a.reverse();\n    }\n\n    function testSlice(uint, uint[] calldata _a, uint) external pure returns (uint, uint) {\n        return _a[:].reverse();\n    }\n}\n// ----\n// testArray(uint256,uint256[],uint256): 7, 0x60, 4, 2, 66, 77 -> 77, 66\n// testSlice(uint256,uint256[],uint256): 7, 0x60, 4, 2, 66, 77 -> 77, 66\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

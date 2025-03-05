@@ -1,0 +1,26 @@
+{
+    "semanticTests/storage/packed_storage_structs_uint.sol": {
+        "bytecode": "6080806040523460135760d0908160188239f35b5f80fdfe60808060405260043610156011575f80fd5b5f3560e01c63f8a8fd6d146023575f80fd5b34603e575f366003190112603e57602090603a6042565b8152f35b5f80fd5b5f54600260ff198216175f5562ffffff191661abcd61ffff62abcd028317805f5560081c160360ca5760ff60f81b6001541690641234567890821760015561abcd61ffff62abcd088317805f5560081c160360c35761ffff62dcab0861dcab9217805f5560081c160360bd5764987654321017600155600190565b50600890565b5050600790565b5060039056",
+        "contract": ":C",
+        "tests": [
+            {
+                "input": {
+                    "calldata": "",
+                    "value": "0"
+                },
+                "kind": "constructor"
+            },
+            {
+                "input": {
+                    "calldata": "f8a8fd6d",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "0000000000000000000000000000000000000000000000000000000000000001",
+                    "status": "success"
+                }
+            }
+        ]
+    }
+}

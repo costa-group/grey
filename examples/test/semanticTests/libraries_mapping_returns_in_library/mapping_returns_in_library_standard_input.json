@@ -1,1 +1,34 @@
-{"language": "Solidity", "sources": {"mapping_returns_in_library.sol": {"content": "library Lib {\n    function choose_mapping(mapping(uint => uint) storage a, mapping(uint => uint) storage b, bool c) internal pure returns(mapping(uint=>uint) storage)\n    {\n        return c ? a : b;\n    }\n}\ncontract Test {\n    mapping(uint => uint) a;\n    mapping(uint => uint) b;\n    function set(bool choice, uint256 key, uint256 value) public returns (uint)\n    {\n        mapping(uint => uint) storage m = Lib.choose_mapping(a, b, choice);\n        uint oldValue = m[key];\n        m[key] = value;\n        return oldValue;\n    }\n    function get(bool choice, uint256 key) public view returns (uint) {\n        return Lib.choose_mapping(a, b, choice)[key];\n    }\n    function get_a(uint256 key) public view returns (uint) {\n        return a[key];\n    }\n    function get_b(uint256 key) public view returns (uint) {\n        return b[key];\n    }\n}\n// ----\n// library: Lib\n// set(bool,uint256,uint256): true, 1, 42 -> 0\n// set(bool,uint256,uint256): true, 2, 84 -> 0\n// set(bool,uint256,uint256): true, 21, 7 -> 0\n// set(bool,uint256,uint256): false, 1, 10 -> 0\n// set(bool,uint256,uint256): false, 2, 11 -> 0\n// set(bool,uint256,uint256): false, 21, 12 -> 0\n// get(bool,uint256): true, 0 -> 0\n// get(bool,uint256): true, 1 -> 0x2a\n// get(bool,uint256): true, 2 -> 0x54\n// get(bool,uint256): true, 21 -> 7\n// get_a(uint256): 0 -> 0\n// get_a(uint256): 1 -> 0x2a\n// get_a(uint256): 2 -> 0x54\n// get_a(uint256): 21 -> 7\n// get(bool,uint256): false, 0 -> 0\n// get(bool,uint256): false, 1 -> 10\n// get(bool,uint256): false, 2 -> 11\n// get(bool,uint256): false, 21 -> 12\n// get_b(uint256): 0 -> 0\n// get_b(uint256): 1 -> 10\n// get_b(uint256): 2 -> 11\n// get_b(uint256): 21 -> 12\n// set(bool,uint256,uint256): true, 1, 21 -> 0x2a\n// set(bool,uint256,uint256): true, 2, 42 -> 0x54\n// set(bool,uint256,uint256): true, 21, 14 -> 7\n// set(bool,uint256,uint256): false, 1, 30 -> 10\n// set(bool,uint256,uint256): false, 2, 31 -> 11\n// set(bool,uint256,uint256): false, 21, 32 -> 12\n// get_a(uint256): 0 -> 0\n// get_a(uint256): 1 -> 0x15\n// get_a(uint256): 2 -> 0x2a\n// get_a(uint256): 21 -> 14\n// get(bool,uint256): true, 0 -> 0\n// get(bool,uint256): true, 1 -> 0x15\n// get(bool,uint256): true, 2 -> 0x2a\n// get(bool,uint256): true, 21 -> 14\n// get_b(uint256): 0 -> 0\n// get_b(uint256): 1 -> 0x1e\n// get_b(uint256): 2 -> 0x1f\n// get_b(uint256): 21 -> 0x20\n// get(bool,uint256): false, 0 -> 0\n// get(bool,uint256): false, 1 -> 0x1e\n// get(bool,uint256): false, 2 -> 0x1f\n// get(bool,uint256): false, 21 -> 0x20\n"}}, "settings": {"optimizer": {"enabled": true, "runs": 200, "details": {"peephole": false, "inliner": false, "jumpdestRemover": false, "orderLiterals": false, "deduplicate": false, "cse": false, "constantOptimizer": false}}, "outputSelection": {"*": {"*": ["abi", "metadata", "evm.bytecode", "evm.deployedBytecode", "evm.methodIdentifiers"]}}, "metadata": {"appendCBOR": false}}}
+{
+    "language": "Solidity",
+    "sources": {
+        "mapping_returns_in_library.sol": {
+            "content": "library Lib {\n    function choose_mapping(mapping(uint => uint) storage a, mapping(uint => uint) storage b, bool c) internal pure returns(mapping(uint=>uint) storage)\n    {\n        return c ? a : b;\n    }\n}\ncontract Test {\n    mapping(uint => uint) a;\n    mapping(uint => uint) b;\n    function set(bool choice, uint256 key, uint256 value) public returns (uint)\n    {\n        mapping(uint => uint) storage m = Lib.choose_mapping(a, b, choice);\n        uint oldValue = m[key];\n        m[key] = value;\n        return oldValue;\n    }\n    function get(bool choice, uint256 key) public view returns (uint) {\n        return Lib.choose_mapping(a, b, choice)[key];\n    }\n    function get_a(uint256 key) public view returns (uint) {\n        return a[key];\n    }\n    function get_b(uint256 key) public view returns (uint) {\n        return b[key];\n    }\n}\n// ----\n// library: Lib\n// set(bool,uint256,uint256): true, 1, 42 -> 0\n// set(bool,uint256,uint256): true, 2, 84 -> 0\n// set(bool,uint256,uint256): true, 21, 7 -> 0\n// set(bool,uint256,uint256): false, 1, 10 -> 0\n// set(bool,uint256,uint256): false, 2, 11 -> 0\n// set(bool,uint256,uint256): false, 21, 12 -> 0\n// get(bool,uint256): true, 0 -> 0\n// get(bool,uint256): true, 1 -> 0x2a\n// get(bool,uint256): true, 2 -> 0x54\n// get(bool,uint256): true, 21 -> 7\n// get_a(uint256): 0 -> 0\n// get_a(uint256): 1 -> 0x2a\n// get_a(uint256): 2 -> 0x54\n// get_a(uint256): 21 -> 7\n// get(bool,uint256): false, 0 -> 0\n// get(bool,uint256): false, 1 -> 10\n// get(bool,uint256): false, 2 -> 11\n// get(bool,uint256): false, 21 -> 12\n// get_b(uint256): 0 -> 0\n// get_b(uint256): 1 -> 10\n// get_b(uint256): 2 -> 11\n// get_b(uint256): 21 -> 12\n// set(bool,uint256,uint256): true, 1, 21 -> 0x2a\n// set(bool,uint256,uint256): true, 2, 42 -> 0x54\n// set(bool,uint256,uint256): true, 21, 14 -> 7\n// set(bool,uint256,uint256): false, 1, 30 -> 10\n// set(bool,uint256,uint256): false, 2, 31 -> 11\n// set(bool,uint256,uint256): false, 21, 32 -> 12\n// get_a(uint256): 0 -> 0\n// get_a(uint256): 1 -> 0x15\n// get_a(uint256): 2 -> 0x2a\n// get_a(uint256): 21 -> 14\n// get(bool,uint256): true, 0 -> 0\n// get(bool,uint256): true, 1 -> 0x15\n// get(bool,uint256): true, 2 -> 0x2a\n// get(bool,uint256): true, 21 -> 14\n// get_b(uint256): 0 -> 0\n// get_b(uint256): 1 -> 0x1e\n// get_b(uint256): 2 -> 0x1f\n// get_b(uint256): 21 -> 0x20\n// get(bool,uint256): false, 0 -> 0\n// get(bool,uint256): false, 1 -> 0x1e\n// get(bool,uint256): false, 2 -> 0x1f\n// get(bool,uint256): false, 21 -> 0x20\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

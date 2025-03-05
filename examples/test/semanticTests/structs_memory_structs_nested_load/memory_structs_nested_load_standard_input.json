@@ -1,1 +1,34 @@
-{"language": "Solidity", "sources": {"memory_structs_nested_load.sol": {"content": "contract Test {\n    struct S {\n        uint8 x;\n        uint16 y;\n        uint256 z;\n    }\n    struct X {\n        uint8 x;\n        S s;\n        uint8[2] a;\n    }\n    X m_x;\n\n    function load()\n        public\n        returns (\n            uint256 a,\n            uint256 x,\n            uint256 y,\n            uint256 z,\n            uint256 a1,\n            uint256 a2\n        )\n    {\n        m_x.x = 1;\n        m_x.s.x = 2;\n        m_x.s.y = 3;\n        m_x.s.z = 4;\n        m_x.a[0] = 5;\n        m_x.a[1] = 6;\n        X memory d = m_x;\n        a = d.x;\n        x = d.s.x;\n        y = d.s.y;\n        z = d.s.z;\n        a1 = d.a[0];\n        a2 = d.a[1];\n    }\n\n    function store()\n        public\n        returns (\n            uint256 a,\n            uint256 x,\n            uint256 y,\n            uint256 z,\n            uint256 a1,\n            uint256 a2\n        )\n    {\n        X memory d;\n        d.x = 1;\n        d.s.x = 2;\n        d.s.y = 3;\n        d.s.z = 4;\n        d.a[0] = 5;\n        d.a[1] = 6;\n        m_x = d;\n        a = m_x.x;\n        x = m_x.s.x;\n        y = m_x.s.y;\n        z = m_x.s.z;\n        a1 = m_x.a[0];\n        a2 = m_x.a[1];\n    }\n}\n// ----\n// load() -> 0x01, 0x02, 0x03, 0x04, 0x05, 0x06\n// gas irOptimized: 110772\n// gas legacy: 112959\n// gas legacyOptimized: 110876\n// store() -> 0x01, 0x02, 0x03, 0x04, 0x05, 0x06\n"}}, "settings": {"optimizer": {"enabled": true, "runs": 200, "details": {"peephole": false, "inliner": false, "jumpdestRemover": false, "orderLiterals": false, "deduplicate": false, "cse": false, "constantOptimizer": false}}, "outputSelection": {"*": {"*": ["abi", "metadata", "evm.bytecode", "evm.deployedBytecode", "evm.methodIdentifiers"]}}, "metadata": {"appendCBOR": false}}}
+{
+    "language": "Solidity",
+    "sources": {
+        "memory_structs_nested_load.sol": {
+            "content": "contract Test {\n    struct S {\n        uint8 x;\n        uint16 y;\n        uint256 z;\n    }\n    struct X {\n        uint8 x;\n        S s;\n        uint8[2] a;\n    }\n    X m_x;\n\n    function load()\n        public\n        returns (\n            uint256 a,\n            uint256 x,\n            uint256 y,\n            uint256 z,\n            uint256 a1,\n            uint256 a2\n        )\n    {\n        m_x.x = 1;\n        m_x.s.x = 2;\n        m_x.s.y = 3;\n        m_x.s.z = 4;\n        m_x.a[0] = 5;\n        m_x.a[1] = 6;\n        X memory d = m_x;\n        a = d.x;\n        x = d.s.x;\n        y = d.s.y;\n        z = d.s.z;\n        a1 = d.a[0];\n        a2 = d.a[1];\n    }\n\n    function store()\n        public\n        returns (\n            uint256 a,\n            uint256 x,\n            uint256 y,\n            uint256 z,\n            uint256 a1,\n            uint256 a2\n        )\n    {\n        X memory d;\n        d.x = 1;\n        d.s.x = 2;\n        d.s.y = 3;\n        d.s.z = 4;\n        d.a[0] = 5;\n        d.a[1] = 6;\n        m_x = d;\n        a = m_x.x;\n        x = m_x.s.x;\n        y = m_x.s.y;\n        z = m_x.s.z;\n        a1 = m_x.a[0];\n        a2 = m_x.a[1];\n    }\n}\n// ----\n// load() -> 0x01, 0x02, 0x03, 0x04, 0x05, 0x06\n// gas irOptimized: 110772\n// gas legacy: 112959\n// gas legacyOptimized: 110876\n// store() -> 0x01, 0x02, 0x03, 0x04, 0x05, 0x06\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

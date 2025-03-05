@@ -1,1 +1,34 @@
-{"language": "Solidity", "sources": {"attaching_and_defining_operator_with_same_function.sol": {"content": "type Int is int16;\n\nusing {add as +, add} for Int global;\n\nfunction add(Int _a, Int _b) pure returns (Int) {\n    return Int.wrap(Int.unwrap(_a) + Int.unwrap(_b));\n}\n\ncontract C {\n    function f() pure public returns (Int) {\n        return Int.wrap(5) + Int.wrap(5);\n    }\n\n    function g() pure public returns (Int) {\n        return Int.wrap(7).add(Int.wrap(6));\n    }\n}\n// ----\n// f() -> 10\n// g() -> 13\n"}}, "settings": {"optimizer": {"enabled": true, "runs": 200, "details": {"peephole": false, "inliner": false, "jumpdestRemover": false, "orderLiterals": false, "deduplicate": false, "cse": false, "constantOptimizer": false}}, "outputSelection": {"*": {"*": ["abi", "metadata", "evm.bytecode", "evm.deployedBytecode", "evm.methodIdentifiers"]}}, "metadata": {"appendCBOR": false}}}
+{
+    "language": "Solidity",
+    "sources": {
+        "attaching_and_defining_operator_with_same_function.sol": {
+            "content": "type Int is int16;\n\nusing {add as +, add} for Int global;\n\nfunction add(Int _a, Int _b) pure returns (Int) {\n    return Int.wrap(Int.unwrap(_a) + Int.unwrap(_b));\n}\n\ncontract C {\n    function f() pure public returns (Int) {\n        return Int.wrap(5) + Int.wrap(5);\n    }\n\n    function g() pure public returns (Int) {\n        return Int.wrap(7).add(Int.wrap(6));\n    }\n}\n// ----\n// f() -> 10\n// g() -> 13\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

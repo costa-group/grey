@@ -1,1 +1,34 @@
-{"language": "Solidity", "sources": {"function_return_parameter_complex.sol": {"content": "// Test to see if the function return parameter, when forwarded to the modifier actually has value\n// zero.\ncontract A {\n    uint public x = 0;\n\n    modifier alwaysZeros(uint256 a, uint256 b) {\n        x++;\n        _;\n        require(a == 0, \"a is not zero\");\n        require(b == 0, \"b is not zero\");\n    }\n\n    function f() public alwaysZeros(r1, r3) returns(uint r1, uint r2, uint r3) {\n        r1 = 16;\n        r2 = 32;\n        r3 = 64;\n    }\n\n    function shouldFail(uint i1) public alwaysZeros(i1, r + 20) returns (uint r) {\n        r = 0;\n    }\n\n    // The value of x would be 1 before calling this. It gets incremented four times in total during\n    // the modifier calls\n    function g() alwaysZeros(r, r) alwaysZeros(r, r) alwaysZeros(r + r, r - r) alwaysZeros(r * r, r & r) public returns (uint r) {\n        r = x;\n    }\n}\n// ----\n// f() -> 0x10, 0x20, 0x40\n// x() -> 1\n// shouldFail(uint256): 1 -> FAILURE, hex\"08c379a0\", 0x20, 13, \"a is not zero\"\n// shouldFail(uint256): 0 -> FAILURE, hex\"08c379a0\", 0x20, 13, \"b is not zero\"\n// x() -> 1\n// g() -> 5\n// x() -> 5\n"}}, "settings": {"optimizer": {"enabled": true, "runs": 200, "details": {"peephole": false, "inliner": false, "jumpdestRemover": false, "orderLiterals": false, "deduplicate": false, "cse": false, "constantOptimizer": false}}, "outputSelection": {"*": {"*": ["abi", "metadata", "evm.bytecode", "evm.deployedBytecode", "evm.methodIdentifiers"]}}, "metadata": {"appendCBOR": false}}}
+{
+    "language": "Solidity",
+    "sources": {
+        "function_return_parameter_complex.sol": {
+            "content": "// Test to see if the function return parameter, when forwarded to the modifier actually has value\n// zero.\ncontract A {\n    uint public x = 0;\n\n    modifier alwaysZeros(uint256 a, uint256 b) {\n        x++;\n        _;\n        require(a == 0, \"a is not zero\");\n        require(b == 0, \"b is not zero\");\n    }\n\n    function f() public alwaysZeros(r1, r3) returns(uint r1, uint r2, uint r3) {\n        r1 = 16;\n        r2 = 32;\n        r3 = 64;\n    }\n\n    function shouldFail(uint i1) public alwaysZeros(i1, r + 20) returns (uint r) {\n        r = 0;\n    }\n\n    // The value of x would be 1 before calling this. It gets incremented four times in total during\n    // the modifier calls\n    function g() alwaysZeros(r, r) alwaysZeros(r, r) alwaysZeros(r + r, r - r) alwaysZeros(r * r, r & r) public returns (uint r) {\n        r = x;\n    }\n}\n// ----\n// f() -> 0x10, 0x20, 0x40\n// x() -> 1\n// shouldFail(uint256): 1 -> FAILURE, hex\"08c379a0\", 0x20, 13, \"a is not zero\"\n// shouldFail(uint256): 0 -> FAILURE, hex\"08c379a0\", 0x20, 13, \"b is not zero\"\n// x() -> 1\n// g() -> 5\n// x() -> 5\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

@@ -1,1 +1,34 @@
-{"language": "Solidity", "sources": {"explicit_cast_assignment.sol": {"content": "contract C {\n    function f() public pure returns (uint16 x) {\n        uint8 y = uint8(0x78);\n        x = y;\n    }\n}\n// ----\n// f() -> 0x78\n"}}, "settings": {"optimizer": {"enabled": true, "runs": 200, "details": {"peephole": false, "inliner": false, "jumpdestRemover": false, "orderLiterals": false, "deduplicate": false, "cse": false, "constantOptimizer": false}}, "outputSelection": {"*": {"*": ["abi", "metadata", "evm.bytecode", "evm.deployedBytecode", "evm.methodIdentifiers"]}}, "metadata": {"appendCBOR": false}}}
+{
+    "language": "Solidity",
+    "sources": {
+        "explicit_cast_assignment.sol": {
+            "content": "contract C {\n    function f() public pure returns (uint16 x) {\n        uint8 y = uint8(0x78);\n        x = y;\n    }\n}\n// ----\n// f() -> 0x78\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

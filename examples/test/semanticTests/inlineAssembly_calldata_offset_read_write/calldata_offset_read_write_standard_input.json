@@ -1,1 +1,34 @@
-{"language": "Solidity", "sources": {"calldata_offset_read_write.sol": {"content": "contract C {\n    function f(uint, bytes calldata x, uint) public returns (uint r, uint v) {\n        assembly {\n            x.offset := 8\n            x.length := 20\n        }\n        assembly {\n            r := x.offset\n            v := x.length\n        }\n    }\n}\n// ----\n// f(uint256,bytes,uint256): 7, 0x60, 8, 2, 0 -> 8, 0x14\n// f(uint256,bytes,uint256): 0, 0, 0 -> 8, 0x14\n"}}, "settings": {"optimizer": {"enabled": true, "runs": 200, "details": {"peephole": false, "inliner": false, "jumpdestRemover": false, "orderLiterals": false, "deduplicate": false, "cse": false, "constantOptimizer": false}}, "outputSelection": {"*": {"*": ["abi", "metadata", "evm.bytecode", "evm.deployedBytecode", "evm.methodIdentifiers"]}}, "metadata": {"appendCBOR": false}}}
+{
+    "language": "Solidity",
+    "sources": {
+        "calldata_offset_read_write.sol": {
+            "content": "contract C {\n    function f(uint, bytes calldata x, uint) public returns (uint r, uint v) {\n        assembly {\n            x.offset := 8\n            x.length := 20\n        }\n        assembly {\n            r := x.offset\n            v := x.length\n        }\n    }\n}\n// ----\n// f(uint256,bytes,uint256): 7, 0x60, 8, 2, 0 -> 8, 0x14\n// f(uint256,bytes,uint256): 0, 0, 0 -> 8, 0x14\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

@@ -1,1 +1,34 @@
-{"language": "Solidity", "sources": {"constant_string_literal.sol": {"content": "contract Test {\n    bytes32 constant public b = \"abcdefghijklmnopq\";\n    string constant public x = \"abefghijklmnopqabcdefghijklmnopqabcdefghijklmnopqabca\";\n\n    constructor() {\n        string memory xx = x;\n        bytes32 bb = b;\n    }\n    function getB() public returns (bytes32) { return b; }\n    function getX() public returns (string memory) { return x; }\n    function getX2() public returns (string memory r) { r = x; }\n    function unused() public returns (uint) {\n        \"unusedunusedunusedunusedunusedunusedunusedunusedunusedunusedunusedunused\";\n        return 2;\n    }\n}\n// ----\n// b() -> 0x6162636465666768696a6b6c6d6e6f7071000000000000000000000000000000\n// x() -> 0x20, 0x35, 0x616265666768696a6b6c6d6e6f70716162636465666768696a6b6c6d6e6f7071, 44048183304486788312148433451363384677562177293131179093971701692629931524096\n// getB() -> 0x6162636465666768696a6b6c6d6e6f7071000000000000000000000000000000\n// getX() -> 0x20, 0x35, 0x616265666768696a6b6c6d6e6f70716162636465666768696a6b6c6d6e6f7071, 44048183304486788312148433451363384677562177293131179093971701692629931524096\n// getX2() -> 0x20, 0x35, 0x616265666768696a6b6c6d6e6f70716162636465666768696a6b6c6d6e6f7071, 44048183304486788312148433451363384677562177293131179093971701692629931524096\n// unused() -> 2\n"}}, "settings": {"optimizer": {"enabled": true, "runs": 200, "details": {"peephole": false, "inliner": false, "jumpdestRemover": false, "orderLiterals": false, "deduplicate": false, "cse": false, "constantOptimizer": false}}, "outputSelection": {"*": {"*": ["abi", "metadata", "evm.bytecode", "evm.deployedBytecode", "evm.methodIdentifiers"]}}, "metadata": {"appendCBOR": false}}}
+{
+    "language": "Solidity",
+    "sources": {
+        "constant_string_literal.sol": {
+            "content": "contract Test {\n    bytes32 constant public b = \"abcdefghijklmnopq\";\n    string constant public x = \"abefghijklmnopqabcdefghijklmnopqabcdefghijklmnopqabca\";\n\n    constructor() {\n        string memory xx = x;\n        bytes32 bb = b;\n    }\n    function getB() public returns (bytes32) { return b; }\n    function getX() public returns (string memory) { return x; }\n    function getX2() public returns (string memory r) { r = x; }\n    function unused() public returns (uint) {\n        \"unusedunusedunusedunusedunusedunusedunusedunusedunusedunusedunusedunused\";\n        return 2;\n    }\n}\n// ----\n// b() -> 0x6162636465666768696a6b6c6d6e6f7071000000000000000000000000000000\n// x() -> 0x20, 0x35, 0x616265666768696a6b6c6d6e6f70716162636465666768696a6b6c6d6e6f7071, 44048183304486788312148433451363384677562177293131179093971701692629931524096\n// getB() -> 0x6162636465666768696a6b6c6d6e6f7071000000000000000000000000000000\n// getX() -> 0x20, 0x35, 0x616265666768696a6b6c6d6e6f70716162636465666768696a6b6c6d6e6f7071, 44048183304486788312148433451363384677562177293131179093971701692629931524096\n// getX2() -> 0x20, 0x35, 0x616265666768696a6b6c6d6e6f70716162636465666768696a6b6c6d6e6f7071, 44048183304486788312148433451363384677562177293131179093971701692629931524096\n// unused() -> 2\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

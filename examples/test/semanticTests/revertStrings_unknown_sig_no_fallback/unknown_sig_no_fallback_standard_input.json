@@ -1,1 +1,34 @@
-{"language": "Solidity", "sources": {"unknown_sig_no_fallback.sol": {"content": "contract A {\n\treceive () external payable {}\n}\n// ====\n// EVMVersion: >=byzantium\n// revertStrings: debug\n// ----\n// (): hex\"00\" -> FAILURE, hex\"08c379a0\", 0x20, 41, \"Unknown signature and no fallbac\", \"k defined\"\n"}}, "settings": {"optimizer": {"enabled": true, "runs": 200, "details": {"peephole": false, "inliner": false, "jumpdestRemover": false, "orderLiterals": false, "deduplicate": false, "cse": false, "constantOptimizer": false}}, "outputSelection": {"*": {"*": ["abi", "metadata", "evm.bytecode", "evm.deployedBytecode", "evm.methodIdentifiers"]}}, "metadata": {"appendCBOR": false}}}
+{
+    "language": "Solidity",
+    "sources": {
+        "unknown_sig_no_fallback.sol": {
+            "content": "contract A {\n\treceive () external payable {}\n}\n// ====\n// EVMVersion: >=byzantium\n// revertStrings: debug\n// ----\n// (): hex\"00\" -> FAILURE, hex\"08c379a0\", 0x20, 41, \"Unknown signature and no fallbac\", \"k defined\"\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

@@ -1,1 +1,34 @@
-{"language": "Solidity", "sources": {"small_error_optimization.sol": {"content": "error E();\ncontract A {\n\tuint8[] x;\n\tfunction f() public {\n\t\tfor (uint i = 0; i < 100; ++i)\n\t\t\tx.push(uint8(i));\n\t\trevert E();\n\t}\n}\ncontract B {\n\tfunction f() public {\n\t\t(new A()).f();\n\t}\n}\n// ----\n// f() -> FAILURE, hex\"92bbf6e8\"\n// gas irOptimized: 221918\n// gas irOptimized code: 42800\n// gas legacy: 233752\n// gas legacy code: 38000\n// gas legacyOptimized: 224863\n// gas legacyOptimized code: 34200\n"}}, "settings": {"optimizer": {"enabled": true, "runs": 200, "details": {"peephole": false, "inliner": false, "jumpdestRemover": false, "orderLiterals": false, "deduplicate": false, "cse": false, "constantOptimizer": false}}, "outputSelection": {"*": {"*": ["abi", "metadata", "evm.bytecode", "evm.deployedBytecode", "evm.methodIdentifiers"]}}, "metadata": {"appendCBOR": false}}}
+{
+    "language": "Solidity",
+    "sources": {
+        "small_error_optimization.sol": {
+            "content": "error E();\ncontract A {\n\tuint8[] x;\n\tfunction f() public {\n\t\tfor (uint i = 0; i < 100; ++i)\n\t\t\tx.push(uint8(i));\n\t\trevert E();\n\t}\n}\ncontract B {\n\tfunction f() public {\n\t\t(new A()).f();\n\t}\n}\n// ----\n// f() -> FAILURE, hex\"92bbf6e8\"\n// gas irOptimized: 221918\n// gas irOptimized code: 42800\n// gas legacy: 233752\n// gas legacy code: 38000\n// gas legacyOptimized: 224863\n// gas legacyOptimized code: 34200\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

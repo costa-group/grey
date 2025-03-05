@@ -1,1 +1,34 @@
-{"language": "Solidity", "sources": {"pass_dynamic_arguments_to_the_base_base.sol": {"content": "contract Base {\n    constructor(uint256 j) {\n        m_i = j;\n    }\n\n    uint256 public m_i;\n}\n\n\ncontract Base1 is Base {\n    constructor(uint256 k) Base(k) {}\n}\n\n\ncontract Derived is Base, Base1 {\n    constructor(uint256 i) Base1(i) {}\n}\n\n\ncontract Final is Derived(4) {}\n\n// ----\n// m_i() -> 4\n"}}, "settings": {"optimizer": {"enabled": true, "runs": 200, "details": {"peephole": false, "inliner": false, "jumpdestRemover": false, "orderLiterals": false, "deduplicate": false, "cse": false, "constantOptimizer": false}}, "outputSelection": {"*": {"*": ["abi", "metadata", "evm.bytecode", "evm.deployedBytecode", "evm.methodIdentifiers"]}}, "metadata": {"appendCBOR": false}}}
+{
+    "language": "Solidity",
+    "sources": {
+        "pass_dynamic_arguments_to_the_base_base.sol": {
+            "content": "contract Base {\n    constructor(uint256 j) {\n        m_i = j;\n    }\n\n    uint256 public m_i;\n}\n\n\ncontract Base1 is Base {\n    constructor(uint256 k) Base(k) {}\n}\n\n\ncontract Derived is Base, Base1 {\n    constructor(uint256 i) Base1(i) {}\n}\n\n\ncontract Final is Derived(4) {}\n\n// ----\n// m_i() -> 4\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

@@ -1,1 +1,34 @@
-{"language": "Solidity", "sources": {"function_modifier_overriding.sol": {"content": "contract A {\n    function f() public mod returns (bool r) {\n        return true;\n    }\n\n    modifier mod virtual {\n        _;\n    }\n}\n\n\ncontract C is A {\n    modifier mod override {\n        if (false) _;\n    }\n}\n// ----\n// f() -> false\n"}}, "settings": {"optimizer": {"enabled": true, "runs": 200, "details": {"peephole": false, "inliner": false, "jumpdestRemover": false, "orderLiterals": false, "deduplicate": false, "cse": false, "constantOptimizer": false}}, "outputSelection": {"*": {"*": ["abi", "metadata", "evm.bytecode", "evm.deployedBytecode", "evm.methodIdentifiers"]}}, "metadata": {"appendCBOR": false}}}
+{
+    "language": "Solidity",
+    "sources": {
+        "function_modifier_overriding.sol": {
+            "content": "contract A {\n    function f() public mod returns (bool r) {\n        return true;\n    }\n\n    modifier mod virtual {\n        _;\n    }\n}\n\n\ncontract C is A {\n    modifier mod override {\n        if (false) _;\n    }\n}\n// ----\n// f() -> false\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

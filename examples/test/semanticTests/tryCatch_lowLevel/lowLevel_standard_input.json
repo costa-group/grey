@@ -1,1 +1,34 @@
-{"language": "Solidity", "sources": {"lowLevel.sol": {"content": "contract C {\n    function g(bool b) public pure returns (uint, uint) {\n        require(b, \"message\");\n        return (1, 2);\n    }\n    function f(bool b) public returns (uint x, uint y, bytes memory txt) {\n        try this.g(b) returns (uint a, uint b) {\n            (x, y) = (a, b);\n        } catch (bytes memory s) {\n            txt = s;\n        }\n    }\n}\n// ====\n// EVMVersion: >=byzantium\n// ----\n// f(bool): true -> 1, 2, 96, 0\n// f(bool): false -> 0, 0, 96, 100, 0x8c379a000000000000000000000000000000000000000000000000000000000, 0x2000000000000000000000000000000000000000000000000000000000, 0x76d657373616765000000000000000000000000000000000000000000, 0\n"}}, "settings": {"optimizer": {"enabled": true, "runs": 200, "details": {"peephole": false, "inliner": false, "jumpdestRemover": false, "orderLiterals": false, "deduplicate": false, "cse": false, "constantOptimizer": false}}, "outputSelection": {"*": {"*": ["abi", "metadata", "evm.bytecode", "evm.deployedBytecode", "evm.methodIdentifiers"]}}, "metadata": {"appendCBOR": false}}}
+{
+    "language": "Solidity",
+    "sources": {
+        "lowLevel.sol": {
+            "content": "contract C {\n    function g(bool b) public pure returns (uint, uint) {\n        require(b, \"message\");\n        return (1, 2);\n    }\n    function f(bool b) public returns (uint x, uint y, bytes memory txt) {\n        try this.g(b) returns (uint a, uint b) {\n            (x, y) = (a, b);\n        } catch (bytes memory s) {\n            txt = s;\n        }\n    }\n}\n// ====\n// EVMVersion: >=byzantium\n// ----\n// f(bool): true -> 1, 2, 96, 0\n// f(bool): false -> 0, 0, 96, 100, 0x8c379a000000000000000000000000000000000000000000000000000000000, 0x2000000000000000000000000000000000000000000000000000000000, 0x76d657373616765000000000000000000000000000000000000000000, 0\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

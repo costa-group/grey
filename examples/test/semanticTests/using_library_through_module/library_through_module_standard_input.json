@@ -1,1 +1,37 @@
-{"language": "Solidity", "sources": {"A": {"content": "library L {\n    function id(uint x) internal pure returns (uint) {\n        return x;\n    }\n    function one_ext(uint) pure external returns(uint) {\n        return 1;\n    }\n    function empty() pure internal {\n    }\n\n}"}, "B": {"content": "contract C {\n    using M.L for uint;\n    function f(uint x) public pure returns (uint) {\n        return x.id();\n    }\n    function g(uint x) public pure returns (uint) {\n        return x.one_ext();\n    }\n}\n\nimport \"A\" as M;\n\n// ----\n// library: \"A\":L\n// f(uint256): 5 -> 5\n// f(uint256): 10 -> 10\n// g(uint256): 5 -> 1\n// g(uint256): 10 -> 1"}}, "settings": {"optimizer": {"enabled": true, "runs": 200, "details": {"peephole": false, "inliner": false, "jumpdestRemover": false, "orderLiterals": false, "deduplicate": false, "cse": false, "constantOptimizer": false}}, "outputSelection": {"*": {"*": ["abi", "metadata", "evm.bytecode", "evm.deployedBytecode", "evm.methodIdentifiers"]}}, "metadata": {"appendCBOR": false}}}
+{
+    "language": "Solidity",
+    "sources": {
+        "A": {
+            "content": "library L {\n    function id(uint x) internal pure returns (uint) {\n        return x;\n    }\n    function one_ext(uint) pure external returns(uint) {\n        return 1;\n    }\n    function empty() pure internal {\n    }\n\n}"
+        },
+        "B": {
+            "content": "contract C {\n    using M.L for uint;\n    function f(uint x) public pure returns (uint) {\n        return x.id();\n    }\n    function g(uint x) public pure returns (uint) {\n        return x.one_ext();\n    }\n}\n\nimport \"A\" as M;\n\n// ----\n// library: \"A\":L\n// f(uint256): 5 -> 5\n// f(uint256): 10 -> 10\n// g(uint256): 5 -> 1\n// g(uint256): 10 -> 1"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

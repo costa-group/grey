@@ -1,0 +1,26 @@
+{
+    "semanticTests/operators/transient_storage_variable_increment_decrement.sol": {
+        "bytecode": "6080806040523460135760a9908160188239f35b5f80fdfe608060405260043610156010575f80fd5b5f3560e01c6326121ff0146022575f80fd5b34606e575f366003190112606e5760385f5c6072565b5f5d60425f5c6072565b5f5d604c5f5c6099565b5f5d60565f5c6072565b5f5d60605f5c6099565b5f5d60205f5c604051908152f35b5f80fd5b6001600160ff1b03811460855760010190565b634e487b7160e01b5f52601160045260245ffd5b600160ff1b81146085575f19019056",
+        "contract": ":C",
+        "tests": [
+            {
+                "input": {
+                    "calldata": "",
+                    "value": "0"
+                },
+                "kind": "constructor"
+            },
+            {
+                "input": {
+                    "calldata": "26121ff0",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "0000000000000000000000000000000000000000000000000000000000000001",
+                    "status": "success"
+                }
+            }
+        ]
+    }
+}

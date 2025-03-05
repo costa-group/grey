@@ -1,1 +1,34 @@
-{"language": "Solidity", "sources": {"byte_array_pop_masking_long.sol": {"content": "contract c {\n    bytes data;\n\n    function test() public returns (bytes memory) {\n        for (uint256 i = 0; i < 34; i++) data.push(0x03);\n        data.pop();\n        return data;\n    }\n}\n// ----\n// test() -> 0x20, 33, 0x303030303030303030303030303030303030303030303030303030303030303, 0x0300000000000000000000000000000000000000000000000000000000000000\n// gas irOptimized: 106762\n// gas legacy: 121252\n// gas legacyOptimized: 120370\n"}}, "settings": {"optimizer": {"enabled": true, "runs": 200, "details": {"peephole": false, "inliner": false, "jumpdestRemover": false, "orderLiterals": false, "deduplicate": false, "cse": false, "constantOptimizer": false}}, "outputSelection": {"*": {"*": ["abi", "metadata", "evm.bytecode", "evm.deployedBytecode", "evm.methodIdentifiers"]}}, "metadata": {"appendCBOR": false}}}
+{
+    "language": "Solidity",
+    "sources": {
+        "byte_array_pop_masking_long.sol": {
+            "content": "contract c {\n    bytes data;\n\n    function test() public returns (bytes memory) {\n        for (uint256 i = 0; i < 34; i++) data.push(0x03);\n        data.pop();\n        return data;\n    }\n}\n// ----\n// test() -> 0x20, 33, 0x303030303030303030303030303030303030303030303030303030303030303, 0x0300000000000000000000000000000000000000000000000000000000000000\n// gas irOptimized: 106762\n// gas legacy: 121252\n// gas legacyOptimized: 120370\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

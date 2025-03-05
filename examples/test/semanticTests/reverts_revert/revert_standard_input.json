@@ -1,1 +1,34 @@
-{"language": "Solidity", "sources": {"revert.sol": {"content": "contract C {\n    uint256 public a = 42;\n\n    function f() public {\n        a = 1;\n        revert();\n    }\n\n    function g() public {\n        a = 1;\n        assembly {\n            revert(0, 0)\n        }\n    }\n}\n// ----\n// f() -> FAILURE\n// a() -> 42\n// g() -> FAILURE\n// a() -> 42\n"}}, "settings": {"optimizer": {"enabled": true, "runs": 200, "details": {"peephole": false, "inliner": false, "jumpdestRemover": false, "orderLiterals": false, "deduplicate": false, "cse": false, "constantOptimizer": false}}, "outputSelection": {"*": {"*": ["abi", "metadata", "evm.bytecode", "evm.deployedBytecode", "evm.methodIdentifiers"]}}, "metadata": {"appendCBOR": false}}}
+{
+    "language": "Solidity",
+    "sources": {
+        "revert.sol": {
+            "content": "contract C {\n    uint256 public a = 42;\n\n    function f() public {\n        a = 1;\n        revert();\n    }\n\n    function g() public {\n        a = 1;\n        assembly {\n            revert(0, 0)\n        }\n    }\n}\n// ----\n// f() -> FAILURE\n// a() -> 42\n// g() -> FAILURE\n// a() -> 42\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

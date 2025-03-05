@@ -1,1 +1,34 @@
-{"language": "Solidity", "sources": {"tuple_from_ternary_expression.sol": {"content": "contract C {\n    function f() public pure returns (bool){\n        bool flag;\n        ((flag = true) ? (1, 2, 3) : (3, 2, 1));\n        return flag;\n    }\n}\n// ----\n// f() -> true\n"}}, "settings": {"optimizer": {"enabled": true, "runs": 200, "details": {"peephole": false, "inliner": false, "jumpdestRemover": false, "orderLiterals": false, "deduplicate": false, "cse": false, "constantOptimizer": false}}, "outputSelection": {"*": {"*": ["abi", "metadata", "evm.bytecode", "evm.deployedBytecode", "evm.methodIdentifiers"]}}, "metadata": {"appendCBOR": false}}}
+{
+    "language": "Solidity",
+    "sources": {
+        "tuple_from_ternary_expression.sol": {
+            "content": "contract C {\n    function f() public pure returns (bool){\n        bool flag;\n        ((flag = true) ? (1, 2, 3) : (3, 2, 1));\n        return flag;\n    }\n}\n// ----\n// f() -> true\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

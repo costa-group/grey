@@ -1,1 +1,37 @@
-{"language": "Solidity", "sources": {"A": {"content": "function sub(uint256 x, uint256 y) pure returns (uint) { return 1; }\nfunction sub(uint256 x) pure returns (uint) { return 2; }"}, "B": {"content": "import {sub} from \"A\";\ncontract C\n{\n    function f() public pure returns (uint, uint) {\n        return (sub(1, 2), sub(2));\n    }\n}\n// ----\n// f() -> 1, 2"}}, "settings": {"optimizer": {"enabled": true, "runs": 200, "details": {"peephole": false, "inliner": false, "jumpdestRemover": false, "orderLiterals": false, "deduplicate": false, "cse": false, "constantOptimizer": false}}, "outputSelection": {"*": {"*": ["abi", "metadata", "evm.bytecode", "evm.deployedBytecode", "evm.methodIdentifiers"]}}, "metadata": {"appendCBOR": false}}}
+{
+    "language": "Solidity",
+    "sources": {
+        "A": {
+            "content": "function sub(uint256 x, uint256 y) pure returns (uint) { return 1; }\nfunction sub(uint256 x) pure returns (uint) { return 2; }"
+        },
+        "B": {
+            "content": "import {sub} from \"A\";\ncontract C\n{\n    function f() public pure returns (uint, uint) {\n        return (sub(1, 2), sub(2));\n    }\n}\n// ----\n// f() -> 1, 2"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

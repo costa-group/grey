@@ -1,1 +1,34 @@
-{"language": "Solidity", "sources": {"array_storage_index_boundary_test.sol": {"content": "contract C {\n    uint[] storageArray;\n    function test_boundary_check(uint256 len, uint256 access) public returns (uint256)\n    {\n        while(storageArray.length < len)\n            storageArray.push();\n        while(storageArray.length > len)\n            storageArray.pop();\n        return storageArray[access];\n    }\n}\n// ----\n// test_boundary_check(uint256,uint256): 10, 11 -> FAILURE, hex\"4e487b71\", 0x32\n// test_boundary_check(uint256,uint256): 10, 9 -> 0\n// test_boundary_check(uint256,uint256): 1, 9 -> FAILURE, hex\"4e487b71\", 0x32\n// test_boundary_check(uint256,uint256): 1, 1 -> FAILURE, hex\"4e487b71\", 0x32\n// test_boundary_check(uint256,uint256): 10, 10 -> FAILURE, hex\"4e487b71\", 0x32\n// test_boundary_check(uint256,uint256): 256, 256 -> FAILURE, hex\"4e487b71\", 0x32\n// gas irOptimized: 147246\n// gas legacy: 133632\n// gas legacyOptimized: 114353\n// test_boundary_check(uint256,uint256): 256, 255 -> 0\n// gas irOptimized: 149422\n// gas legacy: 135948\n// gas legacyOptimized: 116532\n// test_boundary_check(uint256,uint256): 256, 0xFFFF -> FAILURE, hex\"4e487b71\", 0x32\n// test_boundary_check(uint256,uint256): 256, 2 -> 0\n"}}, "settings": {"optimizer": {"enabled": true, "runs": 200, "details": {"peephole": false, "inliner": false, "jumpdestRemover": false, "orderLiterals": false, "deduplicate": false, "cse": false, "constantOptimizer": false}}, "outputSelection": {"*": {"*": ["abi", "metadata", "evm.bytecode", "evm.deployedBytecode", "evm.methodIdentifiers"]}}, "metadata": {"appendCBOR": false}}}
+{
+    "language": "Solidity",
+    "sources": {
+        "array_storage_index_boundary_test.sol": {
+            "content": "contract C {\n    uint[] storageArray;\n    function test_boundary_check(uint256 len, uint256 access) public returns (uint256)\n    {\n        while(storageArray.length < len)\n            storageArray.push();\n        while(storageArray.length > len)\n            storageArray.pop();\n        return storageArray[access];\n    }\n}\n// ----\n// test_boundary_check(uint256,uint256): 10, 11 -> FAILURE, hex\"4e487b71\", 0x32\n// test_boundary_check(uint256,uint256): 10, 9 -> 0\n// test_boundary_check(uint256,uint256): 1, 9 -> FAILURE, hex\"4e487b71\", 0x32\n// test_boundary_check(uint256,uint256): 1, 1 -> FAILURE, hex\"4e487b71\", 0x32\n// test_boundary_check(uint256,uint256): 10, 10 -> FAILURE, hex\"4e487b71\", 0x32\n// test_boundary_check(uint256,uint256): 256, 256 -> FAILURE, hex\"4e487b71\", 0x32\n// gas irOptimized: 147246\n// gas legacy: 133632\n// gas legacyOptimized: 114353\n// test_boundary_check(uint256,uint256): 256, 255 -> 0\n// gas irOptimized: 149422\n// gas legacy: 135948\n// gas legacyOptimized: 116532\n// test_boundary_check(uint256,uint256): 256, 0xFFFF -> FAILURE, hex\"4e487b71\", 0x32\n// test_boundary_check(uint256,uint256): 256, 2 -> 0\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

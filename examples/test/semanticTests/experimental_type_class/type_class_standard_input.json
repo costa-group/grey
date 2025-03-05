@@ -1,1 +1,34 @@
-{"language": "Solidity", "sources": {"type_class.sol": {"content": "pragma experimental solidity;\n\ntype word = __builtin(\"word\");\ntype bool = __builtin(\"bool\");\n\ntype Cat = word;\ntype Dog = word;\n\nclass Self: Animal {\n    function new() -> Self;\n    function alive(self: Self) -> bool;\n}\n\ninstantiation Cat: Animal {\n    function new() -> Cat {\n        let c;\n        return c;\n    }\n\n    function alive(self: Cat) -> bool {\n        // TODO: Boolean literals or operators not implemented.\n        let w;\n        assembly {\n            w := 1\n        }\n        return bool.abs(w);\n    }\n}\n\ninstantiation Dog: Animal {\n    function new() -> Dog {\n        let d: Dog;\n        return d;\n    }\n\n    function alive(self: Dog) -> bool {\n        let b: bool;\n        return b;\n    }\n}\n\ncontract C {\n    fallback() external {\n        let boolResult1: bool;\n        let boolResult2: bool;\n\n        let c: Cat = Animal.new();\n        boolResult1 = Animal.alive(c);\n\n        let d: Dog = Animal.new();\n        boolResult2 = Animal.alive(d);\n\n        let wordResult1 = bool.rep(boolResult1);\n        let wordResult2 = bool.rep(boolResult2);\n        assembly {\n            mstore(0, wordResult1)\n            mstore(32, wordResult2)\n            return(0, 64)\n        }\n    }\n}\n\n// ====\n// EVMVersion: >=constantinople\n// compileViaYul: true\n// ----\n// () -> 1, 0\n"}}, "settings": {"optimizer": {"enabled": true, "runs": 200, "details": {"peephole": false, "inliner": false, "jumpdestRemover": false, "orderLiterals": false, "deduplicate": false, "cse": false, "constantOptimizer": false}}, "outputSelection": {"*": {"*": ["abi", "metadata", "evm.bytecode", "evm.deployedBytecode", "evm.methodIdentifiers"]}}, "metadata": {"appendCBOR": false}}}
+{
+    "language": "Solidity",
+    "sources": {
+        "type_class.sol": {
+            "content": "pragma experimental solidity;\n\ntype word = __builtin(\"word\");\ntype bool = __builtin(\"bool\");\n\ntype Cat = word;\ntype Dog = word;\n\nclass Self: Animal {\n    function new() -> Self;\n    function alive(self: Self) -> bool;\n}\n\ninstantiation Cat: Animal {\n    function new() -> Cat {\n        let c;\n        return c;\n    }\n\n    function alive(self: Cat) -> bool {\n        // TODO: Boolean literals or operators not implemented.\n        let w;\n        assembly {\n            w := 1\n        }\n        return bool.abs(w);\n    }\n}\n\ninstantiation Dog: Animal {\n    function new() -> Dog {\n        let d: Dog;\n        return d;\n    }\n\n    function alive(self: Dog) -> bool {\n        let b: bool;\n        return b;\n    }\n}\n\ncontract C {\n    fallback() external {\n        let boolResult1: bool;\n        let boolResult2: bool;\n\n        let c: Cat = Animal.new();\n        boolResult1 = Animal.alive(c);\n\n        let d: Dog = Animal.new();\n        boolResult2 = Animal.alive(d);\n\n        let wordResult1 = bool.rep(boolResult1);\n        let wordResult2 = bool.rep(boolResult2);\n        assembly {\n            mstore(0, wordResult1)\n            mstore(32, wordResult2)\n            return(0, 64)\n        }\n    }\n}\n\n// ====\n// EVMVersion: >=constantinople\n// compileViaYul: true\n// bytecodeFormat: legacy\n// ----\n// () -> 1, 0\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

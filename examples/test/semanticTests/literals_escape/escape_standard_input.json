@@ -1,1 +1,34 @@
-{"language": "Solidity", "sources": {"escape.sol": {"content": "pragma abicoder v2;\n\ncontract C\n{\n\tfunction f() public pure returns (uint, bytes1, bytes1) {\n\t\tbytes memory encoded = abi.encodePacked(\"\\\\\\\\\");\n\t\treturn (encoded.length, encoded[0], encoded[1]);\n\t}\n}\n// ----\n// f() -> 2, 0x5c00000000000000000000000000000000000000000000000000000000000000, 0x5c00000000000000000000000000000000000000000000000000000000000000\n"}}, "settings": {"optimizer": {"enabled": true, "runs": 200, "details": {"peephole": false, "inliner": false, "jumpdestRemover": false, "orderLiterals": false, "deduplicate": false, "cse": false, "constantOptimizer": false}}, "outputSelection": {"*": {"*": ["abi", "metadata", "evm.bytecode", "evm.deployedBytecode", "evm.methodIdentifiers"]}}, "metadata": {"appendCBOR": false}}}
+{
+    "language": "Solidity",
+    "sources": {
+        "escape.sol": {
+            "content": "pragma abicoder v2;\n\ncontract C\n{\n\tfunction f() public pure returns (uint, bytes1, bytes1) {\n\t\tbytes memory encoded = abi.encodePacked(\"\\\\\\\\\");\n\t\treturn (encoded.length, encoded[0], encoded[1]);\n\t}\n}\n// ----\n// f() -> 2, 0x5c00000000000000000000000000000000000000000000000000000000000000, 0x5c00000000000000000000000000000000000000000000000000000000000000\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

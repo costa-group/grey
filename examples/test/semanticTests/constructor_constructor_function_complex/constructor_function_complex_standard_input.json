@@ -1,1 +1,34 @@
-{"language": "Solidity", "sources": {"constructor_function_complex.sol": {"content": "contract D {\n    uint public x;\n    constructor(function() external pure returns (uint) g) {\n        x = g();\n    }\n}\n\ncontract C {\n    function f() public returns (uint r) {\n        D d = new D(this.sixteen);\n        r = d.x();\n    }\n\n    function sixteen() public pure returns (uint) {\n        return 16;\n    }\n}\n// ----\n// f() -> 16\n// gas legacy: 78477\n// gas legacy code: 23600\n"}}, "settings": {"optimizer": {"enabled": true, "runs": 200, "details": {"peephole": false, "inliner": false, "jumpdestRemover": false, "orderLiterals": false, "deduplicate": false, "cse": false, "constantOptimizer": false}}, "outputSelection": {"*": {"*": ["abi", "metadata", "evm.bytecode", "evm.deployedBytecode", "evm.methodIdentifiers"]}}, "metadata": {"appendCBOR": false}}}
+{
+    "language": "Solidity",
+    "sources": {
+        "constructor_function_complex.sol": {
+            "content": "contract D {\n    uint public x;\n    constructor(function() external pure returns (uint) g) {\n        x = g();\n    }\n}\n\ncontract C {\n    function f() public returns (uint r) {\n        D d = new D(this.sixteen);\n        r = d.x();\n    }\n\n    function sixteen() public pure returns (uint) {\n        return 16;\n    }\n}\n// ====\n// bytecodeFormat: legacy,>=EOFv1\n// ----\n// f() -> 16\n// gas legacy: 78477\n// gas legacy code: 23600\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

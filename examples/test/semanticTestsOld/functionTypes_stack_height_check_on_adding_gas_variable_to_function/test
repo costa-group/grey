@@ -1,0 +1,26 @@
+{
+    "semanticTests/functionTypes/stack_height_check_on_adding_gas_variable_to_function.sol": {
+        "bytecode": "608080604052346013576076908160188239f35b5f80fdfe608060405260043610156010575f80fd5b5f5f3560e01c80634eaf8b7c146059578063b8c9d36514604b5763e2179b8e146037575f80fd5b346048578060031936011260485780f35b80fd5b508060031936011260485780f35b346072575f366003190112607257602060405160018152f35b5f80fd",
+        "contract": ":C",
+        "tests": [
+            {
+                "input": {
+                    "calldata": "",
+                    "value": "0"
+                },
+                "kind": "constructor"
+            },
+            {
+                "input": {
+                    "calldata": "4eaf8b7c",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "0000000000000000000000000000000000000000000000000000000000000001",
+                    "status": "success"
+                }
+            }
+        ]
+    }
+}

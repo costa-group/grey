@@ -1,1 +1,34 @@
-{"language": "Solidity", "sources": {"call_internal_function_via_expression.sol": {"content": "contract C {\n    function foo() internal returns (uint) {\n        return 42;\n    }\n\n    function get_ptr(function() internal returns (uint) ptr) internal returns(function() internal returns (uint)) {\n        return ptr;\n    }\n\n    function associated() public returns (uint) {\n        // This expression directly references function definition\n        return (foo)();\n    }\n\n    function unassociated() public returns (uint) {\n        // This expression is not associated with a specific function definition\n        return (get_ptr(foo))();\n    }\n}\n// ----\n// associated() -> 42\n// unassociated() -> 42\n"}}, "settings": {"optimizer": {"enabled": true, "runs": 200, "details": {"peephole": false, "inliner": false, "jumpdestRemover": false, "orderLiterals": false, "deduplicate": false, "cse": false, "constantOptimizer": false}}, "outputSelection": {"*": {"*": ["abi", "metadata", "evm.bytecode", "evm.deployedBytecode", "evm.methodIdentifiers"]}}, "metadata": {"appendCBOR": false}}}
+{
+    "language": "Solidity",
+    "sources": {
+        "call_internal_function_via_expression.sol": {
+            "content": "contract C {\n    function foo() internal returns (uint) {\n        return 42;\n    }\n\n    function get_ptr(function() internal returns (uint) ptr) internal returns(function() internal returns (uint)) {\n        return ptr;\n    }\n\n    function associated() public returns (uint) {\n        // This expression directly references function definition\n        return (foo)();\n    }\n\n    function unassociated() public returns (uint) {\n        // This expression is not associated with a specific function definition\n        return (get_ptr(foo))();\n    }\n}\n// ----\n// associated() -> 42\n// unassociated() -> 42\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

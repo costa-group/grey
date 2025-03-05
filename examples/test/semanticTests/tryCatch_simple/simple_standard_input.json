@@ -1,1 +1,34 @@
-{"language": "Solidity", "sources": {"simple.sol": {"content": "contract C {\n    function g(bool b) public pure returns (uint x, uint y) {\n        require(b);\n        return (1, 2);\n    }\n    function f(bool flag) public view returns (uint x, uint y) {\n        try this.g(flag) returns (uint a, uint b) {\n            (x, y) = (a, b);\n        } catch {\n            (x, y) = (9, 10);\n        }\n    }\n}\n// ====\n// EVMVersion: >=byzantium\n// ----\n// f(bool): true -> 1, 2\n// f(bool): false -> 9, 10\n"}}, "settings": {"optimizer": {"enabled": true, "runs": 200, "details": {"peephole": false, "inliner": false, "jumpdestRemover": false, "orderLiterals": false, "deduplicate": false, "cse": false, "constantOptimizer": false}}, "outputSelection": {"*": {"*": ["abi", "metadata", "evm.bytecode", "evm.deployedBytecode", "evm.methodIdentifiers"]}}, "metadata": {"appendCBOR": false}}}
+{
+    "language": "Solidity",
+    "sources": {
+        "simple.sol": {
+            "content": "contract C {\n    function g(bool b) public pure returns (uint x, uint y) {\n        require(b);\n        return (1, 2);\n    }\n    function f(bool flag) public view returns (uint x, uint y) {\n        try this.g(flag) returns (uint a, uint b) {\n            (x, y) = (a, b);\n        } catch {\n            (x, y) = (9, 10);\n        }\n    }\n}\n// ====\n// EVMVersion: >=byzantium\n// ----\n// f(bool): true -> 1, 2\n// f(bool): false -> 9, 10\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

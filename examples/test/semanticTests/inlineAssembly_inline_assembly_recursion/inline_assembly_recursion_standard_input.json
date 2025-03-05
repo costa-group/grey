@@ -1,1 +1,34 @@
-{"language": "Solidity", "sources": {"inline_assembly_recursion.sol": {"content": "contract C {\n    function f(uint256 a) public returns (uint256 b) {\n        assembly {\n            function fac(n) -> nf {\n                switch n\n                    case 0 {\n                        nf := 1\n                    }\n                    case 1 {\n                        nf := 1\n                    }\n                    default {\n                        nf := mul(n, fac(sub(n, 1)))\n                    }\n            }\n            b := fac(a)\n        }\n    }\n}\n// ----\n// f(uint256): 0 -> 1\n// f(uint256): 1 -> 1\n// f(uint256): 2 -> 2\n// f(uint256): 3 -> 6\n// f(uint256): 4 -> 24\n"}}, "settings": {"optimizer": {"enabled": true, "runs": 200, "details": {"peephole": false, "inliner": false, "jumpdestRemover": false, "orderLiterals": false, "deduplicate": false, "cse": false, "constantOptimizer": false}}, "outputSelection": {"*": {"*": ["abi", "metadata", "evm.bytecode", "evm.deployedBytecode", "evm.methodIdentifiers"]}}, "metadata": {"appendCBOR": false}}}
+{
+    "language": "Solidity",
+    "sources": {
+        "inline_assembly_recursion.sol": {
+            "content": "contract C {\n    function f(uint256 a) public returns (uint256 b) {\n        assembly {\n            function fac(n) -> nf {\n                switch n\n                    case 0 {\n                        nf := 1\n                    }\n                    case 1 {\n                        nf := 1\n                    }\n                    default {\n                        nf := mul(n, fac(sub(n, 1)))\n                    }\n            }\n            b := fac(a)\n        }\n    }\n}\n// ----\n// f(uint256): 0 -> 1\n// f(uint256): 1 -> 1\n// f(uint256): 2 -> 2\n// f(uint256): 3 -> 6\n// f(uint256): 4 -> 24\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

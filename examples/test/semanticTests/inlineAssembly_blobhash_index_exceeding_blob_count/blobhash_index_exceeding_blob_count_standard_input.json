@@ -1,1 +1,34 @@
-{"language": "Solidity", "sources": {"blobhash_index_exceeding_blob_count.sol": {"content": "contract C {\n    function f() public view returns (bytes32 ret) {\n        assembly {\n            // EIP-4844 specifies that if `index < len(tx.blob_versioned_hashes)`, `blobhash(index)` should return 0.\n            // Thus, as we injected only two blob hashes in the transaction context in EVMHost,\n            // the return value of the function below MUST be zero.\n            ret := blobhash(2)\n        }\n    }\n}\n// ====\n// EVMVersion: >=cancun\n// ----\n// f() -> 0x00\n"}}, "settings": {"optimizer": {"enabled": true, "runs": 200, "details": {"peephole": false, "inliner": false, "jumpdestRemover": false, "orderLiterals": false, "deduplicate": false, "cse": false, "constantOptimizer": false}}, "outputSelection": {"*": {"*": ["abi", "metadata", "evm.bytecode", "evm.deployedBytecode", "evm.methodIdentifiers"]}}, "metadata": {"appendCBOR": false}}}
+{
+    "language": "Solidity",
+    "sources": {
+        "blobhash_index_exceeding_blob_count.sol": {
+            "content": "contract C {\n    function f() public view returns (bytes32 ret) {\n        assembly {\n            // EIP-4844 specifies that if `index >= len(tx.blob_versioned_hashes)`, `blobhash(index)` should return 0.\n            // Thus, as we injected only two blob hashes in the transaction context in EVMHost,\n            // the return value of the function below MUST be zero.\n            ret := blobhash(2)\n        }\n    }\n}\n// ====\n// EVMVersion: >=cancun\n// ----\n// f() -> 0x00\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

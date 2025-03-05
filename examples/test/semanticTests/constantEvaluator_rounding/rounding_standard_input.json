@@ -1,1 +1,34 @@
-{"language": "Solidity", "sources": {"rounding.sol": {"content": "contract C {\n    int constant a = 7;\n    int constant b = 3;\n    int constant c = a / b;\n    int constant d = (-a) / b;\n    function f() public pure returns (uint, int, uint, int) {\n        uint[c] memory x;\n        uint[-d] memory y;\n        return (x.length, c, y.length, -d);\n    }\n}\n// ----\n// f() -> 2, 2, 2, 2\n"}}, "settings": {"optimizer": {"enabled": true, "runs": 200, "details": {"peephole": false, "inliner": false, "jumpdestRemover": false, "orderLiterals": false, "deduplicate": false, "cse": false, "constantOptimizer": false}}, "outputSelection": {"*": {"*": ["abi", "metadata", "evm.bytecode", "evm.deployedBytecode", "evm.methodIdentifiers"]}}, "metadata": {"appendCBOR": false}}}
+{
+    "language": "Solidity",
+    "sources": {
+        "rounding.sol": {
+            "content": "contract C {\n    int constant a = 7;\n    int constant b = 3;\n    int constant c = a / b;\n    int constant d = (-a) / b;\n    function f() public pure returns (uint, int, uint, int) {\n        uint[c] memory x;\n        uint[-d] memory y;\n        return (x.length, c, y.length, -d);\n    }\n}\n// ----\n// f() -> 2, 2, 2, 2\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

@@ -1,0 +1,26 @@
+{
+    "semanticTests/isoltestTesting/empty_contract.sol": {
+        "bytecode": "608080604052346013576003908160188239f35b5f80fdfe5f80fd",
+        "contract": ":test",
+        "tests": [
+            {
+                "input": {
+                    "calldata": "",
+                    "value": "0"
+                },
+                "kind": "constructor"
+            },
+            {
+                "input": {
+                    "calldata": "fbb46af8",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "",
+                    "status": "failure"
+                }
+            }
+        ]
+    }
+}

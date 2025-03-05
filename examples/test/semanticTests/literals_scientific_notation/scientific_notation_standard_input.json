@@ -1,1 +1,34 @@
-{"language": "Solidity", "sources": {"scientific_notation.sol": {"content": "contract C {\n    function f() public returns(uint) {\n        return 2e10 wei;\n    }\n\n    function g() public returns(uint) {\n        return 200e-2 wei;\n    }\n\n    function h() public returns(uint) {\n        return 2.5e1;\n    }\n\n    function i() public returns(int) {\n        return -2e10;\n    }\n\n    function j() public returns(int) {\n        return -200e-2;\n    }\n\n    function k() public returns(int) {\n        return -2.5e1;\n    }\n}\n// ----\n// f() -> 20000000000\n// g() -> 2\n// h() -> 25\n// i() -> -20000000000\n// j() -> -2\n// k() -> -25\n"}}, "settings": {"optimizer": {"enabled": true, "runs": 200, "details": {"peephole": false, "inliner": false, "jumpdestRemover": false, "orderLiterals": false, "deduplicate": false, "cse": false, "constantOptimizer": false}}, "outputSelection": {"*": {"*": ["abi", "metadata", "evm.bytecode", "evm.deployedBytecode", "evm.methodIdentifiers"]}}, "metadata": {"appendCBOR": false}}}
+{
+    "language": "Solidity",
+    "sources": {
+        "scientific_notation.sol": {
+            "content": "contract C {\n    function f() public returns(uint) {\n        return 2e10 wei;\n    }\n\n    function g() public returns(uint) {\n        return 200e-2 wei;\n    }\n\n    function h() public returns(uint) {\n        return 2.5e1;\n    }\n\n    function i() public returns(int) {\n        return -2e10;\n    }\n\n    function j() public returns(int) {\n        return -200e-2;\n    }\n\n    function k() public returns(int) {\n        return -2.5e1;\n    }\n}\n// ----\n// f() -> 20000000000\n// g() -> 2\n// h() -> 25\n// i() -> -20000000000\n// j() -> -2\n// k() -> -25\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

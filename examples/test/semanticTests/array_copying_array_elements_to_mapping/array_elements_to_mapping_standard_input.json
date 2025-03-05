@@ -1,1 +1,34 @@
-{"language": "Solidity", "sources": {"array_elements_to_mapping.sol": {"content": "pragma abicoder v2;\n\ncontract C {\n    mapping (uint => uint8[][]) m;\n\n    uint8[][] s;\n\n    constructor() {\n        s = new uint8[][](2);\n\n        s[0] = new uint8[](2);\n        s[0][0] = 10;\n        s[0][1] = 11;\n\n        s[1] = new uint8[](3);\n        s[1][0] = 12;\n        s[1][1] = 13;\n        s[1][2] = 14;\n    }\n\n    function from_storage() public returns (uint8[][] memory) {\n        m[0] = new uint8[][](2);\n        m[0][0] = s[0];\n        m[0][1] = s[1];\n        return m[0];\n    }\n\n\n    function from_storage_ptr() public returns (uint8[][] memory) {\n        uint8[][] storage sPtr = s;\n        m[0] = new uint8[][](2);\n        m[0][0] = sPtr[0];\n        m[0][1] = sPtr[1];\n        return m[0];\n    }\n\n\n    function from_memory() public returns (uint8[][] memory) {\n        uint8[][] memory a = s;\n        m[0] = new uint8[][](2);\n        m[0][0] = a[0];\n        m[0][1] = a[1];\n        return m[0];\n    }\n\n    function from_calldata(uint8[][] calldata _a) public returns (uint8[][] memory) {\n        m[0] = new uint8[][](2);\n        m[0][0] = _a[0];\n        m[0][1] = _a[1];\n        return m[0];\n    }\n}\n// ----\n// from_storage() -> 0x20, 2, 0x40, 0xa0, 2, 10, 11, 3, 12, 13, 14\n// gas irOptimized: 149868\n// gas legacy: 150737\n// gas legacyOptimized: 148690\n// from_storage_ptr() -> 0x20, 2, 0x40, 0xa0, 2, 10, 11, 3, 12, 13, 14\n// from_memory() -> 0x20, 2, 0x40, 0xa0, 2, 10, 11, 3, 12, 13, 14\n// from_calldata(uint8[][]): 0x20, 2, 0x40, 0xa0, 2, 10, 11, 3, 12, 13, 14 -> 0x20, 2, 0x40, 0xa0, 2, 10, 11, 3, 12, 13, 14\n"}}, "settings": {"optimizer": {"enabled": true, "runs": 200, "details": {"peephole": false, "inliner": false, "jumpdestRemover": false, "orderLiterals": false, "deduplicate": false, "cse": false, "constantOptimizer": false}}, "outputSelection": {"*": {"*": ["abi", "metadata", "evm.bytecode", "evm.deployedBytecode", "evm.methodIdentifiers"]}}, "metadata": {"appendCBOR": false}}}
+{
+    "language": "Solidity",
+    "sources": {
+        "array_elements_to_mapping.sol": {
+            "content": "pragma abicoder v2;\n\ncontract C {\n    mapping (uint => uint8[][]) m;\n\n    uint8[][] s;\n\n    constructor() {\n        s = new uint8[][](2);\n\n        s[0] = new uint8[](2);\n        s[0][0] = 10;\n        s[0][1] = 11;\n\n        s[1] = new uint8[](3);\n        s[1][0] = 12;\n        s[1][1] = 13;\n        s[1][2] = 14;\n    }\n\n    function from_storage() public returns (uint8[][] memory) {\n        m[0] = new uint8[][](2);\n        m[0][0] = s[0];\n        m[0][1] = s[1];\n        return m[0];\n    }\n\n\n    function from_storage_ptr() public returns (uint8[][] memory) {\n        uint8[][] storage sPtr = s;\n        m[0] = new uint8[][](2);\n        m[0][0] = sPtr[0];\n        m[0][1] = sPtr[1];\n        return m[0];\n    }\n\n\n    function from_memory() public returns (uint8[][] memory) {\n        uint8[][] memory a = s;\n        m[0] = new uint8[][](2);\n        m[0][0] = a[0];\n        m[0][1] = a[1];\n        return m[0];\n    }\n\n    function from_calldata(uint8[][] calldata _a) public returns (uint8[][] memory) {\n        m[0] = new uint8[][](2);\n        m[0][0] = _a[0];\n        m[0][1] = _a[1];\n        return m[0];\n    }\n}\n// ----\n// from_storage() -> 0x20, 2, 0x40, 0xa0, 2, 10, 11, 3, 12, 13, 14\n// gas irOptimized: 149868\n// gas legacy: 150737\n// gas legacyOptimized: 148690\n// from_storage_ptr() -> 0x20, 2, 0x40, 0xa0, 2, 10, 11, 3, 12, 13, 14\n// from_memory() -> 0x20, 2, 0x40, 0xa0, 2, 10, 11, 3, 12, 13, 14\n// from_calldata(uint8[][]): 0x20, 2, 0x40, 0xa0, 2, 10, 11, 3, 12, 13, 14 -> 0x20, 2, 0x40, 0xa0, 2, 10, 11, 3, 12, 13, 14\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

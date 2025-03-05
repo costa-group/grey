@@ -1,1 +1,34 @@
-{"language": "Solidity", "sources": {"array_memory_create.sol": {"content": "contract C {\n\tfunction create(uint256 len) public returns (uint256)\n\t{\n\t\tuint[] memory array = new uint[](len);\n\t\treturn array.length;\n\t}\n}\n// ----\n// create(uint256): 0 -> 0\n// create(uint256): 7 -> 7\n// create(uint256): 10 -> 10\n"}}, "settings": {"optimizer": {"enabled": true, "runs": 200, "details": {"peephole": false, "inliner": false, "jumpdestRemover": false, "orderLiterals": false, "deduplicate": false, "cse": false, "constantOptimizer": false}}, "outputSelection": {"*": {"*": ["abi", "metadata", "evm.bytecode", "evm.deployedBytecode", "evm.methodIdentifiers"]}}, "metadata": {"appendCBOR": false}}}
+{
+    "language": "Solidity",
+    "sources": {
+        "array_memory_create.sol": {
+            "content": "contract C {\n\tfunction create(uint256 len) public returns (uint256)\n\t{\n\t\tuint[] memory array = new uint[](len);\n\t\treturn array.length;\n\t}\n}\n// ----\n// create(uint256): 0 -> 0\n// create(uint256): 7 -> 7\n// create(uint256): 10 -> 10\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

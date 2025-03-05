@@ -1,1 +1,34 @@
-{"language": "Solidity", "sources": {"virtual_override_changing_mutability_internal.sol": {"content": "contract A {\n    function f() internal virtual {\n        mutableWithViewOverride();\n        mutableWithPureOverride();\n        viewWithPureOverride();\n    }\n\n    function mutableWithViewOverride() internal virtual {}\n    function mutableWithPureOverride() internal virtual {}\n    function viewWithPureOverride() internal view virtual {}\n}\n\ncontract C is A {\n    function run() public {\n        f();\n    }\n\n    function mutableWithViewOverride() internal view override {}\n    function mutableWithPureOverride() internal pure override {}\n    function viewWithPureOverride() internal pure override {}\n}\n// ----\n// run() ->\n"}}, "settings": {"optimizer": {"enabled": true, "runs": 200, "details": {"peephole": false, "inliner": false, "jumpdestRemover": false, "orderLiterals": false, "deduplicate": false, "cse": false, "constantOptimizer": false}}, "outputSelection": {"*": {"*": ["abi", "metadata", "evm.bytecode", "evm.deployedBytecode", "evm.methodIdentifiers"]}}, "metadata": {"appendCBOR": false}}}
+{
+    "language": "Solidity",
+    "sources": {
+        "virtual_override_changing_mutability_internal.sol": {
+            "content": "contract A {\n    function f() internal virtual {\n        mutableWithViewOverride();\n        mutableWithPureOverride();\n        viewWithPureOverride();\n    }\n\n    function mutableWithViewOverride() internal virtual {}\n    function mutableWithPureOverride() internal virtual {}\n    function viewWithPureOverride() internal view virtual {}\n}\n\ncontract C is A {\n    function run() public {\n        f();\n    }\n\n    function mutableWithViewOverride() internal view override {}\n    function mutableWithPureOverride() internal pure override {}\n    function viewWithPureOverride() internal pure override {}\n}\n// ----\n// run() ->\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

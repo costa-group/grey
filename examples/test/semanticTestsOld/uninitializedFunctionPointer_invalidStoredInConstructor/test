@@ -1,0 +1,26 @@
+{
+    "semanticTests/uninitializedFunctionPointer/invalidStoredInConstructor.sol": {
+        "bytecode": "6080806040523460145760e590816100198239f35b5f80fdfe60808060405260043610156011575f80fd5b5f3560e01c6326121ff0146023575f80fd5b346077575f366003190112607757606980820182811067ffffffffffffffff8211176063578291607c833903905ff015605857005b6040513d5f823e3d90fd5b634e487b7160e01b5f52604160045260245ffd5b5f80fdfe6080806040523460335760ff5f5460401c1615601f576031908160388239f35b634e487b7160e01b5f52605160045260245ffd5b5f80fdfe6004361015600b575f80fd5b5f3560e01c6326121ff014601d575f80fd5b34602d575f366003190112602d57005b5f80fd",
+        "contract": ":Test",
+        "tests": [
+            {
+                "input": {
+                    "calldata": "",
+                    "value": "0"
+                },
+                "kind": "constructor"
+            },
+            {
+                "input": {
+                    "calldata": "26121ff0",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "4e487b710000000000000000000000000000000000000000000000000000000000000051",
+                    "status": "failure"
+                }
+            }
+        ]
+    }
+}

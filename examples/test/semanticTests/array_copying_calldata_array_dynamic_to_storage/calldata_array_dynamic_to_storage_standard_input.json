@@ -1,1 +1,34 @@
-{"language": "Solidity", "sources": {"calldata_array_dynamic_to_storage.sol": {"content": "pragma abicoder               v2;\n\ncontract C {\n  uint256[] s;\n  function f(uint256[] calldata data) external returns (uint) {\n    s = data;\n    return s[0];\n  }\n}\n// ----\n// f(uint256[]): 0x20, 0x03, 0x1, 0x2, 0x3 -> 0x1\n// gas irOptimized: 111084\n// gas legacy: 111548\n// gas legacyOptimized: 111321\n"}}, "settings": {"optimizer": {"enabled": true, "runs": 200, "details": {"peephole": false, "inliner": false, "jumpdestRemover": false, "orderLiterals": false, "deduplicate": false, "cse": false, "constantOptimizer": false}}, "outputSelection": {"*": {"*": ["abi", "metadata", "evm.bytecode", "evm.deployedBytecode", "evm.methodIdentifiers"]}}, "metadata": {"appendCBOR": false}}}
+{
+    "language": "Solidity",
+    "sources": {
+        "calldata_array_dynamic_to_storage.sol": {
+            "content": "pragma abicoder               v2;\n\ncontract C {\n  uint256[] s;\n  function f(uint256[] calldata data) external returns (uint) {\n    s = data;\n    return s[0];\n  }\n}\n// ----\n// f(uint256[]): 0x20, 0x03, 0x1, 0x2, 0x3 -> 0x1\n// gas irOptimized: 111084\n// gas legacy: 111548\n// gas legacyOptimized: 111321\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

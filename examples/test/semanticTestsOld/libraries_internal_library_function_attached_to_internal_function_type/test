@@ -1,0 +1,26 @@
+{
+    "semanticTests/libraries/internal_library_function_attached_to_internal_function_type.sol": {
+        "bytecode": "608080604052346013576069908160188239f35b5f80fdfe608060405260043610156010575f80fd5b5f3560e01c6329e99f07146022575f80fd5b3460655760203660031901126065576004358060011b9080820460021490151715605157602090604051908152f35b634e487b7160e01b5f52601160045260245ffd5b5f80fd",
+        "contract": ":C",
+        "tests": [
+            {
+                "input": {
+                    "calldata": "",
+                    "value": "0"
+                },
+                "kind": "constructor"
+            },
+            {
+                "input": {
+                    "calldata": "29e99f070000000000000000000000000000000000000000000000000000000000000005",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "000000000000000000000000000000000000000000000000000000000000000a",
+                    "status": "success"
+                }
+            }
+        ]
+    }
+}

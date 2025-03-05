@@ -1,1 +1,34 @@
-{"language": "Solidity", "sources": {"immutable_tag_too_large_bug.sol": {"content": "contract C {\n  int immutable x = 1;\n  int immutable y = 3;\n\n  function f() public payable returns(int, int) {\n    uint a = uint(y / 1e8);\n    int256 b = x * y;\n    int24 c = int24(b * b >> 128);\n    int24 d = int24((100 * y + 1) >> 128);\n    int24 e = int24(x >> 128);\n    int256 f = x * 2;\n    if (c < 0) {\n      int256 g = (x * x * y) / x;\n      require((y >= 0 && g <= x) || (y < 0 && (x - y) > x));\n      if (b >= f) {\n        require(x <= int256(uint256(type(uint168).max)) && x >= 0, \"\");\n        b = (b * b) / f;\n        for (a = 0; a < a; a++) {\n          uint8 b;\n          assembly  {\n            b := and(mload(a), 0xFF)\n          }\n        }\n        b += f;\n      }\n      require(d % e != 0);\n      c = -c;\n    }\n    return (x, ((x * (x - y)) / (x + y)));\n  }\n\n  constructor () {\n    x--;\n    --x;\n    y++;\n    ++y;\n    --y;\n  }\n}\n// ====\n// compileViaYul: true\n// ----\n// constructor() ->\n// gas irOptimized: 73171\n// gas irOptimized code: 291200\n// gas legacy: 83499\n// gas legacy code: 408800\n// f() -> -1, 1\n"}}, "settings": {"optimizer": {"enabled": true, "runs": 200, "details": {"peephole": false, "inliner": false, "jumpdestRemover": false, "orderLiterals": false, "deduplicate": false, "cse": false, "constantOptimizer": false}}, "outputSelection": {"*": {"*": ["abi", "metadata", "evm.bytecode", "evm.deployedBytecode", "evm.methodIdentifiers"]}}, "metadata": {"appendCBOR": false}}}
+{
+    "language": "Solidity",
+    "sources": {
+        "immutable_tag_too_large_bug.sol": {
+            "content": "contract C {\n  int immutable x = 1;\n  int immutable y = 3;\n\n  function f() public payable returns(int, int) {\n    uint a = uint(y / 1e8);\n    int256 b = x * y;\n    int24 c = int24(b * b >> 128);\n    int24 d = int24((100 * y + 1) >> 128);\n    int24 e = int24(x >> 128);\n    int256 f = x * 2;\n    if (c < 0) {\n      int256 g = (x * x * y) / x;\n      require((y >= 0 && g <= x) || (y < 0 && (x - y) > x));\n      if (b >= f) {\n        require(x <= int256(uint256(type(uint168).max)) && x >= 0, \"\");\n        b = (b * b) / f;\n        for (a = 0; a < a; a++) {\n          uint8 b;\n          assembly  {\n            b := and(mload(a), 0xFF)\n          }\n        }\n        b += f;\n      }\n      require(d % e != 0);\n      c = -c;\n    }\n    return (x, ((x * (x - y)) / (x + y)));\n  }\n\n  constructor () {\n    x--;\n    --x;\n    y++;\n    ++y;\n    --y;\n  }\n}\n// ====\n// compileViaYul: true\n// ----\n// constructor() ->\n// gas irOptimized: 73171\n// gas irOptimized code: 291200\n// gas legacy: 83499\n// gas legacy code: 408800\n// f() -> -1, 1\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

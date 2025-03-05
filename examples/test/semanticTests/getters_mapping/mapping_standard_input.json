@@ -1,1 +1,34 @@
-{"language": "Solidity", "sources": {"mapping.sol": {"content": "contract C {\n    mapping(uint => mapping(uint => uint)) public x;\n    constructor() {\n        x[1][2] = 3;\n    }\n}\n// ----\n// x(uint256,uint256): 1, 2 -> 3\n// x(uint256,uint256): 0, 0 -> 0\n"}}, "settings": {"optimizer": {"enabled": true, "runs": 200, "details": {"peephole": false, "inliner": false, "jumpdestRemover": false, "orderLiterals": false, "deduplicate": false, "cse": false, "constantOptimizer": false}}, "outputSelection": {"*": {"*": ["abi", "metadata", "evm.bytecode", "evm.deployedBytecode", "evm.methodIdentifiers"]}}, "metadata": {"appendCBOR": false}}}
+{
+    "language": "Solidity",
+    "sources": {
+        "mapping.sol": {
+            "content": "contract C {\n    mapping(uint => mapping(uint => uint)) public x;\n    constructor() {\n        x[1][2] = 3;\n    }\n}\n// ----\n// x(uint256,uint256): 1, 2 -> 3\n// x(uint256,uint256): 0, 0 -> 0\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

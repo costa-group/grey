@@ -1,1 +1,34 @@
-{"language": "Solidity", "sources": {"calldata_overlapped_nested_dynamic_arrays.sol": {"content": "pragma abicoder v2;\n\ncontract C {\n    uint[] s;\n    uint[2] n;\n\n    function f_memory(uint[][] calldata a) public returns (uint[][] memory) {\n        return a;\n    }\n\n    function f_encode(uint[][] calldata a) public returns (bytes memory) {\n        return abi.encode(a);\n    }\n\n    function f_which(uint[][] calldata a, uint which) public returns (uint[] memory) {\n        return a[which];\n    }\n}\n// ----\n// f_memory(uint256[][]): 0x20, 2, 0x40, 0x40, 2, 1, 2 -> 0x20, 2, 0x40, 0xa0, 2, 1, 2, 2, 1, 2\n// f_memory(uint256[][]): 0x20, 2, 0x40, 0x60, 2, 1, 2 -> 0x20, 2, 0x40, 0xa0, 2, 1, 2, 1, 2\n// f_memory(uint256[][]): 0x20, 2, 0, 0x60, 2, 1, 2 -> 0x20, 2, 0x40, 0x60, 0, 1, 2\n// f_memory(uint256[][]): 0x20, 2, 0, 0x60, 2, 2, 2 -> FAILURE\n// f_encode(uint256[][]): 0x20, 2, 0x40, 0x40, 2, 1, 2 -> 0x20, 0x0140, 0x20, 2, 0x40, 0xa0, 2, 1, 2, 2, 1, 2\n// f_encode(uint256[][]): 0x20, 2, 0x40, 0x60, 2, 1, 2 -> 0x20, 0x0120, 0x20, 2, 0x40, 0xa0, 2, 1, 2, 1, 2\n// f_encode(uint256[][]): 0x20, 2, 0, 0x60, 2, 1, 2 -> 0x20, 0xe0, 0x20, 2, 0x40, 0x60, 0, 1, 2\n// f_encode(uint256[][]): 0x20, 2, 0, 0x60, 2, 2, 2 -> FAILURE\n// f_which(uint256[][],uint256): 0x40, 0, 2, 0x40, 0x40, 2, 1, 2 -> 0x20, 2, 1, 2\n// f_which(uint256[][],uint256): 0x40, 1, 2, 0x40, 0x40, 2, 1, 2 -> 0x20, 2, 1, 2\n// f_which(uint256[][],uint256): 0x40, 0, 2, 0x40, 0x60, 2, 1, 2 -> 0x20, 2, 1, 2\n// f_which(uint256[][],uint256): 0x40, 1, 2, 0x40, 0x60, 2, 1, 2 -> 0x20, 1, 2\n// f_which(uint256[][],uint256): 0x40, 0, 2, 0, 0x60, 2, 1, 2 -> 0x20, 0\n// f_which(uint256[][],uint256): 0x40, 1, 2, 0, 0x60, 2, 1, 2 -> 0x20, 1, 2\n// f_which(uint256[][],uint256): 0x40, 1, 2, 0, 0x60, 2, 2, 2 -> FAILURE\n"}}, "settings": {"optimizer": {"enabled": true, "runs": 200, "details": {"peephole": false, "inliner": false, "jumpdestRemover": false, "orderLiterals": false, "deduplicate": false, "cse": false, "constantOptimizer": false}}, "outputSelection": {"*": {"*": ["abi", "metadata", "evm.bytecode", "evm.deployedBytecode", "evm.methodIdentifiers"]}}, "metadata": {"appendCBOR": false}}}
+{
+    "language": "Solidity",
+    "sources": {
+        "calldata_overlapped_nested_dynamic_arrays.sol": {
+            "content": "pragma abicoder v2;\n\ncontract C {\n    uint[] s;\n    uint[2] n;\n\n    function f_memory(uint[][] calldata a) public returns (uint[][] memory) {\n        return a;\n    }\n\n    function f_encode(uint[][] calldata a) public returns (bytes memory) {\n        return abi.encode(a);\n    }\n\n    function f_which(uint[][] calldata a, uint which) public returns (uint[] memory) {\n        return a[which];\n    }\n}\n// ----\n// f_memory(uint256[][]): 0x20, 2, 0x40, 0x40, 2, 1, 2 -> 0x20, 2, 0x40, 0xa0, 2, 1, 2, 2, 1, 2\n// f_memory(uint256[][]): 0x20, 2, 0x40, 0x60, 2, 1, 2 -> 0x20, 2, 0x40, 0xa0, 2, 1, 2, 1, 2\n// f_memory(uint256[][]): 0x20, 2, 0, 0x60, 2, 1, 2 -> 0x20, 2, 0x40, 0x60, 0, 1, 2\n// f_memory(uint256[][]): 0x20, 2, 0, 0x60, 2, 2, 2 -> FAILURE\n// f_encode(uint256[][]): 0x20, 2, 0x40, 0x40, 2, 1, 2 -> 0x20, 0x0140, 0x20, 2, 0x40, 0xa0, 2, 1, 2, 2, 1, 2\n// f_encode(uint256[][]): 0x20, 2, 0x40, 0x60, 2, 1, 2 -> 0x20, 0x0120, 0x20, 2, 0x40, 0xa0, 2, 1, 2, 1, 2\n// f_encode(uint256[][]): 0x20, 2, 0, 0x60, 2, 1, 2 -> 0x20, 0xe0, 0x20, 2, 0x40, 0x60, 0, 1, 2\n// f_encode(uint256[][]): 0x20, 2, 0, 0x60, 2, 2, 2 -> FAILURE\n// f_which(uint256[][],uint256): 0x40, 0, 2, 0x40, 0x40, 2, 1, 2 -> 0x20, 2, 1, 2\n// f_which(uint256[][],uint256): 0x40, 1, 2, 0x40, 0x40, 2, 1, 2 -> 0x20, 2, 1, 2\n// f_which(uint256[][],uint256): 0x40, 0, 2, 0x40, 0x60, 2, 1, 2 -> 0x20, 2, 1, 2\n// f_which(uint256[][],uint256): 0x40, 1, 2, 0x40, 0x60, 2, 1, 2 -> 0x20, 1, 2\n// f_which(uint256[][],uint256): 0x40, 0, 2, 0, 0x60, 2, 1, 2 -> 0x20, 0\n// f_which(uint256[][],uint256): 0x40, 1, 2, 0, 0x60, 2, 1, 2 -> 0x20, 1, 2\n// f_which(uint256[][],uint256): 0x40, 1, 2, 0, 0x60, 2, 2, 2 -> FAILURE\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

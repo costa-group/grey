@@ -1,1 +1,34 @@
-{"language": "Solidity", "sources": {"storage_nonempty.sol": {"content": "contract StorageNotEmpty {\n    uint256 x;\n    function set(uint256 _a) public { x = _a; }\n}\n// ----\n// storageEmpty -> 1\n// set(uint256): 1 ->\n// storageEmpty -> 0\n"}}, "settings": {"optimizer": {"enabled": true, "runs": 200, "details": {"peephole": false, "inliner": false, "jumpdestRemover": false, "orderLiterals": false, "deduplicate": false, "cse": false, "constantOptimizer": false}}, "outputSelection": {"*": {"*": ["abi", "metadata", "evm.bytecode", "evm.deployedBytecode", "evm.methodIdentifiers"]}}, "metadata": {"appendCBOR": false}}}
+{
+    "language": "Solidity",
+    "sources": {
+        "storage_nonempty.sol": {
+            "content": "contract StorageNotEmpty {\n    uint256 x;\n    function set(uint256 _a) public { x = _a; }\n}\n// ----\n// storageEmpty -> 1\n// set(uint256): 1 ->\n// storageEmpty -> 0\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

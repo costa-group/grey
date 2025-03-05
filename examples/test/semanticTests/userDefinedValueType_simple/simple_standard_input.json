@@ -1,1 +1,34 @@
-{"language": "Solidity", "sources": {"simple.sol": {"content": "type MyInt is int;\ncontract C {\n    function f() external pure returns (MyInt a) {\n    }\n    function g() external pure returns (MyInt b, MyInt c) {\n        b = MyInt.wrap(int(1));\n        c = MyInt.wrap(1);\n    }\n}\n// ----\n// f() -> 0\n// g() -> 1, 1\n"}}, "settings": {"optimizer": {"enabled": true, "runs": 200, "details": {"peephole": false, "inliner": false, "jumpdestRemover": false, "orderLiterals": false, "deduplicate": false, "cse": false, "constantOptimizer": false}}, "outputSelection": {"*": {"*": ["abi", "metadata", "evm.bytecode", "evm.deployedBytecode", "evm.methodIdentifiers"]}}, "metadata": {"appendCBOR": false}}}
+{
+    "language": "Solidity",
+    "sources": {
+        "simple.sol": {
+            "content": "type MyInt is int;\ncontract C {\n    function f() external pure returns (MyInt a) {\n    }\n    function g() external pure returns (MyInt b, MyInt c) {\n        b = MyInt.wrap(int(1));\n        c = MyInt.wrap(1);\n    }\n}\n// ----\n// f() -> 0\n// g() -> 1, 1\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

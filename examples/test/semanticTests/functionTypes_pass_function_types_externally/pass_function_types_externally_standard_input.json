@@ -1,1 +1,34 @@
-{"language": "Solidity", "sources": {"pass_function_types_externally.sol": {"content": "contract C {\n    function f(uint256 x) public returns (uint256) {\n        return this.eval(this.g, x);\n    }\n\n    function f2(uint256 x) public returns (uint256) {\n        return eval(this.g, x);\n    }\n\n    function eval(function(uint) external returns (uint) x, uint a) public returns (uint) {\n        return x(a);\n    }\n\n    function g(uint256 x) public returns (uint256) {\n        return x + 1;\n    }\n}\n// ----\n// f(uint256): 7 -> 8\n// f2(uint256): 7 -> 8\n"}}, "settings": {"optimizer": {"enabled": true, "runs": 200, "details": {"peephole": false, "inliner": false, "jumpdestRemover": false, "orderLiterals": false, "deduplicate": false, "cse": false, "constantOptimizer": false}}, "outputSelection": {"*": {"*": ["abi", "metadata", "evm.bytecode", "evm.deployedBytecode", "evm.methodIdentifiers"]}}, "metadata": {"appendCBOR": false}}}
+{
+    "language": "Solidity",
+    "sources": {
+        "pass_function_types_externally.sol": {
+            "content": "contract C {\n    function f(uint256 x) public returns (uint256) {\n        return this.eval(this.g, x);\n    }\n\n    function f2(uint256 x) public returns (uint256) {\n        return eval(this.g, x);\n    }\n\n    function eval(function(uint) external returns (uint) x, uint a) public returns (uint) {\n        return x(a);\n    }\n\n    function g(uint256 x) public returns (uint256) {\n        return x + 1;\n    }\n}\n// ----\n// f(uint256): 7 -> 8\n// f2(uint256): 7 -> 8\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

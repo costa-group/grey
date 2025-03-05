@@ -1,1 +1,34 @@
-{"language": "Solidity", "sources": {"transfer.sol": {"content": "contract A {\n\treceive() external payable {\n\t\trevert(\"no_receive\");\n\t}\n}\n\ncontract C {\n\tA a = new A();\n\treceive() external payable {}\n\tfunction f() public {\n\t\tpayable(a).transfer(1 wei);\n\t}\n\tfunction h() public {\n\t\tpayable(a).transfer(100 ether);\n\t}\n\tfunction g() public view returns (uint) {\n\t\treturn payable(this).balance;\n\t}\n}\n// ====\n// EVMVersion: >=byzantium\n// revertStrings: debug\n// ----\n// (), 10 wei ->\n// g() -> 10\n// f() -> FAILURE, hex\"08c379a0\", 0x20, 10, \"no_receive\"\n// h() -> FAILURE\n"}}, "settings": {"optimizer": {"enabled": true, "runs": 200, "details": {"peephole": false, "inliner": false, "jumpdestRemover": false, "orderLiterals": false, "deduplicate": false, "cse": false, "constantOptimizer": false}}, "outputSelection": {"*": {"*": ["abi", "metadata", "evm.bytecode", "evm.deployedBytecode", "evm.methodIdentifiers"]}}, "metadata": {"appendCBOR": false}}}
+{
+    "language": "Solidity",
+    "sources": {
+        "transfer.sol": {
+            "content": "contract A {\n\treceive() external payable {\n\t\trevert(\"no_receive\");\n\t}\n}\n\ncontract C {\n\tA a = new A();\n\treceive() external payable {}\n\tfunction f() public {\n\t\tpayable(a).transfer(1 wei);\n\t}\n\tfunction h() public {\n\t\tpayable(a).transfer(100 ether);\n\t}\n\tfunction g() public view returns (uint) {\n\t\treturn payable(this).balance;\n\t}\n}\n// ====\n// EVMVersion: >=byzantium\n// revertStrings: debug\n// ----\n// (), 10 wei ->\n// g() -> 10\n// f() -> FAILURE, hex\"08c379a0\", 0x20, 10, \"no_receive\"\n// h() -> FAILURE\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

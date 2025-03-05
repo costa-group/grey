@@ -1,1 +1,34 @@
-{"language": "Solidity", "sources": {"return_size_shorter_than_expected.sol": {"content": "interface LongReturn {\n    function f() external pure returns (uint[20] memory);\n}\ncontract ShortReturn {\n    function f() external pure returns (bytes32) {}\n}\n\ncontract Test {\n    function test() public returns (uint) {\n        ShortReturn shortReturn = new ShortReturn();\n        uint freeMemoryBefore;\n        assembly {\n            freeMemoryBefore := mload(0x40)\n        }\n\n        LongReturn(address(shortReturn)).f();\n\n        uint freeMemoryAfter;\n\n        assembly {\n            freeMemoryAfter := mload(0x40)\n        }\n\n        return freeMemoryAfter - freeMemoryBefore;\n    }\n}\n// ====\n// EVMVersion: <=homestead\n// compileViaYul: true\n// ----\n// test() -> 0x0500\n// gas legacy: 131966\n"}}, "settings": {"optimizer": {"enabled": true, "runs": 200, "details": {"peephole": false, "inliner": false, "jumpdestRemover": false, "orderLiterals": false, "deduplicate": false, "cse": false, "constantOptimizer": false}}, "outputSelection": {"*": {"*": ["abi", "metadata", "evm.bytecode", "evm.deployedBytecode", "evm.methodIdentifiers"]}}, "metadata": {"appendCBOR": false}}}
+{
+    "language": "Solidity",
+    "sources": {
+        "return_size_shorter_than_expected.sol": {
+            "content": "interface LongReturn {\n    function f() external pure returns (uint[20] memory);\n}\ncontract ShortReturn {\n    function f() external pure returns (bytes32) {}\n}\n\ncontract Test {\n    function test() public returns (uint) {\n        ShortReturn shortReturn = new ShortReturn();\n        uint freeMemoryBefore;\n        assembly {\n            freeMemoryBefore := mload(0x40)\n        }\n\n        LongReturn(address(shortReturn)).f();\n\n        uint freeMemoryAfter;\n\n        assembly {\n            freeMemoryAfter := mload(0x40)\n        }\n\n        return freeMemoryAfter - freeMemoryBefore;\n    }\n}\n// ====\n// EVMVersion: <=homestead\n// compileViaYul: true\n// ----\n// test() -> 0x0500\n// gas legacy: 131966\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

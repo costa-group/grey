@@ -1,1 +1,34 @@
-{"language": "Solidity", "sources": {"function_type_copy.sol": {"content": "pragma abicoder v2;\nstruct S {\n    function () external[] functions;\n}\n\ncontract C {\n    function f(function () external[] calldata functions) external returns (S memory) {\n        S memory s;\n        s.functions = functions;\n        return s;\n    }\n}\n\ncontract Test {\n    C immutable c = new C();\n\n    function test() external returns (bool) {\n        function() external[] memory functions = new function() external[](3);\n\n        functions[0] = this.random1;\n        functions[1] = this.random2;\n        functions[2] = this.random3;\n\n        S memory ret = c.f(functions);\n\n        assert(ret.functions.length == 3);\n        assert(ret.functions[0] == this.random1);\n        assert(ret.functions[1] == this.random2);\n        assert(ret.functions[2] == this.random3);\n\n        return true;\n    }\n    function random1() external {\n    }\n    function random2() external {\n    }\n    function random3() external {\n    }\n}\n// ====\n// EVMVersion: >homestead\n// ----\n// test() -> true\n"}}, "settings": {"optimizer": {"enabled": true, "runs": 200, "details": {"peephole": false, "inliner": false, "jumpdestRemover": false, "orderLiterals": false, "deduplicate": false, "cse": false, "constantOptimizer": false}}, "outputSelection": {"*": {"*": ["abi", "metadata", "evm.bytecode", "evm.deployedBytecode", "evm.methodIdentifiers"]}}, "metadata": {"appendCBOR": false}}}
+{
+    "language": "Solidity",
+    "sources": {
+        "function_type_copy.sol": {
+            "content": "pragma abicoder v2;\nstruct S {\n    function () external[] functions;\n}\n\ncontract C {\n    function f(function () external[] calldata functions) external returns (S memory) {\n        S memory s;\n        s.functions = functions;\n        return s;\n    }\n}\n\ncontract Test {\n    C immutable c = new C();\n\n    function test() external returns (bool) {\n        function() external[] memory functions = new function() external[](3);\n\n        functions[0] = this.random1;\n        functions[1] = this.random2;\n        functions[2] = this.random3;\n\n        S memory ret = c.f(functions);\n\n        assert(ret.functions.length == 3);\n        assert(ret.functions[0] == this.random1);\n        assert(ret.functions[1] == this.random2);\n        assert(ret.functions[2] == this.random3);\n\n        return true;\n    }\n    function random1() external {\n    }\n    function random2() external {\n    }\n    function random3() external {\n    }\n}\n// ====\n// EVMVersion: >homestead\n// ----\n// test() -> true\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

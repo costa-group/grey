@@ -1,1 +1,34 @@
-{"language": "Solidity", "sources": {"senders_balance.sol": {"content": "contract C {\n    function f() public view returns (uint256) {\n        return msg.sender.balance;\n    }\n}\n\n\ncontract D {\n    C c = new C();\n\n    constructor() payable {}\n\n    function f() public view returns (uint256) {\n        return c.f();\n    }\n}\n// ----\n// constructor(), 27 wei ->\n// gas irOptimized: 114057\n// gas irOptimized code: 53800\n// gas legacy: 117834\n// gas legacy code: 100600\n// gas legacyOptimized: 113676\n// gas legacyOptimized code: 53600\n// f() -> 27\n"}}, "settings": {"optimizer": {"enabled": true, "runs": 200, "details": {"peephole": false, "inliner": false, "jumpdestRemover": false, "orderLiterals": false, "deduplicate": false, "cse": false, "constantOptimizer": false}}, "outputSelection": {"*": {"*": ["abi", "metadata", "evm.bytecode", "evm.deployedBytecode", "evm.methodIdentifiers"]}}, "metadata": {"appendCBOR": false}}}
+{
+    "language": "Solidity",
+    "sources": {
+        "senders_balance.sol": {
+            "content": "contract C {\n    function f() public view returns (uint256) {\n        return msg.sender.balance;\n    }\n}\n\n\ncontract D {\n    C c = new C();\n\n    constructor() payable {}\n\n    function f() public view returns (uint256) {\n        return c.f();\n    }\n}\n// ----\n// constructor(), 27 wei ->\n// gas irOptimized: 114057\n// gas irOptimized code: 53800\n// gas legacy: 117834\n// gas legacy code: 100600\n// gas legacyOptimized: 113676\n// gas legacyOptimized code: 53600\n// f() -> 27\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

@@ -1,1 +1,34 @@
-{"language": "Solidity", "sources": {"calldata_array.sol": {"content": "pragma abicoder               v2;\n\n\ncontract C {\n    function f(uint256[2] calldata s)\n        external\n        pure\n        returns (uint256 a, uint256 b)\n    {\n        a = s[0];\n        b = s[1];\n    }\n}\n// ----\n// f(uint256[2]): 42, 23 -> 42, 23\n"}}, "settings": {"optimizer": {"enabled": true, "runs": 200, "details": {"peephole": false, "inliner": false, "jumpdestRemover": false, "orderLiterals": false, "deduplicate": false, "cse": false, "constantOptimizer": false}}, "outputSelection": {"*": {"*": ["abi", "metadata", "evm.bytecode", "evm.deployedBytecode", "evm.methodIdentifiers"]}}, "metadata": {"appendCBOR": false}}}
+{
+    "language": "Solidity",
+    "sources": {
+        "calldata_array.sol": {
+            "content": "pragma abicoder               v2;\n\n\ncontract C {\n    function f(uint256[2] calldata s)\n        external\n        pure\n        returns (uint256 a, uint256 b)\n    {\n        a = s[0];\n        b = s[1];\n    }\n}\n// ----\n// f(uint256[2]): 42, 23 -> 42, 23\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

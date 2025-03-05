@@ -1,1 +1,34 @@
-{"language": "Solidity", "sources": {"reencoded_calldata_string.sol": {"content": "contract C {\n    function f(string calldata x) external returns (bytes memory r) {\n        uint mptr;\n        assembly {\n            // dirty memory\n            mptr := mload(0x40)\n            for { let i := mptr } lt(i, add(mptr, 0x0100)) { i := add(i, 32) }\n            {\n                mstore(i, sub(0, 1))\n            }\n        }\n        r = abi.encode(x);\n        assembly {\n            // assert that we dirtied the memory that was encoded to\n            if iszero(eq(mptr, r)) {\n                revert(0, 0)\n            }\n        }\n    }\n    function test() external returns (bytes memory) {\n        return this.f(\"abc\");\n    }\n}\n// ====\n// EVMVersion: >homestead\n// ----\n// test() -> 0x20, 0x60, 0x20, 3, \"abc\"\n"}}, "settings": {"optimizer": {"enabled": true, "runs": 200, "details": {"peephole": false, "inliner": false, "jumpdestRemover": false, "orderLiterals": false, "deduplicate": false, "cse": false, "constantOptimizer": false}}, "outputSelection": {"*": {"*": ["abi", "metadata", "evm.bytecode", "evm.deployedBytecode", "evm.methodIdentifiers"]}}, "metadata": {"appendCBOR": false}}}
+{
+    "language": "Solidity",
+    "sources": {
+        "reencoded_calldata_string.sol": {
+            "content": "contract C {\n    function f(string calldata x) external returns (bytes memory r) {\n        uint mptr;\n        assembly {\n            // dirty memory\n            mptr := mload(0x40)\n            for { let i := mptr } lt(i, add(mptr, 0x0100)) { i := add(i, 32) }\n            {\n                mstore(i, sub(0, 1))\n            }\n        }\n        r = abi.encode(x);\n        assembly {\n            // assert that we dirtied the memory that was encoded to\n            if iszero(eq(mptr, r)) {\n                revert(0, 0)\n            }\n        }\n    }\n    function test() external returns (bytes memory) {\n        return this.f(\"abc\");\n    }\n}\n// ====\n// EVMVersion: >homestead\n// ----\n// test() -> 0x20, 0x60, 0x20, 3, \"abc\"\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

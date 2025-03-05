@@ -1,1 +1,34 @@
-{"language": "Solidity", "sources": {"array_storage_push_empty_length_address.sol": {"content": "contract C {\n    address[] addressArray;\n    function set_get_length(uint256 len) public returns (uint256)\n    {\n        while(addressArray.length < len)\n            addressArray.push();\n        while(addressArray.length > len)\n            addressArray.pop();\n        return addressArray.length;\n    }\n}\n// ====\n// EVMVersion: >=petersburg\n// ----\n// set_get_length(uint256): 0 -> 0\n// set_get_length(uint256): 1 -> 1\n// set_get_length(uint256): 10 -> 10\n// set_get_length(uint256): 20 -> 20\n// set_get_length(uint256): 0 -> 0\n// gas irOptimized: 77628\n// gas legacy: 77730\n// gas legacyOptimized: 77162\n// set_get_length(uint256): 0xFF -> 0xFF\n// gas irOptimized: 168565\n// gas legacy: 696850\n// gas legacyOptimized: 134488\n// set_get_length(uint256): 0xFFF -> 0xFFF\n// gas irOptimized: 1908127\n// gas legacy: 9857362\n// gas legacyOptimized: 1393660\n// set_get_length(uint256): 0xFFFFF -> FAILURE # Out-of-gas #\n// gas irOptimized: 100000000\n// gas legacyOptimized: 100000000\n"}}, "settings": {"optimizer": {"enabled": true, "runs": 200, "details": {"peephole": false, "inliner": false, "jumpdestRemover": false, "orderLiterals": false, "deduplicate": false, "cse": false, "constantOptimizer": false}}, "outputSelection": {"*": {"*": ["abi", "metadata", "evm.bytecode", "evm.deployedBytecode", "evm.methodIdentifiers"]}}, "metadata": {"appendCBOR": false}}}
+{
+    "language": "Solidity",
+    "sources": {
+        "array_storage_push_empty_length_address.sol": {
+            "content": "contract C {\n    address[] addressArray;\n    function set_get_length(uint256 len) public returns (uint256)\n    {\n        while(addressArray.length < len)\n            addressArray.push();\n        while(addressArray.length > len)\n            addressArray.pop();\n        return addressArray.length;\n    }\n}\n// ====\n// EVMVersion: >=petersburg\n// ----\n// set_get_length(uint256): 0 -> 0\n// set_get_length(uint256): 1 -> 1\n// set_get_length(uint256): 10 -> 10\n// set_get_length(uint256): 20 -> 20\n// set_get_length(uint256): 0 -> 0\n// gas irOptimized: 77628\n// gas legacy: 77730\n// gas legacyOptimized: 77162\n// set_get_length(uint256): 0xFF -> 0xFF\n// gas irOptimized: 168565\n// gas legacy: 696850\n// gas legacyOptimized: 134488\n// set_get_length(uint256): 0xFFF -> 0xFFF\n// gas irOptimized: 1908127\n// gas legacy: 9857362\n// gas legacyOptimized: 1393660\n// set_get_length(uint256): 0xFFFFF -> FAILURE # Out-of-gas #\n// gas irOptimized: 100000000\n// gas legacyOptimized: 100000000\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

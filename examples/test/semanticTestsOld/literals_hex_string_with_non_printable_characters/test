@@ -1,0 +1,26 @@
+{
+    "semanticTests/literals/hex_string_with_non_printable_characters.sol": {
+        "bytecode": "60808060405234601357605c908160188239f35b5f80fdfe60808060405260043610156011575f80fd5b5f3560e01c6326121ff0146023575f80fd5b346058575f366003190112605857807e0102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f60209252f35b5f80fd",
+        "contract": ":C",
+        "tests": [
+            {
+                "input": {
+                    "calldata": "",
+                    "value": "0"
+                },
+                "kind": "constructor"
+            },
+            {
+                "input": {
+                    "calldata": "26121ff0",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f",
+                    "status": "success"
+                }
+            }
+        ]
+    }
+}

@@ -1,1 +1,34 @@
-{"language": "Solidity", "sources": {"function_pointers.sol": {"content": "contract C {\n\tfunction f() public {\n\t\tfunction() internal returns (uint) _f;\n\t\t_f();\n\t}\n\tfunction g() public {\n\t\tfunction() external returns (uint) _g;\n\t\t_g();\n\t}\n\tfunction h1() internal returns (function() internal returns (uint) _h) {}\n\tfunction h2() public {\n\t\th1()();\n\t}\n\tfunction k1() internal returns (function() external returns (uint) _k) {}\n\tfunction k2() public {\n\t\tk1()();\n\t}\n}\n// ----\n// f() -> FAILURE, hex\"4e487b71\", 0x51\n// g() -> FAILURE\n// h2() -> FAILURE, hex\"4e487b71\", 0x51\n// k2() -> FAILURE\n"}}, "settings": {"optimizer": {"enabled": true, "runs": 200, "details": {"peephole": false, "inliner": false, "jumpdestRemover": false, "orderLiterals": false, "deduplicate": false, "cse": false, "constantOptimizer": false}}, "outputSelection": {"*": {"*": ["abi", "metadata", "evm.bytecode", "evm.deployedBytecode", "evm.methodIdentifiers"]}}, "metadata": {"appendCBOR": false}}}
+{
+    "language": "Solidity",
+    "sources": {
+        "function_pointers.sol": {
+            "content": "contract C {\n\tfunction f() public {\n\t\tfunction() internal returns (uint) _f;\n\t\t_f();\n\t}\n\tfunction g() public {\n\t\tfunction() external returns (uint) _g;\n\t\t_g();\n\t}\n\tfunction h1() internal returns (function() internal returns (uint) _h) {}\n\tfunction h2() public {\n\t\th1()();\n\t}\n\tfunction k1() internal returns (function() external returns (uint) _k) {}\n\tfunction k2() public {\n\t\tk1()();\n\t}\n}\n// ----\n// f() -> FAILURE, hex\"4e487b71\", 0x51\n// g() -> FAILURE\n// h2() -> FAILURE, hex\"4e487b71\", 0x51\n// k2() -> FAILURE\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

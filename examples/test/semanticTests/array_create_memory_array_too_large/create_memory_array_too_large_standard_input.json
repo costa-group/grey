@@ -1,1 +1,34 @@
-{"language": "Solidity", "sources": {"create_memory_array_too_large.sol": {"content": "contract C {\n    function f() public returns (uint256) {\n        uint256 l = 2**256 / 32;\n        // This used to work without causing an error.\n        uint256[] memory x = new uint256[](l);\n        uint256[] memory y = new uint256[](1);\n        x[1] = 42;\n        // This used to overwrite the value written above.\n        y[0] = 23;\n        return x[1];\n    }\n    function g() public returns (uint256) {\n        uint256 l = 2**256 / 2 + 1;\n        // This used to work without causing an error.\n        uint16[] memory x = new uint16[](l);\n        uint16[] memory y = new uint16[](1);\n        x[2] = 42;\n        // This used to overwrite the value written above.\n        y[0] = 23;\n        return x[2];\n    }}\n// ----\n// f() -> FAILURE, hex\"4e487b71\", 0x41\n// g() -> FAILURE, hex\"4e487b71\", 0x41\n"}}, "settings": {"optimizer": {"enabled": true, "runs": 200, "details": {"peephole": false, "inliner": false, "jumpdestRemover": false, "orderLiterals": false, "deduplicate": false, "cse": false, "constantOptimizer": false}}, "outputSelection": {"*": {"*": ["abi", "metadata", "evm.bytecode", "evm.deployedBytecode", "evm.methodIdentifiers"]}}, "metadata": {"appendCBOR": false}}}
+{
+    "language": "Solidity",
+    "sources": {
+        "create_memory_array_too_large.sol": {
+            "content": "contract C {\n    function f() public returns (uint256) {\n        uint256 l = 2**256 / 32;\n        // This used to work without causing an error.\n        uint256[] memory x = new uint256[](l);\n        uint256[] memory y = new uint256[](1);\n        x[1] = 42;\n        // This used to overwrite the value written above.\n        y[0] = 23;\n        return x[1];\n    }\n    function g() public returns (uint256) {\n        uint256 l = 2**256 / 2 + 1;\n        // This used to work without causing an error.\n        uint16[] memory x = new uint16[](l);\n        uint16[] memory y = new uint16[](1);\n        x[2] = 42;\n        // This used to overwrite the value written above.\n        y[0] = 23;\n        return x[2];\n    }}\n// ----\n// f() -> FAILURE, hex\"4e487b71\", 0x41\n// g() -> FAILURE, hex\"4e487b71\", 0x41\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

@@ -1,1 +1,34 @@
-{"language": "Solidity", "sources": {"skip_dynamic_types_for_structs.sol": {"content": "// For accessors, the dynamic types are already removed in the external signature itself.\ncontract C {\n    struct S {\n        uint256 x;\n        string a; // this is present in the accessor\n        uint256[] b; // this is not present\n        uint256 y;\n    }\n    S public s;\n\n    function g() public returns (uint256, uint256) {\n        s.x = 2;\n        s.a = \"abc\";\n        s.b = [7, 8, 9];\n        s.y = 6;\n        (uint256 x, , uint256 y) = this.s();\n        return (x, y);\n    }\n}\n// ----\n// g() -> 2, 6\n// gas irOptimized: 178195\n// gas legacy: 180653\n// gas legacyOptimized: 179144\n"}}, "settings": {"optimizer": {"enabled": true, "runs": 200, "details": {"peephole": false, "inliner": false, "jumpdestRemover": false, "orderLiterals": false, "deduplicate": false, "cse": false, "constantOptimizer": false}}, "outputSelection": {"*": {"*": ["abi", "metadata", "evm.bytecode", "evm.deployedBytecode", "evm.methodIdentifiers"]}}, "metadata": {"appendCBOR": false}}}
+{
+    "language": "Solidity",
+    "sources": {
+        "skip_dynamic_types_for_structs.sol": {
+            "content": "// For accessors, the dynamic types are already removed in the external signature itself.\ncontract C {\n    struct S {\n        uint256 x;\n        string a; // this is present in the accessor\n        uint256[] b; // this is not present\n        uint256 y;\n    }\n    S public s;\n\n    function g() public returns (uint256, uint256) {\n        s.x = 2;\n        s.a = \"abc\";\n        s.b = [7, 8, 9];\n        s.y = 6;\n        (uint256 x, , uint256 y) = this.s();\n        return (x, y);\n    }\n}\n// ----\n// g() -> 2, 6\n// gas irOptimized: 178195\n// gas legacy: 180653\n// gas legacyOptimized: 179144\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

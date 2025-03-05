@@ -1,0 +1,26 @@
+{
+    "semanticTests/array/array_storage_pop_zero_length.sol": {
+        "bytecode": "608080604052346013576095908160188239f35b5f80fdfe6004361015600b575f80fd5b5f3560e01c6305f3a54614601d575f80fd5b346091575f3660031901126091575f548015607d575f19810190808210156069577f290decd9548b62a8d60345a988386fc84ba6bc95484008f6362f93160ef3e5625f9101555f555f80f35b634e487b7160e01b5f52603260045260245ffd5b634e487b7160e01b5f52603160045260245ffd5b5f80fd",
+        "contract": ":C",
+        "tests": [
+            {
+                "input": {
+                    "calldata": "",
+                    "value": "0"
+                },
+                "kind": "constructor"
+            },
+            {
+                "input": {
+                    "calldata": "05f3a546",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "4e487b710000000000000000000000000000000000000000000000000000000000000031",
+                    "status": "failure"
+                }
+            }
+        ]
+    }
+}

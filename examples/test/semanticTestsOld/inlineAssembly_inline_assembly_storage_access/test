@@ -1,0 +1,37 @@
+{
+    "semanticTests/inlineAssembly/inline_assembly_storage_access.sol": {
+        "bytecode": "608080604052346013576094908160188239f35b5f80fdfe608060405260043610156010575f80fd5b5f3560e01c806326121ff0146076578063a56dfe4a1460555763c5d7802e146036575f80fd5b346051575f3660031901126051576020600154604051908152f35b5f80fd5b346051575f366003190112605157602061ffff5f5460101c16604051908152f35b346051575f3660031901126051576007600155602060405160018152f3",
+        "contract": ":C",
+        "tests": [
+            {
+                "input": {
+                    "calldata": "",
+                    "value": "0"
+                },
+                "kind": "constructor"
+            },
+            {
+                "input": {
+                    "calldata": "26121ff0",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "0000000000000000000000000000000000000000000000000000000000000001",
+                    "status": "success"
+                }
+            },
+            {
+                "input": {
+                    "calldata": "c5d7802e",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "0000000000000000000000000000000000000000000000000000000000000007",
+                    "status": "success"
+                }
+            }
+        ]
+    }
+}

@@ -1,1 +1,34 @@
-{"language": "Solidity", "sources": {"arrays.sol": {"content": "contract C {\n    uint8[][2] public a;\n    constructor() {\n        a[1].push(3);\n        a[1].push(4);\n    }\n}\n// ----\n// a(uint256,uint256): 0, 0 -> FAILURE\n// a(uint256,uint256): 1, 0 -> 3\n// a(uint256,uint256): 1, 1 -> 4\n// a(uint256,uint256): 2, 0 -> FAILURE\n"}}, "settings": {"optimizer": {"enabled": true, "runs": 200, "details": {"peephole": false, "inliner": false, "jumpdestRemover": false, "orderLiterals": false, "deduplicate": false, "cse": false, "constantOptimizer": false}}, "outputSelection": {"*": {"*": ["abi", "metadata", "evm.bytecode", "evm.deployedBytecode", "evm.methodIdentifiers"]}}, "metadata": {"appendCBOR": false}}}
+{
+    "language": "Solidity",
+    "sources": {
+        "arrays.sol": {
+            "content": "contract C {\n    uint8[][2] public a;\n    constructor() {\n        a[1].push(3);\n        a[1].push(4);\n    }\n}\n// ----\n// a(uint256,uint256): 0, 0 -> FAILURE\n// a(uint256,uint256): 1, 0 -> 3\n// a(uint256,uint256): 1, 1 -> 4\n// a(uint256,uint256): 2, 0 -> FAILURE\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

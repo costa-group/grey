@@ -1,1 +1,34 @@
-{"language": "Solidity", "sources": {"create_calldata.sol": {"content": "contract C {\n\tbytes public s;\n\tconstructor(uint256 x) {\n\t\t// Due to a bug in EVMHost, msg.data used to contain initcode and constructor arguments.\n\t\ts = msg.data;\n\t\tassert(msg.data.length == 0);\n\t}\n}\n// ----\n// constructor(): 42 ->\n// gas irOptimized: 68239\n// gas irOptimized code: 69000\n// gas legacy: 78076\n// gas legacy code: 90200\n// gas legacyOptimized: 68321\n// gas legacyOptimized code: 64600\n// s() -> 0x20, 0\n"}}, "settings": {"optimizer": {"enabled": true, "runs": 200, "details": {"peephole": false, "inliner": false, "jumpdestRemover": false, "orderLiterals": false, "deduplicate": false, "cse": false, "constantOptimizer": false}}, "outputSelection": {"*": {"*": ["abi", "metadata", "evm.bytecode", "evm.deployedBytecode", "evm.methodIdentifiers"]}}, "metadata": {"appendCBOR": false}}}
+{
+    "language": "Solidity",
+    "sources": {
+        "create_calldata.sol": {
+            "content": "contract C {\n\tbytes public s;\n\tconstructor(uint256 x) {\n\t\t// Due to a bug in EVMHost, msg.data used to contain initcode and constructor arguments.\n\t\ts = msg.data;\n\t\tassert(msg.data.length == 0);\n\t}\n}\n// ====\n// bytecodeFormat: legacy\n// ----\n// constructor(): 42 ->\n// gas irOptimized: 68239\n// gas irOptimized code: 69000\n// gas legacy: 78076\n// gas legacy code: 90200\n// gas legacyOptimized: 68321\n// gas legacyOptimized code: 64600\n// s() -> 0x20, 0\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

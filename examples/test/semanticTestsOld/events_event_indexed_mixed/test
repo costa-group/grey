@@ -1,0 +1,26 @@
+{
+    "semanticTests/events/event_indexed_mixed.sol": {
+        "bytecode": "608080604052346013576083908160188239f35b5f80fdfe60808060405260043610156011575f80fd5b5f3560e01c63d0e30db0146023575f80fd5b34607f575f366003190112607f577f4a5254616891bfe91f4a3fb8910875b2ebff973e1e60562fc4686091c8264a3060a082600160029452600360208201526060604082015260036060820152623232b360e91b6080820152a2005b5f80fd",
+        "contract": ":C",
+        "tests": [
+            {
+                "input": {
+                    "calldata": "",
+                    "value": "0"
+                },
+                "kind": "constructor"
+            },
+            {
+                "input": {
+                    "calldata": "d0e30db0",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "",
+                    "status": "success"
+                }
+            }
+        ]
+    }
+}

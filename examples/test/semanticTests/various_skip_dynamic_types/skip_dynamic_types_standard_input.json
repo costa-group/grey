@@ -1,1 +1,34 @@
-{"language": "Solidity", "sources": {"skip_dynamic_types.sol": {"content": "// The EVM cannot provide access to dynamically-sized return values, so we have to skip them.\ncontract C {\n    function f() public returns (uint256, uint256[] memory, uint256) {\n        return (7, new uint256[](2), 8);\n    }\n\n    function g() public returns (uint256, uint256) {\n        // Previous implementation \"moved\" b to the second place and did not skip.\n        (uint256 a, , uint256 b) = this.f();\n        return (a, b);\n    }\n}\n// ----\n// g() -> 7, 8\n"}}, "settings": {"optimizer": {"enabled": true, "runs": 200, "details": {"peephole": false, "inliner": false, "jumpdestRemover": false, "orderLiterals": false, "deduplicate": false, "cse": false, "constantOptimizer": false}}, "outputSelection": {"*": {"*": ["abi", "metadata", "evm.bytecode", "evm.deployedBytecode", "evm.methodIdentifiers"]}}, "metadata": {"appendCBOR": false}}}
+{
+    "language": "Solidity",
+    "sources": {
+        "skip_dynamic_types.sol": {
+            "content": "// The EVM cannot provide access to dynamically-sized return values, so we have to skip them.\ncontract C {\n    function f() public returns (uint256, uint256[] memory, uint256) {\n        return (7, new uint256[](2), 8);\n    }\n\n    function g() public returns (uint256, uint256) {\n        // Previous implementation \"moved\" b to the second place and did not skip.\n        (uint256 a, , uint256 b) = this.f();\n        return (a, b);\n    }\n}\n// ----\n// g() -> 7, 8\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

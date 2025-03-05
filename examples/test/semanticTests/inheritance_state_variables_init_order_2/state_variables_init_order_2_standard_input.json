@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "state_variables_init_order_2.sol": {
+            "content": "contract A {\n    uint public x = 0;\n    uint y = f();\n    function f() public returns (uint256) {\n        ++x;\n        return 42;\n    }\n}\ncontract B is A {\n    uint public z;\n    constructor() {\n        z = x;\n    }\n}\n// ----\n// z() -> 1\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

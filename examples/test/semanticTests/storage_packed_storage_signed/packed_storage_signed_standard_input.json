@@ -1,1 +1,34 @@
-{"language": "Solidity", "sources": {"packed_storage_signed.sol": {"content": "contract C {\n    int8 a;\n    uint8 b;\n    int8 c;\n    uint8 d;\n\n    function test()\n        public\n        returns (uint256 x1, uint256 x2, uint256 x3, uint256 x4)\n    {\n        a = -2;\n        unchecked {\n            b = (0 - uint8(a)) * 2;\n            c = a * int8(120) * int8(121);\n        }\n        x1 = uint256(int256(a));\n        x2 = b;\n        x3 = uint256(int256(c));\n        x4 = d;\n    }\n}\n// ----\n// test() -> -2, 4, -112, 0\n"}}, "settings": {"optimizer": {"enabled": true, "runs": 200, "details": {"peephole": false, "inliner": false, "jumpdestRemover": false, "orderLiterals": false, "deduplicate": false, "cse": false, "constantOptimizer": false}}, "outputSelection": {"*": {"*": ["abi", "metadata", "evm.bytecode", "evm.deployedBytecode", "evm.methodIdentifiers"]}}, "metadata": {"appendCBOR": false}}}
+{
+    "language": "Solidity",
+    "sources": {
+        "packed_storage_signed.sol": {
+            "content": "contract C {\n    int8 a;\n    uint8 b;\n    int8 c;\n    uint8 d;\n\n    function test()\n        public\n        returns (uint256 x1, uint256 x2, uint256 x3, uint256 x4)\n    {\n        a = -2;\n        unchecked {\n            b = (0 - uint8(a)) * 2;\n            c = a * int8(120) * int8(121);\n        }\n        x1 = uint256(int256(a));\n        x2 = b;\n        x3 = uint256(int256(c));\n        x4 = d;\n    }\n}\n// ----\n// test() -> -2, 4, -112, 0\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

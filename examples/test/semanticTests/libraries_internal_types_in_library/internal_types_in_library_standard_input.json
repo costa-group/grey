@@ -1,1 +1,34 @@
-{"language": "Solidity", "sources": {"internal_types_in_library.sol": {"content": "library Lib {\n    function find(uint16[] storage _haystack, uint16 _needle) public view returns (uint)\n    {\n        for (uint i = 0; i < _haystack.length; ++i)\n            if (_haystack[i] == _needle)\n                return i;\n        return type(uint).max;\n    }\n}\ncontract Test {\n    mapping(string => uint16[]) data;\n    function f() public returns (uint a, uint b)\n    {\n        while (data[\"abc\"].length < 20)\n            data[\"abc\"].push();\n        data[\"abc\"][4] = 9;\n        data[\"abc\"][17] = 3;\n        a = Lib.find(data[\"abc\"], 9);\n        b = Lib.find(data[\"abc\"], 3);\n    }\n}\n// ----\n// library: Lib\n// f() -> 4, 0x11\n// gas irOptimized: 111419\n// gas legacy: 132930\n// gas legacyOptimized: 118020\n"}}, "settings": {"optimizer": {"enabled": true, "runs": 200, "details": {"peephole": false, "inliner": false, "jumpdestRemover": false, "orderLiterals": false, "deduplicate": false, "cse": false, "constantOptimizer": false}}, "outputSelection": {"*": {"*": ["abi", "metadata", "evm.bytecode", "evm.deployedBytecode", "evm.methodIdentifiers"]}}, "metadata": {"appendCBOR": false}}}
+{
+    "language": "Solidity",
+    "sources": {
+        "internal_types_in_library.sol": {
+            "content": "library Lib {\n    function find(uint16[] storage _haystack, uint16 _needle) public view returns (uint)\n    {\n        for (uint i = 0; i < _haystack.length; ++i)\n            if (_haystack[i] == _needle)\n                return i;\n        return type(uint).max;\n    }\n}\ncontract Test {\n    mapping(string => uint16[]) data;\n    function f() public returns (uint a, uint b)\n    {\n        while (data[\"abc\"].length < 20)\n            data[\"abc\"].push();\n        data[\"abc\"][4] = 9;\n        data[\"abc\"][17] = 3;\n        a = Lib.find(data[\"abc\"], 9);\n        b = Lib.find(data[\"abc\"], 3);\n    }\n}\n// ----\n// library: Lib\n// f() -> 4, 0x11\n// gas irOptimized: 111419\n// gas legacy: 132930\n// gas legacyOptimized: 118020\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

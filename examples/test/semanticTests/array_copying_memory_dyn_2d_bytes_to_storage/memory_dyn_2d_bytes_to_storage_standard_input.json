@@ -1,1 +1,34 @@
-{"language": "Solidity", "sources": {"memory_dyn_2d_bytes_to_storage.sol": {"content": "pragma abicoder v2;\n\ncontract C {\n    bytes[] s;\n    function f() external returns (uint256) {\n        bytes[] memory m = new bytes[](3);\n        m[0] = \"ab\"; m[1] = \"cde\"; m[2] = \"fghij\";\n        s = m;\n        assert(s.length == m.length);\n        for (uint i = 0; i < s.length; ++i) {\n            assert(s[i].length == m[i].length);\n            for (uint j = 0; j < s[i].length; ++j) {\n                 assert(s[i][j] == m[i][j]);\n            }\n        }\n        return s.length;\n    }\n}\n// ----\n// f() -> 3\n// gas irOptimized: 128296\n// gas legacy: 129077\n// gas legacyOptimized: 128210\n"}}, "settings": {"optimizer": {"enabled": true, "runs": 200, "details": {"peephole": false, "inliner": false, "jumpdestRemover": false, "orderLiterals": false, "deduplicate": false, "cse": false, "constantOptimizer": false}}, "outputSelection": {"*": {"*": ["abi", "metadata", "evm.bytecode", "evm.deployedBytecode", "evm.methodIdentifiers"]}}, "metadata": {"appendCBOR": false}}}
+{
+    "language": "Solidity",
+    "sources": {
+        "memory_dyn_2d_bytes_to_storage.sol": {
+            "content": "pragma abicoder v2;\n\ncontract C {\n    bytes[] s;\n    function f() external returns (uint256) {\n        bytes[] memory m = new bytes[](3);\n        m[0] = \"ab\"; m[1] = \"cde\"; m[2] = \"fghij\";\n        s = m;\n        assert(s.length == m.length);\n        for (uint i = 0; i < s.length; ++i) {\n            assert(s[i].length == m[i].length);\n            for (uint j = 0; j < s[i].length; ++j) {\n                 assert(s[i][j] == m[i][j]);\n            }\n        }\n        return s.length;\n    }\n}\n// ----\n// f() -> 3\n// gas irOptimized: 128296\n// gas legacy: 129077\n// gas legacyOptimized: 128210\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

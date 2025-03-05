@@ -1,1 +1,34 @@
-{"language": "Solidity", "sources": {"derived_overload_base_function_direct.sol": {"content": "contract B {\n    function f() public returns (uint256) {\n        return 10;\n    }\n}\n\n\ncontract C is B {\n    function f(uint256 i) public returns (uint256) {\n        return 2 * i;\n    }\n\n    function g() public returns (uint256) {\n        return f(1);\n    }\n}\n// ----\n// g() -> 2\n"}}, "settings": {"optimizer": {"enabled": true, "runs": 200, "details": {"peephole": false, "inliner": false, "jumpdestRemover": false, "orderLiterals": false, "deduplicate": false, "cse": false, "constantOptimizer": false}}, "outputSelection": {"*": {"*": ["abi", "metadata", "evm.bytecode", "evm.deployedBytecode", "evm.methodIdentifiers"]}}, "metadata": {"appendCBOR": false}}}
+{
+    "language": "Solidity",
+    "sources": {
+        "derived_overload_base_function_direct.sol": {
+            "content": "contract B {\n    function f() public returns (uint256) {\n        return 10;\n    }\n}\n\n\ncontract C is B {\n    function f(uint256 i) public returns (uint256) {\n        return 2 * i;\n    }\n\n    function g() public returns (uint256) {\n        return f(1);\n    }\n}\n// ----\n// g() -> 2\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

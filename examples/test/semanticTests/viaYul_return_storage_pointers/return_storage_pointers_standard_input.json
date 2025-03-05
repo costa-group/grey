@@ -1,1 +1,34 @@
-{"language": "Solidity", "sources": {"return_storage_pointers.sol": {"content": "contract C {\n\tuint[] arr1;\n\tuint[][] arr2;\n\tfunction f() internal returns (uint[] storage ptr1, uint[][] storage ptr2) {\n\t\tptr1 = arr1;\n\t\tptr2 = arr2;\n\t}\n\tfunction g() public returns (uint, uint) {\n\t\treturn (arr1.length, arr2.length);\n\t}\n\n}\n// ----\n// g() -> 0, 0\n"}}, "settings": {"optimizer": {"enabled": true, "runs": 200, "details": {"peephole": false, "inliner": false, "jumpdestRemover": false, "orderLiterals": false, "deduplicate": false, "cse": false, "constantOptimizer": false}}, "outputSelection": {"*": {"*": ["abi", "metadata", "evm.bytecode", "evm.deployedBytecode", "evm.methodIdentifiers"]}}, "metadata": {"appendCBOR": false}}}
+{
+    "language": "Solidity",
+    "sources": {
+        "return_storage_pointers.sol": {
+            "content": "contract C {\n\tuint[] arr1;\n\tuint[][] arr2;\n\tfunction f() internal returns (uint[] storage ptr1, uint[][] storage ptr2) {\n\t\tptr1 = arr1;\n\t\tptr2 = arr2;\n\t}\n\tfunction g() public returns (uint, uint) {\n\t\treturn (arr1.length, arr2.length);\n\t}\n\n}\n// ----\n// g() -> 0, 0\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

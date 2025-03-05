@@ -1,1 +1,34 @@
-{"language": "Solidity", "sources": {"internal_library_function_attached_to_mapping.sol": {"content": "library L {\n    function at(mapping(uint => uint) storage a, uint i) internal view returns (uint) {\n        return a[i];\n    }\n}\n\ncontract C {\n    using L for mapping(uint => uint);\n\n    mapping(uint => uint) map;\n\n    function mapValue(uint a) public returns (uint) {\n        map[42] = 0x24;\n        map[66] = 0x66;\n\n        return map.at(a);\n    }\n}\n// ----\n// mapValue(uint256): 42 -> 0x24\n"}}, "settings": {"optimizer": {"enabled": true, "runs": 200, "details": {"peephole": false, "inliner": false, "jumpdestRemover": false, "orderLiterals": false, "deduplicate": false, "cse": false, "constantOptimizer": false}}, "outputSelection": {"*": {"*": ["abi", "metadata", "evm.bytecode", "evm.deployedBytecode", "evm.methodIdentifiers"]}}, "metadata": {"appendCBOR": false}}}
+{
+    "language": "Solidity",
+    "sources": {
+        "internal_library_function_attached_to_mapping.sol": {
+            "content": "library L {\n    function at(mapping(uint => uint) storage a, uint i) internal view returns (uint) {\n        return a[i];\n    }\n}\n\ncontract C {\n    using L for mapping(uint => uint);\n\n    mapping(uint => uint) map;\n\n    function mapValue(uint a) public returns (uint) {\n        map[42] = 0x24;\n        map[66] = 0x66;\n\n        return map.at(a);\n    }\n}\n// ----\n// mapValue(uint256): 42 -> 0x24\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

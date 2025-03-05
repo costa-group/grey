@@ -1,1 +1,34 @@
-{"language": "Solidity", "sources": {"return_variable.sol": {"content": "contract C {\n    function memorySize() internal pure returns (uint s) {\n        assembly { s := mload(0x40) }\n    }\n    function f() public returns (uint, uint, uint) {\n        uint a = memorySize();\n        g();\n        uint b = memorySize();\n        h();\n        uint c = memorySize();\n        i();\n        uint d = memorySize();\n        return (b - a, c - b, d - c);\n    }\n    // In these functions, we do allocate memory in both cases.\n    // In `i()`, this could be avoided but we would have to check\n    // that all code paths return explicitly and provide a value.\n    function g() internal returns (uint[40] memory) {\n    }\n    function h() internal returns (uint[40] memory t) {\n    }\n    function i() internal returns (uint[40] memory) {\n        uint[40] memory x;\n        return x;\n    }\n}\n// ----\n// f() -> 0x0500, 0x0500, 0x0a00\n"}}, "settings": {"optimizer": {"enabled": true, "runs": 200, "details": {"peephole": false, "inliner": false, "jumpdestRemover": false, "orderLiterals": false, "deduplicate": false, "cse": false, "constantOptimizer": false}}, "outputSelection": {"*": {"*": ["abi", "metadata", "evm.bytecode", "evm.deployedBytecode", "evm.methodIdentifiers"]}}, "metadata": {"appendCBOR": false}}}
+{
+    "language": "Solidity",
+    "sources": {
+        "return_variable.sol": {
+            "content": "contract C {\n    function memorySize() internal pure returns (uint s) {\n        assembly { s := mload(0x40) }\n    }\n    function f() public returns (uint, uint, uint) {\n        uint a = memorySize();\n        g();\n        uint b = memorySize();\n        h();\n        uint c = memorySize();\n        i();\n        uint d = memorySize();\n        return (b - a, c - b, d - c);\n    }\n    // In these functions, we do allocate memory in both cases.\n    // In `i()`, this could be avoided but we would have to check\n    // that all code paths return explicitly and provide a value.\n    function g() internal returns (uint[40] memory) {\n    }\n    function h() internal returns (uint[40] memory t) {\n    }\n    function i() internal returns (uint[40] memory) {\n        uint[40] memory x;\n        return x;\n    }\n}\n// ----\n// f() -> 0x0500, 0x0500, 0x0a00\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

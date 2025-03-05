@@ -1,0 +1,34 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "nested_calldata_storage2.sol": {
+            "content": "pragma abicoder               v2;\n\ncontract C {\n    uint[][] public tmp_i;\n    function i(uint[][] calldata s) external { tmp_i = s; }\n}\n// ====\n// compileViaYul: true\n// ----\n// i(uint256[][]): 0x20, 2, 0x40, 0xC0, 3, 0x0A01, 0x0A02, 0x0A03, 4, 0x0B01, 0x0B02, 0x0B03, 0x0B04\n// gas irOptimized: 245506\n// tmp_i(uint256,uint256): 0, 0 -> 0x0A01\n// tmp_i(uint256,uint256): 1, 0 -> 0x0B01\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

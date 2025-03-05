@@ -1,0 +1,26 @@
+{
+    "semanticTests/inlineAssembly/keccak256_optimizer_cache_bug.sol": {
+        "bytecode": "60808060405234601557610126908161001a8239f35b5f80fdfe60806040526004361015610011575f80fd5b5f3560e01c633c6bb43614610024575f80fd5b346100c1575f3660031901126100c15760025f555f805260ea7f290decd9548b62a8d60345a988386fc84ba6bc95484008f6362f93160ef3e56355607b7fe2b9f9f9430b05bfa9a3abd3bac9a181434d23a707ef1cde8bd25d30203538d95561009e607b6100906100c5565b90549060031b1c141561010b565b6100b66100a96100c5565b90549060031b1c1561010b565b602060405160018152f35b5f80fd5b5f54600110156100f7575f8080527f290decd9548b62a8d60345a988386fc84ba6bc95484008f6362f93160ef3e56491565b634e487b7160e01b5f52603260045260245ffd5b1561011257565b634e487b7160e01b5f52600160045260245ffd",
+        "contract": ":C",
+        "tests": [
+            {
+                "input": {
+                    "calldata": "",
+                    "value": "0"
+                },
+                "kind": "constructor"
+            },
+            {
+                "input": {
+                    "calldata": "3c6bb436",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "0000000000000000000000000000000000000000000000000000000000000001",
+                    "status": "success"
+                }
+            }
+        ]
+    }
+}

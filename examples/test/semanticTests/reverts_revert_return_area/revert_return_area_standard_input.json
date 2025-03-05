@@ -1,1 +1,34 @@
-{"language": "Solidity", "sources": {"revert_return_area.sol": {"content": "contract C {\n    fallback() external {\n        revert(\"abc\");\n    }\n\n    function f() public returns (uint s, uint r) {\n        address x = address(this);\n        assembly {\n            mstore(0, 7)\n            s := call(sub(0, 1), x, 0, 0, 0, 0, 32)\n            r := mload(0)\n        }\n    }\n}\n// ====\n// EVMVersion: >=byzantium\n// ----\n// f() -> 0x00, 0x08c379a000000000000000000000000000000000000000000000000000000000\n"}}, "settings": {"optimizer": {"enabled": true, "runs": 200, "details": {"peephole": false, "inliner": false, "jumpdestRemover": false, "orderLiterals": false, "deduplicate": false, "cse": false, "constantOptimizer": false}}, "outputSelection": {"*": {"*": ["abi", "metadata", "evm.bytecode", "evm.deployedBytecode", "evm.methodIdentifiers"]}}, "metadata": {"appendCBOR": false}}}
+{
+    "language": "Solidity",
+    "sources": {
+        "revert_return_area.sol": {
+            "content": "contract C {\n    fallback() external {\n        revert(\"abc\");\n    }\n\n    function f() public returns (uint s, uint r) {\n        address x = address(this);\n        assembly {\n            mstore(0, 7)\n            s := call(sub(0, 1), x, 0, 0, 0, 0, 32)\n            r := mload(0)\n        }\n    }\n}\n// ====\n// EVMVersion: >=byzantium\n// bytecodeFormat: legacy\n// ----\n// f() -> 0x00, 0x08c379a000000000000000000000000000000000000000000000000000000000\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

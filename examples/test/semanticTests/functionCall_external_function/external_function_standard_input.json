@@ -1,1 +1,34 @@
-{"language": "Solidity", "sources": {"external_function.sol": {"content": "contract c {\n    function f(uint256 a) public returns (uint256) {\n        return a;\n    }\n\n    function test(uint256 a, uint256 b)\n        external\n        returns (uint256 r_a, uint256 r_b)\n    {\n        r_a = f(a + 7);\n        r_b = b;\n    }\n}\n// ----\n// test(uint256,uint256): 2, 3 -> 9, 3\n"}}, "settings": {"optimizer": {"enabled": true, "runs": 200, "details": {"peephole": false, "inliner": false, "jumpdestRemover": false, "orderLiterals": false, "deduplicate": false, "cse": false, "constantOptimizer": false}}, "outputSelection": {"*": {"*": ["abi", "metadata", "evm.bytecode", "evm.deployedBytecode", "evm.methodIdentifiers"]}}, "metadata": {"appendCBOR": false}}}
+{
+    "language": "Solidity",
+    "sources": {
+        "external_function.sol": {
+            "content": "contract c {\n    function f(uint256 a) public returns (uint256) {\n        return a;\n    }\n\n    function test(uint256 a, uint256 b)\n        external\n        returns (uint256 r_a, uint256 r_b)\n    {\n        r_a = f(a + 7);\n        r_b = b;\n    }\n}\n// ----\n// test(uint256,uint256): 2, 3 -> 9, 3\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

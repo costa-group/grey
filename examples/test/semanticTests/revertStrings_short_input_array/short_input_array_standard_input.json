@@ -1,1 +1,34 @@
-{"language": "Solidity", "sources": {"short_input_array.sol": {"content": "pragma abicoder               v2;\ncontract C {\n\tfunction f(uint[] memory a) public pure returns (uint) { return 7; }\n}\n// ====\n// EVMVersion: >=byzantium\n// revertStrings: debug\n// ----\n// f(uint256[]): 0x20, 1 -> FAILURE, hex\"08c379a0\", 0x20, 43, \"ABI decoding: invalid calldata a\", \"rray stride\"\n"}}, "settings": {"optimizer": {"enabled": true, "runs": 200, "details": {"peephole": false, "inliner": false, "jumpdestRemover": false, "orderLiterals": false, "deduplicate": false, "cse": false, "constantOptimizer": false}}, "outputSelection": {"*": {"*": ["abi", "metadata", "evm.bytecode", "evm.deployedBytecode", "evm.methodIdentifiers"]}}, "metadata": {"appendCBOR": false}}}
+{
+    "language": "Solidity",
+    "sources": {
+        "short_input_array.sol": {
+            "content": "pragma abicoder               v2;\ncontract C {\n\tfunction f(uint[] memory a) public pure returns (uint) { return 7; }\n}\n// ====\n// EVMVersion: >=byzantium\n// revertStrings: debug\n// ----\n// f(uint256[]): 0x20, 1 -> FAILURE, hex\"08c379a0\", 0x20, 43, \"ABI decoding: invalid calldata a\", \"rray stride\"\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

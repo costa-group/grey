@@ -1,1 +1,34 @@
-{"language": "Solidity", "sources": {"enum_v1.sol": {"content": "pragma abicoder v1;\ncontract C {\n\tenum E {X, Y}\n\tfunction f(E[] calldata arr) external {\n\t\tarr[1];\n\t}\n}\n// ====\n// EVMVersion: >=byzantium\n// revertStrings: debug\n// ABIEncoderV1Only: true\n// compileViaYul: false\n// ----\n// f(uint8[]): 0x20, 2, 3, 3 -> FAILURE, hex\"08c379a0\", 0x20, 17, \"Enum out of range\"\n"}}, "settings": {"optimizer": {"enabled": true, "runs": 200, "details": {"peephole": false, "inliner": false, "jumpdestRemover": false, "orderLiterals": false, "deduplicate": false, "cse": false, "constantOptimizer": false}}, "outputSelection": {"*": {"*": ["abi", "metadata", "evm.bytecode", "evm.deployedBytecode", "evm.methodIdentifiers"]}}, "metadata": {"appendCBOR": false}}}
+{
+    "language": "Solidity",
+    "sources": {
+        "enum_v1.sol": {
+            "content": "pragma abicoder v1;\ncontract C {\n\tenum E {X, Y}\n\tfunction f(E[] calldata arr) external {\n\t\tarr[1];\n\t}\n}\n// ====\n// EVMVersion: >=byzantium\n// revertStrings: debug\n// ABIEncoderV1Only: true\n// compileViaYul: false\n// ----\n// f(uint8[]): 0x20, 2, 3, 3 -> FAILURE, hex\"08c379a0\", 0x20, 17, \"Enum out of range\"\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

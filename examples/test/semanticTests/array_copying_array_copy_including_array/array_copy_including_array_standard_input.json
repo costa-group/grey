@@ -1,1 +1,34 @@
-{"language": "Solidity", "sources": {"array_copy_including_array.sol": {"content": "contract c {\n    uint[3][90][] large;\n    uint[3][3][] small;\n    function test() public returns (uint r) {\n        for (uint i = 0; i < 7; i++) {\n            large.push();\n            small.push();\n        }\n        large[3][2][0] = 2;\n        large[1] = large[3];\n        small[3][2][0] = 2;\n        small[1] = small[2];\n        r = ((\n            small[3][2][0] * 0x100 |\n            small[1][2][0]) * 0x100 |\n            large[3][2][0]) * 0x100 |\n            large[1][2][0];\n        delete small;\n        delete large;\n\n    }\n    function clear() public returns (uint, uint) {\n        for (uint i = 0; i < 7; i++) {\n            large.push();\n            small.push();\n        }\n        small[3][2][0] = 0;\n        large[3][2][0] = 0;\n        while (small.length > 0)\n            small.pop();\n        while (large.length > 0)\n            large.pop();\n        return (small.length, large.length);\n    }\n}\n// ----\n// test() -> 0x02000202\n// gas irOptimized: 4549676\n// gas legacy: 4475394\n// gas legacyOptimized: 4447665\n// storageEmpty -> 1\n// clear() -> 0, 0\n// gas irOptimized: 4478184\n// gas legacy: 4407185\n// gas legacyOptimized: 4381337\n// storageEmpty -> 1\n"}}, "settings": {"optimizer": {"enabled": true, "runs": 200, "details": {"peephole": false, "inliner": false, "jumpdestRemover": false, "orderLiterals": false, "deduplicate": false, "cse": false, "constantOptimizer": false}}, "outputSelection": {"*": {"*": ["abi", "metadata", "evm.bytecode", "evm.deployedBytecode", "evm.methodIdentifiers"]}}, "metadata": {"appendCBOR": false}}}
+{
+    "language": "Solidity",
+    "sources": {
+        "array_copy_including_array.sol": {
+            "content": "contract c {\n    uint[3][90][] large;\n    uint[3][3][] small;\n    function test() public returns (uint r) {\n        for (uint i = 0; i < 7; i++) {\n            large.push();\n            small.push();\n        }\n        large[3][2][0] = 2;\n        large[1] = large[3];\n        small[3][2][0] = 2;\n        small[1] = small[2];\n        r = ((\n            small[3][2][0] * 0x100 |\n            small[1][2][0]) * 0x100 |\n            large[3][2][0]) * 0x100 |\n            large[1][2][0];\n        delete small;\n        delete large;\n\n    }\n    function clear() public returns (uint, uint) {\n        for (uint i = 0; i < 7; i++) {\n            large.push();\n            small.push();\n        }\n        small[3][2][0] = 0;\n        large[3][2][0] = 0;\n        while (small.length > 0)\n            small.pop();\n        while (large.length > 0)\n            large.pop();\n        return (small.length, large.length);\n    }\n}\n// ----\n// test() -> 0x02000202\n// gas irOptimized: 4549676\n// gas legacy: 4475394\n// gas legacyOptimized: 4447665\n// storageEmpty -> 1\n// clear() -> 0, 0\n// gas irOptimized: 4478184\n// gas legacy: 4407185\n// gas legacyOptimized: 4381337\n// storageEmpty -> 1\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

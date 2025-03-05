@@ -1,1 +1,34 @@
-{"language": "Solidity", "sources": {"storage_string_as_mapping_key_without_variable.sol": {"content": "contract Test {\n    mapping(string => uint256) data;\n\n    function f() public returns (uint256) {\n        data[\"abc\"] = 2;\n        return data[\"abc\"];\n    }\n}\n// ----\n// f() -> 2\n"}}, "settings": {"optimizer": {"enabled": true, "runs": 200, "details": {"peephole": false, "inliner": false, "jumpdestRemover": false, "orderLiterals": false, "deduplicate": false, "cse": false, "constantOptimizer": false}}, "outputSelection": {"*": {"*": ["abi", "metadata", "evm.bytecode", "evm.deployedBytecode", "evm.methodIdentifiers"]}}, "metadata": {"appendCBOR": false}}}
+{
+    "language": "Solidity",
+    "sources": {
+        "storage_string_as_mapping_key_without_variable.sol": {
+            "content": "contract Test {\n    mapping(string => uint256) data;\n\n    function f() public returns (uint256) {\n        data[\"abc\"] = 2;\n        return data[\"abc\"];\n    }\n}\n// ----\n// f() -> 2\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

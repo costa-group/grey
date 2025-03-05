@@ -1,1 +1,34 @@
-{"language": "Solidity", "sources": {"internal_library_function_attached_to_internal_function_type_named_selector.sol": {"content": "library L {\n    function selector(function(uint) internal pure returns (uint) f, uint x) internal pure returns (uint) {\n        return f(x) * 2;\n    }\n}\n\ncontract C {\n    using L for function(uint) internal pure returns (uint);\n\n    function identity(uint x) internal pure returns (uint) {\n        return x;\n    }\n\n    function test(uint value) public returns (uint) {\n        return identity.selector(value);\n    }\n}\n// ----\n// test(uint256): 5 -> 10\n"}}, "settings": {"optimizer": {"enabled": true, "runs": 200, "details": {"peephole": false, "inliner": false, "jumpdestRemover": false, "orderLiterals": false, "deduplicate": false, "cse": false, "constantOptimizer": false}}, "outputSelection": {"*": {"*": ["abi", "metadata", "evm.bytecode", "evm.deployedBytecode", "evm.methodIdentifiers"]}}, "metadata": {"appendCBOR": false}}}
+{
+    "language": "Solidity",
+    "sources": {
+        "internal_library_function_attached_to_internal_function_type_named_selector.sol": {
+            "content": "library L {\n    function selector(function(uint) internal pure returns (uint) f, uint x) internal pure returns (uint) {\n        return f(x) * 2;\n    }\n}\n\ncontract C {\n    using L for function(uint) internal pure returns (uint);\n\n    function identity(uint x) internal pure returns (uint) {\n        return x;\n    }\n\n    function test(uint value) public returns (uint) {\n        return identity.selector(value);\n    }\n}\n// ----\n// test(uint256): 5 -> 10\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

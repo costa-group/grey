@@ -1,1 +1,34 @@
-{"language": "Solidity", "sources": {"packed_storage_overflow.sol": {"content": "contract C {\n    uint16 x = 0x1234;\n    uint16 a = 0xffff;\n    uint16 b;\n\n    function f() public returns (uint256, uint256, uint256, uint256) {\n        unchecked { a++; }\n        uint256 c = b;\n        delete b;\n        unchecked { a -= 2; }\n        return (x, c, b, a);\n    }\n}\n// ----\n// f() -> 0x1234, 0x0, 0x0, 0xfffe\n"}}, "settings": {"optimizer": {"enabled": true, "runs": 200, "details": {"peephole": false, "inliner": false, "jumpdestRemover": false, "orderLiterals": false, "deduplicate": false, "cse": false, "constantOptimizer": false}}, "outputSelection": {"*": {"*": ["abi", "metadata", "evm.bytecode", "evm.deployedBytecode", "evm.methodIdentifiers"]}}, "metadata": {"appendCBOR": false}}}
+{
+    "language": "Solidity",
+    "sources": {
+        "packed_storage_overflow.sol": {
+            "content": "contract C {\n    uint16 x = 0x1234;\n    uint16 a = 0xffff;\n    uint16 b;\n\n    function f() public returns (uint256, uint256, uint256, uint256) {\n        unchecked { a++; }\n        uint256 c = b;\n        delete b;\n        unchecked { a -= 2; }\n        return (x, c, b, a);\n    }\n}\n// ----\n// f() -> 0x1234, 0x0, 0x0, 0xfffe\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

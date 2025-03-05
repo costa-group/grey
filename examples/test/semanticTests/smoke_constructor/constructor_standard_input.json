@@ -1,1 +1,34 @@
-{"language": "Solidity", "sources": {"constructor.sol": {"content": "contract C {\n    uint public state = 0;\n    constructor(uint _state) payable {\n        state = _state;\n    }\n    function balance() public payable returns (uint256) {\n        return address(this).balance;\n    }\n    function update(uint _state) public {\n        state = _state;\n    }\n}\n// ----\n// constructor(), 2 wei: 3 ->\n// gas irOptimized: 78996\n// gas irOptimized code: 25400\n// gas legacy: 83055\n// gas legacy code: 65200\n// gas legacyOptimized: 78898\n// gas legacyOptimized code: 27800\n// state() -> 3\n// balance() -> 2\n// balance -> 2\n// update(uint256): 4\n// state() -> 4\n"}}, "settings": {"optimizer": {"enabled": true, "runs": 200, "details": {"peephole": false, "inliner": false, "jumpdestRemover": false, "orderLiterals": false, "deduplicate": false, "cse": false, "constantOptimizer": false}}, "outputSelection": {"*": {"*": ["abi", "metadata", "evm.bytecode", "evm.deployedBytecode", "evm.methodIdentifiers"]}}, "metadata": {"appendCBOR": false}}}
+{
+    "language": "Solidity",
+    "sources": {
+        "constructor.sol": {
+            "content": "contract C {\n    uint public state = 0;\n    constructor(uint _state) payable {\n        state = _state;\n    }\n    function balance() public payable returns (uint256) {\n        return address(this).balance;\n    }\n    function update(uint _state) public {\n        state = _state;\n    }\n}\n// ----\n// constructor(), 2 wei: 3 ->\n// gas irOptimized: 78996\n// gas irOptimized code: 25400\n// gas legacy: 83055\n// gas legacy code: 65200\n// gas legacyOptimized: 78898\n// gas legacyOptimized code: 27800\n// state() -> 3\n// balance() -> 2\n// balance -> 2\n// update(uint256): 4\n// state() -> 4\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

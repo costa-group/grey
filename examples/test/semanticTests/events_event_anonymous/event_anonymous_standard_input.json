@@ -1,1 +1,34 @@
-{"language": "Solidity", "sources": {"event_anonymous.sol": {"content": "contract ClientReceipt {\n    event Deposit() anonymous;\n    function deposit() public {\n        emit Deposit();\n    }\n}\n// ----\n// deposit() ->\n// ~ emit <anonymous>\n"}}, "settings": {"optimizer": {"enabled": true, "runs": 200, "details": {"peephole": false, "inliner": false, "jumpdestRemover": false, "orderLiterals": false, "deduplicate": false, "cse": false, "constantOptimizer": false}}, "outputSelection": {"*": {"*": ["abi", "metadata", "evm.bytecode", "evm.deployedBytecode", "evm.methodIdentifiers"]}}, "metadata": {"appendCBOR": false}}}
+{
+    "language": "Solidity",
+    "sources": {
+        "event_anonymous.sol": {
+            "content": "contract ClientReceipt {\n    event Deposit() anonymous;\n    function deposit() public {\n        emit Deposit();\n    }\n}\n// ----\n// deposit() ->\n// ~ emit <anonymous>\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

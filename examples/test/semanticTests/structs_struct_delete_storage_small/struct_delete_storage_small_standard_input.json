@@ -1,1 +1,34 @@
-{"language": "Solidity", "sources": {"struct_delete_storage_small.sol": {"content": "contract C {\n    struct S {\n        uint64 y;\n        uint64 z;\n    }\n    S s;\n    function f() public returns (uint256 ret) {\n        assembly {\n            // 2 ** 150 - 1\n            sstore(s.slot, 1427247692705959881058285969449495136382746623)\n        }\n        s.y = 1; s.z = 2;\n        delete s;\n        assert(s.y == 0);\n        assert(s.z == 0);\n        assembly {\n            ret := sload(s.slot)\n        }\n    }\n}\n// ====\n// compileViaYul: true\n// ----\n// f() -> 0\n"}}, "settings": {"optimizer": {"enabled": true, "runs": 200, "details": {"peephole": false, "inliner": false, "jumpdestRemover": false, "orderLiterals": false, "deduplicate": false, "cse": false, "constantOptimizer": false}}, "outputSelection": {"*": {"*": ["abi", "metadata", "evm.bytecode", "evm.deployedBytecode", "evm.methodIdentifiers"]}}, "metadata": {"appendCBOR": false}}}
+{
+    "language": "Solidity",
+    "sources": {
+        "struct_delete_storage_small.sol": {
+            "content": "contract C {\n    struct S {\n        uint64 y;\n        uint64 z;\n    }\n    S s;\n    function f() public returns (uint256 ret) {\n        assembly {\n            // 2 ** 150 - 1\n            sstore(s.slot, 1427247692705959881058285969449495136382746623)\n        }\n        s.y = 1; s.z = 2;\n        delete s;\n        assert(s.y == 0);\n        assert(s.z == 0);\n        assembly {\n            ret := sload(s.slot)\n        }\n    }\n}\n// ====\n// compileViaYul: true\n// ----\n// f() -> 0\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

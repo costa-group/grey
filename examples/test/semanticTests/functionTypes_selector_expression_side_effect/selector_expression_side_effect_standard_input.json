@@ -1,1 +1,34 @@
-{"language": "Solidity", "sources": {"selector_expression_side_effect.sol": {"content": "contract C {\n\tuint x;\n\tfunction f() public returns (uint256) {\n\t\th().f.selector;\n\t\treturn x;\n\t}\n\tfunction h() public returns (C) {\n\t\tx = 42;\n\t\treturn this;\n\t}\n}\n// ----\n// f() -> 42\n"}}, "settings": {"optimizer": {"enabled": true, "runs": 200, "details": {"peephole": false, "inliner": false, "jumpdestRemover": false, "orderLiterals": false, "deduplicate": false, "cse": false, "constantOptimizer": false}}, "outputSelection": {"*": {"*": ["abi", "metadata", "evm.bytecode", "evm.deployedBytecode", "evm.methodIdentifiers"]}}, "metadata": {"appendCBOR": false}}}
+{
+    "language": "Solidity",
+    "sources": {
+        "selector_expression_side_effect.sol": {
+            "content": "contract C {\n\tuint x;\n\tfunction f() public returns (uint256) {\n\t\th().f.selector;\n\t\treturn x;\n\t}\n\tfunction h() public returns (C) {\n\t\tx = 42;\n\t\treturn this;\n\t}\n}\n// ----\n// f() -> 42\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

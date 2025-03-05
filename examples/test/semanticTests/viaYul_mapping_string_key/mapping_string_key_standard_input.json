@@ -1,1 +1,34 @@
-{"language": "Solidity", "sources": {"mapping_string_key.sol": {"content": "contract C {\n\tmapping (string => uint) map;\n\tfunction set(string memory s) public {\n\t\tmap[s];\n\t}\n}\n// ----\n// set(string): 0x20, 32, \"01234567890123456789012345678901\" ->\n"}}, "settings": {"optimizer": {"enabled": true, "runs": 200, "details": {"peephole": false, "inliner": false, "jumpdestRemover": false, "orderLiterals": false, "deduplicate": false, "cse": false, "constantOptimizer": false}}, "outputSelection": {"*": {"*": ["abi", "metadata", "evm.bytecode", "evm.deployedBytecode", "evm.methodIdentifiers"]}}, "metadata": {"appendCBOR": false}}}
+{
+    "language": "Solidity",
+    "sources": {
+        "mapping_string_key.sol": {
+            "content": "contract C {\n\tmapping (string => uint) map;\n\tfunction set(string memory s) public {\n\t\tmap[s];\n\t}\n}\n// ----\n// set(string): 0x20, 32, \"01234567890123456789012345678901\" ->\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

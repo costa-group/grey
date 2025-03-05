@@ -1,1 +1,34 @@
-{"language": "Solidity", "sources": {"store_function.sol": {"content": "contract Other {\n    function addTwo(uint256 x) public returns (uint256) {\n        return x + 2;\n    }\n}\n\n\ncontract C {\n    function (function (uint) external returns (uint)) internal returns (uint) ev;\n    function (uint) external returns (uint) x;\n\n    function store(function(uint) external returns (uint) y) public {\n        x = y;\n    }\n\n    function eval(function(uint) external returns (uint) y) public returns (uint) {\n        return y(7);\n    }\n\n    function t() public returns (uint256) {\n        ev = eval;\n        this.store((new Other()).addTwo);\n        return ev(x);\n    }\n}\n// ----\n// t() -> 9\n// gas irOptimized: 99064\n// gas legacy: 79492\n// gas legacy code: 69600\n// gas legacyOptimized: 77587\n// gas legacyOptimized code: 28600\n"}}, "settings": {"optimizer": {"enabled": true, "runs": 200, "details": {"peephole": false, "inliner": false, "jumpdestRemover": false, "orderLiterals": false, "deduplicate": false, "cse": false, "constantOptimizer": false}}, "outputSelection": {"*": {"*": ["abi", "metadata", "evm.bytecode", "evm.deployedBytecode", "evm.methodIdentifiers"]}}, "metadata": {"appendCBOR": false}}}
+{
+    "language": "Solidity",
+    "sources": {
+        "store_function.sol": {
+            "content": "contract Other {\n    function addTwo(uint256 x) public returns (uint256) {\n        return x + 2;\n    }\n}\n\n\ncontract C {\n    function (function (uint) external returns (uint)) internal returns (uint) ev;\n    function (uint) external returns (uint) x;\n\n    function store(function(uint) external returns (uint) y) public {\n        x = y;\n    }\n\n    function eval(function(uint) external returns (uint) y) public returns (uint) {\n        return y(7);\n    }\n\n    function t() public returns (uint256) {\n        ev = eval;\n        this.store((new Other()).addTwo);\n        return ev(x);\n    }\n}\n// ----\n// t() -> 9\n// gas irOptimized: 99064\n// gas legacy: 79492\n// gas legacy code: 69600\n// gas legacyOptimized: 77587\n// gas legacyOptimized code: 28600\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

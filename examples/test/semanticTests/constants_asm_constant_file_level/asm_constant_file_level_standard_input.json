@@ -1,1 +1,34 @@
-{"language": "Solidity", "sources": {"asm_constant_file_level.sol": {"content": "address constant e = 0x1212121212121212121212121000002134593163;\n\ncontract C {\n  function f() public returns (address z) {\n    assembly { z := e }\n  }\n}\n// ----\n// f() -> 0x1212121212121212121212121000002134593163\n"}}, "settings": {"optimizer": {"enabled": true, "runs": 200, "details": {"peephole": false, "inliner": false, "jumpdestRemover": false, "orderLiterals": false, "deduplicate": false, "cse": false, "constantOptimizer": false}}, "outputSelection": {"*": {"*": ["abi", "metadata", "evm.bytecode", "evm.deployedBytecode", "evm.methodIdentifiers"]}}, "metadata": {"appendCBOR": false}}}
+{
+    "language": "Solidity",
+    "sources": {
+        "asm_constant_file_level.sol": {
+            "content": "address constant e = 0x1212121212121212121212121000002134593163;\n\ncontract C {\n  function f() public returns (address z) {\n    assembly { z := e }\n  }\n}\n// ----\n// f() -> 0x1212121212121212121212121000002134593163\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

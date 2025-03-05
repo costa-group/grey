@@ -1,1 +1,34 @@
-{"language": "Solidity", "sources": {"conditional_expression_functions.sol": {"content": "contract test {\n    function x() public returns (uint) { return 1; }\n    function y() public returns (uint) { return 2; }\n\n    function f(bool cond) public returns (uint) {\n        function () returns (uint) z = cond ? x : y;\n        return z();\n    }\n}\n// ----\n// f(bool): true -> 1\n// f(bool): false -> 2\n"}}, "settings": {"optimizer": {"enabled": true, "runs": 200, "details": {"peephole": false, "inliner": false, "jumpdestRemover": false, "orderLiterals": false, "deduplicate": false, "cse": false, "constantOptimizer": false}}, "outputSelection": {"*": {"*": ["abi", "metadata", "evm.bytecode", "evm.deployedBytecode", "evm.methodIdentifiers"]}}, "metadata": {"appendCBOR": false}}}
+{
+    "language": "Solidity",
+    "sources": {
+        "conditional_expression_functions.sol": {
+            "content": "contract test {\n    function x() public returns (uint) { return 1; }\n    function y() public returns (uint) { return 2; }\n\n    function f(bool cond) public returns (uint) {\n        function () returns (uint) z = cond ? x : y;\n        return z();\n    }\n}\n// ----\n// f(bool): true -> 1\n// f(bool): false -> 2\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

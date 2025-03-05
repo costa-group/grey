@@ -1,1 +1,34 @@
-{"language": "Solidity", "sources": {"event_anonymous_with_signature_collision.sol": {"content": "contract ClientReceipt {\n    event Deposit(uint256 indexed _from, bytes32 indexed _id, uint _value) anonymous;\n    function deposit(bytes32 _id) public payable {\n        emit Deposit(0x2012159ca6b6372f102c535a4814d13a00bfc5568ddfd72151364061b00355d1, _id, msg.value); // 0x2012159c -> 'Deposit(uint256,bytes32,uint256)'\n    }\n}\n// ----\n// deposit(bytes32), 18 wei: 0x1234 ->\n// ~ emit <anonymous>: #0x2012159ca6b6372f102c535a4814d13a00bfc5568ddfd72151364061b00355d1, #0x1234, 0x12\n"}}, "settings": {"optimizer": {"enabled": true, "runs": 200, "details": {"peephole": false, "inliner": false, "jumpdestRemover": false, "orderLiterals": false, "deduplicate": false, "cse": false, "constantOptimizer": false}}, "outputSelection": {"*": {"*": ["abi", "metadata", "evm.bytecode", "evm.deployedBytecode", "evm.methodIdentifiers"]}}, "metadata": {"appendCBOR": false}}}
+{
+    "language": "Solidity",
+    "sources": {
+        "event_anonymous_with_signature_collision.sol": {
+            "content": "contract ClientReceipt {\n    event Deposit(uint256 indexed _from, bytes32 indexed _id, uint _value) anonymous;\n    function deposit(bytes32 _id) public payable {\n        emit Deposit(0x2012159ca6b6372f102c535a4814d13a00bfc5568ddfd72151364061b00355d1, _id, msg.value); // 0x2012159c -> 'Deposit(uint256,bytes32,uint256)'\n    }\n}\n// ----\n// deposit(bytes32), 18 wei: 0x1234 ->\n// ~ emit <anonymous>: #0x2012159ca6b6372f102c535a4814d13a00bfc5568ddfd72151364061b00355d1, #0x1234, 0x12\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

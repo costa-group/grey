@@ -1,1 +1,34 @@
-{"language": "Solidity", "sources": {"denominations.sol": {"content": "contract C {\n\tuint constant x = 1 ether + 1 gwei + 1 wei;\n\n\tfunction f() public view returns(uint) { return x; }\n}\n// ----\n// f() -> 1000000001000000001\n"}}, "settings": {"optimizer": {"enabled": true, "runs": 200, "details": {"peephole": false, "inliner": false, "jumpdestRemover": false, "orderLiterals": false, "deduplicate": false, "cse": false, "constantOptimizer": false}}, "outputSelection": {"*": {"*": ["abi", "metadata", "evm.bytecode", "evm.deployedBytecode", "evm.methodIdentifiers"]}}, "metadata": {"appendCBOR": false}}}
+{
+    "language": "Solidity",
+    "sources": {
+        "denominations.sol": {
+            "content": "contract C {\n\tuint constant x = 1 ether + 1 gwei + 1 wei;\n\n\tfunction f() public view returns(uint) { return x; }\n}\n// ----\n// f() -> 1000000001000000001\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

@@ -1,1 +1,37 @@
-{"language": "Solidity", "sources": {"A": {"content": "import {T as U} from \"A\";\nimport \"A\" as X;\n\ntype T is uint;\nfunction f(T x) pure returns (T) { return T.wrap(T.unwrap(x) + 1); }\nfunction g(T x) pure returns (uint) { return T.unwrap(x) + 10; }\n\nusing { f } for X.X.U global;\nusing { g } for T global;\n\nfunction cr() pure returns (T) {}"}, "B": {"content": "import { cr } from \"A\";\n\ncontract C {\n    function f() public returns (uint) {\n        return cr().f().g();\n    }\n}\n// ----\n// f() -> 11"}}, "settings": {"optimizer": {"enabled": true, "runs": 200, "details": {"peephole": false, "inliner": false, "jumpdestRemover": false, "orderLiterals": false, "deduplicate": false, "cse": false, "constantOptimizer": false}}, "outputSelection": {"*": {"*": ["abi", "metadata", "evm.bytecode", "evm.deployedBytecode", "evm.methodIdentifiers"]}}, "metadata": {"appendCBOR": false}}}
+{
+    "language": "Solidity",
+    "sources": {
+        "A": {
+            "content": "import {T as U} from \"A\";\nimport \"A\" as X;\n\ntype T is uint;\nfunction f(T x) pure returns (T) { return T.wrap(T.unwrap(x) + 1); }\nfunction g(T x) pure returns (uint) { return T.unwrap(x) + 10; }\n\nusing { f } for X.X.U global;\nusing { g } for T global;\n\nfunction cr() pure returns (T) {}"
+        },
+        "B": {
+            "content": "import { cr } from \"A\";\n\ncontract C {\n    function f() public returns (uint) {\n        return cr().f().g();\n    }\n}\n// ----\n// f() -> 11"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

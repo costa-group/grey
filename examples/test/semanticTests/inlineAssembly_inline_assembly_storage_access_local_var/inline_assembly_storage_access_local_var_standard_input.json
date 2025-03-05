@@ -1,1 +1,34 @@
-{"language": "Solidity", "sources": {"inline_assembly_storage_access_local_var.sol": {"content": "contract C {\n    uint256[] public a;\n\n    function f() public returns (uint256) {\n        uint256[] storage x = a;\n        uint256 off;\n        assembly {\n            sstore(x.slot, 7)\n            off := x.offset\n        }\n        assert(off == 0);\n        return a.length;\n    }\n}\n// ----\n// f() -> 7\n"}}, "settings": {"optimizer": {"enabled": true, "runs": 200, "details": {"peephole": false, "inliner": false, "jumpdestRemover": false, "orderLiterals": false, "deduplicate": false, "cse": false, "constantOptimizer": false}}, "outputSelection": {"*": {"*": ["abi", "metadata", "evm.bytecode", "evm.deployedBytecode", "evm.methodIdentifiers"]}}, "metadata": {"appendCBOR": false}}}
+{
+    "language": "Solidity",
+    "sources": {
+        "inline_assembly_storage_access_local_var.sol": {
+            "content": "contract C {\n    uint256[] public a;\n\n    function f() public returns (uint256) {\n        uint256[] storage x = a;\n        uint256 off;\n        assembly {\n            sstore(x.slot, 7)\n            off := x.offset\n        }\n        assert(off == 0);\n        return a.length;\n    }\n}\n// ----\n// f() -> 7\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

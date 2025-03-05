@@ -1,1 +1,34 @@
-{"language": "Solidity", "sources": {"calling_nonexisting_contract_throws.sol": {"content": "abstract contract D {\n    function g() public virtual;\n}\n\n\ncontract C {\n    D d = D(address(0x1212));\n\n    function f() public returns (uint256) {\n        d.g();\n        return 7;\n    }\n\n    function g() public returns (uint256) {\n        d.g{gas: 200}();\n        return 7;\n    }\n\n    function h() public returns (uint256) {\n        address(d).call(\"\"); // this does not throw (low-level)\n        return 7;\n    }\n}\n// ----\n// f() -> FAILURE\n// g() -> FAILURE\n// h() -> 7\n"}}, "settings": {"optimizer": {"enabled": true, "runs": 200, "details": {"peephole": false, "inliner": false, "jumpdestRemover": false, "orderLiterals": false, "deduplicate": false, "cse": false, "constantOptimizer": false}}, "outputSelection": {"*": {"*": ["abi", "metadata", "evm.bytecode", "evm.deployedBytecode", "evm.methodIdentifiers"]}}, "metadata": {"appendCBOR": false}}}
+{
+    "language": "Solidity",
+    "sources": {
+        "calling_nonexisting_contract_throws.sol": {
+            "content": "abstract contract D {\n    function g() public virtual;\n}\n\n\ncontract C {\n    D d = D(address(0x1212));\n\n    function f() public returns (uint256) {\n        d.g();\n        return 7;\n    }\n\n    function g() public returns (uint256) {\n        d.g{gas: 200}();\n        return 7;\n    }\n\n    function h() public returns (uint256) {\n        address(d).call(\"\"); // this does not throw (low-level)\n        return 7;\n    }\n}\n// ====\n// bytecodeFormat: legacy\n// ----\n// f() -> FAILURE\n// g() -> FAILURE\n// h() -> 7\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

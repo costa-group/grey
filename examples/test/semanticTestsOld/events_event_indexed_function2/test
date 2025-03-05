@@ -1,0 +1,37 @@
+{
+    "semanticTests/events/event_indexed_function2.sol": {
+        "bytecode": "6080806040523460135760ae908160188239f35b5f80fdfe6004361015600b575f80fd5b5f3560e01c8063bf3724af14606c5763c27fc305146027575f80fd5b346068575f36600319011260685763c27fc3053060201b1760401b7f431542260c77cfa83d6cf5a3c8f20c1a0dff669d8404ba6031c61522c5b4b50b5f80a2005b5f80fd5b34606857602036600319011260685763bf3724af3060201b1760401b7fb3692dee5e874cd3cbe4a2e928dcdf9e62af0216548003c4098e2035cc9cd29c5f80a200",
+        "contract": ":C",
+        "tests": [
+            {
+                "input": {
+                    "calldata": "",
+                    "value": "0"
+                },
+                "kind": "constructor"
+            },
+            {
+                "input": {
+                    "calldata": "c27fc305",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "",
+                    "status": "success"
+                }
+            },
+            {
+                "input": {
+                    "calldata": "bf3724af0000000000000000000000000000000000000000000000000000000000000001",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "",
+                    "status": "success"
+                }
+            }
+        ]
+    }
+}

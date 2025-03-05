@@ -1,1 +1,34 @@
-{"language": "Solidity", "sources": {"delete_storage_array_packed.sol": {"content": "contract C {\n    uint120[] data;\n\n    function f() public returns (uint120, uint120, uint120) {\n        data.push(123);\n        data.push(234);\n        data.push(345);\n        delete data;\n        assembly {\n            sstore(data.slot, 3)\n        }\n        return (data[0], data[1], data[2]);\n    }\n}\n// ----\n// f() -> 0, 0, 0\n// gas irOptimized: 90992\n// gas legacy: 111037\n// gas legacyOptimized: 109633\n"}}, "settings": {"optimizer": {"enabled": true, "runs": 200, "details": {"peephole": false, "inliner": false, "jumpdestRemover": false, "orderLiterals": false, "deduplicate": false, "cse": false, "constantOptimizer": false}}, "outputSelection": {"*": {"*": ["abi", "metadata", "evm.bytecode", "evm.deployedBytecode", "evm.methodIdentifiers"]}}, "metadata": {"appendCBOR": false}}}
+{
+    "language": "Solidity",
+    "sources": {
+        "delete_storage_array_packed.sol": {
+            "content": "contract C {\n    uint120[] data;\n\n    function f() public returns (uint120, uint120, uint120) {\n        data.push(123);\n        data.push(234);\n        data.push(345);\n        delete data;\n        assembly {\n            sstore(data.slot, 3)\n        }\n        return (data[0], data[1], data[2]);\n    }\n}\n// ----\n// f() -> 0, 0, 0\n// gas irOptimized: 90992\n// gas legacy: 111037\n// gas legacyOptimized: 109633\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

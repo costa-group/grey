@@ -1,1 +1,34 @@
-{"language": "Solidity", "sources": {"cleanup_bytes_types_shortening_newCodeGen.sol": {"content": "contract C {\n    function f() public pure returns (bytes32 r) {\n        bytes4 x = 0xffffffff;\n        bytes2 y = bytes2(x);\n        assembly {\n            r := y\n        }\n    }\n}\n// ====\n// compileViaYul: true\n// ----\n// f() -> 0xffff000000000000000000000000000000000000000000000000000000000000\n"}}, "settings": {"optimizer": {"enabled": true, "runs": 200, "details": {"peephole": false, "inliner": false, "jumpdestRemover": false, "orderLiterals": false, "deduplicate": false, "cse": false, "constantOptimizer": false}}, "outputSelection": {"*": {"*": ["abi", "metadata", "evm.bytecode", "evm.deployedBytecode", "evm.methodIdentifiers"]}}, "metadata": {"appendCBOR": false}}}
+{
+    "language": "Solidity",
+    "sources": {
+        "cleanup_bytes_types_shortening_newCodeGen.sol": {
+            "content": "contract C {\n    function f() public pure returns (bytes32 r) {\n        bytes4 x = 0xffffffff;\n        bytes2 y = bytes2(x);\n        assembly {\n            r := y\n        }\n    }\n}\n// ====\n// compileViaYul: true\n// ----\n// f() -> 0xffff000000000000000000000000000000000000000000000000000000000000\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

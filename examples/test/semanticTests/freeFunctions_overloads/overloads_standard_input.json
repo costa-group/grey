@@ -1,1 +1,34 @@
-{"language": "Solidity", "sources": {"overloads.sol": {"content": "function f(uint) returns (uint) {\n    return 2;\n}\nfunction f(string memory) returns (uint) {\n    return 3;\n}\n\ncontract C {\n  function g() public returns (uint, uint) {\n      return (f(2), f(\"abc\"));\n  }\n}\n// ----\n// g() -> 2, 3\n"}}, "settings": {"optimizer": {"enabled": true, "runs": 200, "details": {"peephole": false, "inliner": false, "jumpdestRemover": false, "orderLiterals": false, "deduplicate": false, "cse": false, "constantOptimizer": false}}, "outputSelection": {"*": {"*": ["abi", "metadata", "evm.bytecode", "evm.deployedBytecode", "evm.methodIdentifiers"]}}, "metadata": {"appendCBOR": false}}}
+{
+    "language": "Solidity",
+    "sources": {
+        "overloads.sol": {
+            "content": "function f(uint) returns (uint) {\n    return 2;\n}\nfunction f(string memory) returns (uint) {\n    return 3;\n}\n\ncontract C {\n  function g() public returns (uint, uint) {\n      return (f(2), f(\"abc\"));\n  }\n}\n// ----\n// g() -> 2, 3\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

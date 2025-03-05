@@ -1,1 +1,34 @@
-{"language": "Solidity", "sources": {"keccak_optimization_bug_string.sol": {"content": "contract C {\n    function f(string memory s) public returns (bool ret) {\n        assembly {\n            let a := keccak256(s, 32)\n            let b := keccak256(s, 8)\n            ret := eq(a, b)\n        }\n    }\n}\n// ----\n// f(string): \"\" -> false\n// f(string): 0x20, 5, \"hello\" -> false\n// f(string): 0x20, 0x2e, 29457663690442756349866640336617293820574110049925353194191585327958485180523, 45859201465615193776739262511799714667061496775486067316261261194408342061056 -> false\n"}}, "settings": {"optimizer": {"enabled": true, "runs": 200, "details": {"peephole": false, "inliner": false, "jumpdestRemover": false, "orderLiterals": false, "deduplicate": false, "cse": false, "constantOptimizer": false}}, "outputSelection": {"*": {"*": ["abi", "metadata", "evm.bytecode", "evm.deployedBytecode", "evm.methodIdentifiers"]}}, "metadata": {"appendCBOR": false}}}
+{
+    "language": "Solidity",
+    "sources": {
+        "keccak_optimization_bug_string.sol": {
+            "content": "contract C {\n    function f(string memory s) public returns (bool ret) {\n        assembly {\n            let a := keccak256(s, 32)\n            let b := keccak256(s, 8)\n            ret := eq(a, b)\n        }\n    }\n}\n// ----\n// f(string): \"\" -> false\n// f(string): 0x20, 5, \"hello\" -> false\n// f(string): 0x20, 0x2e, 29457663690442756349866640336617293820574110049925353194191585327958485180523, 45859201465615193776739262511799714667061496775486067316261261194408342061056 -> false\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

@@ -1,1 +1,34 @@
-{"language": "Solidity", "sources": {"inline_array_index_access_strings.sol": {"content": "contract C {\n    string public tester;\n\n    function f() public returns (string memory) {\n        return ([\"abc\", \"def\", \"g\"][0]);\n    }\n\n    function test() public {\n        tester = f();\n    }\n}\n// ----\n// test() ->\n// tester() -> 0x20, 0x3, \"abc\"\n"}}, "settings": {"optimizer": {"enabled": true, "runs": 200, "details": {"peephole": false, "inliner": false, "jumpdestRemover": false, "orderLiterals": false, "deduplicate": false, "cse": false, "constantOptimizer": false}}, "outputSelection": {"*": {"*": ["abi", "metadata", "evm.bytecode", "evm.deployedBytecode", "evm.methodIdentifiers"]}}, "metadata": {"appendCBOR": false}}}
+{
+    "language": "Solidity",
+    "sources": {
+        "inline_array_index_access_strings.sol": {
+            "content": "contract C {\n    string public tester;\n\n    function f() public returns (string memory) {\n        return ([\"abc\", \"def\", \"g\"][0]);\n    }\n\n    function test() public {\n        tester = f();\n    }\n}\n// ----\n// test() ->\n// tester() -> 0x20, 0x3, \"abc\"\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

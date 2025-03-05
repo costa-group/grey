@@ -1,1 +1,34 @@
-{"language": "Solidity", "sources": {"many_subassemblies.sol": {"content": "contract C0 {}\ncontract C1 {}\ncontract C2 {}\ncontract C3 {}\ncontract C4 {}\ncontract C5 {}\ncontract C6 {}\ncontract C7 {}\ncontract C8 {}\ncontract C9 {}\ncontract C10 {}\n\ncontract D {\n    function run() public {\n        // This is primarily meant to test assembly import via --import-asm-json.\n        // The exported JSON will fail the reimport unless the subassembly indices are parsed\n        // correctly - as hex numbers.\n        new C0();\n        new C1();\n        new C2();\n        new C3();\n        new C4();\n        new C5();\n        new C6();\n        new C7();\n        new C8();\n        new C9();\n        new C10();\n    }\n}\n// ----\n// run() ->\n// gas irOptimized: 374934\n// gas irOptimized code: 6600\n// gas legacy: 375119\n// gas legacy code: 17600\n// gas legacyOptimized: 375119\n// gas legacyOptimized code: 17600\n"}}, "settings": {"optimizer": {"enabled": true, "runs": 200, "details": {"peephole": false, "inliner": false, "jumpdestRemover": false, "orderLiterals": false, "deduplicate": false, "cse": false, "constantOptimizer": false}}, "outputSelection": {"*": {"*": ["abi", "metadata", "evm.bytecode", "evm.deployedBytecode", "evm.methodIdentifiers"]}}, "metadata": {"appendCBOR": false}}}
+{
+    "language": "Solidity",
+    "sources": {
+        "many_subassemblies.sol": {
+            "content": "contract C0 {}\ncontract C1 {}\ncontract C2 {}\ncontract C3 {}\ncontract C4 {}\ncontract C5 {}\ncontract C6 {}\ncontract C7 {}\ncontract C8 {}\ncontract C9 {}\ncontract C10 {}\n\ncontract D {\n    function run() public {\n        // This is primarily meant to test assembly import via --import-asm-json.\n        // The exported JSON will fail the reimport unless the subassembly indices are parsed\n        // correctly - as hex numbers.\n        new C0{salt: hex\"00\"}();\n        new C1{salt: hex\"01\"}();\n        new C2{salt: hex\"02\"}();\n        new C3{salt: hex\"03\"}();\n        new C4{salt: hex\"04\"}();\n        new C5{salt: hex\"05\"}();\n        new C6{salt: hex\"06\"}();\n        new C7{salt: hex\"07\"}();\n        new C8{salt: hex\"08\"}();\n        new C9{salt: hex\"09\"}();\n        new C10{salt: hex\"0a\"}();\n    }\n}\n// ====\n// EVMVersion: >=constantinople\n// ----\n// run() ->\n// gas irOptimized: 375192\n// gas irOptimized code: 6600\n// gas legacy: 375404\n// gas legacy code: 17600\n// gas legacyOptimized: 375464\n// gas legacyOptimized code: 17600\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

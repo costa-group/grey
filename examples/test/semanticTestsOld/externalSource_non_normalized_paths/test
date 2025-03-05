@@ -1,0 +1,15 @@
+{
+    "semanticTests/externalSource/non_normalized_paths.sol": {
+        "bytecode": "608080604052346013576003908160188239f35b5f80fdfe5f80fd",
+        "contract": "_non_normalized_paths//a.sol:A",
+        "tests": [
+            {
+                "input": {
+                    "calldata": "",
+                    "value": "0"
+                },
+                "kind": "constructor"
+            }
+        ]
+    }
+}

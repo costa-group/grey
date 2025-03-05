@@ -1,1 +1,34 @@
-{"language": "Solidity", "sources": {"call_function_returning_nothing_via_pointer.sol": {"content": "contract test {\n    bool public flag = false;\n\n    function f0() public {\n        flag = true;\n    }\n\n    function f() public returns (bool) {\n        function() internal x = f0;\n        x();\n        return flag;\n    }\n}\n// ----\n// f() -> true\n// flag() -> true\n"}}, "settings": {"optimizer": {"enabled": true, "runs": 200, "details": {"peephole": false, "inliner": false, "jumpdestRemover": false, "orderLiterals": false, "deduplicate": false, "cse": false, "constantOptimizer": false}}, "outputSelection": {"*": {"*": ["abi", "metadata", "evm.bytecode", "evm.deployedBytecode", "evm.methodIdentifiers"]}}, "metadata": {"appendCBOR": false}}}
+{
+    "language": "Solidity",
+    "sources": {
+        "call_function_returning_nothing_via_pointer.sol": {
+            "content": "contract test {\n    bool public flag = false;\n\n    function f0() public {\n        flag = true;\n    }\n\n    function f() public returns (bool) {\n        function() internal x = f0;\n        x();\n        return flag;\n    }\n}\n// ----\n// f() -> true\n// flag() -> true\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

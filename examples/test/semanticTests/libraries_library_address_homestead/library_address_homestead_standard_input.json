@@ -1,1 +1,34 @@
-{"language": "Solidity", "sources": {"library_address_homestead.sol": {"content": "library L {\n    function f(uint256 a, uint256 b) external {\n        assert(a * a == b);\n    }\n}\ncontract C {\n    function addr() public view returns (bool) {\n        return address(L) == address(0);\n    }\n    function g(uint256 a, uint256 b) public returns (bool) {\n        (bool success,) = address(L).delegatecall(abi.encodeWithSignature(\"f(uint256,uint256)\", a, b));\n        return success;\n    }\n}\n// ----\n// library: L\n// g(uint256,uint256): 1, 1 -> true\n// g(uint256,uint256): 1, 2 -> false\n// g(uint256,uint256): 2, 3 -> false\n// g(uint256,uint256): 2, 4 -> true\n// g(uint256,uint256): 2, 5 -> false\n// g(uint256,uint256): 4, 15 -> false\n// g(uint256,uint256): 4, 16 -> true\n// g(uint256,uint256): 4, 17 -> false\n"}}, "settings": {"optimizer": {"enabled": true, "runs": 200, "details": {"peephole": false, "inliner": false, "jumpdestRemover": false, "orderLiterals": false, "deduplicate": false, "cse": false, "constantOptimizer": false}}, "outputSelection": {"*": {"*": ["abi", "metadata", "evm.bytecode", "evm.deployedBytecode", "evm.methodIdentifiers"]}}, "metadata": {"appendCBOR": false}}}
+{
+    "language": "Solidity",
+    "sources": {
+        "library_address_homestead.sol": {
+            "content": "library L {\n    function f(uint256 a, uint256 b) external {\n        assert(a * a == b);\n    }\n}\ncontract C {\n    function addr() public view returns (bool) {\n        return address(L) == address(0);\n    }\n    function g(uint256 a, uint256 b) public returns (bool) {\n        (bool success,) = address(L).delegatecall(abi.encodeWithSignature(\"f(uint256,uint256)\", a, b));\n        return success;\n    }\n}\n// ----\n// library: L\n// g(uint256,uint256): 1, 1 -> true\n// g(uint256,uint256): 1, 2 -> false\n// g(uint256,uint256): 2, 3 -> false\n// g(uint256,uint256): 2, 4 -> true\n// g(uint256,uint256): 2, 5 -> false\n// g(uint256,uint256): 4, 15 -> false\n// g(uint256,uint256): 4, 16 -> true\n// g(uint256,uint256): 4, 17 -> false\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

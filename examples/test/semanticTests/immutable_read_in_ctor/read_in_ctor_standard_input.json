@@ -1,1 +1,34 @@
-{"language": "Solidity", "sources": {"read_in_ctor.sol": {"content": "contract A {\n\tuint8 immutable a;\n\tuint8 x;\n\n\tconstructor() {\n\t\ta = 3;\n\t\tx = a;\n\t}\n\n\tfunction readX() public view returns (uint8) {\n\t\treturn x;\n\t}\n}\n// ----\n// readX() -> 3\n"}}, "settings": {"optimizer": {"enabled": true, "runs": 200, "details": {"peephole": false, "inliner": false, "jumpdestRemover": false, "orderLiterals": false, "deduplicate": false, "cse": false, "constantOptimizer": false}}, "outputSelection": {"*": {"*": ["abi", "metadata", "evm.bytecode", "evm.deployedBytecode", "evm.methodIdentifiers"]}}, "metadata": {"appendCBOR": false}}}
+{
+    "language": "Solidity",
+    "sources": {
+        "read_in_ctor.sol": {
+            "content": "contract A {\n\tuint8 immutable a;\n\tuint8 x;\n\n\tconstructor() {\n\t\ta = 3;\n\t\tx = a;\n\t}\n\n\tfunction readX() public view returns (uint8) {\n\t\treturn x;\n\t}\n}\n// ----\n// readX() -> 3\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

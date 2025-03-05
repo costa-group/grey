@@ -1,1 +1,34 @@
-{"language": "Solidity", "sources": {"calling_uninitialized_function.sol": {"content": "contract C {\n    function intern() public returns (uint256) {\n        function (uint) internal returns (uint) x;\n        x(2);\n        return 7;\n    }\n\n    function extern() public returns (uint256) {\n        function (uint) external returns (uint) x;\n        x(2);\n        return 7;\n    }\n}\n// ----\n// intern() -> FAILURE, hex\"4e487b71\", 0x51 # This should throw exceptions #\n// extern() -> FAILURE\n"}}, "settings": {"optimizer": {"enabled": true, "runs": 200, "details": {"peephole": false, "inliner": false, "jumpdestRemover": false, "orderLiterals": false, "deduplicate": false, "cse": false, "constantOptimizer": false}}, "outputSelection": {"*": {"*": ["abi", "metadata", "evm.bytecode", "evm.deployedBytecode", "evm.methodIdentifiers"]}}, "metadata": {"appendCBOR": false}}}
+{
+    "language": "Solidity",
+    "sources": {
+        "calling_uninitialized_function.sol": {
+            "content": "contract C {\n    function intern() public returns (uint256) {\n        function (uint) internal returns (uint) x;\n        x(2);\n        return 7;\n    }\n\n    function extern() public returns (uint256) {\n        function (uint) external returns (uint) x;\n        x(2);\n        return 7;\n    }\n}\n// ----\n// intern() -> FAILURE, hex\"4e487b71\", 0x51 # This should throw exceptions #\n// extern() -> FAILURE\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

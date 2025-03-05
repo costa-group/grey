@@ -1,1 +1,34 @@
-{"language": "Solidity", "sources": {"function_types_sig.sol": {"content": "contract C {\n    uint256 public x;\n\n    function f() public pure returns (bytes4) {\n        return this.f.selector;\n    }\n\n    function g() public returns (bytes4) {\n        function () pure external returns (bytes4) fun = this.f;\n        return fun.selector;\n    }\n\n    function h() public returns (bytes4) {\n        function () pure external returns (bytes4) fun = this.f;\n        return fun.selector;\n    }\n\n    function i() public pure returns (bytes4) {\n        return this.x.selector;\n    }\n}\n// ----\n// f() -> 0x26121ff000000000000000000000000000000000000000000000000000000000\n// g() -> 0x26121ff000000000000000000000000000000000000000000000000000000000\n// h() -> 0x26121ff000000000000000000000000000000000000000000000000000000000\n// i() -> 0x0c55699c00000000000000000000000000000000000000000000000000000000\n"}}, "settings": {"optimizer": {"enabled": true, "runs": 200, "details": {"peephole": false, "inliner": false, "jumpdestRemover": false, "orderLiterals": false, "deduplicate": false, "cse": false, "constantOptimizer": false}}, "outputSelection": {"*": {"*": ["abi", "metadata", "evm.bytecode", "evm.deployedBytecode", "evm.methodIdentifiers"]}}, "metadata": {"appendCBOR": false}}}
+{
+    "language": "Solidity",
+    "sources": {
+        "function_types_sig.sol": {
+            "content": "contract C {\n    uint256 public x;\n\n    function f() public pure returns (bytes4) {\n        return this.f.selector;\n    }\n\n    function g() public returns (bytes4) {\n        function () pure external returns (bytes4) fun = this.f;\n        return fun.selector;\n    }\n\n    function h() public returns (bytes4) {\n        function () pure external returns (bytes4) fun = this.f;\n        return fun.selector;\n    }\n\n    function i() public pure returns (bytes4) {\n        return this.x.selector;\n    }\n}\n// ----\n// f() -> 0x26121ff000000000000000000000000000000000000000000000000000000000\n// g() -> 0x26121ff000000000000000000000000000000000000000000000000000000000\n// h() -> 0x26121ff000000000000000000000000000000000000000000000000000000000\n// i() -> 0x0c55699c00000000000000000000000000000000000000000000000000000000\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

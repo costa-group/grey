@@ -1,1 +1,34 @@
-{"language": "Solidity", "sources": {"dirty_memory_static_array.sol": {"content": "contract C {\n    function f() public pure returns (bool correct) {\n        uint8[1] memory m;\n        assembly {\n            mstore(m, 257)\n        }\n        uint8 x = m[0];\n        uint r;\n        assembly {\n            r := x\n        }\n        correct = (m[0] == 0x01) && (r == 0x01);\n    }\n}\n// ====\n// compileViaYul: true\n// ----\n// f() -> true\n"}}, "settings": {"optimizer": {"enabled": true, "runs": 200, "details": {"peephole": false, "inliner": false, "jumpdestRemover": false, "orderLiterals": false, "deduplicate": false, "cse": false, "constantOptimizer": false}}, "outputSelection": {"*": {"*": ["abi", "metadata", "evm.bytecode", "evm.deployedBytecode", "evm.methodIdentifiers"]}}, "metadata": {"appendCBOR": false}}}
+{
+    "language": "Solidity",
+    "sources": {
+        "dirty_memory_static_array.sol": {
+            "content": "contract C {\n    function f() public pure returns (bool correct) {\n        uint8[1] memory m;\n        assembly {\n            mstore(m, 257)\n        }\n        uint8 x = m[0];\n        uint r;\n        assembly {\n            r := x\n        }\n        correct = (m[0] == 0x01) && (r == 0x01);\n    }\n}\n// ====\n// compileViaYul: true\n// ----\n// f() -> true\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

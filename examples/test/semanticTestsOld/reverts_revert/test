@@ -1,0 +1,59 @@
+{
+    "semanticTests/reverts/revert.sol": {
+        "bytecode": "60808060405234601757602a5f55605f9081601c8239f35b5f80fdfe608060405260043610156010575f80fd5b5f3560e01c80630dbe671f14603a57806326121ff01460365763e2179b8e146036575f80fd5b6057565b346053575f3660031901126053575f5460805260206080f35b5f80fd5b346053575f80fd",
+        "contract": ":C",
+        "tests": [
+            {
+                "input": {
+                    "calldata": "",
+                    "value": "0"
+                },
+                "kind": "constructor"
+            },
+            {
+                "input": {
+                    "calldata": "26121ff0",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "",
+                    "status": "failure"
+                }
+            },
+            {
+                "input": {
+                    "calldata": "0dbe671f",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "000000000000000000000000000000000000000000000000000000000000002a",
+                    "status": "success"
+                }
+            },
+            {
+                "input": {
+                    "calldata": "e2179b8e",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "",
+                    "status": "failure"
+                }
+            },
+            {
+                "input": {
+                    "calldata": "0dbe671f",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "000000000000000000000000000000000000000000000000000000000000002a",
+                    "status": "success"
+                }
+            }
+        ]
+    }
+}

@@ -1,1 +1,34 @@
-{"language": "Solidity", "sources": {"calldata_bytes_array_bounds.sol": {"content": "pragma abicoder               v2;\ncontract C {\n    function f(bytes[] calldata a, uint256 i) external returns (uint) {\n        return uint8(a[0][i]);\n    }\n}\n// ----\n// f(bytes[],uint256): 0x40, 0, 1, 0x20, 2, hex\"6162\" -> 0x61\n// f(bytes[],uint256): 0x40, 1, 1, 0x20, 2, hex\"6162\" -> 0x62\n// f(bytes[],uint256): 0x40, 2, 1, 0x20, 2, hex\"6162\" -> FAILURE, hex\"4e487b71\", 0x32\n"}}, "settings": {"optimizer": {"enabled": true, "runs": 200, "details": {"peephole": false, "inliner": false, "jumpdestRemover": false, "orderLiterals": false, "deduplicate": false, "cse": false, "constantOptimizer": false}}, "outputSelection": {"*": {"*": ["abi", "metadata", "evm.bytecode", "evm.deployedBytecode", "evm.methodIdentifiers"]}}, "metadata": {"appendCBOR": false}}}
+{
+    "language": "Solidity",
+    "sources": {
+        "calldata_bytes_array_bounds.sol": {
+            "content": "pragma abicoder               v2;\ncontract C {\n    function f(bytes[] calldata a, uint256 i) external returns (uint) {\n        return uint8(a[0][i]);\n    }\n}\n// ----\n// f(bytes[],uint256): 0x40, 0, 1, 0x20, 2, hex\"6162\" -> 0x61\n// f(bytes[],uint256): 0x40, 1, 1, 0x20, 2, hex\"6162\" -> 0x62\n// f(bytes[],uint256): 0x40, 2, 1, 0x20, 2, hex\"6162\" -> FAILURE, hex\"4e487b71\", 0x32\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

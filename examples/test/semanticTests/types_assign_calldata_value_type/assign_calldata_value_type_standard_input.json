@@ -1,1 +1,34 @@
-{"language": "Solidity", "sources": {"assign_calldata_value_type.sol": {"content": "contract C {\n    function f(uint256 x) public pure returns (uint256, uint256) {\n        uint256 b = x;\n        x = 42;\n        return (x, b);\n    }\n}\n// ----\n// f(uint256): 23 -> 42, 23\n"}}, "settings": {"optimizer": {"enabled": true, "runs": 200, "details": {"peephole": false, "inliner": false, "jumpdestRemover": false, "orderLiterals": false, "deduplicate": false, "cse": false, "constantOptimizer": false}}, "outputSelection": {"*": {"*": ["abi", "metadata", "evm.bytecode", "evm.deployedBytecode", "evm.methodIdentifiers"]}}, "metadata": {"appendCBOR": false}}}
+{
+    "language": "Solidity",
+    "sources": {
+        "assign_calldata_value_type.sol": {
+            "content": "contract C {\n    function f(uint256 x) public pure returns (uint256, uint256) {\n        uint256 b = x;\n        x = 42;\n        return (x, b);\n    }\n}\n// ----\n// f(uint256): 23 -> 42, 23\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

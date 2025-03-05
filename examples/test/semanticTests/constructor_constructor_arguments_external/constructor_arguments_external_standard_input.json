@@ -1,1 +1,34 @@
-{"language": "Solidity", "sources": {"constructor_arguments_external.sol": {"content": "contract Main {\n    bytes3 name;\n    bool flag;\n\n    constructor(bytes3 x, bool f) {\n        name = x;\n        flag = f;\n    }\n\n    function getName() public returns (bytes3 ret) {\n        return name;\n    }\n\n    function getFlag() public returns (bool ret) {\n        return flag;\n    }\n}\n// ----\n// constructor(): \"abc\", true\n// gas irOptimized: 80174\n// gas irOptimized code: 24200\n// gas legacy: 85098\n// gas legacy code: 58200\n// gas legacyOptimized: 80132\n// gas legacyOptimized code: 22800\n// getFlag() -> true\n// getName() -> \"abc\"\n"}}, "settings": {"optimizer": {"enabled": true, "runs": 200, "details": {"peephole": false, "inliner": false, "jumpdestRemover": false, "orderLiterals": false, "deduplicate": false, "cse": false, "constantOptimizer": false}}, "outputSelection": {"*": {"*": ["abi", "metadata", "evm.bytecode", "evm.deployedBytecode", "evm.methodIdentifiers"]}}, "metadata": {"appendCBOR": false}}}
+{
+    "language": "Solidity",
+    "sources": {
+        "constructor_arguments_external.sol": {
+            "content": "contract Main {\n    bytes3 name;\n    bool flag;\n\n    constructor(bytes3 x, bool f) {\n        name = x;\n        flag = f;\n    }\n\n    function getName() public returns (bytes3 ret) {\n        return name;\n    }\n\n    function getFlag() public returns (bool ret) {\n        return flag;\n    }\n}\n// ====\n// bytecodeFormat: legacy,>=EOFv1\n// ----\n// constructor(): \"abc\", true\n// gas irOptimized: 80174\n// gas irOptimized code: 24200\n// gas legacy: 85098\n// gas legacy code: 58200\n// gas legacyOptimized: 80132\n// gas legacyOptimized code: 22800\n// getFlag() -> true\n// getName() -> \"abc\"\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

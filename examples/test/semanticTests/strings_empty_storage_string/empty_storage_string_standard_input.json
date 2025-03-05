@@ -1,1 +1,34 @@
-{"language": "Solidity", "sources": {"empty_storage_string.sol": {"content": "contract C {\n\n    string uninitializedString;\n    string emptyString = \"\";\n    string nonEmptyString = \"This is a non empty string\";\n    string nonEmptyString2 = \"Another string\";\n    bytes uninitializedBytes;\n    bytes emptyBytes = \"\";\n    error EmptyError(string);\n    event EmptyEvent(string);\n\n    function f() public returns (string memory) {\n        return uninitializedString;\n    }\n\n    function g() public returns (string memory, string memory) {\n        return (uninitializedString, emptyString);\n    }\n\n    function h() public returns (string memory, string memory) {\n        return (uninitializedString, nonEmptyString);\n    }\n\n    function i() public returns (string memory, string memory) {\n        return (nonEmptyString, emptyString);\n    }\n\n    function j(string calldata _s) public returns (string memory) {\n        return _s;\n    }\n\n    function k() public returns (string memory) {\n        nonEmptyString2 = \"\";\n        return nonEmptyString2;\n    }\n\n    function l(string calldata _s) public returns (bytes memory) {\n        return abi.encode(_s);\n    }\n\n    function m() public returns (string memory) {\n        bytes memory b = abi.encode(emptyString);\n        return string(b);\n    }\n\n    function n() public {\n        revert EmptyError(uninitializedString);\n    }\n\n    function o() public {\n        emit EmptyEvent(emptyString);\n    }\n\n    function p() public {\n        emit EmptyEvent(\"\");\n    }\n\n    function q() public returns (bytes memory) {\n        return uninitializedBytes;\n    }\n\n    function r() public returns (bytes memory) {\n        emptyBytes = abi.encode(\"\");\n        return emptyBytes;\n    }\n\n    function s() public returns (bytes memory) {\n        emptyBytes = abi.encode(uninitializedString);\n        return emptyBytes;\n    }\n\n    function set(string calldata _s) public {\n        nonEmptyString = _s;\n    }\n\n    function get() public returns (string memory) {\n        return nonEmptyString;\n    }\n}\n// ====\n// compileViaYul: also\n// ----\n// f() -> 0x20, 0\n// g() -> 0x40, 0x60, 0, 0\n// h() -> 0x40, 0x60, 0, 0x1a, 38178759162904981154304545770567765692299154484752076569098748838215919075328\n// i() -> 0x40, 0x80, 0x1a, 38178759162904981154304545770567765692299154484752076569098748838215919075328, 0\n// j(string): 0x20, 0, \"\" -> 0x20, 0\n// k() -> 0x20, 0\n// l(string): 0x20, 0, \"\" -> 0x20, 0x40, 0x20, 0\n// m() -> 0x20, 0x40, 0x20, 0\n// n() -> FAILURE, hex\"d3f13430\", hex\"0000000000000000000000000000000000000000000000000000000000000020\", hex\"0000000000000000000000000000000000000000000000000000000000000000\"\n// o() ->\n// ~ emit EmptyEvent(string): 0x20, 0x00\n// p() ->\n// ~ emit EmptyEvent(string): 0x20, 0x00\n// q() -> 0x20, 0\n// r() -> 0x20, 0x40, 0x20, 0\n// s() -> 0x20, 0x40, 0x20, 0\n// set(string): 0x20, 0, \"\" ->\n// get() -> 0x20, 0\n"}}, "settings": {"optimizer": {"enabled": true, "runs": 200, "details": {"peephole": false, "inliner": false, "jumpdestRemover": false, "orderLiterals": false, "deduplicate": false, "cse": false, "constantOptimizer": false}}, "outputSelection": {"*": {"*": ["abi", "metadata", "evm.bytecode", "evm.deployedBytecode", "evm.methodIdentifiers"]}}, "metadata": {"appendCBOR": false}}}
+{
+    "language": "Solidity",
+    "sources": {
+        "empty_storage_string.sol": {
+            "content": "contract C {\n\n    string uninitializedString;\n    string emptyString = \"\";\n    string nonEmptyString = \"This is a non empty string\";\n    string nonEmptyString2 = \"Another string\";\n    bytes uninitializedBytes;\n    bytes emptyBytes = \"\";\n    error EmptyError(string);\n    event EmptyEvent(string);\n\n    function f() public returns (string memory) {\n        return uninitializedString;\n    }\n\n    function g() public returns (string memory, string memory) {\n        return (uninitializedString, emptyString);\n    }\n\n    function h() public returns (string memory, string memory) {\n        return (uninitializedString, nonEmptyString);\n    }\n\n    function i() public returns (string memory, string memory) {\n        return (nonEmptyString, emptyString);\n    }\n\n    function j(string calldata _s) public returns (string memory) {\n        return _s;\n    }\n\n    function k() public returns (string memory) {\n        nonEmptyString2 = \"\";\n        return nonEmptyString2;\n    }\n\n    function l(string calldata _s) public returns (bytes memory) {\n        return abi.encode(_s);\n    }\n\n    function m() public returns (string memory) {\n        bytes memory b = abi.encode(emptyString);\n        return string(b);\n    }\n\n    function n() public {\n        revert EmptyError(uninitializedString);\n    }\n\n    function o() public {\n        emit EmptyEvent(emptyString);\n    }\n\n    function p() public {\n        emit EmptyEvent(\"\");\n    }\n\n    function q() public returns (bytes memory) {\n        return uninitializedBytes;\n    }\n\n    function r() public returns (bytes memory) {\n        emptyBytes = abi.encode(\"\");\n        return emptyBytes;\n    }\n\n    function s() public returns (bytes memory) {\n        emptyBytes = abi.encode(uninitializedString);\n        return emptyBytes;\n    }\n\n    function set(string calldata _s) public {\n        nonEmptyString = _s;\n    }\n\n    function get() public returns (string memory) {\n        return nonEmptyString;\n    }\n}\n// ====\n// compileViaYul: also\n// ----\n// f() -> 0x20, 0\n// g() -> 0x40, 0x60, 0, 0\n// h() -> 0x40, 0x60, 0, 0x1a, 38178759162904981154304545770567765692299154484752076569098748838215919075328\n// i() -> 0x40, 0x80, 0x1a, 38178759162904981154304545770567765692299154484752076569098748838215919075328, 0\n// j(string): 0x20, 0, \"\" -> 0x20, 0\n// k() -> 0x20, 0\n// l(string): 0x20, 0, \"\" -> 0x20, 0x40, 0x20, 0\n// m() -> 0x20, 0x40, 0x20, 0\n// n() -> FAILURE, hex\"d3f13430\", hex\"0000000000000000000000000000000000000000000000000000000000000020\", hex\"0000000000000000000000000000000000000000000000000000000000000000\"\n// o() ->\n// ~ emit EmptyEvent(string): 0x20, 0x00\n// p() ->\n// ~ emit EmptyEvent(string): 0x20, 0x00\n// q() -> 0x20, 0\n// r() -> 0x20, 0x40, 0x20, 0\n// s() -> 0x20, 0x40, 0x20, 0\n// set(string): 0x20, 0, \"\" ->\n// get() -> 0x20, 0\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

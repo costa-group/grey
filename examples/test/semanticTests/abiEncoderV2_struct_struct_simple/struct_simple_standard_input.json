@@ -1,1 +1,34 @@
-{"language": "Solidity", "sources": {"struct_simple.sol": {"content": "pragma abicoder               v2;\n\ncontract C {\n    struct S { uint a; uint8 b; uint8 c; bytes2 d; }\n    function f(S memory s) public pure returns (uint a, uint b, uint c, uint d) {\n        a = s.a;\n        b = s.b;\n        c = s.c;\n        d = uint16(s.d);\n    }\n}\n// ----\n// f((uint256,uint8,uint8,bytes2)): 1, 2, 3, \"ab\" -> 1, 2, 3, 0x6162\n"}}, "settings": {"optimizer": {"enabled": true, "runs": 200, "details": {"peephole": false, "inliner": false, "jumpdestRemover": false, "orderLiterals": false, "deduplicate": false, "cse": false, "constantOptimizer": false}}, "outputSelection": {"*": {"*": ["abi", "metadata", "evm.bytecode", "evm.deployedBytecode", "evm.methodIdentifiers"]}}, "metadata": {"appendCBOR": false}}}
+{
+    "language": "Solidity",
+    "sources": {
+        "struct_simple.sol": {
+            "content": "pragma abicoder               v2;\n\ncontract C {\n    struct S { uint a; uint8 b; uint8 c; bytes2 d; }\n    function f(S memory s) public pure returns (uint a, uint b, uint c, uint d) {\n        a = s.a;\n        b = s.b;\n        c = s.c;\n        d = uint16(s.d);\n    }\n}\n// ----\n// f((uint256,uint8,uint8,bytes2)): 1, 2, 3, \"ab\" -> 1, 2, 3, 0x6162\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

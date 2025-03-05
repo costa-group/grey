@@ -1,1 +1,34 @@
-{"language": "Solidity", "sources": {"store_function_in_constructor.sol": {"content": "contract C {\n    uint256 public result_in_constructor;\n    function(uint256) returns (uint256) internal x;\n\n    constructor() {\n        x = double;\n        result_in_constructor = use(2);\n    }\n\n    function double(uint256 _arg) public returns (uint256 _ret) {\n        _ret = _arg * 2;\n    }\n\n    function use(uint256 _arg) public returns (uint256) {\n        return x(_arg);\n    }\n}\n// ----\n// use(uint256): 3 -> 6\n// result_in_constructor() -> 4\n"}}, "settings": {"optimizer": {"enabled": true, "runs": 200, "details": {"peephole": false, "inliner": false, "jumpdestRemover": false, "orderLiterals": false, "deduplicate": false, "cse": false, "constantOptimizer": false}}, "outputSelection": {"*": {"*": ["abi", "metadata", "evm.bytecode", "evm.deployedBytecode", "evm.methodIdentifiers"]}}, "metadata": {"appendCBOR": false}}}
+{
+    "language": "Solidity",
+    "sources": {
+        "store_function_in_constructor.sol": {
+            "content": "contract C {\n    uint256 public result_in_constructor;\n    function(uint256) returns (uint256) internal x;\n\n    constructor() {\n        x = double;\n        result_in_constructor = use(2);\n    }\n\n    function double(uint256 _arg) public returns (uint256 _ret) {\n        _ret = _arg * 2;\n    }\n\n    function use(uint256 _arg) public returns (uint256) {\n        return x(_arg);\n    }\n}\n// ====\n// bytecodeFormat: legacy,>=EOFv1\n// ----\n// use(uint256): 3 -> 6\n// result_in_constructor() -> 4\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

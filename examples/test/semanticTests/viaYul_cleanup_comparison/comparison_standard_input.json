@@ -1,1 +1,34 @@
-{"language": "Solidity", "sources": {"comparison.sol": {"content": "contract C {\n\tfunction eq() public pure returns (bool) {\n\t\tuint8 x = 1; uint8 y;\n\t\tassembly { y := 0x0101 }\n\t\treturn (x == y);\n\t}\n\tfunction neq() public pure returns (bool) {\n\t\tuint8 x = 1; uint8 y;\n\t\tassembly { y := 0x0101 }\n\t\treturn (x != y);\n\t}\n\tfunction geq() public pure returns (bool) {\n\t\tuint8 x = 1; uint8 y;\n\t\tassembly { y := 0x0101 }\n\t\treturn (x >= y);\n\t}\n\tfunction leq() public pure returns (bool) {\n\t\tuint8 x = 2; uint8 y;\n\t\tassembly { y := 0x0101 }\n\t\treturn (x <= y);\n\t}\n\tfunction gt() public pure returns (bool) {\n\t\tuint8 x = 2; uint8 y;\n\t\tassembly { y := 0x0101 }\n\t\treturn (x > y);\n\t}\n\tfunction lt() public pure returns (bool) {\n\t\tuint8 x = 1; uint8 y;\n\t\tassembly { y := 0x0101 }\n\t\treturn (x < y);\n\t}\n}\n// ----\n// eq() -> true\n// neq() -> false\n// geq() -> true\n// leq() -> false\n// gt() -> true\n// lt() -> false\n"}}, "settings": {"optimizer": {"enabled": true, "runs": 200, "details": {"peephole": false, "inliner": false, "jumpdestRemover": false, "orderLiterals": false, "deduplicate": false, "cse": false, "constantOptimizer": false}}, "outputSelection": {"*": {"*": ["abi", "metadata", "evm.bytecode", "evm.deployedBytecode", "evm.methodIdentifiers"]}}, "metadata": {"appendCBOR": false}}}
+{
+    "language": "Solidity",
+    "sources": {
+        "comparison.sol": {
+            "content": "contract C {\n\tfunction eq() public pure returns (bool) {\n\t\tuint8 x = 1; uint8 y;\n\t\tassembly { y := 0x0101 }\n\t\treturn (x == y);\n\t}\n\tfunction neq() public pure returns (bool) {\n\t\tuint8 x = 1; uint8 y;\n\t\tassembly { y := 0x0101 }\n\t\treturn (x != y);\n\t}\n\tfunction geq() public pure returns (bool) {\n\t\tuint8 x = 1; uint8 y;\n\t\tassembly { y := 0x0101 }\n\t\treturn (x >= y);\n\t}\n\tfunction leq() public pure returns (bool) {\n\t\tuint8 x = 2; uint8 y;\n\t\tassembly { y := 0x0101 }\n\t\treturn (x <= y);\n\t}\n\tfunction gt() public pure returns (bool) {\n\t\tuint8 x = 2; uint8 y;\n\t\tassembly { y := 0x0101 }\n\t\treturn (x > y);\n\t}\n\tfunction lt() public pure returns (bool) {\n\t\tuint8 x = 1; uint8 y;\n\t\tassembly { y := 0x0101 }\n\t\treturn (x < y);\n\t}\n}\n// ----\n// eq() -> true\n// neq() -> false\n// geq() -> true\n// leq() -> false\n// gt() -> true\n// lt() -> false\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

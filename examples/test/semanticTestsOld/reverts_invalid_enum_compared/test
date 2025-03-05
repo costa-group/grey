@@ -1,0 +1,48 @@
+{
+    "semanticTests/reverts/invalid_enum_compared.sol": {
+        "bytecode": "608080604052346013576075908160188239f35b5f80fdfe608060405260043610156010575f80fd5b5f3560e01c80636063214e1460535780637f5dfda41460535763ffbb17b5146036575f80fd5b34604f575f366003190112604f57602060405160018152f35b5f80fd5b34604f575f366003190112604f57634e487b7160e01b5f52602160045260245ffd",
+        "contract": ":C",
+        "tests": [
+            {
+                "input": {
+                    "calldata": "",
+                    "value": "0"
+                },
+                "kind": "constructor"
+            },
+            {
+                "input": {
+                    "calldata": "ffbb17b5",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "0000000000000000000000000000000000000000000000000000000000000001",
+                    "status": "success"
+                }
+            },
+            {
+                "input": {
+                    "calldata": "6063214e",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "4e487b710000000000000000000000000000000000000000000000000000000000000021",
+                    "status": "failure"
+                }
+            },
+            {
+                "input": {
+                    "calldata": "7f5dfda4",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "4e487b710000000000000000000000000000000000000000000000000000000000000021",
+                    "status": "failure"
+                }
+            }
+        ]
+    }
+}

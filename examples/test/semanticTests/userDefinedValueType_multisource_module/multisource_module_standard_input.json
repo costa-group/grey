@@ -1,1 +1,37 @@
-{"language": "Solidity", "sources": {"s1.sol": {"content": "type MyInt is int;"}, "s2.sol": {"content": "import \"s1.sol\" as M;\ncontract C {\n  function f(int x) public pure returns (M.MyInt) { return M.MyInt.wrap(x); }\n  function g(M.MyInt x) public pure returns (int) { return M.MyInt.unwrap(x); }\n}\n// ----\n// f(int256): 5 -> 5\n// g(int256): 1 -> 1"}}, "settings": {"optimizer": {"enabled": true, "runs": 200, "details": {"peephole": false, "inliner": false, "jumpdestRemover": false, "orderLiterals": false, "deduplicate": false, "cse": false, "constantOptimizer": false}}, "outputSelection": {"*": {"*": ["abi", "metadata", "evm.bytecode", "evm.deployedBytecode", "evm.methodIdentifiers"]}}, "metadata": {"appendCBOR": false}}}
+{
+    "language": "Solidity",
+    "sources": {
+        "s1.sol": {
+            "content": "type MyInt is int;"
+        },
+        "s2.sol": {
+            "content": "import \"s1.sol\" as M;\ncontract C {\n  function f(int x) public pure returns (M.MyInt) { return M.MyInt.wrap(x); }\n  function g(M.MyInt x) public pure returns (int) { return M.MyInt.unwrap(x); }\n}\n// ----\n// f(int256): 5 -> 5\n// g(int256): 1 -> 1"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

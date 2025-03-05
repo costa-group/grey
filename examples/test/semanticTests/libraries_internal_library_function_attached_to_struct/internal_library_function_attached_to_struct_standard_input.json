@@ -1,1 +1,34 @@
-{"language": "Solidity", "sources": {"internal_library_function_attached_to_struct.sol": {"content": "// This has to work without linking, because everything will be inlined.\nlibrary L {\n    struct S {\n        uint256[] data;\n    }\n\n    function f(S memory _s) internal {\n        _s.data[3] = 2;\n    }\n}\n\n\ncontract C {\n    using L for L.S;\n\n    function f() public returns (uint256) {\n        L.S memory x;\n        x.data = new uint256[](7);\n        x.data[3] = 8;\n        x.f();\n        return x.data[3];\n    }\n}\n// ----\n// f() -> 2\n"}}, "settings": {"optimizer": {"enabled": true, "runs": 200, "details": {"peephole": false, "inliner": false, "jumpdestRemover": false, "orderLiterals": false, "deduplicate": false, "cse": false, "constantOptimizer": false}}, "outputSelection": {"*": {"*": ["abi", "metadata", "evm.bytecode", "evm.deployedBytecode", "evm.methodIdentifiers"]}}, "metadata": {"appendCBOR": false}}}
+{
+    "language": "Solidity",
+    "sources": {
+        "internal_library_function_attached_to_struct.sol": {
+            "content": "// This has to work without linking, because everything will be inlined.\nlibrary L {\n    struct S {\n        uint256[] data;\n    }\n\n    function f(S memory _s) internal {\n        _s.data[3] = 2;\n    }\n}\n\n\ncontract C {\n    using L for L.S;\n\n    function f() public returns (uint256) {\n        L.S memory x;\n        x.data = new uint256[](7);\n        x.data[3] = 8;\n        x.f();\n        return x.data[3];\n    }\n}\n// ----\n// f() -> 2\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

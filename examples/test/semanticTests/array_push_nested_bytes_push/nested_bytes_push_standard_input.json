@@ -1,1 +1,34 @@
-{"language": "Solidity", "sources": {"nested_bytes_push.sol": {"content": "pragma abicoder               v2;\ncontract C {\n    bytes[] a;\n\n    function f() public {\n        a.push(\"abc\");\n        a.push(\"abcdefghabcdefghabcdefghabcdefgh\");\n        a.push(\"abcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefgh\");\n        assert(a[0][0] == \"a\");\n        assert(a[1][31] == \"h\");\n        assert(a[2][32] == \"a\");\n    }\n}\n// ----\n// f() ->\n// gas irOptimized: 179534\n// gas legacy: 181013\n// gas legacyOptimized: 180397\n"}}, "settings": {"optimizer": {"enabled": true, "runs": 200, "details": {"peephole": false, "inliner": false, "jumpdestRemover": false, "orderLiterals": false, "deduplicate": false, "cse": false, "constantOptimizer": false}}, "outputSelection": {"*": {"*": ["abi", "metadata", "evm.bytecode", "evm.deployedBytecode", "evm.methodIdentifiers"]}}, "metadata": {"appendCBOR": false}}}
+{
+    "language": "Solidity",
+    "sources": {
+        "nested_bytes_push.sol": {
+            "content": "pragma abicoder               v2;\ncontract C {\n    bytes[] a;\n\n    function f() public {\n        a.push(\"abc\");\n        a.push(\"abcdefghabcdefghabcdefghabcdefgh\");\n        a.push(\"abcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefgh\");\n        assert(a[0][0] == \"a\");\n        assert(a[1][31] == \"h\");\n        assert(a[2][32] == \"a\");\n    }\n}\n// ----\n// f() ->\n// gas irOptimized: 179534\n// gas legacy: 181013\n// gas legacyOptimized: 180397\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

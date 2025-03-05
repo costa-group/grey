@@ -1,1 +1,34 @@
-{"language": "Solidity", "sources": {"delete_removes_bytes_data.sol": {"content": "contract c {\n    fallback() external { data = msg.data; }\n    function del() public returns (bool) { delete data; return true; }\n    bytes data;\n}\n// ----\n// (): 7 ->\n// storageEmpty -> 0\n// del(): 7 -> true\n// storageEmpty -> 1\n"}}, "settings": {"optimizer": {"enabled": true, "runs": 200, "details": {"peephole": false, "inliner": false, "jumpdestRemover": false, "orderLiterals": false, "deduplicate": false, "cse": false, "constantOptimizer": false}}, "outputSelection": {"*": {"*": ["abi", "metadata", "evm.bytecode", "evm.deployedBytecode", "evm.methodIdentifiers"]}}, "metadata": {"appendCBOR": false}}}
+{
+    "language": "Solidity",
+    "sources": {
+        "delete_removes_bytes_data.sol": {
+            "content": "contract c {\n    fallback() external { data = msg.data; }\n    function del() public returns (bool) { delete data; return true; }\n    bytes data;\n}\n// ----\n// (): 7 ->\n// storageEmpty -> 0\n// del(): 7 -> true\n// storageEmpty -> 1\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

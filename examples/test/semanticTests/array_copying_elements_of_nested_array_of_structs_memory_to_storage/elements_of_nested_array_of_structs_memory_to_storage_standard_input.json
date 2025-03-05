@@ -1,1 +1,34 @@
-{"language": "Solidity", "sources": {"elements_of_nested_array_of_structs_memory_to_storage.sol": {"content": "pragma abicoder v2;\n\ncontract C {\n    struct S {\n        uint8[] a;\n        uint8[2] b;\n    }\n\n    S[][][] s1;\n    S[][1][] s2;\n    S[1][][1] s3;\n\n    function test1(S[][][] memory _a) public returns (S[][] memory){\n        s1.push();\n        s1[0] = _a[0];\n        return s1[0];\n    }\n\n    function test2(S[][1][] memory _a) public returns (S[][1] memory) {\n        s2.push();\n        s2[0] = _a[0];\n        return s2[0];\n    }\n\n    function test3(S[1][][2] memory _a) public returns (S[1][] memory) {\n        s3[0] = _a[1];\n        return s3[0];\n    }\n}\n// ====\n// compileViaYul: true\n// ----\n// test1((uint8[],uint8[2])[][][]): 0x20, 1, 0x20, 2, 0x40, 0x0140, 1, 0x20, 0x60, 3, 7, 2, 1, 2, 2, 0x40, 0x0100, 0x60, 17, 19, 2, 11, 13, 0x60, 31, 37, 2, 23, 29 -> 0x20, 2, 0x40, 0x0140, 1, 0x20, 0x60, 3, 7, 2, 1, 2, 2, 0x40, 0x0100, 0x60, 17, 19, 2, 11, 13, 0x60, 31, 37, 2, 23, 29\n// gas irOptimized: 332567\n// test2((uint8[],uint8[2])[][1][]): 0x20, 2, 0x40, 0x0160, 0x20, 1, 0x20, 0x60, 17, 19, 2, 11, 13, 0x20, 1, 0x20, 0x60, 31, 37, 2, 23, 29 -> 0x20, 0x20, 1, 0x20, 0x60, 17, 19, 2, 11, 13\n// gas irOptimized: 145409\n// test3((uint8[],uint8[2])[1][][2]): 0x20, 0x40, 0x60, 0, 2, 0x40, 288, 0x20, 0x60, 3, 7, 2, 1, 2, 0x20, 0x60, 17, 19, 2, 11, 13 -> 0x20, 2, 0x40, 288, 0x20, 0x60, 3, 7, 2, 1, 2, 0x20, 0x60, 17, 19, 2, 11, 13\n// gas irOptimized: 192248\n"}}, "settings": {"optimizer": {"enabled": true, "runs": 200, "details": {"peephole": false, "inliner": false, "jumpdestRemover": false, "orderLiterals": false, "deduplicate": false, "cse": false, "constantOptimizer": false}}, "outputSelection": {"*": {"*": ["abi", "metadata", "evm.bytecode", "evm.deployedBytecode", "evm.methodIdentifiers"]}}, "metadata": {"appendCBOR": false}}}
+{
+    "language": "Solidity",
+    "sources": {
+        "elements_of_nested_array_of_structs_memory_to_storage.sol": {
+            "content": "pragma abicoder v2;\n\ncontract C {\n    struct S {\n        uint8[] a;\n        uint8[2] b;\n    }\n\n    S[][][] s1;\n    S[][1][] s2;\n    S[1][][1] s3;\n\n    function test1(S[][][] memory _a) public returns (S[][] memory){\n        s1.push();\n        s1[0] = _a[0];\n        return s1[0];\n    }\n\n    function test2(S[][1][] memory _a) public returns (S[][1] memory) {\n        s2.push();\n        s2[0] = _a[0];\n        return s2[0];\n    }\n\n    function test3(S[1][][2] memory _a) public returns (S[1][] memory) {\n        s3[0] = _a[1];\n        return s3[0];\n    }\n}\n// ====\n// compileViaYul: true\n// ----\n// test1((uint8[],uint8[2])[][][]): 0x20, 1, 0x20, 2, 0x40, 0x0140, 1, 0x20, 0x60, 3, 7, 2, 1, 2, 2, 0x40, 0x0100, 0x60, 17, 19, 2, 11, 13, 0x60, 31, 37, 2, 23, 29 -> 0x20, 2, 0x40, 0x0140, 1, 0x20, 0x60, 3, 7, 2, 1, 2, 2, 0x40, 0x0100, 0x60, 17, 19, 2, 11, 13, 0x60, 31, 37, 2, 23, 29\n// gas irOptimized: 332567\n// test2((uint8[],uint8[2])[][1][]): 0x20, 2, 0x40, 0x0160, 0x20, 1, 0x20, 0x60, 17, 19, 2, 11, 13, 0x20, 1, 0x20, 0x60, 31, 37, 2, 23, 29 -> 0x20, 0x20, 1, 0x20, 0x60, 17, 19, 2, 11, 13\n// gas irOptimized: 145409\n// test3((uint8[],uint8[2])[1][][2]): 0x20, 0x40, 0x60, 0, 2, 0x40, 288, 0x20, 0x60, 3, 7, 2, 1, 2, 0x20, 0x60, 17, 19, 2, 11, 13 -> 0x20, 2, 0x40, 288, 0x20, 0x60, 3, 7, 2, 1, 2, 0x20, 0x60, 17, 19, 2, 11, 13\n// gas irOptimized: 192248\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

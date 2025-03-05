@@ -1,1 +1,34 @@
-{"language": "Solidity", "sources": {"slot_access_via_mapping_pointer.sol": {"content": "contract C {\n    mapping(uint => uint) private m0;\n    mapping(uint => uint) private m1;\n    mapping(uint => uint) private m2;\n\n    function f(uint i) public returns (uint slot, uint offset) {\n        mapping(uint => uint) storage m0Ptr = m0;\n        mapping(uint => uint) storage m1Ptr = m1;\n        mapping(uint => uint) storage m2Ptr = m2;\n\n        assembly {\n            switch i\n            case 1 {\n                slot := m1Ptr.slot\n                offset := m1Ptr.offset\n            }\n            case 2 {\n                slot := m2Ptr.slot\n                offset := m2Ptr.offset\n            }\n            default {\n                slot := m0Ptr.slot\n                offset := m0Ptr.offset\n            }\n        }\n    }\n}\n// ----\n// f(uint256): 0 -> 0, 0\n// f(uint256): 1 -> 1, 0\n// f(uint256): 2 -> 2, 0\n"}}, "settings": {"optimizer": {"enabled": true, "runs": 200, "details": {"peephole": false, "inliner": false, "jumpdestRemover": false, "orderLiterals": false, "deduplicate": false, "cse": false, "constantOptimizer": false}}, "outputSelection": {"*": {"*": ["abi", "metadata", "evm.bytecode", "evm.deployedBytecode", "evm.methodIdentifiers"]}}, "metadata": {"appendCBOR": false}}}
+{
+    "language": "Solidity",
+    "sources": {
+        "slot_access_via_mapping_pointer.sol": {
+            "content": "contract C {\n    mapping(uint => uint) private m0;\n    mapping(uint => uint) private m1;\n    mapping(uint => uint) private m2;\n\n    function f(uint i) public returns (uint slot, uint offset) {\n        mapping(uint => uint) storage m0Ptr = m0;\n        mapping(uint => uint) storage m1Ptr = m1;\n        mapping(uint => uint) storage m2Ptr = m2;\n\n        assembly {\n            switch i\n            case 1 {\n                slot := m1Ptr.slot\n                offset := m1Ptr.offset\n            }\n            case 2 {\n                slot := m2Ptr.slot\n                offset := m2Ptr.offset\n            }\n            default {\n                slot := m0Ptr.slot\n                offset := m0Ptr.offset\n            }\n        }\n    }\n}\n// ----\n// f(uint256): 0 -> 0, 0\n// f(uint256): 1 -> 1, 0\n// f(uint256): 2 -> 2, 0\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

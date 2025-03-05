@@ -1,1 +1,34 @@
-{"language": "Solidity", "sources": {"calldata.sol": {"content": "pragma abicoder v2;\ntype MyAddress is address;\n\ncontract C {\n    MyAddress[] public addresses;\n    function f(MyAddress[] calldata _addresses) external {\n        for (uint i = 0; i < _addresses.length; i++) {\n            MyAddress.unwrap(_addresses[i]).call(\"\");\n        }\n        addresses = _addresses;\n    }\n    function g(MyAddress[] memory _addresses) external {\n        for (uint i = 0; i < _addresses.length; i++) {\n            MyAddress.unwrap(_addresses[i]).call(\"\");\n        }\n        addresses = _addresses;\n    }\n    function test_f() external returns (bool) {\n        clean();\n        MyAddress[] memory test = new MyAddress[](3);\n        test[0] = MyAddress.wrap(address(21));\n        test[1] = MyAddress.wrap(address(22));\n        test[2] = MyAddress.wrap(address(23));\n        this.f(test);\n        test_equality(test);\n        return true;\n    }\n    function test_g() external returns (bool) {\n        clean();\n        MyAddress[] memory test = new MyAddress[](5);\n        test[0] = MyAddress.wrap(address(24));\n        test[1] = MyAddress.wrap(address(25));\n        test[2] = MyAddress.wrap(address(26));\n        test[3] = MyAddress.wrap(address(27));\n        test[4] = MyAddress.wrap(address(28));\n        this.g(test);\n        test_equality(test);\n        return true;\n    }\n    function clean() internal {\n        delete addresses;\n    }\n    function test_equality(MyAddress[] memory _addresses) internal view {\n        require (_addresses.length == addresses.length);\n        for (uint i = 0; i < _addresses.length; i++) {\n            require(MyAddress.unwrap(_addresses[i]) == MyAddress.unwrap(addresses[i]));\n        }\n    }\n}\n// ----\n// test_f() -> true\n// gas irOptimized: 122201\n// gas legacy: 125333\n// gas legacyOptimized: 122693\n// test_g() -> true\n// gas irOptimized: 106408\n// gas legacy: 111133\n// gas legacyOptimized: 106925\n// addresses(uint256): 0 -> 0x18\n// addresses(uint256): 1 -> 0x19\n// addresses(uint256): 3 -> 0x1b\n// addresses(uint256): 4 -> 0x1c\n// addresses(uint256): 5 -> FAILURE\n"}}, "settings": {"optimizer": {"enabled": true, "runs": 200, "details": {"peephole": false, "inliner": false, "jumpdestRemover": false, "orderLiterals": false, "deduplicate": false, "cse": false, "constantOptimizer": false}}, "outputSelection": {"*": {"*": ["abi", "metadata", "evm.bytecode", "evm.deployedBytecode", "evm.methodIdentifiers"]}}, "metadata": {"appendCBOR": false}}}
+{
+    "language": "Solidity",
+    "sources": {
+        "calldata.sol": {
+            "content": "pragma abicoder v2;\ntype MyAddress is address;\n\ncontract C {\n    MyAddress[] public addresses;\n    function f(MyAddress[] calldata _addresses) external {\n        for (uint i = 0; i < _addresses.length; i++) {\n            MyAddress.unwrap(_addresses[i]).call(\"\");\n        }\n        addresses = _addresses;\n    }\n    function g(MyAddress[] memory _addresses) external {\n        for (uint i = 0; i < _addresses.length; i++) {\n            MyAddress.unwrap(_addresses[i]).call(\"\");\n        }\n        addresses = _addresses;\n    }\n    function test_f() external returns (bool) {\n        clean();\n        MyAddress[] memory test = new MyAddress[](3);\n        test[0] = MyAddress.wrap(address(21));\n        test[1] = MyAddress.wrap(address(22));\n        test[2] = MyAddress.wrap(address(23));\n        this.f(test);\n        test_equality(test);\n        return true;\n    }\n    function test_g() external returns (bool) {\n        clean();\n        MyAddress[] memory test = new MyAddress[](5);\n        test[0] = MyAddress.wrap(address(24));\n        test[1] = MyAddress.wrap(address(25));\n        test[2] = MyAddress.wrap(address(26));\n        test[3] = MyAddress.wrap(address(27));\n        test[4] = MyAddress.wrap(address(28));\n        this.g(test);\n        test_equality(test);\n        return true;\n    }\n    function clean() internal {\n        delete addresses;\n    }\n    function test_equality(MyAddress[] memory _addresses) internal view {\n        require (_addresses.length == addresses.length);\n        for (uint i = 0; i < _addresses.length; i++) {\n            require(MyAddress.unwrap(_addresses[i]) == MyAddress.unwrap(addresses[i]));\n        }\n    }\n}\n// ----\n// test_f() -> true\n// gas irOptimized: 122201\n// gas legacy: 125333\n// gas legacyOptimized: 122693\n// test_g() -> true\n// gas irOptimized: 106408\n// gas legacy: 111133\n// gas legacyOptimized: 106925\n// addresses(uint256): 0 -> 0x18\n// addresses(uint256): 1 -> 0x19\n// addresses(uint256): 3 -> 0x1b\n// addresses(uint256): 4 -> 0x1c\n// addresses(uint256): 5 -> FAILURE\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

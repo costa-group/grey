@@ -1,1 +1,34 @@
-{"language": "Solidity", "sources": {"accessors_mapping_for_array.sol": {"content": "contract test {\n    mapping(uint => uint[8]) public data;\n    mapping(uint => uint[]) public dynamicData;\n    constructor() {\n        data[2][2] = 8;\n        for (uint i = 0; i < 3; i++)\n            dynamicData[2].push();\n        dynamicData[2][2] = 8;\n    }\n}\n// ----\n// data(uint256,uint256): 2, 2 -> 8\n// data(uint256,uint256): 2, 8 -> FAILURE # NB: the original code contained a bug here #\n// dynamicData(uint256,uint256): 2, 2 -> 8\n// dynamicData(uint256,uint256): 2, 8 -> FAILURE\n"}}, "settings": {"optimizer": {"enabled": true, "runs": 200, "details": {"peephole": false, "inliner": false, "jumpdestRemover": false, "orderLiterals": false, "deduplicate": false, "cse": false, "constantOptimizer": false}}, "outputSelection": {"*": {"*": ["abi", "metadata", "evm.bytecode", "evm.deployedBytecode", "evm.methodIdentifiers"]}}, "metadata": {"appendCBOR": false}}}
+{
+    "language": "Solidity",
+    "sources": {
+        "accessors_mapping_for_array.sol": {
+            "content": "contract test {\n    mapping(uint => uint[8]) public data;\n    mapping(uint => uint[]) public dynamicData;\n    constructor() {\n        data[2][2] = 8;\n        for (uint i = 0; i < 3; i++)\n            dynamicData[2].push();\n        dynamicData[2][2] = 8;\n    }\n}\n// ----\n// data(uint256,uint256): 2, 2 -> 8\n// data(uint256,uint256): 2, 8 -> FAILURE # NB: the original code contained a bug here #\n// dynamicData(uint256,uint256): 2, 2 -> 8\n// dynamicData(uint256,uint256): 2, 8 -> FAILURE\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

@@ -1,1 +1,34 @@
-{"language": "Solidity", "sources": {"mappings_array2d_pop_delete.sol": {"content": "contract C {\n\tmapping (uint => uint)[][] a;\n\n\tfunction n1(uint key, uint value) public {\n\t\ta.push();\n\t\tmapping (uint => uint)[] storage b = a[a.length - 1];\n\t\tb.push();\n\t\tb[b.length - 1][key] = value;\n\t}\n\n\tfunction n2() public {\n\t\ta.push();\n\t\tmapping (uint => uint)[] storage b = a[a.length - 1];\n\t\tb.push();\n\t}\n\n\tfunction map(uint key) public view returns (uint) {\n\t\tmapping (uint => uint)[] storage b = a[a.length - 1];\n\t\treturn b[b.length - 1][key];\n\t}\n\n\tfunction p() public {\n\t\ta.pop();\n\t}\n\n\tfunction d() public returns (uint) {\n\t\tdelete a;\n\t\treturn a.length;\n\t}\n}\n// ----\n// n1(uint256,uint256): 42, 64 ->\n// map(uint256): 42 -> 64\n// p() ->\n// n2() ->\n// map(uint256): 42 -> 64\n// d() -> 0\n// n2() ->\n// map(uint256): 42 -> 64\n"}}, "settings": {"optimizer": {"enabled": true, "runs": 200, "details": {"peephole": false, "inliner": false, "jumpdestRemover": false, "orderLiterals": false, "deduplicate": false, "cse": false, "constantOptimizer": false}}, "outputSelection": {"*": {"*": ["abi", "metadata", "evm.bytecode", "evm.deployedBytecode", "evm.methodIdentifiers"]}}, "metadata": {"appendCBOR": false}}}
+{
+    "language": "Solidity",
+    "sources": {
+        "mappings_array2d_pop_delete.sol": {
+            "content": "contract C {\n\tmapping (uint => uint)[][] a;\n\n\tfunction n1(uint key, uint value) public {\n\t\ta.push();\n\t\tmapping (uint => uint)[] storage b = a[a.length - 1];\n\t\tb.push();\n\t\tb[b.length - 1][key] = value;\n\t}\n\n\tfunction n2() public {\n\t\ta.push();\n\t\tmapping (uint => uint)[] storage b = a[a.length - 1];\n\t\tb.push();\n\t}\n\n\tfunction map(uint key) public view returns (uint) {\n\t\tmapping (uint => uint)[] storage b = a[a.length - 1];\n\t\treturn b[b.length - 1][key];\n\t}\n\n\tfunction p() public {\n\t\ta.pop();\n\t}\n\n\tfunction d() public returns (uint) {\n\t\tdelete a;\n\t\treturn a.length;\n\t}\n}\n// ----\n// n1(uint256,uint256): 42, 64 ->\n// map(uint256): 42 -> 64\n// p() ->\n// n2() ->\n// map(uint256): 42 -> 64\n// d() -> 0\n// n2() ->\n// map(uint256): 42 -> 64\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

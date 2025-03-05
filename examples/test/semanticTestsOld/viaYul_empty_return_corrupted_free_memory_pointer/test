@@ -1,0 +1,26 @@
+{
+    "semanticTests/viaYul/empty_return_corrupted_free_memory_pointer.sol": {
+        "bytecode": "608080604052346013576031908160188239f35b5f80fdfe6004361015600b575f80fd5b5f3560e01c6326121ff014601d575f80fd5b34602d575f366003190112602d57005b5f80fd",
+        "contract": ":C",
+        "tests": [
+            {
+                "input": {
+                    "calldata": "",
+                    "value": "0"
+                },
+                "kind": "constructor"
+            },
+            {
+                "input": {
+                    "calldata": "26121ff0",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "",
+                    "status": "success"
+                }
+            }
+        ]
+    }
+}

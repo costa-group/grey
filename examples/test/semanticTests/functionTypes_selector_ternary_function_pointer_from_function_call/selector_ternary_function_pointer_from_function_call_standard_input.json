@@ -1,1 +1,34 @@
-{"language": "Solidity", "sources": {"selector_ternary_function_pointer_from_function_call.sol": {"content": "contract A {\n    function f() public {}\n\tfunction g() public {}\n}\n\ncontract C {\n    A a = new A();\n\n    function getContract() public view returns (A) {\n        return a;\n    }\n\n    function test(bool b) public view returns (bytes4) {\n        return (b ? getContract().f : getContract().g).selector;\n    }\n}\n// ----\n// test(bool): true -> 0x26121ff000000000000000000000000000000000000000000000000000000000\n// test(bool): false -> 0xe2179b8e00000000000000000000000000000000000000000000000000000000\n"}}, "settings": {"optimizer": {"enabled": true, "runs": 200, "details": {"peephole": false, "inliner": false, "jumpdestRemover": false, "orderLiterals": false, "deduplicate": false, "cse": false, "constantOptimizer": false}}, "outputSelection": {"*": {"*": ["abi", "metadata", "evm.bytecode", "evm.deployedBytecode", "evm.methodIdentifiers"]}}, "metadata": {"appendCBOR": false}}}
+{
+    "language": "Solidity",
+    "sources": {
+        "selector_ternary_function_pointer_from_function_call.sol": {
+            "content": "contract A {\n    function f() public {}\n\tfunction g() public {}\n}\n\ncontract C {\n    A a = new A();\n\n    function getContract() public view returns (A) {\n        return a;\n    }\n\n    function test(bool b) public view returns (bytes4) {\n        return (b ? getContract().f : getContract().g).selector;\n    }\n}\n// ----\n// test(bool): true -> 0x26121ff000000000000000000000000000000000000000000000000000000000\n// test(bool): false -> 0xe2179b8e00000000000000000000000000000000000000000000000000000000\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

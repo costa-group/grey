@@ -1,1 +1,34 @@
-{"language": "Solidity", "sources": {"transient_state_variable_value_type.sol": {"content": "contract C {\n    uint16 transient x;\n\n    modifier m(uint16) {\n        x += 10;\n        _;\n    }\n\n    function f() public m(x) returns (uint16) {\n        x *= 10;\n        return x;\n    }\n}\n\n// ====\n// EVMVersion: >=cancun\n// ----\n// f() -> 100\n"}}, "settings": {"optimizer": {"enabled": true, "runs": 200, "details": {"peephole": false, "inliner": false, "jumpdestRemover": false, "orderLiterals": false, "deduplicate": false, "cse": false, "constantOptimizer": false}}, "outputSelection": {"*": {"*": ["abi", "metadata", "evm.bytecode", "evm.deployedBytecode", "evm.methodIdentifiers"]}}, "metadata": {"appendCBOR": false}}}
+{
+    "language": "Solidity",
+    "sources": {
+        "transient_state_variable_value_type.sol": {
+            "content": "contract C {\n    uint16 transient x;\n\n    modifier m(uint16) {\n        x += 10;\n        _;\n    }\n\n    function f() public m(x) returns (uint16) {\n        x *= 10;\n        return x;\n    }\n}\n\n// ====\n// EVMVersion: >=cancun\n// ----\n// f() -> 100\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

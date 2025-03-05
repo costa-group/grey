@@ -1,1 +1,34 @@
-{"language": "Solidity", "sources": {"function_modifier_local_variables.sol": {"content": "contract C {\n    modifier mod1 {\n        uint8 a = 1;\n        uint8 b = 2;\n        _;\n    }\n    modifier mod2(bool a) {\n        if (a) return;\n        else _;\n    }\n\n    function f(bool a) public mod1 mod2(a) returns (uint256 r) {\n        return 3;\n    }\n}\n// ----\n// f(bool): true -> 0\n// f(bool): false -> 3\n"}}, "settings": {"optimizer": {"enabled": true, "runs": 200, "details": {"peephole": false, "inliner": false, "jumpdestRemover": false, "orderLiterals": false, "deduplicate": false, "cse": false, "constantOptimizer": false}}, "outputSelection": {"*": {"*": ["abi", "metadata", "evm.bytecode", "evm.deployedBytecode", "evm.methodIdentifiers"]}}, "metadata": {"appendCBOR": false}}}
+{
+    "language": "Solidity",
+    "sources": {
+        "function_modifier_local_variables.sol": {
+            "content": "contract C {\n    modifier mod1 {\n        uint8 a = 1;\n        uint8 b = 2;\n        _;\n    }\n    modifier mod2(bool a) {\n        if (a) return;\n        else _;\n    }\n\n    function f(bool a) public mod1 mod2(a) returns (uint256 r) {\n        return 3;\n    }\n}\n// ----\n// f(bool): true -> 0\n// f(bool): false -> 3\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

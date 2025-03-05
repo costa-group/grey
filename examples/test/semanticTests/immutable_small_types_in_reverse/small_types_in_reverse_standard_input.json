@@ -1,1 +1,34 @@
-{"language": "Solidity", "sources": {"small_types_in_reverse.sol": {"content": "contract A {\n\tuint16 public immutable a;\n\tuint16 public immutable b;\n\tuint16 public immutable c;\n\tuint16[3] public x;\n\tconstructor() {\n\t\tc = 0xffff;\n\t\tb = 0x0f0f;\n\t\ta = 0x1234;\n\t\tx = [a, b, c];\n\t}\n}\n// ----\n// a() -> 4660\n// b() -> 0x0f0f\n// c() -> 0xffff\n// x(uint256): 0 -> 4660\n// x(uint256): 1 -> 0x0f0f\n// x(uint256): 2 -> 0xffff\n"}}, "settings": {"optimizer": {"enabled": true, "runs": 200, "details": {"peephole": false, "inliner": false, "jumpdestRemover": false, "orderLiterals": false, "deduplicate": false, "cse": false, "constantOptimizer": false}}, "outputSelection": {"*": {"*": ["abi", "metadata", "evm.bytecode", "evm.deployedBytecode", "evm.methodIdentifiers"]}}, "metadata": {"appendCBOR": false}}}
+{
+    "language": "Solidity",
+    "sources": {
+        "small_types_in_reverse.sol": {
+            "content": "contract A {\n\tuint16 public immutable a;\n\tuint16 public immutable b;\n\tuint16 public immutable c;\n\tuint16[3] public x;\n\tconstructor() {\n\t\tc = 0xffff;\n\t\tb = 0x0f0f;\n\t\ta = 0x1234;\n\t\tx = [a, b, c];\n\t}\n}\n// ----\n// a() -> 4660\n// b() -> 0x0f0f\n// c() -> 0xffff\n// x(uint256): 0 -> 4660\n// x(uint256): 1 -> 0x0f0f\n// x(uint256): 2 -> 0xffff\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

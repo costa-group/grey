@@ -1,1 +1,34 @@
-{"language": "Solidity", "sources": {"delete_storage_array.sol": {"content": "contract C {\n    uint[] data;\n\n    function len() public returns (uint ret) {\n        data.push(234);\n        data.push(123);\n        delete data;\n        assembly {\n            ret := sload(data.slot)\n        }\n    }\n\n    function val() public returns (uint ret) {\n        assembly {\n            sstore(0, 2)\n            mstore(0, 0)\n            sstore(keccak256(0, 32), 234)\n            sstore(add(keccak256(0, 32), 1), 123)\n        }\n\n        assert(data[0] == 234);\n        assert(data[1] == 123);\n\n        delete data;\n\n        uint size = 999;\n\n        assembly {\n            size := sload(0)\n            mstore(0, 0)\n            ret := sload(keccak256(0, 32))\n        }\n    }\n}\n// ----\n// len() -> 0\n// val() -> 0\n"}}, "settings": {"optimizer": {"enabled": true, "runs": 200, "details": {"peephole": false, "inliner": false, "jumpdestRemover": false, "orderLiterals": false, "deduplicate": false, "cse": false, "constantOptimizer": false}}, "outputSelection": {"*": {"*": ["abi", "metadata", "evm.bytecode", "evm.deployedBytecode", "evm.methodIdentifiers"]}}, "metadata": {"appendCBOR": false}}}
+{
+    "language": "Solidity",
+    "sources": {
+        "delete_storage_array.sol": {
+            "content": "contract C {\n    uint[] data;\n\n    function len() public returns (uint ret) {\n        data.push(234);\n        data.push(123);\n        delete data;\n        assembly {\n            ret := sload(data.slot)\n        }\n    }\n\n    function val() public returns (uint ret) {\n        assembly {\n            sstore(0, 2)\n            mstore(0, 0)\n            sstore(keccak256(0, 32), 234)\n            sstore(add(keccak256(0, 32), 1), 123)\n        }\n\n        assert(data[0] == 234);\n        assert(data[1] == 123);\n\n        delete data;\n\n        uint size = 999;\n\n        assembly {\n            size := sload(0)\n            mstore(0, 0)\n            ret := sload(keccak256(0, 32))\n        }\n    }\n}\n// ----\n// len() -> 0\n// val() -> 0\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

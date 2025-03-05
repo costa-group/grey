@@ -1,1 +1,34 @@
-{"language": "Solidity", "sources": {"copy_byte_array_to_storage.sol": {"content": "function dataslot() pure returns (bytes32) {\n    return keccak256(abi.encode(1));\n}\n\nfunction readDataSlot(uint offset) view returns (bytes32 r) {\n    bytes32 s = dataslot();\n    assembly { r := sload(add(s, offset)) }\n}\n\nfunction readDataSlot() view returns (bytes32) {\n    return readDataSlot(0);\n}\n\nfunction readHead() view returns (bytes32 r) {\n    assembly { r := sload(1) }\n}\n\ncontract C {\n    uint padding;\n    bytes data;\n\n    function f() public returns (uint) {\n        bytes32 zero;\n        if (!(readDataSlot() == zero)) return 1;\n        data = \"abc\";\n        if (!(readDataSlot() == zero)) return 2;\n        data = \"1234567890123456789012345678901234567890123456789012345678901234567890\";\n        if (!(readDataSlot() != zero)) return 3;\n        if (!(readDataSlot(1) != zero)) return 4;\n        if (!(readDataSlot(2) != zero)) return 5;\n        if (!(readDataSlot(3) == zero)) return 6;\n        if (!(readDataSlot(4) == zero)) return 7;\n        data = \"abc\";\n        if (!(readDataSlot() == zero)) return 8;\n        if (!(readDataSlot(1) == zero)) return 9;\n        if (!(readDataSlot(2) == zero)) return 10;\n        if (!(readDataSlot(3) == zero)) return 11;\n        data = \"1234567890123456789012345678901234567890123456789012345678901234567890\";\n        data = \"123456789012345678901234567890123456\";\n        if (!(readDataSlot() != zero)) return 12;\n        if (!(readDataSlot(1) != zero)) return 13;\n        if (!(readDataSlot(2) == zero)) return 14;\n        if (!(readDataSlot(3) == zero)) return 15;\n        return 0xff;\n    }\n}\n// ----\n// f() -> 0xff\n// gas irOptimized: 143857\n// gas legacy: 153404\n// gas legacyOptimized: 146676\n"}}, "settings": {"optimizer": {"enabled": true, "runs": 200, "details": {"peephole": false, "inliner": false, "jumpdestRemover": false, "orderLiterals": false, "deduplicate": false, "cse": false, "constantOptimizer": false}}, "outputSelection": {"*": {"*": ["abi", "metadata", "evm.bytecode", "evm.deployedBytecode", "evm.methodIdentifiers"]}}, "metadata": {"appendCBOR": false}}}
+{
+    "language": "Solidity",
+    "sources": {
+        "copy_byte_array_to_storage.sol": {
+            "content": "function dataslot() pure returns (bytes32) {\n    return keccak256(abi.encode(1));\n}\n\nfunction readDataSlot(uint offset) view returns (bytes32 r) {\n    bytes32 s = dataslot();\n    assembly { r := sload(add(s, offset)) }\n}\n\nfunction readDataSlot() view returns (bytes32) {\n    return readDataSlot(0);\n}\n\nfunction readHead() view returns (bytes32 r) {\n    assembly { r := sload(1) }\n}\n\ncontract C {\n    uint padding;\n    bytes data;\n\n    function f() public returns (uint) {\n        bytes32 zero;\n        if (!(readDataSlot() == zero)) return 1;\n        data = \"abc\";\n        if (!(readDataSlot() == zero)) return 2;\n        data = \"1234567890123456789012345678901234567890123456789012345678901234567890\";\n        if (!(readDataSlot() != zero)) return 3;\n        if (!(readDataSlot(1) != zero)) return 4;\n        if (!(readDataSlot(2) != zero)) return 5;\n        if (!(readDataSlot(3) == zero)) return 6;\n        if (!(readDataSlot(4) == zero)) return 7;\n        data = \"abc\";\n        if (!(readDataSlot() == zero)) return 8;\n        if (!(readDataSlot(1) == zero)) return 9;\n        if (!(readDataSlot(2) == zero)) return 10;\n        if (!(readDataSlot(3) == zero)) return 11;\n        data = \"1234567890123456789012345678901234567890123456789012345678901234567890\";\n        data = \"123456789012345678901234567890123456\";\n        if (!(readDataSlot() != zero)) return 12;\n        if (!(readDataSlot(1) != zero)) return 13;\n        if (!(readDataSlot(2) == zero)) return 14;\n        if (!(readDataSlot(3) == zero)) return 15;\n        return 0xff;\n    }\n}\n// ----\n// f() -> 0xff\n// gas irOptimized: 143857\n// gas legacy: 153404\n// gas legacyOptimized: 146676\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

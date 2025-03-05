@@ -1,1 +1,34 @@
-{"language": "Solidity", "sources": {"string_format.sol": {"content": "contract C {\n\tfunction f1() external pure returns (string memory) { return \"abcabc\"; }\n\tfunction f2() external pure returns (string memory) { return \"abcabc`~12345677890- _=+!@#$%^&*()[{]}|;:',<.>?\"; }\n\tfunction g() external pure returns (bytes32) { return \"abcabc\"; }\n\tfunction h() external pure returns (bytes4) { return 0xcafecafe; }\n}\n// ----\n// f1() -> 0x20, 6, left(0x616263616263)\n// f2() -> 32, 47, 44048183223289766195424279195050628400112610419087780792899004030957505095210, 18165586057823232067963737336409268114628061002662705707816940456850361417728\n// g() -> left(0x616263616263)\n// h() -> left(0xcafecafe)\n"}}, "settings": {"optimizer": {"enabled": true, "runs": 200, "details": {"peephole": false, "inliner": false, "jumpdestRemover": false, "orderLiterals": false, "deduplicate": false, "cse": false, "constantOptimizer": false}}, "outputSelection": {"*": {"*": ["abi", "metadata", "evm.bytecode", "evm.deployedBytecode", "evm.methodIdentifiers"]}}, "metadata": {"appendCBOR": false}}}
+{
+    "language": "Solidity",
+    "sources": {
+        "string_format.sol": {
+            "content": "contract C {\n\tfunction f1() external pure returns (string memory) { return \"abcabc\"; }\n\tfunction f2() external pure returns (string memory) { return \"abcabc`~12345677890- _=+!@#$%^&*()[{]}|;:',<.>?\"; }\n\tfunction g() external pure returns (bytes32) { return \"abcabc\"; }\n\tfunction h() external pure returns (bytes4) { return 0xcafecafe; }\n}\n// ----\n// f1() -> 0x20, 6, left(0x616263616263)\n// f2() -> 32, 47, 44048183223289766195424279195050628400112610419087780792899004030957505095210, 18165586057823232067963737336409268114628061002662705707816940456850361417728\n// g() -> left(0x616263616263)\n// h() -> left(0xcafecafe)\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

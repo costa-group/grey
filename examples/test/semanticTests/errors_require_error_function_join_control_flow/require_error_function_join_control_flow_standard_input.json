@@ -1,1 +1,34 @@
-{"language": "Solidity", "sources": {"require_error_function_join_control_flow.sol": {"content": "contract C {\n    uint x = 0;\n    uint y = 42;\n    error E(uint);\n    function f(bool c) public returns (uint256, uint256, uint256) {\n        uint z = x;\n        if (y == 42) {\n            x = 21;\n        } else {\n            require(c, E(y));\n        }\n        y /= 2;\n        return (x,y,z);\n    }\n}\n// ----\n// f(bool): true -> 0x15, 0x15, 0\n// f(bool): false -> FAILURE, hex\"002ff067\", 21\n"}}, "settings": {"optimizer": {"enabled": true, "runs": 200, "details": {"peephole": false, "inliner": false, "jumpdestRemover": false, "orderLiterals": false, "deduplicate": false, "cse": false, "constantOptimizer": false}}, "outputSelection": {"*": {"*": ["abi", "metadata", "evm.bytecode", "evm.deployedBytecode", "evm.methodIdentifiers"]}}, "metadata": {"appendCBOR": false}}}
+{
+    "language": "Solidity",
+    "sources": {
+        "require_error_function_join_control_flow.sol": {
+            "content": "contract C {\n    uint x = 0;\n    uint y = 42;\n    error E(uint);\n    function f(bool c) public returns (uint256, uint256, uint256) {\n        uint z = x;\n        if (y == 42) {\n            x = 21;\n        } else {\n            require(c, E(y));\n        }\n        y /= 2;\n        return (x,y,z);\n    }\n}\n// ----\n// f(bool): true -> 0x15, 0x15, 0\n// f(bool): false -> FAILURE, hex\"002ff067\", 21\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

@@ -1,1 +1,34 @@
-{"language": "Solidity", "sources": {"event_emit_via_interface.sol": {"content": "interface I {\n    event Event(address indexed _from, uint256 _value);\n}\n\ncontract C {\n    function emitEvent(uint256 _value) public {\n        emit I.Event(msg.sender, _value);\n    }\n}\n\n// ----\n// emitEvent(uint256): 100 ->\n// ~ emit Event(address,uint256): #0x1212121212121212121212121212120000000012, 0x64\n"}}, "settings": {"optimizer": {"enabled": true, "runs": 200, "details": {"peephole": false, "inliner": false, "jumpdestRemover": false, "orderLiterals": false, "deduplicate": false, "cse": false, "constantOptimizer": false}}, "outputSelection": {"*": {"*": ["abi", "metadata", "evm.bytecode", "evm.deployedBytecode", "evm.methodIdentifiers"]}}, "metadata": {"appendCBOR": false}}}
+{
+    "language": "Solidity",
+    "sources": {
+        "event_emit_via_interface.sol": {
+            "content": "interface I {\n    event Event(address indexed _from, uint256 _value);\n}\n\ncontract C {\n    function emitEvent(uint256 _value) public {\n        emit I.Event(msg.sender, _value);\n    }\n}\n\n// ----\n// emitEvent(uint256): 100 ->\n// ~ emit Event(address,uint256): #0x1212121212121212121212121212120000000012, 0x64\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

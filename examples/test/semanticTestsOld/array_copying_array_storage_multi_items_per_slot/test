@@ -1,0 +1,26 @@
+{
+    "semanticTests/array/copying/array_storage_multi_items_per_slot.sol": {
+        "bytecode": "6080806040523460135760db908160188239f35b5f80fdfe608060405260043610156010575f80fd5b5f3560e01c6326121ff0146022575f80fd5b3460d7575f36600319011260d7576001805460ff1916811781555f80546001600160f01b031661020360f01b179055600280546bffffffffffffffffffffffff19166803000000020000000117908190556005805460036effffffffffffffffffffffffffffff19909116811790915560048054600160781b6effffffffffffffffffffffffffffff60781b199091161790556040805193845263ffffffff602093841c169284019290925290820152606090f35b5f80fd",
+        "contract": ":C",
+        "tests": [
+            {
+                "input": {
+                    "calldata": "",
+                    "value": "0"
+                },
+                "kind": "constructor"
+            },
+            {
+                "input": {
+                    "calldata": "26121ff0",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000003",
+                    "status": "success"
+                }
+            }
+        ]
+    }
+}

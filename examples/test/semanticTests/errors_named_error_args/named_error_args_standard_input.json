@@ -1,1 +1,34 @@
-{"language": "Solidity", "sources": {"named_error_args.sol": {"content": "error E(uint a, uint b);\ncontract C {\n    function f() public pure {\n        revert E({b: 7, a: 2});\n    }\n}\n// ----\n// f() -> FAILURE, hex\"85208890\", hex\"0000000000000000000000000000000000000000000000000000000000000002\", hex\"0000000000000000000000000000000000000000000000000000000000000007\"\n"}}, "settings": {"optimizer": {"enabled": true, "runs": 200, "details": {"peephole": false, "inliner": false, "jumpdestRemover": false, "orderLiterals": false, "deduplicate": false, "cse": false, "constantOptimizer": false}}, "outputSelection": {"*": {"*": ["abi", "metadata", "evm.bytecode", "evm.deployedBytecode", "evm.methodIdentifiers"]}}, "metadata": {"appendCBOR": false}}}
+{
+    "language": "Solidity",
+    "sources": {
+        "named_error_args.sol": {
+            "content": "error E(uint a, uint b);\ncontract C {\n    function f() public pure {\n        revert E({b: 7, a: 2});\n    }\n}\n// ----\n// f() -> FAILURE, hex\"85208890\", hex\"0000000000000000000000000000000000000000000000000000000000000002\", hex\"0000000000000000000000000000000000000000000000000000000000000007\"\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

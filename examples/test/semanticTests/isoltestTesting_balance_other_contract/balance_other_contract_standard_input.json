@@ -1,1 +1,34 @@
-{"language": "Solidity", "sources": {"balance_other_contract.sol": {"content": "contract Other {\n    constructor() payable {\n    }\n    function getAddress() public returns (address) {\n        return address(this);\n    }\n}\ncontract ClientReceipt {\n    Other other;\n    constructor() payable {\n        other = new Other{value:500}();\n    }\n    function getAddress() public returns (address) {\n        return other.getAddress();\n    }\n}\n// ----\n// constructor(), 2000 wei ->\n// gas irOptimized: 114353\n// gas irOptimized code: 58800\n// gas legacy: 118617\n// gas legacy code: 111400\n// gas legacyOptimized: 114067\n// gas legacyOptimized code: 59800\n// balance -> 1500\n// gas irOptimized: 191881\n// gas legacy: 235167\n// gas legacyOptimized: 180756\n// getAddress() -> 0x137aa4dfc0911524504fcd4d98501f179bc13b4a\n// balance: 0x137aa4dfc0911524504fcd4d98501f179bc13b4a -> 500\n"}}, "settings": {"optimizer": {"enabled": true, "runs": 200, "details": {"peephole": false, "inliner": false, "jumpdestRemover": false, "orderLiterals": false, "deduplicate": false, "cse": false, "constantOptimizer": false}}, "outputSelection": {"*": {"*": ["abi", "metadata", "evm.bytecode", "evm.deployedBytecode", "evm.methodIdentifiers"]}}, "metadata": {"appendCBOR": false}}}
+{
+    "language": "Solidity",
+    "sources": {
+        "balance_other_contract.sol": {
+            "content": "contract C {\n    constructor() payable {\n        payable(address(0x1234)).transfer(500);\n    }\n}\n// ----\n// constructor(), 2000 wei ->\n// balance -> 1500\n// balance: 0x0000000000000000000000000000000000001234 -> 500\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

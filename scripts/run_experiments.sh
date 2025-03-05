@@ -49,7 +49,10 @@ find "$DIRECTORIO_BASE" -type f -name "*standard_input.json" | while read -r yul
 
         $TESTRUNNER_PATH  $EVMONE_LIB $yul_dir/test_grey $yul_dir/resultGrey.json
 
-        if diff $yul_dir/resultOriginal.json $yul_dir/resultGrey.json > /dev/null; then
+        python3 compare_outputs.py $yul_dir/resultOriginal.json $yul_dir/resultGrey.json > /dev/null;
+        RES=$?
+        # if diff $yul_dir/resultOriginal.json $yul_dir/resultGrey.json > /dev/null; then
+        if [$RES -eq 0] then
             echo "[RES]: Test passed."
 
             echo "python3 count_num_ins.py $yul_dir/$yul_base.output $yul_dir/$yul_base.log"

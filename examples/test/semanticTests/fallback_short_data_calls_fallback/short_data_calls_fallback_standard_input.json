@@ -1,1 +1,34 @@
-{"language": "Solidity", "sources": {"short_data_calls_fallback.sol": {"content": "contract A {\n    uint public x;\n    // Signature is d88e0b00\n    function fow() public { x = 3; }\n    fallback () external { x = 2; }\n}\n// ----\n// (): hex\"d88e0b\"\n// x() -> 2\n// (): hex\"d88e0b00\"\n// x() -> 3\n// (): hex\"d88e\"\n// x() -> 2\n// (): hex\"d88e0b00\"\n// x() -> 3\n// (): hex\"d8\"\n// x() -> 2\n"}}, "settings": {"optimizer": {"enabled": true, "runs": 200, "details": {"peephole": false, "inliner": false, "jumpdestRemover": false, "orderLiterals": false, "deduplicate": false, "cse": false, "constantOptimizer": false}}, "outputSelection": {"*": {"*": ["abi", "metadata", "evm.bytecode", "evm.deployedBytecode", "evm.methodIdentifiers"]}}, "metadata": {"appendCBOR": false}}}
+{
+    "language": "Solidity",
+    "sources": {
+        "short_data_calls_fallback.sol": {
+            "content": "contract A {\n    uint public x;\n    // Signature is d88e0b00\n    function fow() public { x = 3; }\n    fallback () external { x = 2; }\n}\n// ----\n// (): hex\"d88e0b\"\n// x() -> 2\n// (): hex\"d88e0b00\"\n// x() -> 3\n// (): hex\"d88e\"\n// x() -> 2\n// (): hex\"d88e0b00\"\n// x() -> 3\n// (): hex\"d8\"\n// x() -> 2\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

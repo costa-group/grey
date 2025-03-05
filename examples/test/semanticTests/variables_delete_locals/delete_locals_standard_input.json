@@ -1,1 +1,34 @@
-{"language": "Solidity", "sources": {"delete_locals.sol": {"content": "contract test {\n    function delLocal() public returns (uint res1, uint res2){\n        uint v = 5;\n        uint w = 6;\n        uint x = 7;\n        delete v;\n        res1 = w;\n        res2 = x;\n    }\n}\n// ----\n// delLocal() -> 6, 7\n"}}, "settings": {"optimizer": {"enabled": true, "runs": 200, "details": {"peephole": false, "inliner": false, "jumpdestRemover": false, "orderLiterals": false, "deduplicate": false, "cse": false, "constantOptimizer": false}}, "outputSelection": {"*": {"*": ["abi", "metadata", "evm.bytecode", "evm.deployedBytecode", "evm.methodIdentifiers"]}}, "metadata": {"appendCBOR": false}}}
+{
+    "language": "Solidity",
+    "sources": {
+        "delete_locals.sol": {
+            "content": "contract test {\n    function delLocal() public returns (uint res1, uint res2){\n        uint v = 5;\n        uint w = 6;\n        uint x = 7;\n        delete v;\n        res1 = w;\n        res2 = x;\n    }\n}\n// ----\n// delLocal() -> 6, 7\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

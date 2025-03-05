@@ -1,1 +1,34 @@
-{"language": "Solidity", "sources": {"function_external_delete_storage.sol": {"content": "contract C {\n    function() external public x;\n    uint public y = 0;\n\n    function increment() public {\n        ++y;\n    }\n\n    function set() external {\n        x = this.increment;\n    }\n\n    function incrementIndirectly() public {\n        x();\n    }\n\n    function deleteFunction() public {\n        // used to lead to an ICE during IR\n        delete x;\n    }\n}\n// ----\n// x() -> 0\n// y() -> 0\n// increment() ->\n// y() -> 1\n// set() ->\n// x() -> 0xc06afe3a8444fc0004668591e8306bfb9968e79ed09de08a0000000000000000\n// increment() ->\n// y() -> 2\n// incrementIndirectly() ->\n// y() -> 3\n// deleteFunction() ->\n// increment() ->\n// y() -> 4\n// incrementIndirectly() -> FAILURE\n// y() -> 4\n"}}, "settings": {"optimizer": {"enabled": true, "runs": 200, "details": {"peephole": false, "inliner": false, "jumpdestRemover": false, "orderLiterals": false, "deduplicate": false, "cse": false, "constantOptimizer": false}}, "outputSelection": {"*": {"*": ["abi", "metadata", "evm.bytecode", "evm.deployedBytecode", "evm.methodIdentifiers"]}}, "metadata": {"appendCBOR": false}}}
+{
+    "language": "Solidity",
+    "sources": {
+        "function_external_delete_storage.sol": {
+            "content": "contract C {\n    function() external public x;\n\n    function f() public {}\n\n    function set() external {\n        x = this.f;\n    }\n\n    function isF() external returns (bool) {\n        return x == this.f;\n    }\n\n    function isZero() external returns (bool) {\n        function() external zero;\n        return x == zero;\n    }\n\n    function deleteFunction() public {\n        // used to lead to an ICE during IR\n        delete x;\n    }\n}\n// ----\n// isF() -> false\n// isZero() -> true\n// deleteFunction() ->\n// isF() -> false\n// isZero() -> true\n// set() ->\n// isF() -> true\n// isZero() -> false\n// deleteFunction() ->\n// isF() -> false\n// isZero() -> true\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

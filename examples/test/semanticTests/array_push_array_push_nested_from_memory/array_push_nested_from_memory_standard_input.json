@@ -1,1 +1,34 @@
-{"language": "Solidity", "sources": {"array_push_nested_from_memory.sol": {"content": "contract C {\n    uint8 b = 23;\n    uint120[][] s;\n    uint8 a = 17;\n    function f() public returns(uint120) {\n        delete s;\n        uint120[] memory m = new uint120[](3);\n        m[0] = 1;\n        s.push(m);\n        assert(s.length == 1);\n        assert(s[0].length == m.length);\n        assert(s[0].length > 0);\n        return s[0][0];\n    }\n}\n// ----\n// f() -> 1\n"}}, "settings": {"optimizer": {"enabled": true, "runs": 200, "details": {"peephole": false, "inliner": false, "jumpdestRemover": false, "orderLiterals": false, "deduplicate": false, "cse": false, "constantOptimizer": false}}, "outputSelection": {"*": {"*": ["abi", "metadata", "evm.bytecode", "evm.deployedBytecode", "evm.methodIdentifiers"]}}, "metadata": {"appendCBOR": false}}}
+{
+    "language": "Solidity",
+    "sources": {
+        "array_push_nested_from_memory.sol": {
+            "content": "contract C {\n    uint8 b = 23;\n    uint120[][] s;\n    uint8 a = 17;\n    function f() public returns(uint120) {\n        delete s;\n        uint120[] memory m = new uint120[](3);\n        m[0] = 1;\n        s.push(m);\n        assert(s.length == 1);\n        assert(s[0].length == m.length);\n        assert(s[0].length > 0);\n        return s[0][0];\n    }\n}\n// ----\n// f() -> 1\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

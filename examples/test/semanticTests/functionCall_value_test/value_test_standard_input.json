@@ -1,1 +1,34 @@
-{"language": "Solidity", "sources": {"value_test.sol": {"content": "contract C {\n\tfunction f() public payable returns (uint) {\n\t\treturn msg.value;\n\t}\n}\n// ----\n// f(), 1 ether -> 1000000000000000000\n// f(), 1 wei -> 1\n"}}, "settings": {"optimizer": {"enabled": true, "runs": 200, "details": {"peephole": false, "inliner": false, "jumpdestRemover": false, "orderLiterals": false, "deduplicate": false, "cse": false, "constantOptimizer": false}}, "outputSelection": {"*": {"*": ["abi", "metadata", "evm.bytecode", "evm.deployedBytecode", "evm.methodIdentifiers"]}}, "metadata": {"appendCBOR": false}}}
+{
+    "language": "Solidity",
+    "sources": {
+        "value_test.sol": {
+            "content": "contract C {\n\tfunction f() public payable returns (uint) {\n\t\treturn msg.value;\n\t}\n}\n// ----\n// f(), 1 ether -> 1000000000000000000\n// f(), 1 wei -> 1\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

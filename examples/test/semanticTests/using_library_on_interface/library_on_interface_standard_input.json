@@ -1,1 +1,34 @@
-{"language": "Solidity", "sources": {"library_on_interface.sol": {"content": "using L for I;\ninterface I { function f() external pure returns (uint); }\nlibrary L {\n    function execute(I i) internal pure returns (uint) {\n        return i.f();\n    }\n}\ncontract C is I {\n    function x() public view returns (uint) {\n        I i = this;\n        return i.execute();\n    }\n    function f() public pure returns (uint) { return 7; }\n}\n// ----\n// x() -> 7\n"}}, "settings": {"optimizer": {"enabled": true, "runs": 200, "details": {"peephole": false, "inliner": false, "jumpdestRemover": false, "orderLiterals": false, "deduplicate": false, "cse": false, "constantOptimizer": false}}, "outputSelection": {"*": {"*": ["abi", "metadata", "evm.bytecode", "evm.deployedBytecode", "evm.methodIdentifiers"]}}, "metadata": {"appendCBOR": false}}}
+{
+    "language": "Solidity",
+    "sources": {
+        "library_on_interface.sol": {
+            "content": "using L for I;\ninterface I { function f() external pure returns (uint); }\nlibrary L {\n    function execute(I i) internal pure returns (uint) {\n        return i.f();\n    }\n}\ncontract C is I {\n    function x() public view returns (uint) {\n        I i = this;\n        return i.execute();\n    }\n    function f() public pure returns (uint) { return 7; }\n}\n// ----\n// x() -> 7\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}

@@ -1,1 +1,34 @@
-{"language": "Solidity", "sources": {"delete.sol": {"content": "contract C {\n    uint8 immutable public a;\n    uint8 immutable public b = 0x42;\n    uint public c;\n\n    constructor() {\n        delete a;\n        delete b;\n        c = b * 2 + a;\n    }\n}\n// ----\n// a() -> 0\n// b() -> 0\n// c() -> 0\n"}}, "settings": {"optimizer": {"enabled": true, "runs": 200, "details": {"peephole": false, "inliner": false, "jumpdestRemover": false, "orderLiterals": false, "deduplicate": false, "cse": false, "constantOptimizer": false}}, "outputSelection": {"*": {"*": ["abi", "metadata", "evm.bytecode", "evm.deployedBytecode", "evm.methodIdentifiers"]}}, "metadata": {"appendCBOR": false}}}
+{
+    "language": "Solidity",
+    "sources": {
+        "delete.sol": {
+            "content": "contract C {\n    uint8 immutable public a;\n    uint8 immutable public b = 0x42;\n    uint public c;\n\n    constructor() {\n        delete a;\n        delete b;\n        c = b * 2 + a;\n    }\n}\n// ----\n// a() -> 0\n// b() -> 0\n// c() -> 0\n"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "peephole": false,
+                "inliner": false,
+                "jumpdestRemover": false,
+                "orderLiterals": false,
+                "deduplicate": false,
+                "cse": false,
+                "constantOptimizer": false
+            }
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "metadata",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ]
+            }
+        }
+    }
+}
