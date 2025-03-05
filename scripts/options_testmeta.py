@@ -24,17 +24,34 @@ def options_from_testtrace_meta() -> Dict:
 
 def set_compilation_options(path_to_tests: Path, name2meta: Dict) -> None:
     # Load the options from the tesstrace meta
-
-    for json_file in glob.glob(str(path_to_tests.joinpath("*/*_standard_input.json"))):
+    found, not_found = 0, 0
+    files_to_analyze = glob.glob(str(path_to_tests.joinpath("*/*_standard_input.json")))
+    for json_file in files_to_analyze:
         parent_dir = Path(Path(json_file).parent).name
         with open(json_file, 'r') as f:
             json_info = json.load(f)
-        try:
-            json_info["settings"] = name2meta[parent_dir]["settings"]
-        except:
-            print(parent_dir)
-            continue
+            file_options = name2meta.get(parent_dir, None)
 
+            if file_options is not None:            
+                json_info["settings"] = file_options["settings"]
+                found += 1
+            else:
+                # If the test does not appear in the testtrace file, we just replace
+                # by standard compilation options
+                json_info["settings"]["viaIR"] = True
+                json_info["settings"]["metadata"] = {}
+                json_info["settings"]["metadata"]["appendCBOR"] = False
+                json_info["settings"]["optimizer"] = {}
+                json_info["settings"]["optimizer"]["enabled"] = True
+                json_info["settings"]["optimizer"]["runs"] = 200
+                not_found += 1
+
+        print(json_file)
+        with open(json_file, 'w') as f:
+            json.dump(json_info, f)
+            print(json_file, "modified")
+                
+    print("Found:", found, "Not found:", not_found)
 
 if __name__ == "__main__":
     name2dict = options_from_testtrace_meta()
