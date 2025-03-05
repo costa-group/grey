@@ -30,6 +30,6 @@ def compare_files(json_file1, json_file2):
 
 
 if __name__ == "__main__":
-    res = compare_files(sys.argv[1], sys.argv[2]))
+    res = compare_files(sys.argv[1], sys.argv[2])
     print(res)
     sys.exit(res)
