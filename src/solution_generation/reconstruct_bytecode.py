@@ -376,9 +376,10 @@ def store_asm_output(json_object: Dict[str, Any], object_name: str, cfg_dir: Pat
         json.dump(json_object, f, indent=4)
     return file_to_store
 
-def store_asm_standard_json_output(json_object: Dict[str, Any], object_name: str, cfg_dir: Path) -> Path:
+def store_asm_standard_json_output(json_object: Dict[str, Any], object_name: str, cfg_dir: Path, settings_opt : Dict[str, Any] = {}) -> Path:
     file_to_store = cfg_dir.joinpath(object_name + "_standard_json_output.json")
-    output_file = build_standard_json_output(json_object, object_name)
+    output_file = build_standard_json_output(json_object, object_name, settings_opt)
+
     with open(file_to_store, 'w') as f:
         json.dump(output_file, f, indent=4)
     return file_to_store
@@ -389,11 +390,11 @@ def store_binary_output(object_name: str, evm_code: str, cfg_dir: Path) -> None:
         f.write(evm_code)
 
 
-def build_standard_json_output(json_object: Dict[str, Any], object_name : str) -> Dict[str,Any]:
+def build_standard_json_output(json_object: Dict[str, Any], object_name : str, settings: Dict[str, Any]) -> Dict[str,Any]:
     output = {}
-
+    
     output["language"] = "EVMAssembly"
-    build_standard_json_settings(output)
+    build_standard_json_settings(output,settings)
 
     output["sources"] = {}
     output["sources"][object_name] = {}
@@ -402,18 +403,27 @@ def build_standard_json_output(json_object: Dict[str, Any], object_name : str) -
     
     return output
     
-def build_standard_json_settings(output_json):
+def build_standard_json_settings(output_json, settings_opt):
     output_json["settings"] = {}
+    
+    if settings_opt == {}:
+        opt_config = build_optimizer_configuration()
+        output_json["settings"]["optimizer"] = opt_config
 
+        output_json["settings"]["viaIR"] = True
+        output_json["settings"]["metadata"] = {}
+        output_json["settings"]["metadata"]["appendCBOR"] = False
+
+    else:
+
+        #Options not supported by the importer
+        settings_opt.pop("compilationTarget", None)
+        settings_opt["metadata"].pop("bytecodeHash", None)
+        
+        output_json["settings"] = settings_opt
+        
     output = build_output_selection()
     output_json["settings"]["outputSelection"] = output
-
-    opt_config = build_optimizer_configuration()
-    output_json["settings"]["optimizer"] = opt_config
-
-    output_json["settings"]["viaIR"] = True
-    output_json["settings"]["metadata"] = {}
-    output_json["settings"]["metadata"]["appendCBOR"] = False
     
 def build_output_selection():
     output_selection = {}
