@@ -33,7 +33,12 @@ def set_compilation_options(path_to_tests: Path, name2meta: Dict) -> None:
             file_options = name2meta.get(parent_dir, None)
 
             if file_options is not None:            
+                file_options["settings"].pop("compilationTarget", None)
+                file_options["settings"]["metadata"].pop("bytecodeHash", None)
+                file_options["settings"]["outputSelection"] = json_info["settings"]["outputSelection"]
+
                 json_info["settings"] = file_options["settings"]
+                
                 found += 1
             else:
                 # If the test does not appear in the testtrace file, we just replace
