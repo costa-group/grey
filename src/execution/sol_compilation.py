@@ -248,6 +248,7 @@ class SolidityCompilation:
     """
 
     def __init__(self, final_file: Optional[str], solc_command: str):
+        self.CHANGE_SETTINGS = False
         self._final_file: Optional[Path] = Path(final_file) if final_file is not None else None
         self.flags: str = ""
 
@@ -382,7 +383,10 @@ class SolidityCompilation:
 
     def compile_json_input(self, json_input: Dict, deployed_contract: Optional[str] = None) -> Optional[Dict[str, Yul_CFG_T]]:
         # Change the settings from the json input
-        json_input["settings"] = self._json_input_set_settings()
+        if self.CHANGE_SETTINGS:
+            json_input["settings"] = self._json_input_set_settings()
+        else:
+            json_input["settings"]["outputSelection"] = {'*': {'*': ['yulCFGJson']}}
 
         # Compile in a given intermediate file
         fd, tmp_file = tempfile.mkstemp()
