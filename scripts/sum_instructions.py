@@ -112,6 +112,7 @@ print("TOTAL POPS IN TERMINAL ORIGINAL: "+str(total_origin_pops))
 
 print("TOTAL POPS IN SOLUTION: "+str(all_pops_sol))
 print("TOTAL POPS IN ORIGINAL: "+str(all_pops_origin))
+print()
 
 # print("CASOS EN EL QUE SOMOS MEJOR: "+str(menor))
 print("CASOS EN LOS QUE SOMOS IGUALES: "+str(igual))
