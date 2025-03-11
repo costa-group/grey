@@ -418,7 +418,8 @@ def build_standard_json_settings(output_json, settings_opt):
 
         #Options not supported by the importer
         settings_opt.pop("compilationTarget", None)
-        settings_opt["metadata"].pop("bytecodeHash", None)
+        if "metadata" in settings_opt:
+            settings_opt["metadata"].pop("bytecodeHash", None)
         
         output_json["settings"] = settings_opt
         
