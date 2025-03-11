@@ -35,7 +35,9 @@ def set_compilation_options(path_to_tests: Path, name2meta: Dict) -> None:
             if file_options is not None:            
                 file_options["settings"].pop("compilationTarget", None)
                 file_options["settings"]["metadata"].pop("bytecodeHash", None)
-                file_options["settings"]["outputSelection"] = json_info["settings"]["outputSelection"]
+
+                if "outputSelection" in json_info["settings"]:
+                    file_options["settings"]["outputSelection"] = json_info["settings"]["outputSelection"]
 
                 json_info["settings"] = file_options["settings"]
                 
