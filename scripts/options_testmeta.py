@@ -51,7 +51,10 @@ def set_compilation_options(path_to_tests: Path, name2meta: Dict) -> None:
                 json_info["settings"]["optimizer"]["runs"] = 200
                 not_found += 1
 
-        print(json_file)
+        # Ensure there is a default output selection for the settings before replacing the options
+        if "outputSelection" not in json_info["settings"]:
+            json_info["settings"]["outputSelection"] = {"*": {"*": ["abi", "metadata", "evm.bytecode", "evm.deployedBytecode", "evm.methodIdentifiers"]}}
+
         with open(json_file, 'w') as f:
             json.dump(json_info, f)
             print(json_file, "modified")
