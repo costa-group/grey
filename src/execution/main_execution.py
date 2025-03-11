@@ -54,14 +54,15 @@ def yul_cfg_dict_from_format(input_format: str, filename: str, contract: Optiona
     """
     if input_format == "yul-cfg":
         # We assume there can be multiple JSONS inside a single file
-        return split_json(filename)
+        return split_json(filename), {}
     elif input_format == "sol":
-        return SolidityCompilation.from_single_solidity_code(filename, contract, solc_executable=solc_executable)
+        return SolidityCompilation.from_single_solidity_code(filename, contract, solc_executable=solc_executable), {}
     elif input_format == "standard-json":
         # First load the input file
         with open(filename, 'r') as f:
             input_contract = json.load(f)
-        return SolidityCompilation.from_json_input(input_contract, contract, solc_executable=solc_executable)
+            settings_opt = input_contract["settings"]
+        return SolidityCompilation.from_json_input(input_contract, contract, solc_executable=solc_executable), settings_opt
     else:
         raise ValueError(f"Input format {input_format} not recognized.")
 
@@ -89,7 +90,7 @@ def main(args):
     print("Grey Main")
 
     x = dtimer()
-    json_dict = yul_cfg_dict_from_format(args.input_format, args.source,
+    json_dict, settings = yul_cfg_dict_from_format(args.input_format, args.source,
                                          args.contract, args.solc_executable)
 
     with open('intermediate.json', 'w') as f:
@@ -114,8 +115,8 @@ def main(args):
 
         assembly_path = store_asm_output(asm_contract, cfg_name, cfg_dir)
 
-        std_assembly_path = store_asm_standard_json_output(asm_contract, cfg_name, cfg_dir)
-        
+        std_assembly_path = store_asm_standard_json_output(asm_contract, cfg_name, cfg_dir, settings)
+        print(std_assembly_path)
         #synt_binary = SolidityCompilation.importer_assembly_file(assembly_path, solc_executable=args.solc_executable)
         synt_binary_stdjson = SolidityCompilation.importer_assembly_standard_json_file(std_assembly_path, deployed_contract = cfg_name, solc_executable = args.solc_executable)
         
