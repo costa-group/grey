@@ -53,6 +53,9 @@ def modify_block_list_split(block_list: CFGBlockList, function2tag: Dict[functio
         current_block = cfg_block
         instr_idx = 0
 
+        if block_name == "modifier_mod1_Block8_split_0":
+            pass
+
         # We cannot split the last instruction, as it would result in an empty block
         while instr_idx < len(current_block.get_instructions()) - 1:
             instr = current_block.get_instructions()[instr_idx]
@@ -121,11 +124,19 @@ def modify_block_list_split(block_list: CFGBlockList, function2tag: Dict[functio
                         current_block.get_instructions()[i].get_op_name() == "PhiFunction":
                     i += 1
 
-                # We just need to introduce one tag (to invoke the function)
                 current_block.insert_instruction(i, CFGInstruction("PUSH [tag]", [], [str(tag_function)]))
 
+                if len(current_block.successors) > 0:
+                    # If there is a sucessor, it is an uncondicional jump
+                    assert len(current_block.successors) == 1, "Function call with successors " \
+                                                               "must correspond to an unconditional JUMP"
+                    next_tag = str(tag_from_tag_dict(current_block.block_id, tag_dict))
+                    current_block.insert_instruction(i, CFGInstruction("PUSH [tag]", [], [next_tag]))
+                    values_before_in_args = [next_tag]
+                else:
+                    values_before_in_args = []
                 # We update the in args accordingly
-                last_instr.in_args = [str(tag_function)] + last_instr.in_args
+                last_instr.in_args = [str(tag_function)] + last_instr.in_args + values_before_in_args
 
                 # The function call is still the split instruction
                 current_block.split_instruction = last_instr
