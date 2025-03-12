@@ -130,7 +130,7 @@ def modify_block_list_split(block_list: CFGBlockList, function2tag: Dict[functio
                     # If there is a sucessor, it is an uncondicional jump
                     assert len(current_block.successors) == 1, "Function call with successors " \
                                                                "must correspond to an unconditional JUMP"
-                    next_tag = str(tag_from_tag_dict(current_block.block_id, tag_dict))
+                    next_tag = str(tag_from_tag_dict(current_block.successors[0], tag_dict))
                     current_block.insert_instruction(i, CFGInstruction("PUSH [tag]", [], [next_tag]))
                     values_before_in_args = [next_tag]
                 else:
