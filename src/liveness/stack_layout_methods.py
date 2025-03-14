@@ -234,21 +234,30 @@ def unify_stacks_brothers(target_block_id: block_id_T, predecessor_blocks: List[
 
     for predecessor_id in predecessor_blocks:
         predecessor_output_stack = []
+        # The argument corresponds to the input of a phi function
+        # We need to access two dicts
+        phi_funcs_pred = phi_func.get(predecessor_id, None)
+
         # Three possibilities:
         for out_var in combined_output_stack:
-            # First case: the variable is already live
-            if out_var in live_vars_dict[predecessor_id]:
+
+            # First case: The variable corresponds to a Phi Function
+            # See test/repeated_live_vars
+            in_arg = phi_funcs_pred.get(out_var, None) if phi_funcs_pred is not None else None
+
+            # THIS MUST BE THE FIRST CASE.
+            # See test/* for an example on why it has to be like this
+            # TODO: generate test from semanticTests/inlineAssembly_inline_assembly_for2
+            #  and why we must first check the phi functions
+            if in_arg is not None:
+                predecessor_output_stack.append(in_arg)
+
+            # Second case: the variable is already live
+            elif out_var in live_vars_dict[predecessor_id]:
                 predecessor_output_stack.append(out_var)
             else:
-                # The argument corresponds to the input of a phi function
-                # We need to access two dicts
-                phi_funcs_pred = phi_func.get(predecessor_id, None)
-                in_arg = phi_funcs_pred.get(out_var, None) if phi_funcs_pred is not None else None
-                if in_arg is not None:
-                    predecessor_output_stack.append(in_arg)
+                predecessor_output_stack.append("bottom")
                 # Otherwise, we have to introduce a bottom value
-                else:
-                    predecessor_output_stack.append("bottom")
 
         predecessor_output_stacks[predecessor_id] = predecessor_output_stack
 
