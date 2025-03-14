@@ -20,7 +20,7 @@ def build_instr_spec(op_name: str, idx: int, input_args: List[str], out_args: Li
     instr_spec["gas"] = opcodes.get_ins_cost(op_name)
     instr_spec["commutative"] = is_commutative(op_name)
     instr_spec["push"] = False
-    instr_spec["storage"] = True if op_name in ["MSTORE", "SSTORE"] else False  # It is true only for MSTORE and SSTORE
+    instr_spec["storage"] = op_name in ["MSTORE", "MSTORE8", "SSTORE"]  # It is true only for MSTORE, MSTORE8 and SSTORE
     instr_spec["size"] = get_ins_size(op_name)
 
     if value != None:
