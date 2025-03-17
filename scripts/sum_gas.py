@@ -68,7 +68,7 @@ for i in range(len(origin_number)):
         # fname = f_names[i]
         
         # worse_files[fname] = (original, optimizado)
-        print("PAREJA: ("+str(original)+","+str(optimizado)+")")
+        # print("PAREJA: ("+str(original)+","+str(optimizado)+")")
         total_peor+= original
         optimizado_peor+=optimizado
         cuartiles(original, optimizado, cuartiles_res)
