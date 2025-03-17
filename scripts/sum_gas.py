@@ -23,7 +23,7 @@ f = "num_gas.txt"
 ff = open(f, "r")
 lines = ff.readlines()
 
-origin = list(filter(lambda x: x.find("GAS ORIGINAL")!= -1, lines))
+origin = list(filter(lambda x: x.find("ORIGINAL GAS")!= -1, lines))
 origin_number = list(map(lambda x: int(x.split(":")[-1].strip()), origin))
 
 # f_names = list(map(lambda x: x.split(":")[0].rstrip(" ORIGIN NUM BYTES"),origin))
@@ -31,7 +31,7 @@ origin_number = list(map(lambda x: int(x.split(":")[-1].strip()), origin))
 total_origin = sum(origin_number)
 
 
-opt = list(filter(lambda x: x.find("GAS OPT")!= -1, lines))
+opt = list(filter(lambda x: x.find("OPT GAS")!= -1, lines))
 opt_number = list(map(lambda x: int(x.split(":")[-1].strip()), opt))
 
 total_opt = sum(opt_number)
