@@ -161,7 +161,7 @@ def output_stack_layout(input_stack: List[str], final_stack_elements: List[str],
     vars_to_place = live_vars.difference(set(final_stack_elements + bottom_output_stack))
 
     # Sort the vars to place according to the variable depth info order in reversed order
-    vars_to_place_sorted = sorted(vars_to_place, key=lambda x: variable_depth_info[x], reverse=True)
+    vars_to_place_sorted = sorted(vars_to_place, key=lambda x: (*variable_depth_info[x], x), reverse=True)
 
     # Try to place the variables in reversed order
     i, j = len(bottom_output_stack) - 1, 0
