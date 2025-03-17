@@ -166,7 +166,7 @@ def count_bytes(bytecode:str) -> int:
 
     assert(i%2 == 0) #It should have an odd number of elements
     
-    count = i/2
+    count = i//2
     
     return count
 
