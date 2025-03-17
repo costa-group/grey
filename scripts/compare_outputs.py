@@ -34,11 +34,11 @@ def compare_files(json_file1, json_file2):
             gas_json2+=int(gas)
             
     answer = diff(json1, json2)
-    print("FINAL", answer, type(answer))
+    #print("FINAL", answer, type(answer))
 
 
-    print("GAS ORIGINAL: "+str(gas_json1))
-    print("GAS OPT: "+str(gas_json2))
+    print("ORIGINAL GAS: "+str(gas_json1))
+    print("OPT GAS: "+str(gas_json2))
           
     
     # Empty diff means they are the same
