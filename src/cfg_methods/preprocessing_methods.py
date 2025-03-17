@@ -34,11 +34,6 @@ def preprocess_cfg(cfg: CFG, dot_file_dir: Path, visualization: bool) -> Dict[st
     if visualization:
         liveness_info = dot_from_analysis(cfg, dot_file_dir.joinpath("combined"))
 
-    # We replace variables for constants
-    insert_variables_for_constants(cfg)
-    if visualization:
-        liveness_info = dot_from_analysis(cfg, dot_file_dir.joinpath("constants"))
-
     # We introduce the jumps, tags and the stack requirements for each block
     tag_dict = insert_jumps_tags_cfg(cfg)
     if visualization:
@@ -48,5 +43,10 @@ def preprocess_cfg(cfg: CFG, dot_file_dir: Path, visualization: bool) -> Dict[st
     split_blocks_cfg(cfg, tag_dict)
     if visualization:
         liveness_info = dot_from_analysis(cfg, dot_file_dir.joinpath("split"))
+
+    # We replace variables for constants
+    insert_variables_for_constants(cfg)
+    if visualization:
+        liveness_info = dot_from_analysis(cfg, dot_file_dir.joinpath("constants"))
 
     return tag_dict

@@ -145,12 +145,11 @@ def parser_block_list(object_name: str, blocks: List[Dict[str, Any]], built_in_o
 
 
 def parse_function(function_name: str, function_json: Dict[str,Any], built_in_op: bool, objects_keys: Dict[str, int]):
-    
-    args = function_json.get("arguments", -1)
-    ret_vals = function_json.get("returns", -1)
-    entry_point = function_json.get("entry", -1)
+    args = list(reversed(function_json.get("arguments", [])))
+    ret_vals = function_json.get("returns", [])
+    entry_point = function_json.get("entry", "")
 
-    blocks = function_json.get("blocks", -1)
+    blocks = function_json.get("blocks", [])
     cfg_block_list, exit_points = parser_block_list(function_name, blocks, built_in_op, objects_keys)
 
     cfg_function = CFGFunction(function_name, args, ret_vals, generate_block_name(function_name, entry_point),

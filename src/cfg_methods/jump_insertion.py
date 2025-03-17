@@ -1,7 +1,7 @@
 """
 Module to insert the JUMP, JUMPI and PUSH [tag] instructions before performing the liveness analysis
 """
-from typing import Dict, Iterable
+from typing import Dict, Iterable, Optional
 from global_params.types import block_id_T, function_name_T, cfg_object_T
 from parser.cfg import CFG
 from parser.cfg_function import CFGFunction
@@ -21,11 +21,20 @@ def insert_jumps_tags_cfg(cfg: CFG) -> Dict[cfg_object_T, Dict[block_id_T, int]]
         insert_jumps_tags_block_list(cfg_object.blocks, tags_object)
 
         for function_name, cfg_function in cfg_object.functions.items():
+            start_block_id = cfg_function.blocks.start_block
             # Insert a tag for the initial block of the function
-            tag_from_tag_dict(cfg_function.blocks.start_block, tags_object)
+            tag_from_tag_dict(start_block_id, tags_object)
+
+            return_value = None
+            # We only insert a return value if the function has any return block
+            # See example: strings_unicode_string/unicode_string_standard_input.json
+            if len(cfg_function.blocks.function_return_blocks) > 0:
+                # We need to pass an additional parameter as the initial value
+                return_value = f"out_{function_name}"
+                cfg_function.arguments.insert(0, return_value)
 
             # Insert the tags and jumps of the block list
-            insert_jumps_tags_block_list(cfg_function.blocks, tags_object)
+            insert_jumps_tags_block_list(cfg_function.blocks, tags_object, return_value)
 
         combined_tags[object_id] = tags_object
 
@@ -38,7 +47,8 @@ def insert_jumps_tags_cfg(cfg: CFG) -> Dict[cfg_object_T, Dict[block_id_T, int]]
     return combined_tags
 
 
-def insert_jumps_tags_block_list(cfg_block_list: CFGBlockList, tags_dict: Dict[str, int]) -> None:
+def insert_jumps_tags_block_list(cfg_block_list: CFGBlockList, tags_dict: Dict[str, int],
+                                 jump_value: Optional[str] = None) -> None:
     for block_name, block in cfg_block_list.blocks.items():
         if block.get_jump_type() == "unconditional":
             jumps_to_tag = tag_from_tag_dict(block.get_jump_to(), tags_dict)
@@ -46,6 +56,14 @@ def insert_jumps_tags_block_list(cfg_block_list: CFGBlockList, tags_dict: Dict[s
         elif block.get_jump_type() == "conditional":
             jumps_to_tag = tag_from_tag_dict(block.get_jump_to(), tags_dict)
             block.insert_jumpi_instruction(str(jumps_to_tag))
+        elif block.get_jump_type() == "FunctionReturn":
+            # For function returns, we need to insert the jump target
+            return_instruction = block.get_instructions()[-1]
+            assert return_instruction.op == "functionReturn", "Function return blocks must " \
+                                                              f"have functionReturn instructions: {return_instruction}"
+            assert jump_value is not None, "When inserting the tags of a function return, " \
+                                           "the jump_value must be not None"
+            return_instruction.in_args.insert(0, jump_value)
 
 
 def tag_from_tag_dict(block_id: block_id_T, tags_dict: Dict[block_id_T, int]) -> int:

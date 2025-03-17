@@ -11,6 +11,7 @@ from parser.cfg_function import CFGFunction
 from parser.cfg_block_list import CFGBlockList
 from parser.cfg_block import CFGBlock
 from parser.cfg_instruction import CFGInstruction
+from cfg_methods.jump_insertion import tag_from_tag_dict
 from pathlib import Path
 import networkx as nx
 
@@ -77,51 +78,51 @@ def asm_from_ids(sms: SMS_T, id_seq: List[str]) -> List[ASM_bytecode_T]:
     return id_seq_to_asm_bytecode(instr_id_to_instr, id_seq)
 
 
-def asm_for_split_instruction(split_ins: CFGInstruction,
-                              function_name2entry: Dict[block_id_T, block_id_T]) -> List[ASM_bytecode_T]:
+def asm_for_split_instruction(split_ins: CFGInstruction, function_name2entry: Dict[block_id_T, block_id_T]) -> List[ASM_bytecode_T]:
     """
     Reconstructs the assembly from a block with a single split instruction. If the split instruction is a
     function invocation, then it replaces it by the corresponding JUMP instruction
     """
     entry_block = function_name2entry.get(split_ins.get_op_name(), None)
     if entry_block is not None:
-        # Introduce a JUMP instruction to invoke the function
+        # Introduces two tags: one for jumping to the instruction and one for returning.
+        # Afterwards, introduce a JUMP instruction to invoke the function
         asm_ins = asm_from_op_info("JUMP", jump_type="[in]")
+
+        asm_subblock = [asm_ins]
 
     elif split_ins.get_op_name() == "functionReturn":
         # For function returns, we replace them by a JUMP instruction
-        asm_ins = asm_from_op_info("JUMP", jump_type="[out]")
+        asm_subblock = [asm_from_op_info("JUMP", jump_type="[out]")]
 
     elif split_ins.get_op_name().startswith("verbatim"):
-        asm_ins = asm_from_op_info("VERBATIM",0) #WARNING: Value assigned to verbatim is 0
+        asm_subblock =[asm_from_op_info("VERBATIM", 0)] #WARNING: Value assigned to verbatim is 0
 
     elif split_ins.get_op_name().startswith("assignimmutable"):
         builtin_args = split_ins.get_builtin_args()
         value = to_hex_default(builtin_args[0])
-        asm_ins = asm_from_op_info(split_ins.get_op_name().upper(), value if builtin_args is not None and len(builtin_args) > 0 else None)
+        asm_subblock = [asm_from_op_info(split_ins.get_op_name().upper(), value if builtin_args is not None and len(builtin_args) > 0 else None)]
 
     else:
         # Just include the corresponding instruction and the value field for builtin translations
         builtin_args = split_ins.get_builtin_args()
-        asm_ins = asm_from_op_info(split_ins.get_op_name().upper(), builtin_args[0] if builtin_args is not None and
-                                                                                       len(builtin_args) > 0 else None)
-
-    asm_subblock = [asm_ins]
-
+        asm_subblock = [asm_from_op_info(split_ins.get_op_name().upper(), builtin_args[0] if builtin_args is not None and
+                                                                                       len(builtin_args) > 0 else None)]
     return asm_subblock
 
 
-def generate_asm_split_blocks(init_block_id: block_id_T, blocks: Dict[block_id_T, CFGBlock],
+def generate_asm_split_blocks(init_block_id: block_id_T, blocks: Dict[block_id_T, CFGBlock], tags_dict: Dict[block_id_T, int],
                               function_name2entry: Dict[function_name_T, block_id_T]) -> Tuple[CFGBlock, List[ASM_bytecode_T]]:
     """
-    Joins all the instructions inside all the sub blocks
+    Joins all the instructions inside the sub blocks until we reach a function call or all sub blocks are combined.
     """
     asm_block = []
 
     block = blocks[init_block_id]
 
     jump_type = block.get_jump_type()
-    while jump_type in ["sub_block"]:
+    is_function_call = block.split_instruction.op in function_name2entry
+    while jump_type == "sub_block" and not is_function_call:
 
         if jump_type == "sub_block":
             asm_subblock = asm_from_ids(block.spec, block.greedy_ids)
@@ -137,6 +138,7 @@ def generate_asm_split_blocks(init_block_id: block_id_T, blocks: Dict[block_id_T
         block = blocks[block_id]
 
         jump_type = block.get_jump_type()
+        is_function_call = block.split_instruction.op in function_name2entry
 
     # We translate the last block
     asm_subblock = asm_from_ids(block.spec, block.greedy_ids)
@@ -148,7 +150,6 @@ def generate_asm_split_blocks(init_block_id: block_id_T, blocks: Dict[block_id_T
         asm_last = []
 
     asm_block += asm_subblock + asm_last
-
     return block, asm_block
 
 
@@ -211,7 +212,7 @@ def traverse_cfg_block_list(block_list: CFGBlockList, function_name2entry: Dict[
         # If the block has been split we regenerate the whole block together
         # next block contains the last block of the sequence
         if next_block.get_jump_type() in ["sub_block"]:
-            next_block, asm_block = generate_asm_split_blocks(block_id, blocks, function_name2entry)
+            next_block, asm_block = generate_asm_split_blocks(block_id, blocks, tags_dict, function_name2entry)
         else:
             asm_block = asm_from_ids(next_block.spec, next_block.greedy_ids)
             
@@ -224,18 +225,15 @@ def traverse_cfg_block_list(block_list: CFGBlockList, function_name2entry: Dict[
 
             if asm_block == [] and next_block.get_jump_type() == "terminal":
 
-                
                 assert(len(next_block.get_instructions()) == 1)
                 ins = next_block.get_instructions()[0]
 
-                
-                
                 # Terminal blocks might contain calls to terminal functions (i.e. not so terminal...)
                 asm_block = asm_for_split_instruction(ins, function_name2entry)
-                if(ins == next_block.split_instruction):
+
+                if ins == next_block.split_instruction:
                     asm_block = []
-                
-                
+
             asm_block += asm_last
 
         if block_id in tags_dict:
@@ -272,10 +270,8 @@ def traverse_cfg_block_list(block_list: CFGBlockList, function_name2entry: Dict[
             if jump_to not in visited:
                 pending_blocks.append(blocks[jump_to])
 
-        elif jump_type == "sub_block":
-            raise Exception("[ERROR]: It should have been considered previously")
-
-        elif jump_type == "falls_to":
+        elif jump_type == "falls_to" or jump_type == "sub_block":
+            # Sub blocks now also fail into this case
             falls_to = next_block.get_falls_to()
             init_pos_dict, asm_instructions = locate_fallsto_block(block_id, blocks[falls_to], init_pos_dict, visited,
                                                                    asm_instructions, asm_block, pending_blocks)
@@ -380,9 +376,10 @@ def store_asm_output(json_object: Dict[str, Any], object_name: str, cfg_dir: Pat
         json.dump(json_object, f, indent=4)
     return file_to_store
 
-def store_asm_standard_json_output(json_object: Dict[str, Any], object_name: str, cfg_dir: Path) -> Path:
+def store_asm_standard_json_output(json_object: Dict[str, Any], object_name: str, cfg_dir: Path, settings_opt : Dict[str, Any] = {}) -> Path:
     file_to_store = cfg_dir.joinpath(object_name + "_standard_json_output.json")
-    output_file = build_standard_json_output(json_object, object_name)
+    output_file = build_standard_json_output(json_object, object_name, settings_opt)
+
     with open(file_to_store, 'w') as f:
         json.dump(output_file, f, indent=4)
     return file_to_store
@@ -393,11 +390,11 @@ def store_binary_output(object_name: str, evm_code: str, cfg_dir: Path) -> None:
         f.write(evm_code)
 
 
-def build_standard_json_output(json_object: Dict[str, Any], object_name : str) -> Dict[str,Any]:
+def build_standard_json_output(json_object: Dict[str, Any], object_name : str, settings: Dict[str, Any]) -> Dict[str,Any]:
     output = {}
-
+    
     output["language"] = "EVMAssembly"
-    build_standard_json_settings(output)
+    build_standard_json_settings(output,settings)
 
     output["sources"] = {}
     output["sources"][object_name] = {}
@@ -406,18 +403,28 @@ def build_standard_json_output(json_object: Dict[str, Any], object_name : str) -
     
     return output
     
-def build_standard_json_settings(output_json):
+def build_standard_json_settings(output_json, settings_opt):
     output_json["settings"] = {}
+    
+    if settings_opt == {}:
+        opt_config = build_optimizer_configuration()
+        output_json["settings"]["optimizer"] = opt_config
 
+        output_json["settings"]["viaIR"] = True
+        output_json["settings"]["metadata"] = {}
+        output_json["settings"]["metadata"]["appendCBOR"] = False
+
+    else:
+
+        #Options not supported by the importer
+        settings_opt.pop("compilationTarget", None)
+        if "metadata" in settings_opt:
+            settings_opt["metadata"].pop("bytecodeHash", None)
+        
+        output_json["settings"] = settings_opt
+        
     output = build_output_selection()
     output_json["settings"]["outputSelection"] = output
-
-    opt_config = build_optimizer_configuration()
-    output_json["settings"]["optimizer"] = opt_config
-
-    output_json["settings"]["viaIR"] = True
-    output_json["settings"]["metadata"] = {}
-    output_json["settings"]["metadata"]["appendCBOR"] = False
     
 def build_output_selection():
     output_selection = {}
