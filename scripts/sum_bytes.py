@@ -1,5 +1,3 @@
-import compare_blocks
-
 
 def cuartiles(original, optimizado, res):
     original25 = original+original*0.25
@@ -20,20 +18,20 @@ def cuartiles(original, optimizado, res):
 
 
 
-f = "num_instructions.txt"
+f = "num_bytes.txt"
 
 ff = open(f, "r")
 lines = ff.readlines()
 
-origin = list(filter(lambda x: x.find("ORIGIN")!= -1, lines))
+origin = list(filter(lambda x: x.find("ORIGIN NUM BYTES")!= -1, lines))
 origin_number = list(map(lambda x: int(x.split(":")[-1].strip()), origin))
 
-f_names = list(map(lambda x: x.split(":")[0].rstrip(" ORIGIN NUM INS"),origin))
+f_names = list(map(lambda x: x.split(":")[0].rstrip(" ORIGIN NUM BYTES"),origin))
 
 total_origin = sum(origin_number)
 
 
-opt = list(filter(lambda x: x.find("OPT")!= -1, lines))
+opt = list(filter(lambda x: x.find("OPT NUM BYTES")!= -1, lines))
 opt_number = list(map(lambda x: int(x.split(":")[-1].strip()), opt))
 
 total_opt = sum(opt_number)
@@ -54,14 +52,6 @@ cuartiles_res = [0,0,0,0]
 
 worse_files = {}
 
-total_sol_terminal = 0
-total_sol_pops = 0
-all_pops_sol = 0
-
-total_origin_terminal = 0
-total_origin_pops = 0
-all_pops_origin = 0
-
 for i in range(len(origin_number)):
     original = origin_number[i]
     optimizado = opt_number[i]
@@ -76,17 +66,6 @@ for i in range(len(origin_number)):
     else:
 
         fname = f_names[i]
-
-        fname_without_ext = fname.rstrip("log")
-
-        tsol, pops_sol, allpops, torigin, pops_origin , allpops_orig = compare_blocks.execute_function(fname_without_ext+"output", fname_without_ext+"log")
-
-        total_sol_terminal+=tsol
-        total_sol_pops+=pops_sol
-        all_pops_sol+= allpops
-        total_origin_terminal+=torigin
-        total_origin_pops+=pops_origin
-        all_pops_origin+=allpops_orig
         
         worse_files[fname] = (original, optimizado)
         # print("PAREJA: ("+str(original)+","+str(optimizado)+")")
@@ -99,41 +78,29 @@ s = ""
 for k,v in worse_files.items():
     s+=k+":"+str(v)+"\n"
     
-worse_file = open("worse_contracts_ins.txt", "w")
+worse_file = open("worse_bytes_contracts.txt", "w")
 worse_file.write(s)
 worse_file.close()
 
 print()
-print(" ===== OTHER STATISTICS =====")
-
-print("TOTAL TERMINAL BLOCKS IN SOLUTION: "+str(total_sol_terminal))
-print("TOTAL POPS IN TERMINAL SOLUTION: "+str(total_sol_pops))
-
-print("TOTAL TERMINAL BLOCKS IN ORIGINAL: "+str(total_origin_terminal))
-print("TOTAL POPS IN TERMINAL ORIGINAL: "+str(total_origin_pops))
-
-print("TOTAL POPS IN SOLUTION: "+str(all_pops_sol))
-print("TOTAL POPS IN ORIGINAL: "+str(all_pops_origin))
-print()
-
-print(" ===== NUM INSTRUCTIONS STATISTICS ===== ")
+print(" ===== BYTES STATISTICS =====")
 print()
 
 # print("CASOS EN EL QUE SOMOS MEJOR: "+str(menor))
-print("CASOS EN LOS QUE SOMOS IGUALES: "+str(igual))
-print("CASOS EN LOS QUE SOMOS PEORES: "+str(mayor))
+print("CASOS EN LOS QUE SOMOS IGUALES EN BYTES: "+str(igual))
+print("CASOS EN LOS QUE SOMOS PEORES EN BYTES: "+str(mayor))
 print()
 
 assert(len(origin_number) == len(opt_number))
 
 print("TOTAL")
-print("TOTAL INS ORIGINAL: "+str(total_origin))
-print("TOTAL INS OPT: "+str(total_opt))
+print("TOTAL BYTES ORIGINAL: "+str(total_origin))
+print("TOTAL BYTES OPT: "+str(total_opt))
 print("%: "+str((total_opt/(total_origin*1.0))*100.0))
 print()
 print("MEJORAMOS")
-print("TOTAL INS ORIGINAL: "+str(total_mejor))
-print("TOTAL INS OPT: "+str(optimizado_mejor))
+print("TOTAL BYTES ORIGINAL: "+str(total_mejor))
+print("TOTAL BYTES OPT: "+str(optimizado_mejor))
 
 print("%: "+str((optimizado_mejor/total_mejor*1.0)*100.0))
 
