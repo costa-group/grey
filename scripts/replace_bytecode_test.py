@@ -14,7 +14,7 @@ def update_bytecode(json_file_path, contract_name, new_bytecode):
  
         json_contract = json_file_path[c]
 
-        if contract_name.startswith(json_contract["contract"].strip(":")):
+        if contract_name == json_contract["contract"].strip(":"):
              # Verificar si 'bytecode' está en el JSON
             json_contract["bytecode"] = new_bytecode             
 

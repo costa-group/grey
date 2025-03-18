@@ -186,7 +186,7 @@ def count_num_ins(evm: str):
     Assumes the evm bytecode has no CBOR metadata appended
     """
     code_regions = split_evm_instructions(evm)
-    print(code_regions)
+    #print(code_regions)
     num_pop = []
     terminal_blocks = 0
     total_pops = 0
@@ -237,7 +237,7 @@ def execute_function(origin_file, log_opt_file):
 
             if c.strip() in json:
                 bytecode = json[c.strip()]["evm"]["bytecode"]["object"]
-                print("ORIGINAL")
+                # print("ORIGINAL")
                 origin_ins =count_num_ins(bytecode.strip())
                 total_sol_terminal+=origin_ins[0]
                 total_sol_pops+=origin_ins[1]

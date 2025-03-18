@@ -3,7 +3,7 @@ import logging
 
 from global_params.types import instr_id_T, dependencies_T, var_id_T, block_id_T, function_name_T, SMS_T
 from parser.cfg_instruction import CFGInstruction, build_push_spec, build_pushtag_spec
-from parser.utils_parser import  replace_pos_instrsid, replace_aliasing_spec
+from parser.utils_parser import replace_pos_instrsid, replace_aliasing_spec, detect_unused_instructions
 from analysis.instruction_dependencies import compute_memory_dependences, compute_storage_dependences, simplify_dependences
 import parser.constants as constants
 import json
@@ -510,10 +510,17 @@ class CFGBlock:
 
         # Some of the final stack values can correspond to constant values already assigned, so we need to
         # unify the format with the corresponding representative stack variable
-        spec["tgt_ws"] = [aliasing_dict.get(stack_value, stack_value) for stack_value in final_stack_bef_jump]
+        tgt_stack = [aliasing_dict.get(stack_value, stack_value) for stack_value in final_stack_bef_jump]
+        spec["tgt_ws"] = tgt_stack
 
-        spec["user_instrs"] = uninter_functions
-        spec["variables"] = self._get_vars_spec(uninter_functions)
+        # There can be instructions in the list of user instructions that do not need to be computed. We remove
+        # them before assigning
+        unused_instruction_ids = detect_unused_instructions(uninter_functions, tgt_stack)
+        filtered_uninter_functions = [instr for instr in uninter_functions if instr["id"] not in unused_instruction_ids]
+
+        spec["user_instrs"] = filtered_uninter_functions
+        vars_list = self._get_vars_spec(filtered_uninter_functions)
+        spec["variables"] = vars_list
 
         spec["memory_dependences"] = []
         spec["storage_dependences"] = []
@@ -527,13 +534,10 @@ class CFGBlock:
         spec["rules"] = ""
         spec["name"] = self.block_id
 
-        vars_list = spec["variables"]
-        tgt_stack = spec["tgt_ws"]
-
         if aliasing_dict != {}:
-            replace_aliasing_spec(aliasing_dict, uninter_functions, vars_list, tgt_stack)
+            replace_aliasing_spec(aliasing_dict, filtered_uninter_functions, vars_list, tgt_stack)
 
-        return spec, new_out_idx, map_positions_instructions
+        return spec, new_out_idx, map_positions_instructions, unused_instruction_ids
 
     def _include_jump_tag(self, block_spec: Dict, out_idx: int, block_tags_dict: Dict, block_tag_idx: int) -> \
             Tuple[Dict, int, int]:
@@ -561,14 +565,15 @@ class CFGBlock:
 
         out_idx = 0
 
-        spec, out_idx, map_positions = self._build_spec_for_sequence(self.instructions_to_synthesize, map_instructions, out_idx,
+        spec, out_idx, map_positions, unused_ids = self._build_spec_for_sequence(self.instructions_to_synthesize, map_instructions, out_idx,
                                                                      initial_stack, final_stack)
         with open("sms.json", 'w') as f:
             json.dump(spec, f, indent=4)
 
         sto_deps, mem_deps = self._process_dependences(self.instructions_to_synthesize, map_positions)
-        spec["storage_dependences"] = sto_deps
-        spec["memory_dependences"] = mem_deps
+        # We have to filter the elements that are not being used
+        spec["storage_dependences"] = [dep for dep in sto_deps if all(element not in unused_ids for element in dep)]
+        spec["memory_dependences"] = [dep for dep in mem_deps if all(element not in unused_ids for element in dep)]
 
         # Just to print information if it is not a jump
         if not self._jump_type in ["conditional", "unconditional"]:

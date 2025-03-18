@@ -89,7 +89,7 @@ for i in range(len(origin_number)):
         all_pops_origin+=allpops_orig
         
         worse_files[fname] = (original, optimizado)
-        print("PAREJA: ("+str(original)+","+str(optimizado)+")")
+        # print("PAREJA: ("+str(original)+","+str(optimizado)+")")
         total_peor+= original
         optimizado_peor+=optimizado
         cuartiles(original, optimizado, cuartiles_res)
@@ -99,11 +99,13 @@ s = ""
 for k,v in worse_files.items():
     s+=k+":"+str(v)+"\n"
     
-worse_file = open("worse_contracts.txt", "w")
+worse_file = open("worse_contracts_ins.txt", "w")
 worse_file.write(s)
 worse_file.close()
 
 print()
+print(" ===== OTHER STATISTICS =====")
+
 print("TOTAL TERMINAL BLOCKS IN SOLUTION: "+str(total_sol_terminal))
 print("TOTAL POPS IN TERMINAL SOLUTION: "+str(total_sol_pops))
 
@@ -112,6 +114,9 @@ print("TOTAL POPS IN TERMINAL ORIGINAL: "+str(total_origin_pops))
 
 print("TOTAL POPS IN SOLUTION: "+str(all_pops_sol))
 print("TOTAL POPS IN ORIGINAL: "+str(all_pops_origin))
+print()
+
+print(" ===== NUM INSTRUCTIONS STATISTICS ===== ")
 print()
 
 # print("CASOS EN EL QUE SOMOS MEJOR: "+str(menor))

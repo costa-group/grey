@@ -1,5 +1,8 @@
-from typing import List, Dict, Any, Tuple
+import itertools
+from typing import List, Dict, Any, Tuple, Set
 import json
+import networkx as nx
+from global_params.types import instr_JSON_T, var_id_T, instr_id_T
 
 
 def check_block_validity(block_id, block_instructions, block_exit, block_type):
@@ -200,3 +203,54 @@ def replace_aliasing_spec(aliasing_dict, specs, vars_list, tgt_stack):
         new_varlist = list(map(lambda x: x.replace(x,aliasing_dict.get(x,x)),vars_list))
         new_tgt_stack = list(map(lambda x: x.replace(x,aliasing_dict.get(x,x)), tgt_stack))
 
+
+def compute_dependency_graph(instrs: List[instr_JSON_T], var2id: Dict[var_id_T, instr_id_T]) -> nx.DiGraph:
+    """
+    We generate two dependency graphs: one for direct relations (i.e. one term embedded into another)
+    and other with the dependencies due to memory/storage accesses
+    """
+    graph = nx.DiGraph()
+
+    for instr in instrs:
+        instr_id = instr['id']
+        graph.add_node(instr_id)
+
+        for stack_elem in instr['inpt_sk']:
+            # This means the stack element corresponds to another uninterpreted instruction
+            associated_instr = var2id.get(stack_elem, None)
+            if associated_instr is not None:
+                graph.add_edge(instr_id, associated_instr)
+
+    return graph
+
+
+def dfs(g: nx.DiGraph, node: instr_id_T, reachable_nodes: Set[instr_id_T]):
+    """
+    DFS version to detect which computations are related
+    """
+    if node in reachable_nodes:
+        return
+    reachable_nodes.add(node)
+    for neighbor in g.successors(node):
+        dfs(g, neighbor, reachable_nodes)
+
+
+def detect_unused_instructions(instrs: List[instr_JSON_T], final_stack: List[var_id_T]):
+    """
+    Removes the instructions that appear in the list but are used neither in the memory accesses nor in the
+    final stack
+    """
+    var2id = {output_var: instr["id"] for instr in instrs for output_var in instr["outpt_sk"]}
+
+    # The root nodes are the instructions from the final stack or from the memory instructions
+    ids_to_consider = set(itertools.chain((instr_id for stack_var in final_stack
+                                           if (instr_id := var2id.get(stack_var, None)) is not None),
+                                          (instr["id"] for instr in instrs if instr["storage"])))
+
+    reachable_nodes = set()
+    dep_graph = compute_dependency_graph(instrs, var2id)
+    # Run DFS from all sources
+    for instr_id in ids_to_consider:
+        dfs(dep_graph, instr_id, reachable_nodes)
+
+    return set(dep_graph.nodes).difference(reachable_nodes)

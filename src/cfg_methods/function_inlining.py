@@ -183,7 +183,7 @@ def _must_be_inlined(function_name: function_name_T, call_info_list: List[call_i
     
     # Heuristics: 20 bytes = 1 gas
     # TODO: devise good heuristics for inlining
-    return (inlining_extra_size - no_inlining_extra_size) <= 20 * no_inlining_extra_gas
+    return len(call_info_list) == 1 # (inlining_extra_size - no_inlining_extra_size) <= 3 * no_inlining_extra_gas
 
 
 def _generate_function_to_inline(original_function: CFGFunction, func_idx: int, current_call_idx: int,
