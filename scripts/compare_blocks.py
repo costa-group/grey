@@ -173,13 +173,16 @@ def is_terminal(block):
 def process_terminal_blocks(blocks, num_pops):
     terminal_blocks = 0
     total_pops = []
+    total_ins_terminal = 0
+    
     for bl in blocks:
         process_pops(bl, total_pops)
         if is_terminal(bl):
             terminal_blocks+=1
+            total_ins_terminal+=len(bl)
             process_pops(bl,num_pops)
 
-    return terminal_blocks, sum(total_pops)
+    return terminal_blocks, sum(total_pops), total_ins_terminal
 
 def count_num_ins(evm: str):
     """
@@ -190,15 +193,17 @@ def count_num_ins(evm: str):
     num_pop = []
     terminal_blocks = 0
     total_pops = 0
+    total_ins_terminal = 0
     for region in code_regions:
         blocks = get_blocks(remove_auxdata(region))
-        num_tblocks, numtotal_pops = process_terminal_blocks(blocks, num_pop)
+        num_tblocks, numtotal_pops, ins_terminal = process_terminal_blocks(blocks, num_pop)
         terminal_blocks+=num_tblocks
         total_pops+=numtotal_pops
-
+        total_ins_terminal+=ins_terminal
+        
     #print("TERMINAL BLOCKS: " +str(terminal_blocks))
     #print("NUM_POPS: "+ str(sum(num_pop)))
-    return (terminal_blocks, sum(num_pop), total_pops)
+    return (terminal_blocks, sum(num_pop), total_pops, total_ins_terminal)
 
 
 def execute_function(origin_file, log_opt_file):
@@ -217,6 +222,9 @@ def execute_function(origin_file, log_opt_file):
 
     all_pops_opt = 0
     all_pops_sol = 0
+
+    total_ins_terminal_opt = 0
+    total_ins_terminal_sol = 0
     
     for c in evm_opt:
         evm = evm_opt[c]
@@ -226,6 +234,7 @@ def execute_function(origin_file, log_opt_file):
         total_terminal+=opt[0]
         total_pops+=opt[1]
         all_pops_opt+=opt[2]
+        total_ins_terminal_opt = opt[3]
         
         evm_dict = js.loads(evm_origin)
         contracts = evm_dict["contracts"]
@@ -239,10 +248,12 @@ def execute_function(origin_file, log_opt_file):
                 bytecode = json[c.strip()]["evm"]["bytecode"]["object"]
                 # print("ORIGINAL")
                 origin_ins =count_num_ins(bytecode.strip())
+                
                 total_sol_terminal+=origin_ins[0]
                 total_sol_pops+=origin_ins[1]
                 all_pops_sol+=origin_ins[2]
-    return (total_terminal, total_pops, all_pops_opt, total_sol_terminal, total_sol_pops, all_pops_sol)
+                total_ins_terminal_sol+=origin_ins[3]
+    return (total_terminal, total_pops, all_pops_opt, total_sol_terminal, total_sol_pops, all_pops_sol, total_ins_terminal_opt, total_ins_terminal_sol)
 
 if __name__ == '__main__':
     origin_file = sys.argv[1]
