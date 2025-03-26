@@ -53,7 +53,7 @@ def remove_backwards_edges(current_node, visited: Set, current_path: Set, cfg:nx
 
 
 def compute_variable_depth(liveness_info: Dict[str, LivenessAnalysisInfoSSA], topological_order: List) -> Dict[
-    str, Dict[str, Tuple[int, int]]]:
+    str, Dict[str, Tuple[int, int, int]]]:
     """
     For each variable at every point in the CFG, returns the corresponding depth of the last time a variable was used
     and the position being used in the current block (if any). Useful for determining in which order
@@ -63,19 +63,17 @@ def compute_variable_depth(liveness_info: Dict[str, LivenessAnalysisInfoSSA], to
     variable_depth_out = dict()
     variable_depth_in = dict()
     max_depth = len(topological_order) + 1
+    max_instr_idx = 100
 
     for node in reversed(topological_order):
         block_info = liveness_info[node].block_info
         instructions = block_info.instructions
-        max_instr_idx = len(instructions) + 1
 
         current_variable_depth_out = dict()
 
         # Initialize variables in the live_in set to len(topological_order) + 1
-        for input_variable in liveness_info[node].in_state.live_vars:
-            current_variable_depth_out[input_variable] = max_depth, max_instr_idx
-
-        # Link each variable to the position being used in the instructions
+        for input_variable in liveness_info[node].out_state.live_vars:
+            current_variable_depth_out[input_variable] = max_depth, max_instr_idx, max_instr_idx
 
         # For each successor, compute the variable depth information and update the corresponding map
         for succ_node in block_info.successors:
@@ -84,27 +82,28 @@ def compute_variable_depth(liveness_info: Dict[str, LivenessAnalysisInfoSSA], to
             # as we will visit it later
             previous_variable_depth = variable_depth_in.get(succ_node, dict())
 
-            for variable, depth in previous_variable_depth.items():
+            for variable, previous_variable_info in previous_variable_depth.items():
                 # Update the depth if it already appears in the dict
                 variable_info = current_variable_depth_out.get(variable, None)
                 if variable_info is not None:
-                    var_depth, instr_pos = variable_info
                     # If the depth of the successor variable is less than the one we have actually
-                    if variable_info >= depth:
-                        current_variable_depth_out[variable] = variable_info
+                    if variable_info > previous_variable_info:
+                        current_variable_depth_out[variable] = previous_variable_info[0] + 1, previous_variable_info[1], previous_variable_info[2]
                 else:
-                    current_variable_depth_out[variable] = depth[0] + 1, max_instr_idx
+                    current_variable_depth_out[variable] = previous_variable_info[0] + 1, previous_variable_info[1], previous_variable_info[2]
 
+        # Afterwards, we update the information of the in set
         current_variable_depth_in = current_variable_depth_out.copy()
 
-        # Finally, we update the corresponding variables that are defined in the blocks
-        # for used_variable in set(block_info.uses).union(block_info.phi_uses):
-        #     current_variable_depth_out[used_variable] = 0
+        # Link each variable to the position being used in the instructions
+        for i, instruction in enumerate(instructions):
+            for j, in_arg in enumerate(instruction.in_args):
+                current_variable_depth_in[in_arg] = 0, i, j
 
         variable_depth_out[node] = current_variable_depth_out
         variable_depth_in[node] = current_variable_depth_in
 
-    return variable_depth_out
+    return variable_depth_in
 
 
 def compute_block_level(dominance_tree: nx.DiGraph, start: str) -> Dict[str, int]:
@@ -161,7 +160,7 @@ def output_stack_layout(input_stack: List[str], final_stack_elements: List[str],
     vars_to_place = live_vars.difference(set(final_stack_elements + bottom_output_stack))
 
     # Sort the vars to place according to the variable depth info order in reversed order
-    vars_to_place_sorted = sorted(vars_to_place, key=lambda x: (*variable_depth_info[x], x), reverse=True)
+    vars_to_place_sorted = sorted(vars_to_place, key=lambda x: (variable_depth_info[x], x), reverse=True)
 
     # Try to place the variables in reversed order
     i, j = len(bottom_output_stack) - 1, 0
