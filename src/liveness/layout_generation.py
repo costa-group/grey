@@ -156,7 +156,7 @@ class LayoutGeneration:
                 input_stacks[next_block_id] = combined_output_stack
 
         if output_stack is None:
-            if len(block.successors) == 0:
+            if block.get_jump_type() in ["terminal", "mainExit"] or block.previous_type in ["terminal", "mainExit"]:
                 # We just need to place the corresponding elements in the top of the stack
                 output_stack = propagate_output_stack(input_stack, block.final_stack_elements,
                                                       liveness_info.out_state.live_vars, self._variable_order[block_id],

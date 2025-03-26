@@ -218,9 +218,6 @@ def propagate_output_stack(input_stack: List[str], final_stack_elements: List[st
     # We add the variables to be placed in order
     bottom_output_stack = list(reversed(vars_to_place_sorted)) + bottom_output_stack
 
-    if input_stack == ["v5", "v6"]:
-        print("HOLA")
-
     # Special case: we can reuse the bottom output stack for the split instruction arguments
     if final_stack_elements == [] and len(vars_to_place_sorted) == 0:
         overlap = max_tail_head_overlap(split_instruction_in_args, bottom_output_stack, live_vars)

@@ -34,6 +34,9 @@ class SplitBlock(BlockAction):
         # We reuse the block name, so we don't need to modify the previous blocks
         first_half = CFGBlock(first_half_id, self._cfg_block.get_instructions()[:self._instr_idx], "sub_block",
                               self._cfg_block.assignment_dict)
+
+        # We preserve the previous type if exists
+        first_half.previous_type = first_half.previous_type if first_half.previous_type is not None else first_half.get_jump_type()
         self._first_half = first_half
 
         # Then we generate the second half
