@@ -156,9 +156,14 @@ class LayoutGeneration:
                 input_stacks[next_block_id] = combined_output_stack
 
         if output_stack is None:
-            output_stack = output_stack_layout(input_stack, block.final_stack_elements,
-                                               liveness_info.out_state.live_vars,
-                                               self._variable_order[block_id])
+            if len(block.successors) == 0:
+                # We just need to place the corresponding elements in the top of the stack
+                output_stack = block.final_stack_elements + input_stack.copy()
+
+            else:
+                output_stack = output_stack_layout(input_stack, block.final_stack_elements,
+                                                   liveness_info.out_state.live_vars, self._variable_order[block_id])
+
             # We store the output stack in the dict, as we have built a new element
             output_stacks[block_id] = output_stack
 
