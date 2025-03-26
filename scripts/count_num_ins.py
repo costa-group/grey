@@ -244,11 +244,12 @@ def instrs_from_opcodes(origin_file, log_opt_file):
         evm = evm_opt[c]
 
         opt = count_num_ins(evm.strip())
-        
+        opt_bytes = count_num_bytes(evm.strip())
+
         evm_dict = js.loads(evm_origin)
         contracts = evm_dict["contracts"]
 
-        origin_ins = 0
+        origin_ins, origin_bytes = 0, 0
 
         for cc in contracts:
             json = contracts[cc]
@@ -256,9 +257,11 @@ def instrs_from_opcodes(origin_file, log_opt_file):
             if c.strip() in json:
                 bytecode = json[c.strip()]["evm"]["bytecode"]["object"]
                 origin_ins += count_num_ins(bytecode.strip())
+                origin_bytes += count_num_bytes(bytecode.strip())
 
         instrs_list.append({"file": origin_file, "name": c,
-                            "original": origin_ins, "optimized": opt})
+                            "n_instrs_original": origin_ins, "n_instrs_grey": opt,
+                            "bytes_original": origin_bytes, "bytes_grey": opt_bytes})
         
     return instrs_list
 
