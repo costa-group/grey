@@ -62,6 +62,9 @@ total_origin_terminal = 0
 total_origin_pops = 0
 all_pops_origin = 0
 
+total_ins_terminal_sol = 0
+total_ins_terminal_opt = 0
+
 for i in range(len(origin_number)):
     original = origin_number[i]
     optimizado = opt_number[i]
@@ -79,7 +82,7 @@ for i in range(len(origin_number)):
 
         fname_without_ext = fname.rstrip("log")
 
-        tsol, pops_sol, allpops, torigin, pops_origin , allpops_orig = compare_blocks.execute_function(fname_without_ext+"output", fname_without_ext+"log")
+        tsol, pops_sol, allpops, torigin, pops_origin , allpops_orig, inst_opt, inst_sol = compare_blocks.execute_function(fname_without_ext+"output", fname_without_ext+"log")
 
         total_sol_terminal+=tsol
         total_sol_pops+=pops_sol
@@ -87,6 +90,8 @@ for i in range(len(origin_number)):
         total_origin_terminal+=torigin
         total_origin_pops+=pops_origin
         all_pops_origin+=allpops_orig
+        total_ins_terminal_sol+=inst_sol
+        total_ins_terminal_opt+=inst_opt
         
         worse_files[fname] = (original, optimizado)
         # print("PAREJA: ("+str(original)+","+str(optimizado)+")")
@@ -114,6 +119,9 @@ print("TOTAL POPS IN TERMINAL ORIGINAL: "+str(total_origin_pops))
 
 print("TOTAL POPS IN SOLUTION: "+str(all_pops_sol))
 print("TOTAL POPS IN ORIGINAL: "+str(all_pops_origin))
+
+print("TOTAL INS TERMINAL BLOCKS IN SOLUTION: "+str(total_ins_terminal_opt))
+print("TOTAL INS TERMINAL BLOCKS IN ORIGINAL: "+str(total_ins_terminal_sol)) 
 print()
 
 print(" ===== NUM INSTRUCTIONS STATISTICS ===== ")

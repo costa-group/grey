@@ -105,7 +105,7 @@ def execute_yul_test(yul_file: str, csv_folder: Path) -> None:
         else:
             csv_file = csv_folder.joinpath("fallan").joinpath(csv_name)
             pd.DataFrame([{"archivo": yul_base}]).to_csv(csv_file)
-            print("[RES]: Test failed.")
+            print(f"[RES]: Test failed. {yul_file}")
     else:
         csv_file = csv_folder.joinpath("no_test").joinpath(csv_name)
         pd.DataFrame([{"archivo": yul_base}]).to_csv(csv_file)
@@ -118,7 +118,7 @@ def run_experiments(n_cpus):
     os.chdir("..")
     # DIRECTORIO_TESTS = "examples/test/semanticTests"
     # DIRECTORIO_TESTS = "tests_evmone"
-    DIRECTORIO_TESTS = "falla_test/"
+    DIRECTORIO_TESTS = "modifiedTests/"
     CSV_FOLDER = Path("csvs")
     CSV_FOLDER.mkdir(exist_ok=True, parents=True)
     CSV_FOLDER.joinpath("correctos").mkdir(exist_ok=True, parents=True)
