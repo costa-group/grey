@@ -305,6 +305,78 @@ def unify_stacks_brothers(target_block_id: block_id_T, predecessor_blocks: List[
     return combined_output_stack, predecessor_output_stacks
 
 
+def unify_stacks_brothers_missing_values(target_block_id: block_id_T, predecessor_blocks: List[block_id_T],
+                                         live_vars_dict: Dict[block_id_T, Set[var_id_T]], phi_functions: List[CFGInstruction],
+                                         variable_depth_info: Dict[str, int]) -> Tuple[List[block_id_T], Dict[block_id_T, List[var_id_T]]]:
+    """
+    Generate the output stack for all blocks that share a common block destination and the consolidated stack,
+    considering the PhiFunctions. The stack values of the predecessor block that are not part of the target stack
+    are placed in the bottom of the stack, and conveniently "forgotten"
+    """
+    # TODO: uses the input stacks for all the brother stacks for a better combination
+    # First we extract the information from the phi functions. For each predecessor block, we generate a dict
+    # that maps each variable with each input arg. These nested dicts are important because we want to link the
+    # variables that are linked to each predecessor block
+    phi_func = collections.defaultdict(lambda: {})
+    for phi_function in phi_functions:
+        for input_arg, predecessor_block in zip(phi_function.in_args, predecessor_blocks):
+            phi_func[predecessor_block][phi_function.out_args[0]] = input_arg
+
+    # The variables that appear in some of the liveness set of the variables but not in the successor must be
+    # accounted as well. In order to do so, we introduce some kind of "PhiFunction" that combines these values
+    # in the resulting block
+
+    # First we identify these variables, removing the variables that are already part of a phi functions of that block.
+    # We want to remove variables related to the phi functions of the considered block,as there can be values in
+    # some phi functions that affect other blocks (see an explanation in explanations/23_01_unify_stack_brothers)
+    variables_to_remove = {predecessor_block: live_vars_dict[predecessor_block].difference(
+        live_vars_dict[target_block_id].union(phi_func.get(predecessor_block, {}).values()))
+                           for predecessor_block in predecessor_blocks}
+
+    # We generate the input stack of the combined information (with no pseudo phi function
+    combined_output_stack = output_stack_layout([], [], live_vars_dict[target_block_id], variable_depth_info)
+
+    # Reconstruct all the output stacks
+    predecessor_output_stacks = dict()
+
+    for predecessor_id in predecessor_blocks:
+
+        # Initialize the predecessor output stack to the variables to remove, considering they are "forgotten"
+        # TODO: see how the heuristics of choosing an order can be affected
+        predecessor_output_stack = list(variables_to_remove[predecessor_id])
+
+        # The argument corresponds to the input of a phi function
+        # We need to access two dicts
+        phi_funcs_pred = phi_func.get(predecessor_id, None)
+
+        # Three possibilities:
+        for out_var in combined_output_stack:
+
+            # First case: The variable corresponds to a Phi Function
+            # See test/repeated_live_vars
+            in_arg = phi_funcs_pred.get(out_var, None) if phi_funcs_pred is not None else None
+
+            # THIS MUST BE THE FIRST CASE.
+            # See test/* for an example on why it has to be like this
+            # TODO: generate test from semanticTests/inlineAssembly_inline_assembly_for2
+            #  and why we must first check the phi functions
+            if in_arg is not None:
+                predecessor_output_stack.append(in_arg)
+
+            # Second case: the variable is already live
+            elif out_var in live_vars_dict[predecessor_id]:
+                predecessor_output_stack.append(out_var)
+            else:
+                predecessor_output_stack.append("bottom")
+                # Otherwise, we have to introduce a bottom value
+
+        predecessor_output_stacks[predecessor_id] = predecessor_output_stack
+
+    return combined_output_stack, predecessor_output_stacks
+
+
+
+
 def joined_stack(combined_output_stack: List[str], live_vars: Set[str]):
     """
     Detects which elements must be bottom in the joined stack from several predecessor blocks. In order to

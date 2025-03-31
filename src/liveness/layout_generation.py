@@ -24,7 +24,7 @@ from liveness.liveness_analysis import LivenessAnalysisInfoSSA, construct_analys
     perform_liveness_analysis_from_cfg_info
 from liveness.utils import functions_inputs_from_components
 from liveness.stack_layout_methods import compute_variable_depth, output_stack_layout, unify_stacks_brothers, \
-    compute_block_level, unification_block_dict, propagate_output_stack
+    compute_block_level, unification_block_dict, propagate_output_stack, unify_stacks_brothers_missing_values
 
 
 def var_order_repr(block_name: str, var_info: Dict[str, int]):
@@ -142,7 +142,7 @@ class LayoutGeneration:
                                           for element_to_unify in elements_to_unify}
                 combined_liveness_info[next_block_id] = self._liveness_info[next_block_id].in_state.live_vars
 
-                combined_output_stack, output_stacks_unified = unify_stacks_brothers(next_block_id,
+                combined_output_stack, output_stacks_unified = unify_stacks_brothers_missing_values(next_block_id,
                                                                                      elements_to_unify,
                                                                                      combined_liveness_info,
                                                                                      phi_instructions,
