@@ -339,11 +339,14 @@ def unify_stacks_brothers_missing_values(target_block_id: block_id_T, predecesso
     # Reconstruct all the output stacks
     predecessor_output_stacks = dict()
 
+    if target_block_id == "C_21_deployed_Block15_split_0":
+        print("HOLA")
+
     for predecessor_id in predecessor_blocks:
 
         # Initialize the predecessor output stack to the variables to remove, considering they are "forgotten"
         # TODO: see how the heuristics of choosing an order can be affected
-        predecessor_output_stack = list(variables_to_remove[predecessor_id])
+        predecessor_output_stack = []
 
         # The argument corresponds to the input of a phi function
         # We need to access two dicts
@@ -369,6 +372,11 @@ def unify_stacks_brothers_missing_values(target_block_id: block_id_T, predecesso
             else:
                 predecessor_output_stack.append("bottom")
                 # Otherwise, we have to introduce a bottom value
+
+        # The variables to remove are "forgotten"
+        # TODO: see how the heuristics of choosing an order can be affected. Maybe consider this as part of the
+        #  heuristics
+        predecessor_output_stack = predecessor_output_stack + list(variables_to_remove[predecessor_id])
 
         predecessor_output_stacks[predecessor_id] = predecessor_output_stack
 
