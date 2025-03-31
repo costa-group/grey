@@ -339,9 +339,6 @@ def unify_stacks_brothers_missing_values(target_block_id: block_id_T, predecesso
     # Reconstruct all the output stacks
     predecessor_output_stacks = dict()
 
-    if target_block_id == "C_21_deployed_Block15_split_0":
-        print("HOLA")
-
     for predecessor_id in predecessor_blocks:
 
         # Initialize the predecessor output stack to the variables to remove, considering they are "forgotten"
