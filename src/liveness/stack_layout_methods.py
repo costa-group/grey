@@ -185,6 +185,48 @@ def output_stack_layout(input_stack: List[str], final_stack_elements: List[str],
     return final_stack_elements + bottom_output_stack
 
 
+def max_tail_head_overlap(lst1, lst2, live):
+    """
+    Finds the max overlap between the head and the tail
+    """
+    n, m = len(lst1), len(lst2)
+    overlap_len = 0
+
+    # Start from the longest possible overlap and move forward
+    for i in range(1, min(n, m) + 1):
+        # We stop when we find a live variable
+        if lst2[i-1] in live:
+            break
+        if lst1[-i:] == lst2[:i]:  # Compare only once per step
+            overlap_len = i  # Update the max overlap found
+
+    return overlap_len
+
+
+def propagate_output_stack(input_stack: List[str], final_stack_elements: List[str],
+                           live_vars: Set[str], variable_depth_info: Dict[str, int],
+                           split_instruction_in_args: List[str]) -> List[str]:
+    """
+    Similar to output_stack_layout, but the heuristics is to preserve the stack as is and just add the new information
+    """
+    bottom_output_stack = input_stack
+    vars_to_place = live_vars.difference(set(final_stack_elements + bottom_output_stack))
+
+    # Sort the vars to place according to the variable depth info order in reversed order
+    vars_to_place_sorted = sorted(vars_to_place, key=lambda x: (variable_depth_info[x], x), reverse=True)
+
+    # We add the variables to be placed in order
+    bottom_output_stack = list(reversed(vars_to_place_sorted)) + bottom_output_stack
+
+    # Special case: we can reuse the bottom output stack for the split instruction arguments
+    if final_stack_elements == [] and len(vars_to_place_sorted) == 0:
+        overlap = max_tail_head_overlap(split_instruction_in_args, bottom_output_stack, live_vars)
+    else:
+        overlap = 0
+    # The final stack elements must appear in the top of the stack
+    return final_stack_elements + bottom_output_stack[overlap:]
+
+
 def unify_stacks_brothers(target_block_id: block_id_T, predecessor_blocks: List[block_id_T],
                           live_vars_dict: Dict[block_id_T, Set[var_id_T]], phi_functions: List[CFGInstruction],
                           variable_depth_info: Dict[str, int]) -> Tuple[

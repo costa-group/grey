@@ -90,6 +90,7 @@ class CFGBlock:
         self.is_function_call = False
         self._comes_from = []
         self.function_calls = set()
+        self._previous_type = None
 
         # Stack elements that must be placed in a specific order in the stack after performing
         self._final_stack_elements: List[str] = self._split_instruction.get_out_args() \
@@ -189,6 +190,14 @@ class CFGBlock:
     @property
     def successors(self) -> List[block_id_T]:
         return [next_block for next_block in [self._jump_to, self._falls_to] if next_block is not None]
+
+    @property
+    def previous_type(self) -> str:
+        return self._previous_type
+
+    @previous_type.setter
+    def previous_type(self, previous_type: str):
+        self._previous_type = previous_type
 
     def is_function_call(self) -> bool:
         return self.is_function_call
