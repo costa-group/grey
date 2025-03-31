@@ -24,7 +24,8 @@ from liveness.liveness_analysis import LivenessAnalysisInfoSSA, construct_analys
     perform_liveness_analysis_from_cfg_info
 from liveness.utils import functions_inputs_from_components
 from liveness.stack_layout_methods import compute_variable_depth, output_stack_layout, unify_stacks_brothers, \
-    compute_block_level, unification_block_dict, propagate_output_stack, unify_stacks_brothers_missing_values
+    compute_block_level, unification_block_dict, propagate_output_stack, unify_stacks_brothers_missing_values, \
+    forget_values
 
 
 def var_order_repr(block_name: str, var_info: Dict[str, int]):
@@ -121,6 +122,9 @@ class LayoutGeneration:
             # The stack elements we have to "force" a certain order correspond to the input parameters of
             # the function
             input_stack = self._function_inputs[self._block_list.name]
+
+        # We forget the deepest elements
+        input_stack = forget_values(input_stack, self._liveness_info[block_id].in_state.live_vars)
 
         input_stacks[block.block_id] = input_stack
 

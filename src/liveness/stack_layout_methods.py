@@ -380,11 +380,19 @@ def unify_stacks_brothers_missing_values(target_block_id: block_id_T, predecesso
     return combined_output_stack, predecessor_output_stacks
 
 
-
-
 def joined_stack(combined_output_stack: List[str], live_vars: Set[str]):
     """
     Detects which elements must be bottom in the joined stack from several predecessor blocks. In order to
     do so, it assigns to 'bottom' the values that are not in the live-in set
     """
     return [stack_element if stack_element in live_vars else "bottom" for stack_element in combined_output_stack]
+
+
+def forget_values(input_stack: List[var_id_T], live_vars: Set[var_id_T]) -> List[var_id_T]:
+    """
+    Removes the deepest values from the input stack if they are no longer live.
+    """
+    i = len(input_stack) - 1
+    while i >= 0 and input_stack[i] not in live_vars:
+        i -= 1
+    return input_stack[:i+1]
