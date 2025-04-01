@@ -94,13 +94,15 @@ def execute_yul_test(yul_file: str, csv_folder: Path) -> None:
         result_grey = os.path.join(yul_dir, "resultGrey.json")
 
         # We need to compare them dropping the gas usage
-        file_comparison = compare_files(result_original, result_grey)
+        file_comparison, gas_original, gas_grey = compare_files(result_original, result_grey)
 
         # If file_comparison is empty, it means that the match is precise
         if file_comparison == 0:
             print("[RES]: Test passed.")
             result_dict = instrs_from_opcodes(output_file, log_file)
             csv_file = csv_folder.joinpath("correctos").joinpath(csv_name)
+            result_dict["gas_original"] = gas_original
+            result_dict["gas_grey"] = gas_grey
             pd.DataFrame(result_dict).to_csv(csv_file)
         else:
             csv_file = csv_folder.joinpath("fallan").joinpath(csv_name)

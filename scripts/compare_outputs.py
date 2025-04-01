@@ -42,10 +42,10 @@ def compare_files(json_file1, json_file2):
           
     
     # Empty diff means they are the same
-    return 0 if len(answer) == 0 else 1
+    return 0 if len(answer) == 0 else 1, gas_json1, gas_json2
 
 
 if __name__ == "__main__":
-    res = compare_files(sys.argv[1], sys.argv[2])
+    res, _, _ = compare_files(sys.argv[1], sys.argv[2])
     print(res)
     sys.exit(res)
