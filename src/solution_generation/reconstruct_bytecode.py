@@ -341,7 +341,7 @@ def recursive_asm_from_cfg_object(cfg_object: CFGObject, tags_dict: Dict, asm_di
         json_asm_subobjects = recursive_asm_from_cfg(sub_object, tags_dict, asm_dir)
         current_object_json[".data"] = {}
         for i, json_asm_subobject in enumerate(json_asm_subobjects):
-            current_object_json[".data"][str(i)] = json_asm_subobject
+            current_object_json[".data"][hex(i)[2:]] = json_asm_subobject
         
     return current_object_json
 
