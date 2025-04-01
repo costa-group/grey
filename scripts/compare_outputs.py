@@ -17,32 +17,37 @@ def compare_files(json_file1, json_file2):
     gas_json1 = 0
     gas_json2 = 0
     # Drop keys for gas
+    gas_json1_no_deposit = 0
+    gas_json2_no_deposit = 0
+
     for key, json1_answers in json1.items():
         json2_answers = json2[key]
 
         for answer in [*json1_answers]:
-            gas = answer.pop("gasUsed")
-            gas_used = answer.pop("gasUsedForDeposit")
+            gas = int(answer.pop("gasUsed", 0))
+            gas_deposit = int(answer.pop("gasUsedForDeposit", 0))
 
-            gas_json1+= int(gas)
-            
-            
+            gas_json1_no_deposit += gas - gas_deposit
+            gas_json1+= gas
+
+
         for answer in [*json2_answers]:
-            gas = answer.pop("gasUsed")
-            gas_used = answer.pop("gasUsedForDeposit")
+            gas = int(answer.pop("gasUsed", 0))
+            gas_deposit = int(answer.pop("gasUsedForDeposit", 0))
 
-            gas_json2+=int(gas)
-            
+            gas_json2_no_deposit += gas - gas_deposit
+            gas_json2+=gas
+
+
     answer = diff(json1, json2)
     #print("FINAL", answer, type(answer))
-
 
     print("ORIGINAL GAS: "+str(gas_json1))
     print("OPT GAS: "+str(gas_json2))
           
     
     # Empty diff means they are the same
-    return 0 if len(answer) == 0 else 1, gas_json1, gas_json2
+    return 0 if len(answer) == 0 else 1, gas_json1_no_deposit, gas_json2_no_deposit
 
 
 if __name__ == "__main__":
