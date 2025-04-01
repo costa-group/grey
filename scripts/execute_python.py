@@ -2,6 +2,8 @@ import os
 import subprocess
 import shutil
 import filecmp
+import json
+from typing import List, Dict, Any
 from pathlib import Path
 import multiprocessing as mp
 import sys
@@ -18,6 +20,18 @@ def combine_dfs(csv_folder: Path, combined_csv: Path):
         dfs.append(df)
     combined_df = pd.concat(dfs, ignore_index=True)
     combined_df.to_csv(combined_csv)
+
+
+def extract_contract_name(original_test: str) -> str:
+    with open(original_test, 'r') as f:
+        return list(json.load(f).values())[0]["contract"].split(":")[-1]
+
+
+def filter_row(list_of_rows: List[Dict[str, Any]], row_name, yul_file) -> Dict[str, Any]:
+    matching_rows = [row for row in list_of_rows if row["name"].strip() == row_name]
+    if len(matching_rows) != 1:
+        print("ERROR FILTERING", yul_file, row_name, len(matching_rows), [row["name"] for row in list_of_rows])
+    return matching_rows[0]
 
 
 def execute_yul_test(yul_file: str, csv_folder: Path) -> None:
@@ -79,6 +93,9 @@ def execute_yul_test(yul_file: str, csv_folder: Path) -> None:
             os.path.join(yul_dir, "resultOriginal.json"),
         ]
         subprocess.run(testrunner_command_original)
+        
+        # We extract the corresponding contract name from the test file
+        analyzed_contract = extract_contract_name(test_file)
 
         testrunner_command_grey = [
             "/system/experiments/Systems/solidity/build/test/tools/testrunner",
@@ -101,9 +118,13 @@ def execute_yul_test(yul_file: str, csv_folder: Path) -> None:
             print("[RES]: Test passed.")
             result_dict = instrs_from_opcodes(output_file, log_file)
             csv_file = csv_folder.joinpath("correctos").joinpath(csv_name)
-            result_dict["gas_original"] = gas_original
-            result_dict["gas_grey"] = gas_grey
-            pd.DataFrame(result_dict).to_csv(csv_file)
+            if len(result_dict) > 0:
+                filtered_row = filter_row(result_dict, analyzed_contract, yul_file)
+                filtered_row["gas_original"] = gas_original
+                filtered_row["gas_grey"] = gas_grey
+                pd.DataFrame([filtered_row]).to_csv(csv_file)
+            else:
+                pd.DataFrame(result_dict).to_csv(csv_file)
         else:
             csv_file = csv_folder.joinpath("fallan").joinpath(csv_name)
             pd.DataFrame([{"archivo": yul_base}]).to_csv(csv_file)
