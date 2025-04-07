@@ -1,6 +1,6 @@
 import argparse
 import json
-from typing import Dict, Optional
+from typing import Dict, Optional, List
 from pathlib import Path
 from timeit import default_timer as dtimer
 
@@ -13,6 +13,9 @@ from solution_generation.reconstruct_bytecode import asm_from_cfg, store_asm_out
 from greedy.ids_from_spec import cfg_spec_ids
 from liveness.layout_generation import layout_generation
 from cfg_methods.preprocessing_methods import preprocess_cfg
+
+global times
+times = []
 
 
 def parse_args() -> argparse.Namespace:
@@ -67,7 +70,7 @@ def yul_cfg_dict_from_format(input_format: str, filename: str, contract: Optiona
         raise ValueError(f"Input format {input_format} not recognized.")
 
 
-def analyze_single_cfg(cfg: CFG, final_dir: Path, args: argparse.Namespace):
+def analyze_single_cfg(cfg: CFG, final_dir: Path, args: argparse.Namespace, times: List):
     
     if args.visualize:
         dot_file_dir = final_dir.joinpath("liveness")
@@ -82,12 +85,15 @@ def analyze_single_cfg(cfg: CFG, final_dir: Path, args: argparse.Namespace):
     y = dtimer()
 
     print("Layout generation: " + str(y - x) + "s")
+    times[1]+=(y-x)
 
     x = dtimer()
     cfg_spec_ids(cfg, final_dir.joinpath("statistics.csv"), args.visualize)
     y = dtimer()
 
     print("Greedy algorithm: " + str(y - x) + "s")
+    times[2]+=(y-x)
+
     
     if args.visualize:
         asm_code = final_dir.joinpath("asm")
@@ -100,13 +106,17 @@ def analyze_single_cfg(cfg: CFG, final_dir: Path, args: argparse.Namespace):
     y = dtimer()
 
     print("ASM generation: " + str(y - x) + "s")
-
+    times[3]+=(y-x)
+    
     return json_asm_contract
 
 
 def main(args):
     print("Grey Main")
 
+    
+    times = [0,0,0,0,0]
+    
     x = dtimer()
     json_dict, settings = yul_cfg_dict_from_format(args.input_format, args.source,
                                          args.contract, args.solc_executable)
@@ -119,17 +129,20 @@ def main(args):
     y = dtimer()
 
     print("CFG Parser: "+str(y-x)+"s")
-
+    times[0]+=(y-x)
+    
     final_dir = Path(args.folder)
 
     final_dir.mkdir(exist_ok=True, parents=True)
     asm_output = {}
 
+
+    
     for cfg_name, cfg in cfgs.items():
   #      print("Synthesizing...", cfg_name)
         cfg_dir = final_dir.joinpath(cfg_name)
         
-        asm_contract = analyze_single_cfg(cfg, cfg_dir, args)
+        asm_contract = analyze_single_cfg(cfg, cfg_dir, args, times)
 
         if args.visualize:
             assembly_path = store_asm_output(asm_contract, cfg_name, cfg_dir)
@@ -143,7 +156,11 @@ def main(args):
         y = dtimer()
 
         print("solc importer: "+ str(y - x) + "s")
-        
+        times[4]+=(y-x)
         if args.visualize:
             print("Contract: " + cfg_name + " -> EVM Code: " + synt_binary_stdjson)
             store_binary_output(cfg_name, synt_binary_stdjson, cfg_dir)
+
+
+        times_str = map(lambda x: str(x), times)
+        print("Times "+args.source+": "+",".join(times_str))
