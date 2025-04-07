@@ -55,10 +55,11 @@ def recursive_cfg_spec_ids(cfg: CFG):
     return csv_dicts
 
 
-def cfg_spec_ids(cfg: CFG, csv_file: Optional[Path]) -> None:
+def cfg_spec_ids(cfg: CFG, csv_file: Optional[Path], visualize: bool) -> None:
     """
     Generates the greedy ids from the specification inside the cfg and stores in the field "greedy_ids" inside
     each block. Stores the information from the greedy generation in a csv file
     """
     csv_dicts = recursive_cfg_spec_ids(cfg)
-    pd.DataFrame(csv_dicts).to_csv(csv_file)
+    if visualize:
+        pd.DataFrame(csv_dicts).to_csv(csv_file)

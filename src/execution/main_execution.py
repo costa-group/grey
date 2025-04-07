@@ -78,7 +78,7 @@ def analyze_single_cfg(cfg: CFG, final_dir: Path, args: argparse.Namespace):
 
     print("Layout generation: " + str(y - x) + "s")
 
-    cfg_spec_ids(cfg, final_dir.joinpath("statistics.csv"))
+    cfg_spec_ids(cfg, final_dir.joinpath("statistics.csv"), args.visualize)
 
     if args.visualize:
         asm_code = final_dir.joinpath("asm")
