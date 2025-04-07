@@ -92,9 +92,9 @@ def main(args):
     x = dtimer()
     json_dict, settings = yul_cfg_dict_from_format(args.input_format, args.source,
                                          args.contract, args.solc_executable)
-
-    with open('intermediate.json', 'w') as f:
-        json.dump(json_dict, f, indent=4)
+    if args.visualize:
+        with open('intermediate.json', 'w') as f:
+            json.dump(json_dict, f, indent=4)
 
     cfgs = parse_CFG_from_json_dict(json_dict, args.builtin)
     
@@ -108,18 +108,19 @@ def main(args):
     asm_output = {}
 
     for cfg_name, cfg in cfgs.items():
-        print("Synthesizing...", cfg_name)
+  #      print("Synthesizing...", cfg_name)
         cfg_dir = final_dir.joinpath(cfg_name)
         
         asm_contract = analyze_single_cfg(cfg, cfg_dir, args)
 
-        assembly_path = store_asm_output(asm_contract, cfg_name, cfg_dir)
+        if args.visualize:
+            assembly_path = store_asm_output(asm_contract, cfg_name, cfg_dir)
 
         std_assembly_path = store_asm_standard_json_output(asm_contract, cfg_name, cfg_dir, settings)
-        print(std_assembly_path)
+        #print(std_assembly_path)
         #synt_binary = SolidityCompilation.importer_assembly_file(assembly_path, solc_executable=args.solc_executable)
         synt_binary_stdjson = SolidityCompilation.importer_assembly_standard_json_file(std_assembly_path, deployed_contract = cfg_name, solc_executable = args.solc_executable)
-        
-        print("Contract: " + cfg_name + " -> EVM Code: " + synt_binary_stdjson)
 
-        store_binary_output(cfg_name, synt_binary_stdjson, cfg_dir)
+        if args.visualize:
+            print("Contract: " + cfg_name + " -> EVM Code: " + synt_binary_stdjson)
+            store_binary_output(cfg_name, synt_binary_stdjson, cfg_dir)
