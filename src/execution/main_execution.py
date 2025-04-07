@@ -68,8 +68,13 @@ def yul_cfg_dict_from_format(input_format: str, filename: str, contract: Optiona
 
 
 def analyze_single_cfg(cfg: CFG, final_dir: Path, args: argparse.Namespace):
-    dot_file_dir = final_dir.joinpath("liveness")
-    dot_file_dir.mkdir(exist_ok=True, parents=True)
+    
+    if args.visualize:
+        dot_file_dir = final_dir.joinpath("liveness")
+        dot_file_dir.mkdir(exist_ok=True, parents=True)
+    else:
+        dot_file_dir = None
+        
     tags_dict = preprocess_cfg(cfg, dot_file_dir, args.visualize)
 
     x = dtimer()
