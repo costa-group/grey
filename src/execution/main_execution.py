@@ -162,5 +162,5 @@ def main(args):
             store_binary_output(cfg_name, synt_binary_stdjson, cfg_dir)
 
 
-        times_str = map(lambda x: str(x), times)
-        print("Times "+args.source+": "+",".join(times_str))
+    times_str = map(lambda x: str(x), times)
+    print("Times "+args.source+": "+",".join(times_str))
