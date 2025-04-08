@@ -4,7 +4,7 @@ lines = f.readlines()
 
 lines_aux = map(lambda x: x.strip(), lines)
 
-numbers = [0,0,0,0,0]
+numbers = [0,0,0,0,0,0,0]
 for l in lines_aux:
     elems = l.split(",")
     numbers_l = list(map(lambda x: float(x), elems))
