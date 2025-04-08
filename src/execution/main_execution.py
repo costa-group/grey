@@ -79,21 +79,26 @@ def analyze_single_cfg(cfg: CFG, final_dir: Path, args: argparse.Namespace, time
     else:
         dot_file_dir = None
 
+    x = dtimer()
     tags_dict = preprocess_cfg(cfg, dot_file_dir, args.visualize)
+    y = dtimer()
 
+    print("Preprocessing CFG: "+str(y - x)+"s")
+    times[2] += (y - x)
+    
     x = dtimer()
     layout_generation(cfg, final_dir.joinpath("stack_layouts"))
     y = dtimer()
 
     print("Layout generation: " + str(y - x) + "s")
-    times[2] += (y - x)
+    times[3] += (y - x)
 
     x = dtimer()
     cfg_spec_ids(cfg, final_dir.joinpath("statistics.csv"), args.visualize)
     y = dtimer()
 
     print("Greedy algorithm: " + str(y - x) + "s")
-    times[3] += (y - x)
+    times[4] += (y - x)
 
     if args.visualize:
         asm_code = final_dir.joinpath("asm")
@@ -106,7 +111,7 @@ def analyze_single_cfg(cfg: CFG, final_dir: Path, args: argparse.Namespace, time
     y = dtimer()
 
     print("ASM generation: " + str(y - x) + "s")
-    times[4] += (y - x)
+    times[5] += (y - x)
 
     return json_asm_contract
 
@@ -114,7 +119,7 @@ def analyze_single_cfg(cfg: CFG, final_dir: Path, args: argparse.Namespace, time
 def main(args):
     print("Grey Main")
 
-    times = [0, 0, 0, 0, 0, 0]
+    times = [0, 0, 0, 0, 0, 0, 0]
 
     x = dtimer()
     json_dict, settings = yul_cfg_dict_from_format(args.input_format, args.source,
@@ -160,7 +165,7 @@ def main(args):
         y = dtimer()
 
         print("solc importer: " + str(y - x) + "s")
-        times[5] += (y - x)
+        times[6] += (y - x)
         if args.visualize:
             print("Contract: " + cfg_name + " -> EVM Code: " + synt_binary_stdjson)
             store_binary_output(cfg_name, synt_binary_stdjson, cfg_dir)
