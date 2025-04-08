@@ -1,13 +1,14 @@
 import sys
 import json
 from jsondiff import diff
+from typing import List, Dict, Any, Tuple
 
-def information_from_files(json_file):
+def information_from_files(json_file) -> Tuple[List[int], List[int], Dict[str, Any]]:
     with open(json_file, 'r') as f:
         json_dict = json.load(f)
 
-    gas_json = 0
-    gas_json_no_deposit = 0
+    gas_json = []
+    gas_json_no_deposit = []
 
     for key, json_answers in json_dict.items():
 
@@ -15,17 +16,23 @@ def information_from_files(json_file):
             gas = int(answer.pop("gasUsed", 0))
             gas_deposit = int(answer.pop("gasUsedForDeposit", 0))
 
-            gas_json_no_deposit += gas - gas_deposit
-            gas_json += gas
-        
+            gas_json_no_deposit.append(gas - gas_deposit)
+            gas_json.append(gas) 
         
     return gas_json, gas_json_no_deposit, json_dict
 
 def compare_files(json_file1, json_file2):
 
-    gas_json1, gas_json1_no_deposit, json1 = information_from_files(json_file1)
+    gas_json1_list, gas_json1_no_deposit_list, json1 = information_from_files(json_file1)
 
-    gas_json2, gas_json2_no_deposit, json2 = information_from_files(json_file2)    
+    gas_json2_list, gas_json2_no_deposit_list, json2 = information_from_files(json_file2)
+
+    gas_json1 = sum(gas_json1_list)
+    gas_json2 = sum(gas_json2_list)
+
+    gas_json1_no_deposit = sum(gas_json1_no_deposit_list)
+    gas_json2_no_deposit = sum(gas_json2_no_deposit_list)
+    
     if json1.keys() != json2.keys():
         print("JSONS have different contract fields")
         return 1
