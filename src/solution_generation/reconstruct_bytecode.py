@@ -420,9 +420,17 @@ def build_standard_json_settings(output_json, settings_opt):
         settings_opt.pop("compilationTarget", None)
         if "metadata" in settings_opt:
             settings_opt["metadata"].pop("bytecodeHash", None)
-        
+    
         output_json["settings"] = settings_opt
-        
+
+    # opt = output_json["settings"].get("optimizer",{})
+
+    # opt_details = opt.get("details",{})
+    # opt_details["cse"] = False
+    # opt["details"] = opt_details
+    
+    # output_json["settings"]["optimizer"] = opt
+    
     output = build_output_selection()
     output_json["settings"]["outputSelection"] = output
     
