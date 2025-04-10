@@ -1,43 +1,41 @@
 import sys
 import json
 from jsondiff import diff
+from typing import List, Dict, Any, Tuple
 
+def information_from_files(json_file) -> Tuple[List[int], List[int], Dict[str, Any]]:
+    with open(json_file, 'r') as f:
+        json_dict = json.load(f)
+
+    gas_json = []
+    gas_json_no_deposit = []
+
+    for key, json_answers in json_dict.items():
+
+        for answer in json_answers:
+            gas = int(answer.pop("gasUsed", 0))
+            gas_deposit = int(answer.pop("gasUsedForDeposit", 0))
+
+            gas_json_no_deposit.append(gas - gas_deposit)
+            gas_json.append(gas) 
+        
+    return gas_json, gas_json_no_deposit, json_dict
 
 def compare_files(json_file1, json_file2):
-    with open(json_file1, 'r') as f:
-        json1 = json.load(f)
 
-    with open(json_file2, 'r') as f:
-        json2 = json.load(f)
+    gas_json1_list, gas_json1_no_deposit_list, json1 = information_from_files(json_file1)
 
+    gas_json2_list, gas_json2_no_deposit_list, json2 = information_from_files(json_file2)
+
+    gas_json1 = sum(gas_json1_list)
+    gas_json2 = sum(gas_json2_list)
+
+    gas_json1_no_deposit = sum(gas_json1_no_deposit_list)
+    gas_json2_no_deposit = sum(gas_json2_no_deposit_list)
+    
     if json1.keys() != json2.keys():
         print("JSONS have different contract fields")
         return 1
-
-    gas_json1 = 0
-    gas_json2 = 0
-    # Drop keys for gas
-    gas_json1_no_deposit = 0
-    gas_json2_no_deposit = 0
-
-    for key, json1_answers in json1.items():
-        json2_answers = json2[key]
-
-        for answer in [*json1_answers]:
-            gas = int(answer.pop("gasUsed", 0))
-            gas_deposit = int(answer.pop("gasUsedForDeposit", 0))
-
-            gas_json1_no_deposit += gas - gas_deposit
-            gas_json1+= gas
-
-
-        for answer in [*json2_answers]:
-            gas = int(answer.pop("gasUsed", 0))
-            gas_deposit = int(answer.pop("gasUsedForDeposit", 0))
-
-            gas_json2_no_deposit += gas - gas_deposit
-            gas_json2+=gas
-
 
     answer = diff(json1, json2)
     #print("FINAL", answer, type(answer))
@@ -49,6 +47,58 @@ def compare_files(json_file1, json_file2):
     # Empty diff means they are the same
     return 0 if len(answer) == 0 else 1, gas_json1_no_deposit, gas_json2_no_deposit
 
+
+def tests_outcome(test_file):
+    with open(test_file, 'r') as f:
+        test_dict = json.load(f)
+
+    if len(test_dict) == 0:
+        return 100 * [False]
+
+    # print(list(test_dict.values())[0], flush=True)
+    tests = list(test_dict.values())[0]["tests"]
+    has_failed = []
+
+    for test in tests:
+        output = test.get("output", None)
+        if output is not None:
+            has_failed.append(output.get("status", None) == "failure")
+        else:
+            has_failed.append(False)
+            
+    return has_failed
+    
+def compare_files_removing_failed_tests(json_file1, test_file1, json_file2, test_file2):
+    gas_json1_list, gas_json1_no_deposit_list, json1 = information_from_files(json_file1)
+
+    gas_json2_list, gas_json2_no_deposit_list, json2 = information_from_files(json_file2)
+
+    test_outcome1 = tests_outcome(test_file1)
+    test_outcome2 = tests_outcome(test_file2)
+
+    gas_json1 = sum([gas for gas, failed  in zip(gas_json1_list, test_outcome1) if not failed])
+    gas_json2 = sum([gas for gas, failed  in zip(gas_json2_list, test_outcome2) if not failed])
+
+    gas_json1_no_deposit = sum([gas for gas, failed  in zip(gas_json1_no_deposit_list, test_outcome1) if not failed])
+    gas_json2_no_deposit = sum([gas for gas, failed  in zip(gas_json2_no_deposit_list, test_outcome2) if not failed])
+        
+    if json1.keys() != json2.keys():
+        print("JSONS have different contract fields")
+        return 1
+
+    answer = diff(json1, json2)
+
+    if len(answer) > 0:
+        return 1
+
+    #print("FINAL", answer, type(answer))
+
+    print("ORIGINAL GAS: "+str(gas_json1))
+    print("OPT GAS: "+str(gas_json2))
+    print("BLA BLA BLA", gas_json1_no_deposit, flush=True)
+    # Empty diff means they are the same
+    return 0 if len(answer) == 0 else 1, gas_json1_no_deposit, gas_json2_no_deposit
+    
 
 if __name__ == "__main__":
     res, _, _ = compare_files(sys.argv[1], sys.argv[2])
