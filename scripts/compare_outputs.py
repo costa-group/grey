@@ -21,7 +21,7 @@ def information_from_files(json_file) -> Tuple[List[int], List[int], Dict[str, A
         
     return gas_json, gas_json_no_deposit, json_dict
 
-def compare_files(json_file1, json_file2):
+def compare_files(json_file1, json_file2, original_name_file):
 
     gas_json1_list, gas_json1_no_deposit_list, json1 = information_from_files(json_file1)
 
@@ -40,8 +40,8 @@ def compare_files(json_file1, json_file2):
     answer = diff(json1, json2)
     #print("FINAL", answer, type(answer))
 
-    print("ORIGINAL GAS: "+str(gas_json1))
-    print("OPT GAS: "+str(gas_json2))
+    print(original_name_file + " ORIGINAL GAS: "+str(gas_json1))
+    print(original_name_file + " OPT GAS: "+str(gas_json2))
           
     
     # Empty diff means they are the same
@@ -68,7 +68,8 @@ def tests_outcome(test_file):
             
     return has_failed
     
-def compare_files_removing_failed_tests(json_file1, test_file1, json_file2, test_file2):
+def compare_files_removing_failed_tests(json_file1, test_file1, json_file2, test_file2, original_name_file):
+
     gas_json1_list, gas_json1_no_deposit_list, json1 = information_from_files(json_file1)
 
     gas_json2_list, gas_json2_no_deposit_list, json2 = information_from_files(json_file2)
@@ -101,6 +102,6 @@ def compare_files_removing_failed_tests(json_file1, test_file1, json_file2, test
     
 
 if __name__ == "__main__":
-    res, _, _ = compare_files(sys.argv[1], sys.argv[2])
+    res, _, _ = compare_files(sys.argv[1], sys.argv[2], sys.argv[3])
     print(res)
     sys.exit(res)
