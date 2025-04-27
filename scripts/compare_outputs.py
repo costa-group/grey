@@ -77,11 +77,17 @@ def compare_files_removing_failed_tests(json_file1, test_file1, json_file2, test
     test_outcome1 = tests_outcome(test_file1)
     test_outcome2 = tests_outcome(test_file2)
 
-    gas_json1 = sum([gas for gas, failed  in zip(gas_json1_list, test_outcome1) if not failed])
-    gas_json2 = sum([gas for gas, failed  in zip(gas_json2_list, test_outcome2) if not failed])
+    print(gas_json1_list)
+    print(gas_json2_list)
 
-    gas_json1_no_deposit = sum([gas for gas, failed  in zip(gas_json1_no_deposit_list, test_outcome1) if not failed])
-    gas_json2_no_deposit = sum([gas for gas, failed  in zip(gas_json2_no_deposit_list, test_outcome2) if not failed])
+    gas_json1 = sum([gas for gas, failed  in zip(gas_json1_list, test_outcome1) if not failed] + [0])
+    gas_json2 = sum([gas for gas, failed  in zip(gas_json2_list, test_outcome2) if not failed] + [0])
+
+    gas_json1_no_deposit = sum([gas for gas, failed  in zip(gas_json1_no_deposit_list, test_outcome1) if not failed] + [0])
+    gas_json2_no_deposit = sum([gas for gas, failed  in zip(gas_json2_no_deposit_list, test_outcome2) if not failed] + [0])
+
+    print(gas_json1_no_deposit_list)
+    print(gas_json1_no_deposit)
         
     if json1.keys() != json2.keys():
         print("JSONS have different contract fields")
@@ -90,7 +96,7 @@ def compare_files_removing_failed_tests(json_file1, test_file1, json_file2, test
     answer = diff(json1, json2)
 
     if len(answer) > 0:
-        return 1
+        return 1, 0, 0
 
     #print("FINAL", answer, type(answer))
 
