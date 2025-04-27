@@ -28,6 +28,7 @@ find "$DIRECTORIO_BASE" -type f -name "*standard_input.json" | while read -r yul
 
     echo "Procesando archivo: $yul_file"
 
+    pushd $yul_dir
     start_solc=$(gdate +%s.%N)
     $SOLC_PATH "$yul_file" --standard-json &> "$yul_dir/$yul_base.output"
     end_solc=$(gdate +%s.%N)
@@ -38,8 +39,6 @@ find "$DIRECTORIO_BASE" -type f -name "*standard_input.json" | while read -r yul
     
     echo "$SOLC_PATH $yul_file --standard-json &> $yul_dir/$yul_base.output"
 
-
-    pushd $yul_dir
     start=$(gdate +%s.%N)
     python3 $GREY_PATH -s "$yul_file" -g -v -if standard-json -solc $SOLC_PATH -o "/tmp/$yul_base" &> "$yul_dir/$yul_base.log"
     end=$(gdate +%s.%N)
