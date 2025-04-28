@@ -133,7 +133,7 @@ print("TOTAL POPS IN SOLC: "+str(all_pops_origin))
 print("TOTAL INS TERMINAL BLOCKS IN GREY: "+str(total_ins_terminal_opt))
 print("TOTAL INS TERMINAL BLOCKS IN SOLC: "+str(total_ins_terminal_sol))
 print("TOTAL BLOCKS IN GREY: "+str(total_blocks_opt))
-print("TOTAL IN SOLC: "+str(total_blocks_solc)) 
+print("TOTAL BLOCKS IN SOLC: "+str(total_blocks_solc)) 
 print()
 
 print(" ===== NUM INSTRUCTIONS STATISTICS ===== ")
