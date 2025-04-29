@@ -160,26 +160,40 @@ def output_stack_layout(input_stack: List[str], final_stack_elements: List[str],
     vars_to_place = live_vars.difference(set(final_stack_elements + bottom_output_stack))
 
     # Sort the vars to place according to the variable depth info order in reversed order
-    vars_to_place_sorted = sorted(vars_to_place, key=lambda x: (variable_depth_info[x], x), reverse=True)
+    vars_to_place_sorted = sorted(vars_to_place, key=lambda x: (variable_depth_info[x], x))
 
     # Try to place the variables in reversed order
-    i, j = len(bottom_output_stack) - 1, 0
+    i, j = 0, 0
 
-    while i >= 0 and j < len(vars_to_place_sorted):
+    while i < len(bottom_output_stack) and j < len(vars_to_place_sorted):
         if bottom_output_stack[i] is None:
             bottom_output_stack[i] = vars_to_place_sorted[j]
             j += 1
-        i -= 1
+        i += 1
 
     # First exit condition: all variables have been placed in between. Hence, I have to insert the remaining
     # elements at the beginning
-    if i == -1:
+    if i == len(bottom_output_stack):
         bottom_output_stack = list(reversed(vars_to_place_sorted[j:])) + bottom_output_stack
 
     # Second condition: all variables have been placed in between. There can be some None values in between that
     # must be removed
     else:
-        bottom_output_stack = [var_ for var_ in bottom_output_stack if var_ is not None]
+        # Place the topmost elements in the gaps
+        # Ignore the first Nones
+        i = 0
+        while i < len(bottom_output_stack) and bottom_output_stack[i] is None:
+            i += 1
+
+        bottom_output_stack = bottom_output_stack[i:]
+        while i < len(bottom_output_stack):
+            if bottom_output_stack[i] is None:
+                assert bottom_output_stack[0] is not None
+                bottom_output_stack[i] = bottom_output_stack[0]
+                bottom_output_stack.pop(0)
+            else:
+                i += 1
+        print(bottom_output_stack)
 
     # The final stack elements must appear in the top of the stack
     return final_stack_elements + bottom_output_stack
@@ -306,6 +320,7 @@ def unify_stacks_brothers(target_block_id: block_id_T, predecessor_blocks: List[
 
 
 def unify_stacks_brothers_missing_values(target_block_id: block_id_T, predecessor_blocks: List[block_id_T],
+                                         previous_input_stacks: Dict[block_id_T, List[var_id_T]],
                                          live_vars_dict: Dict[block_id_T, Set[var_id_T]], phi_functions: List[CFGInstruction],
                                          variable_depth_info: Dict[str, int]) -> Tuple[List[block_id_T], Dict[block_id_T, List[var_id_T]]]:
     """
@@ -373,7 +388,9 @@ def unify_stacks_brothers_missing_values(target_block_id: block_id_T, predecesso
         # The variables to remove are "forgotten"
         # TODO: see how the heuristics of choosing an order can be affected. Maybe consider this as part of the
         #  heuristics
-        predecessor_output_stack = predecessor_output_stack + list(variables_to_remove[predecessor_id])
+        pos_dict = {element: i for i, element in enumerate(previous_input_stacks.get(predecessor_id, []))}
+        predecessor_output_stack = predecessor_output_stack + sorted(variables_to_remove[predecessor_id],
+                                                                     key=lambda x:  (pos_dict.get(x, len(pos_dict)), x))
 
         predecessor_output_stacks[predecessor_id] = predecessor_output_stack
 
