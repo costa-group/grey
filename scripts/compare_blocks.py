@@ -184,6 +184,17 @@ def process_terminal_blocks(blocks, num_pops):
 
     return terminal_blocks, sum(total_pops), total_ins_terminal
 
+def count_instructions(blocks, ins):
+    total_num_ins = 0
+
+    for bl in blocks:
+        num_ins = list(filter(lambda x: x.find(ins)!= -1, block))
+        total_num_ins += len(num_ins)
+
+    return total_num_ins
+
+
+
 def count_num_ins(evm: str):
     """
     Assumes the evm bytecode has no CBOR metadata appended
@@ -195,16 +206,35 @@ def count_num_ins(evm: str):
     total_pops = 0
     total_ins_terminal = 0
     total_blocks = 0
+
+    num_ins = {}
+    
     for region in code_regions:
         blocks = get_blocks(remove_auxdata(region))
         num_tblocks, numtotal_pops, ins_terminal = process_terminal_blocks(blocks, num_pop)
+
+        num_ins["SWAP"]=num_ins.get("SWAP",0)+count_instructions(blocks, "SWAP")
+        num_ins["DUP"]=num_ins.get("DUP",0)+count_instructions(blocks, "DUP")
+        num_ins["PUSH"]=num_ins.get("PUSH",0)+count_instructions(blocks, "PUSH")
+        num_ins["PUSH0"]=num_ins.get("PUSH0",0)+count_instructions(blocks, "PUSH0")
+
+        curr_jumpdest = count_instructions(blocks, "JUMPDEST")
+        curr_jumpi = count_instructions(blocks, "JUMPI")
+        curr_jump = count_instructions(blocks, "JUMP")
+
+        num_ins["JUMPI"]=num_ins.get("JUMPI",0)+curr_jumpi
+        num_ins["JUMPDEST"]=num_ins.get("JUMPDEST",0)+curr_jumpdest
+        num_ins["JUMP"]=num_ins.get("JUMP",0)+(curr_jump - curr_jumpi - curr_jumpdest)
+
+        num_ins["CALL"]=num_ins.get("CALL",0)+count_instructions(blocks, "CALL")
+        
         terminal_blocks+=num_tblocks
         total_pops+=numtotal_pops
         total_ins_terminal+=ins_terminal
         total_blocks+=len(blocks)
     #print("TERMINAL BLOCKS: " +str(terminal_blocks))
     #print("NUM_POPS: "+ str(sum(num_pop)))
-    return (total_blocks, terminal_blocks, sum(num_pop), total_pops, total_ins_terminal)
+    return (total_blocks, terminal_blocks, sum(num_pop), total_pops, total_ins_terminal, num_ins)
 
 
 def execute_function(origin_file, log_opt_file):
