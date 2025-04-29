@@ -154,9 +154,12 @@ class LayoutGeneration:
                     (combined_output_stack,
                      output_stacks_unified) = unify_stacks_brothers_missing_values(next_block_id,
                                                                                    elements_to_unify,
+                                                                                   {previous_id: input_stacks.get(previous_id, [])
+                                                                                    for previous_id in elements_to_unify},
                                                                                    combined_liveness_info,
                                                                                    phi_instructions,
                                                                                    self._variable_order[next_block_id])
+
                 else:
                     combined_output_stack, output_stacks_unified = unify_stacks_brothers(next_block_id,
                                                                                          elements_to_unify,
