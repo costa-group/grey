@@ -83,37 +83,37 @@ def analyze_single_cfg(cfg: CFG, final_dir: Path, args: argparse.Namespace, time
     tags_dict = preprocess_cfg(cfg, dot_file_dir, args.visualize)
     y = dtimer()
 
-    print("Preprocessing CFG: "+str(y - x)+"s")
-    times[2] += (y - x)
-    
-    x = dtimer()
-    layout_generation(cfg, final_dir.joinpath("stack_layouts"))
-    y = dtimer()
-
-    print("Layout generation: " + str(y - x) + "s")
-    times[3] += (y - x)
-
-    x = dtimer()
-    cfg_spec_ids(cfg, final_dir.joinpath("statistics.csv"), args.visualize)
-    y = dtimer()
-
-    print("Greedy algorithm: " + str(y - x) + "s")
-    times[4] += (y - x)
-
-    if args.visualize:
-        asm_code = final_dir.joinpath("asm")
-        asm_code.mkdir(exist_ok=True, parents=True)
-    else:
-        asm_code = None
-
-    x = dtimer()
-    json_asm_contract = asm_from_cfg(cfg, tags_dict, args.source, asm_code)
-    y = dtimer()
-
-    print("ASM generation: " + str(y - x) + "s")
-    times[5] += (y - x)
-
-    return json_asm_contract
+    # print("Preprocessing CFG: "+str(y - x)+"s")
+    # times[2] += (y - x)
+    #
+    # x = dtimer()
+    # layout_generation(cfg, final_dir.joinpath("stack_layouts"))
+    # y = dtimer()
+    #
+    # print("Layout generation: " + str(y - x) + "s")
+    # times[3] += (y - x)
+    #
+    # x = dtimer()
+    # cfg_spec_ids(cfg, final_dir.joinpath("statistics.csv"), args.visualize)
+    # y = dtimer()
+    #
+    # print("Greedy algorithm: " + str(y - x) + "s")
+    # times[4] += (y - x)
+    #
+    # if args.visualize:
+    #     asm_code = final_dir.joinpath("asm")
+    #     asm_code.mkdir(exist_ok=True, parents=True)
+    # else:
+    #     asm_code = None
+    #
+    # x = dtimer()
+    # json_asm_contract = asm_from_cfg(cfg, tags_dict, args.source, asm_code)
+    # y = dtimer()
+    #
+    # print("ASM generation: " + str(y - x) + "s")
+    # times[5] += (y - x)
+    #
+    # return json_asm_contract
 
 
 def main(args):
@@ -148,27 +148,32 @@ def main(args):
     for cfg_name, cfg in cfgs.items():
         #      print("Synthesizing...", cfg_name)
         cfg_dir = final_dir.joinpath(cfg_name)
-
         asm_contract = analyze_single_cfg(cfg, cfg_dir, args, times)
 
-        if args.visualize:
-            assembly_path = store_asm_output(asm_contract, cfg_name, cfg_dir)
+    print("CORRECT", args.source)
 
-        std_assembly_path = store_asm_standard_json_output(asm_contract, cfg_name, cfg_dir, settings)
-        # print(std_assembly_path)
-        # synt_binary = SolidityCompilation.importer_assembly_file(assembly_path, solc_executable=args.solc_executable)
-
-        x = dtimer()
-        synt_binary_stdjson = SolidityCompilation.importer_assembly_standard_json_file(std_assembly_path,
-                                                                                       deployed_contract=cfg_name,
-                                                                                       solc_executable=args.solc_executable)
-        y = dtimer()
-
-        print("solc importer: " + str(y - x) + "s")
-        times[6] += (y - x)
-        if args.visualize:
-            print("Contract: " + cfg_name + " -> EVM Code: " + synt_binary_stdjson)
-            store_binary_output(cfg_name, synt_binary_stdjson, cfg_dir)
-
-    times_str = map(lambda x: str(x), times)
-    print("Times " + args.source + ": " + ",".join(times_str))
+    #     if args.visualize:
+    #         assembly_path = store_asm_output(asm_contract, cfg_name, cfg_dir)
+    #
+    #     std_assembly_path = store_asm_standard_json_output(asm_contract, cfg_name, cfg_dir, settings)
+    #     # print(std_assembly_path)
+    #     # synt_binary = SolidityCompilation.importer_assembly_file(assembly_path, solc_executable=args.solc_executable)
+    #
+    #     x = dtimer()
+    #     synt_binary_stdjson = SolidityCompilation.importer_assembly_standard_json_file(std_assembly_path,
+    #                                                                                    deployed_contract=cfg_name,
+    #                                                                                    solc_executable=args.solc_executable)
+    #
+    #     with open("opcodes.txt", 'w') as f:
+    #         f.write(synt_binary_stdjson)
+    #
+    #     y = dtimer()
+    #
+    #     print("solc importer: " + str(y - x) + "s")
+    #     times[6] += (y - x)
+    #     if args.visualize:
+    #         print("Contract: " + cfg_name + " -> EVM Code: " + synt_binary_stdjson)
+    #         store_binary_output(cfg_name, synt_binary_stdjson, cfg_dir)
+    #
+    # times_str = map(lambda x: str(x), times)
+    # print("Times " + args.source + ": " + ",".join(times_str))
