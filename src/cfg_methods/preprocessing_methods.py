@@ -1,9 +1,10 @@
 """
 Preprocess the graph by performing inlining and splitting of blocks
 """
+import json
 from typing import Dict
 from pathlib import Path
-from liveness.liveness_analysis import dot_from_analysis
+from liveness.liveness_analysis import dot_from_analysis, liveness_from_block_id
 from parser.cfg import CFG
 from cfg_methods.function_inlining import inline_functions
 from cfg_methods.sub_block_generation import combine_remove_blocks_cfg, split_blocks_cfg
@@ -15,6 +16,9 @@ from cfg_methods.constants_insertion import insert_variables_for_constants
 def preprocess_cfg(cfg: CFG, dot_file_dir: Path, visualization: bool) -> Dict[str, Dict[str, int]]:
     if visualization:
         liveness_info = dot_from_analysis(cfg, dot_file_dir.joinpath("initial"))
+        liveness_dict = liveness_from_block_id(cfg)
+        with open(dot_file_dir.joinpath("liveness_info.json"), 'w') as f:
+            json.dump(liveness_dict, f, indent=4)
 
     # Assign distinct names for all the variables in the CFG among different functions and blocks
     # TODO: in the future, we could do the renaming just in the inliner when two block lists are merged
