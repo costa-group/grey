@@ -19,7 +19,7 @@ from solution_generation.statistics import generate_statistics_info
 def cfg_block_spec_ids(cfg_block: CFGBlock) -> Tuple[str, float, List[instr_id_T]]:
     outcome1, time1, greedy_ids1 = previous.greedy_standalone(cfg_block.spec)
     outcome2, time2, greedy_ids2 = new_greedy.greedy_standalone(cfg_block.spec)
-    if len(greedy_ids1) > len(greedy_ids2) or outcome1 == "error":
+    if greedy_ids2 is not None and (outcome1 == "error" or len(greedy_ids1) > len(greedy_ids2)):
         outcome = outcome2
         time = time2
         greedy_ids = greedy_ids2
@@ -29,7 +29,7 @@ def cfg_block_spec_ids(cfg_block: CFGBlock) -> Tuple[str, float, List[instr_id_T
         # print(cfg_block.block_id, len(greedy_ids1), len(greedy_ids2))
         # print(len(greedy_ids))
 
-    elif len(greedy_ids1) < len(greedy_ids2) or outcome2 == "error":
+    elif greedy_ids2 is not None and (len(greedy_ids1) < len(greedy_ids2) or outcome2 == "error"):
         outcome = outcome1
         time = time1
         greedy_ids = greedy_ids1
