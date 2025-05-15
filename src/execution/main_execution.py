@@ -3,7 +3,7 @@ import json
 from typing import Dict, Optional, List
 from pathlib import Path
 from timeit import default_timer as dtimer
-
+from collections import defaultdict
 from parser.utils_parser import split_json
 from global_params.types import Yul_CFG_T
 from parser.parser import parse_CFG_from_json_dict
@@ -143,13 +143,14 @@ def main(args):
     final_dir = Path(args.folder)
 
     final_dir.mkdir(exist_ok=True, parents=True)
-    asm_output = {}
+    asm_contracts = defaultdict(lambda: dict())
 
     for cfg_name, cfg in cfgs.items():
         #      print("Synthesizing...", cfg_name)
         cfg_dir = final_dir.joinpath(cfg_name)
 
         asm_contract = analyze_single_cfg(cfg, cfg_dir, args, times)
+        asm_contracts[cfg_name]["asm"] = asm_contract
 
         if args.visualize:
             assembly_path = store_asm_output(asm_contract, cfg_name, cfg_dir)
@@ -172,3 +173,8 @@ def main(args):
 
     times_str = map(lambda x: str(x), times)
     print("Times " + args.source + ": " + ",".join(times_str))
+
+    asm_combined_output = {"contracts": asm_contracts, "version": "grey"}
+
+    with open(str(final_dir.joinpath(Path(args.source).stem)) + ".json_solc", 'w') as f:
+        json.dump(asm_combined_output, f, indent=4)
