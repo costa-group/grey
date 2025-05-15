@@ -148,7 +148,6 @@ def main(args):
     for cfg_name, cfg in cfgs.items():
         #      print("Synthesizing...", cfg_name)
         cfg_dir = final_dir.joinpath(cfg_name)
-
         asm_contract = analyze_single_cfg(cfg, cfg_dir, args, times)
         asm_contracts[cfg_name]["asm"] = asm_contract
 
