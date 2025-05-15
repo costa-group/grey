@@ -119,7 +119,7 @@ def execute_yul_test(yul_file: str, csv_folder: Path, json_solc_folder: Path) ->
         subprocess.run(testrunner_command_grey)
 
         # We need to compare them dropping the gas usage
-        file_comparison, gas_original, gas_grey = compare_files_removing_failed_tests(result_original, test_file, result_grey, test_grey_file)
+        file_comparison, gas_original, gas_grey = compare_files_removing_failed_tests(result_original, test_file, result_grey, test_grey_file, yul_base)
         # If file_comparison is empty, it means that the match is precise
         if file_comparison == 0:
             print("[RES]: Test passed.")
