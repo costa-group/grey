@@ -225,7 +225,7 @@ def traverse_cfg_block_list(block_list: CFGBlockList, function_name2entry: Dict[
 
             if asm_block == [] and next_block.get_jump_type() == "terminal":
 
-                assert(len(next_block.get_instructions()) == 1)
+                assert len(next_block.get_instructions()) == 1, f"Falla { next_block.get_instructions()}"
                 ins = next_block.get_instructions()[0]
 
                 # Terminal blocks might contain calls to terminal functions (i.e. not so terminal...)
