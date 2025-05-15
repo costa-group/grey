@@ -1,3 +1,4 @@
+import glob
 import os
 import subprocess
 import shutil
@@ -34,7 +35,7 @@ def filter_row(list_of_rows: List[Dict[str, Any]], row_name, yul_file) -> Dict[s
     return matching_rows[0]
 
 
-def execute_yul_test(yul_file: str, csv_folder: Path) -> None:
+def execute_yul_test(yul_file: str, csv_folder: Path, json_solc_folder: Path) -> None:
     yul_file = str(yul_file)
     yul_dir = os.path.dirname(yul_file)
     yul_base = os.path.basename(yul_file).replace("_standard_input.json", "")
@@ -51,6 +52,7 @@ def execute_yul_test(yul_file: str, csv_folder: Path) -> None:
     with open(output_file, "w") as output:
         subprocess.run(solc_command, stdout=output)
 
+    output_folder = f"/tmp/{yul_base}"
     grey_command = [
         "python3",
         "src/grey_main.py",
@@ -58,9 +60,14 @@ def execute_yul_test(yul_file: str, csv_folder: Path) -> None:
         "-g", "-v",
         "-if", "standard-json",
         "-solc", "./solc-latest",
-        "-o", f"/tmp/{yul_base}",
+        "-o", output_folder,
     ]
     log_file = os.path.join(yul_dir, f"{yul_base}.log")
+
+    # We are copying the files to the json solc folder
+    for file_ in glob.glob(output_folder + "/*.json_solc"):
+        shutil.copy(file_, json_solc_folder)
+
     # with open(log_file, "w") as log:
     #     subprocess.run(grey_command, stdout=log)
     # print(yul_file)
@@ -147,6 +154,9 @@ def run_experiments(n_cpus):
     CSV_FOLDER.joinpath("correctos").mkdir(exist_ok=True, parents=True)
     CSV_FOLDER.joinpath("fallan").mkdir(exist_ok=True, parents=True)
     CSV_FOLDER.joinpath("no_test").mkdir(exist_ok=True, parents=True)
+
+    JSON_SOLC_FOLDER = Path("json_solc")
+    JSON_SOLC_FOLDER.mkdir(exist_ok=True, parents=True)
     
     # Check if the directory exists
     if not os.path.isdir(DIRECTORIO_TESTS):
@@ -156,7 +166,7 @@ def run_experiments(n_cpus):
     # Find all files matching "*standard_input.json" in the directory
     yul_files = list(Path(DIRECTORIO_TESTS).rglob("*standard_input.json"))
     with mp.Pool(n_cpus) as p:
-        p.starmap(execute_yul_test, [[file_, CSV_FOLDER] for file_ in yul_files])
+        p.starmap(execute_yul_test, [[file_, CSV_FOLDER, JSON_SOLC_FOLDER] for file_ in yul_files])
     print("Procesamiento completado.")
     # combine_dfs(CSV_FOLDER, Path("combined.csv"))
 
