@@ -40,7 +40,8 @@ def preprocess_cfg(cfg: CFG, dot_file_dir: Path, visualization: bool) -> Dict[st
     tag_dict = insert_jumps_tags_cfg(cfg)
     if visualization:
         liveness_info = dot_from_analysis(cfg, dot_file_dir.joinpath("jumps"))
-        validate_liveness(cfg)
+        # To validate liveness for Moritz cases
+        # validate_liveness(cfg)
 
     # Then we split by sub blocks
     split_blocks_cfg(cfg, tag_dict)
