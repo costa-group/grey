@@ -14,6 +14,7 @@ from solution_generation.reconstruct_bytecode import asm_from_cfg, store_asm_out
 from greedy.ids_from_spec import cfg_spec_ids
 from liveness.layout_generation import layout_generation
 from cfg_methods.preprocessing_methods import preprocess_cfg
+from solution_generation.bytecode2asm import asm_from_opcodes
 
 global times
 times = []
@@ -41,6 +42,8 @@ def parse_args() -> argparse.Namespace:
     output_options.add_argument("-v", "--visualize", action="store_true", dest="visualize",
                                 help="Generates a dot file for each object in the JSON, "
                                      "showcasing the results from the liveness analysis")
+    output_options.add_argument("-json-solc", "--json-solc", action="store_true", dest="json_solc",
+                                help="Stores the result in combined-json format")
 
     synthesis_options = parser.add_argument_group("Synthesis Options")
     synthesis_options.add_argument("-g", "--greedy", action="store_true", help="Enables the greedy algorithm")
@@ -144,6 +147,7 @@ def main(args):
 
     final_dir.mkdir(exist_ok=True, parents=True)
     asm_contracts = defaultdict(lambda: dict())
+    asm_contracts_after_importer = defaultdict(lambda: dict())
 
     for cfg_name, cfg in cfgs.items():
         #      print("Synthesizing...", cfg_name)
@@ -159,21 +163,37 @@ def main(args):
         # synt_binary = SolidityCompilation.importer_assembly_file(assembly_path, solc_executable=args.solc_executable)
 
         x = dtimer()
-        synt_binary_stdjson = SolidityCompilation.importer_assembly_standard_json_file(std_assembly_path,
-                                                                                       deployed_contract=cfg_name,
-                                                                                       solc_executable=args.solc_executable)
+        if not args.json_solc:
+            synt_binary_stdjson = SolidityCompilation.importer_assembly_standard_json_file(std_assembly_path,
+                                                                                           deployed_contract=cfg_name,
+                                                                                           solc_executable=args.solc_executable)
+
+            if args.visualize:
+                print("Contract: " + cfg_name + " -> EVM Code: " + synt_binary_stdjson)
+                store_binary_output(cfg_name, synt_binary_stdjson, cfg_dir)
+
+        else:
+            synt_opcodes_stdjson = SolidityCompilation.importer_assembly_standard_json_file(std_assembly_path,
+                                                                                           deployed_contract=cfg_name,
+                                                                                           solc_executable=args.solc_executable,
+                                                                                           selected_result="opcodes")
+
+            asm_contracts_after_importer[cfg_name]["asm"] = asm_from_opcodes(synt_opcodes_stdjson)
+
         y = dtimer()
 
         print("solc importer: " + str(y - x) + "s")
         times[6] += (y - x)
-        if args.visualize:
-            print("Contract: " + cfg_name + " -> EVM Code: " + synt_binary_stdjson)
-            store_binary_output(cfg_name, synt_binary_stdjson, cfg_dir)
 
     times_str = map(lambda x: str(x), times)
     print("Times " + args.source + ": " + ",".join(times_str))
 
     asm_combined_output = {"contracts": asm_contracts, "version": "grey"}
 
-    with open(str(final_dir.joinpath(Path(args.source).stem)) + ".json_solc", 'w') as f:
+    with open(str(final_dir.joinpath(Path(args.source).stem)) + "_bef_importer.json_solc", 'w') as f:
         json.dump(asm_combined_output, f, indent=4)
+
+    # We store the combined output as well after the importer
+    if args.json_solc:
+        with open(str(final_dir.joinpath(Path(args.source).stem)) + "_aft_importer.json_solc", 'w') as f:
+            json.dump({"contracts": asm_contracts_after_importer, "version": "grey"}, f, indent=4)

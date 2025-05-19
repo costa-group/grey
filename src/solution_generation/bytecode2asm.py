@@ -65,11 +65,11 @@ def bytecode2asm(opcodes: List[str]) -> List[Dict[str, Any]]:
     return operations
 
 
-def from_bytecode(bytecode: str) -> Dict[str, Any]:
+def asm_from_opcodes(opcodes: str) -> Dict[str, Any]:
     asm_json = dict()
 
     opcodes_per_region = [chunk.strip().split(" ")
-                          for chunk in bytecode.split("INVALID")]
+                          for chunk in opcodes.split("INVALID")]
 
     assert len(opcodes_per_region) in [2, 3], \
         f"Expected two or three regions. Got: {len(opcodes_per_region)}"
@@ -80,6 +80,6 @@ def from_bytecode(bytecode: str) -> Dict[str, Any]:
     asm_json["sourceList"] = []
 
     asm_json[".data"] = dict()
-    asm_json[".data"]["0"] = {".code": bytecode2asm(opcodes_per_region[0])}
+    asm_json[".data"]["0"] = {".code": bytecode2asm(opcodes_per_region[1])}
 
     return asm_json
