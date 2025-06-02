@@ -24,7 +24,8 @@ from liveness.liveness_analysis import LivenessAnalysisInfoSSA, construct_analys
     perform_liveness_analysis_from_cfg_info
 from liveness.utils import functions_inputs_from_components
 from liveness.stack_layout_methods import compute_variable_depth, output_stack_layout, unify_stacks_brothers, \
-    compute_block_level, unification_block_dict, propagate_output_stack
+    compute_block_level, unification_block_dict, propagate_output_stack, unify_stacks_brothers_missing_values, \
+    forget_values
 
 
 def var_order_repr(block_name: str, var_info: Dict[str, int]):
@@ -49,12 +50,14 @@ def print_stacks(block_name: str, json_dict: Dict[str, Any]) -> str:
 class LayoutGeneration:
 
     def __init__(self, object_id: str, block_list: CFGBlockList, liveness_info: Dict[str, LivenessAnalysisInfoSSA],
-                 function_inputs: Dict[component_name_T, List[var_id_T]], name: Path,
+                 function_inputs: Dict[component_name_T, List[var_id_T]], name: Path, is_main_component: bool,
                  cfg_graph: Optional[nx.Graph] = None):
         self._component_id = object_id
         self._block_list = block_list
         self._liveness_info = liveness_info
         self._function_inputs = function_inputs
+        # We store if it is the main component in order to preserve the stack elements
+        self._is_main_component = is_main_component
 
         if cfg_graph is None:
             self._cfg_graph = digraph_from_block_info(liveness_analysis_state.block_info
@@ -120,6 +123,10 @@ class LayoutGeneration:
             # the function
             input_stack = self._function_inputs[self._block_list.name]
 
+        # We forget the deepest elements in the main component
+        if self._is_main_component:
+            input_stack = forget_values(input_stack, self._liveness_info[block_id].in_state.live_vars)
+
         input_stacks[block.block_id] = input_stack
 
         # Computing output stack...
@@ -142,11 +149,24 @@ class LayoutGeneration:
                                           for element_to_unify in elements_to_unify}
                 combined_liveness_info[next_block_id] = self._liveness_info[next_block_id].in_state.live_vars
 
-                combined_output_stack, output_stacks_unified = unify_stacks_brothers(next_block_id,
-                                                                                     elements_to_unify,
-                                                                                     combined_liveness_info,
-                                                                                     phi_instructions,
-                                                                                     self._variable_order[next_block_id])
+                # If it is the main component, we do not care about the state of the stack afterwards
+                if self._is_main_component:
+                    (combined_output_stack,
+                     output_stacks_unified) = unify_stacks_brothers_missing_values(next_block_id,
+                                                                                   elements_to_unify,
+                                                                                   {previous_id: input_stacks.get(previous_id, [])
+                                                                                    for previous_id in elements_to_unify},
+                                                                                   combined_liveness_info,
+                                                                                   phi_instructions,
+                                                                                   self._variable_order[next_block_id])
+
+                else:
+                    combined_output_stack, output_stacks_unified = unify_stacks_brothers(next_block_id,
+                                                                                         elements_to_unify,
+                                                                                         combined_liveness_info,
+                                                                                         phi_instructions,
+                                                                                         self._variable_order[
+                                                                                             next_block_id])
 
                 # Update the output stacks with the ones generated from the unification
                 output_stacks.update(output_stacks_unified)
@@ -248,7 +268,8 @@ def layout_generation_cfg(cfg: CFG, final_dir: Path = Path(".")) -> None:
             digraph = digraph_from_block_info(cfg_info_suboject.values())
 
             layout = LayoutGeneration(component_name, component2block_list[object_name][component_name],
-                                      component_liveness, component2inputs, final_dir, digraph)
+                                      component_liveness, component2inputs, final_dir, component_name == object_name,
+                                      digraph)
 
             layout.build_layout()
 

@@ -93,8 +93,10 @@ def parse_block(object_name: str, block_json: Dict[str,Any], built_in_op: bool,
 
         list_cfg_instructions.append(cfg_instruction)
 
+    block_liveness = block_json.get("liveness", {})
     block_identifier = generate_block_name(object_name, block_id)
     block = CFGBlock(block_identifier, list_cfg_instructions, block_type, dict())
+    block.liveness = block_liveness
     block.set_jump_info(block_exit)
     block.entries = entries
 

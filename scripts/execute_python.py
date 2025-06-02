@@ -1,3 +1,4 @@
+import glob
 import os
 import subprocess
 import shutil
@@ -9,7 +10,7 @@ import multiprocessing as mp
 import sys
 import pandas as pd
 from count_num_ins import instrs_from_opcodes
-from compare_outputs import compare_files
+from compare_outputs import compare_files_removing_failed_tests
 
 
 def combine_dfs(csv_folder: Path, combined_csv: Path):
@@ -34,7 +35,7 @@ def filter_row(list_of_rows: List[Dict[str, Any]], row_name, yul_file) -> Dict[s
     return matching_rows[0]
 
 
-def execute_yul_test(yul_file: str, csv_folder: Path) -> None:
+def execute_yul_test(yul_file: str, csv_folder: Path, json_solc_folder: Path) -> None:
     yul_file = str(yul_file)
     yul_dir = os.path.dirname(yul_file)
     yul_base = os.path.basename(yul_file).replace("_standard_input.json", "")
@@ -51,6 +52,7 @@ def execute_yul_test(yul_file: str, csv_folder: Path) -> None:
     with open(output_file, "w") as output:
         subprocess.run(solc_command, stdout=output)
 
+    output_folder = f"/tmp/{yul_base}"
     grey_command = [
         "python3",
         "src/grey_main.py",
@@ -58,12 +60,19 @@ def execute_yul_test(yul_file: str, csv_folder: Path) -> None:
         "-g", "-v",
         "-if", "standard-json",
         "-solc", "./solc-latest",
-        "-o", f"/tmp/{yul_base}",
+        "-o", output_folder,
     ]
     log_file = os.path.join(yul_dir, f"{yul_base}.log")
-    with open(log_file, "w") as log:
-        subprocess.run(grey_command, stdout=log)
 
+    # We are copying the files to the json solc folder
+    for file_ in glob.glob(output_folder + "/*.json_solc"):
+        shutil.copy(file_, json_solc_folder)
+
+    # with open(log_file, "w") as log:
+    #     subprocess.run(grey_command, stdout=log)
+    # print(yul_file)
+    subprocess.run(grey_command)
+    
     print(" ".join(grey_command))
 
     # Copy results
@@ -84,35 +93,33 @@ def execute_yul_test(yul_file: str, csv_folder: Path) -> None:
             log_file,
         ]
         subprocess.run(replace_command)
-        print(" ".join(replace_command))
+        # print(" ".join(replace_command))
+        result_original = os.path.join(yul_dir, "resultOriginal.json")
 
         testrunner_command_original = [
             "/system/experiments/Systems/solidity/build/test/tools/testrunner",
             "/system/experiments/Systems/evmone_ahernandez/build/lib/libevmone.so",
             test_file,
-            os.path.join(yul_dir, "resultOriginal.json"),
+            result_original
         ]
         subprocess.run(testrunner_command_original)
         
         # We extract the corresponding contract name from the test file
         analyzed_contract = extract_contract_name(test_file)
+        test_grey_file = f"{yul_dir}/test_grey"
+        result_grey = os.path.join(yul_dir, "resultGrey.json")
 
         testrunner_command_grey = [
             "/system/experiments/Systems/solidity/build/test/tools/testrunner",
-            "/system/experiments/Systems/evmone_ahernandez/build/lib/libevmone.so",
-            f"{yul_dir}/test_grey",
-            os.path.join(yul_dir, "resultGrey.json"),
+            "/system/experiments/Systems/evmone_ahernandez/build/lib/libevmone.so",     
+            test_grey_file,
+            result_grey
         ]
         # print(' '.join(testrunner_command_grey))
         subprocess.run(testrunner_command_grey)
 
-        # Compare results
-        result_original = os.path.join(yul_dir, "resultOriginal.json")
-        result_grey = os.path.join(yul_dir, "resultGrey.json")
-
         # We need to compare them dropping the gas usage
-        file_comparison, gas_original, gas_grey = compare_files(result_original, result_grey)
-
+        file_comparison, gas_original, gas_grey = compare_files_removing_failed_tests(result_original, test_file, result_grey, test_grey_file, yul_base)
         # If file_comparison is empty, it means that the match is precise
         if file_comparison == 0:
             print("[RES]: Test passed.")
@@ -147,6 +154,9 @@ def run_experiments(n_cpus):
     CSV_FOLDER.joinpath("correctos").mkdir(exist_ok=True, parents=True)
     CSV_FOLDER.joinpath("fallan").mkdir(exist_ok=True, parents=True)
     CSV_FOLDER.joinpath("no_test").mkdir(exist_ok=True, parents=True)
+
+    JSON_SOLC_FOLDER = Path("json_solc")
+    JSON_SOLC_FOLDER.mkdir(exist_ok=True, parents=True)
     
     # Check if the directory exists
     if not os.path.isdir(DIRECTORIO_TESTS):
@@ -156,7 +166,7 @@ def run_experiments(n_cpus):
     # Find all files matching "*standard_input.json" in the directory
     yul_files = list(Path(DIRECTORIO_TESTS).rglob("*standard_input.json"))
     with mp.Pool(n_cpus) as p:
-        p.starmap(execute_yul_test, [[file, CSV_FOLDER] for file in yul_files])
+        p.starmap(execute_yul_test, [[file_, CSV_FOLDER, JSON_SOLC_FOLDER] for file_ in yul_files])
     print("Procesamiento completado.")
     # combine_dfs(CSV_FOLDER, Path("combined.csv"))
 

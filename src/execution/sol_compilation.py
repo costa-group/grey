@@ -225,10 +225,12 @@ def process_importer_output(sol_output: str, deployed_contract: Optional[str], s
     contract_header = r"Binary:\n(.*?)\n"
     return re.search(contract_header, sol_output).group(1)
 
+
 def process_importer_standard_output(sol_output: str, deployed_contract: Optional[str], selected_header: str) -> str:
     """
     Given the compiler output from solc after the importer standard-json option, extracts the information
-    of the corresponding contract (binary)
+    of the corresponding contract (binary). selected_header can be either object (for the bytecode) or opcodes
+    (for the bytecode in opcode format).
     """
 
     json_output = json.loads(sol_output)
@@ -238,8 +240,7 @@ def process_importer_standard_output(sol_output: str, deployed_contract: Optiona
 
     deployed_contract_info = contracts[deployed_contract][""]
     
-    return deployed_contract_info["evm"]["bytecode"]["object"]
-
+    return deployed_contract_info["evm"]["bytecode"][selected_header]
 
 
 class SolidityCompilation:
@@ -283,11 +284,12 @@ class SolidityCompilation:
 
     @staticmethod
     def importer_assembly_standard_json_file(json_file: str, deployed_contract: Optional[str] = None,
-                               final_file: Optional[str] = None, solc_executable: str = "solc"):
+                               final_file: Optional[str] = None, solc_executable: str = "solc", selected_result: str = "object"):
+        # The selected result can be either an object or the list of opcodes
         compilation = SolidityCompilation(final_file, solc_executable)
         compilation.flags = "--standard-json"
         compilation.process_output_function = process_importer_standard_output
-        return compilation.compile_single_sol_file(json_file, deployed_contract, "bin")
+        return compilation.compile_single_sol_file(json_file, deployed_contract, selected_result)
 
     @staticmethod
     def from_multi_sol(multi_sol_info: Dict[str, Any], deployed_contract: str,

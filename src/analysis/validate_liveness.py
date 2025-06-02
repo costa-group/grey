@@ -132,8 +132,24 @@ def perform_liveness_analysis(cfg: CFG) -> Dict[cfg_object_T, Dict[cfg_object_T,
     Returns the information from the liveness analysis for each object and each component in that object
     """
     cfg_info = construct_analysis_info(cfg)
-    return perform_liveness_analysis_from_cfg_info(cfg_info)
+    liveness_info = perform_liveness_analysis_from_cfg_info(cfg_info)
 
+    for object_id, object_dict in liveness_info.items():
+        cfg_object = cfg.get_object(object_id)
+        for block_list_id, block_list_dict in object_dict.items():
+            cfg_blocklist = cfg_object.get_block_list(block_list_id)
+            for block_id, block_info in block_list_dict.items():
+                generated_liveness = liveness2json(block_info)
+                current_block = cfg_blocklist.get_block(block_id)
+                json_liveness = cfg_blocklist.get_block(block_id).liveness
+                generated_liveness = {key: sorted([element for element in v if not element.startswith("out")]) for key, v in generated_liveness.items()}
+                json_liveness = {key: sorted(v) for key, v in json_liveness.items()}
+
+                if current_block.split_instruction is not None and current_block.split_instruction.op == "functionReturn":
+                    json_liveness["out"] = list(sorted(set(json_liveness["out"]).difference(current_block.split_instruction.in_args)))
+
+                assert generated_liveness == json_liveness, \
+                    f"Do not match {object_id} {block_list_id} {block_id}: Ours {generated_liveness} Theirs {json_liveness}"
 
 def dot_from_analysis_cfg(cfg: CFG, final_dir: Path = Path(".")) -> Dict[cfg_object_T, Dict[component_name_T, Dict[str, LivenessAnalysisInfoSSA]]]:
     """
@@ -201,14 +217,13 @@ def cfg_dict2json_dict(cfg_dict: Dict[str, Dict[str, Dict[str, LivenessAnalysisI
     return solution
 
 
-def liveness_from_block_id(cfg: CFG) -> Dict[str, Dict[str, LivenessAnalysisInfoSSA]]:
+def validate_liveness(cfg: CFG) -> Dict[str, Dict[str, LivenessAnalysisInfoSSA]]:
     """
     Returns the information from the liveness analysis and also stores a dot file for each analyzed structure
     in "final_dir"
     """
     # It only analyzes the code from one CFG level
-    analysis_cfg = perform_liveness_analysis(cfg)
+    perform_liveness_analysis(cfg)
     for idx, cfg_object in enumerate(cfg.objectCFG.values()):
         if cfg_object.subObject is not None:
-            analysis_cfg.update(perform_liveness_analysis(cfg_object.subObject))
-    return cfg_dict2json_dict(analysis_cfg)
+            perform_liveness_analysis(cfg_object.subObject)
