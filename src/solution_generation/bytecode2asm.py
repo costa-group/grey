@@ -12,7 +12,10 @@ def build_assembly_instruction(name: str, value: int = None) -> Dict[str, Any]:
     opcode = {"name": name, "begin": -1, "end": -1, "source": -1}
 
     if value is not None:
-        opcode["value"] = str(value)
+        if name == "PUSH":
+            opcode["value"] = hex(value)[2:]
+        else:
+            opcode["value"] = str(value)
     return opcode
 
 
