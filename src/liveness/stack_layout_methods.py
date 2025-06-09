@@ -186,6 +186,7 @@ def output_stack_layout(input_stack: List[str], final_stack_elements: List[str],
             i += 1
 
         bottom_output_stack = bottom_output_stack[i:]
+        i = 0
         while i < len(bottom_output_stack):
             if bottom_output_stack[i] is None:
                 assert bottom_output_stack[0] is not None
@@ -193,7 +194,6 @@ def output_stack_layout(input_stack: List[str], final_stack_elements: List[str],
                 bottom_output_stack.pop(0)
             else:
                 i += 1
-        print(bottom_output_stack)
 
     # The final stack elements must appear in the top of the stack
     return final_stack_elements + bottom_output_stack
