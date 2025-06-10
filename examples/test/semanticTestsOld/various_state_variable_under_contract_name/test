@@ -1,0 +1,26 @@
+{
+    "semanticTests/various/state_variable_under_contract_name.sol": {
+        "bytecode": "60808060405234601757602a5f55603e9081601c8239f35b5f80fdfe60808060405260043610156011575f80fd5b5f3560e01c639ffd5c7f146023575f80fd5b34603a575f366003190112603a576020905f548152f35b5f80fd",
+        "contract": ":Scope",
+        "tests": [
+            {
+                "input": {
+                    "calldata": "",
+                    "value": "0"
+                },
+                "kind": "constructor"
+            },
+            {
+                "input": {
+                    "calldata": "9ffd5c7f",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "000000000000000000000000000000000000000000000000000000000000002a",
+                    "status": "success"
+                }
+            }
+        ]
+    }
+}

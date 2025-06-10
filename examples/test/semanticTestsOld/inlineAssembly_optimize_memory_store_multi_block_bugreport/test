@@ -1,0 +1,26 @@
+{
+    "semanticTests/inlineAssembly/optimize_memory_store_multi_block_bugreport.sol": {
+        "bytecode": "60808060405234601357608d908160188239f35b5f80fdfe608060405260043610156010575f80fd5b5f3560e01c63f8a8fd6d146022575f80fd5b346068575f3660031901126068576020606060505f5460055f55670123456789abcdef60015260405fa0606c565b670123456789abcdef600152606c565b604051908152f35b5f80fd5b9060058201809211607957565b634e487b7160e01b5f52601160045260245ffd",
+        "contract": ":Test",
+        "tests": [
+            {
+                "input": {
+                    "calldata": "",
+                    "value": "0"
+                },
+                "kind": "constructor"
+            },
+            {
+                "input": {
+                    "calldata": "f8a8fd6d",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "000000000000000000000000000000000000000000000000000000000000000a",
+                    "status": "success"
+                }
+            }
+        ]
+    }
+}

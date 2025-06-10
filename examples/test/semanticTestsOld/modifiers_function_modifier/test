@@ -1,0 +1,37 @@
+{
+    "semanticTests/modifiers/function_modifier.sol": {
+        "bytecode": "608080604052346013576044908160188239f35b5f80fdfe60808060405260043610156011575f80fd5b5f3560e01c63ab5ed150146023575f80fd5b5f3660031901126040576020905f346039578152f35b5060018152f35b5f80fd",
+        "contract": ":C",
+        "tests": [
+            {
+                "input": {
+                    "calldata": "",
+                    "value": "0"
+                },
+                "kind": "constructor"
+            },
+            {
+                "input": {
+                    "calldata": "ab5ed150",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "0000000000000000000000000000000000000000000000000000000000000000",
+                    "status": "success"
+                }
+            },
+            {
+                "input": {
+                    "calldata": "ab5ed150",
+                    "value": "1"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "0000000000000000000000000000000000000000000000000000000000000001",
+                    "status": "success"
+                }
+            }
+        ]
+    }
+}

@@ -226,12 +226,30 @@ def process_importer_output(sol_output: str, deployed_contract: Optional[str], s
     return re.search(contract_header, sol_output).group(1)
 
 
+def process_importer_standard_output(sol_output: str, deployed_contract: Optional[str], selected_header: str) -> str:
+    """
+    Given the compiler output from solc after the importer standard-json option, extracts the information
+    of the corresponding contract (binary). selected_header can be either object (for the bytecode) or opcodes
+    (for the bytecode in opcode format).
+    """
+
+    json_output = json.loads(sol_output)
+    
+    contracts = json_output["contracts"]
+    assert deployed_contract in contracts, f"Contract {deployed_contract} not deployed"
+
+    deployed_contract_info = contracts[deployed_contract][""]
+    
+    return deployed_contract_info["evm"]["bytecode"][selected_header]
+
+
 class SolidityCompilation:
     """
     Compiler from different formats of the solc compiler that are also supported by Etherscan
     """
 
     def __init__(self, final_file: Optional[str], solc_command: str):
+        self.CHANGE_SETTINGS = False
         self._final_file: Optional[Path] = Path(final_file) if final_file is not None else None
         self.flags: str = ""
 
@@ -239,7 +257,7 @@ class SolidityCompilation:
         self._solc_command: str = solc_command
 
         # TODO: decide how to represent via-ir
-        self._via_ir = False
+        self._via_ir = True
         self._yul_setting = False
 
         # Function to select the information from the contract
@@ -260,9 +278,18 @@ class SolidityCompilation:
     def importer_assembly_file(json_file: str, deployed_contract: Optional[str] = None,
                                final_file: Optional[str] = None, solc_executable: str = "solc"):
         compilation = SolidityCompilation(final_file, solc_executable)
-        compilation.flags = "--import-asm-json --bin"
+        compilation.flags = "--import-asm-json --bin --optimize"
         compilation.process_output_function = process_importer_output
         return compilation.compile_single_sol_file(json_file, deployed_contract, "bin")
+
+    @staticmethod
+    def importer_assembly_standard_json_file(json_file: str, deployed_contract: Optional[str] = None,
+                               final_file: Optional[str] = None, solc_executable: str = "solc", selected_result: str = "object"):
+        # The selected result can be either an object or the list of opcodes
+        compilation = SolidityCompilation(final_file, solc_executable)
+        compilation.flags = "--standard-json"
+        compilation.process_output_function = process_importer_standard_output
+        return compilation.compile_single_sol_file(json_file, deployed_contract, selected_result)
 
     @staticmethod
     def from_multi_sol(multi_sol_info: Dict[str, Any], deployed_contract: str,
@@ -358,7 +385,10 @@ class SolidityCompilation:
 
     def compile_json_input(self, json_input: Dict, deployed_contract: Optional[str] = None) -> Optional[Dict[str, Yul_CFG_T]]:
         # Change the settings from the json input
-        json_input["settings"] = self._json_input_set_settings()
+        if self.CHANGE_SETTINGS:
+            json_input["settings"] = self._json_input_set_settings()
+        else:
+            json_input["settings"]["outputSelection"] = {'*': {'*': ['yulCFGJson']}}
 
         # Compile in a given intermediate file
         fd, tmp_file = tempfile.mkstemp()

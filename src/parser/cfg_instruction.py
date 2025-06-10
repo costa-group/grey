@@ -20,7 +20,7 @@ def build_instr_spec(op_name: str, idx: int, input_args: List[str], out_args: Li
     instr_spec["gas"] = opcodes.get_ins_cost(op_name)
     instr_spec["commutative"] = is_commutative(op_name)
     instr_spec["push"] = False
-    instr_spec["storage"] = True if op_name in ["MSTORE", "SSTORE"] else False  # It is true only for MSTORE and SSTORE
+    instr_spec["storage"] = op_name in ["MSTORE", "MSTORE8", "SSTORE"]  # It is true only for MSTORE, MSTORE8 and SSTORE
     instr_spec["size"] = get_ins_size(op_name)
 
     if value != None:
@@ -245,7 +245,7 @@ class CFGInstruction:
     def get_type_mem_op(self):
         if self.op in ["sload", "mload", "keccak256", "log0","log1","log2","log3","log4", "create","create2"]:
             return "read"
-        elif self.op in ["mstore", "mstore8", "codecopy","extcodecopy","calldatacopy","returndatacopy","mcopy"]:
+        elif self.op in ["mstore", "mstore8", "codecopy","extcodecopy","calldatacopy","returndatacopy","mcopy","sstore"]:
             return "write"
         else:
             return None
@@ -293,8 +293,10 @@ class CFGInstruction:
         if pos is not None:
             self.translate_builtin_args = ["{0:064X}".format(pos)]
         else:
+            # TODO Maybe pass the element itself just in case?
+            self.op = "PUSHSIZE"
             print("[WARNING ERROR]: Identifier not found in subobjects keys")
-            self.translate_builtin_args = ["{0:064X}".format(0)]
+            # self.translate_builtin_args = ["{0:064X}".format(0)]
                        
 #            raise Exception("[ERROR]: Identifier not found in subobjects keys")
 

@@ -185,7 +185,7 @@ class InlineFunction(BlockAction):
         assert len(self._cfg_function.arguments) == len(call_instruction.get_in_args()), \
             f"The number of arguments of function {call_instruction.get_op_name()} do not match the expected ones"
 
-        relabel_dict = {arg: in_var for arg, in_var in zip(self._cfg_function.arguments, call_instruction.get_in_args())}
+        relabel_dict = {arg: in_var for arg, in_var in zip(self._cfg_function.arguments, reversed(call_instruction.get_in_args()))}
         return relabel_dict
 
     def _call_output2function_output(self, call_instruction: CFGInstruction) -> Dict[var_id_T, var_id_T]:

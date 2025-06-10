@@ -1,0 +1,15 @@
+{
+    "semanticTests/externalSource/multiple_external_source.sol": {
+        "bytecode": "608080604052346013576003908160188239f35b5f80fdfe5f80fd",
+        "contract": "_external/other_external.sol:OtherExternal",
+        "tests": [
+            {
+                "input": {
+                    "calldata": "",
+                    "value": "0"
+                },
+                "kind": "constructor"
+            }
+        ]
+    }
+}

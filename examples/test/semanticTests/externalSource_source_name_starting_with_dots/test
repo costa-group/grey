@@ -1,7 +1,7 @@
 {
     "semanticTests/externalSource/source_name_starting_with_dots.sol": {
         "bytecode": "608080604052346013576003908160188239f35b5f80fdfe5f80fd",
-        "contract": "_source_name_starting_with_dots/dir/a.sol:A",
+        "contract": "_sourceNameStartingWithDots/dir/a.sol:A",
         "tests": [
             {
                 "input": {

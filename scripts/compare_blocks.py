@@ -59,7 +59,7 @@ def get_evm_code(log_file):
 
         res[c_name] = evm_code
 
-    print(res)
+    #print(res)
         
     return res
 
@@ -77,8 +77,7 @@ def get_blocks(bytecode):
             # Leer un byte (dos caracteres hexadecimales)
             opcode = int(bytecode[i:i+2], 16)
             count += 1  # Contar la instrucción
-            opcode_name = instructions.get(opcode)
-            
+            opcode_name = instructions.get(opcode,"INVALID")
             
             if opcode_name == "JUMPDEST":
                 if block != []:
@@ -107,7 +106,7 @@ def get_blocks(bytecode):
             print(f"Error al leer el bytecode en posición {i}. Asegúrate de que sea válido.")
             break
 
-    print(blocks)
+    #print(blocks)
     return blocks
     
 def split_evm_instructions(bytecode: str) -> List[str]:
@@ -127,6 +126,7 @@ def split_evm_instructions(bytecode: str) -> List[str]:
             opcode = int(bytecode[i:i+2], 16)
             count += 1  # Contar la instrucción
 
+            
             # Manejar instrucciones PUSH (PUSH0 no requiere datos adicionales)
             if 0x60 <= opcode <= 0x7f:
                 push_size = opcode - 0x60 + 1
@@ -172,34 +172,73 @@ def is_terminal(block):
     
 def process_terminal_blocks(blocks, num_pops):
     terminal_blocks = 0
+    total_pops = []
+    total_ins_terminal = 0
+    
     for bl in blocks:
+        process_pops(bl, total_pops)
         if is_terminal(bl):
             terminal_blocks+=1
+            total_ins_terminal+=len(bl)
             process_pops(bl,num_pops)
 
-    return terminal_blocks
+    return terminal_blocks, sum(total_pops), total_ins_terminal
+
+def count_instructions(blocks, ins):
+    total_num_ins = 0
+
+    for bl in blocks:
+        num_ins = list(filter(lambda x: x.find(ins)!= -1, block))
+        total_num_ins += len(num_ins)
+
+    return total_num_ins
+
+
 
 def count_num_ins(evm: str):
     """
     Assumes the evm bytecode has no CBOR metadata appended
     """
     code_regions = split_evm_instructions(evm)
-    print(code_regions)
+    #print(code_regions)
     num_pop = []
     terminal_blocks = 0
-    for region in code_regions: 
+    total_pops = 0
+    total_ins_terminal = 0
+    total_blocks = 0
+
+    num_ins = {}
+    
+    for region in code_regions:
         blocks = get_blocks(remove_auxdata(region))
-        terminal_blocks+=process_terminal_blocks(blocks, num_pop)
+        num_tblocks, numtotal_pops, ins_terminal = process_terminal_blocks(blocks, num_pop)
 
+        num_ins["SWAP"]=num_ins.get("SWAP",0)+count_instructions(blocks, "SWAP")
+        num_ins["DUP"]=num_ins.get("DUP",0)+count_instructions(blocks, "DUP")
+        num_ins["PUSH"]=num_ins.get("PUSH",0)+count_instructions(blocks, "PUSH")
+        num_ins["PUSH0"]=num_ins.get("PUSH0",0)+count_instructions(blocks, "PUSH0")
 
+        curr_jumpdest = count_instructions(blocks, "JUMPDEST")
+        curr_jumpi = count_instructions(blocks, "JUMPI")
+        curr_jump = count_instructions(blocks, "JUMP")
+
+        num_ins["JUMPI"]=num_ins.get("JUMPI",0)+curr_jumpi
+        num_ins["JUMPDEST"]=num_ins.get("JUMPDEST",0)+curr_jumpdest
+        num_ins["JUMP"]=num_ins.get("JUMP",0)+(curr_jump - curr_jumpi - curr_jumpdest)
+
+        num_ins["CALL"]=num_ins.get("CALL",0)+count_instructions(blocks, "CALL")
+        
+        terminal_blocks+=num_tblocks
+        total_pops+=numtotal_pops
+        total_ins_terminal+=ins_terminal
+        total_blocks+=len(blocks)
     #print("TERMINAL BLOCKS: " +str(terminal_blocks))
     #print("NUM_POPS: "+ str(sum(num_pop)))
-    return (terminal_blocks, sum(num_pop))
+    return (total_blocks, terminal_blocks, sum(num_pop), total_pops, total_ins_terminal, num_ins)
 
-if __name__ == '__main__':
-    origin_file = sys.argv[1]
-    log_opt_file = sys.argv[2]
 
+def execute_function(origin_file, log_opt_file):
+    print("FILE: "+log_opt_file)
     f = open(origin_file, "r")
 
     evm_origin = f.read()
@@ -211,14 +250,27 @@ if __name__ == '__main__':
 
     total_sol_terminal = 0
     total_sol_pops = 0
+
+    all_pops_opt = 0
+    all_pops_sol = 0
+
+    total_ins_terminal_opt = 0
+    total_ins_terminal_sol = 0
+
+    total_blocks_solc = 0
+    total_blocks_opt = 0
     
     for c in evm_opt:
         evm = evm_opt[c]
 
         opt = count_num_ins(evm.strip())
 
-        total_terminal+=opt[0]
-        total_pops+=opt[1]
+        total_blocks_opt+= opt[0]
+        total_terminal+=opt[1]
+        total_pops+=opt[2]
+        all_pops_opt+=opt[3]
+        total_ins_terminal_opt = opt[4]
+
         
         evm_dict = js.loads(evm_origin)
         contracts = evm_dict["contracts"]
@@ -230,12 +282,26 @@ if __name__ == '__main__':
 
             if c.strip() in json:
                 bytecode = json[c.strip()]["evm"]["bytecode"]["object"]
+                # print("ORIGINAL")
                 origin_ins =count_num_ins(bytecode.strip())
-                total_sol_terminal+=origin_ins[0]
-                total_sol_pops+=origin_ins[1]
+
+                total_blocks_solc+=origin_ins[0]
+                total_sol_terminal+=origin_ins[1]
+                total_sol_pops+=origin_ins[2]
+                all_pops_sol+=origin_ins[3]
+                total_ins_terminal_sol+=origin_ins[4]
+    return (total_terminal, total_pops, all_pops_opt, total_sol_terminal, total_sol_pops, all_pops_sol, total_ins_terminal_opt, total_ins_terminal_sol, total_blocks_solc, total_blocks_opt)
+
+if __name__ == '__main__':
+    origin_file = sys.argv[1]
+    log_opt_file = sys.argv[2]
+
+    total_terminal, total_pops, all_pops_opt, total_sol_terminal, total_sol_pops, all_pops_sol = execute_function(origin_file, log_opt_file)
 
     print("TOTAL TERMINAL OPT: "+str(total_terminal))
-    print("TOTAL POPS OPT: "+str(total_pops))
+    print("TOTAL POPS TERMINAL OPT: "+str(total_pops))
+    prin("TOTAL POPS OPT: "+str(all_pops_opt))
 
     print("TOTAL TERMINAL SOLC: "+str(total_sol_terminal))
-    print("TOTAL POPS SOLC: "+str(total_sol_pops))
+    print("TOTAL POPS TERMINAL SOLC: "+str(total_sol_pops))
+    print("TOTAL POPS SOLC: "+str(all_pops_sol))

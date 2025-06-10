@@ -1,7 +1,7 @@
 {
     "semanticTests/externalSource/relative_imports.sol": {
         "bytecode": "608080604052346013576003908160188239f35b5f80fdfe5f80fd",
-        "contract": "_relative_imports/h.sol:H",
+        "contract": "_relativeImports/h.sol:H",
         "tests": [
             {
                 "input": {

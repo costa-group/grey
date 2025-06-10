@@ -1,0 +1,26 @@
+{
+    "semanticTests/functionTypes/external_functions_with_calldata_args_assigned_to_function_pointers_with_memory_type.sol": {
+        "bytecode": "6080806040523460155761015e908161001a8239f35b5f80fdfe6080806040526004361015610012575f80fd5b5f3560e01c908163dffeadd01461008e575063e6d0209614610032575f80fd5b3461008a57602036600319011261008a5760043567ffffffffffffffff811161008a573660238201121561008a57806004013567ffffffffffffffff811161008a573691016024011161008a57602060405160018152f35b5f80fd5b3461008a575f36600319011261008a57637368104b60e11b8152602060048201819052600a60248301526974657374537472696e6760b01b6044830152816064815f305af18015610153575f906100ed575b6020906040519015158152f35b5060203d60201161014c575b601f8101601f1916820167ffffffffffffffff8111838210176101385760209183916040528101031261008a5751801515810361008a576020906100e0565b634e487b7160e01b5f52604160045260245ffd5b503d6100f9565b6040513d5f823e3d90fd",
+        "contract": ":C",
+        "tests": [
+            {
+                "input": {
+                    "calldata": "",
+                    "value": "0"
+                },
+                "kind": "constructor"
+            },
+            {
+                "input": {
+                    "calldata": "dffeadd0",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "0000000000000000000000000000000000000000000000000000000000000001",
+                    "status": "success"
+                }
+            }
+        ]
+    }
+}

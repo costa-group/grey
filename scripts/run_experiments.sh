@@ -17,7 +17,7 @@ fi
 # Recorrer todos los subdirectorios y buscar archivos .yul
 # find "$DIRECTORIO_BASE" -type f -name "*.sol" | while read -r yul_file; do
 
-start=$(date +%s.%N)
+# start=$(date +%s.%N)
 
 find "$DIRECTORIO_BASE" -type f -name "*standard_input.json" | while read -r yul_file; do
 
@@ -28,10 +28,25 @@ find "$DIRECTORIO_BASE" -type f -name "*standard_input.json" | while read -r yul
 
     echo "Procesando archivo: $yul_file"
 
+    pushd $yul_dir
+    start_solc=$(gdate +%s.%N)
     $SOLC_PATH "$yul_file" --standard-json &> "$yul_dir/$yul_base.output"
+    end_solc=$(gdate +%s.%N)
+    echo "$start_solc"
+    echo "$end_solc"
+    elapsed_solc=$(echo "$end_solc - $start_solc" | bc)
+    echo "TIME SOLC $yul_file : $elapsed_solc"
     
-    python3 $GREY_PATH -s "$yul_file" -g -v -if standard-json -solc $SOLC_PATH -o "/tmp/$yul_base" &> "$yul_dir/$yul_base.log"
+    echo "$SOLC_PATH $yul_file --standard-json &> $yul_dir/$yul_base.output"
 
+    start=$(gdate +%s.%N)
+    python3 $GREY_PATH -s "$yul_file" -g -v -if standard-json -solc $SOLC_PATH -o "/tmp/$yul_base" &> "$yul_dir/$yul_base.log"
+    end=$(gdate +%s.%N)
+    popd
+    elapsed=$(echo "$end - $start" | bc)
+    echo "TIME GREY $yul_file : $elapsed"
+    
+    
     echo "python3 $GREY_PATH -s $yul_file -g -v -if standard-json -solc $SOLC_PATH -o /tmp/$yul_base"
 
     cp "/tmp/$yul_base"/*/*_asm.json "$yul_dir/"
@@ -49,9 +64,11 @@ find "$DIRECTORIO_BASE" -type f -name "*standard_input.json" | while read -r yul
 
         $TESTRUNNER_PATH  $EVMONE_LIB $yul_dir/test_grey $yul_dir/resultGrey.json
 
-        if diff $yul_dir/resultOriginal.json $yul_dir/resultGrey.json > /dev/null; then
+        python3 compare_outputs.py $yul_dir/resultOriginal.json $yul_dir/resultGrey.json $yul_file
+        RES=$?
+        # if diff $yul_dir/resultOriginal.json $yul_dir/resultGrey.json > /dev/null; then
+        if [ $RES -eq 0 ]; then
             echo "[RES]: Test passed."
-
             echo "python3 count_num_ins.py $yul_dir/$yul_base.output $yul_dir/$yul_base.log"
             python3 count_num_ins.py "$yul_dir/$yul_base.output" "$yul_dir/$yul_base.log"
             
@@ -69,7 +86,7 @@ find "$DIRECTORIO_BASE" -type f -name "*standard_input.json" | while read -r yul
     
 done
 
-end=$(date +%s.%N)
-elapsed=$(echo "$end - $start" | bc)
+# end=$(date +%s.%N)
+# elapsed=$(echo "$end - $start" | bc)
 echo "Procesamiento completado."
-echo "Time passed: $elapsed seconds."
+# echo "Time passed: $elapsed seconds."

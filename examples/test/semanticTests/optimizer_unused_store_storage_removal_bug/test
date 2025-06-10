@@ -1,0 +1,37 @@
+{
+    "semanticTests/optimizer/unused_store_storage_removal_bug.sol": {
+        "bytecode": "608080604052346013576072908160188239f35b5f80fdfe608060405260043610156010575f80fd5b5f3560e01c80630c55699c14604e576326121ff014602c575f80fd5b34604a575f366003190112604a5760015f5560446067565b60025f55005b5f80fd5b34604a575f366003190112604a575f5460805260206080f35b60043611607057005b56",
+        "contract": ":C",
+        "tests": [
+            {
+                "input": {
+                    "calldata": "",
+                    "value": "0"
+                },
+                "kind": "constructor"
+            },
+            {
+                "input": {
+                    "calldata": "26121ff0",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "",
+                    "status": "success"
+                }
+            },
+            {
+                "input": {
+                    "calldata": "0c55699c",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "0000000000000000000000000000000000000000000000000000000000000001",
+                    "status": "success"
+                }
+            }
+        ]
+    }
+}

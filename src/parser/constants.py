@@ -1,7 +1,7 @@
 split_block = {'calldatacopy', 'create', 'codecopy', 'call', 'log4', 'gas', 'delegatecall', 'extcodecopy', 'create2',
                'assignimmutable', 'returndatacopy', 'log2', 'log1', 'log3', 'log0', 'datacopy', 'staticcall','tstore','tload','mcopy'}
 
-terminal_ops = {"functionReturn", "functionReturn", "return", "revert"}
+terminal_ops = {"functionReturn", "functionReturn", "return", "revert", "stop", "selfdestruct"}
 
 # split_block = {"ASSIGNIMMUTABLE", "GAS", "MEMORYGUARD", "DATACOPY"}
 

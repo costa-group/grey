@@ -1,0 +1,48 @@
+{
+    "semanticTests/fallback/inherited.sol": {
+        "bytecode": "608080604052346013576042908160188239f35b5f80fdfe6080806040526004361015601d575b503460195760015f55005b5f80fd5b5f3560e01c633bc5de3003600e57346019575f3660031901126019576020905f548152f3",
+        "contract": ":B",
+        "tests": [
+            {
+                "input": {
+                    "calldata": "",
+                    "value": "0"
+                },
+                "kind": "constructor"
+            },
+            {
+                "input": {
+                    "calldata": "3bc5de30",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "0000000000000000000000000000000000000000000000000000000000000000",
+                    "status": "success"
+                }
+            },
+            {
+                "input": {
+                    "calldata": "000000000000000000000000000000000000000000000000000000000000002a",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "",
+                    "status": "success"
+                }
+            },
+            {
+                "input": {
+                    "calldata": "3bc5de30",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "0000000000000000000000000000000000000000000000000000000000000001",
+                    "status": "success"
+                }
+            }
+        ]
+    }
+}

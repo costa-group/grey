@@ -1,0 +1,37 @@
+{
+    "semanticTests/memoryManagement/static_memory_array_allocation.sol": {
+        "bytecode": "6080806040523460135760db908160188239f35b5f80fdfe608060405260043610156010575f80fd5b5f3560e01c8063d6b698021460625763f63b44ac14602c575f80fd5b34605e575f366003190112605e5760406083565b5060206056604051604e6083565b5060405160bb565b604051908152f35b5f80fd5b34605e575f366003190112605e5760766083565b50602060566040518060bb565b6040519061028082810167ffffffffffffffff81118482101760a757604052368337565b634e487b7160e01b5f52604160045260245ffd5b9190820391821160c757565b634e487b7160e01b5f52601160045260245ffd",
+        "contract": ":C",
+        "tests": [
+            {
+                "input": {
+                    "calldata": "",
+                    "value": "0"
+                },
+                "kind": "constructor"
+            },
+            {
+                "input": {
+                    "calldata": "d6b69802",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "0000000000000000000000000000000000000000000000000000000000000000",
+                    "status": "success"
+                }
+            },
+            {
+                "input": {
+                    "calldata": "f63b44ac",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "0000000000000000000000000000000000000000000000000000000000000280",
+                    "status": "success"
+                }
+            }
+        ]
+    }
+}

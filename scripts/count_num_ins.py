@@ -18,7 +18,7 @@ import re
 import sys
 import json as js
 from typing import Dict, List
-
+from pathlib import Path
 
 # Diccionario de las instrucciones EVM
 instructions = {
@@ -155,6 +155,23 @@ def count_evm_instructions(bytecode: str) -> int:
     return count
 
 
+def count_bytes(bytecode:str) -> int:
+    """
+    Cuenta el numero de bytes en el bytecode de un archivo EVM.
+
+    :param bytecode: Bytecode hexadecimal como una cadena.
+    :return: Número total de bytes.
+    """
+    i = len(bytecode)
+
+    assert(i%2 == 0) #It should have an odd number of elements
+    
+    count = i//2
+    
+    return count
+
+
+
 def remove_auxdata(evm: str):
     """
     Removes the .auxdata introduced by grey. It is always of the same form
@@ -169,6 +186,13 @@ def count_num_ins(evm: str):
     """
     code_regions = split_evm_instructions(evm)
     return sum(count_evm_instructions(remove_auxdata(region)) for region in code_regions)
+
+def count_num_bytes(evm: str):
+    """
+    Assumes the evm bytecode has no CBOR metadata appended
+    """
+    code_regions = split_evm_instructions(evm)
+    return sum(count_bytes(remove_auxdata(region)) for region in code_regions)
 
 
 def execute_script():
@@ -185,23 +209,29 @@ def execute_script():
         evm = evm_opt[c]
 
         opt = count_num_ins(evm.strip())
+        opt_bytes = count_num_bytes(evm.strip())
 
+        
         evm_dict = js.loads(evm_origin)
         contracts = evm_dict["contracts"]
 
         origin_ins = 0
-
+        origin_bytes = 0
+        
         for cc in contracts:
             json = contracts[cc]
 
             if c.strip() in json:
                 bytecode = json[c.strip()]["evm"]["bytecode"]["object"]
                 origin_ins += count_num_ins(bytecode.strip())
-
+                origin_bytes += count_num_bytes(bytecode.strip())
+                
     if origin_ins != 0:
         print(log_opt_file + " ORIGIN NUM INS: " + str(origin_ins))
         print(log_opt_file + " OPT NUM INS: " + str(opt))
 
+        print(log_opt_file + " ORIGIN NUM BYTES: " + str(origin_bytes))
+        print(log_opt_file + " OPT NUM BYTES: " + str(opt_bytes))
 
 def instrs_from_opcodes(origin_file, log_opt_file):
     with open(origin_file, 'r') as f:
@@ -214,11 +244,12 @@ def instrs_from_opcodes(origin_file, log_opt_file):
         evm = evm_opt[c]
 
         opt = count_num_ins(evm.strip())
-        
+        opt_bytes = count_num_bytes(evm.strip())
+
         evm_dict = js.loads(evm_origin)
         contracts = evm_dict["contracts"]
 
-        origin_ins = 0
+        origin_ins, origin_bytes = 0, 0
 
         for cc in contracts:
             json = contracts[cc]
@@ -226,9 +257,11 @@ def instrs_from_opcodes(origin_file, log_opt_file):
             if c.strip() in json:
                 bytecode = json[c.strip()]["evm"]["bytecode"]["object"]
                 origin_ins += count_num_ins(bytecode.strip())
+                origin_bytes += count_num_bytes(bytecode.strip())
 
-        instrs_list.append({"file": origin_file.stem, "name": c,
-                            "original": origin_ins, "optimized": opt})
+        instrs_list.append({"file": origin_file, "name": c,
+                            "n_instrs_original": origin_ins, "n_instrs_grey": opt,
+                            "bytes_original": origin_bytes, "bytes_grey": opt_bytes})
         
     return instrs_list
 

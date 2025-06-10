@@ -1,0 +1,15 @@
+{
+    "semanticTests/inlineAssembly/transient_storage_creation.sol": {
+        "bytecode": "60808060405234603357602a5f5d602a5f5c03601f576003908160388239f35b634e487b7160e01b5f52600160045260245ffd5b5f80fdfe5f80fd",
+        "contract": ":C",
+        "tests": [
+            {
+                "input": {
+                    "calldata": "",
+                    "value": "0"
+                },
+                "kind": "constructor"
+            }
+        ]
+    }
+}

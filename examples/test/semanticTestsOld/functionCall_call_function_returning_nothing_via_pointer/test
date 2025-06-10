@@ -1,0 +1,37 @@
+{
+    "semanticTests/functionCall/call_function_returning_nothing_via_pointer.sol": {
+        "bytecode": "60808060405234601b5760ff195f54165f55609d908160208239f35b5f80fdfe608060405260043610156010575f80fd5b5f3560e01c806326121ff0146075578063890eba681460565763a5850475146036575f80fd5b346052575f3660031901126052575f805460ff19166001179055005b5f80fd5b346052575f366003190112605257602060ff5f54166040519015158152f35b346052575f3660031901126052575f805460ff19166001908117909155604051908152602090f3",
+        "contract": ":test",
+        "tests": [
+            {
+                "input": {
+                    "calldata": "",
+                    "value": "0"
+                },
+                "kind": "constructor"
+            },
+            {
+                "input": {
+                    "calldata": "26121ff0",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "0000000000000000000000000000000000000000000000000000000000000001",
+                    "status": "success"
+                }
+            },
+            {
+                "input": {
+                    "calldata": "890eba68",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "0000000000000000000000000000000000000000000000000000000000000001",
+                    "status": "success"
+                }
+            }
+        ]
+    }
+}

@@ -1,0 +1,48 @@
+{
+    "semanticTests/builtinFunctions/ripemd160_packed.sol": {
+        "bytecode": "6080806040523460135760de908160188239f35b5f80fdfe60806004361015600d575f80fd5b5f3560e01c631c008df914601f575f80fd5b3460da57602036600319011260da576004356020820190600160fb1b8252806021840152600160f81b6041840152604483015261010060648301526064825260a0820182811067ffffffffffffffff82111760c65760209260a05f938360405282518091855e8201918482840152609f19920301019060035afa1560bb5760206bffffffffffffffffffffffff195f5160601b16604051908152f35b6040513d5f823e3d90fd5b634e487b7160e01b5f52604160045260245ffd5b5f80fd",
+        "contract": ":C",
+        "tests": [
+            {
+                "input": {
+                    "calldata": "",
+                    "value": "0"
+                },
+                "kind": "constructor"
+            },
+            {
+                "input": {
+                    "calldata": "1c008df90000000000000000000000000000000000000000000000000000000000000004",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "f93175303eba2a7b372174fc9330237f5ad202fc000000000000000000000000",
+                    "status": "success"
+                }
+            },
+            {
+                "input": {
+                    "calldata": "1c008df90000000000000000000000000000000000000000000000000000000000000005",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "04f4fc112e2bfbe0d38f896a46629e08e2fcfad5000000000000000000000000",
+                    "status": "success"
+                }
+            },
+            {
+                "input": {
+                    "calldata": "1c008df9ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "c0a2e4b1f3ff766a9a0089e7a410391730872495000000000000000000000000",
+                    "status": "success"
+                }
+            }
+        ]
+    }
+}

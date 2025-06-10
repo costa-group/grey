@@ -1,0 +1,37 @@
+{
+    "semanticTests/errors/require_error_uint256.sol": {
+        "bytecode": "608080604052346013576074908160188239f35b5f80fdfe608060405260043610156010575f80fd5b5f3560e01c806326121ff01460525763e2179b8e14602c575f80fd5b34604e575f366003190112604e5763110b365560e01b5f52600260045260245ffd5b5f80fd5b34604e575f366003190112604e5763110b365560e01b5f52600160045260245ffd",
+        "contract": ":C",
+        "tests": [
+            {
+                "input": {
+                    "calldata": "",
+                    "value": "0"
+                },
+                "kind": "constructor"
+            },
+            {
+                "input": {
+                    "calldata": "26121ff0",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "110b36550000000000000000000000000000000000000000000000000000000000000001",
+                    "status": "failure"
+                }
+            },
+            {
+                "input": {
+                    "calldata": "e2179b8e",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "110b36550000000000000000000000000000000000000000000000000000000000000002",
+                    "status": "failure"
+                }
+            }
+        ]
+    }
+}

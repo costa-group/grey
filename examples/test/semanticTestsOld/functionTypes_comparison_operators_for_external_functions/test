@@ -1,0 +1,37 @@
+{
+    "semanticTests/functionTypes/comparison_operators_for_external_functions.sol": {
+        "bytecode": "6080806040523460135760c0908160188239f35b5f80fdfe608060405260043610156010575f80fd5b5f3560e01c806326121ff01460aa57806358f8445b146089578063b8c9d365146054578063d354211a146058578063e2179b8e1460545763e5aa3d58146054575f80fd5b60aa565b346085575f366003190112608557602060405160018152f35b634e487b7160e01b5f52600160045260245ffd5b5f80fd5b346085575f366003190112608557609f600160ba565b602060405160018152f35b346085575f366003190112608557005b1560715756",
+        "contract": ":C",
+        "tests": [
+            {
+                "input": {
+                    "calldata": "",
+                    "value": "0"
+                },
+                "kind": "constructor"
+            },
+            {
+                "input": {
+                    "calldata": "d354211a",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "0000000000000000000000000000000000000000000000000000000000000001",
+                    "status": "success"
+                }
+            },
+            {
+                "input": {
+                    "calldata": "58f8445b",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "0000000000000000000000000000000000000000000000000000000000000001",
+                    "status": "success"
+                }
+            }
+        ]
+    }
+}

@@ -1,0 +1,37 @@
+{
+    "semanticTests/functionCall/value_test.sol": {
+        "bytecode": "608080604052346013576039908160188239f35b5f80fdfe60808060405260043610156011575f80fd5b5f3560e01c6326121ff0146023575f80fd5b5f366003190112603557602090348152f35b5f80fd",
+        "contract": ":C",
+        "tests": [
+            {
+                "input": {
+                    "calldata": "",
+                    "value": "0"
+                },
+                "kind": "constructor"
+            },
+            {
+                "input": {
+                    "calldata": "26121ff0",
+                    "value": "1000000000000000000"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "0000000000000000000000000000000000000000000000000de0b6b3a7640000",
+                    "status": "success"
+                }
+            },
+            {
+                "input": {
+                    "calldata": "26121ff0",
+                    "value": "1"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "0000000000000000000000000000000000000000000000000000000000000001",
+                    "status": "success"
+                }
+            }
+        ]
+    }
+}

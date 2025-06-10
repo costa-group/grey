@@ -1,0 +1,26 @@
+{
+    "semanticTests/freeFunctions/free_namesake_contract_function.sol": {
+        "bytecode": "608080604052346013576035908160188239f35b5f80fdfe6004361015600b575f80fd5b5f3560e01c6326121ff014601d575f80fd5b34602d575f366003190112156031575b5f80fd5b603156",
+        "contract": ":C",
+        "tests": [
+            {
+                "input": {
+                    "calldata": "",
+                    "value": "0"
+                },
+                "kind": "constructor"
+            },
+            {
+                "input": {
+                    "calldata": "26121ff0",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "",
+                    "status": "failure"
+                }
+            }
+        ]
+    }
+}

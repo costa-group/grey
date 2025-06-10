@@ -1,0 +1,37 @@
+{
+    "semanticTests/inlineAssembly/keccak_yul_optimization.sol": {
+        "bytecode": "6080806040523460135760bd908160188239f35b5f80fdfe608060405260043610156010575f80fd5b5f3560e01c806326121ff01460305763e2179b8e14602c575f80fd5b6080565b34607c575f366003190112607c575f5f5b601481106052575060805260206080f35b7fcdb56c384a9682c600315e3470157a4cf7638d0d33e9dae5c40ffd2644fc5a8091506001016041565b5f80fd5b34607c575f366003190112607c575f1960205260206040517fcdb56c384a9682c600315e3470157a4cf7638d0d33e9dae5c40ffd2644fc5a808152f3",
+        "contract": ":C",
+        "tests": [
+            {
+                "input": {
+                    "calldata": "",
+                    "value": "0"
+                },
+                "kind": "constructor"
+            },
+            {
+                "input": {
+                    "calldata": "26121ff0",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "cdb56c384a9682c600315e3470157a4cf7638d0d33e9dae5c40ffd2644fc5a80",
+                    "status": "success"
+                }
+            },
+            {
+                "input": {
+                    "calldata": "e2179b8e",
+                    "value": "0"
+                },
+                "kind": "call",
+                "output": {
+                    "returndata": "cdb56c384a9682c600315e3470157a4cf7638d0d33e9dae5c40ffd2644fc5a80",
+                    "status": "success"
+                }
+            }
+        ]
+    }
+}

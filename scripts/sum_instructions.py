@@ -1,3 +1,6 @@
+import compare_blocks
+
+
 def cuartiles(original, optimizado, res):
     original25 = original+original*0.25
     original50 = original+original*0.5
@@ -50,6 +53,21 @@ optimizado_peor = 0
 cuartiles_res = [0,0,0,0]
 
 worse_files = {}
+
+total_sol_terminal = 0
+total_sol_pops = 0
+all_pops_sol = 0
+
+total_origin_terminal = 0
+total_origin_pops = 0
+all_pops_origin = 0
+
+total_ins_terminal_sol = 0
+total_ins_terminal_opt = 0
+
+total_blocks_solc = 0
+total_blocks_opt = 0
+
 for i in range(len(origin_number)):
     original = origin_number[i]
     optimizado = opt_number[i]
@@ -64,8 +82,29 @@ for i in range(len(origin_number)):
     else:
 
         fname = f_names[i]
+
+        fname_without_ext = fname.rstrip("log")
+
+        print("CHECK: " + str((fname_without_ext+"output", fname_without_ext+"log")))
+   
+        
+        tsol, pops_sol, allpops, torigin, pops_origin , allpops_orig, inst_opt, inst_sol, blocks_solc, blocks_opt = compare_blocks.execute_function(fname_without_ext+"output", fname_without_ext+"log")
+
+        print("CHECK: "+ str((torigin, pops_origin , allpops_orig, inst_sol)))
+        
+        total_sol_terminal+=tsol
+        total_sol_pops+=pops_sol
+        all_pops_sol+= allpops
+        total_origin_terminal+=torigin
+        total_origin_pops+=pops_origin
+        all_pops_origin+=allpops_orig
+        total_ins_terminal_sol+=inst_sol
+        total_ins_terminal_opt+=inst_opt
+        total_blocks_solc+=blocks_solc
+        total_blocks_opt+=blocks_opt
+        
         worse_files[fname] = (original, optimizado)
-        print("PAREJA: ("+str(original)+","+str(optimizado)+")")
+        # print("PAREJA: ("+str(original)+","+str(optimizado)+")")
         total_peor+= original
         optimizado_peor+=optimizado
         cuartiles(original, optimizado, cuartiles_res)
@@ -75,9 +114,30 @@ s = ""
 for k,v in worse_files.items():
     s+=k+":"+str(v)+"\n"
     
-worse_file = open("worse_contracts.txt", "w")
+worse_file = open("worse_contracts_ins.txt", "w")
 worse_file.write(s)
 worse_file.close()
+
+print()
+print(" ===== OTHER STATISTICS =====")
+
+print("TOTAL TERMINAL BLOCKS IN GREY: "+str(total_sol_terminal))
+print("TOTAL POPS IN TERMINAL GREY: "+str(total_sol_pops))
+
+print("TOTAL TERMINAL BLOCKS IN SOLC: "+str(total_origin_terminal))
+print("TOTAL POPS IN TERMINAL SOLC: "+str(total_origin_pops))
+
+print("TOTAL POPS IN GREY: "+str(all_pops_sol))
+print("TOTAL POPS IN SOLC: "+str(all_pops_origin))
+
+print("TOTAL INS TERMINAL BLOCKS IN GREY: "+str(total_ins_terminal_opt))
+print("TOTAL INS TERMINAL BLOCKS IN SOLC: "+str(total_ins_terminal_sol))
+print("TOTAL BLOCKS IN GREY: "+str(total_blocks_opt))
+print("TOTAL BLOCKS IN SOLC: "+str(total_blocks_solc)) 
+print()
+
+print(" ===== NUM INSTRUCTIONS STATISTICS ===== ")
+print()
 
 # print("CASOS EN EL QUE SOMOS MEJOR: "+str(menor))
 print("CASOS EN LOS QUE SOMOS IGUALES: "+str(igual))
