@@ -94,30 +94,8 @@ def analyze_single_cfg(cfg: CFG, final_dir: Path, args: argparse.Namespace, time
     y = dtimer()
 
     print("Layout generation: " + str(y - x) + "s")
-    times[3] += (y - x)
-
-    x = dtimer()
-    cfg_spec_ids(cfg, final_dir.joinpath("statistics.csv"), args.visualize)
-    y = dtimer()
-
-    print("Greedy algorithm: " + str(y - x) + "s")
-    times[4] += (y - x)
-
-    if args.visualize:
-        asm_code = final_dir.joinpath("asm")
-        asm_code.mkdir(exist_ok=True, parents=True)
-    else:
-        asm_code = None
-
-    x = dtimer()
-    json_asm_contract = asm_from_cfg(cfg, tags_dict, args.source, asm_code)
-    y = dtimer()
-
-    print("ASM generation: " + str(y - x) + "s")
-    times[5] += (y - x)
 
     return json_asm_contract
-
 
 def main(args):
     print("Grey Main")

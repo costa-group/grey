@@ -1,0 +1,160 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "c1 = push[0x00]\nc0 = push[0x40]\nv0 = push[128]\nmstore(c0,v0)\nv1 = address\nv2 = pushimmutable[library_deploy_address]\nv3 = eq(v2,v1)\nv4 = iszero(v3)\nrevert(c1,c1)",
+    "src_ws": [],
+    "tgt_ws": [
+        "c1",
+        "c1"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH0_0",
+            "opcode": "5f",
+            "disasm": "PUSH0",
+            "inpt_sk": [],
+            "value": [
+                0
+            ],
+            "outpt_sk": [
+                "c1"
+            ],
+            "gas": 2,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "PUSH_1",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                64
+            ],
+            "outpt_sk": [
+                "c0"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "PUSH_2",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                296
+            ],
+            "outpt_sk": [
+                "v0"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "MSTORE_0",
+            "opcode": "52",
+            "disasm": "MSTORE",
+            "inpt_sk": [
+                "c0",
+                "v0"
+            ],
+            "outpt_sk": [],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": true,
+            "size": 1
+        },
+        {
+            "id": "ADDRESS_0",
+            "opcode": "30",
+            "disasm": "ADDRESS",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "v1"
+            ],
+            "gas": 2,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSHIMMUTABLE_0",
+            "opcode": "00",
+            "disasm": "PUSHIMMUTABLE",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "v2"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 33,
+            "value": [
+                "library_deploy_address"
+            ]
+        },
+        {
+            "id": "EQ_0",
+            "opcode": "14",
+            "disasm": "EQ",
+            "inpt_sk": [
+                "v2",
+                "v1"
+            ],
+            "outpt_sk": [
+                "v3"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "ISZERO_0",
+            "opcode": "15",
+            "disasm": "ISZERO",
+            "inpt_sk": [
+                "v3"
+            ],
+            "outpt_sk": [
+                "v4"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        }
+    ],
+    "variables": [
+        "v2",
+        "v4",
+        "v3",
+        "c1",
+        "v0",
+        "c0",
+        "v1"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 0,
+    "max_progr_len": 0,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "dependencies": [],
+    "name": "AddressUpgradeable_949_deployed_Block0_split_0"
+}

@@ -580,9 +580,9 @@ class CFGBlock:
             json.dump(spec, f, indent=4)
 
         sto_deps, mem_deps = self._process_dependences(self.instructions_to_synthesize, map_positions)
-        # We have to filter the elements that are not being used
-        spec["storage_dependences"] = [dep for dep in sto_deps if all(element not in unused_ids for element in dep)]
-        spec["memory_dependences"] = [dep for dep in mem_deps if all(element not in unused_ids for element in dep)]
+        spec["storage_dependences"] = sto_deps
+        spec["memory_dependences"] = mem_deps
+        spec["dependencies"] = [*sto_deps, *mem_deps]
 
         # Just to print information if it is not a jump
         if not self._jump_type in ["conditional", "unconditional"]:

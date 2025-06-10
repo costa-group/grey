@@ -1,0 +1,145 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "c535 = push[0x00]\nc534 = push[0x04]\nv165_f482_0 = add(c534,c535)\nv84_f313_1_f482_0 = calldataload(v165_f482_0)\nv2970_f313_1_f482_0 = eq(v84_f313_1_f482_0,v84_f313_1_f482_0)\nv2971_f313_1_f482_0 = iszero(v2970_f313_1_f482_0)\n189 = PUSH [tag]\nJUMPI(189,v2971_f313_1_f482_0)",
+    "src_ws": [],
+    "tgt_ws": [
+        "189",
+        "v2971_f313_1_f482_0",
+        "v84_f313_1_f482_0"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH0_0",
+            "opcode": "5f",
+            "disasm": "PUSH0",
+            "inpt_sk": [],
+            "value": [
+                0
+            ],
+            "outpt_sk": [
+                "c535"
+            ],
+            "gas": 2,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "PUSH_1",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                4
+            ],
+            "outpt_sk": [
+                "c534"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "ADD_0",
+            "opcode": "01",
+            "disasm": "ADD",
+            "inpt_sk": [
+                "c534",
+                "c535"
+            ],
+            "outpt_sk": [
+                "v165_f482_0"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "CALLDATALOAD_0",
+            "opcode": "35",
+            "disasm": "CALLDATALOAD",
+            "inpt_sk": [
+                "v165_f482_0"
+            ],
+            "outpt_sk": [
+                "v84_f313_1_f482_0"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "EQ_0",
+            "opcode": "14",
+            "disasm": "EQ",
+            "inpt_sk": [
+                "v84_f313_1_f482_0",
+                "v84_f313_1_f482_0"
+            ],
+            "outpt_sk": [
+                "v2970_f313_1_f482_0"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "ISZERO_0",
+            "opcode": "15",
+            "disasm": "ISZERO",
+            "inpt_sk": [
+                "v2970_f313_1_f482_0"
+            ],
+            "outpt_sk": [
+                "v2971_f313_1_f482_0"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "189"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "v2971_f313_1_f482_0",
+        "v2970_f313_1_f482_0",
+        "189",
+        "v84_f313_1_f482_0",
+        "c534",
+        "v165_f482_0",
+        "c535"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 0,
+    "max_progr_len": 0,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "dependencies": [],
+    "name": "abi_decode_tuple_t_bytes32t_address_Block2_split_0_copy_0"
+}

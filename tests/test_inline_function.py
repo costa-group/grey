@@ -1,10 +1,10 @@
-from hypothesis import given, strategies as st
+from hypothesis import given
 from parser.cfg_instruction import CFGInstruction
 from parser.cfg_block import CFGBlock
 from parser.cfg_block_list import CFGBlockList
 from parser.cfg_function import CFGFunction
 from parser.cfg_object import CFGObject
-from parser.cfg_block_actions.inline_function import InlineFunction
+from cfg_methods.cfg_block_actions.inline_function import InlineFunction
 from utils import cfg_instruction_list
 
 
@@ -21,7 +21,7 @@ class TestInlineFunction:
         cfg_block_5 = CFGBlock("block_5", instructions[5*split_list_index:6*split_list_index], "terminal", dict())
         cfg_block_6 = CFGBlock("block_6", instructions[6*split_list_index:7*split_list_index], "conditional", dict())
 
-        function_cfg_block_list = CFGBlockList()
+        function_cfg_block_list = CFGBlockList("f")
         function_cfg_block_list.add_block(cfg_block_0)
         function_cfg_block_list.add_block(cfg_block_1)
         function_cfg_block_list.add_block(cfg_block_2)

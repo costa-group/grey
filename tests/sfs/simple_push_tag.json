@@ -1,0 +1,157 @@
+{
+    "name": "simple_push_tag.json",
+    "original_instrs": "",
+    "yul_expressions": "c2 = push[0x04]\nc1 = push[0x80]\nc0 = push[0x40]\nmstore(c0,c1)\nv0 = calldatasize\nv1 = lt(v0,c2)\nv2 = iszero(v1)\n1 = PUSH [tag]\nJUMPI(1,v2)",
+    "src_ws": [],
+    "tgt_ws": [
+        "1",
+        "v2"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH_0",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                4
+            ],
+            "outpt_sk": [
+                "c2"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "PUSH_1",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                128
+            ],
+            "outpt_sk": [
+                "c1"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "PUSH_2",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                64
+            ],
+            "outpt_sk": [
+                "c0"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "MSTORE_0",
+            "opcode": "52",
+            "disasm": "MSTORE",
+            "inpt_sk": [
+                "c0",
+                "c1"
+            ],
+            "outpt_sk": [],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": true,
+            "size": 1
+        },
+        {
+            "id": "CALLDATASIZE_0",
+            "opcode": "36",
+            "disasm": "CALLDATASIZE",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "v0"
+            ],
+            "gas": 2,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "LT_0",
+            "opcode": "10",
+            "disasm": "LT",
+            "inpt_sk": [
+                "v0",
+                "c2"
+            ],
+            "outpt_sk": [
+                "v1"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "ISZERO_0",
+            "opcode": "15",
+            "disasm": "ISZERO",
+            "inpt_sk": [
+                "v1"
+            ],
+            "outpt_sk": [
+                "v2"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "1"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "c0",
+        "v2",
+        "c2",
+        "c1",
+        "1",
+        "v1",
+        "v0"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 0,
+    "max_progr_len": 0,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "dependencies": []
+}

@@ -1,0 +1,78 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "c3 = push[0x15f6476f]\nv8 = eq(v2772,c3)\n3 = PUSH [tag]\nJUMPI(3,v8)",
+    "src_ws": [
+        "105",
+        "v1453"
+    ],
+    "tgt_ws": [
+        "3",
+        "v8",
+        "v2772"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH_0",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                368461679
+            ],
+            "outpt_sk": [
+                "c3"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 5
+        },
+        {
+            "id": "EQ_0",
+            "opcode": "14",
+            "disasm": "EQ",
+            "inpt_sk": [
+                "v2772",
+                "c3"
+            ],
+            "outpt_sk": [
+                "v8"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "3"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "3",
+        "v8",
+        "c3",
+        "v2772"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 0,
+    "max_progr_len": 0,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "dependencies": []
+}
