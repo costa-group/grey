@@ -947,9 +947,9 @@ class SMSgreedy:
         # this element)
         max_not_solved_pos = cstate.idx_wrt_cstack(cstate.max_solved - 1)
 
-        if max_not_solved_pos > STACK_DEPTH:
+        if max_not_solved_pos >= STACK_DEPTH:
             # We try to compute the corresponding element in the deepest position
-            return self._final_stack[cstate.max_solved - 1], "deep", None
+            return None
 
         elif STACK_DEPTH - 2 <= max_not_solved_pos <= STACK_DEPTH:
             # Returns either the instruction (if not computed yet) or the stack variable
