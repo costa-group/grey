@@ -86,16 +86,38 @@ def analyze_single_cfg(cfg: CFG, final_dir: Path, args: argparse.Namespace, time
     tags_dict = preprocess_cfg(cfg, dot_file_dir, args.visualize)
     y = dtimer()
 
-    print("Preprocessing CFG: "+str(y - x)+"s")
+    print("Preprocessing CFG: " + str(y - x) + "s")
     times[2] += (y - x)
-    
+
     x = dtimer()
     layout_generation(cfg, final_dir.joinpath("stack_layouts"))
     y = dtimer()
 
     print("Layout generation: " + str(y - x) + "s")
+    times[3] += (y - x)
+
+    x = dtimer()
+    cfg_spec_ids(cfg, final_dir.joinpath("statistics.csv"), args.visualize)
+    y = dtimer()
+
+    print("Greedy algorithm: " + str(y - x) + "s")
+    times[4] += (y - x)
+
+    if args.visualize:
+        asm_code = final_dir.joinpath("asm")
+        asm_code.mkdir(exist_ok=True, parents=True)
+    else:
+        asm_code = None
+
+    x = dtimer()
+    json_asm_contract = asm_from_cfg(cfg, tags_dict, args.source, asm_code)
+    y = dtimer()
+
+    print("ASM generation: " + str(y - x) + "s")
+    times[5] += (y - x)
 
     return json_asm_contract
+
 
 def main(args):
     print("Grey Main")
@@ -152,9 +174,9 @@ def main(args):
 
         else:
             synt_opcodes_stdjson = SolidityCompilation.importer_assembly_standard_json_file(std_assembly_path,
-                                                                                           deployed_contract=cfg_name,
-                                                                                           solc_executable=args.solc_executable,
-                                                                                           selected_result="opcodes")
+                                                                                            deployed_contract=cfg_name,
+                                                                                            solc_executable=args.solc_executable,
+                                                                                            selected_result="opcodes")
 
             asm_contracts_after_importer[cfg_name]["asm"] = asm_from_opcodes(synt_opcodes_stdjson)
 
