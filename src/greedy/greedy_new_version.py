@@ -14,7 +14,7 @@ from enum import Enum, unique
 import networkx as nx
 # from analysis.greedy_validation import check_execution_from_ids
 from global_params.types import var_id_T, instr_id_T, instr_JSON_T, SMS_T
-from utils import compute_max_n_elements, compute_preffix_computation
+from greedy.utils import compute_max_n_elements, compute_preffix_computation
 
 # Specific type to identify which positions corresponds to the ones
 # in the current and final stacks
