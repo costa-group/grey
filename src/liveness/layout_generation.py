@@ -19,7 +19,7 @@ from parser.cfg import CFG
 from parser.cfg_block_list import CFGBlockList
 from parser.cfg_block import CFGBlock
 from analysis.abstract_state import digraph_from_block_info
-from graphs.algorithms import condense_to_dag, information_on_graph
+from graphs.algorithms import condense_to_dag, information_on_graph, compute_dominance_tree
 from liveness.liveness_analysis import LivenessAnalysisInfoSSA, construct_analysis_info, \
     perform_liveness_analysis_from_cfg_info
 from liveness.utils import functions_inputs_from_components
@@ -70,9 +70,7 @@ class LayoutGeneration:
         _tree_dir = name.joinpath("tree")
         _tree_dir.mkdir(exist_ok=True, parents=True)
 
-        immediate_dominators = nx.immediate_dominators(self._cfg_graph, self._start)
-        self._dominance_tree = nx.DiGraph([v, u] for u, v in immediate_dominators.items() if u != self._start)
-        self._dominance_tree.add_node(self._start)
+        self._dominance_tree = compute_dominance_tree(self._cfg_graph, self._start)
 
         nx.nx_agraph.write_dot(self._dominance_tree, _tree_dir.joinpath(f"{object_id}.dot"))
         self._block_order = list(nx.topological_sort(self._dominance_tree))

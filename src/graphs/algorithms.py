@@ -49,3 +49,15 @@ def information_on_graph(g: Any, new_name_dict: Dict[str, str]):
     for block_name, information_repr in new_name_dict.items():
         renaming_dict[block_name] = information_repr
     return nx.relabel_nodes(g, renaming_dict)
+
+
+# Dominance tree
+
+def compute_dominance_tree(cfg_graph: nx.DiGraph, start) -> nx.DiGraph:
+    """
+    Function to compute the dominance tree
+    """
+    immediate_dominators = nx.immediate_dominators(cfg_graph, start)
+    dominance_tree = nx.DiGraph([v, u] for u, v in immediate_dominators.items() if u != start)
+    dominance_tree.add_node(start)
+    return dominance_tree
