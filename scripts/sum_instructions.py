@@ -90,7 +90,7 @@ for i in range(len(origin_number)):
         
         tsol, pops_sol, allpops, torigin, pops_origin , allpops_orig, inst_opt, inst_sol, blocks_solc, blocks_opt = compare_blocks.execute_function(fname_without_ext+"output", fname_without_ext+"log")
 
-        print("CHECK: "+ str((torigin, pops_origin , allpops_orig, inst_sol)))
+        print("CHECK: "+ str((torigin, pops_origin , allpops_orig, inst_sol, blocks_solc, blocks_opt)))
         
         total_sol_terminal+=tsol
         total_sol_pops+=pops_sol

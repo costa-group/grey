@@ -188,7 +188,7 @@ def count_instructions(blocks, ins):
     total_num_ins = 0
 
     for bl in blocks:
-        num_ins = list(filter(lambda x: x.find(ins)!= -1, block))
+        num_ins = list(filter(lambda x: x.find(ins)!= -1, bl))
         total_num_ins += len(num_ins)
 
     return total_num_ins
