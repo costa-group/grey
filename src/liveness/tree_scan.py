@@ -82,25 +82,16 @@ def compute_block2var_can_be_stored(dominance_tree: nx.DiGraph, var2blocks_used:
 
     return block2var_can_be_stored
 
-def update_set_use_def_chain(var_id: var_id_T, block_id: block_id_T, negative_idx: int,
-                             use_def_chain: Dict[var_id_T, Tuple[Optional[block_id_T], Optional[int],
-                                                                 Optional[block_id_T], Optional[int]]]):
-    # Here the use_def_chain should already contain the stored_id, as we only store
-    # to later load.
-    use_def = use_def_chain.get(var_id, None)
-    assert use_def is not None, f"Trying to set {var_id} when it has not been used previously"
-    use_def_chain[var_id] = (block_id, negative_idx, use_def[2], use_def[3])
-
-
 def insert_store_in_regs(cfg_block: CFGBlock, vars_to_introduce: Set[var_id_T],
                          var2header: Dict[var_id_T, block_id_T], loop_forest: nx.DiGraph,
-                         block2var_can_be_stored: Dict[block_id_T, List[var_id_T]],
-                         use_def_chain: Dict[var_id_T, Tuple[Optional[block_id_T], Optional[int],
-                                                             Optional[block_id_T], Optional[int]]]) -> Set[var_id_T]:
+                         block2var_can_be_stored: Dict[block_id_T, List[var_id_T]]) -> Tuple[Set[var_id_T], Set[var_id_T]]:
     """
     Modifies the cfg_ids in cfg_block to store the variables in vars_to_introduce,
-    considering the information from the var2header dict.
+    considering the information from the var2header dict. It returns two sets:
+    * 1) The stack variables that are allowed to be stored from the corresponding point (due to LCA)
+    * 2) The stack variables being used in the current block
     """
+    currently_used = set()
 
     # First, we see if there is some variable that must be
     # considered from this point on to be stored in a register
@@ -111,12 +102,8 @@ def insert_store_in_regs(cfg_block: CFGBlock, vars_to_introduce: Set[var_id_T],
         if instruction_id.startswith("GET"):
             loaded_var = instruction_id[4:-1]
 
-            # Afterwards, we need to introduce the position of the GET if it has not appeared yet.
-            # The idea is to just store the deepest store
-            # TODO: modify if we allow spilling
-            use_def = use_def_chain.get(loaded_var, None)
-            if use_def is None:
-                use_def_chain[loaded_var] = (None, None, cfg_block.block_id, -i - 1)
+            # We add the variable to the set of variables currently being used
+            currently_used.add(loaded_var)
 
         # Instructions are only set for solving permutation.
         # Hence, the corresponding values do not need to be propagated upwards
@@ -127,9 +114,6 @@ def insert_store_in_regs(cfg_block: CFGBlock, vars_to_introduce: Set[var_id_T],
             if stored_var in vars_to_introduce:
                 vars_to_introduce.remove(stored_var)
 
-            # We update the set info
-            update_set_use_def_chain(stored_var, cfg_block.block_id, -i - 1, use_def_chain)
-
         # If the instruction defines a variable that is just accessible there, then we need to store it.
         else:
             # Global form to store multiple out vars if needed (not the case in the EVM)
@@ -139,8 +123,6 @@ def insert_store_in_regs(cfg_block: CFGBlock, vars_to_introduce: Set[var_id_T],
                     vars_to_introduce.remove(out_var)
 
                     cfg_block.greedy_ids.insert(index, f"DUP_SET({out_var})")
-
-                    update_set_use_def_chain(out_var, cfg_block.block_id, index, use_def_chain)
 
     # Finally, we detect which values are accessible at the beginning of the block
     # so that we store them in memory. By applying this step at the beginning of the block,
@@ -162,42 +144,48 @@ def insert_store_in_regs(cfg_block: CFGBlock, vars_to_introduce: Set[var_id_T],
                 # We mark the variable for removal
                 to_remove.add(var_id)
 
-                # We update the chain
-                update_set_use_def_chain(var_id, cfg_block.block_id, -len(cfg_block.greedy_ids), use_def_chain)
-
-    return vars_to_introduce.difference(to_remove)
+    return vars_to_introduce.difference(to_remove), currently_used
 
 
 def dag_dfs_block(cfg_block: CFGBlock, cfg_block_list: CFGBlockList, traversed: Set[block_id_T],
                   var2header: Dict[var_id_T, block_id_T], loop_forest: nx.DiGraph,
                   block2var_can_be_stored: Dict[block_id_T, List[block_id_T]],
-                  use_def_chain: Dict[var_id_T, Tuple[Optional[block_id_T],
-                                                      Optional[int], Optional[block_id_T], Optional[int]]]) -> Set[var_id_T]:
+                  block2last_use: Dict[block_id_T, Set[block_id_T]]) -> Tuple[Set[var_id_T], Set[var_id_T]]:
     """
     Post-order traversal of the CFG in order to generate the information on when to introduce the variables
     """
-    vars_to_introduce = set()
+    # Same sets as the previous functions
+    vars_to_introduce, variables_used_children = set(), set()
 
     for block_id in cfg_block.successors:
         if block_id not in traversed:
             traversed.add(block_id)
-            vars_to_introduce.update(dag_dfs_block(cfg_block_list.blocks[block_id], cfg_block_list,
-                                                   traversed, var2header, loop_forest, use_def_chain))
+            vars_to_introduce_child, variables_used_child = dag_dfs_block(cfg_block_list.blocks[block_id], cfg_block_list,
+                                                                          traversed, var2header, loop_forest)
+            vars_to_introduce.update(vars_to_introduce_child)
+            variables_used_children.update(variables_used_child)
 
-    return insert_store_in_regs(cfg_block, vars_to_introduce, var2header, loop_forest,
-                                block2var_can_be_stored, use_def_chain)
+    (variables_to_introduce_current,
+     variables_used) = insert_store_in_regs(cfg_block, vars_to_introduce, var2header,
+                                                      loop_forest, block2var_can_be_stored)
+    # We consider the variables used that are not used
+    block2last_use[cfg_block.block_id] = variables_used.difference(variables_used_children)
+    # We return the set of all variables used in the current branch
+    variables_used_branch = variables_used.union(variables_used_children)
+
+    # variables_introduced_current already considers the state from the children
+    return variables_to_introduce_current, variables_used_branch
 
 
-def dag_dfs(cfg_block_list: CFGBlockList, loop_forest: nx.DiGraph, dominance_tree: nx.DiGraph) -> Dict[var_id_T, Tuple[block_id_T, int, block_id_T, int]]:
+def dag_dfs(cfg_block_list: CFGBlockList, loop_forest: nx.DiGraph, dominance_tree: nx.DiGraph) -> Dict[block_id_T, Set[block_id_T]]:
     """
     Modifies the cfg_block_list inserting the needed SET instructions for registers in between, and
     returns the information for performing the tree scan.
     """
 
-    # Use-def chain is a dict that links every variable to the deepest instance and the position in which it is
-    # defined. It is used in the second traversal to remove SETs that are not needed
-    use_def_chain: Dict[var_id_T, Tuple[Optional[block_id_T], Optional[int], Optional[block_id_T], Optional[int]]] = \
-        defaultdict(lambda: (None, None, None, None))
+    # block2last_use maps each block to the set of variables
+    # whose last use is the current block
+    block2last_use = dict()
 
     # Var2header matches every variable to the header of the loop
     # in which it is being declared
@@ -213,8 +201,8 @@ def dag_dfs(cfg_block_list: CFGBlockList, loop_forest: nx.DiGraph, dominance_tre
     block2var_can_be_stored = compute_block2var_can_be_stored(dominance_tree, var2blocks_used)
 
     dag_dfs_block(cfg_block_list.get_block(cfg_block_list.start_block), cfg_block_list, traversed,
-                  var2header, loop_forest, block2var_can_be_stored, use_def_chain)
-    return use_def_chain
+                  var2header, loop_forest, block2var_can_be_stored, block2last_use)
+    return block2last_use
 
 # Then, we colour the registers using the info from the previous stage (tree scan)
 
@@ -265,29 +253,27 @@ class ColourAssignment:
         self._available[self._var2color[v]] = True
 
 
-def assign_color(block: CFGBlock, block_list: CFGBlockList,
-                 program_points: List[Tuple[block_id_T, int, block_id_T, int]],
+def assign_color(block: CFGBlock, block_list: CFGBlockList, dominance_tree: nx.DiGraph,
+                 block2last_use: Dict[block_id_T, Set[var_id_T]],
                  colour_assignment: ColourAssignment) -> None:
     """
     We need to assign colours to each different block, following the cfg order.
     """
-    pass
+    block_id = block.block_id
+    for variable in block2last_use[block_id]:
+        colour_assignment.release_colour(variable)
+    
 
 
-def tree_scan_with_program_points(block_list: CFGBlockList, dominance_toposort: List[block_id_T],
-                                  program_points: Dict[var_id_T, Tuple[block_id_T, int, block_id_T, int]]) -> ColourAssignment:
+def tree_scan_with_last_uses(block_list: CFGBlockList, dominance_tree: nx.DiGraph,
+                             block2last_use: Dict[block_id_T, Set[var_id_T]]) -> ColourAssignment:
     """
     Adapted from Algorithm 22.1: Tree scan in page 309. Given the block list,
     and the list of program points, registers are assigned based on colours
     """
     colour_assignment = ColourAssignment()
 
-    # We need to sort the program points according to the dominance tree (toposort), and if multiple
-    # variables are stored in the same block, according to their position. As we have represented
-    # the positions with negative index, we have to consider this in the sort step
-    program_points = sorted(program_points.values(), key=lambda x: (dominance_toposort.index(x[0]), -x[1]))
-
-    assign_color(block_list.get_block(block_list.start_block), program_points, colour_assignment)
+    assign_color(block_list.get_block(block_list.start_block), dominance_tree, block2last_use, colour_assignment)
     return colour_assignment
 
 
@@ -295,5 +281,5 @@ def tree_scan_with_program_points(block_list: CFGBlockList, dominance_toposort: 
 
 def tree_scan(block_list: CFGBlockList, dominance_toposort: List[block_id_T], dominance_tree: nx.DiGraph) -> None:
     loop_forest = compute_loop_nesting_forest_graph(block_list, dominance_tree)
-    program_points = dag_dfs(block_list, loop_forest, dominance_tree)
-    tree_scan_with_program_points(block_list, dominance_toposort, program_points)
+    block2last_use = dag_dfs(block_list, loop_forest, dominance_tree)
+    tree_scan_with_program_points(block_list, dominance_toposort, block2last_use)
