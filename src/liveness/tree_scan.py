@@ -11,6 +11,7 @@ from global_params.types import var_id_T, block_id_T
 from typing import List, Dict, Tuple, Set, Optional
 from parser.cfg_block import CFGBlock
 from parser.cfg_block_list import CFGBlockList
+from graphs.cfg import compute_loop_nesting_forest_graph
 
 
 # First, we need to detect which program points must be stored at some point
@@ -122,7 +123,7 @@ def insert_store_in_regs(cfg_block: CFGBlock, vars_to_introduce: Set[var_id_T],
 def dag_dfs_block(cfg_block: CFGBlock, cfg_block_list: CFGBlockList, traversed: Set[block_id_T],
                   var2header: Dict[var_id_T, block_id_T], loop_forest: nx.DiGraph,
                   use_def_chain: Dict[var_id_T, Tuple[Optional[block_id_T],
-                  Optional[int], Optional[block_id_T], Optional[int]]]) -> Set[var_id_T]:
+                                                      Optional[int], Optional[block_id_T], Optional[int]]]) -> Set[var_id_T]:
     """
     Post-order traversal of the CFG in order to generate the information on when to introduce the variables
     """
@@ -137,18 +138,23 @@ def dag_dfs_block(cfg_block: CFGBlock, cfg_block_list: CFGBlockList, traversed: 
     return insert_store_in_regs(cfg_block, vars_to_introduce, var2header, loop_forest, use_def_chain)
 
 
-def dag_dfs(cfg_block_list: CFGBlockList, loop_forest: nx.DiGraph):
+def dag_dfs(cfg_block_list: CFGBlockList, loop_forest: nx.DiGraph) -> Dict[var_id_T, Tuple[block_id_T, int, block_id_T, int]]:
+    """
+    Modifies the cfg_block_list inserting the needed SET instructions for registers in between, and
+    returns the information for performing the tree scan.
+    """
+
     # Use-def chain is a dict that links every variable to the deepest instance and the position in which it is
     # defined. It is used in the second traversal to remove SETs that are not needed
-    use_def_chain: Dict[var_id_T, Tuple[Optional[block_id_T], Optional[int],
-    Optional[block_id_T], Optional[int]]] = defaultdict(lambda: (None, None, None, None))
+    use_def_chain: Dict[var_id_T, Tuple[Optional[block_id_T], Optional[int], Optional[block_id_T], Optional[int]]] = \
+        defaultdict(lambda: (None, None, None, None))
     var2header = variable2block_header(cfg_block_list, loop_forest)
     traversed = set()
     dag_dfs_block(cfg_block_list.get_block(cfg_block_list.start_block), cfg_block_list, traversed,
                   var2header, loop_forest, use_def_chain)
+    return use_def_chain
 
-
-# Then, we colour the registers using the info from the previous stage
+# Then, we colour the registers using the info from the previous stage (tree scan)
 
 
 class ColourAssignment:
@@ -197,15 +203,35 @@ class ColourAssignment:
         self._available[self._var2color[v]] = True
 
 
-def assign_color(block: CFGBlock, block_list: CFGBlockList, cfg_order: nx.DiGraph):
+def assign_color(block: CFGBlock, block_list: CFGBlockList,
+                 program_points: List[Tuple[block_id_T, int, block_id_T, int]],
+                 colour_assignment: ColourAssignment) -> None:
     """
     We need to assign colours to each different block, following the cfg order.
     """
     pass
 
 
-def tree_scan(block_list: CFGBlockList):
+def tree_scan_with_program_points(block_list: CFGBlockList, dominance_toposort: List[block_id_T],
+                                  program_points: Dict[var_id_T, Tuple[block_id_T, int, block_id_T, int]]) -> ColourAssignment:
     """
+    Adapted from Algorithm 22.1: Tree scan in page 309. Given the block list,
+    and the list of program points, registers are assigned based on colours
+    """
+    colour_assignment = ColourAssignment()
+    
+    # We need to sort the program points according to the dominance tree (toposort), and if multiple
+    # variables are stored in the same block, according to their position. As we have represented
+    # the positions with negative index, we have to consider this in the sort step
+    program_points = sorted(program_points.values(), key=lambda x: (dominance_toposort.index(x[0]), -x[1]))
 
-    """
-    pass
+    assign_color(block_list.get_block(block_list.start_block), program_points, colour_assignment)
+    return colour_assignment
+
+
+# Full algorithm
+
+def tree_scan(block_list: CFGBlockList, dominance_toposort: List[block_id_T], dominance_tree: nx.DiGraph) -> None:
+    loop_forest = compute_loop_nesting_forest_graph(block_list, dominance_tree)
+    program_points = dag_dfs(block_list, loop_forest)
+    tree_scan_with_program_points(block_list, dominance_toposort, program_points)
