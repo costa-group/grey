@@ -655,7 +655,7 @@ class CFGBlock:
             self._id2var = self._compute_declared_variables()
         return set(out_var for out_var_list in self._id2var.values() for out_var in out_var_list)
 
-    def out_vars_from_id(self, instr_id: instr_id_T):
+    def out_vars_from_id(self, instr_id: instr_id_T) -> List[var_id_T]:
         """
         Returns the out vars associated to an instruction id.
         Assumes the id belongs to the spec
@@ -663,7 +663,7 @@ class CFGBlock:
         if self._id2var is None:
             self._id2var = self._compute_declared_variables()
 
-        return self._id2var[instr_id]
+        return self._id2var.get(instr_id, [])
 
     def __str__(self):
         s = "BlockID: " + self.block_id + "\n"
