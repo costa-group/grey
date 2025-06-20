@@ -103,6 +103,14 @@ class CFGBlock:
         self._spec: SMS_T = None
         self._greedy_ids: List[instr_id_T] = None
 
+        # Sets that represent which variables can be reached using a DUP instruction.
+        # Useful for determining when to store a variable
+        self._reachable_in: Set[var_id_T] = None
+        self._reachable_out: Set[var_id_T] = None
+
+        # Set of variables that are computed in the current block
+        self._id2var = None
+
     @property
     def final_stack_elements(self) -> List[str]:
         """
@@ -601,6 +609,10 @@ class CFGBlock:
             raise ValueError("Specification already computed")
         self._spec = spec
 
+        # We also assigne the set of reachable stack values at the beginning and end of the block
+        self._reachable_in = set(spec["src_ws"][:16])
+        self._reachable_out = set(spec["tgt_ws"][:16])
+
     @property
     def greedy_ids(self) -> List[instr_id_T]:
         return self._greedy_ids
@@ -610,6 +622,48 @@ class CFGBlock:
         if self._greedy_ids is not None:
             raise ValueError("Greedy ids already computed")
         self._greedy_ids = greedy_ids
+
+    def is_accessible_in(self, var_id: var_id_T):
+        """
+        Given a stack variable, detects whether it can be accessed
+        with a DUPx instruction by the beginning of the block
+        """
+        assert self._reachable_in is not None, "Trying to access reachable_in when not computed yet"
+        return var_id in self._reachable_in
+
+    def is_accessible_out(self, var_id: var_id_T):
+        """
+        Given a stack variable, detects whether it can be accessed
+        with a DUPx instruction by the end of the block
+        """
+        assert self._reachable_out is not None, "Trying to access reachable_out when not computed yet"
+        return var_id in self._reachable_out
+
+    def _compute_declared_variables(self):
+        """
+        Returns a dict that links every stack variable to the id of the instruction that
+        introduced it
+        """
+        return {instr["id"]: instr["outpt_sk"]  for instr in self._spec["user_instrs"]}
+
+    @property
+    def declared_variables(self) -> Set[var_id_T]:
+        """
+        Variables declared in the block
+        """
+        if self._id2var is None:
+            self._id2var = self._compute_declared_variables()
+        return set(out_var for out_var_list in self._id2var.values() for out_var in out_var_list)
+
+    def out_vars_from_id(self, instr_id: instr_id_T):
+        """
+        Returns the out vars associated to an instruction id.
+        Assumes the id belongs to the spec
+        """
+        if self._id2var is None:
+            self._id2var = self._compute_declared_variables()
+
+        return self._id2var[instr_id]
 
     def __str__(self):
         s = "BlockID: " + self.block_id + "\n"
