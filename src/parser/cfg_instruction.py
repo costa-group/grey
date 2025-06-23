@@ -275,7 +275,7 @@ class CFGInstruction:
 
 
     def translate_memoryguard(self) :
-        #It is trabslated as a push directly
+        #It is translated as a push directly
         self.op = "push"
         new_builtin = []
         for o in self.builtin_args:
