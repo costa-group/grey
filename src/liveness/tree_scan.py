@@ -212,7 +212,7 @@ class ColourAssignment:
         # We determine which variable is associated to a colour
         self._var2color: Dict[block_id_T, int] = dict()
 
-    def pick_colour(self, v: var_id_T):
+    def _pick_colour(self, v: var_id_T):
         """
         Chooses an available colour, adding a new one if there are not enough
         """
@@ -236,38 +236,38 @@ class ColourAssignment:
 
             raise ValueError("There must exist a colour that has not been assigned so far")
 
-    def release_colour(self, v: var_id_T):
+    def _release_colour(self, v: var_id_T):
         self._used_colors -= 1
         self._available[self._var2color[v]] = True
 
 
-def assign_color(block: CFGBlock, block_list: CFGBlockList, dominance_tree: nx.DiGraph,
-                 block2last_use: Dict[block_id_T, Set[var_id_T]],
-                 colour_assignment: ColourAssignment) -> None:
-    """
-    We need to assign colours to each different block, following the cfg order.
-    """
-    block_id = block.block_id
-    for variable in block2last_use[block_id]:
-        colour_assignment.release_colour(variable)
+    def assign_color(block: CFGBlock, block_list: CFGBlockList, dominance_tree: nx.DiGraph,
+                     block2last_use: Dict[block_id_T, Set[var_id_T]],
+                     colour_assignment: ColourAssignment) -> None:
+        """
+        We need to assign colours to each different block, following the cfg order.
+        """
+        block_id = block.block_id
+        for variable in block2last_use[block_id]:
+            colour_assignment.release_colour(variable)
 
 
 
-def tree_scan_with_last_uses(block_list: CFGBlockList, dominance_tree: nx.DiGraph,
-                             block2last_use: Dict[block_id_T, Set[var_id_T]]) -> ColourAssignment:
-    """
-    Adapted from Algorithm 22.1: Tree scan in page 309. Given the block list,
-    and the list of program points, registers are assigned based on colours
-    """
-    colour_assignment = ColourAssignment()
+    def tree_scan_with_last_uses(block_list: CFGBlockList, dominance_tree: nx.DiGraph,
+                                 block2last_use: Dict[block_id_T, Set[var_id_T]]) -> ColourAssignment:
+        """
+        Adapted from Algorithm 22.1: Tree scan in page 309. Given the block list,
+        and the list of program points, registers are assigned based on colours
+        """
+        colour_assignment = ColourAssignment()
 
-    assign_color(block_list.get_block(block_list.start_block), dominance_tree, block2last_use, colour_assignment)
-    return colour_assignment
+        assign_color(block_list.get_block(block_list.start_block), dominance_tree, block2last_use, colour_assignment)
+        return colour_assignment
 
 
 # Full algorithm
 
-def tree_scan(block_list: CFGBlockList, dominance_toposort: List[block_id_T], dominance_tree: nx.DiGraph) -> None:
+def tree_scan(block_list: CFGBlockList, dominance_tree: nx.DiGraph) -> None:
     loop_forest = compute_loop_nesting_forest_graph(block_list, dominance_tree)
-    block2last_use = dag_dfs(block_list, loop_forest, dominance_tree)
+    block2last_use = TreeScanFirstPass(block_list, loop_forest).insert_instructions()
     tree_scan_with_last_uses(block_list, dominance_toposort, block2last_use)
