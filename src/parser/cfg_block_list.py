@@ -24,7 +24,8 @@ class CFGBlockList:
         self._terminal_blocks: List[block_id_T] = []
         self._function_return_blocks: List[block_id_T] = []
         self.block_tags_dict = {}
-
+        self.assigment_dict = {}
+        
     @property
     def terminal_blocks(self) -> List[block_id_T]:
         return self._terminal_blocks
@@ -127,6 +128,15 @@ class CFGBlockList:
 
         return list_spec, block_tag_idx
 
+    
+    def add_assigment(self, in_value:str, out_var: str) -> None:
+        self.assigment_dict[out_var] = in_value
+
+
+    def set_assigment(self, assigment_dict: Dict[str,str]) -> None:
+        self.assigment_dict = assigment_dict
+
+        
     def to_graph(self) -> networkx.DiGraph:
         """
         Creates a networkx.DiGraph from the blocks information
