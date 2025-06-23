@@ -2,7 +2,7 @@
 Methods for applying simplification rules
 """
 
-from typing import Dict, List, Tuple, Set
+from typing import Dict, List, Tuple, Set, Union
 from global_params.types import var_id_T
 from parser.cfg import CFG
 from parser.cfg_block_list import CFGBlockList
@@ -20,280 +20,282 @@ def apply_rule_simplification(cfg: CFG) -> None:
 
         
 def apply_rule_simplification_block_list(block_list: CFGBlockList) -> None:
-    for _bl_id, bl in block_list.blocks.items():
-        apply_rule_simplification_block(bl)
 
-
-def apply_rule_simplification_block(block: CFGBlock)-> None:
-    pass
-
-
-
-
-
-def apply_transform(instr):
-    global discount_op
-    global saved_push
-    global gas_saved_op
-    global rule
-
+    vars_to_update = {}
     
-    opcode = instr["disasm"]
-    if opcode == "AND":
-        inp_vars = instr["inpt_sk"]
-        if 0 in inp_vars:
-            saved_push+=2
-            gas_saved_op+=3
-            
-            discount_op+=1
-            rule = "AND(X,0)"
-            return 0
-        elif inp_vars[0] == inp_vars[1]:
-            saved_push+=1
-            gas_saved_op+=3
+    for _bl_id, bl in block_list.blocks.items():
+        
+        apply_transformation_rule_simplification_block(bl, vars_to_update)
 
-            discount_op+=1
+        apply_semantics_rule_simplification_block(bl, vars_to_update)
+
+def apply_transformation_rule_simplification_block(block: CFGBlock, assigments_dict: Dict[str,str]) -> bool:
+    
+    modified = True
+    
+    while(modified):
+
+        modified = apply_transform_rules(block)
+        
+    return modified
+
+
+def apply_semantics_rule_simplification_block(block: CFGBlock, assigments_dict: Dict[str,str]) -> bool:
+    pass
+        
+
+
+
+def apply_transform_rules(block: CFGBlock, assigments_dict: Dict[str,str], vars_to_update: Dict[str,str]) -> None:
+    
+    to_delete = []
+    rules_applied = []
+    modified = False
+    instructions = block.get_instructions()
+
+    index = -1
+    for instr in instructions:
+        
+        index+=1
+        if instr.get_op_name() in ["and","or","xor","add","sub","mul","div","exp","eq","gt","lt","sgt","slt","sdiv","not","iszero","shl","shr"]:
+            r = apply_transform(instr, assigments_dict, rules_applied)
+
+            if r!=-1:
+
+                assert(len(instr.get_out_args())== 1, "ERROR. OP's involved in rule simplification must have only one returned value")
+                old_out_var = instr.get_out_args()[0]
+                
+                replace_var(
+                
+                modified = True
+
+
+    return modified, new_user_def, target_stack
+
+
+
+def get_input_assigment(inp:str, assigments_dict: Dict[str,str]) ->  Union[str,int]:
+    '''
+    It checks if the value assgined to a input argument of a CFGInstruction if an integer.
+    In case that it is not an integer, it checks if it is the result of an assigment.
+    '''
+
+    try:
+        inp_ret = int(inp,16)
+    except:        
+        assigment = assigments_dict.get(inp,-1)
+        if assigment !=-1:
+            inp_ret = int(assigment,16)
+        else:
+            inp_ret = inp
+
+    return inp
+
+def get_input_values(inp_vars: List[str], assigments_dict: Dict[str,str])-> List[Union[str,int]]:
+    inp_res = []
+    for inp in inp_vars:
+        ret_inp = get_input_assigment(inp, assigments_dict)
+        inp_res.append(ret_inp)
+
+    return inp_res
+
+        
+def apply_transform(instr: CFGInstruction, assigments_dict: Dict[str,str], rules_applied: List[str]) -> bool:
+    int_not0 = [-1+2**256]
+    
+    opcode = instr.get_op_name()
+    inp_initial_vars = instr.get_in_args()
+
+    inp_vars = get_input_values(inp_initial_vars, assigments_dict)
+    
+    if opcode == "and":
+        if 0 in inp_vars:
+            rule = "AND(X,0)"
+            rules_applied.append(rule)
+            return "0x00"
+
+        elif inp_vars[0] == inp_vars[1]:
+            
             rule = "AND(X,X)"
+            rules_applied.append(rule)
             return inp_vars[0]
     
         elif inp_vars[0] in int_not0 or inp_vars[1] in int_not0:
-            saved_push+=2
-            gas_saved_op+=3
-
-            discount_op+=1
+            
             rule = "AND(X,2^256-1)"
+            rules_applied.append(rule)
             return inp_vars[1] if (inp_vars[0] in int_not0) else inp_vars[0]
+
         else:
             return -1
         
-    elif opcode == "OR":
-        inp_vars = instr["inpt_sk"]
+    elif opcode == "or":
         if 0 in inp_vars:
-            saved_push+=2
-            gas_saved_op+=3
-
-            discount_op+=1
+            
             rule = "OR(X,0)"
+            rules_applied.append(rule)
             return inp_vars[1] if inp_vars[0] == 0 else inp_vars[0]
-        elif inp_vars[0] == inp_vars[1]:
-            saved_push+=1
-            gas_saved_op+=3
 
-            discount_op+=1
+        elif inp_vars[0] == inp_vars[1]:
             rule = "OR(X,X)"
+            rules_applied.append(rule)
             return inp_vars[0]
+
         else:
             return -1
 
-    elif opcode == "XOR":
-        inp_vars = instr["inpt_sk"]
+    elif opcode == "xor":
         
         if inp_vars[0] == inp_vars[1]:
-            saved_push+=1
-            gas_saved_op+=3
-
-            discount_op+=1
             rule = "XOR(X,X)"
-            return 0
-        elif 0 in inp_vars:
-            saved_push+=2
-            gas_saved_op+=3
+            rules_applied.append(rule)
+            return "0x00"
 
-            discount_op+=1
+        elif 0 in inp_vars:
             rule = "XOR(X,0)"
+            rules_applied.append(rule)
             return inp_vars[1] if inp_vars[0] == 0 else inp_vars[0]
+
         else:
             return -1
 
-    elif opcode == "EXP":
-        inp_vars = instr["inpt_sk"]
+    elif opcode == "exp":
         
         if inp_vars[1] == 0:
-            saved_push+=2
-            gas_saved_op+=60
-
-            discount_op+=1
             rule = "EXP(X,0)"
-            return 1
+            rules_applied.append(rule)
+            return "0x01"
+
         elif inp_vars[1] == 1:
-            saved_push+=1
-            gas_saved_op+=60
-            
-            discount_op+=1
             rule = "EXP(X,1)"
+            rules_applied.append(rule)
             return inp_vars[0]
+
         elif inp_vars[0] == 1:
-            gas_saved_op+=60
-            
-            discount_op+=1
             rule = "EXP(1,X)"
-            return 1
+            rules_applied.append(rule)
+            return "0x01"
+
         else:
             return -1
 
-    elif opcode == "ADD":
-        inp_vars = instr["inpt_sk"]
+    elif opcode == "add":
         if 0 in inp_vars:
-            saved_push+=1
-            gas_saved_op+=3
-
-            discount_op+=1
             rule = "ADD(X,0)"
+            rules_applied.append(rule)
             return inp_vars[1] if inp_vars[0] == 0 else inp_vars[0]
+
         else:
             return -1
 
-    elif opcode == "SUB":
-        inp_vars = instr["inpt_sk"]
+    elif opcode == "sub":
         if 0 == inp_vars[1]:
-            saved_push+=1
-            gas_saved_op+=3
-
-            discount_op+=1
             rule = "SUB(X,0)"
+            rules_applied.append(rule)
             return inp_vars[0]
-        elif inp_vars[0] == inp_vars[1]:
-            saved_push+=1
-            gas_saved_op+=3
 
-            discount_op+=1
+        elif inp_vars[0] == inp_vars[1]:
             rule = "SUB(X,X)"
-            return 0
+            return "0x00"
+
         else:
             return -1
         
-    elif opcode == "MUL":
-        inp_vars = instr["inpt_sk"]
+    elif opcode == "mul":
         if 0 in inp_vars:
-            saved_push+=2
-            gas_saved_op+=5
-
-            discount_op+=1
             rule = "MUL(X,0)"
-            return 0
+            rules_applied.append(rule)
+            return "0x00"
+
         elif 1 in inp_vars:
-            saved_push+=1
-            gas_saved_op+=5
-            
-            discount_op+=1
             rule = "MUL(X,1)"
+            rules_applied.append(rule)
             return inp_vars[1] if inp_vars[0] == 1 else inp_vars[0]
+
         else:
             return -1
 
-    elif opcode == "DIV" or opcode == "SDIV":
-        inp_vars = instr["inpt_sk"]
+    elif opcode == "div" or opcode == "sdiv":
         if 1 == inp_vars[1]:
-            saved_push+=1
-            gas_saved_op+=5
-            
-            discount_op+=1
             rule = f"{opcode}(X,1)"
+            rules_applied.append(rule)
             return inp_vars[0]
 
         elif 0 in inp_vars:
-            saved_push+=2
-            gas_saved_op+=5
-
-            discount_op+=1
             rule = f"{opcode}(X,0)"
-            return 0
+            rules_applied.append(rule)
+            return "0x00"
 
         elif inp_vars[0] == inp_vars[1]:
-            saved_push+=2
-            gas_saved_op+=5
-
-            discount_op+=1
             rule = f"{opcode}(X,X)"
-            return 1
+            rules_applied.append(rule)
+            return "0x01"
+
         else:
             return -1
 
-    elif opcode == "MOD":
-        inp_vars = instr["inpt_sk"]
+    elif opcode == "mod":
         if  1 == inp_vars[1]:
-            saved_push+=2
-            gas_saved_op+=5
-            
-            discount_op+=1
             rule = "MOD(X,1)"
-            return 0
+            rules_applied.append(rule)
+            return "0x00"
 
         elif inp_vars[0] == inp_vars[1]:
-            saved_push+=2
-            gas_saved_op+=5
-
-            discount_op+=1
             rule = "MOD(X,X)"
-            return 0
+            rules_applied.append(rule)
+            return "0x00"
 
         elif inp_vars[1] == 0:
-            saved_push+=2
-            gas_saved_op+=5
-
-            discount_op+=1
             rule = "MOD(X,0)"
-            return 0
+            rules_applied.append(rule)
+            return "0x00"
 
         else:
             return -1
 
-    elif opcode == "EQ":
-        inp_vars = instr["inpt_sk"]
+    elif opcode == "eq":
         if inp_vars[0] == inp_vars[1]:
-            discount_op+=1
-            saved_push+=2
-            gas_saved_op+=3
 
             rule = "EQ(X,X)"
-            
-            return 1
+            rules_applied.append(rule)
+            return "0x01"
+
         else:
             return -1
 
-    elif opcode == "GT" or opcode == "SGT":
-        inp_vars = instr["inpt_sk"]
+    elif opcode == "gt" or opcode == "sgt":
         if inp_vars[0] == 0 and opcode == "GT":
-            saved_push+=2
-            gas_saved_op+=3
 
-            discount_op+=1
+            rule = f"{opcode}(0,X)"
+            rules_applied.append(rule)
+            return "0x00"
 
-            rule = "GT(0,X)"
-            
-            return 0
         elif inp_vars[0] == inp_vars[1]:
-            discount_op+=1
-            saved_push+=2
-            gas_saved_op+=3
 
-            rule = opcode+"(X,X)"
-            return 0
+            rule = f"{opcode}(X,X)"
+            rules_applied.append(rule)
+            return "0x00"
+
         else:
             return -1
 
-    elif opcode == "LT" or opcode == "SLT":
-        inp_vars = instr["inpt_sk"]
+    elif opcode == "lt" or opcode == "slt":
         if inp_vars[1] == 0 and opcode == "LT":
-            saved_push+=2
-            gas_saved_op+=3
-
-            discount_op+=1
 
             rule = "LT(X,0)"
-            return 0
-        elif inp_vars[0] == inp_vars[1]:
-            discount_op+=1
-            saved_push+=2
-            gas_saved_op+=3
+            rules_applied.append(rule)
+            return "0x00"
 
-            rule = opcode+"(X,X)"
-            return 0
+        elif inp_vars[0] == inp_vars[1]:
+
+            rule = f"{opcode}(X,X)"
+            rules_applied.append(rule)
+            return "0x00"
+        
         else:
             return -1
 
-    elif opcode == "NOT":
-        inp_vars = instr["inpt_sk"]
+    elif opcode == "not":
         r, val = all_integers(inp_vars)
         if r:
             val_end = ~(int(val[0]))+2**256
@@ -304,103 +306,48 @@ def apply_transform(instr):
                 bytes_sol = get_num_bytes_int(val_end)
 
                 if bytes_sol <= bytes_v0+1:    
-                    saved_push+=1
-                    gas_saved_op+=3
                     rule = "NOT(X)"
-                    return val_end
+                    rules_applied.append(rule)
+                    return hex(val_end)
+
                 else:
                     return -1
 
             else:
-                saved_push+=1
-                gas_saved_op+=3
                 rule = "NOT(X)"
-                return val_end
-            
-        else:
-            return -1
-        
-    elif opcode == "ISZERO":
-        inp_vars = instr["inpt_sk"]
-        if inp_vars[0] == 0:
-            gas_saved_op+=3
-            saved_push+=1
-            rule = "ISZ(0)"
-            return 1
-        elif inp_vars[0] == 1:
-            gas_saved_op+=3
-            saved_push+=1
-            rule = "ISZ(1)"
-            return 0
-        else:
-            return -1
-
-    elif opcode == "SHR" or opcode == "SHL":
-        inp_vars = instr["inpt_sk"]
-        if inp_vars[0] == 0:
-            discount_op+=1
-            saved_push+=2
-            gas_saved_op+=3
-
-            rule = opcode+"(0,X)"
-            
-            return inp_vars[1]
-        elif inp_vars[1] == 0:
-            discount_op+=1
-            saved_push+=2
-            gas_saved_op+=3
-            rule = opcode+"(X,0)"
-            return inp_vars[0]
-        else:
-            return -1
-
-
-def apply_all_simp_rules(user_def,list_vars,tstack):
-    global rule_applied
-    
-    modified = True
-    user_def_instrs = user_def
-    target_stack = tstack
-    while(modified):
-
-        modified, user_def_instrs,target_stack = apply_transform_rules(user_def_instrs,list_vars,target_stack)
-        if modified:
-           rule_applied = True 
-    return user_def_instrs,target_stack
-
-def apply_transform_rules(blocks: CFGBlockList) -> None:
-    global rules_applied
-    global rule
-
-    to_delete = []
-    target_stack = tstack
-    modified = False
-    for instr in user_def_instrs:
-        
-        if instr["disasm"] in ["AND","OR","XOR","ADD","SUB","MUL","DIV","EXP","EQ","GT","LT","SGT","SLT","SDIV","NOT","ISZERO"]:
-            r = apply_transform(instr)
-
-            if r!=-1:
                 rules_applied.append(rule)
-                rule = ""
-                msg = "[RULE]: Simplification rule type 1: "+str(instr)
-                check_and_print_debug_info(debug, msg)
-                
-                replace_var_userdef(instr["outpt_sk"][0],r,user_def_instrs)
-                target_stack = replace_var(instr["outpt_sk"][0],r,target_stack)
-                delete_from_listvars(instr["outpt_sk"][0],list_vars)
-                to_delete.append(instr)
-                modified = True
-    i = 0
-    new_user_def = []
-    while len(user_def_instrs)>0:
-        instr = user_def_instrs.pop()
-        if instr not in to_delete:
-            new_user_def.append(instr)
+                return hex(val_end)
+            
+        else:
+            return -1
+        
+    elif opcode == "iszero":
+        if inp_vars[0] == 0:
+            rule = "ISZ(0)"
+            rules_applied.append(rule)
+            return "0x01"
 
+        elif inp_vars[0] == 1:
+            rule = "ISZ(1)"
+            rules_applied.append(rule)
+            return "0x00"
 
-    return modified, new_user_def, target_stack
+        else:
+            return -1
 
+    elif opcode == "shr" or opcode == "shl":
+        if inp_vars[0] == 0:
+            rule = opcode+"(0,X)"
+            rules_applied.append(rule)
+            return inp_vars[0]
+        
+        elif inp_vars[1] == 0:
+            rule = opcode+"(X,0)"
+            rules_applied.append(rule)
+            return inp_vars[0]
+        
+        else:
+            return -1
     
 
 def apply_cond_transformation(instr,user_def_instrs,tstack):
