@@ -18,15 +18,18 @@ def generate_block_name(object_name: component_name_T, block_id: block_id_T) -> 
     return '_'.join([object_name, block_id])
 
 
-def parse_instruction(ins_json: Dict[str, Any]) -> CFGInstruction:
+def parse_instruction(ins_json: Dict[str, Any], assgiment_dict: Dict[str,str]) -> CFGInstruction:
     in_arg = ins_json.get("in",-1)
     op = ins_json.get("op", -1)
     out_arg = ins_json.get("out", -1)
     check_instruction_validity(in_arg, op, out_arg)
 
+    if op == "LiteralAssigment":
+        assigment_dict[out_arg[0]] = in_arg[0]
+    
     instruction = CFGInstruction(op,in_arg,out_arg)
     
-    builtinargs = ins_json.get("builtinArgs", -1)
+    builtinargs = ins_json.get("literalArgs", -1)
     
     if builtinargs != -1:
         instruction.set_builtin_args(builtinargs)
@@ -73,7 +76,7 @@ def process_block_entry(block_json: Dict[str, Any], phi_instr: Dict[str, Any]) -
 
 
 def parse_block(object_name: str, block_json: Dict[str,Any], built_in_op: bool,
-                objects_keys: Dict[str, int]) -> Tuple[block_id_T, CFGBlock, Dict]:
+                objects_keys: Dict[str, int], assigment_dict: Dict[str,str]) -> Tuple[block_id_T, CFGBlock, Dict]:
     block_id = block_json.get("id", -1)
     block_instructions = block_json.get("instructions", -1)
     block_exit = block_json.get("exit", -1)
@@ -86,7 +89,7 @@ def parse_block(object_name: str, block_json: Dict[str,Any], built_in_op: bool,
     
     list_cfg_instructions = []
     for instruction in block_instructions:
-        cfg_instruction = parse_instruction(instruction) if block_type != "FunctionReturn" else []
+        cfg_instruction = parse_instruction(instruction, assigment_dict) if block_type != "FunctionReturn" else []
 
         if not built_in_op and cfg_instruction != []:
             cfg_instruction.translate_opcode(objects_keys)
@@ -128,8 +131,10 @@ def parser_block_list(object_name: str, blocks: List[Dict[str, Any]], built_in_o
     block_list = CFGBlockList(object_name)
     exit_blocks = []
     comes_from = collections.defaultdict(lambda: [])
+    assigment_dict = {}
+    
     for b in blocks:
-        block_id, new_block, block_exit = parse_block(object_name, b, built_in_op, objects_keys)
+        block_id, new_block, block_exit = parse_block(object_name, b, built_in_op, objects_keys,assigment_dict)
 
         # Annotate comes from
         for succ_block in block_exit["targets"]:
@@ -143,6 +148,8 @@ def parser_block_list(object_name: str, blocks: List[Dict[str, Any]], built_in_o
     # We need to update some fields in the blocks using the previously gathered information
     update_comes_from(block_list, comes_from)
 
+    block_list.set_assigment(assigment_dict)
+    
     return block_list, exit_blocks
 
 
@@ -224,6 +231,7 @@ def parse_CFG_from_json_dict(json_dict: Dict[str, Yul_CFG_T], built_in_op=False)
     cfg_dicts = {}
     for cfg_name, json_dict in json_dict.items():
         print("CFG NAME: "+cfg_name)
+        print(json_dict)
         cfg = parser_CFG_from_JSON(json_dict, built_in_op)
         cfg_dicts[cfg_name] = cfg
     return cfg_dicts
