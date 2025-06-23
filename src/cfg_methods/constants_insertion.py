@@ -92,5 +92,5 @@ def insert_constants_block_list(cfg_block_list: CFGBlockList, constants_per_bloc
         # Finally, we insert the corresponding instructions
         for constant_value, arg in constants_per_block[cfg_block.block_id].items():
             push_instr = CFGInstruction("push", [], [arg])
-            push_instr.builtin_args = [constant_value]
+            push_instr.literal_args = [constant_value]
             cfg_block.insert_instruction(first_non_phi, push_instr)

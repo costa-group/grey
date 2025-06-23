@@ -421,7 +421,7 @@ class CFGBlock:
         for i, ins in enumerate(instructions):
             # Check if it has been already created
             if ins.get_op_name().startswith("push"):
-                ins_spec = map_instructions.get((ins.get_op_name().upper(), tuple(ins.get_builtin_args())), None)
+                ins_spec = map_instructions.get((ins.get_op_name().upper(), tuple(ins.get_literal_args())), None)
             elif not ins.memory_operation():
                 ins_spec = map_instructions.get((ins.get_op_name().upper(), tuple(ins.get_in_args())), None)
             else:
