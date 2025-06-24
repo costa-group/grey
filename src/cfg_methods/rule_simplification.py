@@ -21,14 +21,31 @@ def apply_rule_simplification(cfg: CFG) -> None:
         
 def apply_rule_simplification_block_list(block_list: CFGBlockList) -> None:
 
-    vars_to_update = {}
+
     
     for _bl_id, bl in block_list.blocks.items():
+
+        vars_to_update = {}
         
         apply_transformation_rule_simplification_block(bl, vars_to_update)
-
+        
+        update_vars(bl, block_list,vars_to_update)
+        
         apply_semantics_rule_simplification_block(bl, vars_to_update)
 
+
+
+def update_vars(block: CFGBlock, block_list: CFGBlockList, vars_to_update: Dict[str,str]) -> None:
+    liveness = block.get_liveness()
+
+    out_args = liveness.get("out",[])
+
+    potential_replace = set(vars_to_update.keys()).intersection(set(out_args))
+
+    if len(potential_replace)!= 0:
+        
+    
+        
 def apply_transformation_rule_simplification_block(block: CFGBlock, assigments_dict: Dict[str,str]) -> bool:
     
     modified = True
@@ -64,14 +81,24 @@ def apply_transform_rules(block: CFGBlock, assigments_dict: Dict[str,str], vars_
 
                 assert(len(instr.get_out_args())== 1, "ERROR. OP's involved in rule simplification must have only one returned value")
                 old_out_var = instr.get_out_args()[0]
+
+                update_instructions_same_block(instructions[idx+1:],old_out_var,r)
                 
-                replace_var(
+                vars_to_update[old_out_var] = r
                 
                 modified = True
 
 
-    return modified, new_user_def, target_stack
+    return modified
 
+
+def update_instructions_same_block(instructions, old_var, new_var):
+
+    for ins in instructions:
+        if(old_var in ins.get_in_args()):
+            new_input = [new_var if x == old_var else x for x in ins.get_in_args()]
+
+            ins.set_in_args(new_input)
 
 
 def get_input_assigment(inp:str, assigments_dict: Dict[str,str]) ->  Union[str,int]:
