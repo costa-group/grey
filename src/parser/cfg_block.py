@@ -404,7 +404,7 @@ class CFGBlock:
         Builds the specification for a sequence of instructions. "map_instructions" is passed as an argument
         to reuse declarations from other blocks, as we might have split the corresponding basic block
         """
-
+        
         spec = {}
 
         uninter_functions = []
@@ -439,14 +439,14 @@ class CFGBlock:
                         map_positions_instructions[i] = ins_spec["id"]
 
             if ins_spec is None:
-                if ins.get_op_name().startswith("LiteralAssigment"):
+                if ins.get_op_name().startswith("LiteralAssignment"):
                     in_val = ins.get_in_args()[0]
                     push_name = "PUSH" if int(in_val, 16) != 0 else "PUSH0"
                     inst_idx = instrs_idx.get(push_name, 0)
                     instrs_idx[push_name] = inst_idx + 1
                     push_ins = build_push_spec(in_val, inst_idx, ins.get_out_args())
 
-                    map_instructions[("LITERALASSIGMENT", tuple([ins.get_in_args()]))] = push_ins
+                    map_instructions[("LITERALASSIGMENT", tuple(ins.get_in_args()))] = push_ins
 
                     uninter_functions.append(push_ins)
                     
