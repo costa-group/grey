@@ -427,6 +427,9 @@ class CFGBlock:
             else:
                 ins_spec = map_instructions.get((ins.get_op_name().upper(), tuple(ins.get_in_args())), None)
 
+                if ins.get_op_name().startswith("LiteralAssigment") and ins_spec != None:
+                    raise Exception("LOOK: Two different literalAssigments with the same value")
+                
                 if ins_spec is not None:
                     if len(ins_spec["outpt_sk"]) == 0 or ins_spec["outpt_sk"] != ins.get_out_args():
                         # Memory operations have an extra check: repeated keccaks or loads with the same arguments
@@ -436,11 +439,22 @@ class CFGBlock:
                         map_positions_instructions[i] = ins_spec["id"]
 
             if ins_spec is None:
-                result, new_out_idx = ins.build_spec(new_out_idx, instrs_idx, map_instructions)
+                if ins.get_op_name().startswith("LiteralAssigment"):
+                    in_val = ins.get_in_args()[0]
+                    push_name = "PUSH" if int(in_val, 16) != 0 else "PUSH0"
+                    inst_idx = instrs_idx.get(push_name, 0)
+                    instrs_idx[push_name] = inst_idx + 1
+                    push_ins = build_push_spec(in_val, inst_idx, ins.get_out_args())
 
-                uninter_functions += result
+                    map_instructions[("LITERALASSIGMENT", tuple([ins.get_in_args()]))] = push_ins
 
-                map_positions_instructions[i] = result[-1]["id"]
+                    uninter_functions.append(push_ins)
+                    
+                else:
+                    result, new_out_idx = ins.build_spec(new_out_idx, instrs_idx, map_instructions)
+                    uninter_functions += result
+
+                map_positions_instructions[i] = uninter_functions[-1]["id"]
 
             # it is a push value that has been already created. If it comes from a memoryguard,
             # we have to rename the previous instructions to the output of the memoryguard
