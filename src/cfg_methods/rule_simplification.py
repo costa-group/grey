@@ -18,22 +18,6 @@ def apply_rule_simplification(cfg: CFG) -> None:
         for _f_id, cfg_function in cfg_object.functions.items():
             apply_rule_simplification_block_list(cfg_function.blocks)
 
-        
-def apply_rule_simplification_block_list(block_list: CFGBlockList) -> None:
-
-
-    
-    for _bl_id, bl in block_list.blocks.items():
-
-        vars_to_update = {}
-        
-        apply_transformation_rule_simplification_block(bl, vars_to_update)
-        
-        update_vars(bl, block_list,vars_to_update)
-        
-        apply_semantics_rule_simplification_block(bl, vars_to_update)
-
-
 
 def update_vars(block: CFGBlock, block_list: CFGBlockList, vars_to_update: Dict[str,str]) -> None:
     liveness = block.get_liveness()
@@ -43,21 +27,47 @@ def update_vars(block: CFGBlock, block_list: CFGBlockList, vars_to_update: Dict[
     potential_replace = set(vars_to_update.keys()).intersection(set(out_args))
 
     if len(potential_replace)!= 0:
-        
+        succ = block.get_successors()
+        for next_block_id in succ:
+            next_block = block_list.get_block(next_block_id)
+            next_block_ins = next_block.get_instructions()
+            for old_var, new_var in vars_to_update.items():
+                update_instructions_block(next_block_ins, old_var, new_var)
+
+            updat_vars(next_block, block_list, vars_to_update)
+            
+def apply_rule_simplification_block_list(block_list: CFGBlockList) -> None:
+
+
+    assigment_dict = block_list.get_assigment_dict()
     
+    for _bl_id, bl in block_list.blocks.items():
+
+        vars_to_update = {}
         
-def apply_transformation_rule_simplification_block(block: CFGBlock, assigments_dict: Dict[str,str]) -> bool:
+        apply_transformation_rule_simplification_block(bl, assigment_dict, vars_to_update)
+        
+        update_vars(bl, block_list, vars_to_update)
+
+        vars_to_update = {}
+        
+        apply_semantics_rule_simplification_block(bl, assigment_dict, vars_to_update)
+
+        update_vars(bl, block_list, vars_to_update)
+
+        
+def apply_transformation_rule_simplification_block(block: CFGBlock, assigments_dict: Dict[str,str], vars_to_update: Dict[str,str]) -> bool:
     
     modified = True
     
     while(modified):
 
-        modified = apply_transform_rules(block)
+        modified = apply_transform_rules(block, assigments_dict, vars_to_update)
         
     return modified
 
 
-def apply_semantics_rule_simplification_block(block: CFGBlock, assigments_dict: Dict[str,str]) -> bool:
+def apply_semantics_rule_simplification_block(block: CFGBlock, assigments_dict: Dict[str,str], vars_to_update: Dict[str,str]) -> bool:
     pass
         
 
@@ -82,7 +92,7 @@ def apply_transform_rules(block: CFGBlock, assigments_dict: Dict[str,str], vars_
                 assert(len(instr.get_out_args())== 1, "ERROR. OP's involved in rule simplification must have only one returned value")
                 old_out_var = instr.get_out_args()[0]
 
-                update_instructions_same_block(instructions[idx+1:],old_out_var,r)
+                update_instructions_block(instructions[idx+1:],old_out_var,r)
                 
                 vars_to_update[old_out_var] = r
                 
@@ -92,7 +102,7 @@ def apply_transform_rules(block: CFGBlock, assigments_dict: Dict[str,str], vars_
     return modified
 
 
-def update_instructions_same_block(instructions, old_var, new_var):
+def update_instructions_block(instructions, old_var, new_var):
 
     for ins in instructions:
         if(old_var in ins.get_in_args()):
