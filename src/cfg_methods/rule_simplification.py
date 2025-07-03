@@ -44,7 +44,7 @@ def apply_rule_simplification_block_list(block_list: CFGBlockList) -> None:
     for _bl_id, bl in block_list.blocks.items():
 
         vars_to_update = {}
-        
+
         apply_transformation_rule_simplification_block(bl, assigment_dict, vars_to_update)
         
         update_vars(bl, block_list, vars_to_update)
@@ -68,12 +68,16 @@ def apply_transformation_rule_simplification_block(block: CFGBlock, assigments_d
 
 
 def apply_semantics_rule_simplification_block(block: CFGBlock, assigments_dict: Dict[str,str], vars_to_update: Dict[str,str]) -> bool:
-    pass
+
+    modified = True    
+    while(modified):
+
+        modified = apply_semantics_rules(block, assigments_dict, vars_to_update)
         
+    return modified
 
 
-
-def apply_transform_rules(block: CFGBlock, assigments_dict: Dict[str,str], vars_to_update: Dict[str,str]) -> None:
+def apply_transform_rules(block: CFGBlock, assigments_dict: Dict[str,str], vars_to_update: Dict[str,str]) -> bool:
     
     to_delete = []
     rules_applied = []
@@ -387,7 +391,37 @@ def apply_transform(instr: CFGInstruction, assigments_dict: Dict[str,str], rules
             return -1
     
 
-def apply_cond_transformation(instr,user_def_instrs,tstack):
+
+
+def apply_semantics_rules(block: CFGBlock, assigments_dict: Dict[str,str], vars_to_update: Dict[str,str]) -> bool:
+        
+    global rules_applied
+    global rule
+    
+    modified = False
+
+    for instr in user_def_instrs:
+        
+        r, d_instr = apply_semantics_transformation(instr, instructions, assigments_dict, vars_to_update)
+
+        if r:
+            
+            rules_applied.append(rule)
+            rule = ""
+            msg = "[RULE]: Simplification rule type 2: "+str(instr)
+            msg = msg+"\n[RULE]: Delete rules: "+str(d_instr)
+            check_and_print_debug_info(debug, msg)
+
+            modified = True
+            for b in d_instr:
+                idx = user_def_instrs.index(b)
+                user_def_instrs.pop(idx)
+    return modified
+    
+
+
+        
+def apply_semantics_transformation(instr: CFGInstruction, instructions: List[CFGInstruction], assigments_dict: Dict[str,str], vars_to_update: Dict[str,str]):
     global discount_op
     global saved_push
     global gas_saved_op
@@ -399,12 +433,12 @@ def apply_cond_transformation(instr,user_def_instrs,tstack):
     if opcode == "GT" or opcode == "SGT":
         if 0 == instr["inpt_sk"][1] and opcode == "GT":
             out_var = instr["outpt_sk"][0]
-            is_zero = list(filter(lambda x: out_var in x["inpt_sk"] and x["disasm"] == "ISZERO",user_def_instrs))
+            is_zero = list(filter(lambda x: out_var in x["inpt_sk"] and x["disasm"] == "ISZERO",instructions))
             if len(is_zero) == 1 and out_var not in tstack:
                 # print(tstack)
                 # raise Exception
-                index = user_def_instrs.index(is_zero[0])
-                zero_instr = user_def_instrs[index]
+                index = instructions.index(is_zero[0])
+                zero_instr = instructions[index]
                 zero_instr["inpt_sk"] = [instr["inpt_sk"][0]]
                 saved_push+=2
                 gas_saved_op+=3
@@ -442,10 +476,10 @@ def apply_cond_transformation(instr,user_def_instrs,tstack):
 
         else:
             out_var = instr["outpt_sk"][0]
-            is_zero = list(filter(lambda x: out_var in x["inpt_sk"] and x["disasm"] == "ISZERO",user_def_instrs))
+            is_zero = list(filter(lambda x: out_var in x["inpt_sk"] and x["disasm"] == "ISZERO",instructions))
             if len(is_zero)==1:
                 zero = is_zero[0]
-                zero2 = list(filter(lambda x: zero["outpt_sk"][0] in x["inpt_sk"] and x["disasm"] == "ISZERO",user_def_instrs))
+                zero2 = list(filter(lambda x: zero["outpt_sk"][0] in x["inpt_sk"] and x["disasm"] == "ISZERO",instructions))
                 if len(zero2) == 1 and zero["outpt_sk"][0] not in tstack:
                     # instr["outpt_sk"] = zero2[0]["outpt_sk"]
                     old_var = instr["outpt_sk"]
@@ -460,7 +494,7 @@ def apply_cond_transformation(instr,user_def_instrs,tstack):
                     rule = msg
                     check_and_print_debug_info(debug, msg)
 
-                    update_tstack_userdef(old_var[0], new_var[0],tstack, user_def_instrs)
+                    update_tstack_userdef(old_var[0], new_var[0],tstack, instructions)
                     
                     return True, [zero,zero2[0]]
                 else:
@@ -472,15 +506,15 @@ def apply_cond_transformation(instr,user_def_instrs,tstack):
     elif opcode == "ISZERO":
     
         out_var = instr["outpt_sk"][0]
-        is_zero = list(filter(lambda x: out_var in x["inpt_sk"] and x["disasm"] == "ISZERO",user_def_instrs))
+        is_zero = list(filter(lambda x: out_var in x["inpt_sk"] and x["disasm"] == "ISZERO",instructions))
 
-        is_eq = list(filter(lambda x: out_var in x["inpt_sk"] and x["disasm"] == "EQ",user_def_instrs))
+        is_eq = list(filter(lambda x: out_var in x["inpt_sk"] and x["disasm"] == "EQ",instructions))
         
         if len(is_zero)==1:
          
             zero = is_zero[0]
   
-            zero2 = list(filter(lambda x: zero["outpt_sk"][0] in x["inpt_sk"] and x["disasm"] == "ISZERO",user_def_instrs))
+            zero2 = list(filter(lambda x: zero["outpt_sk"][0] in x["inpt_sk"] and x["disasm"] == "ISZERO",instructions))
             if len(zero2) == 1 and zero["outpt_sk"][0] not in tstack:
              
                 # instr["outpt_sk"] = zero2[0]["outpt_sk"]
@@ -496,7 +530,7 @@ def apply_cond_transformation(instr,user_def_instrs,tstack):
                 rule = msg
                 check_and_print_debug_info(debug, msg)
 
-                update_tstack_userdef(old_var[0], new_var[0],tstack, user_def_instrs)
+                update_tstack_userdef(old_var[0], new_var[0],tstack, instructions)
                 
                 return True, [zero,zero2[0]]
             else:
@@ -519,7 +553,7 @@ def apply_cond_transformation(instr,user_def_instrs,tstack):
                 rule = msg
                 check_and_print_debug_info(debug, msg)
 
-                update_tstack_userdef(old_var[0], new_var[0],tstack, user_def_instrs)
+                update_tstack_userdef(old_var[0], new_var[0],tstack, instructions)
                 
                 return True, [eq]
 
@@ -532,10 +566,10 @@ def apply_cond_transformation(instr,user_def_instrs,tstack):
     elif opcode == "LT" or opcode == "SLT":
          if 0 == instr["inpt_sk"][0] and opcode == "LT":
             out_var = instr["outpt_sk"][0]
-            is_zero = list(filter(lambda x: out_var in x["inpt_sk"] and x["disasm"] == "ISZERO",user_def_instrs))
+            is_zero = list(filter(lambda x: out_var in x["inpt_sk"] and x["disasm"] == "ISZERO",instructions))
             if len(is_zero) == 1 and out_var not in tstack:
-                index = user_def_instrs.index(is_zero[0])
-                zero_instr = user_def_instrs[index]
+                index = instructions.index(is_zero[0])
+                zero_instr = instructions[index]
                 zero_instr["inpt_sk"] = [instr["inpt_sk"][1]]
 
                 if out_var not in tstack:
@@ -555,12 +589,12 @@ def apply_cond_transformation(instr,user_def_instrs,tstack):
          elif 1 == instr["inpt_sk"][1] and opcode == "LT":
             var = instr["inpt_sk"][0]
 
-            new_exist = list(filter(lambda x: x["inpt_sk"] == [var] and x["disasm"] == "ISZERO", user_def_instrs))
+            new_exist = list(filter(lambda x: x["inpt_sk"] == [var] and x["disasm"] == "ISZERO", instructions))
                         
             if len(new_exist) >0:
                 old_var = instr["outpt_sk"]
                 new_var = new_exist[0]["outpt_sk"]
-                update_tstack_userdef(old_var[0], new_var[0],tstack, user_def_instrs)
+                update_tstack_userdef(old_var[0], new_var[0],tstack, instructions)
                 delete = [instr]
             else:
                 idx = user_def_counter.get("ISZERO",0)
@@ -583,10 +617,10 @@ def apply_cond_transformation(instr,user_def_instrs,tstack):
         
          else:
             out_var = instr["outpt_sk"][0]
-            is_zero = list(filter(lambda x: out_var in x["inpt_sk"] and x["disasm"] == "ISZERO",user_def_instrs))
+            is_zero = list(filter(lambda x: out_var in x["inpt_sk"] and x["disasm"] == "ISZERO",instructions))
             if len(is_zero)==1:
                 zero = is_zero[0]
-                zero2 = list(filter(lambda x: zero["outpt_sk"][0] in x["inpt_sk"] and x["disasm"] == "ISZERO",user_def_instrs))
+                zero2 = list(filter(lambda x: zero["outpt_sk"][0] in x["inpt_sk"] and x["disasm"] == "ISZERO",instructions))
                 if len(zero2) == 1 and zero["outpt_sk"][0] not in tstack:
                     old_var = instr["outpt_sk"]
                     new_var = zero2[0]["outpt_sk"]
@@ -601,7 +635,7 @@ def apply_cond_transformation(instr,user_def_instrs,tstack):
                     rule = msg
                     check_and_print_debug_info(debug, msg)
 
-                    update_tstack_userdef(old_var[0], new_var[0],tstack, user_def_instrs)
+                    update_tstack_userdef(old_var[0], new_var[0],tstack, instructions)
                     
                     return True, [zero,zero2[0]]
                 else:
@@ -617,12 +651,12 @@ def apply_cond_transformation(instr,user_def_instrs,tstack):
 
             nonz = var1 if var0 == 0 else var0
 
-            new_exist = list(filter(lambda x: x["inpt_sk"] == [nonz] and x["disasm"] == "ISZERO", user_def_instrs))
+            new_exist = list(filter(lambda x: x["inpt_sk"] == [nonz] and x["disasm"] == "ISZERO", instructions))
 
             if len(new_exist) >0:
                 old_var = instr["outpt_sk"]
                 new_var = new_exist[0]["outpt_sk"]
-                update_tstack_userdef(old_var[0], new_var[0],tstack, user_def_instrs)
+                update_tstack_userdef(old_var[0], new_var[0],tstack, instructions)
                 delete = [instr]
 
             else:
@@ -651,10 +685,10 @@ def apply_cond_transformation(instr,user_def_instrs,tstack):
         else:
 
             out_var = instr["outpt_sk"][0]
-            is_zero = list(filter(lambda x: out_var in x["inpt_sk"] and x["disasm"] == "ISZERO",user_def_instrs))
+            is_zero = list(filter(lambda x: out_var in x["inpt_sk"] and x["disasm"] == "ISZERO",instructions))
             if len(is_zero)==1:
                 zero = is_zero[0]
-                zero2 = list(filter(lambda x: zero["outpt_sk"][0] in x["inpt_sk"] and x["disasm"] == "ISZERO",user_def_instrs))
+                zero2 = list(filter(lambda x: zero["outpt_sk"][0] in x["inpt_sk"] and x["disasm"] == "ISZERO",instructions))
                 if len(zero2) == 1 and zero["outpt_sk"][0] not in tstack:
 
                     old_var = instr["outpt_sk"]
@@ -670,7 +704,7 @@ def apply_cond_transformation(instr,user_def_instrs,tstack):
                     rule = msg
                     check_and_print_debug_info(debug, msg)
 
-                    update_tstack_userdef(old_var[0], new_var[0],tstack, user_def_instrs)
+                    update_tstack_userdef(old_var[0], new_var[0],tstack, instructions)
                     
                     return True, [zero,zero2[0]]
                 else:
@@ -682,8 +716,8 @@ def apply_cond_transformation(instr,user_def_instrs,tstack):
     
     elif opcode == "AND":
         out_pt = instr["outpt_sk"][0]
-        and_op = list(filter(lambda x: out_pt in x["inpt_sk"] and x["disasm"] == "AND", user_def_instrs))
-        or_op = list(filter(lambda x: out_pt in x["inpt_sk"] and x["disasm"] == "OR", user_def_instrs))
+        and_op = list(filter(lambda x: out_pt in x["inpt_sk"] and x["disasm"] == "AND", instructions))
+        or_op = list(filter(lambda x: out_pt in x["inpt_sk"] and x["disasm"] == "OR", instructions))
         
         if len(and_op)==1:
             and_instr = and_op[0]
@@ -702,7 +736,7 @@ def apply_cond_transformation(instr,user_def_instrs,tstack):
                 rule = msg
                 check_and_print_debug_info(debug, msg)
 
-                update_tstack_userdef(old_var[0], new_var[0],tstack, user_def_instrs)
+                update_tstack_userdef(old_var[0], new_var[0],tstack, instructions)
                 
                 return True, [and_instr]
             else:
@@ -737,7 +771,7 @@ def apply_cond_transformation(instr,user_def_instrs,tstack):
                     tstack[i] = x
                 i+=1
                 
-            for elems in user_def_instrs:
+            for elems in instructions:
                 if out_pt2 in elems["inpt_sk"]:
                     pos = elems["inpt_sk"].index(out_pt2)
                     elems["inpt_sk"][pos] = x
@@ -758,8 +792,8 @@ def apply_cond_transformation(instr,user_def_instrs,tstack):
         
     elif opcode == "OR":
         out_pt = instr["outpt_sk"][0]
-        or_op = list(filter(lambda x: out_pt in x["inpt_sk"] and x["disasm"] == "OR", user_def_instrs))
-        and_op = list(filter(lambda x: out_pt in x["inpt_sk"] and x["disasm"] == "AND", user_def_instrs))
+        or_op = list(filter(lambda x: out_pt in x["inpt_sk"] and x["disasm"] == "OR", instructions))
+        and_op = list(filter(lambda x: out_pt in x["inpt_sk"] and x["disasm"] == "AND", instructions))
         if len(or_op)==1:
             or_instr = or_op[0]
             if (or_instr["inpt_sk"][1] in instr["inpt_sk"]) or (or_instr["inpt_sk"][0] in instr["inpt_sk"]):
@@ -806,7 +840,7 @@ def apply_cond_transformation(instr,user_def_instrs,tstack):
                     tstack[i] = x
                 i+=1
                     
-            for elems in user_def_instrs:
+            for elems in instructions:
                 if out_pt2 in elems["inpt_sk"]:
                     pos = elems["inpt_sk"].index(out_pt2)
                     elems["inpt_sk"][pos] = x
@@ -826,8 +860,8 @@ def apply_cond_transformation(instr,user_def_instrs,tstack):
 
     elif opcode == "XOR":
         out_pt = instr["outpt_sk"][0]
-        xor_op = list(filter(lambda x: out_pt in x["inpt_sk"] and x["disasm"] == "XOR", user_def_instrs))
-        isz_op = list(filter(lambda x: out_pt in x["inpt_sk"] and x["disasm"] == "ISZERO", user_def_instrs))
+        xor_op = list(filter(lambda x: out_pt in x["inpt_sk"] and x["disasm"] == "XOR", instructions))
+        isz_op = list(filter(lambda x: out_pt in x["inpt_sk"] and x["disasm"] == "ISZERO", instructions))
         
         if len(xor_op)==1:
             xor_instr = xor_op[0]
@@ -859,7 +893,7 @@ def apply_cond_transformation(instr,user_def_instrs,tstack):
                 i+=1
 
                     
-            for elems in user_def_instrs:
+            for elems in instructions:
                 if out_pt2 in elems["inpt_sk"]:
                     pos = elems["inpt_sk"].index(out_pt2)
                     elems["inpt_sk"][pos] = y
@@ -878,19 +912,19 @@ def apply_cond_transformation(instr,user_def_instrs,tstack):
             out_pt = instr["outpt_sk"][0]
 
             comm_inpt = [instr["inpt_sk"][1], instr["inpt_sk"][0]]
-            new_exist = list(filter(lambda x: (x["inpt_sk"] == instr["inpt_sk"] or x["inpt_sk"] == comm_inpt) and x["disasm"] == "EQ", user_def_instrs))
+            new_exist = list(filter(lambda x: (x["inpt_sk"] == instr["inpt_sk"] or x["inpt_sk"] == comm_inpt) and x["disasm"] == "EQ", instructions))
 
             if len(new_exist) >0:
                 old_var = isz_instr["outpt_sk"]
                 new_var = new_exist[0]["outpt_sk"]
-                update_tstack_userdef(old_var[0], new_var[0],tstack, user_def_instrs)
+                update_tstack_userdef(old_var[0], new_var[0],tstack, instructions)
                 delete = [isz_instr]
 
                 # discount_op+=1
                 # gas_saved_op+=3
 
                 
-            elif out_pt not in tstack and len(list(filter(lambda x: out_pt in x["inpt_sk"] and x!= isz_instr, user_def_instrs))) == 0:
+            elif out_pt not in tstack and len(list(filter(lambda x: out_pt in x["inpt_sk"] and x!= isz_instr, instructions))) == 0:
                 idx = user_def_counter.get("EQ",0)
                 isz_instr["inpt_sk"] = instr["inpt_sk"]
                 isz_instr["id"] = "EQ_"+str(idx)
@@ -905,15 +939,6 @@ def apply_cond_transformation(instr,user_def_instrs,tstack):
                 
             else:
                 return False, []
-            # idx = user_def_counter.get("EQ",0)            
-            # instr["outpt_sk"] = isz_instr["outpt_sk"]
-            # instr["id"] = "EQ_"+str(idx)
-            # instr["opcode"] = "14"
-            # instr["disasm"] = "EQ"
-            # instr["commutative"] = True            
-
-
-            # user_def_counter["EQ"]=idx+1
 
             msg = "ISZ(XOR(X,Y))"
             rule = msg
@@ -927,9 +952,9 @@ def apply_cond_transformation(instr,user_def_instrs,tstack):
         
     elif opcode == "NOT":
         out_pt = instr["outpt_sk"][0]
-        not_op = list(filter(lambda x: out_pt in x["inpt_sk"] and x["disasm"] == "NOT", user_def_instrs))
-        and_op = list(filter(lambda x: out_pt in x["inpt_sk"] and x["disasm"] == "AND", user_def_instrs))
-        or_op = list(filter(lambda x: out_pt in x["inpt_sk"] and x["disasm"] == "NOT", user_def_instrs))
+        not_op = list(filter(lambda x: out_pt in x["inpt_sk"] and x["disasm"] == "NOT", instructions))
+        and_op = list(filter(lambda x: out_pt in x["inpt_sk"] and x["disasm"] == "AND", instructions))
+        or_op = list(filter(lambda x: out_pt in x["inpt_sk"] and x["disasm"] == "NOT", instructions))
 
         if len(not_op)==1:
             not_instr = not_op[0]
@@ -942,7 +967,7 @@ def apply_cond_transformation(instr,user_def_instrs,tstack):
                     tstack[i] = real_var
                 i += 1
 
-            for elems in user_def_instrs:
+            for elems in instructions:
                 if out_pt2 in elems["inpt_sk"]:
                     pos = elems["inpt_sk"].index(out_pt2)
                     elems["inpt_sk"][pos] = real_var
@@ -970,7 +995,7 @@ def apply_cond_transformation(instr,user_def_instrs,tstack):
                         tstack[i] = real_var
                     i+=1
                     
-                for elems in user_def_instrs:
+                for elems in instructions:
                     if out_pt2 in elems["inpt_sk"]:
                         pos = elems["inpt_sk"].index(out_pt2)
                         elems["inpt_sk"][pos] = real_var
@@ -999,7 +1024,7 @@ def apply_cond_transformation(instr,user_def_instrs,tstack):
                         tstack[i] = real_var
                     i+=1
                     
-                for elems in user_def_instrs:
+                for elems in instructions:
                     if out_pt2 in elems["inpt_sk"]:
                         pos = elems["inpt_sk"].index(out_pt2)
                         elems["inpt_sk"][pos] = real_var
@@ -1019,7 +1044,7 @@ def apply_cond_transformation(instr,user_def_instrs,tstack):
 
     elif opcode == "ORIGIN" or opcode == "COINBASE" or opcode == "CALLER":
         out_pt = instr["outpt_sk"][0]
-        and_op = list(filter(lambda x: out_pt in x["inpt_sk"] and x["disasm"] == "AND", user_def_instrs))
+        and_op = list(filter(lambda x: out_pt in x["inpt_sk"] and x["disasm"] == "AND", instructions))
         if len(and_op) == 1:
             and_instr = and_op[0]
             if -1+2**160 in and_instr["inpt_sk"]:
@@ -1036,7 +1061,7 @@ def apply_cond_transformation(instr,user_def_instrs,tstack):
                 rule = msg
                 check_and_print_debug_info(debug, msg)
 
-                update_tstack_userdef(old_var[0], new_var[0],tstack, user_def_instrs)
+                update_tstack_userdef(old_var[0], new_var[0],tstack, instructions)
                 
                 return True,[and_instr]
             else:
@@ -1047,7 +1072,7 @@ def apply_cond_transformation(instr,user_def_instrs,tstack):
 
     elif opcode == "SUB":
         out_pt = instr["outpt_sk"][0]
-        isz_op = list(filter(lambda x: out_pt in x["inpt_sk"] and x["disasm"] == "ISZERO", user_def_instrs))
+        isz_op = list(filter(lambda x: out_pt in x["inpt_sk"] and x["disasm"] == "ISZERO", instructions))
         
 
         if len(isz_op) == 1: #ISZ(SUB(X,Y)) = EQ(X,Y)
@@ -1055,15 +1080,15 @@ def apply_cond_transformation(instr,user_def_instrs,tstack):
 
             comm_inpt = [instr["inpt_sk"][1],instr["inpt_sk"][0]]
             
-            new_exist = list(filter(lambda x: (x["inpt_sk"] == instr["inpt_sk"] or x["inpt_sk"] == comm_inpt) and x["disasm"] == "EQ", user_def_instrs))
+            new_exist = list(filter(lambda x: (x["inpt_sk"] == instr["inpt_sk"] or x["inpt_sk"] == comm_inpt) and x["disasm"] == "EQ", instructions))
 
             if len(new_exist) >0:
                 old_var = isz_instr["outpt_sk"]
                 new_var = new_exist[0]["outpt_sk"]
-                update_tstack_userdef(old_var[0], new_var[0],tstack, user_def_instrs)
+                update_tstack_userdef(old_var[0], new_var[0],tstack, instructions)
                 delete = [isz_instr]
 
-            elif out_pt not in tstack and len(list(filter(lambda x: out_pt in x["inpt_sk"] and x!=isz_instr, user_def_instrs))) == 0:
+            elif out_pt not in tstack and len(list(filter(lambda x: out_pt in x["inpt_sk"] and x!=isz_instr, instructions))) == 0:
                 idx = user_def_counter.get("EQ",0)
                 isz_instr["inpt_sk"] = instr["inpt_sk"]
                 isz_instr["id"] = "EQ_"+str(idx)
@@ -1094,7 +1119,7 @@ def apply_cond_transformation(instr,user_def_instrs,tstack):
             rule = msg
             check_and_print_debug_info(debug, msg)
 
-            # update_tstack_userdef(old_var[0], new_var[0],tstack, user_def_instrs)
+            # update_tstack_userdef(old_var[0], new_var[0],tstack, instructions)
             
             return True, delete
                 
@@ -1103,20 +1128,20 @@ def apply_cond_transformation(instr,user_def_instrs,tstack):
 
     elif opcode == "SHL":
         out_pt = instr["outpt_sk"][0]
-        mul_op = list(filter(lambda x: out_pt in x["inpt_sk"] and x["disasm"] == "MUL", user_def_instrs))
-        div_op = list(filter(lambda x: out_pt in x["inpt_sk"] and x["disasm"] == "DIV", user_def_instrs))
-        and_op = list(filter(lambda x: out_pt in x["inpt_sk"] and x["disasm"] == "AND", user_def_instrs))
+        mul_op = list(filter(lambda x: out_pt in x["inpt_sk"] and x["disasm"] == "MUL", instructions))
+        div_op = list(filter(lambda x: out_pt in x["inpt_sk"] and x["disasm"] == "DIV", instructions))
+        and_op = list(filter(lambda x: out_pt in x["inpt_sk"] and x["disasm"] == "AND", instructions))
         if len(mul_op) == 1 and instr["inpt_sk"][1] == 1:
             mul_instr = mul_op[0]
 
             if mul_instr["inpt_sk"][1] == out_pt:
                 new_input = [instr["inpt_sk"][0],mul_instr["inpt_sk"][0]]
-                new_exist = list(filter(lambda x: x["inpt_sk"] == new_input and x["disasm"] == "SHL", user_def_instrs))
+                new_exist = list(filter(lambda x: x["inpt_sk"] == new_input and x["disasm"] == "SHL", instructions))
 
                 if len(new_exist) > 0:
                     old_var = mul_instr["outpt_sk"]
                     new_var = new_exist[0]["outpr_sk"]
-                    update_tstack_userdef(old_var[0], new_var[0],tstack, user_def_instrs)
+                    update_tstack_userdef(old_var[0], new_var[0],tstack, instructions)
                     delete = [mul_instr]
 
                 else:
@@ -1130,11 +1155,6 @@ def apply_cond_transformation(instr,user_def_instrs,tstack):
                     user_def_counter["SHL"]=idx+1
                     delete = []
                     
-                # old_var = instr["outpt_sk"]
-                # new_var = mul_instr["outpt_sk"]
-                # instr["outpt_sk"] = new_var
-                # instr["inpt_sk"][1] = mul_instr["inpt_sk"][0]
-
                 discount_op+=1
                 gas_saved_op+=5
                 saved_push+=1
@@ -1143,18 +1163,18 @@ def apply_cond_transformation(instr,user_def_instrs,tstack):
                 rule = msg
                 check_and_print_debug_info(debug, msg)
 
-                # update_tstack_userdef(old_var[0], new_var[0],tstack, user_def_instrs)
+                # update_tstack_userdef(old_var[0], new_var[0],tstack, instructions)
                 
                 return True, delete
 
             elif mul_instr["inpt_sk"][0] == out_pt:
                 new_input = [instr["inpt_sk"][0],mul_instr["inpt_sk"][1]]
-                new_exist = list(filter(lambda x: x["inpt_sk"] == new_input and x["disasm"] == "SHL", user_def_instrs))
+                new_exist = list(filter(lambda x: x["inpt_sk"] == new_input and x["disasm"] == "SHL", instructions))
 
                 if len(new_exist) > 0:
                     old_var = mul_instr["outpt_sk"]
                     new_var = new_exist[0]["outpr_sk"]
-                    update_tstack_userdef(old_var[0], new_var[0],tstack, user_def_instrs)
+                    update_tstack_userdef(old_var[0], new_var[0],tstack, instructions)
                     delete = [mul_instr]
 
                 else:
@@ -1182,7 +1202,7 @@ def apply_cond_transformation(instr,user_def_instrs,tstack):
                 rule = msg
                 check_and_print_debug_info(debug, msg)
 
-                # update_tstack_userdef(old_var[0], new_var[0],tstack, user_def_instrs)
+                # update_tstack_userdef(old_var[0], new_var[0],tstack, instructions)
                 
                 return True, delete
 
@@ -1194,12 +1214,12 @@ def apply_cond_transformation(instr,user_def_instrs,tstack):
 
             if div_instr["inpt_sk"][1] == out_pt:
                 new_input = [instr["inpt_sk"][0], div_instr["inpt_sk"][0]]
-                new_exist = list(filter(lambda x: x["inpt_sk"] == new_input and x["disasm"] == "SHR", user_def_instrs))
+                new_exist = list(filter(lambda x: x["inpt_sk"] == new_input and x["disasm"] == "SHR", instructions))
 
                 if len(new_exist) > 0:
                     old_var = div_instr["outpt_sk"]
                     new_var = new_exist[0]["outpt_sk"]
-                    update_tstack_userdef(old_var[0], new_var[0],tstack, user_def_instrs)
+                    update_tstack_userdef(old_var[0], new_var[0],tstack, instructions)
                     delete = [div_instr]
                 else:
                     div_instr["inpt_sk"] = new_input
@@ -1211,21 +1231,7 @@ def apply_cond_transformation(instr,user_def_instrs,tstack):
                     div_instr["commutative"] = False            
                     user_def_counter["SHR"]=idx+1
                     delete = []
-                    
-                # old_var = instr["outpt_sk"]
-                # new_var = div_instr["outpt_sk"]
-                # instr["outpt_sk"] = new_var
-                # # instr["outpt_sk"] = div_instr["outpt_sk"]
-                # instr["inpt_sk"][1] = div_instr["inpt_sk"][0]
-
-                # idx = user_def_counter.get("SHR",0)
-            
-                # instr["id"] = "SHR_"+str(idx)
-                # instr["opcode"] = "1c"
-                # instr["disasm"] = "SHR"
-                # instr["commutative"] = False            
-                
-                
+                                    
                 discount_op+=1
                 gas_saved_op+=5
                 saved_push+=1
@@ -1235,7 +1241,7 @@ def apply_cond_transformation(instr,user_def_instrs,tstack):
                 rule = msg
                 check_and_print_debug_info(debug, msg)
 
-                # update_tstack_userdef(old_var[0], new_var[0],tstack, user_def_instrs)
+                # update_tstack_userdef(old_var[0], new_var[0],tstack, instructions)
                 
                 return True, delete
             return False, []
@@ -1252,7 +1258,7 @@ def apply_cond_transformation(instr,user_def_instrs,tstack):
                 else:
                     out_pt1 = and_ins["inpt_sk"][0]
 
-                new_ins = list(filter(lambda x: out_pt1 in x["outpt_sk"] and x["disasm"] == "SHL" and x["inpt_sk"][0] == instr["inpt_sk"][0],user_def_instrs))
+                new_ins = list(filter(lambda x: out_pt1 in x["outpt_sk"] and x["disasm"] == "SHL" and x["inpt_sk"][0] == instr["inpt_sk"][0],instructions))
                 if len(new_ins) == 1:
                     shl1 = new_ins[0]
                     found = True
@@ -1260,7 +1266,7 @@ def apply_cond_transformation(instr,user_def_instrs,tstack):
                 i+=1
 
             #if the shl instructions are not used by any other operation or do not appear in the target stack, then I can simplify them
-            if found and out_pt not in tstack and out_pt1 not in tstack and len(list(filter(lambda x: out_pt in x["inpt_sk"] and x!= and_ins, user_def_instrs))) == 0 and len(list(filter(lambda x: out_pt1 in x["inpt_sk"] and x!= and_ins, user_def_instrs))) == 0:
+            if found and out_pt not in tstack and out_pt1 not in tstack and len(list(filter(lambda x: out_pt in x["inpt_sk"] and x!= and_ins, instructions))) == 0 and len(list(filter(lambda x: out_pt1 in x["inpt_sk"] and x!= and_ins, instructions))) == 0:
 
                 inpt1 = instr["inpt_sk"][0]
                 inpt2 = instr["inpt_sk"][1]
@@ -1301,19 +1307,19 @@ def apply_cond_transformation(instr,user_def_instrs,tstack):
 
     elif opcode == "ADDRESS":
         out_pt = instr["outpt_sk"][0]
-        bal_op = list(filter(lambda x: out_pt in x["inpt_sk"] and x["disasm"] == "BALANCE", user_def_instrs))
+        bal_op = list(filter(lambda x: out_pt in x["inpt_sk"] and x["disasm"] == "BALANCE", instructions))
 
-        and_op = list(filter(lambda x: out_pt in x["inpt_sk"] and x["disasm"] == "AND", user_def_instrs))
+        and_op = list(filter(lambda x: out_pt in x["inpt_sk"] and x["disasm"] == "AND", instructions))
 
         if len(bal_op) == 1:
             bal_instr = bal_op[0]
 
-            new_exist = list(filter(lambda x: x["disasm"] == "SELFBALANCE", user_def_instrs))
+            new_exist = list(filter(lambda x: x["disasm"] == "SELFBALANCE", instructions))
 
             if len(new_exist) > 0:
                     old_var = bal_instr["outpt_sk"]
                     new_var = new_exist[0]["outpt_sk"]
-                    update_tstack_userdef(old_var[0], new_var[0],tstack, user_def_instrs)
+                    update_tstack_userdef(old_var[0], new_var[0],tstack, instructions)
                     delete = [bal_instr]
             else:
                 bal_instr["inpt_sk"] = []
@@ -1348,7 +1354,7 @@ def apply_cond_transformation(instr,user_def_instrs,tstack):
             rule = msg
             check_and_print_debug_info(debug, msg)
 
-            # update_tstack_userdef(old_var[0], new_var[0],tstack, user_def_instrs)
+            # update_tstack_userdef(old_var[0], new_var[0],tstack, instructions)
             
             return True, delete
         
@@ -1369,7 +1375,7 @@ def apply_cond_transformation(instr,user_def_instrs,tstack):
                 rule = msg
                 check_and_print_debug_info(debug, msg)
 
-                update_tstack_userdef(old_var[0], new_var[0],tstack, user_def_instrs)
+                update_tstack_userdef(old_var[0], new_var[0],tstack, instructions)
                 
                 return True,[and_instr]
             else:
@@ -1381,12 +1387,12 @@ def apply_cond_transformation(instr,user_def_instrs,tstack):
         if instr["inpt_sk"][0] == 0:
             instr["inpt_sk"].pop(0)
 
-            new_exist = list(filter(lambda x: x["inpt_sk"] == instr["inpt_sk"] and x["disasm"] == "ISZERO", user_def_instrs))
+            new_exist = list(filter(lambda x: x["inpt_sk"] == instr["inpt_sk"] and x["disasm"] == "ISZERO", instructions))
 
             if len(new_exist) > 0:
                 old_var = instr["outpt_sk"]
                 new_var = new_exist[0]["outpt_sk"]
-                update_tstack_userdef(old_var[0], new_var[0],tstack, user_def_instrs)
+                update_tstack_userdef(old_var[0], new_var[0],tstack, instructions)
                 delete = [instr]
             else:
                 idx = user_def_counter.get("ISZERO",0)
@@ -1412,12 +1418,12 @@ def apply_cond_transformation(instr,user_def_instrs,tstack):
             instr["inpt_sk"].pop(0)
 
             new_input = [instr["inpt_sk"][0],1]
-            new_exist = list(filter(lambda x: x["inpt_sk"] == new_input and x["disasm"] == "SHL", user_def_instrs))
+            new_exist = list(filter(lambda x: x["inpt_sk"] == new_input and x["disasm"] == "SHL", instructions))
 
             if len(new_exist) > 0:
                 old_var = instr["outpt_sk"]
                 new_var = new_exist[0]["outpt_sk"]
-                update_tstack_userdef(old_var[0], new_var[0],tstack, user_def_instrs)
+                update_tstack_userdef(old_var[0], new_var[0],tstack, instructions)
                 delete = [instr]
             else:
                 idx = user_def_counter.get("SHL",0)
