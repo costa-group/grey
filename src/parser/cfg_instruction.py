@@ -242,6 +242,9 @@ class CFGInstruction:
     def get_in_args(self):
         return self.in_args
 
+    def set_in_args(self, new_args):
+        self.in_args = new_args
+    
     def get_type_mem_op(self):
         if self.op in ["sload", "mload", "keccak256", "log0","log1","log2","log3","log4", "create","create2"]:
             return "read"
