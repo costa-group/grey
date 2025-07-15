@@ -30,7 +30,7 @@ def variable2block_header(cfg_block_list: CFGBlockList, forest_graph: nx.DiGraph
     for block_id in forest_graph.nodes:
         block = cfg_block_list.get_block(block_id)
 
-        predecessors = forest_graph.predecessors(block_id)
+        predecessors = list(forest_graph.predecessors(block_id))
         if len(predecessors) != 0:
             assert len(predecessors) == 1, "There can only be one predecessor in the forest graph"
             predecessor = predecessors[0]
@@ -56,19 +56,6 @@ def compute_var2num_uses(block_list: CFGBlockList) -> Dict[var_id_T, int]:
                 var2num_uses[loaded_var] += 1
 
     return var2num_uses
-
-# Then we group in a class all the information that is needed to be propagated
-
-
-class InformationToPropagate:
-
-    def __init__(self, var2num_uses: Dict[var_id_T, int]):
-        # How many uses of each variable are remained, considering
-        # the ones below current block
-        self.var2num_uses = var2num_uses
-
-        # Variables that must be stored in memory at some point (initially empty)
-        self.variables_to_store = set()
 
 
 class TreeScanFirstPass:
