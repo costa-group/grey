@@ -619,8 +619,6 @@ class CFGBlock:
 
     @greedy_ids.setter
     def greedy_ids(self, greedy_ids: List[instr_id_T]) -> None:
-        if self._greedy_ids is not None:
-            raise ValueError("Greedy ids already computed")
         self._greedy_ids = greedy_ids
 
     def is_accessible_in(self, var_id: var_id_T):
