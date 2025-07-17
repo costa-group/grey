@@ -99,7 +99,7 @@ def parse_block(object_name: str, block_json: Dict[str,Any], built_in_op: bool,
     block_liveness = block_json.get("liveness", {})
     block_identifier = generate_block_name(object_name, block_id)
     block = CFGBlock(block_identifier, list_cfg_instructions, block_type, dict())
-    block.liveness = block_liveness
+    block.set_liveness(block_liveness)
     block.set_jump_info(block_exit)
     block.entries = entries
 
@@ -231,6 +231,7 @@ def parse_CFG_from_json_dict(json_dict: Dict[str, Yul_CFG_T], built_in_op=False)
     cfg_dicts = {}
     for cfg_name, json_dict in json_dict.items():
         print("CFG NAME: "+cfg_name)
+        print(json_dict)
         cfg = parser_CFG_from_JSON(json_dict, built_in_op)
         cfg_dicts[cfg_name] = cfg
     return cfg_dicts
