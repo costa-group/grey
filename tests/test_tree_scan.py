@@ -9,7 +9,7 @@ from parser.cfg_block_list import CFGBlockList, CFGBlock
 from graphs.cfg import compute_loop_nesting_forest_graph
 from graphs.algorithms import compute_dominance_tree
 from parser.cfg_instruction import CFGInstruction
-from liveness.tree_scan import TreeScanFirstPass
+from liveness.tree_scan import TreeScanFirstPass, ColourAssignment
 
 
 def block_with_stacks(block_name: str, greedy_ids: List[str],
@@ -111,3 +111,18 @@ class TestGreedyNewVersion:
 
         # Then, we just traverse the last accessible
         assert detect_last_accessible == {"block_4": {"v0"}, "block_7": {"v3", "v16"}}
+
+    def test_second_phase(self):
+        example_block_list = setup_cfg_example()
+        cfg_graph = example_block_list.to_graph()
+        dominance_tree = compute_dominance_tree(cfg_graph, example_block_list.start_block)
+
+        # Modify the example introducing the DUP_SET instructions
+        last_accessible = {"block_4": {"v0"}, "block_7": {"v3", "v16"}}
+
+        block_1 = example_block_list.get_block("block_1")
+        block_1._greedy_ids.insert(0, "DUP_SET(v0)")
+        block_1._greedy_ids.insert(0, "DUP_SET(v3)")
+
+        colour_assignment = ColourAssignment(example_block_list, dominance_tree, last_accessible)
+        colour_assignment.tree_scan_with_last_uses()

@@ -68,9 +68,9 @@ class TreeScanFirstPass:
         self._block_list = block_list
         self._loop_forest = loop_forest
 
-        # block2last_use maps each block to the set of variables
+        # ordered_program_points maps each block to the set of variables
         # whose last use is the current block
-        self._block2last_use = defaultdict(lambda: set())
+        self._ordered_program_points = []
         self._last_visited = set()
 
         # Var2header matches every variable to the header of the loop
@@ -80,7 +80,7 @@ class TreeScanFirstPass:
         # Var2num_uses indicates how many times a variable is loaded from memory
         self._var2num_uses = compute_var2num_uses(block_list)
 
-    def insert_instructions(self) -> Dict[block_id_T, Set[var_id_T]]:
+    def insert_instructions(self) -> List[Tuple[block_id_T, int]]:
         """
         Inserts the DUP_SET instructions and returns the first use of each variable according to a post-order
         traversal of the CFG
@@ -89,7 +89,7 @@ class TreeScanFirstPass:
         traversed = set()
 
         self._dag_dfs_block(self._block_list.get_block(self._block_list.start_block), traversed)
-        return self._block2last_use
+        return self._ordered_program_points
 
     def _dag_dfs_block(self, cfg_block: CFGBlock, traversed: Set[block_id_T]) -> Set[var_id_T]:
         """
@@ -130,7 +130,9 @@ class TreeScanFirstPass:
                 # The first ocurrence of a variable is the last placed it was used
                 if loaded_var not in self._last_visited:
                     self._last_visited.add(loaded_var)
-                    self._block2last_use[cfg_block.block_id].add(loaded_var)
+
+                    # Annotate when the there is a GET or a SET
+                    self._ordered_program_points.append((cfg_block.block_id, -i - 1))
 
                 # If no more uses are needed, this means that we have reached a point
                 # in which it can be introduced
@@ -141,6 +143,8 @@ class TreeScanFirstPass:
             # Hence, the corresponding values do not need to be propagated upwards
             elif instruction_id.startswith("SET"):
                 stored_var = instruction_id[4:-1]
+
+                self._ordered_program_points.append((cfg_block.block_id, -i - 1))
 
                 # We only remove the stored var if it has not been removed before
                 if stored_var in vars_to_introduce:
@@ -169,9 +173,11 @@ class TreeScanFirstPass:
 
                 # We only store a variable if it is in the most possible outer loop
                 if header_loop is None or (
-                        header_loop == cfg_block.block_id and self._loop_forest.has_edge(header_loop, cfg_block.block_id)):
+                        header_loop == cfg_block.block_id and self._loop_forest.has_edge(header_loop,
+                                                                                         cfg_block.block_id)):
                     # We insert a DUP_SET instruction
                     cfg_block.greedy_ids.insert(0, f"DUP_SET({var_id})")
+                    self._ordered_program_points.append((cfg_block.block_id,  -len(cfg_block.greedy_ids)))
 
                     # We mark the variable for removal
                     to_remove.add(var_id)
@@ -187,11 +193,12 @@ class ColourAssignment:
     Class to represents the colouring of the graph.
     """
 
-    def __init__(self, block_list: CFGBlockList, dominance_tree: nx.DiGraph, block2last_use: Dict[block_id_T, Set[var_id_T]]):
+    def __init__(self, block_list: CFGBlockList, dominance_tree: nx.DiGraph,
+                 ordered_program_points: List[Tuple[block_id_T, int]]):
         # Parameters that are passed to colour the graph
         self._block_list = block_list
         self._dominance_tree = dominance_tree
-        self._block2last_use = block2last_use
+        self._ordered_program_points = ordered_program_points
 
         self._total_colors: int = 0
         self._used_colors: int = 0
@@ -202,12 +209,12 @@ class ColourAssignment:
         # Colors currently assigned
         self._assigned_colours: Set[var_id_T] = set()
 
-    def _pick_colour(self, v: var_id_T, available: List[bool], assigned_colours: Set[var_id_T]):
+    def _pick_colour(self, v: var_id_T, available: List[bool]):
         """
         Chooses an available colour, adding a new one if there are not enough
         """
         # We add v to the set of assigned colours
-        assigned_colours.add(v)
+        self._assigned_colours.add(v)
 
         # If all colours are used, we need to increase the number of colours
         if self._total_colors == self._used_colors:
@@ -229,21 +236,16 @@ class ColourAssignment:
 
             raise ValueError("There must exist a colour that has not been assigned so far")
 
-    def _release_colour(self, v: var_id_T, available: List[bool], assigned_colours: Set[var_id_T]):
+    def _release_colour(self, v: var_id_T, available: List[bool]):
         self._used_colors -= 1
         available[self._var2color[v]] = True
-        assigned_colours.remove(v)
+        self._assigned_colours.remove(v)
 
-    def _assign_color(self, block_id: block_id_T, available: List[bool], assigned_colours: Set[var_id_T]) -> None:
+    def _assign_color(self, block_id: block_id_T, available: List[bool]) -> None:
         """
         We need to assign colours to each different block, following the cfg order.
         """
         block = self._block_list.get_block(block_id)
-
-        # The variables in block2last_use indicate which variables have the last use at the current
-        # block, and can be released.
-        for variable in self._block2last_use[block_id]:
-            self._release_colour(variable, available, assigned_colours)
 
         # Then, we traverse the instructions
         new_greedy_ids = []
@@ -253,28 +255,33 @@ class ColourAssignment:
                 variable_id = instruction_id[8:-1]
 
                 # For DUP_SET, the variable cannot be assigned previously
-                assert variable_id not in assigned_colours, "A DUP_SET instruction should have been " \
-                                                            "inserted with no previous assignment of the value"
+                assert variable_id not in self._assigned_colours, "A DUP_SET instruction should have been " \
+                                                                  "inserted with no previous assignment of the value"
 
-                self._pick_colour(variable_id, available, assigned_colours)
+                self._pick_colour(variable_id, available)
 
             # SET instructions can convert into POP or
             elif instruction_id.startswith("SET"):
                 variable_id = instruction_id[4: -1]
 
                 # If it has been already assigned, then we replace with a POP instruction
-                if variable_id in assigned_colours:
+                if variable_id in self._assigned_colours:
                     new_greedy_ids.append("POP")
                 else:
-                    self._pick_colour(variable_id, available, assigned_colours)
+                    self._pick_colour(variable_id, available)
 
             else:
                 new_greedy_ids.append(instruction_id)
 
         block.greedy_ids = new_greedy_ids
 
+        # The variables in ordered_program_points indicate which variables have the last use at the current
+        # block, and can be released.
+        for variable in self._ordered_program_points.get(block_id, []):
+            self._release_colour(variable, available)
+
         for successor in self._dominance_tree.successors(block_id):
-            self._assign_color(successor, available.copy(), assigned_colours.copy())
+            self._assign_color(successor, available.copy())
 
     def tree_scan_with_last_uses(self) -> None:
         """
@@ -282,7 +289,7 @@ class ColourAssignment:
         and the list of program points, registers are assigned based on colours
         """
         # Initial call with the start block and an empty list of available blocks
-        self._assign_color(self._block_list.start_block, [], set())
+        self._assign_color(self._block_list.start_block, [])
 
 
 # Full algorithm
@@ -292,5 +299,5 @@ def tree_scan(block_list: CFGBlockList, dominance_tree: nx.DiGraph) -> None:
     Tree scan that assigns the
     """
     loop_forest = compute_loop_nesting_forest_graph(block_list, dominance_tree)
-    block2last_use = TreeScanFirstPass(block_list, loop_forest).insert_instructions()
-    ColourAssignment(block_list, dominance_tree, block2last_use)
+    ordered_program_points = TreeScanFirstPass(block_list, loop_forest).insert_instructions()
+    ColourAssignment(block_list, dominance_tree, ordered_program_points)
