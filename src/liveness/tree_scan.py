@@ -174,8 +174,8 @@ class TreeScanFirstPass:
                 header_loop = self._var2header.get(var_id, None)
 
                 # We only store a variable if it is in the most possible outer loop
-                if header_loop is not None and (
-                        header_loop == cfg_block.block_id or self._loop_forest.has_edge(header_loop, cfg_block.block_id)):
+                if header_loop is None or (
+                        header_loop == cfg_block.block_id and self._loop_forest.has_edge(header_loop, cfg_block.block_id)):
                     # We insert a DUP_SET instruction
                     cfg_block.greedy_ids.insert(0, f"DUP_SET({var_id})")
 
