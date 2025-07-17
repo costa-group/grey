@@ -103,6 +103,8 @@ class CFGBlock:
         self._spec: SMS_T = None
         self._greedy_ids: List[instr_id_T] = None
 
+        self.liveness = {}
+        
     @property
     def final_stack_elements(self) -> List[str]:
         """
@@ -175,6 +177,13 @@ class CFGBlock:
     def insert_instruction(self, index: int, instruction: CFGInstruction) -> None:
         self._instructions.insert(index, instruction)
 
+
+    def get_liveness(self):
+        return self.liveness
+
+    def set_liveness(self, liveness_set: Dict[str,List[str]]):
+        self.liveness = liveness_set
+        
     def get_instructions_to_compute(self) -> List[CFGInstruction]:
         return [instruction for instruction in self._instructions if instruction.must_be_computed()]
 
