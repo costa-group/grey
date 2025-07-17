@@ -136,7 +136,7 @@ class CFGBlockList:
     def set_assigment(self, assigment_dict: Dict[str,str]) -> None:
         self.assigment_dict = assigment_dict
 
-    def get_assigment_dict(self) -> Dict[str,str]
+    def get_assigment_dict(self) -> Dict[str,str]:
         return self.assigment_dict
         
         
