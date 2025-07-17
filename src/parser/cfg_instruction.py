@@ -236,13 +236,16 @@ class CFGInstruction:
 
         return instructions, new_out
 
-    def get_out_args(self):
+    def get_out_args(self) -> List[str]:
         return self.out_args
 
-    def get_in_args(self):
+    def set_out_agrs(self, new_args: List[str]):
+        self.out_args = new_args
+    
+    def get_in_args(self) -> List[str]:
         return self.in_args
 
-    def set_in_args(self, new_args):
+    def set_in_args(self, new_args: List[str]):
         self.in_args = new_args
     
     def get_type_mem_op(self):
@@ -356,6 +359,9 @@ class CFGInstruction:
     def get_op_name(self):
         return self.op
 
+    def set_op_name(self, disasm_name: str):
+        self.op = disasm_name
+    
     def get_instruction_representation(self):
         outs = f'{",".join(self.out_args)} = ' if self.out_args else ''
         inps = f'({",".join(self.in_args)})' if self.in_args else ''
