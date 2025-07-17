@@ -231,7 +231,7 @@ def parse_CFG_from_json_dict(json_dict: Dict[str, Yul_CFG_T], built_in_op=False)
     cfg_dicts = {}
     for cfg_name, json_dict in json_dict.items():
         print("CFG NAME: "+cfg_name)
-        print(json_dict)
+        #print(json_dict)
         cfg = parser_CFG_from_JSON(json_dict, built_in_op)
         cfg_dicts[cfg_name] = cfg
     return cfg_dicts
