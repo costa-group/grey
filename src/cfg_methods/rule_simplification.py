@@ -421,12 +421,12 @@ def apply_semantics_rules(block: CFGBlock, assigments_dict: Dict[str,str], vars_
         
 def apply_semantics_transformation(instr: CFGInstruction, instructions: List[CFGInstruction], assigments_dict: Dict[str,str], vars_to_update: Dict[str,str], out_vars: List[str], rules: List[str]):
     
-    opcode = instr.getop_name()
+    opcode = instr.get_op_name()
     init_instr_input = instr.get_in_args()
     inp_vars = get_input_values(init_instr_input, assigments_dict)
     
     if opcode == "gt" or opcode == "sgt":
-        if "0x00" == inp_vars[1] and opcode == "gt":
+        if 0 == inp_vars[1] and opcode == "gt":
             out_var = instr.get_out_args()[0]
             is_zero = list(filter(lambda x: out_var in x.get_in_args() and x.get_op_name() == "iszero",instructions))
             
@@ -442,7 +442,7 @@ def apply_semantics_transformation(instr: CFGInstruction, instructions: List[CFG
             else:
                 return False, []
 
-        elif "0x01" == inp_vars[0] and opcode == "gt":
+        elif 0 == inp_vars[0] and opcode == "gt":
             instr.set_op_name("iszero")
             instr.set_in_agrs([instr.get_in_args()[1]])
             
@@ -465,9 +465,10 @@ def apply_semantics_transformation(instr: CFGInstruction, instructions: List[CFG
                     msg = "ISZ(ISZ("+opcode+"(X,Y)))" #It may be GT or SGT
                     rules.append(msg)
                     
-                    #POR AQUI
-                    update_tstack_userdef(old_var[0], new_var[0],tstack, instructions)
-                    
+
+                    vars_to_update[old_var[0]] = new_var[0]
+
+                    #update_tstack_userdef(old_var[0], new_var[0],tstack, instructions)
                     return True, [zero,zero2[0]]
                 else:
                     return False, []
@@ -487,18 +488,18 @@ def apply_semantics_transformation(instr: CFGInstruction, instructions: List[CFG
             zero = is_zero[0]
   
             zero2 = list(filter(lambda x: zero.get_out_args()[0] in x.get_in_args() and x.get_op_name() == "ISZERO",instructions))
-            if len(zero2) == 1 and zero.get_out_args()[0] not in tstack:
+            if len(zero2) == 1 and zero.get_out_args()[0] not in out_vars:
              
                 # instr.get_out_args() = zero2[0].get_out_args()
                 old_var = instr.get_out_args()
                 new_var = zero2[0].get_out_args()
-                instr.get_out_args() = new_var
+                instr.set_out_args(new_var)
 
                 msg = "ISZ(ISZ(ISZ(X)))"
                 rules.append(msg)
-                
 
-                update_tstack_userdef(old_var[0], new_var[0],tstack, instructions)
+                vars_to_update[old_var[0]] = new_var[0]
+                #update_tstack_userdef(old_var[0], new_var[0],tstack, instructions)
                 
                 return True, [zero,zero2[0]]
             else:
@@ -511,13 +512,13 @@ def apply_semantics_transformation(instr: CFGInstruction, instructions: List[CFG
                 old_var = instr.get_out_args()
                 new_var = eq.get_out_args()
                 # instr.get_out_args() = eq.get_out_args()
-                instr.get_out_args() = new_var
+                instr.set_out_args(new_var)
 
                 msg = "EQ(1,ISZ(X))"
                 rules.append(msg)
                 
-
-                update_tstack_userdef(old_var[0], new_var[0],tstack, instructions)
+                vars_to_update[old_var[0]] = new_var[0]
+                #update_tstack_userdef(old_var[0], new_var[0],tstack, instructions)
                 
                 return True, [eq]
 
@@ -527,15 +528,14 @@ def apply_semantics_transformation(instr: CFGInstruction, instructions: List[CFG
                 
             return False, []
             
-    elif opcode == "LT" or opcode == "SLT":
-         if 0 == instr.get_in_args()[0] and opcode == "LT":
+    elif opcode == "lt" or opcode == "slt":
+         if 0 == inp_vars[0] and opcode == "lt":
             out_var = instr.get_out_args()[0]
-            is_zero = list(filter(lambda x: out_var in x.get_in_args() and x.get_op_name() == "ISZERO",instructions))
-            if len(is_zero) == 1 and out_var not in tstack:
+            is_zero = list(filter(lambda x: out_var in x.get_in_args() and x.get_op_name() == "iszero",instructions))
+            if len(is_zero) == 1 and out_var not in out_vars:
                 index = instructions.index(is_zero[0])
                 zero_instr = instructions[index]
-                zero_instr["inpt_sk"] = [instr.get_in_args()[1]]
-
+                zero_instr.set_in_args([instr.get_in_args()[1]])
 
                 msg = "ISZ(LT(0,X))"
                 rules.append(msg)
@@ -545,24 +545,23 @@ def apply_semantics_transformation(instr: CFGInstruction, instructions: List[CFG
             else:
                 return False, []
 
-         elif 1 == instr.get_in_args()[1] and opcode == "LT":
+         elif 1 == inp_vars[1] and opcode == "lt":
             var = instr.get_in_args()[0]
 
-            new_exist = list(filter(lambda x: x.get_in_args() == [var] and x.get_op_name() == "ISZERO", instructions))
+            new_exist = list(filter(lambda x: var in x.get_in_args() and x.get_op_name() == "iszero", instructions))
                         
-            if len(new_exist) >0:
+            if len(new_exist)>0:
                 old_var = instr.get_out_args()
                 new_var = new_exist[0].get_out_args()
-                update_tstack_userdef(old_var[0], new_var[0],tstack, instructions)
+
+                vars_to_update[old_var[0]] = new_var[0]
+                #update_tstack_userdef(old_var[0], new_var[0],tstack, instructions)
                 delete = [instr]
             else:
-                idx = user_def_counter.get("ISZERO",0)
-                instr["id"] = "ISZERO_"+str(idx)
-                instr["opcode"] = "15"
-                instr["disasm"] = "ISZERO"
-                instr["inpt_sk"] = [var]
-                instr["commutative"] = False
-                user_def_counter["ISZERO"]=idx+1
+
+                instr.set_op_name("iszero")
+                instr.set_in_args([var])
+
                 delete = []
                 
             msg = "LT(X,1)"
@@ -572,21 +571,20 @@ def apply_semantics_transformation(instr: CFGInstruction, instructions: List[CFG
         
          else:
             out_var = instr.get_out_args()[0]
-            is_zero = list(filter(lambda x: out_var in x.get_in_args() and x.get_op_name() == "ISZERO",instructions))
+            is_zero = list(filter(lambda x: out_var in x.get_in_args() and x.get_op_name() == "iszero",instructions))
             if len(is_zero)==1:
                 zero = is_zero[0]
-                zero2 = list(filter(lambda x: zero.get_out_args()[0] in x.get_in_args() and x.get_op_name() == "ISZERO",instructions))
-                if len(zero2) == 1 and zero.get_out_args()[0] not in tstack:
+                zero2 = list(filter(lambda x: zero.get_out_args()[0] in x.get_in_args() and x.get_op_name() == "iszero",instructions))
+                if len(zero2) == 1 and zero.get_out_args()[0] not in out_vars:
                     old_var = instr.get_out_args()
                     new_var = zero2[0].get_out_args()
-                    instr.get_out_args() = new_var
+                    instr.set_out_args(new_var)
 
                     msg = "ISZ(ISZ("+opcode+"(X,Y)))" # It may be LT or SLT
                     rules.append(msg)
                     
-
-                    update_tstack_userdef(old_var[0], new_var[0],tstack, instructions)
-                    
+                    vars_to_update[old_var[0]] = new_var[0]
+                    #update_tstack_userdef(old_var[0], new_var[0],tstack, instructions)
                     return True, [zero,zero2[0]]
                 else:
                     return False, []
@@ -594,34 +592,29 @@ def apply_semantics_transformation(instr: CFGInstruction, instructions: List[CFG
                 
                 return False, []
             
-    elif opcode == "EQ":
-        if 0 in instr.get_in_args():
+    elif opcode == "eq":
+        if 0 in inp_vars:
             var0 = instr.get_in_args()[0]
             var1 = instr.get_in_args()[1]
 
-            nonz = var1 if var0 == 0 else var0
+            nonz = var1 if inp_vars[0] == 0 else var0
 
-            new_exist = list(filter(lambda x: x.get_in_args() == [nonz] and x.get_op_name() == "ISZERO", instructions))
+            new_exist = list(filter(lambda x: nonz in x.get_in_args() and x.get_op_name() == "iszero", instructions))
 
             if len(new_exist) >0:
                 old_var = instr.get_out_args()
                 new_var = new_exist[0].get_out_args()
-                update_tstack_userdef(old_var[0], new_var[0],tstack, instructions)
+                vars_to_update[old_var[0]] = new_var[0]
+                #update_tstack_userdef(old_var[0], new_var[0],tstack, instructions)
                 delete = [instr]
 
             else:
-                idx = user_def_counter.get("ISZERO",0)
-                instr["id"] = "ISZERO_"+str(idx)
-                instr["opcode"] = "15"
-                instr["disasm"] = "ISZERO"
-                instr["inpt_sk"] = [nonz]
-                instr["commutative"] = False
-                user_def_counter["ISZERO"]=idx+1
+                instr.set_op_name("iszero")
+                instr.set_in_args([nonz])
                 delete = []
 
             msg = "EQ(0,X)"
             rules.append(msg)
-            
 
             # user_def_counter["ISZERO"]=idx+1
             
@@ -630,22 +623,22 @@ def apply_semantics_transformation(instr: CFGInstruction, instructions: List[CFG
         else:
 
             out_var = instr.get_out_args()[0]
-            is_zero = list(filter(lambda x: out_var in x.get_in_args() and x.get_op_name() == "ISZERO",instructions))
+            is_zero = list(filter(lambda x: out_var in x.get_in_args() and x.get_op_name() == "iszero",instructions))
             if len(is_zero)==1:
                 zero = is_zero[0]
-                zero2 = list(filter(lambda x: zero.get_out_args()[0] in x.get_in_args() and x.get_op_name() == "ISZERO",instructions))
-                if len(zero2) == 1 and zero.get_out_args()[0] not in tstack:
+                zero2 = list(filter(lambda x: zero.get_out_args()[0] in x.get_in_args() and x.get_op_name() == "iszero",instructions))
+                if len(zero2) == 1 and zero.get_out_args()[0] not in out_vars:
 
                     old_var = instr.get_out_args()
                     new_var = zero2[0].get_out_args()
-                    instr.get_out_args() = new_var
+                    instr.set_out_args(new_var)
 
                     msg = "ISZ(ISZ(EQ(X,Y)))"
                     rules.append(msg)
                     
-
-                    update_tstack_userdef(old_var[0], new_var[0],tstack, instructions)
-                    
+                    vars_to_update[old_var[0]] = new_var[0]
+                    #update_tstack_userdef(old_var[0], new_var[0],tstack, instructions)
+                
                     return True, [zero,zero2[0]]
                 else:
                     return False, []
@@ -654,10 +647,10 @@ def apply_semantics_transformation(instr: CFGInstruction, instructions: List[CFG
                 return False, []
             
     
-    elif opcode == "AND":
+    elif opcode == "and":
         out_pt = instr.get_out_args()[0]
-        and_op = list(filter(lambda x: out_pt in x.get_in_args() and x.get_op_name() == "AND", instructions))
-        or_op = list(filter(lambda x: out_pt in x.get_in_args() and x.get_op_name() == "OR", instructions))
+        and_op = list(filter(lambda x: out_pt in x.get_in_args() and x.get_op_name() == "and", instructions))
+        or_op = list(filter(lambda x: out_pt in x.get_in_args() and x.get_op_name() == "or", instructions))
         
         if len(and_op)==1:
             and_instr = and_op[0]
@@ -665,13 +658,13 @@ def apply_semantics_transformation(instr: CFGInstruction, instructions: List[CFG
                 
                 old_var = instr.get_out_args()
                 new_var = and_instr.get_out_args()
-                instr.get_out_args() = new_var
+                instr.set_out_args(new_var)
 
                 msg = "AND(X,AND(X,Y))"
                 rules.append(msg)
                 
-
-                update_tstack_userdef(old_var[0], new_var[0],tstack, instructions)
+                vars_to_update[old_var[0]] = new_var[0]
+                #update_tstack_userdef(old_var[0], new_var[0],tstack, instructions)
                 
                 return True, [and_instr]
             else:
@@ -699,17 +692,19 @@ def apply_semantics_transformation(instr: CFGInstruction, instructions: List[CFG
             else:
                 return False, []
 
-            i = 0
+
+            vars_to_update[out_pt2] = x
+            # i = 0
                 
-            while (i<len(tstack)):
-                if tstack[i] == (out_pt2):
-                    tstack[i] = x
-                i+=1
+            # while (i<len(tstack)):
+            #     if tstack[i] == (out_pt2):
+            #         tstack[i] = x
+            #     i+=1
                 
-            for elems in instructions:
-                if out_pt2 in elems.get_in_args():
-                    pos = elems.get_in_args().index(out_pt2)
-                    elems.get_in_args()[pos] = x
+            # for elems in instructions:
+            #     if out_pt2 in elems.get_in_args():
+            #         pos = elems.get_in_args().index(out_pt2)
+            #         elems.get_in_args()[pos] = x
                     
 
             msg = "OR(X,AND(X,Y))"
@@ -722,14 +717,16 @@ def apply_semantics_transformation(instr: CFGInstruction, instructions: List[CFG
         else:
             return False,[]
         
-    elif opcode == "OR":
+    elif opcode == "or":
         out_pt = instr.get_out_args()[0]
-        or_op = list(filter(lambda x: out_pt in x.get_in_args() and x.get_op_name() == "OR", instructions))
-        and_op = list(filter(lambda x: out_pt in x.get_in_args() and x.get_op_name() == "AND", instructions))
-        if len(or_op)==1:
+        or_op = list(filter(lambda x: out_pt in x.get_in_args() and x.get_op_name() == "or", instructions))
+        and_op = list(filter(lambda x: out_pt in x.get_in_args() and x.get_op_name() == "and", instructions))
+        if len(or_op) == 1:
             or_instr = or_op[0]
             if (or_instr.get_in_args()[1] in instr.get_in_args()) or (or_instr.get_in_args()[0] in instr.get_in_args()):
-                instr.get_out_args() = or_instr.get_out_args()
+
+                vars_to_update[instr.get_out_agrs()[0]] = or_instr.get_out_args()[0]
+                instr.set_out_args(or_instr.get_out_args())
            
                 msg = "OR(OR(X,Y),Y)"
                 rules.append(msg)
@@ -761,19 +758,20 @@ def apply_semantics_transformation(instr: CFGInstruction, instructions: List[CFG
             else:
                 return False, []
 
-            i = 0
-                
-            while (i<len(tstack)):
-                if tstack[i] == (out_pt2):
-                    tstack[i] = x
-                i+=1
+            vars_to_update[out_pt2] = x
+            
+            # i = 0
+            
+            # while (i<len(tstack)):
+            #     if tstack[i] == (out_pt2):
+            #         tstack[i] = x
+            #     i+=1
                     
-            for elems in instructions:
-                if out_pt2 in elems.get_in_args():
-                    pos = elems.get_in_args().index(out_pt2)
-                    elems["inpt_sk"][pos] = x
+            # for elems in instructions:
+            #     if out_pt2 in elems.get_in_args():
+            #         pos = elems.get_in_args().index(out_pt2)
+            #         elems["inpt_sk"][pos] = x
                     
-
             msg = "AND(X,OR(X,Y))"
             rules.append(msg)
             
@@ -783,10 +781,10 @@ def apply_semantics_transformation(instr: CFGInstruction, instructions: List[CFG
             return False,[]
 
 
-    elif opcode == "XOR":
+    elif opcode == "xor":
         out_pt = instr.get_out_args()[0]
-        xor_op = list(filter(lambda x: out_pt in x.get_in_args() and x.get_op_name() == "XOR", instructions))
-        isz_op = list(filter(lambda x: out_pt in x.get_in_args() and x.get_op_name() == "ISZERO", instructions))
+        xor_op = list(filter(lambda x: out_pt in x.get_in_args() and x.get_op_name() == "xor", instructions))
+        isz_op = list(filter(lambda x: out_pt in x.get_in_args() and x.get_op_name() == "iszero", instructions))
         
         if len(xor_op)==1:
             xor_instr = xor_op[0]
@@ -810,18 +808,20 @@ def apply_semantics_transformation(instr: CFGInstruction, instructions: List[CFG
             else:
                 return False, []
 
-            i = 0
-                
-            while (i<len(tstack)):
-                if tstack[i] == (out_pt2):
-                    tstack[i] = y
-                i+=1
+
+            vars_to_update[out_pt2] = y
+
+            # i = 0    
+            # while (i<len(tstack)):
+            #     if tstack[i] == (out_pt2):
+            #         tstack[i] = y
+            #     i+=1
 
                     
-            for elems in instructions:
-                if out_pt2 in elems.get_in_args():
-                    pos = elems.get_in_args().index(out_pt2)
-                    elems["inpt_sk"][pos] = y
+            # for elems in instructions:
+            #     if out_pt2 in elems.get_in_args():
+            #         pos = elems.get_in_args().index(out_pt2)
+            #         elems["inpt_sk"][pos] = y
                     
             msg = "XOR(X,XOR(X,Y))"
             rules.append(msg)
@@ -833,23 +833,26 @@ def apply_semantics_transformation(instr: CFGInstruction, instructions: List[CFG
             out_pt = instr.get_out_args()[0]
 
             comm_inpt = [instr.get_in_args()[1], instr.get_in_args()[0]]
-            new_exist = list(filter(lambda x: (x.get_in_args() == instr.get_in_args() or x.get_in_args() == comm_inpt) and x.get_op_name() == "EQ", instructions))
+            new_exist = list(filter(lambda x: (x.get_in_args() == instr.get_in_args() or x.get_in_args() == comm_inpt) and x.get_op_name() == "eq", instructions))
 
             if len(new_exist) >0:
                 old_var = isz_instr.get_out_args()
                 new_var = new_exist[0].get_out_args()
-                update_tstack_userdef(old_var[0], new_var[0],tstack, instructions)
+                vars_to_update[old_var[0]] = new_var[0]
+                # update_tstack_userdef(old_var[0], new_var[0],tstack, instructions)
                 delete = [isz_instr]
-
                 
-            elif out_pt not in tstack and len(list(filter(lambda x: out_pt in x.get_in_args() and x!= isz_instr, instructions))) == 0:
-                idx = user_def_counter.get("EQ",0)
-                isz_instr["inpt_sk"] = instr.get_in_args()
-                isz_instr["id"] = "EQ_"+str(idx)
-                isz_instr["opcode"] = "14"
-                isz_instr["disasm"] = "EQ"
-                isz_instr["commutative"] = True
-                user_def_counter["EQ"]=idx+1
+            elif out_pt not in out_vars and len(list(filter(lambda x: out_pt in x.get_in_args() and x!= isz_instr, instructions))) == 0:
+
+                isz_instr.set_op_name("eq")
+                isz_instr.set_in_args(instr.get_in_args())
+                # idx = user_def_counter.get("EQ",0)
+                # isz_instr["inpt_sk"] = instr.get_in_args()
+                # isz_instr["id"] = "EQ_"+str(idx)
+                # isz_instr["opcode"] = "14"
+                # isz_instr["disasm"] = "EQ"
+                # isz_instr["commutative"] = True
+                # user_def_counter["EQ"]=idx+1
                 delete = []
                                 
             else:
@@ -864,27 +867,29 @@ def apply_semantics_transformation(instr: CFGInstruction, instructions: List[CFG
             return False,[]
 
         
-    elif opcode == "NOT":
+    elif opcode == "not":
         out_pt = instr.get_out_args()[0]
-        not_op = list(filter(lambda x: out_pt in x.get_in_args() and x.get_op_name() == "NOT", instructions))
-        and_op = list(filter(lambda x: out_pt in x.get_in_args() and x.get_op_name() == "AND", instructions))
-        or_op = list(filter(lambda x: out_pt in x.get_in_args() and x.get_op_name() == "NOT", instructions))
+        not_op = list(filter(lambda x: out_pt in x.get_in_args() and x.get_op_name() == "not", instructions))
+        and_op = list(filter(lambda x: out_pt in x.get_in_args() and x.get_op_name() == "and", instructions))
+        or_op = list(filter(lambda x: out_pt in x.get_in_args() and x.get_op_name() == "not", instructions))
 
         if len(not_op)==1:
             not_instr = not_op[0]
             out_pt2 = not_instr.get_out_args()[0]
             real_var = instr.get_in_args()
 
-            i = 0
-            while (i<len(tstack)):
-                if tstack[i] == (out_pt2):
-                    tstack[i] = real_var
-                i += 1
+            vars_to_update[out_pt2] = real_var[0]
+            
+            # i = 0
+            # while (i<len(tstack)):
+            #     if tstack[i] == (out_pt2):
+            #         tstack[i] = real_var
+            #     i += 1
 
-            for elems in instructions:
-                if out_pt2 in elems.get_in_args():
-                    pos = elems.get_in_args().index(out_pt2)
-                    elems["inpt_sk"][pos] = real_var
+            # for elems in instructions:
+            #     if out_pt2 in elems.get_in_args():
+            #         pos = elems.get_in_args().index(out_pt2)
+            #         elems["inpt_sk"][pos] = real_var
                     
                 msg = "NOT(NOT(X))"
                 rules.append(msg)
@@ -895,20 +900,23 @@ def apply_semantics_transformation(instr: CFGInstruction, instructions: List[CFG
 
         elif len(and_op) == 1: #and(x,not(x)) = 0
             and_instr = and_op[0]
-            out_pt2 = and_instr.get_out_args()[0]
+s            out_pt2 = and_instr.get_out_args()[0]
 
             if instr.get_in_args()[0] in and_instr.get_in_args():
-                real_var = 0
-                i = 0
-                while (i<len(tstack)):
-                    if tstack[i] == (out_pt2):
-                        tstack[i] = real_var
-                    i+=1
+                real_var = "0x00"
+
+                vars_to_update[out_pt2] = real_var
+
+                # i = 0
+                # while (i<len(tstack)):
+                #     if tstack[i] == (out_pt2):
+                #         tstack[i] = real_var
+                #     i+=1
                     
-                for elems in instructions:
-                    if out_pt2 in elems.get_in_args():
-                        pos = elems.get_in_args().index(out_pt2)
-                        elems["inpt_sk"][pos] = real_var
+                # for elems in instructions:
+                #     if out_pt2 in elems.get_in_args():
+                #         pos = elems.get_in_args().index(out_pt2)
+                #         elems["inpt_sk"][pos] = real_var
                     
                 msg = "AND(X,NOT(X))"
                 rules.append(msg)
@@ -923,17 +931,20 @@ def apply_semantics_transformation(instr: CFGInstruction, instructions: List[CFG
             out_pt2 = or_instr.get_out_args()[0]
 
             if instr.get_in_args()[0] in or_instr.get_in_args():
-                real_var = -1+2**256
-                i = 0
-                while (i<len(tstack)):
-                    if tstack[i] == (out_pt2):
-                        tstack[i] = real_var
-                    i+=1
+                real_var = hex(-1+2**256)
+
+                vars_to_update(out_pt2, real_var)
+
+                # i = 0
+                # while (i<len(tstack)):
+                #     if tstack[i] == (out_pt2):
+                #         tstack[i] = real_var
+                #     i+=1
                     
-                for elems in instructions:
-                    if out_pt2 in elems.get_in_args():
-                        pos = elems.get_in_args().index(out_pt2)
-                        elems["inpt_sk"][pos] = real_var
+                # for elems in instructions:
+                #     if out_pt2 in elems.get_in_args():
+                #         pos = elems.get_in_args().index(out_pt2)
+                #         elems["inpt_sk"][pos] = real_var
                     
 
                 msg = "OR(X,NOT(X))"
@@ -945,21 +956,22 @@ def apply_semantics_transformation(instr: CFGInstruction, instructions: List[CFG
             return False,[]
 
 
-    elif opcode == "ORIGIN" or opcode == "COINBASE" or opcode == "CALLER":
+    elif opcode == "origin" or opcode == "coinbase" or opcode == "caller":
         out_pt = instr.get_out_args()[0]
-        and_op = list(filter(lambda x: out_pt in x.get_in_args() and x.get_op_name() == "AND", instructions))
+        and_op = list(filter(lambda x: out_pt in x.get_in_args() and x.get_op_name() == "and", instructions))
         if len(and_op) == 1:
             and_instr = and_op[0]
-            if -1+2**160 in and_instr.get_in_args():
+            if -1+2**160 in get_input_values(and_instr.get_in_args(),assigments_dict):
 
                 old_var = instr.get_out_args()
                 new_var = and_instr.get_out_args()
-                instr.get_out_args() = new_var
+                instr.set_out_args(new_var)
 
                 msg = "AND(ORIGIN,2^160-1)"
                 rules.append(msg)
 
-                update_tstack_userdef(old_var[0], new_var[0],tstack, instructions)
+                vars_to_update[old_var[0]] = new_var[0]
+                #update_tstack_userdef(old_var[0], new_var[0],tstack, instructions)
                 
                 return True,[and_instr]
             else:
@@ -968,9 +980,9 @@ def apply_semantics_transformation(instr: CFGInstruction, instructions: List[CFG
             return False, []
 
 
-    elif opcode == "SUB":
+    elif opcode == "sub":
         out_pt = instr.get_out_args()[0]
-        isz_op = list(filter(lambda x: out_pt in x.get_in_args() and x.get_op_name() == "ISZERO", instructions))
+        isz_op = list(filter(lambda x: out_pt in x.get_in_args() and x.get_op_name() == "iszero", instructions))
         
 
         if len(isz_op) == 1: #ISZ(SUB(X,Y)) = EQ(X,Y)
@@ -978,24 +990,28 @@ def apply_semantics_transformation(instr: CFGInstruction, instructions: List[CFG
 
             comm_inpt = [instr.get_in_args()[1],instr.get_in_args()[0]]
             
-            new_exist = list(filter(lambda x: (x.get_in_args() == instr.get_in_args() or x.get_in_args() == comm_inpt) and x.get_op_name() == "EQ", instructions))
+            new_exist = list(filter(lambda x: (x.get_in_args() == instr.get_in_args() or x.get_in_args() == comm_inpt) and x.get_op_name() == "eq", instructions))
 
             if len(new_exist) >0:
                 old_var = isz_instr.get_out_args()
                 new_var = new_exist[0].get_out_args()
-                update_tstack_userdef(old_var[0], new_var[0],tstack, instructions)
+
+                vars_to_update[old_var[0]] = new_var[0]
+#                update_tstack_userdef(old_var[0], new_var[0],tstack, instructions)
                 delete = [isz_instr]
 
-            elif out_pt not in tstack and len(list(filter(lambda x: out_pt in x.get_in_args() and x!=isz_instr, instructions))) == 0:
-                idx = user_def_counter.get("EQ",0)
-                isz_instr["inpt_sk"] = instr.get_in_args()
-                isz_instr["id"] = "EQ_"+str(idx)
-                isz_instr["opcode"] = "14"
-                isz_instr["disasm"] = "EQ"
-                isz_instr["commutative"] = True
-                user_def_counter["EQ"]=idx+1
+            elif out_pt not in out_vars and len(list(filter(lambda x: out_pt in x.get_in_args() and x!=isz_instr, instructions))) == 0:
+                isz_instr.set_op_name("eq")
+                isz.set_in_args(instr.get_in_args())
+                
+                # idx = user_def_counter.get("EQ",0)
+                # isz_instr["inpt_sk"] = instr.get_in_args()
+                # isz_instr["id"] = "EQ_"+str(idx)
+                # isz_instr["opcode"] = "14"
+                # isz_instr["disasm"] = "EQ"
+                # isz_instr["commutative"] = True
+                # user_def_counter["EQ"]=idx+1
                 delete = []
-
 
             else:
                 return False, []
@@ -1003,40 +1019,42 @@ def apply_semantics_transformation(instr: CFGInstruction, instructions: List[CFG
 
             msg = "ISZ(SUB(X,Y))"
             rules.append(msg)
-
             
             return True, delete
                 
         else:
             return False,[]
 
-    elif opcode == "SHL":
+    elif opcode == "shl":
         out_pt = instr.get_out_args()[0]
-        mul_op = list(filter(lambda x: out_pt in x.get_in_args() and x.get_op_name() == "MUL", instructions))
-        div_op = list(filter(lambda x: out_pt in x.get_in_args() and x.get_op_name() == "DIV", instructions))
-        and_op = list(filter(lambda x: out_pt in x.get_in_args() and x.get_op_name() == "AND", instructions))
-        if len(mul_op) == 1 and instr.get_in_args()[1] == 1:
+        mul_op = list(filter(lambda x: out_pt in x.get_in_args() and x.get_op_name() == "mul", instructions))
+        div_op = list(filter(lambda x: out_pt in x.get_in_args() and x.get_op_name() == "div", instructions))
+        and_op = list(filter(lambda x: out_pt in x.get_in_args() and x.get_op_name() == "and", instructions))
+        if len(mul_op) == 1 and inp_vars == 1:
             mul_instr = mul_op[0]
 
             if mul_instr.get_in_args()[1] == out_pt:
                 new_input = [instr.get_in_args()[0],mul_instr.get_in_args()[0]]
-                new_exist = list(filter(lambda x: x.get_in_args() == new_input and x.get_op_name() == "SHL", instructions))
+                new_exist = list(filter(lambda x: x.get_in_args() == new_input and x.get_op_name() == "shl", instructions))
 
                 if len(new_exist) > 0:
                     old_var = mul_instr.get_out_args()
-                    new_var = new_exist[0]["outpr_sk"]
-                    update_tstack_userdef(old_var[0], new_var[0],tstack, instructions)
+                    new_var = new_exist[0].get_out_args()
+                    vars_to_update[old_var[0]] = new_var[0]
+                    #update_tstack_userdef(old_var[0], new_var[0],tstack, instructions)
                     delete = [mul_instr]
 
                 else:
-                    mul_instr["inpt_sk"] = new_input
-                                        
-                    idx = user_def_counter.get("SHL",0)
-                    mul_instr["id"] = "SHL_"+str(idx)
-                    mul_instr["opcode"] = "1b"
-                    mul_instr["disasm"] = "SHL"
-                    mul_instr["commutative"] = False            
-                    user_def_counter["SHL"]=idx+1
+                    mul_instr.set_in_args(new_input)
+                    mul_instr.set_op_name("shl")
+                    
+                    # mul_instr["inpt_sk"] = new_input                    
+                    # idx = user_def_counter.get("SHL",0)
+                    # mul_instr["id"] = "SHL_"+str(idx)
+                    # mul_instr["opcode"] = "1b"
+                    # mul_instr["disasm"] = "SHL"
+                    # mul_instr["commutative"] = False            
+                    # user_def_counter["SHL"]=idx+1
                     delete = []
                     
                 msg = "MUL(X,SHL(Y,1)"
@@ -1046,23 +1064,28 @@ def apply_semantics_transformation(instr: CFGInstruction, instructions: List[CFG
 
             elif mul_instr.get_in_args()[0] == out_pt:
                 new_input = [instr.get_in_args()[0],mul_instr.get_in_args()[1]]
-                new_exist = list(filter(lambda x: x.get_in_args() == new_input and x.get_op_name() == "SHL", instructions))
+                new_exist = list(filter(lambda x: new_input in x.get_in_args() and x.get_op_name() == "shl", instructions))
 
                 if len(new_exist) > 0:
                     old_var = mul_instr.get_out_args()
-                    new_var = new_exist[0]["outpr_sk"]
-                    update_tstack_userdef(old_var[0], new_var[0],tstack, instructions)
+                    new_var = new_exist[0].get_out_args()
+                    vars_to_update[old_var[0]] = [new_var[0]]
+                    #update_tstack_userdef(old_var[0], new_var[0],tstack, instructions)
                     delete = [mul_instr]
 
                 else:
-                    mul_instr["inpt_sk"] = new_input
-                                        
-                    idx = user_def_counter.get("SHL",0)
-                    mul_instr["id"] = "SHL_"+str(idx)
-                    mul_instr["opcode"] = "1b"
-                    mul_instr["disasm"] = "SHL"
-                    mul_instr["commutative"] = False            
-                    user_def_counter["SHL"]=idx+1
+
+                    mul_instr.set_op_name("shl")
+                    mul_instr.set_in_args(new_input)
+
+                    # mul_instr["inpt_sk"] = new_input
+                    # idx = user_def_counter.get("SHL",0)
+                    # mul_instr["id"] = "SHL_"+str(idx)
+                    # mul_instr["opcode"] = "1b"
+                    # mul_instr["disasm"] = "SHL"
+                    # mul_instr["commutative"] = False            
+                    # user_def_counter["SHL"]=idx+1
+                    
                     delete = []
 
                 msg = "MUL(SHL(X,1),Y)"
@@ -1073,27 +1096,32 @@ def apply_semantics_transformation(instr: CFGInstruction, instructions: List[CFG
             else:
                 return False, []
 
-        elif len(div_op) == 1 and instr.get_in_args()[1] == 1:
+        elif len(div_op) == 1 and inp_vars[1] == 1:
             div_instr = div_op[0]
 
             if div_instr.get_in_args()[1] == out_pt:
                 new_input = [instr.get_in_args()[0], div_instr.get_in_args()[0]]
-                new_exist = list(filter(lambda x: x.get_in_args() == new_input and x.get_op_name() == "SHR", instructions))
+                new_exist = list(filter(lambda x: new_input in x.get_in_args() == new_input and x.get_op_name() == "shr", instructions))
 
                 if len(new_exist) > 0:
                     old_var = div_instr.get_out_args()
                     new_var = new_exist[0].get_out_args()
-                    update_tstack_userdef(old_var[0], new_var[0],tstack, instructions)
+
+                    vars_to_update[old_var[0]] = [new_var[0]]
+                    #update_tstack_userdef(old_var[0], new_var[0],tstack, instructions)
                     delete = [div_instr]
                 else:
-                    div_instr["inpt_sk"] = new_input
                     
-                    idx = user_def_counter.get("SHR",0)
-                    div_instr["id"] = "SHR_"+str(idx)
-                    div_instr["opcode"] = "1c"
-                    div_instr["disasm"] = "SHR"
-                    div_instr["commutative"] = False            
-                    user_def_counter["SHR"]=idx+1
+                    div_instr.set_op_name("shr")
+                    div_instr.set_in_args(new_input)
+                    # div_instr["inpt_sk"] = new_input
+                    
+                    # idx = user_def_counter.get("SHR",0)
+                    # div_instr["id"] = "SHR_"+str(idx)
+                    # div_instr["opcode"] = "1c"
+                    # div_instr["disasm"] = "SHR"
+                    # div_instr["commutative"] = False            
+                    # user_def_counter["SHR"]=idx+1
                     delete = []
 
                 msg = "DIV(X,SHL(Y,1))"
@@ -1114,7 +1142,7 @@ def apply_semantics_transformation(instr: CFGInstruction, instructions: List[CFG
                 else:
                     out_pt1 = and_ins.get_in_args()[0]
 
-                new_ins = list(filter(lambda x: out_pt1 in x.get_out_args() and x.get_op_name() == "SHL" and x.get_in_args()[0] == instr.get_in_args()[0],instructions))
+                new_ins = list(filter(lambda x: out_pt1 in x.get_out_args() and x.get_op_name() == "shl" and x.get_in_args()[0] == instr.get_in_args()[0], instructions))
                 if len(new_ins) == 1:
                     shl1 = new_ins[0]
                     found = True
@@ -1122,7 +1150,7 @@ def apply_semantics_transformation(instr: CFGInstruction, instructions: List[CFG
                 i+=1
 
             #if the shl instructions are not used by any other operation or do not appear in the target stack, then I can simplify them
-            if found and out_pt not in tstack and out_pt1 not in tstack and len(list(filter(lambda x: out_pt in x.get_in_args() and x!= and_ins, instructions))) == 0 and len(list(filter(lambda x: out_pt1 in x.get_in_args() and x!= and_ins, instructions))) == 0:
+            if found and out_pt not in out_vars and out_pt1 not in out_vars and len(list(filter(lambda x: out_pt in x.get_in_args() and x!= and_ins, instructions))) == 0 and len(list(filter(lambda x: out_pt1 in x.get_in_args() and x!= and_ins, instructions))) == 0:
 
                 inpt1 = instr.get_in_args()[0]
                 inpt2 = instr.get_in_args()[1]
@@ -1130,27 +1158,29 @@ def apply_semantics_transformation(instr: CFGInstruction, instructions: List[CFG
                 
                 new_and_idx = user_def_counter.get("AND",0)
 
-                instr["inpt_sk"] = [inpt2,inpt3]
-                instr["id"] = "AND_"+str(new_and_idx)
-                instr["opcode"] = "16"
-                instr["disasm"] = "AND"
-                instr["commutative"] = True
-                user_def_counter["AND"]=new_and_idx+1
-
-                new_shl_idx = user_def_counter.get("SHL",0)
+                instr.set_op_name("and")
+                instr.get_in_args([inpt2, inpt3])
                 
-                and_ins["inpt_sk"] = [inpt1,instr.get_out_args()[0]]
-                and_ins["id"] = "SHL_"+str(new_shl_idx)
-                and_ins["opcode"] = "1b"
-                and_ins["disasm"] = "SHL"
-                and_ins["commutative"] = False
-                user_def_counter["SHL"]=new_shl_idx+1
+                # instr["inpt_sk"] = [inpt2,inpt3]
+                # instr["id"] = "AND_"+str(new_and_idx)
+                # instr["opcode"] = "16"
+                # instr["disasm"] = "AND"
+                # instr["commutative"] = True
+                # user_def_counter["AND"]=new_and_idx+1
+                #new_shl_idx = user_def_counter.get("SHL",0)
+
+                and_ins.set_op_name("shl")
+                and_ins.set_in_args([inpt1,instr.get_out_args()[0]])
+
+                # and_ins["inpt_sk"] = [inpt1,instr.get_out_args()[0]]
+                # and_ins["id"] = "SHL_"+str(new_shl_idx)
+                # and_ins["opcode"] = "1b"
+                # and_ins["disasm"] = "SHL"
+                # and_ins["commutative"] = False
+                # user_def_counter["SHL"]=new_shl_idx+1
 
                 delete = [shl1]
                 
-                discount_op+=1
-                gas_saved_op+=3
-
                 msg = "AND(SHL(X,Y), SHL(X,Z))"
                 rules.append(msg)
 
@@ -1160,31 +1190,35 @@ def apply_semantics_transformation(instr: CFGInstruction, instructions: List[CFG
         else:
             return False, []
 
-    elif opcode == "ADDRESS":
+    elif opcode == "address":
         out_pt = instr.get_out_args()[0]
-        bal_op = list(filter(lambda x: out_pt in x.get_in_args() and x.get_op_name() == "BALANCE", instructions))
+        bal_op = list(filter(lambda x: out_pt in x.get_in_args() and x.get_op_name() == "balance", instructions))
 
-        and_op = list(filter(lambda x: out_pt in x.get_in_args() and x.get_op_name() == "AND", instructions))
+        and_op = list(filter(lambda x: out_pt in x.get_in_args() and x.get_op_name() == "and", instructions))
 
         if len(bal_op) == 1:
             bal_instr = bal_op[0]
 
-            new_exist = list(filter(lambda x: x.get_op_name() == "SELFBALANCE", instructions))
+            new_exist = list(filter(lambda x: x.get_op_name() == "selfbalance", instructions))
 
             if len(new_exist) > 0:
                     old_var = bal_instr.get_out_args()
                     new_var = new_exist[0].get_out_args()
-                    update_tstack_userdef(old_var[0], new_var[0],tstack, instructions)
+                    vars_to_update[old_var[0]] = new_var[0]
+                    #update_tstack_userdef(old_var[0], new_var[0],tstack, instructions)
                     delete = [bal_instr]
             else:
                 bal_instr["inpt_sk"] = []
-                    
-                idx = user_def_counter.get("SELFBALANCE",0)
-                bal_instr["id"] = "SELFBALANCE_"+str(idx)
-                bal_instr["opcode"] = "47"
-                bal_instr["disasm"] = "SELFBALANCE"
-                bal_instr["commutative"] = False            
-                user_def_counter["SELFBALANCE"]=idx+1
+
+                bal_instr.set_op_name("selfbalance")
+                bal_instr.set_in_args([])
+                
+                # idx = user_def_counter.get("SELFBALANCE",0)
+                # bal_instr["id"] = "SELFBALANCE_"+str(idx)
+                # bal_instr["opcode"] = "47"
+                # bal_instr["disasm"] = "SELFBALANCE"
+                # bal_instr["commutative"] = False            
+                # user_def_counter["SELFBALANCE"]=idx+1
                 delete = []
 
             msg = "BALANCE(ADDRESS)"
@@ -1194,16 +1228,17 @@ def apply_semantics_transformation(instr: CFGInstruction, instructions: List[CFG
         
         elif len(and_op) == 1:
             and_instr = and_op[0]
-            if -1+2**160 in and_instr.get_in_args():
+            if -1+2**160 in get_input_vars(and_instr.get_in_args(), assigments_dict):
                 # instr.get_out_args() = and_instr.get_out_args()
                 old_var = instr.get_out_args()
                 new_var = and_instr.get_out_args()
-                instr.get_out_args() = new_var
+                instr.set_out_args(new_var)
 
                 msg = "AND(ADDRESS,2^160)"
                 rules.append(msg)
 
-                update_tstack_userdef(old_var[0], new_var[0],tstack, instructions)
+                vars_to_update[old_var[0]] = new_var[0]
+                #update_tstack_userdef(old_var[0], new_var[0],tstack, instructions)
                 
                 return True,[and_instr]
             else:
@@ -1211,25 +1246,30 @@ def apply_semantics_transformation(instr: CFGInstruction, instructions: List[CFG
         else:
             return False, []
         
-    elif opcode == "EXP":
-        if instr.get_in_args()[0] == 0:
+    elif opcode == "exp":
+        if inp_vars[0] == 0:
             instr.get_in_args().pop(0)
 
-            new_exist = list(filter(lambda x: x.get_in_args() == instr.get_in_args() and x.get_op_name() == "ISZERO", instructions))
+            new_exist = list(filter(lambda x: x.get_in_args() == instr.get_in_args() and x.get_op_name() == "iszero", instructions))
 
             if len(new_exist) > 0:
                 old_var = instr.get_out_args()
                 new_var = new_exist[0].get_out_args()
-                update_tstack_userdef(old_var[0], new_var[0],tstack, instructions)
+
+                vars_to_update[old_var[0]] = new_var[0]
+                #update_tstack_userdef(old_var[0], new_var[0],tstack, instructions)
                 delete = [instr]
             else:
-                idx = user_def_counter.get("ISZERO",0)
+
+                instr.set_op_name("iszero")
+                
+                # idx = user_def_counter.get("ISZERO",0)
             
-                instr["id"] = "ISZERO_"+str(idx)
-                instr["opcode"] = "15"
-                instr["disasm"] = "ISZERO"
-                instr["commutative"] = False            
-                user_def_counter["ISZERO"]=idx+1
+                # instr["id"] = "ISZERO_"+str(idx)
+                # instr["opcode"] = "15"
+                # instr["disasm"] = "ISZERO"
+                # instr["commutative"] = False            
+                # user_def_counter["ISZERO"]=idx+1
                 delete = []
                 
 
@@ -1238,25 +1278,32 @@ def apply_semantics_transformation(instr: CFGInstruction, instructions: List[CFG
             
             return True, deletez
 
-        elif instr.get_in_args()[0] == 2:
+        elif inp_vars[0] == 2:
             instr.get_in_args().pop(0)
 
-            new_input = [instr.get_in_args()[0],1]
-            new_exist = list(filter(lambda x: x.get_in_args() == new_input and x.get_op_name() == "SHL", instructions))
+            new_input = [instr.get_in_args()[0],"0x01"]
+            new_exist = list(filter(lambda x: x.get_in_args() == new_input and x.get_op_name() == "shl", instructions))
 
             if len(new_exist) > 0:
                 old_var = instr.get_out_args()
                 new_var = new_exist[0].get_out_args()
-                update_tstack_userdef(old_var[0], new_var[0],tstack, instructions)
+
+                vars_to_update[old_var[0]] = new_var[0]
+                
+                #update_tstack_userdef(old_var[0], new_var[0],tstack, instructions)
+
                 delete = [instr]
             else:
-                idx = user_def_counter.get("SHL",0)
-                instr["inpt_sk"] = new_input
-                instr["id"] = "SHL_"+str(idx)
-                instr["opcode"] = "1b"
-                instr["disasm"] = "SHL"
-                instr["commutative"] = False            
-                user_def_counter["SHL"]=idx+1
+                instr.set_op_name("shl")
+                instr.set_in_args(new_input)
+
+                # idx = user_def_counter.get("SHL",0)
+                # instr["inpt_sk"] = new_input
+                # instr["id"] = "SHL_"+str(idx)
+                # instr["opcode"] = "1b"
+                # instr["disasm"] = "SHL"
+                # instr["commutative"] = False            
+                # user_def_counter["SHL"]=idx+1
                 delete = []
             
             msg = "EXP(2,X)"
