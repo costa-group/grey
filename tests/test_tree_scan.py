@@ -93,12 +93,14 @@ class TestGreedyNewVersion:
         first_pass_object = TreeScanFirstPass(example_block_list, loop_nesting_forest)
         detect_last_accessible = first_pass_object.insert_instructions()
 
-        # First check the modifications in the blocks
-        assert example_block_list.get_block("block_1").greedy_ids == ["DUP_SET(v3)", "DUP_SET(v0)", "Op8",
-                                                                      "...", "Op17", "DUP1", "PUSH0",
-                                                                      "PUSH [tag] 2", "JUMP"]
-
         second_copy = setup_cfg_example()
+
+        # First check the modifications in the blocks (can be in either order)
+        assert example_block_list.get_block("block_1").greedy_ids[:2] in [["DUP_SET(v3)", "DUP_SET(v0)"], ["DUP_SET(v0)",
+                                                                                                           "DUP_SET(v3)"]]
+
+        assert example_block_list.get_block("block_1").greedy_ids[2:] == second_copy.get_block("block_1").greedy_ids
+
         for block_id in example_block_list.blocks:
             if block_id != "block_1":
                 modified_ids = example_block_list.get_block(block_id).greedy_ids
@@ -108,3 +110,4 @@ class TestGreedyNewVersion:
                                                      f"Modified ids: {modified_ids}"
 
         # Then, we just traverse the last accessible
+        assert detect_last_accessible == {"block_4": {"v0"}, "block_7": {"v3", "v16"}}

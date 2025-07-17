@@ -70,7 +70,8 @@ class TreeScanFirstPass:
 
         # block2last_use maps each block to the set of variables
         # whose last use is the current block
-        self._block2last_use = dict()
+        self._block2last_use = defaultdict(lambda: set())
+        self._last_visited = set()
 
         # Var2header matches every variable to the header of the loop
         # in which it is being declared
@@ -90,7 +91,7 @@ class TreeScanFirstPass:
         self._dag_dfs_block(self._block_list.get_block(self._block_list.start_block), traversed)
         return self._block2last_use
 
-    def _dag_dfs_block(self, cfg_block: CFGBlock, traversed: Set[block_id_T]) -> Tuple[Set[var_id_T], Set[var_id_T]]:
+    def _dag_dfs_block(self, cfg_block: CFGBlock, traversed: Set[block_id_T]) -> Set[var_id_T]:
         """
         Post-order traversal of the CFG in order to generate the information on when to introduce the variables
         """
@@ -101,42 +102,35 @@ class TreeScanFirstPass:
             if block_id not in traversed:
                 # We add the current id to the traversed ones
                 traversed.add(block_id)
-                vars_to_introduce_child, variables_used_child = (
+                vars_to_introduce_child = (
                     self._dag_dfs_block(self._block_list.blocks[block_id], traversed))
 
                 vars_to_introduce.update(vars_to_introduce_child)
-                variables_used_children.update(variables_used_child)
 
-        (variables_to_introduce_current,
-         variables_used) = self.traverse_block(cfg_block, vars_to_introduce)
-
-        # We consider the variables used that are not used
-        self._block2last_use[cfg_block.block_id] = variables_used.difference(variables_used_children)
-
-        # We return the set of all variables used in the current branch
-        variables_used_branch = variables_used.union(variables_used_children)
+        variables_to_introduce_current = self.traverse_block(cfg_block, vars_to_introduce)
 
         # variables_introduced_current already considers the state from the children
-        return variables_to_introduce_current, variables_used_branch
+        return variables_to_introduce_current
 
     def traverse_block(self, cfg_block: CFGBlock, vars_to_introduce: Set[var_id_T]) \
-            -> Tuple[Set[var_id_T], Set[var_id_T]]:
+            -> Set[var_id_T]:
         """
         Modifies the cfg_ids in cfg_block to store the variables in vars_to_introduce,
         considering the information from the var2header dict. It returns two sets:
         * 1) The stack variables that are allowed to be stored from the corresponding point (due to LCA)
         * 2) The stack variables being used in the current block
         """
-        currently_used = set()
-
         # We detect which values must be stored at some point according to the values
         for i, instruction_id in enumerate(reversed(cfg_block.greedy_ids)):
             if instruction_id.startswith("GET"):
                 loaded_var = instruction_id[4:-1]
 
-                # We add the variable to the set of variables currently being used
-                currently_used.add(loaded_var)
                 self._var2num_uses[loaded_var] -= 1
+
+                # The first ocurrence of a variable is the last placed it was used
+                if loaded_var not in self._last_visited:
+                    self._last_visited.add(loaded_var)
+                    self._block2last_use[cfg_block.block_id].add(loaded_var)
 
                 # If no more uses are needed, this means that we have reached a point
                 # in which it can be introduced
@@ -182,7 +176,7 @@ class TreeScanFirstPass:
                     # We mark the variable for removal
                     to_remove.add(var_id)
 
-        return vars_to_introduce.difference(to_remove), currently_used
+        return vars_to_introduce.difference(to_remove)
 
 
 # Then, we colour the registers using the info from the previous stage (tree scan)
