@@ -45,9 +45,9 @@ find "$DIRECTORIO_BASE" -type f -name "*standard_input.json" | while read -r yul
     popd
     elapsed=$(echo "$end - $start" | bc)
     echo "TIME GREY $yul_file : $elapsed"
+    echo "TIME SOLC $yul_file : $elapsed_solc" >> "$yul_dir/$yul_base.log"
     
-    
-    echo "python3 $GREY_PATH -s $yul_file -g -v -if standard-json -solc $SOLC_PATH -o /tmp/$yul_base"
+    echo "python3 $GREY_PATH -s $yul_file -g -v -if standard-json -solc $SOLC_PATH -o /tmp/$yul_base &> $yul_dir/$yul_base.log"
 
     cp "/tmp/$yul_base"/*/*_asm.json "$yul_dir/"
 
@@ -64,7 +64,8 @@ find "$DIRECTORIO_BASE" -type f -name "*standard_input.json" | while read -r yul
 
         $TESTRUNNER_PATH  $EVMONE_LIB $yul_dir/test_grey $yul_dir/resultGrey.json
 
-        python3 compare_outputs.py $yul_dir/resultOriginal.json $yul_dir/resultGrey.json $yul_file
+        # python3 compare_outputs.py $yul_dir/resultOriginal.json $yul_dir/resultGrey.json $yul_file
+        python3 compare_outputs.py $yul_dir/resultOriginal.json $yul_dir/test $yul_dir/resultGrey.json $yul_dir/test_grey $yul_file
         RES=$?
         # if diff $yul_dir/resultOriginal.json $yul_dir/resultGrey.json > /dev/null; then
         if [ $RES -eq 0 ]; then
