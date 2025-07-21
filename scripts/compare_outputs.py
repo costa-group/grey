@@ -100,14 +100,18 @@ def compare_files_removing_failed_tests(json_file1, test_file1, json_file2, test
 
     #print("FINAL", answer, type(answer))
 
-    print("ORIGINAL GAS: "+str(gas_json1))
-    print("OPT GAS: "+str(gas_json2))
+    print(original_name_file+" ORIGINAL GAS: "+str(gas_json1))
+    print(original_name_file+" OPT GAS: "+str(gas_json2))
     print("BLA BLA BLA", gas_json1_no_deposit, flush=True)
     # Empty diff means they are the same
     return 0 if len(answer) == 0 else 1, gas_json1_no_deposit, gas_json2_no_deposit
     
 
 if __name__ == "__main__":
-    res, _, _ = compare_files(sys.argv[1], sys.argv[2], sys.argv[3])
+    if len(sys.argv) == 4:
+        res, _, _ = compare_files(sys.argv[1], sys.argv[2], sys.argv[3])
+    elif len(sys.argv) == 6:
+        res, _, _ = compare_files_removing_failed_tests(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5])
+        
     print(res)
     sys.exit(res)
