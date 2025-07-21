@@ -93,11 +93,29 @@ f_scal_ins = open(scalability_ins, "w")
 f_scal.write("Contract name, Time solc, blocks solc, Time grey, blocks grey\n")
 f_scal_ins.write("Contract name, Time solc, ins solc, Time grey, ins grey\n")
 
-
 for i in range(len(origin_number)):
     original = origin_number[i]
     optimizado = opt_number[i]
 
+    fname = f_names[i]
+    fname_without_ext = fname.rstrip("log")
+
+    print("CHECK: " + str((fname_without_ext+"output", fname_without_ext+"log")))
+   
+        
+    tsol, pops_sol, allpops, torigin, pops_origin , allpops_orig, inst_opt, inst_sol, blocks_solc, blocks_opt, total_ins_solc, total_ins_grey = compare_blocks.execute_function(fname_without_ext+"output", fname_without_ext+"log")
+
+
+    time_grey, time_solc = get_times(fname_without_ext+"log")
+    
+    print([fname_without_ext,time_solc,blocks_solc,time_grey,blocks_opt])
+    f_scal.write(",".join([fname_without_ext[:-1],str(time_solc),str(blocks_solc),str(time_grey),str(blocks_opt)])+"\n")
+
+    f_scal_ins.write(",".join([fname_without_ext[:-1],str(time_solc),str(total_ins_solc),str(time_grey),str(total_ins_grey)])+"\n")
+
+
+
+    ########################
     if original > optimizado:
         menor+=1
         total_mejor += original
@@ -112,21 +130,21 @@ for i in range(len(origin_number)):
         fname_without_ext = fname.rstrip("log")
 
         print("CHECK: " + str((fname_without_ext+"output", fname_without_ext+"log")))
-   
         
         tsol, pops_sol, allpops, torigin, pops_origin , allpops_orig, inst_opt, inst_sol, blocks_solc, blocks_opt, total_ins_solc, total_ins_grey = compare_blocks.execute_function(fname_without_ext+"output", fname_without_ext+"log")
 
 
-        time_grey, time_solc = get_times(fname_without_ext+"log")
+        # time_grey, time_solc = get_times(fname_without_ext+"log")
 
 
-        print([fname_without_ext,time_solc,blocks_solc,time_grey,blocks_opt])
-        f_scal.write(",".join([fname_without_ext[:-1],str(time_solc),str(blocks_solc),str(time_grey),str(blocks_opt)])+"\n")
+        # print([fname_without_ext,time_solc,blocks_solc,time_grey,blocks_opt])
+        # f_scal.write(",".join([fname_without_ext[:-1],str(time_solc),str(blocks_solc),str(time_grey),str(blocks_opt)])+"\n")
 
-        f_scal_ins.write(",".join([fname_without_ext[:-1],str(time_solc),str(total_ins_solc),str(time_grey),str(total_ins_grey)])+"\n")
+        # print("HOLA CARACOLA")
+        # f_scal_ins.write(",".join([fname_without_ext[:-1],str(time_solc),str(total_ins_solc),str(time_grey),str(total_ins_grey)])+"\n")
 
         
-        print("CHECK: "+ str((torigin, pops_origin , allpops_orig, inst_sol, blocks_solc, blocks_opt)))
+        # print("CHECK: "+ str((torigin, pops_origin , allpops_orig, inst_sol, blocks_solc, blocks_opt)))
         
         total_sol_terminal+=tsol
         total_sol_pops+=pops_sol
