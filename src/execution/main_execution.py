@@ -187,7 +187,7 @@ def main(args):
 
     times_str = map(lambda x: str(x), times)
     print("Times " + args.source + ": " + ",".join(times_str))
-
+    print("Total times " + args.source +": "+ str(sum(times[1:])))
     asm_combined_output = {"contracts": asm_contracts, "version": "grey"}
 
     with open(str(final_dir.joinpath(Path(args.source).stem)) + "_bef_importer.json_solc", 'w') as f:
