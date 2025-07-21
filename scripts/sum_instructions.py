@@ -1,6 +1,21 @@
 import compare_blocks
 
 
+
+def get_times(file_name):
+    f = open(file_name, "r")
+    lines = f.readlines()
+
+    time_grey_line = list(filter(lambda x: x.find("Total times") != -1, lines))[0]
+    time_grey = time_grey_line.split(":")[-1].strip()
+
+    time_solc_line = list(filter(lambda x: x.find("TIME SOLC") != -1, lines))[0]
+    time_solc = time_solc_line.split(":")[-1].strip()
+
+    return float(time_grey), float(time_solc)
+    
+
+    
 def cuartiles(original, optimizado, res):
     original25 = original+original*0.25
     original50 = original+original*0.5
@@ -68,6 +83,17 @@ total_ins_terminal_opt = 0
 total_blocks_solc = 0
 total_blocks_opt = 0
 
+scalability = "scalability_block.csv"
+f_scal = open(scalability, "w")
+
+scalability_ins = "scalability_ins.csv"
+f_scal_ins = open(scalability_ins, "w")
+
+
+f_scal.write("Contract name, Time solc, blocks solc, Time grey, blocks grey\n")
+f_scal_ins.write("Contract name, Time solc, ins solc, Time grey, ins grey\n")
+
+
 for i in range(len(origin_number)):
     original = origin_number[i]
     optimizado = opt_number[i]
@@ -88,8 +114,18 @@ for i in range(len(origin_number)):
         print("CHECK: " + str((fname_without_ext+"output", fname_without_ext+"log")))
    
         
-        tsol, pops_sol, allpops, torigin, pops_origin , allpops_orig, inst_opt, inst_sol, blocks_solc, blocks_opt = compare_blocks.execute_function(fname_without_ext+"output", fname_without_ext+"log")
+        tsol, pops_sol, allpops, torigin, pops_origin , allpops_orig, inst_opt, inst_sol, blocks_solc, blocks_opt, total_ins_solc, total_ins_grey = compare_blocks.execute_function(fname_without_ext+"output", fname_without_ext+"log")
 
+
+        time_grey, time_solc = get_times(fname_without_ext+"log")
+
+
+        print([fname_without_ext,time_solc,blocks_solc,time_grey,blocks_opt])
+        f_scal.write(",".join([fname_without_ext[:-1],str(time_solc),str(blocks_solc),str(time_grey),str(blocks_opt)])+"\n")
+
+        f_scal_ins.write(",".join([fname_without_ext[:-1],str(time_solc),str(total_ins_solc),str(time_grey),str(total_ins_grey)])+"\n")
+
+        
         print("CHECK: "+ str((torigin, pops_origin , allpops_orig, inst_sol, blocks_solc, blocks_opt)))
         
         total_sol_terminal+=tsol
@@ -117,6 +153,9 @@ for k,v in worse_files.items():
 worse_file = open("worse_contracts_ins.txt", "w")
 worse_file.write(s)
 worse_file.close()
+
+f_scal.close()
+f_scal_ins.close()
 
 print()
 print(" ===== OTHER STATISTICS =====")
