@@ -20,6 +20,7 @@ def store_sfs_json(block_name: str, block: Dict[str, Dict], final_path: Path) ->
 
 
 class CFG:
+    
     def __init__(self, nodeType: str):
         self.nodeType = nodeType
         self.objectCFG: Dict[str, CFGObject] = {}
@@ -90,5 +91,20 @@ class CFG:
             if subobject is not None:
                 subobject.modify_cfg_block_list(f)
 
+
+    def get_stats(self):
+        total_blocks = 0
+        total_instructions = 0
+
+        for _cfg_name, cfg_object in self.objectCFG.items():
+            blocks, instructions = cfg_object.get_stats()
+
+            total_blocks+= blocks
+            total_instructions+= instructions
+
+        return total_blocks, total_instructions
+
+
+                
     def __repr__(self):
         return str(self.get_as_json())

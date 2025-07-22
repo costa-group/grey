@@ -15,7 +15,7 @@ class CFGBlockList:
     """
     Object that manages a list of blocks that are connected through an object or function
     """
-
+    
     def __init__(self, name: block_id_T):
         self.name: block_id_T = name
         self.blocks: Dict[block_id_T, CFGBlock] = {}
@@ -198,6 +198,18 @@ class CFGBlockList:
 
         return json_blocks
 
+
+    def get_stats(self):
+        total_blocks = len(self.blocks.values())
+        total_instructions = 0
+        
+        for _block_name, block_object in self.blocks.items():
+            instructions = block_object.get_stats()
+            total_instructions+= instructions
+            
+        return total_blocks, total_instructions
+
+    
     def __repr__(self):
         text_repr = []
         for block_id, block in self.blocks.items():

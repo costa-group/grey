@@ -71,7 +71,7 @@ class CFGBlock:
     """
     Class for representing a cfg block
     """
-
+    
     def __init__(self, identifier: block_id_T, instructions: List[CFGInstruction], type_block: str,
                  assignment_dict: Dict[str, str]):
         self.block_id = identifier
@@ -359,6 +359,11 @@ class CFGBlock:
         mem_deps = replace_pos_instrsid(mem_dep, map_positions)
         return sto_deps, mem_deps
 
+
+    def get_stats(self):
+        return len(self._instructions)
+
+    
     def get_as_json(self):
         block_json = {}
         block_json["id"] = self.block_id

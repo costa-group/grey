@@ -149,7 +149,17 @@ def main(args):
     asm_contracts = defaultdict(lambda: dict())
     asm_contracts_after_importer = defaultdict(lambda: dict())
 
+    total_blocks_cfg = 0
+    total_ins_cfg = 0
+
+    
     for cfg_name, cfg in cfgs.items():
+
+        blocks, ins = cfg.get_stats()
+        
+        total_blocks_cfg+=blocks
+        total_ins_cfg += ins
+        
         #      print("Synthesizing...", cfg_name)
         cfg_dir = final_dir.joinpath(cfg_name)
         asm_contract = analyze_single_cfg(cfg, cfg_dir, args, times)
@@ -188,6 +198,10 @@ def main(args):
     times_str = map(lambda x: str(x), times)
     print("Times " + args.source + ": " + ",".join(times_str))
     print("Total times " + args.source +": "+ str(sum(times[1:])))
+
+    print("Total Blocks CFG "+ args.source +": "+str(total_blocks_cfg))
+    print("Total Ins CFG "+ args.source +": "+str(total_ins_cfg))
+    
     asm_combined_output = {"contracts": asm_contracts, "version": "grey"}
 
     with open(str(final_dir.joinpath(Path(args.source).stem)) + "_bef_importer.json_solc", 'w') as f:

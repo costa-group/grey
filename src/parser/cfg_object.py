@@ -10,6 +10,7 @@ from typing import Dict, List, Optional
 
 
 class CFGObject:
+    
     def __init__(self, name, blocks):
         self.name = name
         self.blocks: CFGBlockList = blocks
@@ -81,5 +82,31 @@ class CFGObject:
     def get_as_json(self):
         return {"name": self.name}
 
+
+    def get_stats(self):
+        total_blocks = 0
+        total_instructions = 0
+
+        num_blocks, num_instructions = self.blocks.get_stats()
+
+        total_blocks+=num_blocks
+        total_instructions+=num_instructions
+        
+        for _function_name, function_object in self.functions.items():
+            blocks, instructions = function_object.get_stats()
+
+            total_blocks+= blocks
+            total_instructions+= instructions
+
+
+        if self.subObject != None:
+            blocks_sub, ins_sub = self.subObject.get_stats()
+            total_blocks+= blocks_subs
+            total_instructions+=ins_sub
+            
+        return total_blocks, total_instructions
+
+
+    
     def __repr__(self):
         return json.dumps(self.get_as_json())
