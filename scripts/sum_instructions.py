@@ -2,7 +2,7 @@ import compare_blocks
 
 
 
-def get_times(file_name):
+def get_stats(file_name):
     f = open(file_name, "r")
     lines = f.readlines()
 
@@ -12,7 +12,13 @@ def get_times(file_name):
     time_solc_line = list(filter(lambda x: x.find("TIME SOLC") != -1, lines))[0]
     time_solc = time_solc_line.split(":")[-1].strip()
 
-    return float(time_grey), float(time_solc)
+    blocks_cfg_line = list(filter(lambda x: x.find("Total Blocks CFG") != -1, lines))[0]
+    blocks_cfg = blocks_cfg_line.split(":")[-1].strip()
+
+    ins_cfg_line = list(filter(lambda x: x.find("Total Ins CFG") != -1, lines))[0]
+    ins_cfg = ins_cfg_line.split(":")[-1].strip()
+    
+    return float(time_grey), float(time_solc), int(blocks_cfg), int(ins_cfg)
     
 
     
@@ -92,6 +98,9 @@ f_scal_ins = open(scalability_ins, "w")
 
 f_scal.write("Contract name, Time solc, blocks solc, Time grey, blocks grey\n")
 f_scal_ins.write("Contract name, Time solc, ins solc, Time grey, ins grey\n")
+f_scal_cfg.write("Contract name, blocks cfg, ins cfg, Time grey, Time solc,\n")
+
+
 
 for i in range(len(origin_number)):
     original = origin_number[i]
@@ -106,13 +115,14 @@ for i in range(len(origin_number)):
     tsol, pops_sol, allpops, torigin, pops_origin , allpops_orig, inst_opt, inst_sol, blocks_solc, blocks_opt, total_ins_solc, total_ins_grey = compare_blocks.execute_function(fname_without_ext+"output", fname_without_ext+"log")
 
 
-    time_grey, time_solc = get_times(fname_without_ext+"log")
+    time_grey, time_solc, blocks_cfg, ins_cfg = get_stats(fname_without_ext+"log")
     
     print([fname_without_ext,time_solc,blocks_solc,time_grey,blocks_opt])
     f_scal.write(",".join([fname_without_ext[:-1],str(time_solc),str(blocks_solc),str(time_grey),str(blocks_opt)])+"\n")
 
     f_scal_ins.write(",".join([fname_without_ext[:-1],str(time_solc),str(total_ins_solc),str(time_grey),str(total_ins_grey)])+"\n")
 
+    f_scal_cfg.write(",".join([fname_without_ext[:-1],str(blocks_cfg), str(ins_cfg),str(time_grey),str(time_solc)])+"\n")
 
 
     ########################
@@ -174,6 +184,7 @@ worse_file.close()
 
 f_scal.close()
 f_scal_ins.close()
+f_scal_cfg.close()
 
 print()
 print(" ===== OTHER STATISTICS =====")
