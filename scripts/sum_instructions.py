@@ -108,6 +108,7 @@ f_scal_cfg.write("Contract name, blocks cfg, ins cfg, Time grey, Time solc,\n")
 list_times_grey = []
 list_times_solc = []
 list_ins_cfg = []
+list_blocks_cfg = []
 
 for i in range(len(origin_number)):
     original = origin_number[i]
@@ -127,6 +128,7 @@ for i in range(len(origin_number)):
     list_times_grey.append(time_grey)
     list_times_solc.append(time_solc)
     list_ins_cfg.append(ins_cfg)
+    list_blocks_cfg.append(blocks_cfg)
     
     print([fname_without_ext,time_solc,blocks_solc,time_grey,blocks_opt])
     f_scal.write(",".join([fname_without_ext[:-1],str(time_solc),str(blocks_solc),str(time_grey),str(blocks_opt)])+"\n")
@@ -186,6 +188,8 @@ for i in range(len(origin_number)):
         mayor+=1
 
 
+# Plots with instructions
+    
 paired = sorted(zip(list_ins_cfg, list_times_grey))
 ins_cfg_sorted, times_grey_sorted = zip(*paired)
 
@@ -232,10 +236,6 @@ plt.title("Solc")
 plt.savefig("figs/scatter_plot_solc.png")
 #plt.show()
 
-
-
-
-
 plt.figure()
 # Crear DataFrame
 df = pd.DataFrame({"x": ins_cfg_sorted, "y": times_grey_sorted})
@@ -264,6 +264,81 @@ plt.title("Solc")
 
 
 plt.savefig("figs/scatter_plot_solc_ins.png")
+#plt.show()
+
+
+#Plots with blocks
+    
+paired = sorted(zip(list_blocks_cfg, list_times_grey))
+blocks_cfg_sorted, times_grey_sorted = zip(*paired)
+
+blocks_cfg_sorted, times_grey_sorted = list(blocks_cfg_sorted), list(times_grey_sorted)
+
+paired_blocks_solc = sorted(zip(list_blocks_cfg, list_times_solc))
+blocks_cfg_sorted, times_solc_sorted = zip(*paired_solc)
+
+blocks_cfg_sorted, times_solc_sorted = list(blocks_cfg_sorted), list(times_solc_sorted)
+
+index_list = range(len(blocks_cfg_sorted))
+
+plt.figure()
+# Crear DataFrame
+df = pd.DataFrame({"x": index_list, "y": times_grey_sorted})
+
+# Dibujar scatter
+sns.scatterplot(data=df, x="x", y="y")
+
+plt.xlabel("Relative Block size order")
+plt.ylabel("Time (s)")
+plt.title("Grey")
+
+
+plt.savefig("figs/scatter_plot_grey_blocks_relative.png")
+#plt.show()
+
+plt.figure()
+# Crear DataFrame
+df_solc = pd.DataFrame({"x": index_list, "y": times_solc_sorted})
+
+# Dibujar scatter
+sns.scatterplot(data=df_solc, x="x", y="y")
+
+plt.xlabel("Relative block size order")
+plt.ylabel("Time (s)")
+plt.title("Solc")
+
+
+plt.savefig("figs/scatter_plot_solc_blocks_relative.png")
+#plt.show()
+
+plt.figure()
+# Crear DataFrame
+df = pd.DataFrame({"x": blocks_cfg_sorted, "y": times_grey_sorted})
+
+# Dibujar scatter
+sns.scatterplot(data=df, x="x", y="y")
+
+plt.xlabel("Num Blocks")
+plt.ylabel("Time (s)")
+plt.title("Grey")
+
+
+plt.savefig("figs/scatter_plot_grey_blocks.png")
+#plt.show()
+
+plt.figure()
+# Crear DataFrame
+df_solc = pd.DataFrame({"x": blocks_cfg_sorted, "y": times_solc_sorted})
+
+# Dibujar scatter
+sns.scatterplot(data=df_solc, x="x", y="y")
+
+plt.xlabel("Num Blocks")
+plt.ylabel("Time (s)")
+plt.title("Solc")
+
+
+plt.savefig("figs/scatter_plot_solc_blocks.png")
 #plt.show()
 
 
