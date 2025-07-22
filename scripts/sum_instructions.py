@@ -95,12 +95,19 @@ f_scal = open(scalability, "w")
 scalability_ins = "scalability_ins.csv"
 f_scal_ins = open(scalability_ins, "w")
 
+scalability_cfg = "scalability_cfg.csv"
+f_scal_cfg = open(scalability_cfg, "w")
+
 
 f_scal.write("Contract name, Time solc, blocks solc, Time grey, blocks grey\n")
 f_scal_ins.write("Contract name, Time solc, ins solc, Time grey, ins grey\n")
 f_scal_cfg.write("Contract name, blocks cfg, ins cfg, Time grey, Time solc,\n")
 
 
+
+list_times_grey = []
+list_times_solc = []
+list_ins_cfg = []
 
 for i in range(len(origin_number)):
     original = origin_number[i]
@@ -116,6 +123,10 @@ for i in range(len(origin_number)):
 
 
     time_grey, time_solc, blocks_cfg, ins_cfg = get_stats(fname_without_ext+"log")
+
+    list_times_grey.append(time_grey)
+    list_times_solc.append(time_solc)
+    list_ins_cfg.append(ins_cfg)
     
     print([fname_without_ext,time_solc,blocks_solc,time_grey,blocks_opt])
     f_scal.write(",".join([fname_without_ext[:-1],str(time_solc),str(blocks_solc),str(time_grey),str(blocks_opt)])+"\n")
@@ -173,6 +184,88 @@ for i in range(len(origin_number)):
         optimizado_peor+=optimizado
         cuartiles(original, optimizado, cuartiles_res)
         mayor+=1
+
+
+paired = sorted(zip(list_ins_cfg, list_times_grey))
+ins_cfg_sorted, times_grey_sorted = zip(*paired)
+
+ins_cfg_sorted, times_grey_sorted = list(ins_cfg_sorted), list(times_grey_sorted)
+
+paired_solc = sorted(zip(list_ins_cfg, list_times_solc))
+ins_cfg_sorted, times_solc_sorted = zip(*paired_solc)
+
+ins_cfg_sorted, times_solc_sorted = list(ins_cfg_sorted), list(times_solc_sorted)
+
+index_list = range(len(ins_cfg_sorted))
+
+import seaborn as sns
+import pandas as pd
+import matplotlib.pyplot as plt
+
+plt.figure()
+# Crear DataFrame
+df = pd.DataFrame({"x": index_list, "y": times_grey_sorted})
+
+# Dibujar scatter
+sns.scatterplot(data=df, x="x", y="y")
+
+plt.xlabel("Relative Instructions order")
+plt.ylabel("Time (s)")
+plt.title("Grey")
+
+
+plt.savefig("figs/scatter_plot_grey.png")
+#plt.show()
+
+plt.figure()
+# Crear DataFrame
+df_solc = pd.DataFrame({"x": index_list, "y": times_solc_sorted})
+
+# Dibujar scatter
+sns.scatterplot(data=df_solc, x="x", y="y")
+
+plt.xlabel("Relative Instructions order")
+plt.ylabel("Time (s)")
+plt.title("Solc")
+
+
+plt.savefig("figs/scatter_plot_solc.png")
+#plt.show()
+
+
+
+
+
+plt.figure()
+# Crear DataFrame
+df = pd.DataFrame({"x": ins_cfg_sorted, "y": times_grey_sorted})
+
+# Dibujar scatter
+sns.scatterplot(data=df, x="x", y="y")
+
+plt.xlabel("Num Instructions")
+plt.ylabel("Time (s)")
+plt.title("Grey")
+
+
+plt.savefig("figs/scatter_plot_grey_ins.png")
+#plt.show()
+
+plt.figure()
+# Crear DataFrame
+df_solc = pd.DataFrame({"x": ins_cfg_sorted, "y": times_solc_sorted})
+
+# Dibujar scatter
+sns.scatterplot(data=df_solc, x="x", y="y")
+
+plt.xlabel("Num Instructions")
+plt.ylabel("Time (s)")
+plt.title("Solc")
+
+
+plt.savefig("figs/scatter_plot_solc_ins.png")
+#plt.show()
+
 
 s = ""
 for k,v in worse_files.items():
