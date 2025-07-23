@@ -53,7 +53,8 @@ def insert_variables_for_constants_block_list(cfg_block_list: CFGBlockList, cons
         for instr in block.get_instructions():
             for in_index, in_arg in enumerate(instr.get_in_args()):
 
-                if in_arg.startswith("0x"):
+                if in_arg.startswith("0x") and instr.get_op_name()!= "LiteralAssignment":
+                    #print(instr.get_op_name())
                     # For constants in phi functions, we need to consider the predecessor in which
                     # the constant was introduced
                     block_to_assign = block.entries[in_index] if instr.get_op_name() == "PhiFunction" else block_name
@@ -72,6 +73,10 @@ def insert_constants_block_list(cfg_block_list: CFGBlockList, constants_per_bloc
     modifies all the blocks in the block_list accordingly.
     """
     for block_name, cfg_block in cfg_block_list.blocks.items():
+
+        #print("*/*/*/**/*/*/*/*/*/*/**/*")
+        #print(block_name)
+        #print(cfg_block._instructions)
         first_non_phi = None
         for idx, instruction in enumerate(cfg_block.get_instructions()):
             if instruction.get_op_name() == "PhiFunction":
@@ -94,3 +99,6 @@ def insert_constants_block_list(cfg_block_list: CFGBlockList, constants_per_bloc
             push_instr = CFGInstruction("push", [], [arg])
             push_instr.literal_args = [constant_value]
             cfg_block.insert_instruction(first_non_phi, push_instr)
+
+        #print(cfg_block._instructions)
+
