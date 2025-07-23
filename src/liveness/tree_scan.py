@@ -58,14 +58,106 @@ def compute_var2num_uses(block_list: CFGBlockList) -> Dict[var_id_T, int]:
     return var2num_uses
 
 
+# Phi web descovery
+
+def unreachable_phi_arguments(block_list: CFGBlockList, dominance_tree: nx.DiGraph, start: block_id_T) -> \
+        Tuple[Dict[var_id_T, List[Tuple[var_id_T, block_id_T, int]]],Set[Tuple[var_id_T, block_id_T]]]:
+    """
+    The unreachable phi arguments correspond to those phi functions that are never accessible
+    in the dominance tree. If it is accessible at some point, we just need to store it
+    """
+    unreachable = set()
+    phi_descovery = defaultdict(lambda: [])
+    for block in block_list.blocks.values():
+        for i, phi_function in enumerate(block.phi_instructions()):
+            # There is always just one value
+            out_arg = phi_function.get_out_args()[0]
+
+            for in_arg, pred_id in zip(phi_function.in_args, block.entries):
+                phi_descovery[out_arg].append((in_arg, pred_id, i))
+                pred = block_list.get_block(pred_id)
+
+                # Condition: An element that cannot be reached initially or finally
+                # and not defined means that we have to retrieve it from a register
+                if in_arg not in pred.declared_variables and not pred.is_accessible_out(in_arg) \
+                        and not pred.is_accessible_in(in_arg):
+                    unreachable.add((in_arg, pred_id))
+
+    return phi_descovery, unreachable
+
+
+def insert_needed_copies(phi_web: Dict[var_id_T, List[Tuple[var_id_T, block_id_T, int]]],
+                         unreachable_elements: Set[Tuple[var_id_T, block_id_T]],
+                         elements_to_store: Set[Tuple[var_id_T, block_id_T]],
+                         block_list: CFGBlockList):
+    """
+    Inserts SET and GET_SET instructions to ensure all unreachable elements are correctly
+    stored in a register when reached.
+
+    phi_web: dict that connects every phi-function with their corresponding parameters
+             (plus block id and position of the phi function)
+    unreachable_elements: set that connects those phi-defs that cannot be reached in a block
+    elements_to_store: elements that have been detected not to be reachable
+    """
+    # The atomic sets represent the instructions that
+    # must contain the same value
+    atomic_sets = []
+    for i, tuple_element_block in enumerate(elements_to_store):
+        requires_block_insertion = [tuple_element_block]
+
+        # We use the same color for all the connected components
+        color = i
+        while requires_block_insertion:
+            phi_element, block_id = requires_block_insertion.pop()
+
+            # Only phi values can be considered at this point
+            phi_arguments = phi_web[phi_element]
+
+            for phi_argument, previous_block_id, instr_position in phi_arguments:
+                previous_block = block_list.get_block(previous_block_id)
+
+                # First case: the element is unreachable.
+                if (phi_argument, previous_block_id) in unreachable_elements:
+                    # In this case, we need to perform a GET_SET instruction (unless not necessary)
+                    # We introduce by the end of the greedy ids, with the corresponding color
+                    previous_block.greedy_ids.insert(-1, f"SET({phi_argument},{color})")
+
+                    # We need to add the current block to the blocks to traverse
+                    # (to ensure the arguments are also accessible)
+                    # TODO: is there a way to check the predecessors?
+                    requires_block_insertion.append((phi_argument, previous_block))
+
+                # Otherwise, we just need to set the value
+                # Moreover, we assign the colour to that variable
+                else:
+                    # Four cases: accessible initially, declared in the function or
+                    # accessible in the end
+                    if previous_block.is_accessible_out(phi_argument):
+                        # We insert it by the end of the block
+                        previous_block.greedy_ids.insert(-1, f"DUP_SET({phi_argument},{color})")
+
+                    elif phi_argument in previous_block.declared_variables:
+                        # We insert just after the instruction
+                        previous_block.greedy_ids.insert(-1, f"DUP_SET({phi_argument},{color})")
+
+                    elif previous_block.is_accessible_in(phi_argument):
+                        # We insert it by the beginning of the instruction
+                        previous_block.greedy_ids.insert(0, f"DUP_SET({phi_argument},{color})")
+
+                    else:
+                        raise ValueError(f"Incoherent case: the phi argument "
+                                         f"{phi_argument} should be accessible in block {block_id}")
+
+
 class TreeScanFirstPass:
 
-    def __init__(self, block_list: CFGBlockList, loop_forest: nx.DiGraph):
+    def __init__(self, block_list: CFGBlockList, dominance_tree: nx.DiGraph, loop_forest: nx.DiGraph):
         """
         Modifies the cfg_block_list inserting the needed SET instructions for registers in between, and
         returns the information for performing the tree scan.
         """
         self._block_list = block_list
+        self._dominance_tree = dominance_tree
         self._loop_forest = loop_forest
 
         # ordered_program_points maps each block to the set of variables
@@ -91,29 +183,24 @@ class TreeScanFirstPass:
         self._dag_dfs_block(self._block_list.get_block(self._block_list.start_block), traversed)
         return self._ordered_program_points
 
-    def _dag_dfs_block(self, cfg_block: CFGBlock, traversed: Set[block_id_T]) -> Set[var_id_T]:
+    def _dag_dfs_block(self, cfg_block: CFGBlock) -> Set[var_id_T]:
         """
-        Post-order traversal of the CFG in order to generate the information on when to introduce the variables
+        Post-order traversal of the dominance tree in order to generate the
+        information on when to introduce the variables
         """
         # Same sets as the previous functions
         vars_to_introduce, variables_used_children = set(), set()
 
-        for block_id in cfg_block.successors:
-            if block_id not in traversed:
-                # We add the current id to the traversed ones
-                traversed.add(block_id)
-                vars_to_introduce_child = (
-                    self._dag_dfs_block(self._block_list.blocks[block_id], traversed))
-
-                vars_to_introduce.update(vars_to_introduce_child)
+        for block_id in self._dominance_tree.successors(cfg_block.block_id):
+            vars_to_introduce_child = self._dag_dfs_block(self._block_list.blocks[block_id])
+            vars_to_introduce.update(vars_to_introduce_child)
 
         variables_to_introduce_current = self.traverse_block(cfg_block, vars_to_introduce)
 
         # variables_introduced_current already considers the state from the children
         return variables_to_introduce_current
 
-    def traverse_block(self, cfg_block: CFGBlock, vars_to_introduce: Set[var_id_T]) \
-            -> Set[var_id_T]:
+    def traverse_block(self, cfg_block: CFGBlock, vars_to_introduce: Set[var_id_T]) -> Set[var_id_T]:
         """
         Modifies the cfg_ids in cfg_block to store the variables in vars_to_introduce,
         considering the information from the var2header dict. It returns two sets:
@@ -127,12 +214,14 @@ class TreeScanFirstPass:
 
                 self._var2num_uses[loaded_var] -= 1
 
+                last_visited = False
                 # The first ocurrence of a variable is the last placed it was used
                 if loaded_var not in self._last_visited:
                     self._last_visited.add(loaded_var)
+                    last_visited = True
 
-                    # Annotate when the there is a GET or a SET
-                    self._ordered_program_points.append((cfg_block.block_id, -i - 1))
+                # Annotate when the there is a GET or a SET
+                self._ordered_program_points.append((cfg_block.block_id, -i - 1, last_visited))
 
                 # If no more uses are needed, this means that we have reached a point
                 # in which it can be introduced
@@ -144,7 +233,7 @@ class TreeScanFirstPass:
             elif instruction_id.startswith("SET"):
                 stored_var = instruction_id[4:-1]
 
-                self._ordered_program_points.append((cfg_block.block_id, -i - 1))
+                self._ordered_program_points.append((cfg_block.block_id, -i - 1, False))
 
                 # We only remove the stored var if it has not been removed before
                 if stored_var in vars_to_introduce:
@@ -159,6 +248,7 @@ class TreeScanFirstPass:
                         vars_to_introduce.remove(out_var)
 
                         cfg_block.greedy_ids.insert(index, f"DUP_SET({out_var})")
+                        self._ordered_program_points.append((cfg_block.block_id, -i - 1, False))
 
         # Finally, we detect which values are accessible at the beginning of the block
         # so that we store them in memory. By applying this step at the beginning of the block,
@@ -177,7 +267,7 @@ class TreeScanFirstPass:
                                                                                          cfg_block.block_id)):
                     # We insert a DUP_SET instruction
                     cfg_block.greedy_ids.insert(0, f"DUP_SET({var_id})")
-                    self._ordered_program_points.append((cfg_block.block_id,  -len(cfg_block.greedy_ids)))
+                    self._ordered_program_points.append((cfg_block.block_id,  -len(cfg_block.greedy_ids), False))
 
                     # We mark the variable for removal
                     to_remove.add(var_id)

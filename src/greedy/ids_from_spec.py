@@ -14,34 +14,27 @@ from parser.cfg import CFG
 import greedy.greedy_previous as previous
 import greedy.greedy as new_greedy
 from solution_generation.statistics import generate_statistics_info
+import greedy.greedy_new_version as alternative
+import numpy as np
+
+def _length_or_zero(l, outcome):
+    return len(l) if l is not None and outcome != "error" else 10000
 
 
 def cfg_block_spec_ids(cfg_block: CFGBlock) -> Tuple[str, float, List[instr_id_T]]:
     outcome1, time1, greedy_ids1 = previous.greedy_standalone(cfg_block.spec)
     outcome2, time2, greedy_ids2 = new_greedy.greedy_standalone(cfg_block.spec)
-    if greedy_ids2 is not None and (outcome1 == "error" or len(greedy_ids1) > len(greedy_ids2)):
-        outcome = outcome2
-        time = time2
-        greedy_ids = greedy_ids2
-        # print("GANA Nuevo", cfg_block.block_id, "IDS viejo", greedy_ids1, "IDS nuevo", greedy_ids2)
-        # print("Outcome Viejo", outcome1, "Outcome nuevo", outcome2)
+    outcome3, time3, greedy_ids3 = alternative.greedy_standalone(cfg_block.spec)
 
-        # print(cfg_block.block_id, len(greedy_ids1), len(greedy_ids2))
-        # print(len(greedy_ids))
+    lengths = [_length_or_zero(greedy_ids1, outcome1), _length_or_zero(greedy_ids2, outcome2),
+               _length_or_zero(greedy_ids3, outcome3)]
 
-    elif greedy_ids2 is not None and (len(greedy_ids1) < len(greedy_ids2) or outcome2 == "error"):
-        outcome = outcome1
-        time = time1
-        greedy_ids = greedy_ids1
-        # print("GANA Viejo", cfg_block.block_id, "IDS viejo", greedy_ids1, "IDS nuevo", greedy_ids2)
-        # print("Outcome Viejo", outcome1, "Outcome nuevo", outcome2)
-        # print(cfg_block.block_id, len(greedy_ids1), len(greedy_ids2))
-        # print(len(greedy_ids))
+    chosen_idx = np.argmin(lengths)
+    print(chosen_idx, lengths)
 
-    else:
-        outcome = outcome1
-        time = min(time1, time2)
-        greedy_ids = greedy_ids1
+    outcome = [outcome1, outcome2, outcome3][chosen_idx]
+    time = [time1, time2, time3][chosen_idx]
+    greedy_ids = [greedy_ids1, greedy_ids3, greedy_ids3][chosen_idx]
 
     cfg_block.greedy_ids = greedy_ids if greedy_ids is not None else []
     return outcome, time, greedy_ids

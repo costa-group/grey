@@ -90,7 +90,7 @@ class TestGreedyNewVersion:
         cfg_graph = example_block_list.to_graph()
         dominance_tree = compute_dominance_tree(cfg_graph, example_block_list.start_block)
         loop_nesting_forest = compute_loop_nesting_forest_graph(cfg_graph, dominance_tree)
-        first_pass_object = TreeScanFirstPass(example_block_list, loop_nesting_forest)
+        first_pass_object = TreeScanFirstPass(example_block_list, dominance_tree, loop_nesting_forest)
         detect_last_accessible = first_pass_object.insert_instructions()
 
         second_copy = setup_cfg_example()
