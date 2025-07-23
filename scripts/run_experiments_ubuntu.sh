@@ -6,7 +6,7 @@ DIRECTORIO_BASE=/home/pablo/Repositorios/ethereum/grey/scripts/test
 GREY_PATH=/home/pablo/Repositorios/ethereum/grey/src/grey_main.py
 SOLC_PATH=/home/pablo/Repositorios/ethereum/grey/solc-latest
 TESTRUNNER_PATH=/home/pablo/Repositorios/ethereum/solidity/build/test/tools/testrunner
-EVMONE_LIB=/home/pablo/Repositorios/ethereum/evmone/build/lib/libevmone.dylib
+EVMONE_LIB=/home/pablo/Repositorios/ethereum/evmone/build/lib/libevmone.so
 
 # Comprobar si el directorio existe
 if [ ! -d "$DIRECTORIO_BASE" ]; then
