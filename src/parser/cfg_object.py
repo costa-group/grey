@@ -101,7 +101,7 @@ class CFGObject:
 
         if self.subObject != None:
             blocks_sub, ins_sub = self.subObject.get_stats()
-            total_blocks+= blocks_subs
+            total_blocks+= blocks_sub
             total_instructions+=ins_sub
             
         return total_blocks, total_instructions
