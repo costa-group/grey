@@ -50,11 +50,11 @@ def insert_variables_for_constants_block_list(cfg_block_list: CFGBlockList, cons
 
     for block_name, block in cfg_block_list.blocks.items():
         # We must insert constants for phi instructions if they are needed
+
         for instr in block.get_instructions():
             for in_index, in_arg in enumerate(instr.get_in_args()):
 
                 if in_arg.startswith("0x") and instr.get_op_name()!= "LiteralAssignment":
-                    #print(instr.get_op_name())
                     # For constants in phi functions, we need to consider the predecessor in which
                     # the constant was introduced
                     block_to_assign = block.entries[in_index] if instr.get_op_name() == "PhiFunction" else block_name
@@ -74,9 +74,9 @@ def insert_constants_block_list(cfg_block_list: CFGBlockList, constants_per_bloc
     """
     for block_name, cfg_block in cfg_block_list.blocks.items():
 
-        #print("*/*/*/**/*/*/*/*/*/*/**/*")
-        #print(block_name)
-        #print(cfg_block._instructions)
+        # print("*/*/*/**/*/*/*/*/*/*/**/*")
+        # print(block_name)
+        # print(cfg_block._instructions)
         first_non_phi = None
         for idx, instruction in enumerate(cfg_block.get_instructions()):
             if instruction.get_op_name() == "PhiFunction":
@@ -85,9 +85,11 @@ def insert_constants_block_list(cfg_block_list: CFGBlockList, constants_per_bloc
                 instruction.in_args = [constants_per_block[predecessor_id].get(in_arg, in_arg)
                                        for in_arg, predecessor_id in zip(instruction.in_args, cfg_block.entries)]
 
-            else:
+            elif instruction.get_op_name() != "LiteralAssignment":
                 # We detect the first non phi instruction, as we are introducing variables in this point
                 first_non_phi = idx if first_non_phi is None else first_non_phi
+
+
                 instruction.in_args = [constants_per_block[cfg_block.block_id].get(in_arg, in_arg)
                                        for in_arg in instruction.in_args]
 
@@ -99,6 +101,4 @@ def insert_constants_block_list(cfg_block_list: CFGBlockList, constants_per_bloc
             push_instr = CFGInstruction("push", [], [arg])
             push_instr.literal_args = [constant_value]
             cfg_block.insert_instruction(first_non_phi, push_instr)
-
-        #print(cfg_block._instructions)
 
