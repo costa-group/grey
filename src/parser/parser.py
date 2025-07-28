@@ -22,6 +22,7 @@ def parse_instruction(ins_json: Dict[str, Any], assgiment_dict: Dict[str,str]) -
     in_arg = ins_json.get("in",-1)
     op = ins_json.get("op", -1)
     out_arg = ins_json.get("out", -1)
+
     check_instruction_validity(in_arg, op, out_arg)
 
     if op == "LiteralAssigment":
