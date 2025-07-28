@@ -13,11 +13,9 @@ def update_bytecode(json_file_path, contract_name, new_bytecode):
     for c in json_file_path:
  
         json_contract = json_file_path[c]
-        print("------")
-        print(c)
-        print(contract_name)
+        
         if contract_name == json_contract["contract"].strip(":"):
-            print("HOLA")
+        
              # Verificar si 'bytecode' está en el JSON
             json_contract["bytecode"] = new_bytecode             
 
@@ -59,7 +57,6 @@ if __name__ == '__main__':
             # Leer el archivo JSON
             with open(test_file, 'r') as file:
                 data = json.load(file)
-                print(data)
                 for c in evm_codes:
                     evm = evm_codes[c]
                     update_bytecode(data, c.strip(), evm.strip())
@@ -84,7 +81,6 @@ if __name__ == '__main__':
                 json_data = contracts[cc]
                 contracts_names = json_data.keys()
                 for c in contracts_names:
-                    print(c)
                     bytecode = json_data[c.strip()]["evm"]["bytecode"]["object"]
 
                     update_bytecode(data, c.strip(),bytecode.strip())
@@ -96,5 +92,5 @@ if __name__ == '__main__':
     # Guardar el archivo JSON actualizado
     with open(result_file, 'w') as file:
         json.dump(data, file, indent=4)
-        print(data)
+
 
