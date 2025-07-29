@@ -208,6 +208,9 @@ def execute_script_solx():
     for c in evm_opt:
         evm = evm_opt[c]
 
+        mload = 0
+        mstore = 0
+        
         opt = count_num_ins(evm.strip())
         opt_bytes = count_num_bytes(evm.strip())
 
