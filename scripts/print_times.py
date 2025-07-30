@@ -299,6 +299,7 @@ plt.savefig("figs/times_per_phase.png")
 #Barras acumulado
 
 import numpy as np
+
 plt.figure()
 # Eje x como posiciones (pueden ser índices o categorías)
 x_pos = np.arange(len(ins_cfg_sorted))
@@ -313,7 +314,7 @@ bottom = np.zeros(len(ins_cfg_sorted))
 
 # Dibujar cada serie apilada
 for y, label, color in zip(ys, labels, colors):
-    plt.bar(x_pos, y, bottom=bottom, label=label, color=color)
+    plt.bar(x_pos, y, bottom=bottom, label=label, color=color, width=1.0)
     bottom += np.array(y)  # Acumular para el siguiente nivel
 
 # Personalización
@@ -322,9 +323,13 @@ plt.ylabel('Time (s)')
 plt.title('Total time per phase')
 #plt.xticks(x_pos, ins_cfg_sorted)  # Usar tus valores reales de x como etiquetas
 plt.ylim(0, 0.85)
+plt.yticks(np.arange(0, 0.86, 0.05))
+plt.xticks(np.arange(0, len(ins_cfg_sorted)+1, 50))
 plt.legend()
 plt.grid(True, axis='y', linestyle='--', alpha=0.5)
 
+plt.savefig("figs/times_per_phase_bars.png")
 plt.show()
+
 
 
