@@ -292,4 +292,39 @@ plt.ylabel('Time (s)')
 plt.title('Time of different phases')
 plt.legend()
 plt.grid(True)
+#plt.show()
+
+plt.savefig("figs/times_per_phase.png")
+
+#Barras acumulado
+
+import numpy as np
+plt.figure()
+# Eje x como posiciones (pueden ser índices o categorías)
+x_pos = np.arange(len(ins_cfg_sorted))
+
+# Listas de valores
+ys = [time_cfg_generation_sorted, time_cfg_parser_sorted, time_cfg_preprocess_sorted, time_layout_sorted, time_greedy_sorted, time_asm_generation_sorted, time_solc_importer_sorted]
+labels = ['CFG Generation', 'CFG Parser', 'CFG Preprocess', 'Layout Generation', 'Greedy', 'ASM Generation', 'solc Importer']
+colors = ['skyblue', 'orange', 'green', 'red', 'purple', 'gray','yellow']
+
+# Inicializar base (bottom) en cero
+bottom = np.zeros(len(ins_cfg_sorted))
+
+# Dibujar cada serie apilada
+for y, label, color in zip(ys, labels, colors):
+    plt.bar(x_pos, y, bottom=bottom, label=label, color=color)
+    bottom += np.array(y)  # Acumular para el siguiente nivel
+
+# Personalización
+plt.xlabel('Contracts sorted by num of instructions')
+plt.ylabel('Time (s)')
+plt.title('Total time per phase')
+#plt.xticks(x_pos, ins_cfg_sorted)  # Usar tus valores reales de x como etiquetas
+plt.ylim(0, 0.85)
+plt.legend()
+plt.grid(True, axis='y', linestyle='--', alpha=0.5)
+
 plt.show()
+
+
