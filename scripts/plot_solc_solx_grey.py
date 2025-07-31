@@ -37,13 +37,22 @@ print(len(opt_num_ins))
 assert(len(origin_num_ins) == len(origin_num_ins_solx))
 assert(len(origin_num_ins_solx) == len(opt_num_ins))
 
+init_limit = 300
+end_limit = 400
+
+origin_num_ins = origin_num_ins[init_limit:end_limit]
+origin_num_ins_solx = origin_num_ins_solx[init_limit:end_limit]
+opt_num_ins = opt_num_ins[init_limit:end_limit]
+
+
 n = len(origin_num_ins)
 
+separacion = 3
 # Posiciones en el eje x
-x = np.arange(1, n + 1)  # x = 1, 2, 3, ..., n
+x = np.arange(1, n + 1)*separacion  # x = 1, 2, 3, ..., n
 
 # Ancho de cada barra
-width = 0.25
+width = 0.75
 
 # Crear gráfico
 #plt.figure(figsize=(12, 6))
@@ -53,6 +62,9 @@ plt.bar(x, origin_num_ins_solx, width=width, label='NUM INS SOLX', color='orange
 plt.bar(x + width, opt_num_ins, width=width, label='NUM INS GREY', color='green')
 
 # Etiquetas y leyenda
+
+plt.ylim(0, 3000)
+
 plt.xlabel('Contracts')
 plt.ylabel('Instructions')
 plt.title('EVM Instruction per contract')
