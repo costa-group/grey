@@ -240,11 +240,11 @@ def execute_script_solx():
 
 
         if origin_ins_solx != 0:
-            print(log_opt_file + " ORIGIN NUM INS SOLX: " + str(origin_ins_solx))
-            print(log_opt_file + " OPT NUM INS: " + str(opt))
+            # print(log_opt_file + " ORIGIN NUM INS SOLX: " + str(origin_ins_solx))
+            # print(log_opt_file + " OPT NUM INS: " + str(opt))
 
-            print(log_opt_file + " ORIGIN NUM BYTES SOLX: " + str(origin_bytes_solx))
-            print(log_opt_file + " OPT NUM BYTES: " + str(opt_bytes))
+            # print(log_opt_file + " ORIGIN NUM BYTES SOLX: " + str(origin_bytes_solx))
+            # print(log_opt_file + " OPT NUM BYTES: " + str(opt_bytes))
 
             print("[SOLXRES]: "+log_opt_file+","+str(c.strip())+","+str(origin_ins_solx)+","+str(opt)+","+str(origin_bytes_solx)+","+str(opt_bytes)+","+str(mload)+","+str(mstore)+","+str(mload+mstore)+","+str(mload_opt)+","+str(mstore_opt)+","+str(mload_opt+mstore_opt))
 
