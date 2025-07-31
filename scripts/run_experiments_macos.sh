@@ -5,6 +5,7 @@ DIRECTORIO_BASE=/Users/pablo/Repositorios/ethereum/grey/scripts/test
 
 GREY_PATH=/Users/pablo/Repositorios/ethereum/grey/src/grey_main.py
 SOLC_PATH=/Users/pablo/Repositorios/ethereum/grey/examples/solc
+SOLX_PATH=/Users/pablo/Repositorios/ethereum/solx/solx-macosx-profiling
 TESTRUNNER_PATH=/Users/pablo/Repositorios/ethereum/solidity/build/test/tools/testrunner
 EVMONE_LIB=/Users/pablo/Repositorios/ethereum/evmone/build/lib/libevmone.dylib
 
@@ -39,6 +40,18 @@ find "$DIRECTORIO_BASE" -type f -name "*standard_input.json" | while read -r yul
     
     echo "$SOLC_PATH $yul_file --standard-json &> $yul_dir/$yul_base.output"
 
+    #SOLX EXECUTION
+    start_solx=$(gdate +%s.%N)
+    $SOLX_PATH --standard-json "$yul_file" &> "$yul_dir/$yul_base.solx_output"
+    end_solx=$(gdate +%s.%N)
+    echo "$start_solx"
+    echo "$end_solx"
+    elapsed_solx=$(echo "$end_solx - $start_solx" | bc)
+    echo "TIME SOLX $yul_file : $elapsed_solx"
+    
+    echo "$SOLX_PATH --standard-json $yul_file  &> $yul_dir/$yul_base.solx_output"
+    
+
     start=$(gdate +%s.%N)
     python3 $GREY_PATH -s "$yul_file" -g -v -if standard-json -solc $SOLC_PATH -o "/tmp/$yul_base" &> "$yul_dir/$yul_base.log"
     end=$(gdate +%s.%N)
@@ -58,8 +71,13 @@ find "$DIRECTORIO_BASE" -type f -name "*standard_input.json" | while read -r yul
     
         python3 replace_bytecode_test.py "$yul_dir/test" "$yul_dir/$yul_base.log"
 
+        python3 replace_bytecode_test.py "$yul_dir/test" "$yul_dir/$yul_base.output" init
+        
         echo "python3 replace_bytecode_test.py $yul_dir/test $yul_dir/$yul_base.log"
 
+        echo "python3 replace_bytecode_test.py $yul_dir/test $yul_dir/$yul_base.output init"
+
+        
         $TESTRUNNER_PATH  $EVMONE_LIB $yul_dir/test $yul_dir/resultOriginal.json
 
         $TESTRUNNER_PATH  $EVMONE_LIB $yul_dir/test_grey $yul_dir/resultGrey.json
@@ -71,7 +89,10 @@ find "$DIRECTORIO_BASE" -type f -name "*standard_input.json" | while read -r yul
         if [ $RES -eq 0 ]; then
             echo "[RES]: Test passed."
             echo "python3 count_num_ins.py $yul_dir/$yul_base.output $yul_dir/$yul_base.log"
-            python3 count_num_ins.py "$yul_dir/$yul_base.output" "$yul_dir/$yul_base.log"
+            python3 count_num_ins.py "$yul_dir/$yul_base.output" "$yul_dir/$yul_base.log" "$yul_dir/$yul_base.solx_output"
+
+            echo "python3 compare_solx.py $yul_dir/$yul_base.log $yul_dir/$yul_base.solx_output"
+            python3 compare_solx.py "$yul_dir/$yul_base.log" "$yul_dir/$yul_base.solx_output"
             
         else
             echo "[RES]: Test failed."
