@@ -63,8 +63,6 @@ def get_evm_code(log_file):
         evm_code = elems[-1].split(":")[-1]
 
         res[c_name] = evm_code
-
-    print(res)
         
     return res
 
@@ -128,29 +126,35 @@ def count_evm_instructions(bytecode: str) -> int:
     """
     i = 0
     count = 0
+    last = ""
+    mstore_address = None
     while i < len(bytecode):
         try:
             # Leer un byte (dos caracteres hexadecimales)
             opcode = int(bytecode[i:i+2], 16)
             count += 1  # Contar la instrucción
 
-            
             if instructions[opcode] == "MLOAD":
                 mload+=1
             elif instructions[opcode] == "MSTORE":
                 mstore+=1
+                if mstore_address == None:
+                    mstore_address = last
                 
             # Manejar instrucciones PUSH (PUSH0 no requiere datos adicionales)
+          
             if 0x60 <= opcode <= 0x7f:
                 push_size = opcode - 0x60 + 1
+                last= bytecode[i+2:i+2+(push_size*2)]
                 i += 2 + (push_size * 2)  # Saltar el tamaño de los datos incluidos
+                
             else:
                 i += 2  # Avanzar 1 byte (2 caracteres hexadecimales)
         except ValueError:
             print(f"Error al leer el bytecode en posición {i}. Asegúrate de que sea válido.")
             break
 
-    return count
+    return count, mstore_address
 
 
 def count_bytes(bytecode:str) -> int:
@@ -183,7 +187,15 @@ def count_num_ins(evm: str):
     Assumes the evm bytecode has no CBOR metadata appended
     """
     code_regions = split_evm_instructions(evm)
-    return sum(count_evm_instructions(remove_auxdata(region)) for region in code_regions)
+    total_ins = 0
+    mstore_addresses = []
+    for region in code_regions:
+        ins, mstore_address = count_evm_instructions(remove_auxdata(region))
+        if mstore_address != None:
+            mstore_addresses.append(mstore_address)
+        total_ins+=ins
+    return total_ins, mstore_addresses
+    # return sum(count_evm_instructions(remove_auxdata(region)) for region in code_regions)
 
 def count_num_bytes(evm: str):
     """
@@ -211,7 +223,7 @@ def execute_script_solx():
         mload = 0
         mstore = 0
         
-        opt = count_num_ins(evm.strip())
+        opt, mstore_address_grey = count_num_ins(evm.strip())
         opt_bytes = count_num_bytes(evm.strip())
 
         mload_opt = mload
@@ -235,7 +247,8 @@ def execute_script_solx():
             
             if c.strip() in json_solx:
                 bytecode = json_solx[c.strip()]["evm"]["bytecode"]["object"]
-                origin_ins_solx += count_num_ins(bytecode.strip())
+                orig_ins , mstore_address_solx= count_num_ins(bytecode.strip())
+                origin_ins_solx += orig_ins
                 origin_bytes_solx += count_num_bytes(bytecode.strip())
 
 
@@ -245,7 +258,9 @@ def execute_script_solx():
 
             # print(log_opt_file + " ORIGIN NUM BYTES SOLX: " + str(origin_bytes_solx))
             # print(log_opt_file + " OPT NUM BYTES: " + str(opt_bytes))
-
+            
+            assert(len(mstore_address_grey) == len(mstore_address_solx))
+            
             print("[SOLXRES]: "+log_opt_file+","+str(c.strip())+","+str(origin_ins_solx)+","+str(opt)+","+str(origin_bytes_solx)+","+str(opt_bytes)+","+str(mload)+","+str(mstore)+","+str(mload+mstore)+","+str(mload_opt)+","+str(mstore_opt)+","+str(mload_opt+mstore_opt))
 
 
