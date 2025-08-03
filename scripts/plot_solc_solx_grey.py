@@ -73,4 +73,6 @@ plt.legend()
 plt.grid(True, axis='y', linestyle='--', alpha=0.5)
 
 plt.tight_layout()
+
+plt.savefig("figs/solc-solx-grey-"+str(init_limit)+"-"+str(end_limit)+".png")
 plt.show()
