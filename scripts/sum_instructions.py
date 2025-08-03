@@ -213,7 +213,7 @@ df = pd.DataFrame({"x": index_list, "y": times_grey_sorted})
 # Dibujar scatter
 sns.scatterplot(data=df, x="x", y="y")
 
-plt.xlabel("Relative Instructions order")
+plt.xlabel("Contracts ordered by number of instructions")
 plt.ylabel("Time (s)")
 plt.title("Grey")
 
@@ -228,7 +228,7 @@ df_solc = pd.DataFrame({"x": index_list, "y": times_solc_sorted})
 # Dibujar scatter
 sns.scatterplot(data=df_solc, x="x", y="y")
 
-plt.xlabel("Relative Instructions order")
+plt.xlabel("Contracts ordered by number of instructions")
 plt.ylabel("Time (s)")
 plt.title("Solc")
 
@@ -288,7 +288,7 @@ df = pd.DataFrame({"x": index_list, "y": times_grey_sorted})
 # Dibujar scatter
 sns.scatterplot(data=df, x="x", y="y")
 
-plt.xlabel("Relative Block size order")
+plt.xlabel("Contracts ordered by number of blocks")
 plt.ylabel("Time (s)")
 plt.title("Grey")
 
@@ -303,7 +303,7 @@ df_solc = pd.DataFrame({"x": index_list, "y": times_solc_sorted})
 # Dibujar scatter
 sns.scatterplot(data=df_solc, x="x", y="y")
 
-plt.xlabel("Relative block size order")
+plt.xlabel("Contracts ordered by number of blocks")
 plt.ylabel("Time (s)")
 plt.title("Solc")
 
