@@ -258,10 +258,24 @@ def execute_script_solx():
 
             # print(log_opt_file + " ORIGIN NUM BYTES SOLX: " + str(origin_bytes_solx))
             # print(log_opt_file + " OPT NUM BYTES: " + str(opt_bytes))
+
+            print("[SOLXRES]: "+log_opt_file+","+str(c.strip())+","+str(origin_ins_solx)+","+str(opt)+","+str(origin_bytes_solx)+","+str(opt_bytes)+","+str(mload)+","+str(mstore)+","+str(mload+mstore)+","+str(mload_opt)+","+str(mstore_opt)+","+str(mload_opt+mstore_opt))
             
             assert(len(mstore_address_grey) == len(mstore_address_solx))
+
+            address_grey = list(map(lambda x: int(x,16),mstore_address_grey))
+            address_solx = list(map(lambda x: int(x,16), mstore_address_solx))
+
+            result_address = []
+            for i in range(len(address_grey)):
+                elem_grey = address_grey[i]
+                elem_solx = address_solx[i]
+                new_elem = elem_grey-elem_solx
+
+                result_address.append(new_elem)
+
+            print("[SOLXMEMRES]: "+str(result_address)+", "+str(result_address[1]))
             
-            print("[SOLXRES]: "+log_opt_file+","+str(c.strip())+","+str(origin_ins_solx)+","+str(opt)+","+str(origin_bytes_solx)+","+str(opt_bytes)+","+str(mload)+","+str(mstore)+","+str(mload+mstore)+","+str(mload_opt)+","+str(mstore_opt)+","+str(mload_opt+mstore_opt))
 
 
 if __name__ == '__main__':
