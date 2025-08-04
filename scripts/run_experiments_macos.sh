@@ -91,8 +91,8 @@ find "$DIRECTORIO_BASE" -type f -name "*standard_input.json" | while read -r yul
             echo "python3 count_num_ins.py $yul_dir/$yul_base.output $yul_dir/$yul_base.log"
             python3 count_num_ins.py "$yul_dir/$yul_base.output" "$yul_dir/$yul_base.log" "$yul_dir/$yul_base.solx_output"
 
-            echo "python3 compare_solx.py $yul_dir/$yul_base.log $yul_dir/$yul_base.solx_output"
-            python3 compare_solx.py "$yul_dir/$yul_base.log" "$yul_dir/$yul_base.solx_output"
+            echo "python3 compare_solx.py $yul_dir/$yul_base.log $yul_dir/$yul_base.solx_output $yul_dir/intermediate.json"
+            python3 compare_solx.py "$yul_dir/$yul_base.log" "$yul_dir/$yul_base.solx_output" "$yul_dir/intermediate.json"
             
         else
             echo "[RES]: Test failed."
