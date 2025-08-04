@@ -126,7 +126,8 @@ def count_evm_instructions(bytecode: str) -> int:
     """
     i = 0
     count = 0
-    last = ""
+    last1 = ""
+    last2 = ""
     mstore_address = None
     while i < len(bytecode):
         try:
@@ -139,14 +140,22 @@ def count_evm_instructions(bytecode: str) -> int:
             elif instructions[opcode] == "MSTORE":
                 mstore+=1
                 if mstore_address == None:
-                    mstore_address = last
+                    mstore_address = last2
                 
             # Manejar instrucciones PUSH (PUSH0 no requiere datos adicionales)
           
             if 0x60 <= opcode <= 0x7f:
+
                 push_size = opcode - 0x60 + 1
-                last= bytecode[i+2:i+2+(push_size*2)]
+                push_val= bytecode[i+2:i+2+(push_size*2)]
                 i += 2 + (push_size * 2)  # Saltar el tamaño de los datos incluidos
+
+                if last1 == "":
+                    last1 = push_val
+                else:
+                    last2 = last1
+                    last1 = push_val
+                
                 
             else:
                 i += 2  # Avanzar 1 byte (2 caracteres hexadecimales)
@@ -204,12 +213,36 @@ def count_num_bytes(evm: str):
     code_regions = split_evm_instructions(evm)
     return sum(count_bytes(remove_auxdata(region)) for region in code_regions)
 
+
+def get_memory_guard(contract_info):
+    memory_addresses = []
+
+    for c in contract_info:
+        json_info = contract_info[c]
+        if "blocks" in json_info:
+            blocks_info = json_info["blocks"]
+            for blocks in blocks_info:
+                instructions = blocks.get("instructions", [])
+                for ins in instructions:
+                    if ins.get("op","") == "memoryguard":
+                        memory_addresses.append(ins["literalArgs"][0])
+
+        if "subObjects" in json_info:
+            mem_addresses = get_memory_guard(json_info["subObjects"])
+            memory_addresses+=mem_addresses
+
+    return memory_addresses
+    
+
+
 def execute_script_solx():
     global mload
     global mstore
     
     log_opt_file = sys.argv[1]
     solx_file = sys.argv[2]
+    cfg_file = sys.argv[3]
+
     
     f_solx = open(solx_file, "r")
     
@@ -217,13 +250,20 @@ def execute_script_solx():
     
     evm_opt = get_evm_code(log_opt_file)
 
+    f = open(cfg_file, "r")
+    cfg_evm = js.load(f)
+    
     for c in evm_opt:
         evm = evm_opt[c]
 
+        cfg_c = cfg_evm[c.strip()]
+        mstore_address_grey = get_memory_guard(cfg_c)
+        
+        
         mload = 0
         mstore = 0
         
-        opt, mstore_address_grey = count_num_ins(evm.strip())
+        opt, _mstore_address_grey = count_num_ins(evm.strip())
         opt_bytes = count_num_bytes(evm.strip())
 
         mload_opt = mload
@@ -274,7 +314,7 @@ def execute_script_solx():
 
                 result_address.append(new_elem)
 
-            print("[SOLXMEMRES]: "+str(result_address)+", "+str(result_address[1]))
+            print("[SOLXMEMRES]: "+str(mstore_address_grey)+", "+str(mstore_address_solx)+", "+str(result_address)+", "+str(result_address[1]))
             
 
 
