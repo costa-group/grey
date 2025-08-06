@@ -99,15 +99,15 @@ def asm_for_split_instruction(split_ins: CFGInstruction, function_name2entry: Di
         asm_subblock =[asm_from_op_info("VERBATIM", 0)] #WARNING: Value assigned to verbatim is 0
 
     elif split_ins.get_op_name().startswith("assignimmutable"):
-        builtin_args = split_ins.get_builtin_args()
-        value = to_hex_default(builtin_args[0])
-        asm_subblock = [asm_from_op_info(split_ins.get_op_name().upper(), value if builtin_args is not None and len(builtin_args) > 0 else None)]
+        literal_args = split_ins.get_literal_args()
+        value = to_hex_default(literal_args[0])
+        asm_subblock = [asm_from_op_info(split_ins.get_op_name().upper(), value if literal_args is not None and len(literal_args) > 0 else None)]
 
     else:
         # Just include the corresponding instruction and the value field for builtin translations
-        builtin_args = split_ins.get_builtin_args()
-        asm_subblock = [asm_from_op_info(split_ins.get_op_name().upper(), builtin_args[0] if builtin_args is not None and
-                                                                                       len(builtin_args) > 0 else None)]
+        literal_args = split_ins.get_literal_args()
+        asm_subblock = [asm_from_op_info(split_ins.get_op_name().upper(), literal_args[0] if literal_args is not None and
+                                                                                       len(literal_args) > 0 else None)]
     return asm_subblock
 
 

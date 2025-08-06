@@ -204,7 +204,7 @@ def execute_script():
     evm_origin = f.read()
 
     evm_opt = get_evm_code(log_opt_file)
-
+    
     for c in evm_opt:
         evm = evm_opt[c]
 
@@ -232,6 +232,68 @@ def execute_script():
 
         print(log_opt_file + " ORIGIN NUM BYTES: " + str(origin_bytes))
         print(log_opt_file + " OPT NUM BYTES: " + str(opt_bytes))
+
+
+def execute_script_solx():
+    origin_file = sys.argv[1]
+    log_opt_file = sys.argv[2]
+    solx_file = sys.argv[3]
+    
+    f = open(origin_file, "r")
+    f_solx = open(solx_file, "r")
+    
+    evm_origin = f.read()
+    evm_solx = f_solx.read()
+    
+    evm_opt = get_evm_code(log_opt_file)
+
+    for c in evm_opt:
+        evm = evm_opt[c]
+
+        opt = count_num_ins(evm.strip())
+        opt_bytes = count_num_bytes(evm.strip())
+
+        
+        evm_dict = js.loads(evm_origin)
+        contracts = evm_dict["contracts"]
+
+        try:
+            evm_dict_solx = js.loads(evm_solx)
+            contracts_solx = evm_dict_solx["contracts"]
+        except:
+            contracts_solx = {}
+            
+        origin_ins = 0
+        origin_bytes = 0
+
+        origin_ins_solx = 0
+        origin_bytes_solx = 0
+        
+        for cc in contracts:
+            json = contracts[cc]
+            
+            if c.strip() in json:
+                bytecode = json[c.strip()]["evm"]["bytecode"]["object"]
+                origin_ins += count_num_ins(bytecode.strip())
+                origin_bytes += count_num_bytes(bytecode.strip())
+
+
+            json_solx = contracts_solx.get(cc, [])
+            
+            if c.strip() in json_solx:
+                bytecode = json_solx[c.strip()]["evm"]["bytecode"]["object"]
+                origin_ins_solx += count_num_ins(bytecode.strip())
+                origin_bytes_solx += count_num_bytes(bytecode.strip())
+                
+        if origin_ins != 0:
+            print(log_opt_file + " ORIGIN NUM INS: " + str(origin_ins))
+            print(log_opt_file + " ORIGIN NUM INS SOLX: " + str(origin_ins_solx))
+            print(log_opt_file + " OPT NUM INS: " + str(opt))
+
+            print(log_opt_file + " ORIGIN NUM BYTES: " + str(origin_bytes))
+            print(log_opt_file + " ORIGIN NUM BYTES SOLX: " + str(origin_bytes_solx))
+            print(log_opt_file + " OPT NUM BYTES: " + str(opt_bytes))
+        
 
 def instrs_from_opcodes(origin_file, log_opt_file):
     with open(origin_file, 'r') as f:
@@ -272,6 +334,9 @@ def measure_from_evm(evm_file) -> int:
     raise ValueError("Error opening file")
 
 if __name__ == '__main__':
-    execute_script()
+    if len(sys.argv) == 3:
+        execute_script()
+    elif len(sys.argv) == 4:
+        execute_script_solx()
     # measure_from_evm(sys.argv[1])
     # print(instrs_from_opcodes(sys.argv[1], sys.argv[2]))

@@ -15,7 +15,7 @@ class CFGBlockList:
     """
     Object that manages a list of blocks that are connected through an object or function
     """
-
+    
     def __init__(self, name: block_id_T):
         self.name: block_id_T = name
         self.blocks: Dict[block_id_T, CFGBlock] = {}
@@ -24,7 +24,8 @@ class CFGBlockList:
         self._terminal_blocks: List[block_id_T] = []
         self._function_return_blocks: List[block_id_T] = []
         self.block_tags_dict = {}
-
+        self.assigment_dict = {}
+        
     @property
     def terminal_blocks(self) -> List[block_id_T]:
         return self._terminal_blocks
@@ -127,6 +128,18 @@ class CFGBlockList:
 
         return list_spec, block_tag_idx
 
+    
+    def add_assigment(self, in_value:str, out_var: str) -> None:
+        self.assigment_dict[out_var] = in_value
+
+
+    def set_assigment(self, assigment_dict: Dict[str,str]) -> None:
+        self.assigment_dict = assigment_dict
+
+    def get_assigment_dict(self) -> Dict[str,str]:
+        return self.assigment_dict
+        
+        
     def to_graph(self) -> networkx.DiGraph:
         """
         Creates a networkx.DiGraph from the blocks information
@@ -185,6 +198,18 @@ class CFGBlockList:
 
         return json_blocks
 
+
+    def get_stats(self):
+        total_blocks = len(self.blocks.values())
+        total_instructions = 0
+        
+        for _block_name, block_object in self.blocks.items():
+            instructions = block_object.get_stats()
+            total_instructions+= instructions
+            
+        return total_blocks, total_instructions
+
+    
     def __repr__(self):
         text_repr = []
         for block_id, block in self.blocks.items():

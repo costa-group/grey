@@ -1,6 +1,27 @@
 import compare_blocks
 
 
+
+def get_stats(file_name):
+    f = open(file_name, "r")
+    lines = f.readlines()
+
+    time_grey_line = list(filter(lambda x: x.find("Total times") != -1, lines))[0]
+    time_grey = time_grey_line.split(":")[-1].strip()
+
+    time_solc_line = list(filter(lambda x: x.find("TIME SOLC") != -1, lines))[0]
+    time_solc = time_solc_line.split(":")[-1].strip()
+
+    blocks_cfg_line = list(filter(lambda x: x.find("Total Blocks CFG") != -1, lines))[0]
+    blocks_cfg = blocks_cfg_line.split(":")[-1].strip()
+
+    ins_cfg_line = list(filter(lambda x: x.find("Total Ins CFG") != -1, lines))[0]
+    ins_cfg = ins_cfg_line.split(":")[-1].strip()
+    
+    return float(time_grey), float(time_solc), int(blocks_cfg), int(ins_cfg)
+    
+
+    
 def cuartiles(original, optimizado, res):
     original25 = original+original*0.25
     original50 = original+original*0.5
@@ -68,10 +89,56 @@ total_ins_terminal_opt = 0
 total_blocks_solc = 0
 total_blocks_opt = 0
 
+scalability = "scalability_block.csv"
+f_scal = open(scalability, "w")
+
+scalability_ins = "scalability_ins.csv"
+f_scal_ins = open(scalability_ins, "w")
+
+scalability_cfg = "scalability_cfg.csv"
+f_scal_cfg = open(scalability_cfg, "w")
+
+
+f_scal.write("Contract name, Time solc, blocks solc, Time grey, blocks grey\n")
+f_scal_ins.write("Contract name, Time solc, ins solc, Time grey, ins grey\n")
+f_scal_cfg.write("Contract name, blocks cfg, ins cfg, Time grey, Time solc,\n")
+
+
+
+list_times_grey = []
+list_times_solc = []
+list_ins_cfg = []
+list_blocks_cfg = []
+
 for i in range(len(origin_number)):
     original = origin_number[i]
     optimizado = opt_number[i]
 
+    fname = f_names[i]
+    fname_without_ext = fname.rstrip("log")
+
+    print("CHECK: " + str((fname_without_ext+"output", fname_without_ext+"log")))
+   
+        
+    tsol, pops_sol, allpops, torigin, pops_origin , allpops_orig, inst_opt, inst_sol, blocks_solc, blocks_opt, total_ins_solc, total_ins_grey = compare_blocks.execute_function(fname_without_ext+"output", fname_without_ext+"log")
+
+
+    time_grey, time_solc, blocks_cfg, ins_cfg = get_stats(fname_without_ext+"log")
+
+    list_times_grey.append(time_grey)
+    list_times_solc.append(time_solc)
+    list_ins_cfg.append(ins_cfg)
+    list_blocks_cfg.append(blocks_cfg)
+    
+    print([fname_without_ext,time_solc,blocks_solc,time_grey,blocks_opt])
+    f_scal.write(",".join([fname_without_ext[:-1],str(time_solc),str(blocks_solc),str(time_grey),str(blocks_opt)])+"\n")
+
+    f_scal_ins.write(",".join([fname_without_ext[:-1],str(time_solc),str(total_ins_solc),str(time_grey),str(total_ins_grey)])+"\n")
+
+    f_scal_cfg.write(",".join([fname_without_ext[:-1],str(blocks_cfg), str(ins_cfg),str(time_grey),str(time_solc)])+"\n")
+
+
+    ########################
     if original > optimizado:
         menor+=1
         total_mejor += original
@@ -86,11 +153,21 @@ for i in range(len(origin_number)):
         fname_without_ext = fname.rstrip("log")
 
         print("CHECK: " + str((fname_without_ext+"output", fname_without_ext+"log")))
-   
         
-        tsol, pops_sol, allpops, torigin, pops_origin , allpops_orig, inst_opt, inst_sol, blocks_solc, blocks_opt = compare_blocks.execute_function(fname_without_ext+"output", fname_without_ext+"log")
+        tsol, pops_sol, allpops, torigin, pops_origin , allpops_orig, inst_opt, inst_sol, blocks_solc, blocks_opt, total_ins_solc, total_ins_grey = compare_blocks.execute_function(fname_without_ext+"output", fname_without_ext+"log")
 
-        print("CHECK: "+ str((torigin, pops_origin , allpops_orig, inst_sol)))
+
+        # time_grey, time_solc = get_times(fname_without_ext+"log")
+
+
+        # print([fname_without_ext,time_solc,blocks_solc,time_grey,blocks_opt])
+        # f_scal.write(",".join([fname_without_ext[:-1],str(time_solc),str(blocks_solc),str(time_grey),str(blocks_opt)])+"\n")
+
+        # print("HOLA CARACOLA")
+        # f_scal_ins.write(",".join([fname_without_ext[:-1],str(time_solc),str(total_ins_solc),str(time_grey),str(total_ins_grey)])+"\n")
+
+        
+        # print("CHECK: "+ str((torigin, pops_origin , allpops_orig, inst_sol, blocks_solc, blocks_opt)))
         
         total_sol_terminal+=tsol
         total_sol_pops+=pops_sol
@@ -110,6 +187,161 @@ for i in range(len(origin_number)):
         cuartiles(original, optimizado, cuartiles_res)
         mayor+=1
 
+
+# Plots with instructions
+    
+paired = sorted(zip(list_ins_cfg, list_times_grey))
+ins_cfg_sorted, times_grey_sorted = zip(*paired)
+
+ins_cfg_sorted, times_grey_sorted = list(ins_cfg_sorted), list(times_grey_sorted)
+
+paired_solc = sorted(zip(list_ins_cfg, list_times_solc))
+ins_cfg_sorted, times_solc_sorted = zip(*paired_solc)
+
+ins_cfg_sorted, times_solc_sorted = list(ins_cfg_sorted), list(times_solc_sorted)
+
+index_list = range(len(ins_cfg_sorted))
+
+import seaborn as sns
+import pandas as pd
+import matplotlib.pyplot as plt
+
+plt.figure()
+# Crear DataFrame
+df = pd.DataFrame({"x": index_list, "y": times_grey_sorted})
+
+# Dibujar scatter
+sns.scatterplot(data=df, x="x", y="y")
+
+plt.xlabel("Contracts ordered by number of instructions")
+plt.ylabel("Time (s)")
+plt.title("Grey")
+
+
+plt.savefig("figs/scatter_plot_grey.png")
+#plt.show()
+
+plt.figure()
+# Crear DataFrame
+df_solc = pd.DataFrame({"x": index_list, "y": times_solc_sorted})
+
+# Dibujar scatter
+sns.scatterplot(data=df_solc, x="x", y="y")
+
+plt.xlabel("Contracts ordered by number of instructions")
+plt.ylabel("Time (s)")
+plt.title("Solc")
+
+
+plt.savefig("figs/scatter_plot_solc.png")
+#plt.show()
+
+plt.figure()
+# Crear DataFrame
+df = pd.DataFrame({"x": ins_cfg_sorted, "y": times_grey_sorted})
+
+# Dibujar scatter
+sns.scatterplot(data=df, x="x", y="y")
+
+plt.xlabel("Num Instructions")
+plt.ylabel("Time (s)")
+plt.title("Grey")
+
+
+plt.savefig("figs/scatter_plot_grey_ins.png")
+#plt.show()
+
+plt.figure()
+# Crear DataFrame
+df_solc = pd.DataFrame({"x": ins_cfg_sorted, "y": times_solc_sorted})
+
+# Dibujar scatter
+sns.scatterplot(data=df_solc, x="x", y="y")
+
+plt.xlabel("Num Instructions")
+plt.ylabel("Time (s)")
+plt.title("Solc")
+
+
+plt.savefig("figs/scatter_plot_solc_ins.png")
+#plt.show()
+
+
+#Plots with blocks
+    
+paired = sorted(zip(list_blocks_cfg, list_times_grey))
+blocks_cfg_sorted, times_grey_sorted = zip(*paired)
+
+blocks_cfg_sorted, times_grey_sorted = list(blocks_cfg_sorted), list(times_grey_sorted)
+
+paired_blocks_solc = sorted(zip(list_blocks_cfg, list_times_solc))
+blocks_cfg_sorted, times_solc_sorted = zip(*paired_solc)
+
+blocks_cfg_sorted, times_solc_sorted = list(blocks_cfg_sorted), list(times_solc_sorted)
+
+index_list = range(len(blocks_cfg_sorted))
+
+plt.figure()
+# Crear DataFrame
+df = pd.DataFrame({"x": index_list, "y": times_grey_sorted})
+
+# Dibujar scatter
+sns.scatterplot(data=df, x="x", y="y")
+
+plt.xlabel("Contracts ordered by number of blocks")
+plt.ylabel("Time (s)")
+plt.title("Grey")
+
+
+plt.savefig("figs/scatter_plot_grey_blocks_relative.png")
+#plt.show()
+
+plt.figure()
+# Crear DataFrame
+df_solc = pd.DataFrame({"x": index_list, "y": times_solc_sorted})
+
+# Dibujar scatter
+sns.scatterplot(data=df_solc, x="x", y="y")
+
+plt.xlabel("Contracts ordered by number of blocks")
+plt.ylabel("Time (s)")
+plt.title("Solc")
+
+
+plt.savefig("figs/scatter_plot_solc_blocks_relative.png")
+#plt.show()
+
+plt.figure()
+# Crear DataFrame
+df = pd.DataFrame({"x": blocks_cfg_sorted, "y": times_grey_sorted})
+
+# Dibujar scatter
+sns.scatterplot(data=df, x="x", y="y")
+
+plt.xlabel("Num Blocks")
+plt.ylabel("Time (s)")
+plt.title("Grey")
+
+
+plt.savefig("figs/scatter_plot_grey_blocks.png")
+#plt.show()
+
+plt.figure()
+# Crear DataFrame
+df_solc = pd.DataFrame({"x": blocks_cfg_sorted, "y": times_solc_sorted})
+
+# Dibujar scatter
+sns.scatterplot(data=df_solc, x="x", y="y")
+
+plt.xlabel("Num Blocks")
+plt.ylabel("Time (s)")
+plt.title("Solc")
+
+
+plt.savefig("figs/scatter_plot_solc_blocks.png")
+#plt.show()
+
+
 s = ""
 for k,v in worse_files.items():
     s+=k+":"+str(v)+"\n"
@@ -117,6 +349,10 @@ for k,v in worse_files.items():
 worse_file = open("worse_contracts_ins.txt", "w")
 worse_file.write(s)
 worse_file.close()
+
+f_scal.close()
+f_scal_ins.close()
+f_scal_cfg.close()
 
 print()
 print(" ===== OTHER STATISTICS =====")

@@ -14,11 +14,19 @@ def split_json(input_file, output_dir):
     for key, value in data.items():
         # Crear el nombre del archivo para cada clave
         real_key = key.split("/")[1::]
-        name = ("_".join(real_key)).strip(".sol")
-        print(name)
+        name = ("_".join(real_key)).rstrip("sol")[:-1]
+        #print(name)
         
         #name = "test_"+key.split("/")[-1].strip(".sol")
         if not os.path.exists(output_dir+"/"+name):
+            print("ERROR")
+            print(name)
+            print(key)
+            print(real_key)
+            print(("_".join(real_key)))
+            print(("_".join(real_key)).rstrip("sol")[:-1])
+            print(output_dir+"/"+name)
+            raise Exception
             os.makedirs(output_dir+"/"+name)
         
         # Guardar cada objeto JSON en un archivo separado
@@ -34,7 +42,7 @@ if __name__ == "__main__":
     input_file = "testtrace"  # Cambia este nombre al de tu archivo JSON
 
     # Carpeta donde se guardarán los archivos resultantes
-    output_dir = "/Users/pablo/Repositorios/ethereum/grey/examples/test/semanticTests"
+    output_dir = "/Users/pablo/Repositorios/ethereum/grey/examples/test/semanticTestNew"
 
     # Llamar a la función para separar los JSON
     split_json(input_file, output_dir)

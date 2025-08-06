@@ -35,7 +35,10 @@ class CFGFunction:
     def add_exit_point(self, block_id):
         if block_id not in self.exits:
             self.exits.append(block_id)
-
+            
+    def get_stats(self):
+        return self.blocks.get_stats()
+            
     def build_spec(self, block_tag_idx):
         dict_spec, block_tag_idx = self.blocks.build_spec(block_tag_idx) 
         return dict_spec, block_tag_idx

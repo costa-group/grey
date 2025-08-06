@@ -71,7 +71,7 @@ class CFGBlock:
     """
     Class for representing a cfg block
     """
-
+    
     def __init__(self, identifier: block_id_T, instructions: List[CFGInstruction], type_block: str,
                  assignment_dict: Dict[str, str]):
         self.block_id = identifier
@@ -110,6 +110,8 @@ class CFGBlock:
 
         # Set of variables that are computed in the current block
         self._id2var = None
+
+        self.liveness = {}
 
     @property
     def final_stack_elements(self) -> List[str]:
@@ -183,6 +185,13 @@ class CFGBlock:
     def insert_instruction(self, index: int, instruction: CFGInstruction) -> None:
         self._instructions.insert(index, instruction)
 
+
+    def get_liveness(self):
+        return self.liveness
+
+    def set_liveness(self, liveness_set: Dict[str,List[str]]):
+        self.liveness = liveness_set
+        
     def get_instructions_to_compute(self) -> List[CFGInstruction]:
         return [instruction for instruction in self._instructions if instruction.must_be_computed()]
 
@@ -358,6 +367,11 @@ class CFGBlock:
         mem_deps = replace_pos_instrsid(mem_dep, map_positions)
         return sto_deps, mem_deps
 
+
+    def get_stats(self):
+        return len(self._instructions)
+
+    
     def get_as_json(self):
         block_json = {}
         block_json["id"] = self.block_id
@@ -412,7 +426,7 @@ class CFGBlock:
         Builds the specification for a sequence of instructions. "map_instructions" is passed as an argument
         to reuse declarations from other blocks, as we might have split the corresponding basic block
         """
-
+        
         spec = {}
 
         uninter_functions = []
@@ -429,12 +443,15 @@ class CFGBlock:
         for i, ins in enumerate(instructions):
             # Check if it has been already created
             if ins.get_op_name().startswith("push"):
-                ins_spec = map_instructions.get((ins.get_op_name().upper(), tuple(ins.get_builtin_args())), None)
+                ins_spec = map_instructions.get((ins.get_op_name().upper(), tuple(ins.get_literal_args())), None)
             elif not ins.memory_operation():
                 ins_spec = map_instructions.get((ins.get_op_name().upper(), tuple(ins.get_in_args())), None)
             else:
                 ins_spec = map_instructions.get((ins.get_op_name().upper(), tuple(ins.get_in_args())), None)
 
+                if ins.get_op_name().startswith("LiteralAssigment") and ins_spec != None:
+                    raise Exception("LOOK: Two different literalAssigments with the same value")
+                
                 if ins_spec is not None:
                     if len(ins_spec["outpt_sk"]) == 0 or ins_spec["outpt_sk"] != ins.get_out_args():
                         # Memory operations have an extra check: repeated keccaks or loads with the same arguments
@@ -444,11 +461,22 @@ class CFGBlock:
                         map_positions_instructions[i] = ins_spec["id"]
 
             if ins_spec is None:
-                result, new_out_idx = ins.build_spec(new_out_idx, instrs_idx, map_instructions)
+                if ins.get_op_name().startswith("LiteralAssignment"):
+                    in_val = ins.get_in_args()[0]
+                    push_name = "PUSH" if int(in_val, 16) != 0 else "PUSH0"
+                    inst_idx = instrs_idx.get(push_name, 0)
+                    instrs_idx[push_name] = inst_idx + 1
+                    push_ins = build_push_spec(in_val, inst_idx, ins.get_out_args())
 
-                uninter_functions += result
+                    map_instructions[("LITERALASSIGMENT", tuple(ins.get_in_args()))] = push_ins
 
-                map_positions_instructions[i] = result[-1]["id"]
+                    uninter_functions.append(push_ins)
+                    
+                else:
+                    result, new_out_idx = ins.build_spec(new_out_idx, instrs_idx, map_instructions)
+                    uninter_functions += result
+
+                map_positions_instructions[i] = uninter_functions[-1]["id"]
 
             # it is a push value that has been already created. If it comes from a memoryguard,
             # we have to rename the previous instructions to the output of the memoryguard
