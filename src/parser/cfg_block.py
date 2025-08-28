@@ -360,6 +360,12 @@ class CFGBlock:
         return sto_deps, mem_deps
 
 
+    def translate_opcodes(self, objects_keys, next_idx, subobjects_idx):
+        for ins in self._instructions:
+            next_idx = ins.translate_opcode(objects_keys, next_idx, subobjects_idx)
+
+        return next_idx
+    
     def get_stats(self):
         return len(self._instructions)
 

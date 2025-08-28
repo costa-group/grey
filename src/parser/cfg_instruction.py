@@ -290,7 +290,7 @@ class CFGInstruction:
         self.translate_literal_args = new_literals
         
         
-    def translate_datasize(self, subobjects_keys: Dict[str, int]):
+    def translate_datasize(self, subobjects_keys: Dict[str, int], next_idx: int, indirect_subobjects: Dict[str, int]):
         self.op = "push #[$]"
         
         literal_val = self.literal_args[0]
@@ -300,13 +300,23 @@ class CFGInstruction:
             self.translate_literal_args = ["{0:064X}".format(pos)]
         else:
             # TODO Maybe pass the element itself just in case?
-            self.op = "PUSHSIZE"
-            print("[WARNING ERROR]: Identifier not found in subobjects keys")
-            # self.translate_literal_args = ["{0:064X}".format(0)]
-                       
-#            raise Exception("[ERROR]: Identifier not found in subobjects keys")
+            if(literal_val.find(".") != 1):
+                pos = indirect_subobjects.get(literal_val, None)
+                if pos is None:
+                    pos = next_idx
+                    indirect_subobjects[literal_val] = next_idx
+                    next_idx+=1
 
-    def translate_dataoffset(self, subobjects_keys: Dict[str, int]):
+                real_pos = 2**64-1-pos
+                self.translate_literal_args = ["{0:064X}".format(real_pos)]
+            else:
+                self.op = "PUSHSIZE"
+                print("[WARNING ERROR]: Identifier not found in subobjects keys")
+                self.translate_literal_args = ["{0:064X}".format(0)]
+                       
+        return next_idx
+
+    def translate_dataoffset(self, subobjects_keys: Dict[str, int], next_idx: int, indirect_subobjects: Dict[str, int]):
         self.op = "push [$]"
 
         literal_val = self.literal_args[0]
@@ -315,11 +325,24 @@ class CFGInstruction:
         if pos is not None:
             self.translate_literal_args = ["{0:064X}".format(pos)]
         else:
-            print("[WARNING ERROR]: Identifier not found in subobjects keys")
-            self.translate_literal_args = ["{0:064X}".format(0)]
+            #It maybe an indirect subobject case
+            if(literal_val.find(".") != 1):
+                pos = indirect_subobjects.get(literal_val, None)
+                if pos is None:
+                    pos = next_idx
+                    indirect_subobjects[literal_val] = next_idx
+                    next_idx+=1
+
+                real_pos = 2**64-1-pos
+                self.translate_literal_args = ["{0:064X}".format(real_pos)]
+            else:
+                print("[WARNING ERROR]: Identifier not found in subobjects keys")
+                self.translate_literal_args = ["{0:064X}".format(0)]
 
             # raise Exception("[ERROR]: Identifier not found in subobjects keys")
 
+        return next_idx
+            
     def translate_datacopy(self) :
         self.op = "codecopy"
 
@@ -332,7 +355,7 @@ class CFGInstruction:
        self.op = "pushimmutable"
        self.translate_literal_args = self.literal_args
 
-    def translate_built_in_function(self, subobjects_keys: Dict[str, int]):
+    def translate_built_in_function(self, subobjects_keys: Dict[str, int], next_idx: int, indirect_subobjects: Dict[str, int]):
         self.builtin_op = self.op
         
         if self.op == "linkersymbol":
@@ -340,9 +363,9 @@ class CFGInstruction:
         elif self.op == "memoryguard":
             self.translate_memoryguard()
         elif self.op == "datasize":
-            self.translate_datasize(subobjects_keys)
+            next_idx = self.translate_datasize(subobjects_keys,next_idx, indirect_subobjects)
         elif self.op == "dataoffset":
-            self.translate_dataoffset(subobjects_keys)
+            next_idx = self.translate_dataoffset(subobjects_keys,next_idx, indirect_subobjects)
         elif self.op == "datacopy":
             self.translate_datacopy()
         elif self.op == "setimmutable":
@@ -351,11 +374,15 @@ class CFGInstruction:
             self.translate_loadimmutable()
         else:
             raise Exception("[ERROR]: Built-in function is not recognized")
-        
-    def translate_opcode(self, subobjects_keys: Dict[str, int]):
-        if self.op in ["linkersymbol","memoryguard", "datasize", "dataoffset", "datacopy", "setimmutable", "loadimmutable"]:
-            self.translate_built_in_function(subobjects_keys)
 
+        return next_idx
+    
+    def translate_opcode(self, subobjects_keys: Dict[str, int], next_idx: int, indirect_subobjects: Dict[str, int]):
+        if self.op in ["linkersymbol","memoryguard", "datasize", "dataoffset", "datacopy", "setimmutable", "loadimmutable"]:
+            next_idx = self.translate_built_in_function(subobjects_keys, next_idx, indirect_subobjects)
+
+        return next_idx
+    
     def get_op_name(self):
         return self.op
 

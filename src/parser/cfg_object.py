@@ -107,6 +107,9 @@ class CFGObject:
         return total_blocks, total_instructions
 
 
+    def dfs(self):
+        return self.blocks.dfs()
+    
     
     def __repr__(self):
         return json.dumps(self.get_as_json())

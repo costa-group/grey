@@ -209,6 +209,39 @@ class CFGBlockList:
             
         return total_blocks, total_instructions
 
+
+    def dfs(self):
+        visited = set()
+        stack = [self.name+"_"+"Block0"]
+        order = []
+
+        while stack:
+            node = stack.pop()
+            if node not in visited:
+                visited.add(node)
+                order.append(node)
+                
+                block_node = self.blocks.get(node, None)
+                if block_node == None:
+                    print(node)
+                    print(self.name)
+                    print(self.blocks.keys())
+                    raise Exception ("ERROR in DFS")
+                succs = block_node.successors
+                stack.extend(reversed(succs))
+    
+        return order
+
+
+    def translate_opcodes(self,objects_keys):
+        block_list_dfs = self.dfs()
+
+        next_idx = 0
+        subobjects_idx = {}
+
+        for block_id in block_list_dfs[::-1]:
+            block = self.blocks[block_id]
+            next_idx = block.translate_opcodes(objects_keys,next_idx,subobjects_idx)
     
     def __repr__(self):
         text_repr = []
