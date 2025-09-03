@@ -6,7 +6,7 @@ import sys
 import resource
 from typing import List, Dict, Tuple, Any, Union, Set
 import traceback
-import itertools
+from greedy.greedy_info import GreedyInfo
 
 var_T = str
 id_T = str
@@ -1746,7 +1746,8 @@ def minsize_from_json(json_data: Dict[str, Any]) -> int:
             s += encoding.occurrences[i]
     return s
 
-def greedy_standalone(sms: Dict) -> Tuple[str, float, List[str]]:
+
+def greedy_standalone(sms: Dict) -> GreedyInfo:
     """
     Executes the greedy algorithm as a standalone configuration. Returns whether the execution has been
     sucessful or not ("non_optimal" or "error"), the total time and the sequence of ids returned.
@@ -1760,7 +1761,8 @@ def greedy_standalone(sms: Dict) -> Tuple[str, float, List[str]]:
         error = 1
         seq_ids = []
     optimization_outcome = "error" if error == 1 else "non_optimal"
-    return optimization_outcome, usage_stop.ru_utime + usage_stop.ru_stime - usage_start.ru_utime - usage_start.ru_stime, seq_ids
+    total_time = usage_stop.ru_utime + usage_stop.ru_stime - usage_start.ru_utime - usage_start.ru_stime
+    return GreedyInfo.from_old_version(seq_ids, optimization_outcome, total_time)
 
 
 def greedy_from_file(filename: str):

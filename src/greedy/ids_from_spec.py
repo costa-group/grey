@@ -17,14 +17,21 @@ from solution_generation.statistics import generate_statistics_info
 import greedy.greedy_new_version as alternative
 import numpy as np
 
+
 def _length_or_zero(l, outcome):
     return len(l) if l is not None and outcome != "error" else 10000
 
 
 def cfg_block_spec_ids(cfg_block: CFGBlock) -> Tuple[str, float, List[instr_id_T]]:
-    outcome1, time1, greedy_ids1 = previous.greedy_standalone(cfg_block.spec)
-    outcome2, time2, greedy_ids2 = new_greedy.greedy_standalone(cfg_block.spec)
-    outcome3, time3, greedy_ids3 = alternative.greedy_standalone(cfg_block.spec)
+    # Retrieve the information from each of the executions
+    greedy_info1 = previous.greedy_standalone(cfg_block.spec)
+    outcome1, time1, greedy_ids1 = greedy_info1.outcome, greedy_info1.execution_time, greedy_info1.greedy_ids
+
+    greedy_info2 = new_greedy.greedy_standalone(cfg_block.spec)
+    outcome2, time2, greedy_ids2 = greedy_info2.outcome, greedy_info2.execution_time, greedy_info2.greedy_ids
+
+    greedy_info3 = alternative.greedy_standalone(cfg_block.spec)
+    outcome3, time3, greedy_ids3 = greedy_info3.outcome, greedy_info3.execution_time, greedy_info3.greedy_ids
 
     lengths = [_length_or_zero(greedy_ids1, outcome1), _length_or_zero(greedy_ids2, outcome2),
                _length_or_zero(greedy_ids3, outcome3)]
