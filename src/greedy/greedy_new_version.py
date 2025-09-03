@@ -1494,11 +1494,11 @@ def greedy_standalone(sms: Dict) -> GreedyInfo:
                                        get_count, elements_to_fix, reachable)
 
 
-def greedy_from_file(filename: str) -> GreedyInfo:
+def greedy_from_file(filename: str) -> Tuple[SMS_T, GreedyInfo]:
     logging.basicConfig(level=logging.DEBUG)
     with open(filename, "r") as f:
         sfs = json.load(f)
-    return greedy_standalone(sfs)
+    return sfs, greedy_standalone(sfs)
 
 
 if __name__ == "__main__":

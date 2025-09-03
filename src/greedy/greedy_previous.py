@@ -7,6 +7,7 @@ import resource
 from typing import List, Dict, Tuple, Any, Union, Set
 import traceback
 from greedy.greedy_info import GreedyInfo
+from global_params.types import SMS_T
 
 output_stack_T = str
 id_T = str
@@ -1346,11 +1347,11 @@ def greedy_standalone(sms: Dict) -> GreedyInfo:
     return GreedyInfo.from_old_version(seq_ids, optimization_outcome, total_time)
 
 
-def greedy_from_file(filename: str):
+def greedy_from_file(filename: str) -> Tuple[SMS_T, GreedyInfo]:
     with open(filename, "r") as f:
         sfs = json.load(f)
-    outcome, time, ids = greedy_standalone(sfs)
-    return sfs, ids, outcome
+    greedy_info = greedy_standalone(sfs)
+    return sfs, greedy_info
 
 
 if __name__ == "__main__":

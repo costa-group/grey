@@ -12,7 +12,8 @@ class TestGreedyNewVersion:
         
         Fixed in commit cb2c793
         """
-        sfs, seq, outcome = greedy_from_file("greedy_new_version/no_fixed_elements.json")
+        sfs, greedy_info = greedy_from_file("greedy_new_version/no_fixed_elements.json")
+        seq = greedy_info.greedy_ids
         assert check_execution_from_ids(sfs, seq), "Incorrect solution for no fixed elements test"
 
     def test_duplication_cheap_instructions(self):
@@ -23,7 +24,8 @@ class TestGreedyNewVersion:
 
         Fixed in commit f32c28c
         """
-        sfs, seq, outcome = greedy_from_file("greedy_new_version/duplication_cheap_instructions.json")
+        sfs, greedy_info = greedy_from_file("greedy_new_version/duplication_cheap_instructions.json")
+        seq = greedy_info.greedy_ids
         assert check_execution_from_ids(sfs, seq), "Incorrect solution for duplication cheap instructions"
 
     def test_stack_too_deep_select_candidates(self):
@@ -34,5 +36,6 @@ class TestGreedyNewVersion:
 
         Fixed in commit e754178
         """
-        sfs, seq, outcome = greedy_from_file("greedy_new_version/stack_too_deep_select_candidates.json")
+        sfs, greedy_info = greedy_from_file("greedy_new_version/stack_too_deep_select_candidates.json")
+        seq = greedy_info.greedy_ids
         assert check_execution_from_ids(sfs, seq), "Incorrect solution for stack too deep select candidates"
