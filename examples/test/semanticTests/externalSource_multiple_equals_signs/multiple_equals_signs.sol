@@ -1,5 +1,5 @@
-==== ExternalSource: a=_external/external.sol=sol ====
-import {External} from "a";
+
+import {External} from "_external/external.sol";
 contract C {
 }
 // ----

@@ -105,6 +105,8 @@ class CFG:
         return total_blocks, total_instructions
 
 
-                
+    def dfs(self, object_id):
+        return self.objectCFG[object_id].dfs()
+    
     def __repr__(self):
         return str(self.get_as_json())

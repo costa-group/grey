@@ -1,0 +1,251 @@
+{
+  "language": "Solidity",
+  "sources": {
+    "src/Exttload.sol": {
+      "urls": [
+        "src/Exttload.sol"
+      ]
+    },
+    "src/ERC6909.sol": {
+      "urls": [
+        "src/ERC6909.sol"
+      ]
+    },
+    "src/PoolManager.sol": {
+      "urls": [
+        "src/PoolManager.sol"
+      ]
+    },
+    "src/NoDelegateCall.sol": {
+      "urls": [
+        "src/NoDelegateCall.sol"
+      ]
+    },
+    "src/ProtocolFees.sol": {
+      "urls": [
+        "src/ProtocolFees.sol"
+      ]
+    },
+    "src/ERC6909Claims.sol": {
+      "urls": [
+        "src/ERC6909Claims.sol"
+      ]
+    },
+    "src/Extsload.sol": {
+      "urls": [
+        "src/Extsload.sol"
+      ]
+    },
+    "src/types/PoolKey.sol": {
+      "urls": [
+        "src/types/PoolKey.sol"
+      ]
+    },
+    "src/types/BalanceDelta.sol": {
+      "urls": [
+        "src/types/BalanceDelta.sol"
+      ]
+    },
+    "src/types/PoolId.sol": {
+      "urls": [
+        "src/types/PoolId.sol"
+      ]
+    },
+    "src/types/BeforeSwapDelta.sol": {
+      "urls": [
+        "src/types/BeforeSwapDelta.sol"
+      ]
+    },
+    "src/types/Slot0.sol": {
+      "urls": [
+        "src/types/Slot0.sol"
+      ]
+    },
+    "src/types/Currency.sol": {
+      "urls": [
+        "src/types/Currency.sol"
+      ]
+    },
+    "src/types/PoolOperation.sol": {
+      "urls": [
+        "src/types/PoolOperation.sol"
+      ]
+    },
+    "src/libraries/Position.sol": {
+      "urls": [
+        "src/libraries/Position.sol"
+      ]
+    },
+    "src/libraries/LiquidityMath.sol": {
+      "urls": [
+        "src/libraries/LiquidityMath.sol"
+      ]
+    },
+    "src/libraries/TickBitmap.sol": {
+      "urls": [
+        "src/libraries/TickBitmap.sol"
+      ]
+    },
+    "src/libraries/Lock.sol": {
+      "urls": [
+        "src/libraries/Lock.sol"
+      ]
+    },
+    "src/libraries/ProtocolFeeLibrary.sol": {
+      "urls": [
+        "src/libraries/ProtocolFeeLibrary.sol"
+      ]
+    },
+    "src/libraries/ParseBytes.sol": {
+      "urls": [
+        "src/libraries/ParseBytes.sol"
+      ]
+    },
+    "src/libraries/Hooks.sol": {
+      "urls": [
+        "src/libraries/Hooks.sol"
+      ]
+    },
+    "src/libraries/CustomRevert.sol": {
+      "urls": [
+        "src/libraries/CustomRevert.sol"
+      ]
+    },
+    "src/libraries/Pool.sol": {
+      "urls": [
+        "src/libraries/Pool.sol"
+      ]
+    },
+    "src/libraries/BitMath.sol": {
+      "urls": [
+        "src/libraries/BitMath.sol"
+      ]
+    },
+    "src/libraries/NonzeroDeltaCount.sol": {
+      "urls": [
+        "src/libraries/NonzeroDeltaCount.sol"
+      ]
+    },
+    "src/libraries/TickMath.sol": {
+      "urls": [
+        "src/libraries/TickMath.sol"
+      ]
+    },
+    "src/libraries/CurrencyReserves.sol": {
+      "urls": [
+        "src/libraries/CurrencyReserves.sol"
+      ]
+    },
+    "src/libraries/StateLibrary.sol": {
+      "urls": [
+        "src/libraries/StateLibrary.sol"
+      ]
+    },
+    "src/libraries/FixedPoint128.sol": {
+      "urls": [
+        "src/libraries/FixedPoint128.sol"
+      ]
+    },
+    "src/libraries/SqrtPriceMath.sol": {
+      "urls": [
+        "src/libraries/SqrtPriceMath.sol"
+      ]
+    },
+    "src/libraries/CurrencyDelta.sol": {
+      "urls": [
+        "src/libraries/CurrencyDelta.sol"
+      ]
+    },
+    "src/libraries/LPFeeLibrary.sol": {
+      "urls": [
+        "src/libraries/LPFeeLibrary.sol"
+      ]
+    },
+    "src/libraries/FullMath.sol": {
+      "urls": [
+        "src/libraries/FullMath.sol"
+      ]
+    },
+    "src/libraries/SafeCast.sol": {
+      "urls": [
+        "src/libraries/SafeCast.sol"
+      ]
+    },
+    "src/libraries/FixedPoint96.sol": {
+      "urls": [
+        "src/libraries/FixedPoint96.sol"
+      ]
+    },
+    "src/libraries/UnsafeMath.sol": {
+      "urls": [
+        "src/libraries/UnsafeMath.sol"
+      ]
+    },
+    "src/libraries/SwapMath.sol": {
+      "urls": [
+        "src/libraries/SwapMath.sol"
+      ]
+    },
+    "src/libraries/TransientStateLibrary.sol": {
+      "urls": [
+        "src/libraries/TransientStateLibrary.sol"
+      ]
+    },
+    "src/interfaces/IHooks.sol": {
+      "urls": [
+        "src/interfaces/IHooks.sol"
+      ]
+    },
+    "src/interfaces/IPoolManager.sol": {
+      "urls": [
+        "src/interfaces/IPoolManager.sol"
+      ]
+    },
+    "src/interfaces/IExtsload.sol": {
+      "urls": [
+        "src/interfaces/IExtsload.sol"
+      ]
+    },
+    "src/interfaces/IProtocolFees.sol": {
+      "urls": [
+        "src/interfaces/IProtocolFees.sol"
+      ]
+    },
+    "src/interfaces/IExttload.sol": {
+      "urls": [
+        "src/interfaces/IExttload.sol"
+      ]
+    },
+    "src/interfaces/callback/IUnlockCallback.sol": {
+      "urls": [
+        "src/interfaces/callback/IUnlockCallback.sol"
+      ]
+    },
+    "src/interfaces/external/IERC20Minimal.sol": {
+      "urls": [
+        "src/interfaces/external/IERC20Minimal.sol"
+      ]
+    },
+    "src/interfaces/external/IERC6909Claims.sol": {
+      "urls": [
+        "src/interfaces/external/IERC6909Claims.sol"
+      ]
+    }
+  },
+  "settings": {
+    "optimizer": {
+      "enabled": true,
+      "runs": 800
+    },
+    "evmVersion": "cancun",
+    "outputSelection": {
+      "*": {
+        "*": [
+          "abi",
+          "evm.bytecode",
+          "evm.deployedBytecode"
+        ]
+      }
+    }
+  }
+}

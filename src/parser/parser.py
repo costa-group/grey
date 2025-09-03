@@ -92,8 +92,8 @@ def parse_block(object_name: str, block_json: Dict[str,Any], built_in_op: bool,
     for instruction in block_instructions:
         cfg_instruction = parse_instruction(instruction, assigment_dict) if block_type != "FunctionReturn" else []
 
-        if not built_in_op and cfg_instruction != []:
-            cfg_instruction.translate_opcode(objects_keys)
+        # if not built_in_op and cfg_instruction != []:
+        #     cfg_instruction.translate_opcode(objects_keys)
 
         list_cfg_instructions.append(cfg_instruction)
 
@@ -146,6 +146,12 @@ def parser_block_list(object_name: str, blocks: List[Dict[str, Any]], built_in_o
 
         block_list.add_block(new_block)
 
+    if not built_in_op:
+        block_list.translate_opcodes(objects_keys)
+        #     cfg_instruction.translate_opcode(objects_keys)
+
+
+    
     # We need to update some fields in the blocks using the previously gathered information
     update_comes_from(block_list, comes_from)
 
@@ -176,7 +182,7 @@ def parse_object(object_name: str, json_object: Dict[str,Any], built_in_op: bool
 
     cfg_block_list, _ = parser_block_list(object_name, blocks_list, built_in_op, objects_keys)
     cfg_object = CFGObject(object_name, cfg_block_list)
-
+    
     return cfg_object
     
     

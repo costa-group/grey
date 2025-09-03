@@ -3,7 +3,7 @@ import logging
 
 from global_params.types import instr_id_T, dependencies_T, var_id_T, block_id_T, function_name_T, SMS_T
 from parser.cfg_instruction import CFGInstruction, build_push_spec, build_pushtag_spec
-from parser.utils_parser import replace_pos_instrsid, replace_aliasing_spec, detect_unused_instructions
+from parser.utils_parser import replace_pos_instrsid, replace_aliasing_spec, detect_unused_instructions, delete_unsued_instructions_from_deps
 from analysis.instruction_dependencies import compute_memory_dependences, compute_storage_dependences, simplify_dependences
 import parser.constants as constants
 import json
@@ -368,6 +368,12 @@ class CFGBlock:
         return sto_deps, mem_deps
 
 
+    def translate_opcodes(self, objects_keys, next_idx, subobjects_idx):
+        for ins in self._instructions:
+            next_idx = ins.translate_opcode(objects_keys, next_idx, subobjects_idx)
+
+        return next_idx
+    
     def get_stats(self):
         return len(self._instructions)
 
@@ -448,7 +454,6 @@ class CFGBlock:
                 ins_spec = map_instructions.get((ins.get_op_name().upper(), tuple(ins.get_in_args())), None)
             else:
                 ins_spec = map_instructions.get((ins.get_op_name().upper(), tuple(ins.get_in_args())), None)
-
                 if ins.get_op_name().startswith("LiteralAssigment") and ins_spec != None:
                     raise Exception("LOOK: Two different literalAssigments with the same value")
                 
@@ -606,6 +611,7 @@ class CFGBlock:
         return block_spec, out_idx, block_tag_idx
 
     def build_spec(self, initial_stack: List[str], final_stack: List[str]) -> Dict[str, Any]:
+        
         map_instructions = {}
 
         out_idx = 0
@@ -616,6 +622,7 @@ class CFGBlock:
             json.dump(spec, f, indent=4)
 
         sto_deps, mem_deps = self._process_dependences(self.instructions_to_synthesize, map_positions)
+        sto_deps, mem_deps = delete_unsued_instructions_from_deps(sto_deps,mem_deps, unused_ids)
         spec["storage_dependences"] = sto_deps
         spec["memory_dependences"] = mem_deps
         spec["dependencies"] = [*sto_deps, *mem_deps]
