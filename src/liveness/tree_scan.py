@@ -89,7 +89,7 @@ def unreachable_phi_arguments(block_list: CFGBlockList, dominance_tree: nx.DiGra
 def insert_needed_copies(phi_web: Dict[var_id_T, List[Tuple[var_id_T, block_id_T, int]]],
                          unreachable_elements: Set[Tuple[var_id_T, block_id_T]],
                          elements_to_store: Set[Tuple[var_id_T, block_id_T]],
-                         block_list: CFGBlockList):
+                         block_list: CFGBlockList, get_counter: Dict[var_id_T, int]):
     """
     Inserts SET and GET_SET instructions to ensure all unreachable elements are correctly
     stored in a register when reached.
@@ -151,7 +151,8 @@ def insert_needed_copies(phi_web: Dict[var_id_T, List[Tuple[var_id_T, block_id_T
 
 class TreeScanFirstPass:
 
-    def __init__(self, block_list: CFGBlockList, dominance_tree: nx.DiGraph, loop_forest: nx.DiGraph):
+    def __init__(self, block_list: CFGBlockList, dominance_tree: nx.DiGraph, loop_forest: nx.DiGraph,
+                 get_counter: Dict[var_id_T, int]):
         """
         Modifies the cfg_block_list inserting the needed SET instructions for registers in between, and
         returns the information for performing the tree scan.
@@ -170,7 +171,7 @@ class TreeScanFirstPass:
         self._var2header = variable2block_header(block_list, loop_forest)
 
         # Var2num_uses indicates how many times a variable is loaded from memory
-        self._var2num_uses = compute_var2num_uses(block_list)
+        self._get_counter = get_counter
 
     def insert_instructions(self) -> List[Tuple[block_id_T, int]]:
         """
@@ -212,7 +213,7 @@ class TreeScanFirstPass:
             if instruction_id.startswith("GET"):
                 loaded_var = instruction_id[4:-1]
 
-                self._var2num_uses[loaded_var] -= 1
+                self._get_counter[loaded_var] -= 1
 
                 last_visited = False
                 # The first ocurrence of a variable is the last placed it was used
@@ -225,7 +226,7 @@ class TreeScanFirstPass:
 
                 # If no more uses are needed, this means that we have reached a point
                 # in which it can be introduced
-                if self._var2num_uses[loaded_var] == 0:
+                if self._get_counter[loaded_var] == 0:
                     vars_to_introduce.add(loaded_var)
 
             # Instructions are only set for solving permutation.
