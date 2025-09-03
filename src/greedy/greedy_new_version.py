@@ -1,17 +1,15 @@
 #!/usr/bin/env python3
-import itertools
 import json
 import logging
 import resource
 import sys
-import os
-from typing import List, Dict, Tuple, Any, Set, Optional, Generator, Union
+from typing import List, Dict, Tuple, Set, Optional, Generator, Union
 from collections import defaultdict, Counter
 import traceback
-from networkx.algorithms.traversal.depth_first_search import dfs_tree
-from enum import Enum, unique
-
 import networkx as nx
+from networkx.algorithms.traversal.depth_first_search import dfs_tree
+from greedy.greedy_info import GreedyInfo
+
 # from analysis.greedy_validation import check_execution_from_ids
 from global_params.types import var_id_T, instr_id_T, instr_JSON_T, SMS_T
 from greedy.utils import compute_max_n_elements, compute_preffix_computation
@@ -137,6 +135,18 @@ class SymbolicState:
         # Stack variables that have been moved to the memory due to accessing deeper elements
         self.vars_in_memory: Set[var_id_T] = set()
 
+        # Elements that need to be fixed afterwards. Does not necessarily match
+        # with vars_in_memory because SET/GET combinations do not need to be fixed
+        self.elements_to_fix: Set[var_id_T] = set()
+
+        # Set of elements that are reachable within the set,
+        # excluding variables defined. Initially corresponds to elements till STACK_DEPTH
+        self.reachable: Set[var_id_T] = set(initial_stack[:STACK_DEPTH])
+
+        # Counter for the number of times an element must be retrieved
+        # from the memory
+        self.get_count: Counter = Counter()
+
         # Debug mode: store all the ops applied and the stacks before and after
         if self.debug_mode:
             self.trace: List[Tuple[List[var_id_T], instr_id_T]] = [(self.stack.copy(), "Initial")]
@@ -259,6 +269,10 @@ class SymbolicState:
         # N computed: substract one to the element we have removed
         decrement_and_clean(self.n_computed, stack_var)
 
+        # Reachable: only the last one if it was not already accessible
+        if len(self.stack) >= STACK_DEPTH:
+            self.reachable.add(self.stack[STACK_DEPTH - 1])
+
         if self.debug_mode:
             self.trace.append((self.stack.copy(), "POP"))
 
@@ -277,6 +291,10 @@ class SymbolicState:
 
         # N computed: substract one to the element we have consumed
         decrement_and_clean(self.n_computed, stack_var)
+
+        # Reachable: only the last one if it was not accessible
+        if len(self.stack) >= STACK_DEPTH:
+            self.reachable.add(self.stack[STACK_DEPTH - 1])
 
         return stack_var
 
@@ -336,7 +354,7 @@ class SymbolicState:
 
         return [instr["id"]]
 
-    def from_memory(self, var_elem: var_id_T) -> List[instr_id_T]:
+    def from_memory(self, var_elem: var_id_T, to_fix: bool) -> List[instr_id_T]:
         """
         Assumes the value is retrieved from memory
         """
@@ -356,6 +374,14 @@ class SymbolicState:
 
         # N computed: add one to the element we have added
         self.n_computed[var_elem] += 1
+
+        # An element must be fixed because it is retrieved
+        # as part of a computation (not solving a permutation)
+        if to_fix:
+            self.elements_to_fix.add(var_elem)
+
+        # Add one to the number of times an element is retrieved
+        self.get_count.update(var_elem)
 
         return [f"GET({var_elem})"]
 
@@ -377,6 +403,10 @@ class SymbolicState:
 
         if self.debug_mode:
             self.trace.append((self.stack.copy(), f"SET({stack_var})"))
+
+        # Reachable: only the last one if it was not accessible
+        if len(self.stack) >= STACK_DEPTH:
+            self.reachable.add(self.stack[STACK_DEPTH - 1])
 
         return [f"SET({stack_var})"]
 
@@ -724,7 +754,7 @@ class SMSgreedy:
         top_can_be_used[instr["id"]] = current_uses
         return current_uses
 
-    def greedy(self) -> List[instr_id_T]:
+    def greedy(self) -> Tuple[List[instr_id_T], SymbolicState]:
         """
         Main implementation of the greedy algorithm (i.e. the instruction scheduling algorithm)
         """
@@ -795,7 +825,7 @@ class SMSgreedy:
         self.debug_logger.debug_after_permutation(cstate, optg)
 
         self.print_traces(cstate)
-        return optg
+        return optg, cstate
 
     def _initialize_initial_state(self) -> SymbolicState:
         return SymbolicState(self._initial_stack, self._condensed_graph, self._stack_var_copies_needed,
@@ -1200,7 +1230,7 @@ class SMSgreedy:
 
             # Case III: we retrieve the element from memory
             else:
-                seq = cstate.from_memory(var_elem)
+                seq = cstate.from_memory(var_elem, True)
 
         # Finally, we place the topmost element that has been computed in the position to place
         # TODO: case for multiple elements computed
@@ -1272,7 +1302,7 @@ class SMSgreedy:
                     # Third case: we need to load the element from the memory if it is not already in the stack
                     last_misplaced_element = self._final_stack[cstate.max_solved - 1]
                     if last_misplaced_element not in cstate.stack:
-                        permutation_ops.extend(cstate.from_memory(last_misplaced_element))
+                        permutation_ops.extend(cstate.from_memory(last_misplaced_element, False))
 
                     # Forth case: just swap current element with the element at max_solved, as that one is misplaced
                     else:
@@ -1437,7 +1467,7 @@ class DebugLogger:
         self._logger.debug(f"{INDENT}{message}")
 
 
-def greedy_standalone(sms: Dict) -> Tuple[str, float, List[str]]:
+def greedy_standalone(sms: Dict) -> GreedyInfo:
     """
     Executes the greedy algorithm as a standalone configuration. Returns whether the execution has been
     sucessful or not ("non_optimal" or "error"), the total time and the sequence of ids returned.
@@ -1445,25 +1475,30 @@ def greedy_standalone(sms: Dict) -> Tuple[str, float, List[str]]:
     error = 0
     usage_start = resource.getrusage(resource.RUSAGE_SELF)
     try:
-        seq_ids = SMSgreedy(sms).greedy()
+        seq_ids, cstate = SMSgreedy(sms).greedy()
         usage_stop = resource.getrusage(resource.RUSAGE_SELF)
+
+        # We extract the information from the cstate, in which it is preserved
+        get_count, elements_to_fix, reachable = cstate.get_count, cstate.elements_to_fix, cstate.reachable
+
     except Exception as e:
         usage_stop = resource.getrusage(resource.RUSAGE_SELF)
         _, _, tb = sys.exc_info()
         traceback.print_tb(tb)
         print(e, sms["name"], file=sys.stderr)
         error = 1
-        seq_ids = []
+        seq_ids, get_count, elements_to_fix, reachable = [], dict(), set(), set()
     optimization_outcome = "error" if error == 1 else "non_optimal"
-    return optimization_outcome, usage_stop.ru_utime + usage_stop.ru_stime - usage_start.ru_utime - usage_start.ru_stime, seq_ids
+    return GreedyInfo.from_new_version(seq_ids, optimization_outcome,
+                                       usage_stop.ru_utime + usage_stop.ru_stime - usage_start.ru_utime - usage_start.ru_stime,
+                                       get_count, elements_to_fix, reachable)
 
 
-def greedy_from_file(filename: str) -> Tuple[SMS_T, List[instr_id_T], str]:
+def greedy_from_file(filename: str) -> GreedyInfo:
     logging.basicConfig(level=logging.DEBUG)
     with open(filename, "r") as f:
         sfs = json.load(f)
-    outcome, time, ids = greedy_standalone(sfs)
-    return sfs, ids, outcome
+    return greedy_standalone(sfs)
 
 
 if __name__ == "__main__":
