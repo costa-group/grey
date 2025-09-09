@@ -444,11 +444,17 @@ class SymbolicState:
         """
         return 0 > negative_idx >= - len(self.stack)
 
-    def is_accessible_swap(self, var_elem: var_id_T) -> bool:
+    def first_swap(self, var_elem: var_id_T) -> int:
         """
-        Checks whether the variable element can be accessed for a swap instruction
+        First position in which an element can be accessed for a swap instruction.
+        It must not be solved. If not possible to find such position, returns 100000
         """
-        return self.stack.index(var_elem) <= STACK_DEPTH
+        for position, element in enumerate(self.stack):
+            if position > STACK_DEPTH:
+                break
+            elif element == var_elem and position in self.not_solved:
+                return position
+        return 100000
 
     def is_accessible_dup(self, var_elem: var_id_T) -> bool:
         """
@@ -1006,6 +1012,7 @@ class SMSgreedy:
         2) Number of stack elements that can be consumed by swapping
         3) Deepest position that needs to access. If > STACK_DEPTH, then, we assign to -1
         4) Deepest position in which one of the produced stack vars can be consumed
+        TODO: for 4), only check positions that are not solved yet
 
         Moreover, we return the position from which to start computing
         """
@@ -1150,7 +1157,7 @@ class SMSgreedy:
                     matching = False
 
             # We try to swap as much elements as possible
-            if matching and count >= best_possibility:
+            if matching and count > best_possibility:
                 best_idx = cstate.positive_idx2negative(idx)
                 best_possibility = count
 
@@ -1162,7 +1169,8 @@ class SMSgreedy:
 
             # If I need to swap one of the arguments, I take the first element
             if len(input_vars) > 0 and cstate.stack_var_copies_needed[input_vars[-1]] == 0 \
-                    and cstate.is_accessible_swap(input_vars[-1]):
+                    and (swap_position := cstate.first_swap(input_vars[-1])) <= STACK_DEPTH:
+                cstate.swap(swap_position)
                 return 0, cstate.positive_idx2negative(0)
 
         return count, best_idx
