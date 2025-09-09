@@ -44,5 +44,10 @@ class TestGreedyPermutation:
         assert greedy_info.outcome != "error", "Error in test json"
 
     def test_fails_16_1(self):
+        """
+        Problem: the mod instruction is handled as if it was commutative when it isn't.
+
+        Fix: there is a missing swap if we choose to have the first element to be reused.
+        """
         sfs, greedy_info = greedy_from_file("sfs/fails_16_1.json")
         assert greedy_info.outcome != "error", "Error in test json"

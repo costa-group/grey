@@ -998,7 +998,7 @@ class SMSgreedy:
             elif final_stack_var in cheap_stack_elems or cstate.dep_graph.out_degree(self._var2instr[final_stack_var]) == 0:
                 instr = self._var2instr[final_stack_var]
                 _, initial_position = self.decide_fixed_elements(cstate, instr)
-                return instr, "instr", initial_position
+                return instr["id"], "instr", initial_position
 
             else:
                 return final_stack_var, "var", None
