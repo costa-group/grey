@@ -16,6 +16,7 @@ class GreedyInfo:
         self.get_count = get_count
         self.elements_to_fix = elements_to_fix
         self.reachable = reachable
+        self.unreachable = {}
 
     @classmethod
     def from_new_version(cls, greedy_ids: List[str], outcome: str, execution_time: float,

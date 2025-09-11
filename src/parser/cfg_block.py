@@ -698,6 +698,15 @@ class CFGBlock:
 
         return self._id2var.get(instr_id, [])
 
+    def instruction_from_out(self, out_var: var_id_T) -> Optional[CFGInstruction]:
+        for instruction in self._instructions:
+            out_list = instruction.get_out_args()
+            for out_elem in out_list:
+                if out_var == out_elem:
+                    return instruction
+        return None
+
+
     def __str__(self):
         s = "BlockID: " + self.block_id + "\n"
         s += "Type: " + self._jump_type + "\n"
