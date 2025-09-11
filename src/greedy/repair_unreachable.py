@@ -7,7 +7,7 @@ repair unreachable elements. Notation:
            Needed for unification of the phi-functions.
 """
 import networkx as nx
-from typing import Set, Tuple, Dict, List
+from typing import Set, Tuple, Dict, List, Optional
 from collections import Counter
 from global_params.types import var_id_T, block_id_T
 from parser.cfg_block import CFGBlock
@@ -16,7 +16,7 @@ from greedy.greedy_info import GreedyInfo
 
 
 def repair_unreachable(block_list: CFGBlockList, dominance_tree: nx.DiGraph,
-                       get_count: Counter[var_id_T], elements_to_fix: Set[var_id_T])
+                       get_count: Counter[var_id_T], elements_to_fix: Set[var_id_T]):
     """
     Repairs unreachable elements in two steps. First, it determines at which 
         
@@ -26,10 +26,12 @@ def repair_unreachable(block_list: CFGBlockList, dominance_tree: nx.DiGraph,
     pass
 
 
+# Methods for first step: fixing inaccessible phi values
+
 def fix_inaccessible_phi_values(block_list: CFGBlockList,
                                 greedy_info: Dict[block_id_T, GreedyInfo],
                                 get_count: Counter[var_id_T],
-                                elements_to_fix: Set[Tuple[var_id_T, block_id_T]])
+                                elements_to_fix: Set[Tuple[var_id_T, block_id_T]]) -> List[Set[var_id_T]]:
     """
     First pass: introduce the GET-SET and DUP-SET annotations
     for handling phi values. It returns the atomic-merged-sets, which is the
@@ -78,40 +80,120 @@ def fix_inaccessible_phi_values(block_list: CFGBlockList,
     return atomic_merged_sets
 
 
-def insert_dup_set(instructions: List[str], ai: var_id_T, color: int):
+def insert_dup_set(instructions: List[str], ai: var_id_T, color: Optional[int] = None):
     """
     Inserts a DUP-SET to access element ai with a given color.
     """
     pass
 
 
-def insert_get_set(instructions: List[str], ai: var_id_T, color: int):
+def insert_get_set(instructions: List[str], ai: var_id_T, color: Optional[int] = None):
     """
     Inserts a GET-SET to access element ai with a given color.
     """
     pass
 
 
+# Second phase: decide when values are stored using a STORE instruction
+# Auxiliary methods
+
+def variable2block_header(cfg_block_list: CFGBlockList, forest_graph: nx.DiGraph) -> Dict[var_id_T, block_id_T]:
+    """
+    Builds a dictionary that which is the loop header of the outer loop in which the variable
+    is defined. Useful for determining when we want to store the variable
+    """
+    var2header = dict()
+    # We only consider blocks that appear as part of the forest graph
+    for block_id in forest_graph.nodes:
+        block = cfg_block_list.get_block(block_id)
+
+        predecessors = list(forest_graph.predecessors(block_id))
+        if len(predecessors) != 0:
+            assert len(predecessors) == 1, "There can only be one predecessor in the forest graph"
+            predecessor = predecessors[0]
+
+            # We only consider the variables defined in the block
+            # Thanks to SSA, they are defined only once
+            for variable in block.declared_variables:
+                # We link the variable with the block
+                var2header[variable] = predecessor
+    return var2header
+
+
+def entry_loop(block_id: block_id_T, loop_tree: nx.DiGraph) -> Optional[var_id_T]:
+    """
+    Given a block and the loop tree, determines the block that is the header
+    of the corresponding loop (if any). Otherwise, returns None
+    """
+    if block_id in loop_tree:
+        # First case: it is already a header because it has multiple successors
+        if loop_tree.succ[block_id]:
+            return block_id
+        # Second case: just return the direct predecessor
+        # It is unique
+        for predecessor in loop_tree.predecessors(block_id):
+            return predecessor
+    return None
+
+
+def within_loop(v: var_id_T, block_id: block_id_T, loop_tree: nx.DiGraph, var2header: Dict[var_id_T, block_id_T]) -> bool:
+    """
+    Determines whether the point in which variable var v and the block block_id are within the
+    same loop scope, according to loop_tree
+    """
+    v_definition_block = var2header[v]
+
+    # Two options: either both of them have the same header or no header at all
+    entry_v_definition_block = entry_loop(v_definition_block, loop_tree)
+    entry_block_id = entry_loop(block_id, loop_tree)
+    return entry_block_id == entry_v_definition_block
+
+
+# Second Phase: same method
+
 def store_stack_elements_block(current_block_id: block_id_T, block_list: CFGBlockList,
                                dominance_tree: nx.DiGraph,
                                greedy_info: Dict[block_id_T, GreedyInfo],
-                               get_counter: Counter[var_id_T]) -> Set[var_id_T]:
+                               get_counter: Counter[var_id_T],
+                               loop_tree: nx.DiGraph,
+                               var2header: Dict[var_id_T, block_id_T]) -> Set[var_id_T]:
     """
     Second pass: introduce the DUP-SET instructions that are needed
     for later accessing the corresponding elements according to the
     dominance tree.
     """
     vars_to_introduce = set()
+
+    # Traverse the tree in post-order
     for next_block_id in dominance_tree.successors(current_block_id):
         vars_to_introduce.update(store_stack_elements_block(next_block_id, block_list, dominance_tree,
-                                                            greedy_info, get_counter))
-        current_greedy_info = greedy_info[current_block_id]
-        for instruction in current_greedy_info.greedy_ids:
+                                                            greedy_info, get_counter, loop_tree, var2header))
+
+    current_greedy_info = greedy_info[current_block_id]
+    final_code = []
+    for instruction_id in current_greedy_info.greedy_ids:
+        final_code.append(instruction_id)
+
+        # We access the corresponding element
+        if instruction_id.startswith("GET"):
+            loaded_var = instruction_id[4:-1]
+            get_counter.subtract(loaded_var)
+            # All gets have been performed
+            if get_counter[loaded_var] == 0:
+                # We can now consider the corresponding element
+                vars_to_introduce.add(loaded_var)
+        # TODO: check if it produces an output and the output is in vars_to_introduce
+        elif True:
             pass
 
-def memory_allocation():
-    """
-    Final pass: replace the GET and SET instructions by memory
-    accesses, considering the atomic-merged-sets aim to go to the same resource.
-    """
-    pass
+    vars_stored = set()
+    for var in vars_to_introduce:
+        if var in current_greedy_info.reachable and within_loop(var, current_block_id,
+                                                                loop_tree, var2header):
+            insert_dup_set(final_code, var)
+            vars_stored.add(var)
+
+    # We update the corresponding code
+    current_greedy_info.greedy_ids = final_code
+    return vars_to_introduce.difference(vars_stored)
+
