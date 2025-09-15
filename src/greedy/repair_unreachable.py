@@ -182,9 +182,12 @@ def store_stack_elements_block(current_block_id: block_id_T, block_list: CFGBloc
             if get_counter[loaded_var] == 0:
                 # We can now consider the corresponding element
                 vars_to_introduce.add(loaded_var)
-        # TODO: check if it produces an output and the output is in vars_to_introduce
-        elif True:
-            pass
+
+        elif (var_list := current_greedy_info.instr_id2var.get(instruction_id)) is not None:
+            # Assuming only one variable can be accessed (can be adapted easily)
+            var = var_list[0]
+            final_code.append(f"DUP-SET({var})")
+            vars_to_introduce.remove(var)
 
     vars_stored = set()
     for var in vars_to_introduce:
