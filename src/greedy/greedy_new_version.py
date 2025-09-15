@@ -1475,7 +1475,7 @@ def greedy_standalone(sms: Dict) -> GreedyInfo:
     optimization_outcome = "error" if error == 1 else "non_optimal"
     return GreedyInfo.from_new_version(seq_ids, optimization_outcome,
                                        usage_stop.ru_utime + usage_stop.ru_stime - usage_start.ru_utime - usage_start.ru_stime,
-                                       get_count, elements_to_fix, reachable)
+                                       sms["user_instrs"], get_count, elements_to_fix, reachable)
 
 
 def greedy_from_file(filename: str) -> Tuple[SMS_T, GreedyInfo]:

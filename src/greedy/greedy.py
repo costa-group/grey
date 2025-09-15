@@ -1763,7 +1763,7 @@ def greedy_standalone(sms: Dict) -> GreedyInfo:
         seq_ids = []
     optimization_outcome = "error" if error == 1 else "non_optimal"
     total_time = usage_stop.ru_utime + usage_stop.ru_stime - usage_start.ru_utime - usage_start.ru_stime
-    return GreedyInfo.from_old_version(seq_ids, optimization_outcome, total_time)
+    return GreedyInfo.from_old_version(seq_ids, optimization_outcome, total_time, sms["user_instrs"])
 
 
 def greedy_from_file(filename: str) -> Tuple[SMS_T, GreedyInfo]:
