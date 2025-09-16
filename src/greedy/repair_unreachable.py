@@ -80,18 +80,19 @@ def fix_inaccessible_phi_values(block_list: CFGBlockList,
     return atomic_merged_sets
 
 
-def insert_dup_set(instructions: List[str], ai: var_id_T, color: Optional[int] = None):
+def insert_dup_set(instructions: List[str], ai: var_id_T, position: int, color: Optional[int] = None):
     """
     Inserts a DUP-SET to access element ai with a given color.
     """
-    pass
+    instructions.insert(position, f"DUP-SET({ai})" if color is None else f"DUP-SET({ai},{color})")
 
 
-def insert_get_set(instructions: List[str], ai: var_id_T, color: Optional[int] = None):
+def insert_get_set(instructions: List[str], ai: var_id_T, position: int, color: Optional[int] = None):
     """
-    Inserts a GET-SET to access element ai with a given color.
+    Inserts a GET + SET to access element ai with a given color.
     """
-    pass
+    instructions.insert(position, f"SET({ai})" if color is None else f"SET({ai},{color})")
+    instructions.insert(position, f"GET({ai})")
 
 
 # Second phase: decide when values are stored using a STORE instruction
@@ -190,9 +191,9 @@ def store_stack_elements_block(current_block_id: block_id_T, block_list: CFGBloc
             vars_to_introduce.remove(var)
 
     vars_stored = set()
-    for var in vars_to_introduce:
-        if var in current_greedy_info.reachable and within_loop(var, current_block_id,
-                                                                loop_tree, var2header):
+    reachable_info = current_greedy_info.reachable
+    for var in vars_to_introduce.intersection(reachable_info):
+        if within_loop(var, current_block_id, loop_tree, var2header):
             insert_dup_set(final_code, var)
             vars_stored.add(var)
 

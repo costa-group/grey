@@ -57,8 +57,6 @@ def decrement_and_clean(counter: Counter, key):
     if counter[key] == 0:  # Remove the key if the count reaches zero
         del counter[key]
 
-def subgraph_from_root(root: str, condensed_graph: nx.DiGraph) -> nx.DiGraph:
-    return condensed_graph.subgraph(nx.nodes(dfs_tree(condensed_graph, root)))
 
 def subgraph_nodes(root: str, condensed_graph: nx.DiGraph):
     return list(nx.nodes(dfs_tree(condensed_graph, root)))
@@ -115,9 +113,13 @@ class SymbolicState:
         # with vars_in_memory because SET/GET combinations do not need to be fixed
         self.elements_to_fix: Set[var_id_T] = set()
 
-        # Set of elements that are reachable within the set,
-        # excluding variables defined. Initially corresponds to elements till STACK_DEPTH
-        self.reachable: Set[var_id_T] = set(initial_stack[:STACK_DEPTH])
+        # Links every variable to an instruction in which they were accessible and how deep within the stack
+        # can be reached
+        self.reachable: Dict[var_id_T, Tuple[int, int]] = {element: (0, i)
+                                                           for i, element in enumerate(initial_stack[:STACK_DEPTH])}
+
+        # Number of instructions that have been applied so far. Needed for computing reachable
+        self.modifications: int = 0
 
         # Counter for the number of times an element must be retrieved
         # from the memory
@@ -164,6 +166,14 @@ class SymbolicState:
         if 0 <= fstack_pos < len(self.final_stack) and self.final_stack[fstack_pos] == var_elem:
             self._add_solved(fstack_pos)
 
+    def _reachable_last_position(self):
+        """
+        Aims to add the deepest element of the stack to the reachable
+        """
+        new_available_position = min(STACK_DEPTH - 1, len(self.stack) - 1)
+        if new_available_position >= 0:
+            self.reachable[self.stack[new_available_position]] = self.modifications, new_available_position
+
     def idx_wrt_fstack(self, idx: cstack_pos_T) -> fstack_pos_T:
         """
         Conversion of the idx in the current stack to its corresponding position in the final stack
@@ -195,6 +205,8 @@ class SymbolicState:
 
         if self.debug_mode:
             self.trace.append((self.stack.copy(), f"SWAP{x}"))
+
+        self.modifications += 1
 
         return [f"SWAP{x}"]
 
@@ -228,6 +240,8 @@ class SymbolicState:
         if self.debug_mode:
             self.trace.append((self.stack.copy(), f"DUP{x}"))
 
+        self.modifications += 1
+
         return [f"DUP{x}"]
 
     def pop(self) -> List[instr_id_T]:
@@ -246,11 +260,12 @@ class SymbolicState:
         decrement_and_clean(self.n_computed, stack_var)
 
         # Reachable: only the last one if it was not already accessible
-        if len(self.stack) >= STACK_DEPTH:
-            self.reachable.add(self.stack[STACK_DEPTH - 1])
+        self._reachable_last_position()
 
         if self.debug_mode:
             self.trace.append((self.stack.copy(), "POP"))
+
+        self.modifications += 1
 
         return ["POP"]
 
@@ -269,8 +284,7 @@ class SymbolicState:
         decrement_and_clean(self.n_computed, stack_var)
 
         # Reachable: only the last one if it was not accessible
-        if len(self.stack) >= STACK_DEPTH:
-            self.reachable.add(self.stack[STACK_DEPTH - 1])
+        self._reachable_last_position()
 
         return stack_var
 
@@ -318,9 +332,15 @@ class SymbolicState:
                     f"{instr['id']} is not consuming the correct elements from the stack.\n" \
                     f"Consumed elements: {consumed_elements}\nRequired elements: {instr['inpt_sk']}"
 
+        self.modifications += 1
+
         # We introduce the new elements
-        for output_var in instr['outpt_sk']:
+        for i, output_var in enumerate(instr['outpt_sk']):
             self.insert_element(instr, output_var)
+
+            # We always insert in the first position,
+            # so we need to consider the index in reversed order
+            self.reachable[output_var] = self.modifications, len(instr["outpt_sk"]) - i - 1
 
         if instr["id"] in self.dep_graph.nodes:
             self.dep_graph.remove_node(instr["id"])
@@ -359,6 +379,8 @@ class SymbolicState:
         # Add one to the number of times an element is retrieved
         self.get_count.update(var_elem)
 
+        self.modifications += 1
+
         return [f"GET({var_elem})"]
 
     def store_in_memory(self):
@@ -380,9 +402,10 @@ class SymbolicState:
         if self.debug_mode:
             self.trace.append((self.stack.copy(), f"SET({stack_var})"))
 
+        self.modifications += 1
+
         # Reachable: only the last one if it was not accessible
-        if len(self.stack) >= STACK_DEPTH:
-            self.reachable.add(self.stack[STACK_DEPTH - 1])
+        self._reachable_last_position()
 
         return [f"SET({stack_var})"]
 
@@ -517,6 +540,13 @@ class SymbolicState:
 
     def __repr__(self):
         return str(self.stack)
+
+    def update_final_reachable(self, num_instrs: int):
+        """
+        Updates the reachability dict with the information from the final dict
+        """
+        for i, element in enumerate(self.final_stack[:STACK_DEPTH]):
+            self.reachable[element] = num_instrs, i
 
 
 class SMSgreedy:
@@ -807,6 +837,7 @@ class SMSgreedy:
         self.debug_logger.debug_after_permutation(cstate, optg)
 
         self.print_traces(cstate)
+        cstate.update_final_reachable(len(optg))
         return optg, cstate
 
     def _initialize_initial_state(self) -> SymbolicState:
