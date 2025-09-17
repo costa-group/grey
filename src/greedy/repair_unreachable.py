@@ -14,15 +14,22 @@ from parser.cfg_block_list import CFGBlockList
 from greedy.greedy_info import GreedyInfo
 
 
-def repair_unreachable(block_list: CFGBlockList, dominance_tree: nx.DiGraph,
-                       get_count: Counter[var_id_T], elements_to_fix: Set[var_id_T]):
+def repair_unreachable(block_list: CFGBlockList, greedy_info: Dict[block_id_T, GreedyInfo],
+                       dominance_tree: nx.DiGraph, loop_tree: nx.DiGraph, forest_graph: nx.DiGraph,
+                       get_count: Counter[var_id_T], elements_to_fix: Set[Tuple[var_id_T, block_id_T]]):
     """
     Repairs unreachable elements in two steps. First, it determines at which 
         
     block_list already contains the instructions generated
     in the greedy algorithm phase.
     """
-    pass
+    atomic_merged_sets = fix_inaccessible_phi_values(block_list, greedy_info,
+                                                     get_count, elements_to_fix)
+
+    var2header = variable2block_header(block_list, forest_graph)
+    store_stack_elements_block(block_list.start_block, block_list, dominance_tree, greedy_info,
+                               get_count, loop_tree, var2header)
+    return atomic_merged_sets
 
 
 # Methods for first step: fixing inaccessible phi values
@@ -206,4 +213,3 @@ def store_stack_elements_block(current_block_id: block_id_T, block_list: CFGBloc
     # We update the corresponding code
     current_greedy_info.greedy_ids = final_code
     return vars_to_introduce.difference(vars_stored)
-
