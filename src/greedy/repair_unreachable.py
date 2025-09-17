@@ -10,7 +10,6 @@ import networkx as nx
 from typing import Set, Tuple, Dict, List, Optional
 from collections import Counter
 from global_params.types import var_id_T, block_id_T
-from parser.cfg_block import CFGBlock
 from parser.cfg_block_list import CFGBlockList
 from greedy.greedy_info import GreedyInfo
 
@@ -31,7 +30,7 @@ def repair_unreachable(block_list: CFGBlockList, dominance_tree: nx.DiGraph,
 def fix_inaccessible_phi_values(block_list: CFGBlockList,
                                 greedy_info: Dict[block_id_T, GreedyInfo],
                                 get_count: Counter[var_id_T],
-                                elements_to_fix: Set[Tuple[var_id_T, block_id_T]]) -> List[Set[var_id_T]]:
+                                elements_to_fix: Set[Tuple[var_id_T, block_id_T]]) -> List[Set[Tuple[var_id_T, block_id_T]]]:
     """
     First pass: introduce the GET-SET and DUP-SET annotations
     for handling phi values. It returns the atomic-merged-sets, which is the
@@ -52,14 +51,17 @@ def fix_inaccessible_phi_values(block_list: CFGBlockList,
                 Bi_greedy_info = greedy_info[Bi]
                 if (ai, Bi) not in handled_values:
                     handled_values.add((ai, Bi))
+                    num_instructions, dup_pos = Bi_greedy_info.reachable.get(ai, (None, None))
 
                     # First case: the element is unreachable, so we repeate the same process
                     if ai in Bi_greedy_info.unreachable:
                         insert_get_set(Bi_greedy_info.greedy_ids, ai, color)
                         get_count.update(ai)
                         pairs_to_traverse.append((ai, Bi))
-                    elif ai in Bi_greedy_info.reachable:
-                        insert_dup_set(Bi_greedy_info.greedy_ids, ai, color)
+
+                    elif num_instructions is not None:
+                        insert_dup_set(Bi_greedy_info.greedy_ids, dup_pos, ai, color)
+
                     else:
                         insert_get_set(Bi_greedy_info.greedy_ids, ai, color)
                         get_count.update(ai)
@@ -80,11 +82,13 @@ def fix_inaccessible_phi_values(block_list: CFGBlockList,
     return atomic_merged_sets
 
 
-def insert_dup_set(instructions: List[str], ai: var_id_T, position: int, color: Optional[int] = None):
+def insert_dup_set(instructions: List[str], dup_pos: int, ai: var_id_T, position: int, color: Optional[int] = None):
     """
-    Inserts a DUP-SET to access element ai with a given color.
+    Inserts a DUP-SET to access element ai with a given color. The position from which the dup
+    must be done is passed as a parameter as well.
     """
-    instructions.insert(position, f"DUP-SET({ai})" if color is None else f"DUP-SET({ai},{color})")
+    instructions.insert(position, f"SET({ai})" if color is None else f"SET({ai},{color})")
+    instructions.insert(position, f"DUP{dup_pos + 1}")
 
 
 def insert_get_set(instructions: List[str], ai: var_id_T, position: int, color: Optional[int] = None):
@@ -192,9 +196,11 @@ def store_stack_elements_block(current_block_id: block_id_T, block_list: CFGBloc
 
     vars_stored = set()
     reachable_info = current_greedy_info.reachable
-    for var in vars_to_introduce.intersection(reachable_info):
+    for var in vars_to_introduce.intersection(reachable_info.keys()):
+        num_instructions, dup_pos = reachable_info[var]
+
         if within_loop(var, current_block_id, loop_tree, var2header):
-            insert_dup_set(final_code, var)
+            insert_dup_set(final_code, dup_pos, var, num_instructions)
             vars_stored.add(var)
 
     # We update the corresponding code
