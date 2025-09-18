@@ -62,19 +62,19 @@ def fix_inaccessible_phi_values(block_list: CFGBlockList,
 
                     # First case: the element is unreachable, so we repeate the same process
                     if ai in Bi_greedy_info.unreachable:
-                        insert_get_set(Bi_greedy_info.greedy_ids, ai, color)
+                        insert_get_set(Bi_greedy_info.greedy_ids, ai, num_instructions)
                         get_count.update(ai)
                         pairs_to_traverse.append((ai, Bi))
 
                     elif num_instructions is not None:
-                        insert_dup_set(Bi_greedy_info.greedy_ids, dup_pos, ai, color)
+                        insert_dup_set(Bi_greedy_info.greedy_ids, dup_pos, ai, num_instructions)
 
                     else:
-                        insert_get_set(Bi_greedy_info.greedy_ids, ai, color)
+                        insert_get_set(Bi_greedy_info.greedy_ids, ai, num_instructions)
                         get_count.update(ai)
                 else:
                     # If it has been solved for another situation, we just apply a GET-SET
-                    insert_get_set(Bi_greedy_info.greedy_ids, ai, color)
+                    insert_get_set(Bi_greedy_info.greedy_ids, ai, num_instructions)
                     get_count.update(ai)
 
                 # Update the dup-set
@@ -83,26 +83,23 @@ def fix_inaccessible_phi_values(block_list: CFGBlockList,
             if add_set:
                 atomic_merged_sets.append(add_set)
 
-        # The colour is changed for different phi-function webs
-        color = color + 1
-
     return atomic_merged_sets
 
 
-def insert_dup_set(instructions: List[str], dup_pos: int, ai: var_id_T, position: int, color: Optional[int] = None):
+def insert_dup_set(instructions: List[str], dup_pos: int, ai: var_id_T, position: int):
     """
     Inserts a DUP-SET to access element ai with a given color. The position from which the dup
     must be done is passed as a parameter as well.
     """
-    instructions.insert(position, f"SET({ai})" if color is None else f"SET({ai},{color})")
+    instructions.insert(position, f"SET({ai})")
     instructions.insert(position, f"DUP{dup_pos + 1}")
 
 
-def insert_get_set(instructions: List[str], ai: var_id_T, position: int, color: Optional[int] = None):
+def insert_get_set(instructions: List[str], ai: var_id_T, position: int):
     """
     Inserts a GET + SET to access element ai with a given color.
     """
-    instructions.insert(position, f"SET({ai})" if color is None else f"SET({ai},{color})")
+    instructions.insert(position, f"SET({ai})")
     instructions.insert(position, f"GET({ai})")
 
 
