@@ -12,11 +12,12 @@ from collections import Counter
 from global_params.types import var_id_T, block_id_T
 from parser.cfg_block_list import CFGBlockList
 from greedy.greedy_info import GreedyInfo
+from reconstruction.atomic_merged_sets import AtomicMergedSet
 
 
 def repair_unreachable(block_list: CFGBlockList, greedy_info: Dict[block_id_T, GreedyInfo],
                        dominance_tree: nx.DiGraph, loop_tree: nx.DiGraph, forest_graph: nx.DiGraph,
-                       get_count: Counter[var_id_T], elements_to_fix: Set[Tuple[var_id_T, block_id_T]]):
+                       get_count: Counter[var_id_T], elements_to_fix: Set[Tuple[var_id_T, block_id_T]]) -> AtomicMergedSet:
     """
     Repairs unreachable elements in two steps. First, it determines at which 
         
@@ -37,14 +38,14 @@ def repair_unreachable(block_list: CFGBlockList, greedy_info: Dict[block_id_T, G
 def fix_inaccessible_phi_values(block_list: CFGBlockList,
                                 greedy_info: Dict[block_id_T, GreedyInfo],
                                 get_count: Counter[var_id_T],
-                                elements_to_fix: Set[Tuple[var_id_T, block_id_T]]) -> List[Set[Tuple[var_id_T, block_id_T]]]:
+                                elements_to_fix: Set[Tuple[var_id_T, block_id_T]]) -> AtomicMergedSet:
     """
     First pass: introduce the GET-SET and DUP-SET annotations
     for handling phi values. It returns the atomic-merged-sets, which is the
     set of elements that aims to use the same memory resource 
     (although not necessary in practice).
     """
-    atomic_merged_sets, color, handled_values = [], 0, set()
+    atomic_merged_sets, color, handled_values = AtomicMergedSet(), 0, set()
     for pair_variable_block_id in elements_to_fix:
         pairs_to_traverse = [pair_variable_block_id]
         while pairs_to_traverse:
@@ -81,7 +82,7 @@ def fix_inaccessible_phi_values(block_list: CFGBlockList,
                 add_set.add((ai, Bi))
 
             if add_set:
-                atomic_merged_sets.append(add_set)
+                atomic_merged_sets.add_set(add_set)
 
     return atomic_merged_sets
 
