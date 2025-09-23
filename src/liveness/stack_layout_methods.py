@@ -11,47 +11,6 @@ from parser.cfg_block_list import CFGBlockList
 from parser.cfg_instruction import CFGInstruction
 from liveness.liveness_analysis import LivenessAnalysisInfoSSA
 
-
-def unify_stacks(predecessor_stacks: List[List[str]], variable_depth_info: Dict[str, int]) -> List[str]:
-    """
-    Unifies the given stacks, according to the information already provided in variable depth info
-    """
-    needed_elements = set(elem for stack in predecessor_stacks for elem in stack)
-    max_depth = max(variable_depth_info.values()) + 1 if len(variable_depth_info) > 0 else -1
-    pairs = [(variable_depth_info.get(stack_elem, max_depth), stack_elem) for stack_elem in needed_elements]
-    return [elem[1] for elem in sorted(pairs)]
-
-
-def build_acyclic_graph_from_CFG(cfg: nx.DiGraph, initial_node) -> nx.DiGraph:
-    """
-    Builds an acyclic graph by removing the backedges.
-    See https://dl.acm.org/doi/pdf/10.1145/358438.349330
-    """
-    acyclic_graph = cfg.copy(as_view=False)
-    visited, current_path = set(), set()
-    remove_backwards_edges(initial_node, visited, current_path, cfg, acyclic_graph)
-    return acyclic_graph
-
-
-def remove_backwards_edges(current_node, visited: Set, current_path: Set, cfg:nx.DiGraph, acyclic_graph: nx.DiGraph):
-    """
-    DFS traversal to detect backedges and remove them from the acyclic graph
-    """
-    current_path.add(current_node)
-    if current_node not in visited:
-        visited.add(current_node)
-        for next_node in cfg.successors(current_node):
-            if next_node in visited:
-                # This corresponds to a backedge, as we are traversing the tree from the initial node
-                if next_node in current_path:
-                    acyclic_graph.remove_edge(current_node, next_node)
-
-            else:
-                remove_backwards_edges(next_node, visited, current_path, cfg, acyclic_graph)
-
-    current_path.remove(current_node)
-
-
 def compute_variable_depth(liveness_info: Dict[str, LivenessAnalysisInfoSSA], topological_order: List) -> Dict[
     str, Dict[str, Tuple[int, int, int]]]:
     """
