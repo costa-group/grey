@@ -304,13 +304,13 @@ class SolidityCompilation:
 
     @staticmethod
     def from_json_input(json_input: Dict[str, Any], deployed_contract: Optional[str] = None, final_file: Optional[str] = None,
-                        solc_executable: str = "solc") -> Optional[Dict[str, Yul_CFG_T]]:
+                        solc_executable: str = "solc", original_folder: Optional[str] = None) -> Optional[Dict[str, Yul_CFG_T]]:
         """
         Compiles a file in the JSON input representation
         """
         compilation = SolidityCompilation(final_file, solc_executable)
         compilation.flags = "--standard-json"
-        return compilation.compile_json_input(json_input, deployed_contract)
+        return compilation.compile_json_input(json_input, deployed_contract, json_folder=original_folder)
 
     def _json_optimization_settings(self) -> Dict[str, Any]:
         """
@@ -383,12 +383,17 @@ class SolidityCompilation:
                                 json.dump(yul_cfg_current, f, indent=4)
         return True, json_dict
 
-    def compile_json_input(self, json_input: Dict, deployed_contract: Optional[str] = None) -> Optional[Dict[str, Yul_CFG_T]]:
+    def compile_json_input(self, json_input: Dict, deployed_contract: Optional[str] = None,
+                           json_folder: Optional[str] = None) -> Optional[Dict[str, Yul_CFG_T]]:
         # Change the settings from the json input
         if self.CHANGE_SETTINGS:
             json_input["settings"] = self._json_input_set_settings()
         else:
             json_input["settings"]["outputSelection"] = {'*': {'*': ['yulCFGJson']}}
+
+        # If the folder is not None, then we first change the path
+        if json_folder is not None:
+            self._change_path_for_compilation(json_folder)
 
         # Compile in a given intermediate file
         fd, tmp_file = tempfile.mkstemp()
@@ -401,6 +406,11 @@ class SolidityCompilation:
         output_dict, error = self._compile_json_input(tmp_file)
 
         os.remove(tmp_file)
+
+        # We restore the file afterward
+        if json_folder is not None:
+            self._restore_path_for_compilation()
+
         # Then we process the output and generate the corresponding file
         correct_compilation, yul_cfg_dict = self._process_json_output(output_dict, error, deployed_contract)
 
@@ -428,6 +438,30 @@ class SolidityCompilation:
                     f.write(output)
         return True
 
+    def _change_path_for_compilation(self, new_path: str):
+        """
+        Changes the path for compiling from the corresponding folder
+        """
+        self._old_path = os.getcwd()
+
+        # If solc is an executable, then we need to change the command to invoke it
+        if Path(self._solc_command).is_file():
+            self._old_solc_command = self._solc_command
+            # The new solc command is invoked from the old path
+            self._solc_command = Path(self._old_path).joinpath(self._solc_command).resolve()
+
+        # Finally, we change the new path
+        os.chdir(new_path)
+
+
+    def _restore_path_for_compilation(self):
+        """
+        Restores the path for compilation after having changed it
+        """
+        # We restore the path and the solc command
+        os.chdir(self._old_path)
+        self._solc_command = self._old_solc_command
+
     def compile_single_sol_file(self, sol_file: str,
                                 deployed_contract: Optional[str] = None,
                                 selected_header: str = "yul") -> Optional[Dict[str, Any]]:
@@ -435,25 +469,15 @@ class SolidityCompilation:
         Compiles a single sol file using the file name and retrieves the information from a selected header
         """
         # Change to the path in which we have generated the files
-        old_path = os.getcwd()
+        sol_folder = str(Path(sol_file).parent)
+        self._change_path_for_compilation(sol_folder)
 
-        sol_folder = Path(sol_file).parent
-
-        erase_solc = False
-
-        # Copies the executable in the corresponding folder (if it is indeed an executable)
-        if Path(self._solc_command).is_file() and not Path(sol_folder.joinpath(self._solc_command)).exists():
-            erase_solc = True
-            shutil.copy(self._solc_command, sol_folder)
-
-        os.chdir(sol_folder)
         # As we have moved the executable to the corresponding folder, we just need to pass the file name with
         # no parents dir
         sol_output, error = self._compile_sol_command(Path(sol_file).name)
-        os.chdir(old_path)
 
-        if erase_solc:
-            os.remove(sol_folder.joinpath(self._solc_command))
+        # After the compilation, we restore the path
+        self._restore_path_for_compilation()
 
         correct_compilation = self._process_sol_command(sol_output, error)
 
@@ -484,15 +508,9 @@ class SolidityCompilation:
 
         main_sol_file = extract_files_from_multisol_repr(source_code_dict, tmp_folder, deployed_contract)
 
-        # Change to the path in which we have generated the files
-        old_path = os.getcwd()
-        # Copies the executable in the corresponding folder (if it is indeed an executable and does not exist yet)
-        if Path(self._solc_command).is_file() and not Path(tmp_folder.joinpath(self._solc_command)).exists():
-            shutil.copy(self._solc_command, tmp_folder)
-
-        os.chdir(tmp_folder)
+        self._change_path_for_compilation(str(tmp_folder))
         output_sol, error = self._compile_sol_command(main_sol_file)
-        os.chdir(old_path)
+        self._restore_path_for_compilation()
 
         shutil.rmtree(tmp_dir)
         # print(command)
