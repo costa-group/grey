@@ -16,9 +16,29 @@ import greedy.greedy as new_greedy
 from solution_generation.statistics import generate_statistics_info
 
 
+def execute_previous_greedy(cfg_block):
+    source_stack = cfg_block.spec["src_ws"]
+    set_source_stack = set(source_stack)
+
+    if len(source_stack) != len(set_source_stack):
+        print("[WARNING]: Error in previous greedy")
+        print(source_stack)
+        outcome1 = "error"
+        time1 = None
+        greedy_ids1 = []
+    else:
+        outcome1, time1, greedy_ids1 = previous.greedy_standalone(cfg_block.spec)
+
+    return outcome1, time1, greedy_ids1
+        
 def cfg_block_spec_ids(cfg_block: CFGBlock) -> Tuple[str, float, List[instr_id_T]]:
-    outcome1, time1, greedy_ids1 = previous.greedy_standalone(cfg_block.spec)
+
+
+    outcome1, time1, greedy_ids1 = execute_previous_greedy(cfg_block)
     outcome2, time2, greedy_ids2 = new_greedy.greedy_standalone(cfg_block.spec)
+
+    
+
     if greedy_ids2 is not None and (outcome1 == "error" or len(greedy_ids1) > len(greedy_ids2)):
         outcome = outcome2
         time = time2
