@@ -158,7 +158,8 @@ class LayoutGeneration:
                                                                                     for previous_id in elements_to_unify},
                                                                                    combined_liveness_info,
                                                                                    phi_instructions,
-                                                                                   self._variable_order[next_block_id])
+                                                                                   self._variable_order[next_block_id],
+                                                                                   block_id, input_stack)
 
                 else:
                     combined_output_stack, output_stacks_unified = unify_stacks_brothers(next_block_id,
@@ -166,7 +167,8 @@ class LayoutGeneration:
                                                                                          combined_liveness_info,
                                                                                          phi_instructions,
                                                                                          self._variable_order[
-                                                                                             next_block_id])
+                                                                                             next_block_id],
+                                                                                         block_id, input_stack)
 
                 # Update the output stacks with the ones generated from the unification
                 output_stacks.update(output_stacks_unified)

@@ -134,7 +134,7 @@ def unification_block_dict(block_list: CFGBlockList) -> Dict[block_id_T, Tuple[b
 
 
 def output_stack_layout(input_stack: List[str], final_stack_elements: List[str],
-                        live_vars: Set[str], variable_depth_info: Dict[str, int]) -> List[str]:
+                        live_vars: Set[str], variable_depth_info: Dict[str, Tuple]) -> List[str]:
     """
     Generates the output stack layout before and after the last instruction
     (i.e. the one not optimized by the greedy algorithm), according to the variables
@@ -330,17 +330,53 @@ def propagate_input_to_joint(input_stack: List[var_id_T], phi_use2phi_def: Dict[
 
     return list(reversed(placeholder_stack))
 
+
+def generate_combined_block_from_original(original_in_stack: List[var_id_T],
+                                          live_vars_target: Set[var_id_T],
+                                          phi_func_original: Dict[var_id_T, var_id_T]):
+
+    combined_in = []
+    already_added = set()
+    for var_ in reversed(original_in_stack):
+        # If var_ is live and not added yet, place in the same position
+        if var_ in live_vars_target:
+            combined_in.append(var_)
+            already_added.add(var_)
+            continue
+
+        # If var_ corresponds to value used in a phi_function,
+        # then we replace it with phi_def (as it will be propagated
+        # backwards accordingly)
+        propagated_value = next((out_var for out_var, in_var in phi_func_original.items()
+                                 if in_var == var_ and out_var not in already_added), None)
+        if propagated_value is not None:
+            combined_in.append(propagated_value)
+            already_added.add(propagated_value)
+        # Otherwise, we introduce a dummy value
+        else:
+            combined_in.append("pl")
+    return list(reversed(combined_in))
+
+
 def unify_stacks_brothers(target_block_id: block_id_T, predecessor_blocks: List[block_id_T],
                           live_vars_dict: Dict[block_id_T, Set[var_id_T]], phi_functions: List[CFGInstruction],
-                          variable_depth_info: Dict[str, int]) -> Tuple[List[block_id_T], Dict[block_id_T, List[var_id_T]]]:
+                          variable_depth_info: Dict[str, Tuple], original_block: block_id_T,
+                          original_in_stack: List[var_id_T]) -> Tuple[List[block_id_T], Dict[block_id_T, List[var_id_T]]]:
     """
     Generate the output stack for all blocks that share a common block destination and the consolidated stack,
     considering the PhiFunctions
     """
     phi_func, introduced_phis = generate_phi_func(target_block_id, predecessor_blocks, live_vars_dict, phi_functions)
 
+    live_vars_with_pseudo_phi = live_vars_dict[target_block_id].union(introduced_phis)
+
+    # We update the initial stack of the predecessor
+    # so that the combined output stack considers this information
+    combined_init_stack = generate_combined_block_from_original(original_in_stack, live_vars_with_pseudo_phi,
+                                                                phi_func[original_block])
+
     # We generate the input stack of the combined information, considering the pseudo phi functions
-    combined_output_stack = output_stack_layout([], [], live_vars_dict[target_block_id].union(introduced_phis),
+    combined_output_stack = output_stack_layout(combined_init_stack, [], live_vars_with_pseudo_phi,
                                                 dict(variable_depth_info, **{key: (0,) for key in introduced_phis}))
 
     # Reconstruct all the output stacks
@@ -356,8 +392,10 @@ def unify_stacks_brothers(target_block_id: block_id_T, predecessor_blocks: List[
 
 def unify_stacks_brothers_missing_values(target_block_id: block_id_T, predecessor_blocks: List[block_id_T],
                                          previous_input_stacks: Dict[block_id_T, List[var_id_T]],
-                                         live_vars_dict: Dict[block_id_T, Set[var_id_T]], phi_functions: List[CFGInstruction],
-                                         variable_depth_info: Dict[str, int]) -> Tuple[List[block_id_T], Dict[block_id_T, List[var_id_T]]]:
+                                         live_vars_dict: Dict[block_id_T, Set[var_id_T]],
+                                         phi_functions: List[CFGInstruction],
+                                         variable_depth_info: Dict[str, Tuple], original_block: block_id_T,
+                                         original_in_stack: List[var_id_T]) -> Tuple[List[block_id_T], Dict[block_id_T, List[var_id_T]]]:
     """
     Generate the output stack for all blocks that share a common block destination and the consolidated stack,
     considering the PhiFunctions. The stack values of the predecessor block that are not part of the target stack
@@ -383,8 +421,13 @@ def unify_stacks_brothers_missing_values(target_block_id: block_id_T, predecesso
         live_vars_dict[target_block_id].union(phi_func.get(predecessor_block, {}).values()))
                            for predecessor_block in predecessor_blocks}
 
+    # We update the initial stack of the predecessor
+    # so that the combined output stack considers this information
+    combined_init_stack = generate_combined_block_from_original(original_in_stack, live_vars_dict[target_block_id],
+                                                                phi_func[original_block])
+
     # We generate the input stack of the combined information (with no pseudo phi function
-    combined_output_stack = output_stack_layout([], [], live_vars_dict[target_block_id], variable_depth_info)
+    combined_output_stack = output_stack_layout(combined_init_stack, [], live_vars_dict[target_block_id], variable_depth_info)
 
     # Reconstruct all the output stacks
     predecessor_output_stacks = dict()
