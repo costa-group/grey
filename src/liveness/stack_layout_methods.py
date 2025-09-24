@@ -308,6 +308,28 @@ def unify_stack_joint(predecessor_id: var_id_T, combined_output_stack: List[var_
             # Otherwise, we have to introduce a bottom value
     return predecessor_output_stack
 
+
+def propagate_input_to_joint(input_stack: List[var_id_T], phi_use2phi_def: Dict[var_id_T, var_id_T],
+                             live_vars: Set[var_id_T]) -> List[var_id_T]:
+    placeholder_stack = []
+    already_introduced = set()
+    # We traverse the elements in reversed order in case they are no longer used
+    for var_ in reversed(input_stack):
+        # First case: the variable is live, so we keep it in the same order
+        if var_ in live_vars and var_ not in already_introduced:
+            placeholder_stack.append(var_)
+            already_introduced.add(var_)
+
+        # Second phase: the variable is used in a phi-function
+        elif (phi_def := phi_use2phi_def.get(var_)) and phi_def not in already_introduced:
+            already_introduced.add(phi_def)
+
+        # Third case: it will be removed: so we don't care about its concrete value:
+        else:
+            placeholder_stack.append(var_)
+
+    return list(reversed(placeholder_stack))
+
 def unify_stacks_brothers(target_block_id: block_id_T, predecessor_blocks: List[block_id_T],
                           live_vars_dict: Dict[block_id_T, Set[var_id_T]], phi_functions: List[CFGInstruction],
                           variable_depth_info: Dict[str, int]) -> Tuple[List[block_id_T], Dict[block_id_T, List[var_id_T]]]:
