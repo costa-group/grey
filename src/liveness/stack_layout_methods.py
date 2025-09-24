@@ -173,7 +173,7 @@ def output_stack_layout(input_stack: List[str], final_stack_elements: List[str],
 
     # First exit condition: all variables have been placed in between. Hence, I have to insert the remaining
     # elements at the beginning
-    if i == 0:
+    if i < 0:
         bottom_output_stack = vars_to_place_sorted[:j+1] + bottom_output_stack
 
     # Second condition: all variables have been placed in between. There can be some None values in between that
@@ -193,8 +193,7 @@ def output_stack_layout(input_stack: List[str], final_stack_elements: List[str],
                 assert bottom_output_stack[0] is not None
                 bottom_output_stack[i] = bottom_output_stack[0]
                 bottom_output_stack.pop(0)
-            else:
-                i -= 1
+            i -= 1
 
     # The final stack elements must appear in the top of the stack
     return final_stack_elements + bottom_output_stack
@@ -244,10 +243,7 @@ def propagate_output_stack(input_stack: List[str], final_stack_elements: List[st
 
 def unify_stacks_brothers(target_block_id: block_id_T, predecessor_blocks: List[block_id_T],
                           live_vars_dict: Dict[block_id_T, Set[var_id_T]], phi_functions: List[CFGInstruction],
-                          variable_depth_info: Dict[str, int],
-                          previous_block: block_id_T,
-                          previous_block_ini_stack: List[var_id_T]
-                          ) -> Tuple[List[block_id_T], Dict[block_id_T, List[var_id_T]]]:
+                          variable_depth_info: Dict[str, int]) -> Tuple[List[block_id_T], Dict[block_id_T, List[var_id_T]]]:
     """
     Generate the output stack for all blocks that share a common block destination and the consolidated stack,
     considering the PhiFunctions
