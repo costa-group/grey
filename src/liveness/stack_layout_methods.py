@@ -2,7 +2,7 @@
 Module that contains the methods to generate stack layouts from the liveness information.
 """
 import collections
-from typing import Dict, List, Set, Tuple
+from typing import Dict, List, Set, Tuple, Counter
 import networkx as nx
 from itertools import zip_longest
 
@@ -241,13 +241,8 @@ def propagate_output_stack(input_stack: List[str], final_stack_elements: List[st
     return final_stack_elements + bottom_output_stack[overlap:]
 
 
-def unify_stacks_brothers(target_block_id: block_id_T, predecessor_blocks: List[block_id_T],
-                          live_vars_dict: Dict[block_id_T, Set[var_id_T]], phi_functions: List[CFGInstruction],
-                          variable_depth_info: Dict[str, int]) -> Tuple[List[block_id_T], Dict[block_id_T, List[var_id_T]]]:
-    """
-    Generate the output stack for all blocks that share a common block destination and the consolidated stack,
-    considering the PhiFunctions
-    """
+def generate_phi_func(target_block_id: block_id_T, predecessor_blocks: List[block_id_T],
+                      live_vars_dict: Dict[block_id_T, Set[var_id_T]], phi_functions: List[CFGInstruction]):
     # TODO: uses the input stacks for all the brother stacks for a better combination
     # First we extract the information from the phi functions. For each predecessor block, we generate a dict
     # that maps each variable with each input arg. These nested dicts are important because we want to link the
@@ -266,12 +261,13 @@ def unify_stacks_brothers(target_block_id: block_id_T, predecessor_blocks: List[
     # some phi functions that affect other blocks (see an explanation in explanations/23_01_unify_stack_brothers)
     variables_to_remove = {predecessor_block: live_vars_dict[predecessor_block].difference(
         live_vars_dict[target_block_id].union(phi_func.get(predecessor_block, {}).values()))
-                           for predecessor_block in predecessor_blocks}
+        for predecessor_block in predecessor_blocks}
 
     # Then we combine them as new phi functions. We fill with bottom values if there are not enought values to combine
-    pseudo_phi_functions = {f"b{i}": in_args for i, in_args in enumerate(zip_longest(*(variables_to_remove[predecessor_block]
-                                                                                       for predecessor_block in predecessor_blocks),
-                                                                                     fillvalue="bottom"))}
+    pseudo_phi_functions = {f"b{i}": in_args for i, in_args in
+                            enumerate(zip_longest(*(variables_to_remove[predecessor_block]
+                                                    for predecessor_block in predecessor_blocks),
+                                                  fillvalue="bottom"))}
     for out_arg, in_args in pseudo_phi_functions.items():
         for input_arg, predecessor_block in zip(in_args, predecessor_blocks):
             # We must consider that the phi function might not have assigned a value to phi_func[predecessor_block]
@@ -279,41 +275,59 @@ def unify_stacks_brothers(target_block_id: block_id_T, predecessor_blocks: List[
                 phi_func[predecessor_block] = dict()
             phi_func[predecessor_block][out_arg] = input_arg
 
+    return phi_func, pseudo_phi_functions.keys()
+
+
+def unify_stack_joint(predecessor_id: var_id_T, combined_output_stack: List[var_id_T],
+                      phi_func: Dict[block_id_T, Dict[var_id_T, var_id_T]],
+                      live_vars: Set[var_id_T]) -> List[var_id_T]:
+    predecessor_output_stack = []
+    # The argument corresponds to the input of a phi function
+    # We need to access two dicts
+    phi_funcs_pred = phi_func.get(predecessor_id, None)
+
+    # Three possibilities:
+    for out_var in combined_output_stack:
+
+        # First case: The variable corresponds to a Phi Function
+        # See test/repeated_live_vars
+        in_arg = phi_funcs_pred.get(out_var, None) if phi_funcs_pred is not None else None
+
+        # THIS MUST BE THE FIRST CASE.
+        # See test/* for an example on why it has to be like this
+        # TODO: generate test from semanticTests/inlineAssembly_inline_assembly_for2
+        #  and why we must first check the phi functions
+        if in_arg is not None:
+            predecessor_output_stack.append(in_arg)
+
+        # Second case: the variable is already live
+        elif out_var in live_vars:
+            predecessor_output_stack.append(out_var)
+        else:
+            predecessor_output_stack.append("bottom")
+            # Otherwise, we have to introduce a bottom value
+    return predecessor_output_stack
+
+def unify_stacks_brothers(target_block_id: block_id_T, predecessor_blocks: List[block_id_T],
+                          live_vars_dict: Dict[block_id_T, Set[var_id_T]], phi_functions: List[CFGInstruction],
+                          variable_depth_info: Dict[str, int]) -> Tuple[List[block_id_T], Dict[block_id_T, List[var_id_T]]]:
+    """
+    Generate the output stack for all blocks that share a common block destination and the consolidated stack,
+    considering the PhiFunctions
+    """
+    phi_func, introduced_phis = generate_phi_func(target_block_id, predecessor_blocks, live_vars_dict, phi_functions)
+
     # We generate the input stack of the combined information, considering the pseudo phi functions
-    combined_output_stack = output_stack_layout([], [], live_vars_dict[target_block_id].union(pseudo_phi_functions.keys()),
-                                                dict(variable_depth_info, **{key: (0,) for key in pseudo_phi_functions.keys()}))
+    combined_output_stack = output_stack_layout([], [], live_vars_dict[target_block_id].union(introduced_phis),
+                                                dict(variable_depth_info, **{key: (0,) for key in introduced_phis}))
 
     # Reconstruct all the output stacks
     predecessor_output_stacks = dict()
 
+    # We unify the combined stack with all the other blocks
     for predecessor_id in predecessor_blocks:
-        predecessor_output_stack = []
-        # The argument corresponds to the input of a phi function
-        # We need to access two dicts
-        phi_funcs_pred = phi_func.get(predecessor_id, None)
-
-        # Three possibilities:
-        for out_var in combined_output_stack:
-
-            # First case: The variable corresponds to a Phi Function
-            # See test/repeated_live_vars
-            in_arg = phi_funcs_pred.get(out_var, None) if phi_funcs_pred is not None else None
-
-            # THIS MUST BE THE FIRST CASE.
-            # See test/* for an example on why it has to be like this
-            # TODO: generate test from semanticTests/inlineAssembly_inline_assembly_for2
-            #  and why we must first check the phi functions
-            if in_arg is not None:
-                predecessor_output_stack.append(in_arg)
-
-            # Second case: the variable is already live
-            elif out_var in live_vars_dict[predecessor_id]:
-                predecessor_output_stack.append(out_var)
-            else:
-                predecessor_output_stack.append("bottom")
-                # Otherwise, we have to introduce a bottom value
-
-        predecessor_output_stacks[predecessor_id] = predecessor_output_stack
+        predecessor_output_stacks[predecessor_id] = unify_stack_joint(predecessor_id, combined_output_stack,
+                                                                      phi_func, live_vars_dict[predecessor_id])
 
     return combined_output_stack, predecessor_output_stacks
 
@@ -357,32 +371,8 @@ def unify_stacks_brothers_missing_values(target_block_id: block_id_T, predecesso
 
         # Initialize the predecessor output stack to the variables to remove, considering they are "forgotten"
         # TODO: see how the heuristics of choosing an order can be affected
-        predecessor_output_stack = []
-
-        # The argument corresponds to the input of a phi function
-        # We need to access two dicts
-        phi_funcs_pred = phi_func.get(predecessor_id, None)
-
-        # Three possibilities:
-        for out_var in combined_output_stack:
-
-            # First case: The variable corresponds to a Phi Function
-            # See test/repeated_live_vars
-            in_arg = phi_funcs_pred.get(out_var, None) if phi_funcs_pred is not None else None
-
-            # THIS MUST BE THE FIRST CASE.
-            # See test/* for an example on why it has to be like this
-            # TODO: generate test from semanticTests/inlineAssembly_inline_assembly_for2
-            #  and why we must first check the phi functions
-            if in_arg is not None:
-                predecessor_output_stack.append(in_arg)
-
-            # Second case: the variable is already live
-            elif out_var in live_vars_dict[predecessor_id]:
-                predecessor_output_stack.append(out_var)
-            else:
-                predecessor_output_stack.append("bottom")
-                # Otherwise, we have to introduce a bottom value
+        predecessor_output_stack = unify_stack_joint(predecessor_id, combined_output_stack,
+                                                     phi_func, live_vars_dict[predecessor_id])
 
         # The variables to remove are "forgotten"
         # TODO: see how the heuristics of choosing an order can be affected. Maybe consider this as part of the
