@@ -193,6 +193,11 @@ def output_stack_layout(input_stack: List[str], final_stack_elements: List[str],
                 assert bottom_output_stack[0] is not None
                 bottom_output_stack[i] = bottom_output_stack[0]
                 bottom_output_stack.pop(0)
+
+                # Find next available element for swapping
+                while len(bottom_output_stack) > 0 and bottom_output_stack[0] is None:
+                    bottom_output_stack.pop(0)
+                    i += 1
             i -= 1
 
     # The final stack elements must appear in the top of the stack
