@@ -179,26 +179,20 @@ def output_stack_layout(input_stack: List[str], final_stack_elements: List[str],
     # Second condition: all variables have been placed in between. There can be some None values in between that
     # must be removed
     else:
-        # Place the topmost elements in the gaps
 
-        # Ignore the first Nones
-        i = 0
-        while i < len(bottom_output_stack) and bottom_output_stack[i] is None:
-            i += 1
-
-        bottom_output_stack = bottom_output_stack[i:]
-        i = len(bottom_output_stack) - 1
-        while i >= 0:
+        i, j = 0, len(bottom_output_stack) - 1
+        while i <= j:
             if bottom_output_stack[i] is None:
-                assert bottom_output_stack[0] is not None
-                bottom_output_stack[i] = bottom_output_stack[0]
-                bottom_output_stack.pop(0)
+                i += 1
+            elif bottom_output_stack[j] is None:
+                bottom_output_stack[j] = bottom_output_stack[i]
+                i += 1
+                j -= 1
+            else:
+                j -= 1
 
-                # Find next available element for swapping
-                while len(bottom_output_stack) > 0 and bottom_output_stack[0] is None:
-                    bottom_output_stack.pop(0)
-                    i += 1
-            i -= 1
+        # All the None elements are before index i-1
+        bottom_output_stack = bottom_output_stack[i:]
 
     # The final stack elements must appear in the top of the stack
     return final_stack_elements + bottom_output_stack
