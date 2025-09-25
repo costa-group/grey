@@ -50,3 +50,6 @@ SMS_T = Dict[str, Any]
 Yul_CFG_T = Dict[str, Any]
 
 ASM_contract_T = Dict[str, Any]
+
+# Type for an element and the block in which it is defined
+element_definition_T = Tuple[var_id_T, block_id_T]

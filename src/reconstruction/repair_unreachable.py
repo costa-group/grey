@@ -9,28 +9,29 @@ repair unreachable elements. Notation:
 import networkx as nx
 from typing import Set, Tuple, Dict, List, Optional
 from collections import Counter
-from global_params.types import var_id_T, block_id_T
+from global_params.types import var_id_T, block_id_T, element_definition_T
 from parser.cfg_block_list import CFGBlockList
 from greedy.greedy_info import GreedyInfo
-from reconstruction.atomic_merged_sets import AtomicMergedSet
+from reconstruction.atomic_merged_sets import AtomicMergedSets
 
 
 def repair_unreachable(block_list: CFGBlockList, greedy_info: Dict[block_id_T, GreedyInfo],
                        dominance_tree: nx.DiGraph, loop_tree: nx.DiGraph, forest_graph: nx.DiGraph,
-                       get_count: Counter[var_id_T], elements_to_fix: Set[Tuple[var_id_T, block_id_T]]) -> AtomicMergedSet:
+                       get_count: Counter[var_id_T],
+                       elements_to_fix: Set[element_definition_T]) -> Tuple[AtomicMergedSets, Set[element_definition_T]]:
     """
     Repairs unreachable elements in two steps. First, it determines at which 
         
     block_list already contains the instructions generated
     in the greedy algorithm phase.
     """
-    atomic_merged_sets = fix_inaccessible_phi_values(block_list, greedy_info,
-                                                     get_count, elements_to_fix)
+    atomic_merged_sets, combined_elements_to_fix = fix_inaccessible_phi_values(block_list, greedy_info,
+                                                                               get_count, elements_to_fix)
 
     var2header = variable2block_header(block_list, forest_graph)
     store_stack_elements_block(block_list.start_block, block_list, dominance_tree, greedy_info,
                                get_count, loop_tree, var2header)
-    return atomic_merged_sets
+    return atomic_merged_sets, combined_elements_to_fix
 
 
 # Methods for first step: fixing inaccessible phi values
@@ -38,19 +39,24 @@ def repair_unreachable(block_list: CFGBlockList, greedy_info: Dict[block_id_T, G
 def fix_inaccessible_phi_values(block_list: CFGBlockList,
                                 greedy_info: Dict[block_id_T, GreedyInfo],
                                 get_count: Counter[var_id_T],
-                                elements_to_fix: Set[Tuple[var_id_T, block_id_T]]) -> AtomicMergedSet:
+                                elements_to_fix: Set[element_definition_T]) -> Tuple[AtomicMergedSets, Set[element_definition_T]]:
     """
     First pass: introduce the GET-SET and DUP-SET annotations
     for handling phi values. It returns the atomic-merged-sets, which is the
     set of elements that aims to use the same memory resource 
     (although not necessary in practice).
     """
-    atomic_merged_sets, color, handled_values = AtomicMergedSet(), 0, set()
+    atomic_merged_sets, color, handled_values = AtomicMergedSets(), 0, set()
+
+    # Extends elements_to_fix with the elements that we iteratively have to fix as well
+    combined_elements_to_fix = set()
+
     for pair_variable_block_id in elements_to_fix:
         pairs_to_traverse = [pair_variable_block_id]
         while pairs_to_traverse:
             add_set = set()
             current_var, current_block_id = pairs_to_traverse.pop()
+            combined_elements_to_fix.add((current_var, current_block_id))
             current_block = block_list.get_block(current_block_id)
             phi_instruction = current_block.instruction_from_out(current_var)
 
@@ -84,7 +90,7 @@ def fix_inaccessible_phi_values(block_list: CFGBlockList,
             if add_set:
                 atomic_merged_sets.add_set(add_set)
 
-    return atomic_merged_sets
+    return atomic_merged_sets, combined_elements_to_fix
 
 
 def insert_dup_set(instructions: List[str], dup_pos: int, ai: var_id_T, position: int):
@@ -146,7 +152,8 @@ def entry_loop(block_id: block_id_T, loop_tree: nx.DiGraph) -> Optional[var_id_T
     return None
 
 
-def within_loop(v: var_id_T, block_id: block_id_T, loop_tree: nx.DiGraph, var2header: Dict[var_id_T, block_id_T]) -> bool:
+def within_loop(v: var_id_T, block_id: block_id_T, loop_tree: nx.DiGraph,
+                var2header: Dict[var_id_T, block_id_T]) -> bool:
     """
     Determines whether the point in which variable var v and the block block_id are within the
     same loop scope, according to loop_tree

@@ -7,11 +7,12 @@ are determined according to the last point in which a variable could be accessed
 """
 import networkx as nx
 from collections import defaultdict
-from global_params.types import var_id_T, block_id_T
+from global_params.types import var_id_T, block_id_T, element_definition_T
 from typing import List, Dict, Tuple, Set, Optional
 from parser.cfg_block import CFGBlock
 from parser.cfg_block_list import CFGBlockList
 from graphs.cfg import compute_loop_nesting_forest_graph
+from reconstruction.atomic_merged_sets import AtomicMergedSets
 
 
 class ColourAssignment:
@@ -20,8 +21,8 @@ class ColourAssignment:
     """
 
     def __init__(self, block_list: CFGBlockList, dominance_tree: nx.DiGraph,
-                 ordered_program_points: Dict[block_id_T, List[var_id_T]],
-                 atomic_merged_sets: List):
+                 ordered_program_points: Dict[block_id_T, List[int]],
+                 atomic_merged_sets: AtomicMergedSets):
         # Parameters that are passed to colour the graph
         self._block_list = block_list
         self._dominance_tree = dominance_tree
@@ -41,6 +42,23 @@ class ColourAssignment:
 
         # Colors currently assigned
         self._assigned_colours: Set[var_id_T] = set()
+
+    def _coalesce_resource(self, element_to_fix: element_definition_T):
+        """
+        Given a variable that is inaccessible and corresponds to a phi-function,
+        coalesces it into a single resource
+        """
+        pass
+
+    def initial_coalesce(self, elements_to_fix: Set[element_definition_T]):
+        """
+        Given the initial colour, coalesces all phi-related resources to the
+        same common resource. The issue is later de-coalescing resources that interfere
+
+        elements_to_fix: set of variables to fix and in which block they are defined.
+        """
+        pass
+        # We only need to coalesce blocks that have common resources
 
     def _pick_colour(self, v: var_id_T, available: List[bool]):
         """

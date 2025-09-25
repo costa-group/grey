@@ -6,7 +6,11 @@ from typing import Dict, List, Optional, Set, Iterable
 from global_params.types import var_id_T
 
 
-class AtomicMergedSet:
+class AtomicMergedSets:
+    """
+    Data structure that combines all atomic merged sets into
+    a single object.
+    """
 
     def __init__(self):
         self._var2class: Dict[var_id_T, int] = dict()
