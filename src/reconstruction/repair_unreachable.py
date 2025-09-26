@@ -2,9 +2,12 @@
 Module that contains the methods needed to
 repair unreachable elements. Notation:
 
-* DUP-SET: duplicate an element a_i and then store it in a register.
+* DUP-SET(a_i, pos): duplicate an element a_i (from position pos)
+                     and then store it in a register.
+
 * GET-SET: retrieve an element a_i from memory and then story it elsewhere.
-           Needed for unification of the phi-functions.
+           Needed for unification of the phi-functions. Can be just an empty instruction
+           if the variable is introduced in the same position
 """
 import networkx as nx
 from typing import Set, Tuple, Dict, List, Optional
@@ -67,22 +70,33 @@ def fix_inaccessible_phi_values(block_list: CFGBlockList,
                     handled_values.add((ai, Bi))
                     num_instructions, dup_pos = Bi_greedy_info.reachable.get(ai, (None, None))
 
-                    # First case: the element is unreachable, so we repeate the same process
+                    # First case: the element is unreachable in all its predecessors,
+                    # so we repeat the same process. Hence, it corresponds to a phi_def value
                     if ai in Bi_greedy_info.unreachable:
                         insert_get_set(Bi_greedy_info.greedy_ids, ai, num_instructions)
                         get_count.update(ai)
                         pairs_to_traverse.append((ai, Bi))
 
+                    # Second case: the element can be reached with a dup instruction
                     elif num_instructions is not None:
                         insert_dup_set(Bi_greedy_info.greedy_ids, dup_pos, ai, num_instructions)
 
+                    # Third case: we need to retrieve from another register
+                    # (accessible at some point)
                     else:
                         insert_get_set(Bi_greedy_info.greedy_ids, ai, num_instructions)
                         get_count.update(ai)
+                        # This is an element to fix, but we don't know exactly
+                        # where it should be fixed
+                        combined_elements_to_fix.add((ai, None))
                 else:
                     # If it has been solved for another situation, we just apply a GET-SET
                     insert_get_set(Bi_greedy_info.greedy_ids, ai, num_instructions)
                     get_count.update(ai)
+
+                    # This is an element to fix, but we don't know exactly
+                    # where it should be fixed
+                    combined_elements_to_fix.add((ai, None))
 
                 # Update the dup-set
                 add_set.add((ai, Bi))
@@ -98,8 +112,7 @@ def insert_dup_set(instructions: List[str], dup_pos: int, ai: var_id_T, position
     Inserts a DUP-SET to access element ai with a given color. The position from which the dup
     must be done is passed as a parameter as well.
     """
-    instructions.insert(position, f"SET({ai})")
-    instructions.insert(position, f"DUP{dup_pos + 1}")
+    instructions.insert(position, f"DUP-SET({ai}, {dup_pos + 1})")
 
 
 def insert_get_set(instructions: List[str], ai: var_id_T, position: int):
