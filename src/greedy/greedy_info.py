@@ -27,6 +27,10 @@ class GreedyInfo:
         self.reachable = reachable
         self.unreachable = {}
         self.instr_id2var = instr_id2var
+        # Elements that are accessed through get instructions.
+        # Considers GET-SET elements.
+        self.get_elements = Counter(id_instr[4:-1] for id_instr in self.greedy_ids
+                                    if "GET" in id_instr)
 
     @classmethod
     def from_new_version(cls, greedy_ids: List[str], outcome: str, execution_time: float, original_instrs: List[instr_JSON_T],

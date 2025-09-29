@@ -107,8 +107,9 @@ def fix_inaccessible_phi_values(block_list: CFGBlockList,
                 # Third case: we need to retrieve the value from another register.
                 #             This value was accessible at some point.
                 else:
-                    process_get_set(Bi_greedy_info.greedy_ids, ai, num_instructions,
+                    process_get_set(Bi_greedy_info, ai, num_instructions,
                                     elements_to_fix, get_count, None)
+
                 # Update the dup-set
                 add_set.add((ai, Bi))
 
@@ -118,7 +119,7 @@ def fix_inaccessible_phi_values(block_list: CFGBlockList,
     return atomic_merged_sets, combined_elements_to_fix
 
 
-def process_get_set(instructions: List[str], ai: var_id_T, num_instructions: int,
+def process_get_set(greedy_info: GreedyInfo, ai: var_id_T, num_instructions: int,
                     elements_to_fix: Set[element_definition_T], get_count: Counter[var_id_T],
                     block_def: Optional[block_id_T] = None):
     """
@@ -126,7 +127,11 @@ def process_get_set(instructions: List[str], ai: var_id_T, num_instructions: int
     with the corresponding information.
     """
     # We insert the annotation
-    insert_get_set(instructions, ai, num_instructions)
+    insert_get_set(greedy_info.greedy_ids, ai, num_instructions)
+
+    # We add the corresponding get access to the
+    # set of elements that are accessed
+    greedy_info.get_elements.update(ai)
 
     # We add the get instruction to the corresponding set
     get_count.update(ai)
@@ -208,43 +213,54 @@ def within_loop(v: var_id_T, block_id: block_id_T, loop_tree: nx.DiGraph,
 
 # Second Phase: same method
 
+def substract_zero(left_counter: Counter, right_counter: Counter) -> Set:
+    """
+    Substract two counters, detecting which elements in the left counter are turned
+    to zero and returning them. These elements are also removed from both counters
+    """
+    zero_elements = set()
+    for element, n_repetitions in right_counter.items():
+        diff = left_counter[element] - n_repetitions
+
+        if diff == 0:
+            zero_elements.add(element)
+            # We remove the element from both counters
+            left_counter.pop(element)
+            right_counter.pop(element)
+
+    return zero_elements
+
+
 def store_stack_elements_block(current_block_id: block_id_T, block_list: CFGBlockList,
                                dominance_tree: nx.DiGraph,
                                greedy_info: Dict[block_id_T, GreedyInfo],
-                               get_counter: Counter[var_id_T],
+                               initial_get_counter: Counter[var_id_T],
                                loop_tree: nx.DiGraph,
-                               var2header: Dict[var_id_T, block_id_T]) -> Set[var_id_T]:
+                               var2header: Dict[var_id_T, block_id_T]) -> Tuple[Set[var_id_T], Counter[var_id_T]]:
     """
     Second pass: introduce the DUP-SET instructions that are needed
     for later accessing the corresponding elements according to the
     dominance tree.
     """
     vars_to_introduce = set()
+    get_counter_combined = Counter()
 
-    # Traverse the tree in post-order
+    # Traverse the tree in post-order, updating the
+    # values to introduce and the number of get occurrences so far
     for next_block_id in dominance_tree.successors(current_block_id):
-        vars_to_introduce.update(store_stack_elements_block(next_block_id, block_list, dominance_tree,
-                                                            greedy_info, get_counter, loop_tree, var2header))
+        vars_successors, get_counter_succ = store_stack_elements_block(next_block_id, block_list, dominance_tree,
+                                                     greedy_info, initial_get_counter, loop_tree, var2header)
+        vars_to_introduce.update(vars_successors)
+        get_counter_combined += get_counter_succ
 
     current_greedy_info = greedy_info[current_block_id]
     final_code = []
-    for instruction_id in current_greedy_info.greedy_ids:
-        final_code.append(instruction_id)
 
-        # We access the corresponding element
-        if instruction_id.startswith("GET"):
-            loaded_var = instruction_id[4:-1]
-            get_counter.subtract(loaded_var)
-            # All gets have been performed
-            if get_counter[loaded_var] == 0:
-                # We can now consider the corresponding element
-                vars_to_introduce.add(loaded_var)
-
-        elif (var_list := current_greedy_info.instr_id2var.get(instruction_id)) is not None:
-            # Assuming only one variable can be accessed (can be adapted easily)
-            var = var_list[0]
-            final_code.append(f"DUP-SET({var})")
-            vars_to_introduce.remove(var)
+    # First, we update the variables that are accessed through GET or GET-SET
+    # and analyze the values that are 0
+    elements_popped = substract_zero(initial_get_counter, get_counter_combined)
+    # These elements are now introduced to the set
+    vars_to_introduce.update(elements_popped)
 
     vars_stored = set()
     reachable_info = current_greedy_info.reachable
@@ -257,4 +273,4 @@ def store_stack_elements_block(current_block_id: block_id_T, block_list: CFGBloc
 
     # We update the corresponding code
     current_greedy_info.greedy_ids = final_code
-    return vars_to_introduce.difference(vars_stored)
+    return vars_to_introduce.difference(vars_stored), get_counter_combined
