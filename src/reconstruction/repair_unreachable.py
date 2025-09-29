@@ -21,15 +21,17 @@ from reconstruction.atomic_merged_sets import AtomicMergedSets
 def repair_unreachable(block_list: CFGBlockList, greedy_info: Dict[block_id_T, GreedyInfo],
                        dominance_tree: nx.DiGraph, loop_tree: nx.DiGraph, forest_graph: nx.DiGraph,
                        get_count: Counter[var_id_T],
-                       elements_to_fix: Set[element_definition_T]) -> Tuple[AtomicMergedSets, Set[element_definition_T]]:
+                       elements_to_fix: Set[element_definition_T]) -> Tuple[
+    AtomicMergedSets, Set[element_definition_T]]:
     """
     Repairs unreachable elements in two steps. First, it determines at which 
         
     block_list already contains the instructions generated
     in the greedy algorithm phase.
     """
-    atomic_merged_sets, combined_elements_to_fix = fix_inaccessible_phi_values(block_list, greedy_info,
-                                                                               get_count, elements_to_fix)
+    phi_def2block = compute_phi_def2block(block_list)
+    atomic_merged_sets, combined_elements_to_fix = fix_inaccessible_phi_values(block_list, greedy_info, get_count,
+                                                                               elements_to_fix, phi_def2block)
 
     var2header = variable2block_header(block_list, forest_graph)
     store_stack_elements_block(block_list.start_block, block_list, dominance_tree, greedy_info,
@@ -37,12 +39,21 @@ def repair_unreachable(block_list: CFGBlockList, greedy_info: Dict[block_id_T, G
     return atomic_merged_sets, combined_elements_to_fix
 
 
+# Phi value to block in which it is defined
+def compute_phi_def2block(cfg_block_list: CFGBlockList) -> Dict[var_id_T, block_id_T]:
+    return {out_var: block_id for block_id, block in cfg_block_list.blocks.items()
+            for instruction in block.phi_instructions()
+            for out_var in instruction.get_out_args()}
+
+
 # Methods for first step: fixing inaccessible phi values
 
 def fix_inaccessible_phi_values(block_list: CFGBlockList,
                                 greedy_info: Dict[block_id_T, GreedyInfo],
                                 get_count: Counter[var_id_T],
-                                elements_to_fix: Set[element_definition_T]) -> Tuple[AtomicMergedSets, Set[element_definition_T]]:
+                                elements_to_fix: Set[element_definition_T],
+                                phi_def2block: Dict[var_id_T, block_id_T]) -> Tuple[
+    AtomicMergedSets, Set[element_definition_T]]:
     """
     First pass: introduce the GET-SET and DUP-SET annotations
     for handling phi values. It returns the atomic-merged-sets, which is the
@@ -56,9 +67,16 @@ def fix_inaccessible_phi_values(block_list: CFGBlockList,
 
     for pair_variable_block_id in elements_to_fix:
         pairs_to_traverse = [pair_variable_block_id]
+
+        # Store all the values that are meant to be stored
+        # in the same resource, with possible interferences
+        # (union-find structure)
+        same_resource = set()
+
         while pairs_to_traverse:
             add_set = set()
             current_var, current_block_id = pairs_to_traverse.pop()
+            handled_values.add(current_var)
             combined_elements_to_fix.add((current_var, current_block_id))
             current_block = block_list.get_block(current_block_id)
             phi_instruction = current_block.instruction_from_out(current_var)
@@ -66,38 +84,31 @@ def fix_inaccessible_phi_values(block_list: CFGBlockList,
             assert phi_instruction.get_op_name() == "PhiInstruction"
             for ai, Bi in zip(phi_instruction.get_in_args(), current_block.entries):
                 Bi_greedy_info = greedy_info[Bi]
-                if (ai, Bi) not in handled_values:
-                    handled_values.add((ai, Bi))
-                    num_instructions, dup_pos = Bi_greedy_info.reachable.get(ai, (None, None))
+                num_instructions, dup_pos = Bi_greedy_info.reachable.get(ai, (None, None))
 
-                    # First case: the element is unreachable in all its predecessors,
-                    # so we repeat the same process. Hence, it corresponds to a phi_def value
-                    if ai in Bi_greedy_info.unreachable:
-                        insert_get_set(Bi_greedy_info.greedy_ids, ai, num_instructions)
-                        get_count.update(ai)
-                        pairs_to_traverse.append((ai, Bi))
+                # First case: the element is unreachable in all its predecessors,
+                # so we repeat the same process. Hence, it corresponds to a phi_def value
+                if ai in Bi_greedy_info.unreachable:
+                    process_get_set(Bi_greedy_info.greedy_ids, ai, num_instructions,
+                                    elements_to_fix, get_count, None)
 
-                    # Second case: the element can be reached with a dup instruction
-                    elif num_instructions is not None:
-                        insert_dup_set(Bi_greedy_info.greedy_ids, dup_pos, ai, num_instructions)
+                    # We only process values that
+                    if ai not in handled_values:
+                        # We need to find in which block ai is
+                        # defined to perform the same process (if needed)
+                        B_def = phi_def2block[ai]
+                        pairs_to_traverse.append((ai, B_def))
 
-                    # Third case: we need to retrieve from another register
-                    # (accessible at some point)
-                    else:
-                        insert_get_set(Bi_greedy_info.greedy_ids, ai, num_instructions)
-                        get_count.update(ai)
-                        # This is an element to fix, but we don't know exactly
-                        # where it should be fixed
-                        combined_elements_to_fix.add((ai, None))
+                # Second case: the element can be reached with a dup instruction in the
+                # current block
+                elif num_instructions is not None:
+                    insert_dup_set(Bi_greedy_info.greedy_ids, dup_pos, ai, num_instructions)
+
+                # Third case: we need to retrieve the value from another register.
+                #             This value was accessible at some point.
                 else:
-                    # If it has been solved for another situation, we just apply a GET-SET
-                    insert_get_set(Bi_greedy_info.greedy_ids, ai, num_instructions)
-                    get_count.update(ai)
-
-                    # This is an element to fix, but we don't know exactly
-                    # where it should be fixed
-                    combined_elements_to_fix.add((ai, None))
-
+                    process_get_set(Bi_greedy_info.greedy_ids, ai, num_instructions,
+                                    elements_to_fix, get_count, None)
                 # Update the dup-set
                 add_set.add((ai, Bi))
 
@@ -105,6 +116,23 @@ def fix_inaccessible_phi_values(block_list: CFGBlockList,
                 atomic_merged_sets.add_set(add_set)
 
     return atomic_merged_sets, combined_elements_to_fix
+
+
+def process_get_set(instructions: List[str], ai: var_id_T, num_instructions: int,
+                    elements_to_fix: Set[element_definition_T], get_count: Counter[var_id_T],
+                    block_def: Optional[block_id_T] = None):
+    """
+    Handles a GET-SET annotation, updating elements_to_fix and get_count in the process
+    with the corresponding information.
+    """
+    # We insert the annotation
+    insert_get_set(instructions, ai, num_instructions)
+
+    # We add the get instruction to the corresponding set
+    get_count.update(ai)
+
+    # We might not know when the corresponding element can be accessed the first time
+    elements_to_fix.add((ai, block_def))
 
 
 def insert_dup_set(instructions: List[str], dup_pos: int, ai: var_id_T, position: int):
@@ -119,8 +147,7 @@ def insert_get_set(instructions: List[str], ai: var_id_T, position: int):
     """
     Inserts a GET + SET to access element ai with a given color.
     """
-    instructions.insert(position, f"SET({ai})")
-    instructions.insert(position, f"GET({ai})")
+    instructions.insert(position, f"GET-SET({ai})")
 
 
 # Second phase: decide when values are stored using a STORE instruction
