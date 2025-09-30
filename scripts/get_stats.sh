@@ -11,6 +11,7 @@ echo "HOLA"
 
 grep Times test/*/*.log | cut -d':' -f3- &> salida.csv
 
+grep "SOLXRES" $RES_FILE &> solx_res.txt
 
 python times.py
 python print_times.py
@@ -20,3 +21,4 @@ python sum_instructions.py
 python sum_gas.py
 python sum_bytes.py
 
+python count_solx.py
