@@ -366,7 +366,7 @@ class SymbolicState:
             self._add_solved(fstack_idx)
 
         if self.debug_mode:
-            self.trace.append((self.stack.copy(), f"MEM({var_elem})"))
+            self.trace.append((self.stack.copy(), f"VGET({var_elem})"))
 
         # N computed: add one to the element we have added
         self.n_computed[var_elem] += 1
@@ -381,7 +381,7 @@ class SymbolicState:
 
         self.modifications += 1
 
-        return [f"GET({var_elem})"]
+        return [f"VGET({var_elem})"]
 
     def store_in_memory(self):
         """
@@ -400,14 +400,14 @@ class SymbolicState:
         decrement_and_clean(self.n_computed, stack_var)
 
         if self.debug_mode:
-            self.trace.append((self.stack.copy(), f"SET({stack_var})"))
+            self.trace.append((self.stack.copy(), f"VSET({stack_var})"))
 
         self.modifications += 1
 
         # Reachable: only the last one if it was not accessible
         self._reachable_last_position()
 
-        return [f"SET({stack_var})"]
+        return [f"VSET({stack_var})"]
 
     def top_stack(self) -> Optional[var_id_T]:
         return None if len(self.stack) == 0 else self.stack[0]
