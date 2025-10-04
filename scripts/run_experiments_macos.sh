@@ -6,6 +6,7 @@ DIRECTORIO_BASE=/Users/pablo/Repositorios/ethereum/grey/scripts/test
 GREY_PATH=/Users/pablo/Repositorios/ethereum/grey/src/grey_main.py
 SOLC_PATH=/Users/pablo/Repositorios/ethereum/grey/examples/solc
 SOLX_PATH=/Users/pablo/Repositorios/ethereum/solx/solx-macosx-profiling
+TEST_SOLX_PATH=/Users/pablo/Repositorios/ethereum/grey/scripts/test_solx
 TESTRUNNER_PATH=/Users/pablo/Repositorios/ethereum/solidity/build/test/tools/testrunner
 EVMONE_LIB=/Users/pablo/Repositorios/ethereum/evmone/build/lib/libevmone.dylib
 
@@ -27,6 +28,10 @@ find "$DIRECTORIO_BASE" -type f -name "*standard_input.json" | while read -r yul
     yul_dir=$(dirname "$yul_file")
     yul_base=$(basename "$yul_file" _standard_input.json)
 
+    test_dir_name=$(basename "$yul_dir")
+
+    solx_test_file="$test_dir_name/${yul_base}_standard_input.json"
+    
     echo "Procesando archivo: $yul_file"
 
     pushd $yul_dir
@@ -42,14 +47,14 @@ find "$DIRECTORIO_BASE" -type f -name "*standard_input.json" | while read -r yul
 
     #SOLX EXECUTION
     start_solx=$(gdate +%s.%N)
-    $SOLX_PATH --standard-json "$yul_file" &> "$yul_dir/$yul_base.solx_output"
+    $SOLX_PATH --standard-json "$TEST_SOLX_PATH/$solx_test_file" &> "$yul_dir/$yul_base.solx_output"
     end_solx=$(gdate +%s.%N)
     echo "$start_solx"
     echo "$end_solx"
     elapsed_solx=$(echo "$end_solx - $start_solx" | bc)
     echo "TIME SOLX $yul_file : $elapsed_solx"
     
-    echo "$SOLX_PATH --standard-json $yul_file  &> $yul_dir/$yul_base.solx_output"
+    echo "$SOLX_PATH --standard-json $TEST_SOLX_PATH/$solx_test_file   &> $yul_dir/$yul_base.solx_output"
     
 
     start=$(gdate +%s.%N)

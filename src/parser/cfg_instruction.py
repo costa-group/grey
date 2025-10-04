@@ -4,6 +4,7 @@ Module for representing and building the instructions that appear in the CFG
 import json
 from typing import List, Dict, Optional
 from parser.utils_parser import process_opcode, get_ins_size, is_commutative
+from parser.constants import memory_storage_instructions
 import parser.opcodes as opcodes
 import parser.constants as constants
 
@@ -20,7 +21,7 @@ def build_instr_spec(op_name: str, idx: int, input_args: List[str], out_args: Li
     instr_spec["gas"] = opcodes.get_ins_cost(op_name)
     instr_spec["commutative"] = is_commutative(op_name)
     instr_spec["push"] = False
-    instr_spec["storage"] = op_name in ["MSTORE", "MSTORE8", "SSTORE"]  # It is true only for MSTORE, MSTORE8 and SSTORE
+    instr_spec["storage"] = op_name.lower() in memory_storage_instructions  # It is true only for MSTORE, MSTORE8 and SSTORE
     instr_spec["size"] = get_ins_size(op_name)
 
     if value != None:
@@ -300,6 +301,7 @@ class CFGInstruction:
             self.translate_literal_args = ["{0:064X}".format(pos)]
         else:
             # TODO Maybe pass the element itself just in case?
+            self.op = "PUSHSIZE"
             if(literal_val.find(".") != 1):
                 pos = indirect_subobjects.get(literal_val, None)
                 if pos is None:

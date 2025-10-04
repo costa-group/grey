@@ -28,6 +28,18 @@ from liveness.stack_layout_methods import compute_variable_depth, output_stack_l
     forget_values
 
 
+def substitute_duplicates(input_stack: List[var_id_T]):
+    substituted = []
+    added = set()
+    for var_ in input_stack[::-1]:
+        if var_ in added:
+            substituted.append(f"a{len(added)}")
+        else:
+            substituted.append(var_)
+            added.add(var_)
+
+    return substituted[::-1]
+
 def var_order_repr(block_name: str, var_info: Dict[str, int]):
     """
     Str representation of a block name and the information on variables
@@ -148,7 +160,7 @@ class LayoutGeneration:
                 combined_liveness_info[next_block_id] = self._liveness_info[next_block_id].in_state.live_vars
 
                 # If it is the main component, we do not care about the state of the stack afterwards
-                if self._is_main_component:
+                if False:
                     (combined_output_stack,
                      output_stacks_unified) = unify_stacks_brothers_missing_values(next_block_id,
                                                                                    elements_to_unify,
@@ -156,7 +168,8 @@ class LayoutGeneration:
                                                                                     for previous_id in elements_to_unify},
                                                                                    combined_liveness_info,
                                                                                    phi_instructions,
-                                                                                   self._variable_order[next_block_id])
+                                                                                   self._variable_order[next_block_id],
+                                                                                   block_id, input_stack.copy())
 
                 else:
                     combined_output_stack, output_stacks_unified = unify_stacks_brothers(next_block_id,
@@ -164,7 +177,8 @@ class LayoutGeneration:
                                                                                          combined_liveness_info,
                                                                                          phi_instructions,
                                                                                          self._variable_order[
-                                                                                             next_block_id])
+                                                                                             next_block_id],
+                                                                                         block_id, input_stack.copy())
 
                 # Update the output stacks with the ones generated from the unification
                 output_stacks.update(output_stacks_unified)
@@ -188,7 +202,7 @@ class LayoutGeneration:
             output_stacks[block_id] = output_stack
 
         # We build the corresponding specification and store it in the block
-        block_json = block.build_spec(input_stack, output_stack)
+        block_json = block.build_spec(substitute_duplicates(input_stack), output_stack)
         block.spec = block_json
 
         return block_json

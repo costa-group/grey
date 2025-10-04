@@ -29,6 +29,9 @@ with open(archivo, 'r') as f:
 print("ORIGIN NUM INS:", origin_num_ins)
 print("ORIGIN NUM INS SOLX:", origin_num_ins_solx)
 print("OPT NUM INS:", opt_num_ins)
+print("SUM ORIGIN NUM INS:", sum(origin_num_ins))
+print("SUM ORIGIN NUM INS SOLX:", sum(origin_num_ins_solx))
+print("SUM OPT NUM INS:", sum(opt_num_ins))
 
 
 print(len(origin_num_ins))

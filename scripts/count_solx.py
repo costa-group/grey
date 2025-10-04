@@ -18,11 +18,11 @@ iguales = 0
 
 for l in lines:
     elems = l.strip().split(",")
-    num_ins_solx = int(elems[2])
-    num_ins_opt = int(elems[3])
+    num_ins_solx += int(elems[2])
+    num_ins_opt += int(elems[3])
 
-    num_bytes_solx = int(elems[4])
-    num_bytes_opt = int(elems[5])
+    num_bytes_solx += int(elems[4])
+    num_bytes_opt += int(elems[5])
 
     memory_solx = int(elems[8])
     memory_opt = int(elems[11])
