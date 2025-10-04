@@ -19,7 +19,7 @@ class GreedyInfo:
     def __init__(self, greedy_ids: List[str], outcome: str, execution_time: float,
                  get_count: Counter, elements_to_fix: Set[var_id_T], reachable: Dict[var_id_T, int],
                  instr_id2var: Dict[var_id_T, List[instr_id_T]]):
-        self.greedy_ids = greedy_ids
+        self.greedy_ids = greedy_ids if greedy_ids else []
         self.outcome = outcome
         self.execution_time = execution_time
         self.get_count = get_count

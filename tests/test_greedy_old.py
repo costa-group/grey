@@ -4,7 +4,7 @@ import pytest
 from typing import Dict
 from parser.cfg_block import CFGBlock
 from parser.cfg_instruction import build_instr_spec, build_verbatim_spec, build_push_spec, CFGInstruction
-from greedy.greedy import SMSgreedy, greedy_from_file
+from greedy.greedy_old import SMSgreedy, greedy_from_file
 import json
 
 

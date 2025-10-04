@@ -12,7 +12,7 @@ from parser.cfg_block_list import CFGBlockList
 from parser.cfg_object import CFGObject
 from parser.cfg import CFG
 import greedy.greedy_previous as previous
-import greedy.greedy as new_greedy
+import greedy.greedy_old as new_greedy
 from solution_generation.statistics import generate_statistics_info
 import greedy.greedy_new_version as alternative
 import numpy as np
@@ -45,6 +45,7 @@ def cfg_block_spec_ids(cfg_block: CFGBlock) -> Tuple[str, float, List[instr_id_T
     greedy_info2 = new_greedy.greedy_standalone(cfg_block.spec)
     outcome2, time2, greedy_ids2 = greedy_info2.outcome, greedy_info2.execution_time, greedy_info2.greedy_ids
 
+    print("LLEGO", cfg_block.block_id)
     greedy_info3 = alternative.greedy_standalone(cfg_block.spec)
     outcome3, time3, greedy_ids3 = greedy_info3.outcome, greedy_info3.execution_time, greedy_info3.greedy_ids
 
