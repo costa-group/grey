@@ -931,7 +931,7 @@ class SMSgreedy:
         """
         _, cheap_stack_elems, dup_stack_elems = cstate.candidates()
 
-        best_candidate_score = -1,
+        best_candidate_score = -1, -1, -1
         best_candidate_position = None
         candidate = None
         option = None
@@ -948,23 +948,29 @@ class SMSgreedy:
         # We filter candidates that have no dependencies from the current list
         not_dependent_candidates = [candidate for candidate in current_candidates
                                     if cstate.dep_graph.out_degree(candidate) == 0]
-
+        most_deps = 0
         # First, we evaluate the remaining instructions
         for id_ in not_dependent_candidates:
             score_id, pos_to_place = self._score_instr(self._id2instr[id_], cstate)
 
+            n_deps = cstate.dep_graph.in_degree(id_)
+
             # To decide whether the current candidate is the best so far, we use the information from deepest_pos
-            # and reuses_pos
-            better_candidate = score_id > best_candidate_score
+            # and reuses_pos. Moreover, in case of a tie, we choose an element that has the most dependencies
+            better_candidate = score_id > best_candidate_score or \
+                               (score_id == best_candidate_score and most_deps < n_deps)
+
+            self.debug_logger.debug_message(f"{id_} {n_deps} {better_candidate}")
             if better_candidate:
                 candidate = id_
                 best_candidate_score = score_id
                 best_candidate_position = pos_to_place
+                most_deps = n_deps
 
             self.debug_logger.debug_rank_candidates(id_, score_id, better_candidate)
 
-        # If the best candidate does not reuse the topmost element, we also try duplicating already existing elements
-        # or cheap computations
+        # If the best candidate does not reuse the topmost element,
+        # we also try duplicating already existing elements or cheap computations
         if not self.must_compute_all and best_candidate_score[0] <= 0:
             # Search among the positions not solved that are deepest than the one in the best candidate
             deepest_position = best_candidate_score[3] if len(best_candidate_score) == 4 else -1
@@ -1013,7 +1019,7 @@ class SMSgreedy:
 
         return None
 
-    def _score_instr(self, instr: instr_JSON_T, cstate: SymbolicState) -> Tuple[Tuple[int, int, int, int], int]:
+    def _score_instr(self, instr: instr_JSON_T, cstate: SymbolicState) -> Tuple[Tuple, int]:
         """
         We score the instructions according to the following lexicographic order:
         1) Number of elements that can be reused
@@ -1024,30 +1030,9 @@ class SMSgreedy:
 
         Moreover, we return the position from which to start computing
         """
-        n_swappable = 0
         max_pos = -1
 
         n_reused, initial_position = self.decide_fixed_elements(cstate, instr)
-
-        # We must check the position in which we start computing the elements
-        position_to_start = cstate.negative_idx2positive(initial_position)
-
-        # From the input stack, retrieves how many stack elements can be consumed by swapping
-        # and the deepest position needed to access
-        for i, input_var in enumerate(instr['inpt_sk']):
-
-            # We have to consider the position in which it should be either duplicated or swapped
-            diff_pos = min(position_to_start - i, 0)
-            # Does not need to be duplicated
-
-            swap_position = cstate.first_occurrence(input_var)
-
-            if 0 <= swap_position < STACK_DEPTH + diff_pos:
-                if cstate.stack_var_copies_needed[input_var] == 0:
-                    n_swappable += 1
-                    max_pos = max(max_pos, swap_position)
-                elif swap_position == STACK_DEPTH + diff_pos:
-                    max_pos = max(max_pos, swap_position)
 
         deepest_to_place = -1
         # Function invocations might generate multiple values that we should take into account
@@ -1057,7 +1042,7 @@ class SMSgreedy:
             if deepest_position is not None:
                 deepest_to_place = max(deepest_position, deepest_to_place)
 
-        return (n_reused, n_swappable, max_pos, deepest_to_place), initial_position
+        return (n_reused, max_pos, deepest_to_place), initial_position
 
     def compute_instr(self, instr: instr_JSON_T, position_to_start_computing: cstack_pos_T,
                       cstate: SymbolicState, depth: int = 0) -> List[instr_id_T]:
@@ -1145,7 +1130,7 @@ class SMSgreedy:
         # The value from instr2max_n_elems stores the maximum number of elements
         # that can appear in the stack in order to apply an operation
         max_idx = min(len(input_vars) - 1, self._instr2max_n_elems[instr["id"]] - 1,
-                  cstate.idx_wrt_cstack(cstate.max_solved - 1))
+                      cstate.idx_wrt_cstack(cstate.max_solved - 1))
         count = 0
         idx = 0
         matching = True
@@ -1170,16 +1155,6 @@ class SMSgreedy:
                 best_possibility = count
 
             idx += 1
-
-        # Last case: if there is no better alternative, we just consider whether to consider the first element to
-        # be swapped with the first element to consume
-        if len(cstate.stack) > 0 and best_idx == cstate.positive_idx2negative(-1):
-
-            # If I need to swap one of the arguments, I take the first element
-            if len(input_vars) > 0 and cstate.stack_var_copies_needed[input_vars[-1]] == 0 \
-                    and (swap_position := cstate.first_swap(input_vars[-1])) <= STACK_DEPTH:
-                cstate.swap(swap_position)
-                return 0, cstate.positive_idx2negative(0)
 
         return count, best_idx
 
