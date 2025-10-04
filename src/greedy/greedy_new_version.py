@@ -698,9 +698,10 @@ class SMSgreedy:
         """
         Whether to consider the instruction associated to the node
         """
-        return "STORE" in node or len(self._id2instr[node]["outpt_sk"]) > 1 or \
+        instr = self._id2instr[node]
+        return instr["storage"] or len(instr["outpt_sk"]) > 1 or \
             any(self._stack_var_copies_needed[out_stack] > 1 or out_stack in self._final_stack
-                for out_stack in self._id2instr[node]["outpt_sk"])
+                for out_stack in instr["outpt_sk"])
 
     def _generate_dataflow_tree_instr(self, original_instr_id: instr_id_T, instr: instr_JSON_T, term_graph: nx.DiGraph(),
                                       relevant_nodes: Set[instr_id_T]):
