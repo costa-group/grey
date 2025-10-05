@@ -536,7 +536,7 @@ class SymbolicState:
         # Two possible positions: the element is repeated more than one in the stack (from min_pos)
         # or no more copies are needed. In order to simplify the computation, we add a first check
         # with self.n_computed[var_elem]
-        return (self.n_computed[var_elem] > 1 and self.stack[(min_pos + 1):].count(var_elem) > 1) \
+        return (self.n_computed[var_elem] > 1 and self.stack[(min_pos + 1):].count(var_elem) >= 1) \
                 or self.stack_var_copies_needed[var_elem] == 0
 
     def position_to_swap(self, var_elem: var_id_T, min_pos: cstack_pos_T) -> int:
