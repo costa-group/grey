@@ -973,7 +973,7 @@ class SMSgreedy:
         """
         not_dependent_candidates, cheap_stack_elems, dup_stack_elems = cstate.candidates()
 
-        best_candidate_score = 0, -1, -1
+        best_candidate_score = 0,
         best_candidate_position = None
         candidate = None
         option = None
@@ -1012,7 +1012,22 @@ class SMSgreedy:
         # we also try duplicating already existing elements or cheap computations
         # from the bottom of the stack
         if candidate is None or best_candidate_score[0] == 0:
-            # First try: duplicate a variable whose position would be the next position
+
+            associated_stack_var = None
+
+            # First try: take the deepest position not solved
+            if len(cstate.not_solved) > 0:
+                deepest_position_not_solved = max(cstate.not_solved)
+
+                associated_stack_var = self._final_stack[deepest_position_not_solved]
+                if associated_stack_var in cheap_stack_elems or associated_stack_var in dup_stack_elems:
+                    return associated_stack_var, "var", None
+
+            # Second try: choose the candidate we have
+            if candidate is not None:
+                return candidate, "instr", best_candidate_position
+
+            # Third try: duplicate a variable whose position would be the next position
             new_top_idx = cstate.idx_wrt_fstack(-1)
             if 0 <= new_top_idx < len(self._final_stack):
                 suggested_top = self._final_stack[new_top_idx]
@@ -1024,30 +1039,11 @@ class SMSgreedy:
                         cstate.stack_var_copies_needed[suggested_top] > 0):
                     return suggested_top, "var", None
 
-            # Second try: choose the candidate we have
-            if candidate is not None:
-                return candidate, "instr", best_candidate_position
-
-            associated_stack_var = None
-            # Third try: take the deepest position not solved
-            if len(cstate.not_solved) > 0:
-                deepest_position_not_solved = max(cstate.not_solved)
-
-                associated_stack_var = self._final_stack[deepest_position_not_solved]
-                if associated_stack_var in cheap_stack_elems or associated_stack_var in dup_stack_elems:
-                    return associated_stack_var, "var", None
-
-            # Return just one candidate
-            if len(not_dependent_candidates) > 0:
-                return not_dependent_candidates[0], "instr", cstate.positive_idx2negative(-1)
-
-            # Worse case: swap the topmost element with the deepest
-            # position not solved to solve it
-            else:
-                assert (associated_stack_var in cstate.stack
+            # Try to select a position that is not solved
+            assert (associated_stack_var in cstate.stack
                         and cstate.stack_var_copies_needed[associated_stack_var] == 0), \
-                    "Not solved element must be already in the stack"
-                return associated_stack_var, "swap", None
+                "Not solved element must be already in the stack"
+            return associated_stack_var, "swap", None
 
         return candidate, "instr", best_candidate_position
 
@@ -1088,26 +1084,12 @@ class SMSgreedy:
         """
         We score the instructions according to the following lexicographic order:
         1) Number of elements that can be reused
-        2) Number of stack elements that can be consumed by swapping
-        3) Deepest position that needs to access. If > STACK_DEPTH, then, we assign to -1
-        4) Deepest position in which one of the produced stack vars can be consumed
-        TODO: for 4), only check positions that are not solved yet
 
         Moreover, we return the position from which to start computing
         """
-        max_pos = -1
-
         n_reused, initial_position = self.decide_fixed_elements(cstate, instr)
 
-        deepest_to_place = -1
-        # Function invocations might generate multiple values that we should take into account
-        for out_var in instr['outpt_sk']:
-            # We detect which is the deepest position in which the element can be placed
-            deepest_position = self._deepest_position(out_var)
-            if deepest_position is not None and cstate.idx_wrt_cstack(deepest_position) >= 0:
-                deepest_to_place = max(deepest_position, deepest_to_place)
-
-        return (n_reused, max_pos, deepest_to_place), initial_position
+        return (n_reused, ), initial_position
 
     def compute_instr(self, instr: instr_JSON_T, position_to_start_computing: cstack_pos_T,
                       cstate: SymbolicState, depth: int = 0) -> List[instr_id_T]:
@@ -1359,7 +1341,7 @@ class SMSgreedy:
                 new_stack.append(var_)
 
         i, j = 0, len(new_stack) - 1
-        while i < j:
+        while i <= j:
             if new_stack[i] is None:
                 i += 1
             elif new_stack[j] is None:
