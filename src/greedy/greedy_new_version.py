@@ -1052,16 +1052,17 @@ class SMSgreedy:
                     return instr_id, "instr", cstate.positive_idx2negative(-1)
 
                 # Third case: if there is no possibility left, we just swap an unsolved element
-                elif swap_configuration is not None and (topmost := cstate.top_stack() is not None) and topmost != associated_stack_var:
+                elif swap_configuration is None and (topmost := cstate.top_stack() is not None) and topmost != associated_stack_var:
                     swap_configuration = cstate.idx_wrt_cstack(deepest_position_not_solved), "swap", None
 
+            # Otherwise, we force an element to appear in top of the stack
+            if swap_configuration is not None:
+                return swap_configuration
+
             # Just choose one element, as there is no clear alternative
-            if len(not_dependent_candidates) > 0:
+            elif len(not_dependent_candidates) > 0:
                 return not_dependent_candidates[0], "instr", cstate.positive_idx2negative(-1)
 
-            # Otherwise, we force an element to appear in top of the stack
-            elif swap_configuration is not None:
-                return swap_configuration
 
             assert candidate is not None, "This case should not happen"
 
