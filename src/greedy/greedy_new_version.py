@@ -1036,7 +1036,7 @@ class SMSgreedy:
 
             # Return just one candidate
             elif len(not_dependent_candidates) > 0:
-                return not_dependent_candidates[0], "instr", -1
+                return not_dependent_candidates[0], "instr", cstate.positive_idx2negative(-1)
 
             # Worse case: swap the topmost element with the deepest
             # position not solved to solve it
