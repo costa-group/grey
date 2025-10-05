@@ -480,7 +480,7 @@ class SymbolicState:
         """
         Checks whether the variable element can be accessed for a dup instruction
         """
-        return self.stack.index(var_elem) < STACK_DEPTH
+        return var_elem in self.stack and self.stack.index(var_elem) < STACK_DEPTH
 
     def first_occurrence(self, var_elem: var_id_T) -> int:
         """
@@ -536,7 +536,7 @@ class SymbolicState:
         # Two possible positions: the element is repeated more than one in the stack (from min_pos)
         # or no more copies are needed. In order to simplify the computation, we add a first check
         # with self.n_computed[var_elem]
-        return (self.n_computed[var_elem] >= 1 and self.stack[(min_pos + 1):].count(var_elem) >= 1) \
+        return (self.n_computed[var_elem] > 1 and self.stack[(min_pos + 1):].count(var_elem) > 1) \
                 or self.stack_var_copies_needed[var_elem] == 0
 
     def position_to_swap(self, var_elem: var_id_T, min_pos: cstack_pos_T) -> int:
@@ -1022,33 +1022,48 @@ class SMSgreedy:
                 if associated_stack_var in cheap_stack_elems or associated_stack_var in dup_stack_elems:
                     return associated_stack_var, "var", None
 
+                elif (instr_id := self._var2id.get(associated_stack_var)) is not None \
+                        and instr_id in not_dependent_candidates:
+                    return instr_id, "instr", cstate.positive_idx2negative(-1)
+
             # Second try: choose the candidate we have
             if candidate is not None:
                 return candidate, "instr", best_candidate_position
 
-            # Third try: duplicate a variable whose position would be the next position
-            new_top_idx = cstate.idx_wrt_fstack(-1)
-            if 0 <= new_top_idx < len(self._final_stack):
-                suggested_top = self._final_stack[new_top_idx]
-
-                # Either of the following possibilities must follow: already in the stack, cheap to compute
-                # or not in dependent candidates
-                if ((suggested_top in cheap_stack_elems or suggested_top in cstate.stack
-                     or self._var2id.get(suggested_top) in not_dependent_candidates) and
-                        cstate.stack_var_copies_needed[suggested_top] > 0):
-                    return suggested_top, "var", None
-
+            swap_configuration = None
+            # Check all positions that have not been solved yet
             for deepest_position_not_solved in sorted(cstate.not_solved, reverse=True):
+
+                # Only within the current stack
+                current_stack_idx = cstate.idx_wrt_cstack(deepest_position_not_solved)
+
+                if current_stack_idx < -1:
+                    break
 
                 associated_stack_var = self._final_stack[deepest_position_not_solved]
 
+                # Duplicate the element
                 if associated_stack_var in cheap_stack_elems or associated_stack_var in dup_stack_elems:
                     return associated_stack_var, "var", None
 
-                elif (topmost := cstate.top_stack() is not None) and topmost != associated_stack_var:
-                    return cstate.idx_wrt_cstack(deepest_position_not_solved), "swap", None
+                # The element has not been computed
+                elif (instr_id := self._var2id.get(associated_stack_var)) is not None \
+                        and instr_id in not_dependent_candidates:
+                    return instr_id, "instr", cstate.positive_idx2negative(-1)
 
-            assert False, "This case should not happen"
+                # Third case: if there is no possibility left, we just swap an unsolved element
+                elif swap_configuration is not None and (topmost := cstate.top_stack() is not None) and topmost != associated_stack_var:
+                    swap_configuration = cstate.idx_wrt_cstack(deepest_position_not_solved), "swap", None
+
+            # Just choose one element, as there is no clear alternative
+            if len(not_dependent_candidates) > 0:
+                return not_dependent_candidates[0], "instr", cstate.positive_idx2negative(-1)
+
+            # Otherwise, we force an element to appear in top of the stack
+            elif swap_configuration is not None:
+                return swap_configuration
+
+            assert candidate is not None, "This case should not happen"
 
         return candidate, "instr", best_candidate_position
 
@@ -1118,9 +1133,9 @@ class SMSgreedy:
             self.debug_logger.debug_message(f"Position to place {position_to_place}", depth)
 
             # First case: the element is already placed in their position, and either it is not used elsewhere
-            # or we already have a copy (i.e. there is an element that can be reused)
+            # or we already have a copy or it is cheap to compute (i.e. there is an element that can be reused)
             if cstate.is_in_negative_range(position_to_place) and cstate.stack[position_to_place] == stack_var and \
-                    cstate.var_elem_can_be_reused(stack_var, cstate.negative_idx2positive(self.fixed_elements)):
+                    (((var_instr := self._var2instr.get(stack_var)) is not None and cheap(var_instr)) or cstate.var_elem_can_be_reused(stack_var, cstate.negative_idx2positive(self.fixed_elements))):
                 pass
             else:
                 # Otherwise, we must return generate the element it with a recursive call
