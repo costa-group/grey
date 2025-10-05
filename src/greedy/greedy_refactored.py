@@ -701,7 +701,6 @@ class SMSgreedy:
         max_stack_size = dict()
         for relevant_node, tree in dataflow_tree_dict.items():
             max_stack_size[relevant_node] = compute_max_n_elements(relevant_node, tree)[0]
-            print(relevant_node, compute_preffix_computation(relevant_node, tree, self._var2id.values()))
         return max_stack_size
 
     def _compute_top_can_used(self, instr: instr_JSON_T, top_can_be_used: Dict[var_id_T, Set[var_id_T]]) -> Set[

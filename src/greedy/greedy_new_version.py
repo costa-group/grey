@@ -611,8 +611,8 @@ class SMSgreedy:
         nx.nx_agraph.write_dot(self._dep_graph, "dependency.dot")
         nx.nx_agraph.write_dot(self._condensed_graph, "condensed.dot")
 
-        self._tree_dict = self._generate_dataflow_tree(self._condensed_graph.nodes)
-        self._instr2max_n_elems = self._max_n_elements_from_tree(self._tree_dict)
+        tree_dict = self._generate_dataflow_tree(self._condensed_graph.nodes)
+        self._instr2max_n_elems = self._max_n_elements_from_tree(tree_dict)
 
         # Determine which topmost elements can be reused in the graph
         self._top_can_be_used = {}
@@ -766,7 +766,6 @@ class SMSgreedy:
         max_stack_size = dict()
         for relevant_node, tree in dataflow_tree_dict.items():
             max_stack_size[relevant_node] = compute_max_n_elements(relevant_node, tree)[0]
-            print(relevant_node, compute_preffix_computation(relevant_node, tree, self._var2id.values()))
         return max_stack_size
 
     def _compute_top_can_used(self, instr: instr_JSON_T, top_can_be_used: Dict[var_id_T, Set[var_id_T]]) -> Set[
