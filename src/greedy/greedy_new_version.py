@@ -534,7 +534,7 @@ class SymbolicState:
         # Two possible positions: the element is repeated more than one in the stack (from min_pos)
         # or no more copies are needed. In order to simplify the computation, we add a first check
         # with self.n_computed[var_elem]
-        return (self.n_computed[var_elem] > 1 and self.stack[(min_pos + 1):].count(var_elem) > 1) \
+        return (self.n_computed[var_elem] >= 1 and self.stack[(min_pos + 1):].count(var_elem) >= 1) \
                 or self.stack_var_copies_needed[var_elem] == 0
 
     def position_to_swap(self, var_elem: var_id_T, min_pos: cstack_pos_T) -> int:
@@ -985,6 +985,18 @@ class SMSgreedy:
         if option is not None:
             return option
 
+        # First try: duplicate a variable whose position would be the next position
+        new_top_idx = cstate.idx_wrt_fstack(-1)
+        if 0 <= new_top_idx < len(self._final_stack):
+            suggested_top = self._final_stack[new_top_idx]
+
+            # Either of the following possibilities must follow: already in the stack, cheap to compute
+            # or not in dependent candidates
+            if ((suggested_top in cheap_stack_elems or suggested_top in cstate.stack
+                 or self._var2id.get(suggested_top) in not_dependent_candidates) and
+                    cstate.stack_var_copies_needed[suggested_top] > 0):
+                return suggested_top, "var", None
+
         most_deps = 0
         improved = False
         # First, we evaluate the remaining instructions
@@ -1012,19 +1024,6 @@ class SMSgreedy:
         # we also try duplicating already existing elements or cheap computations
         # from the bottom of the stack
         if candidate is None or not improved:
-
-            # First try: duplicate a variable whose position would be the next position
-            new_top_idx = cstate.idx_wrt_fstack(-1)
-            if 0 <= new_top_idx < len(self._final_stack):
-                suggested_top = self._final_stack[new_top_idx]
-
-                # Either of the following possibilities must follow: already in the stack, cheap to compute
-                # or not in dependent candidates
-                if ((suggested_top in cheap_stack_elems or suggested_top in cstate.stack
-                     or self._var2id.get(suggested_top) in not_dependent_candidates) and
-                        cstate.stack_var_copies_needed[suggested_top] > 0):
-                    return suggested_top, "var", None
-
             associated_stack_var = None
             # Second try: take the deepest position not solved
             if len(cstate.not_solved) > 0:
@@ -1035,7 +1034,7 @@ class SMSgreedy:
                     return associated_stack_var, "var", None
 
             # Return just one candidate
-            elif len(not_dependent_candidates) > 0:
+            if len(not_dependent_candidates) > 0:
                 return not_dependent_candidates[0], "instr", cstate.positive_idx2negative(-1)
 
             # Worse case: swap the topmost element with the deepest
@@ -1320,17 +1319,40 @@ class SMSgreedy:
 
         return None
 
-    def _combine_operands_and_stack(self, cstate: SymbolicState, input_vars: List[var_id_T]):
+    def _elements_needed(self, instr_: instr_JSON_T, cstate: SymbolicState, n_elements: Counter[var_id_T]) -> None:
+        """
+        Stores how many times stack vars are needed
+        to compute instr in n_elements according to cstate
+        """
+        for input_var in instr_["inpt_sk"]:
+            instr = self._var2instr.get(input_var)
+            # If a stack variable has not been computed,
+            # we recursively invoke the instruction
+            if instr is not None and instr["id"] not in cstate.computed:
+                self._elements_needed(instr, cstate, n_elements)
+            else:
+                n_elements.update([input_var])
+
+    def _combine_operands_and_stack(self, cstate: SymbolicState, input_vars: List[var_id_T],
+                                    elements_needed: Counter[var_id_T]):
         """
         Combines the operands from the instruction to which compute the
         recursive greedy and the input stack to ensure values that must be
         """
-        new_stack = cstate.stack.copy()
-        # First detect which elements must be swapped
-        for var_ in input_vars:
-            last_accessible_position = cstate.last_swap_occurrence(var_)
-            if last_accessible_position >= 0 and var_ not in cstate.variables_to_dup:
-                new_stack[last_accessible_position] = None
+        new_stack = []
+        # First detect which elements should not appear anymore
+        # due to being consumed when computing the recursive function
+        for var_ in cstate.stack:
+
+            # If the number it is computed in the stack + the number of times
+            # it stills needs to be computed correspond to the elements needed, then
+            # we have to remove that element
+            diff = cstate.n_computed[var_] + cstate.stack_var_copies_needed[var_] - elements_needed.get(var_, 0)
+            if diff == 0:
+                new_stack.append(None)
+            else:
+                assert diff > 0, f"n_computed + stack_var_copies_needed must be >= elements to compute for {var_}"
+                new_stack.append(var_)
 
         i, j = 0, len(new_stack) - 1
         while i < j:
@@ -1356,7 +1378,10 @@ class SMSgreedy:
         old_stack = self._final_stack
         old_var2pos = self._var2pos_stack
 
-        new_final_stack = self._combine_operands_and_stack(cstate, next_instr["inpt_sk"])
+        elements_needed = Counter()
+        self._elements_needed(next_instr, cstate, elements_needed)
+
+        new_final_stack = self._combine_operands_and_stack(cstate, next_instr["inpt_sk"], elements_needed)
         self.debug_logger.debug_message(f"Final stack {new_final_stack}")
 
         new_relevant = set(instr["id"] for final_var in next_instr["inpt_sk"]
@@ -1378,7 +1403,8 @@ class SMSgreedy:
         # Restore the state to compute the instruction afterwards
         cstate.restore_state()
 
-        ops = self.compute_instr(next_instr, cstate.positive_idx2negative(len(next_instr["inpt_sk"]) - 1), cstate)
+        self.fixed_elements = cstate.positive_idx2negative(len(next_instr["inpt_sk"]) - 1)
+        ops = self.compute_instr(next_instr, self.fixed_elements, cstate)
         return opts_rec + ops
 
     def solve_permutation(self, cstate: SymbolicState) -> List[instr_id_T]:
