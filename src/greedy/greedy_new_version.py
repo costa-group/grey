@@ -12,7 +12,7 @@ from greedy.greedy_info import GreedyInfo
 
 # from analysis.greedy_validation import check_execution_from_ids
 from global_params.types import var_id_T, instr_id_T, instr_JSON_T, SMS_T
-from greedy.utils import compute_max_n_elements, compute_preffix_computation
+from greedy.utils import compute_max_n_elements
 
 # Specific type to identify which positions corresponds to the ones
 # in the current and final stacks
@@ -58,17 +58,13 @@ def decrement_and_clean(counter: Counter, key):
         del counter[key]
 
 
-def subgraph_nodes(root: str, condensed_graph: nx.DiGraph):
-    return list(nx.nodes(dfs_tree(condensed_graph, root)))
-
-
 class SymbolicState:
     """
     A symbolic state includes a stack, a dict indicating the number of total uses of each instruction,
     the instructions that can be computed and the variables that must be duplicated
     """
 
-    def __init__(self, initial_stack: List[var_id_T], dependency_graph: nx.DiGraph,
+    def __init__(self, initial_stack: List[var_id_T], dependency_graph: nx.DiGraph, relevant_nodes: Set[instr_id_T],
                  stack_var_copies_needed: Dict[var_id_T, int], user_instrs: List[instr_JSON_T],
                  final_stack: List[var_id_T]) -> None:
         self.debug_mode = True
@@ -79,6 +75,9 @@ class SymbolicState:
         # The dependency graph with the instructions that can be computed due to
         # its arguments are already computed
         self.dep_graph: nx.DiGraph = dependency_graph.copy()
+
+        # Relevant nodes that must be considered as possible computations
+        self.relevant_nodes: Set[instr_id_T] = relevant_nodes.copy()
 
         # Terms that are cheap to compute
         self.cheap_terms_to_compute: Set[var_id_T] = {output_var for instr in user_instrs if cheap(instr)
@@ -114,6 +113,9 @@ class SymbolicState:
         # Counter for the number of times an element must be retrieved
         # from the memory
         self.get_count: Counter = Counter()
+
+        # Computed elements
+        self.computed: Set[var_id_T] = set()
 
         # Recursive information that is stored when
         # invoking the recursive greedy
@@ -356,6 +358,12 @@ class SymbolicState:
         if instr["id"] in self.dep_graph.nodes:
             self.dep_graph.remove_node(instr["id"])
 
+        if instr["id"] in self.relevant_nodes:
+            self.relevant_nodes.remove(instr["id"])
+
+        # Add to computed
+        self.computed.add(instr["id"])
+
         if self.debug_mode:
             self.trace.append((self.stack.copy(), instr["id"]))
 
@@ -501,8 +509,12 @@ class SymbolicState:
             stack_elem = self.stack[current_idx]
 
             # Find the last occurrence in which the element is not placed in its position
-            if stack_elem == var_elem and self.final_stack[self.idx_wrt_fstack(current_idx)] != var_elem:
-                return current_idx
+            if stack_elem == var_elem:
+                final_idx = self.idx_wrt_fstack(current_idx)
+                if final_idx < 0:
+                    return current_idx
+                elif 0 <= final_idx < len(self.final_stack) and self.final_stack[final_idx] != var_elem:
+                    return current_idx
             current_idx -= 1
 
         return -1
@@ -512,7 +524,7 @@ class SymbolicState:
         Checks if the current state has still computations left to do
         """
         # TODO: remove elements once they have 0 copies left and just check length
-        return any(value > 0 for value in self.stack_var_copies_needed.values()) or len(self.dep_graph) > 0
+        return any(value > 0 for value in self.stack_var_copies_needed.values()) or len(self.relevant_nodes) > 0
 
     def var_elem_can_be_reused(self, var_elem: var_id_T, min_pos: cstack_pos_T) -> bool:
         """
@@ -539,7 +551,7 @@ class SymbolicState:
         Returns the possible candidates from the pool of available instructions, cheap instructions
         and stack variables that are needed to be duplicated
         """
-        return [id_ for id_ in self.dep_graph.nodes if self.dep_graph.out_degree(id_) == 0 and id_ not in self.forbidden_candidates], \
+        return [id_ for id_ in self.relevant_nodes if (id_ not in self.dep_graph or self.dep_graph.out_degree(id_) == 0) and id_ not in self.forbidden_candidates], \
             self.cheap_terms_to_compute, self.variables_to_dup
 
     def elements_to_dup(self) -> int:
@@ -559,7 +571,9 @@ class SymbolicState:
         for i, element in enumerate(self.final_stack[:STACK_DEPTH]):
             self.reachable[element] = num_instrs, i
 
-    def recursive_state(self, instr: instr_JSON_T, new_final_stack: List[var_id_T]):
+    def recursive_state(self, instr: instr_JSON_T,
+                        new_final_stack: List[var_id_T],
+                        relevant_nodes_to_add: Set[instr_id_T]):
         """
         Modifies the state for performing a recursive greedy
         in order to compute an operation with multiple inputs
@@ -572,6 +586,10 @@ class SymbolicState:
         # We generate the solved information with the new sets
         self._determine_solved(self.stack, self.final_stack)
         self.forbidden_candidates.add(instr["id"])
+
+        # As a result, new operations must
+        # be considered as relevant nodes if they haven't been computed
+        self.relevant_nodes.update({node for node in relevant_nodes_to_add if node not in self.computed})
 
     def restore_state(self):
         """
@@ -605,13 +623,17 @@ class SMSgreedy:
         self._instrs_with_deps = {instr_id for dep in self._deps for instr_id in dep}
 
         self._stack_var_copies_needed = self._compute_var_total_uses()
-        self._dep_graph = self._compute_dependency_graph()
-        self._condensed_graph = self._condense_graph(self._dep_graph)
+        dep_graph = self._compute_dependency_graph()
+        self._condensed_graph = self._condense_graph(dep_graph)
 
-        nx.nx_agraph.write_dot(self._dep_graph, "dependency.dot")
-        nx.nx_agraph.write_dot(self._condensed_graph, "condensed.dot")
+        # Nodes that are considered computations
+        self._relevant_nodes = set(self._condensed_graph.nodes)
 
-        tree_dict = self._generate_dataflow_tree(self._condensed_graph.nodes)
+        self.debug_logger.debug_message(f"{self._relevant_nodes}")
+        nx.nx_agraph.write_dot(dep_graph, "dependency.dot")
+
+        # Computed for all nodes in case we recursively apply the greedy
+        tree_dict = self._generate_dataflow_tree(dep_graph.nodes)
         self._instr2max_n_elems = self._max_n_elements_from_tree(tree_dict)
 
         # Determine which topmost elements can be reused in the graph
@@ -699,7 +721,7 @@ class SMSgreedy:
         if not successors:
             # Leaf node: just update the visited
             node_relevant = set()
-            if self._is_condensed(node):
+            if self._is_relevant_instr(node):
                 node_relevant.add(node)
                 condensed_graph.add_node(node)
             visited[node] = node_relevant
@@ -715,7 +737,7 @@ class SMSgreedy:
 
         # Once we have all the relevant nodes from the successors, we distinguish whether the current node
         # is relevant or not
-        if self._is_condensed(node) or is_root:
+        if self._is_relevant_instr(node) or is_root:
             condensed_graph.add_node(node)
             # We add a graph from each node of the relevant successors to the current one
             for relevant_node in relevant_nodes:
@@ -728,7 +750,7 @@ class SMSgreedy:
             visited[node] = relevant_nodes
             return relevant_nodes
 
-    def _is_condensed(self, node):
+    def _is_relevant_instr(self, node):
         """
         Whether to consider the instruction associated to the node
         """
@@ -883,7 +905,7 @@ class SMSgreedy:
         return optg, cstate
 
     def _initialize_initial_state(self) -> SymbolicState:
-        return SymbolicState(self._initial_stack, self._condensed_graph, self._stack_var_copies_needed,
+        return SymbolicState(self._initial_stack, self._condensed_graph, self._relevant_nodes, self._stack_var_copies_needed,
                              self._user_instr, self._final_stack)
 
     def _available_positions(self, var_elem: var_id_T, cstate: SymbolicState) -> Generator[cstack_pos_T, None, None]:
@@ -968,7 +990,7 @@ class SMSgreedy:
         for id_ in not_dependent_candidates:
             score_id, pos_to_place = self._score_instr(self._id2instr[id_], cstate)
 
-            n_deps = cstate.dep_graph.in_degree(id_)
+            n_deps = cstate.dep_graph.in_degree(id_) if id_ in cstate.dep_graph else 0
 
             # To decide whether the current candidate is the best so far, we use the information from deepest_pos
             # and reuses_pos. Moreover, in case of a tie, we choose an element that has the most dependencies
@@ -994,8 +1016,8 @@ class SMSgreedy:
             new_top_idx = cstate.idx_wrt_fstack(-1)
             if 0 <= new_top_idx < len(self._final_stack):
                 suggested_top = self._final_stack[new_top_idx]
-                if ((suggested_top in cheap_stack_elems) or
-                        (suggested_top in cstate.stack and cstate.stack_var_copies_needed[suggested_top] > 0)):
+                if ((suggested_top in cheap_stack_elems or suggested_top in cstate.stack) and
+                        cstate.stack_var_copies_needed[suggested_top] > 0):
                     return suggested_top, "var", None
 
             # Second try: take the deepest position not solved
@@ -1322,8 +1344,12 @@ class SMSgreedy:
         new_final_stack = self._combine_operands_and_stack(cstate, next_instr["inpt_sk"])
         self.debug_logger.debug_message(f"Final stack {new_final_stack}")
 
+        new_relevant = set(instr["id"] for final_var in next_instr["inpt_sk"]
+                           if final_var not in self._relevant_nodes and
+                           (instr := self._var2instr.get(final_var)) is not None and not cheap(instr))
+
         # We prepare the state for the recursive greedy
-        cstate.recursive_state(next_instr, new_final_stack)
+        cstate.recursive_state(next_instr, new_final_stack, new_relevant)
 
         self._final_stack = new_final_stack
         self._var2pos_stack = self._compute_var2pos(self._final_stack)
@@ -1487,7 +1513,7 @@ class DebugLogger:
     def debug_loop(self, dep_graph, optg: List[instr_id_T],
                    cstate: SymbolicState):
         self._logger.debug("---- While loop ----")
-        self._logger.debug(f"Ops not computed {list(dep_graph.nodes)}")
+        self._logger.debug(f"Ops not computed {cstate.relevant_nodes}")
         self._logger.debug(f"Ops computed: {optg}")
         self._logger.debug(cstate)
         self._logger.debug(cstate.max_solved)
