@@ -9,6 +9,8 @@ import traceback
 import networkx as nx
 from networkx.algorithms.traversal.depth_first_search import dfs_tree
 from greedy.greedy_info import GreedyInfo
+from analysis.greedy_validation import check_execution_from_ids
+
 
 # from analysis.greedy_validation import check_execution_from_ids
 from global_params.types import var_id_T, instr_id_T, instr_JSON_T, SMS_T
@@ -889,7 +891,7 @@ class SMSgreedy:
                     # We need to find the first occurrence not solved of the variable
                     # and swap the topmost element
                     swap_position = cstate.last_swap_occurrence(next_id)
-                    optg.extend(cstate.swap(swap_position))
+                    ops = cstate.swap(swap_position)
 
                 else:
                     ops = self.compute_var(next_id, cstate.positive_idx2negative(-1), cstate)
@@ -985,20 +987,7 @@ class SMSgreedy:
         if option is not None:
             return option
 
-        # First try: duplicate a variable whose position would be the next position
-        new_top_idx = cstate.idx_wrt_fstack(-1)
-        if 0 <= new_top_idx < len(self._final_stack):
-            suggested_top = self._final_stack[new_top_idx]
-
-            # Either of the following possibilities must follow: already in the stack, cheap to compute
-            # or not in dependent candidates
-            if ((suggested_top in cheap_stack_elems or suggested_top in cstate.stack
-                 or self._var2id.get(suggested_top) in not_dependent_candidates) and
-                    cstate.stack_var_copies_needed[suggested_top] > 0):
-                return suggested_top, "var", None
-
         most_deps = 0
-        improved = False
         # First, we evaluate the remaining instructions
         for id_ in not_dependent_candidates:
             score_id, pos_to_place = self._score_instr(self._id2instr[id_], cstate)
@@ -1016,16 +1005,31 @@ class SMSgreedy:
                 best_candidate_score = score_id
                 best_candidate_position = pos_to_place
                 most_deps = n_deps
-                improved = True
 
             self.debug_logger.debug_rank_candidates(id_, score_id, better_candidate)
 
         # If the best candidate does not reuse the topmost element,
         # we also try duplicating already existing elements or cheap computations
         # from the bottom of the stack
-        if candidate is None or not improved:
+        if candidate is None or best_candidate_score[0] == 0:
+            # First try: duplicate a variable whose position would be the next position
+            new_top_idx = cstate.idx_wrt_fstack(-1)
+            if 0 <= new_top_idx < len(self._final_stack):
+                suggested_top = self._final_stack[new_top_idx]
+
+                # Either of the following possibilities must follow: already in the stack, cheap to compute
+                # or not in dependent candidates
+                if ((suggested_top in cheap_stack_elems or suggested_top in cstate.stack
+                     or self._var2id.get(suggested_top) in not_dependent_candidates) and
+                        cstate.stack_var_copies_needed[suggested_top] > 0):
+                    return suggested_top, "var", None
+
+            # Second try: choose the candidate we have
+            if candidate is not None:
+                return candidate, "instr", best_candidate_position
+
             associated_stack_var = None
-            # Second try: take the deepest position not solved
+            # Third try: take the deepest position not solved
             if len(cstate.not_solved) > 0:
                 deepest_position_not_solved = max(cstate.not_solved)
 
@@ -1650,4 +1654,5 @@ def greedy_from_file(filename: str) -> Tuple[SMS_T, GreedyInfo]:
 
 
 if __name__ == "__main__":
-    greedy_from_file(sys.argv[1])
+    sfs, greedy_info = greedy_from_file(sys.argv[1])
+    assert check_execution_from_ids(sfs, greedy_info.greedy_ids), "Not correct check"
