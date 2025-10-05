@@ -1016,7 +1016,11 @@ class SMSgreedy:
             new_top_idx = cstate.idx_wrt_fstack(-1)
             if 0 <= new_top_idx < len(self._final_stack):
                 suggested_top = self._final_stack[new_top_idx]
-                if ((suggested_top in cheap_stack_elems or suggested_top in cstate.stack) and
+
+                # Either of the following possibilities must follow: already in the stack, cheap to compute
+                # or not in dependent candidates
+                if ((suggested_top in cheap_stack_elems or suggested_top in cstate.stack
+                     or self._var2id.get(suggested_top) in not_dependent_candidates) and
                         cstate.stack_var_copies_needed[suggested_top] > 0):
                     return suggested_top, "var", None
 
