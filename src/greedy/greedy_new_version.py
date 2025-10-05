@@ -631,6 +631,7 @@ class SMSgreedy:
 
         self.debug_logger.debug_message(f"{self._relevant_nodes}")
         nx.nx_agraph.write_dot(dep_graph, "dependency.dot")
+        nx.nx_agraph.write_dot(self._condensed_graph, "condensed.dot")
 
         # Computed for all nodes in case we recursively apply the greedy
         tree_dict = self._generate_dataflow_tree(dep_graph.nodes)
@@ -813,8 +814,8 @@ class SMSgreedy:
                         current_uses.update(self._compute_top_can_used(instr_bef, top_can_be_used))
                     else:
                         current_uses.update(top_can_be_used[instr_bef_id])
-                    # Add only instructions that are relevant to our context
-                    current_uses.add(stack_var)
+                # Add only instructions that are relevant to our context
+                current_uses.add(stack_var)
             else:
                 break
             first_element = False
@@ -1024,12 +1025,14 @@ class SMSgreedy:
                         cstate.stack_var_copies_needed[suggested_top] > 0):
                     return suggested_top, "var", None
 
+            associated_stack_var = None
             # Second try: take the deepest position not solved
-            deepest_position_not_solved = max(cstate.not_solved)
+            if len(cstate.not_solved) > 0:
+                deepest_position_not_solved = max(cstate.not_solved)
 
-            associated_stack_var = self._final_stack[deepest_position_not_solved]
-            if associated_stack_var in cheap_stack_elems or associated_stack_var in dup_stack_elems:
-                return associated_stack_var, "var", None
+                associated_stack_var = self._final_stack[deepest_position_not_solved]
+                if associated_stack_var in cheap_stack_elems or associated_stack_var in dup_stack_elems:
+                    return associated_stack_var, "var", None
 
             # Return just one candidate
             elif len(not_dependent_candidates) > 0:
@@ -1214,6 +1217,14 @@ class SMSgreedy:
                 best_possibility = count
 
             idx += 1
+
+        # Last possibility: check if the topmost element can be reused
+        # according top_can_be_used
+        if count == 0:
+            top = cstate.top_stack()
+            if top is not None and top in self._top_can_be_used[instr["id"]] \
+                    and cstate.stack_var_copies_needed[top] == 0:
+                return 1, cstate.positive_idx2negative(0)
 
         return count, best_idx
 
