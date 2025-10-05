@@ -890,8 +890,7 @@ class SMSgreedy:
                 elif how_to_compute == "swap":
                     # We need to find the first occurrence not solved of the variable
                     # and swap the topmost element
-                    swap_position = cstate.last_swap_occurrence(next_id)
-                    ops = cstate.swap(swap_position)
+                    ops = cstate.swap(next_id)
 
                 else:
                     ops = self.compute_var(next_id, cstate.positive_idx2negative(-1), cstate)
@@ -1039,11 +1038,17 @@ class SMSgreedy:
                         cstate.stack_var_copies_needed[suggested_top] > 0):
                     return suggested_top, "var", None
 
-            # Try to select a position that is not solved
-            assert (associated_stack_var in cstate.stack
-                        and cstate.stack_var_copies_needed[associated_stack_var] == 0), \
-                "Not solved element must be already in the stack"
-            return associated_stack_var, "swap", None
+            for deepest_position_not_solved in sorted(cstate.not_solved, reverse=True):
+
+                associated_stack_var = self._final_stack[deepest_position_not_solved]
+
+                if associated_stack_var in cheap_stack_elems or associated_stack_var in dup_stack_elems:
+                    return associated_stack_var, "var", None
+
+                elif (topmost := cstate.top_stack() is not None) and topmost != associated_stack_var:
+                    return cstate.idx_wrt_cstack(deepest_position_not_solved), "swap", None
+
+            assert False, "This case should not happen"
 
         return candidate, "instr", best_candidate_position
 
