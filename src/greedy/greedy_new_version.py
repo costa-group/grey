@@ -794,17 +794,17 @@ class SMSgreedy:
             max_stack_size[relevant_node] = compute_max_n_elements(relevant_node, tree)[0]
         return max_stack_size
 
-    def _compute_top_can_used(self, instr: instr_JSON_T, top_can_be_used: Dict[var_id_T, Set[var_id_T]]) -> Set[
-        var_id_T]:
+    def _compute_top_can_used(self, instr: instr_JSON_T, top_can_be_used: Dict[var_id_T, Dict[var_id_T, instr_id_T]]) -> Dict[
+        var_id_T, instr_id_T]:
         """
         Computes for each instruction if the topmost element of the stack can be reused directly
-        at some point. It considers commutative operations
+        at some point and from which element it can be reused. It considers commutative operations
         """
         reused_elements = top_can_be_used.get(instr["id"], None)
         if reused_elements is not None:
             return reused_elements
 
-        current_uses = set()
+        current_uses = dict()
         comm = instr["commutative"]
         first_element = True
         for stack_var in reversed(instr["inpt_sk"]):
@@ -814,11 +814,15 @@ class SMSgreedy:
                 if instr_bef is not None:
                     instr_bef_id = instr_bef["id"]
                     if instr_bef_id not in top_can_be_used:
-                        current_uses.update(self._compute_top_can_used(instr_bef, top_can_be_used))
+                        # Reuse the element
+                        for top_elem in self._compute_top_can_used(instr_bef, top_can_be_used):
+                            current_uses[top_elem] = instr_bef_id
                     else:
-                        current_uses.update(top_can_be_used[instr_bef_id])
+                        # Reuse the element
+                        for top_elem in top_can_be_used[instr_bef_id]:
+                            current_uses[top_elem] = instr_bef_id
                 # Add only instructions that are relevant to our context
-                current_uses.add(stack_var)
+                current_uses[stack_var] = instr["id"]
             else:
                 break
             first_element = False
@@ -1148,6 +1152,16 @@ class SMSgreedy:
 
         return seq
 
+    def element_can_be_reused(self, instr_id: instr_id_T, element: var_id_T, cstate: SymbolicState) -> bool:
+        """
+        Checks whether an element can be reused to compute an instruction
+        """
+        top_can_used = self._top_can_be_used[instr_id]
+        associated_instr = top_can_used.get(element)
+        # Check the instruction which reuses has not been used previously
+        return (associated_instr is not None and associated_instr not in cstate.computed
+                and cstate.stack_var_copies_needed[element] == 0)
+
     def _must_be_reversed(self, instr: instr_JSON_T, start_position: cstack_pos_T,
                            cstate: SymbolicState):
         """
@@ -1163,10 +1177,10 @@ class SMSgreedy:
             first_consumed_element = cstate.stack[start_position]
             first_arg_instr = self._var2instr.get(instr['inpt_sk'][0], None)
 
-            # Condition1: the topmost element can be reused by the first argument instruction or is the first argument
-            condition1 = (first_consumed_element is not None and first_consumed_element in self._top_can_be_used[instr["id"]] and
-                          first_arg_instr is not None and (first_arg_instr["outpt_sk"][0] == first_consumed_element or
-                                                           first_consumed_element in self._top_can_be_used[first_arg_instr["id"]]))
+            # Condition1: the topmost element can be reused by the first argument instruction
+            condition1 = (self.element_can_be_reused(instr["id"], first_consumed_element, cstate)
+                          and (instr['inpt_sk'][0] == first_consumed_element or
+                               self.element_can_be_reused(first_arg_instr["id"], first_consumed_element, cstate)))
 
             # Condition2: the first argument just needs to be swapped
             condition2 = cstate.stack_var_copies_needed[instr['inpt_sk'][0]] == 0
@@ -1229,8 +1243,7 @@ class SMSgreedy:
         # according top_can_be_used
         if count == 0:
             top = cstate.top_stack()
-            if top is not None and top in self._top_can_be_used[instr["id"]] \
-                    and cstate.stack_var_copies_needed[top] == 0:
+            if top is not None and self.element_can_be_reused(instr["id"], top, cstate):
                 return 1, cstate.positive_idx2negative(0)
 
         return count, best_idx
