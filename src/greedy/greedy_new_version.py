@@ -582,7 +582,7 @@ class SymbolicState:
         """
         # The change is that I want to produce the final stack with
         # the input elements on top. This affects the final stack and the solved
-        self._recursive_information.append((self.final_stack, instr["id"]))
+        self._recursive_information.append((self.final_stack, instr["id"], self.relevant_nodes))
         self.final_stack = new_final_stack
 
         # We generate the solved information with the new sets
@@ -591,13 +591,14 @@ class SymbolicState:
 
         # As a result, new operations must
         # be considered as relevant nodes if they haven't been computed
-        self.relevant_nodes.update({node for node in relevant_nodes_to_add if node not in self.computed})
+        new_operations = {node for node in relevant_nodes_to_add if node not in self.computed}
+        self.relevant_nodes = new_operations
 
     def restore_state(self):
         """
         Restores the state after performing the recursive greedy
         """
-        self.final_stack, instr_id = self._recursive_information.pop()
+        self.final_stack, instr_id, self.relevant_nodes = self._recursive_information.pop()
         # We recompute the solved elements
         self._determine_solved(self.stack, self.final_stack)
         self.forbidden_candidates.remove(instr_id)
@@ -843,9 +844,9 @@ class SMSgreedy:
         # Whether we are computing an element that is very deep and we must compute everything
         self.must_compute_all = False
 
-        # We check the stack and the target stack are the same (up until the size of the target stack)
+        # We check the stack and the target stack are the same
         # and all computations have been performed (optional, to allow recursive calls)
-        while compute_all or cstate.stack[:len(target_stack)] != target_stack:
+        while compute_all or len(cstate.stack) != len(target_stack) or Counter(cstate.stack) != Counter(target_stack):
             var_top = cstate.top_stack()
 
             self.debug_logger.debug_loop(cstate.dep_graph, optg, cstate)
@@ -897,10 +898,11 @@ class SMSgreedy:
 
                 optg.extend(ops)
 
-        if compute_all:
-            optg.extend(self.solve_permutation(cstate))
-            self.debug_logger.debug_after_permutation(cstate, optg)
+        # We also allow solve permutation for stack considerations
+        optg.extend(self.solve_permutation(cstate))
+        self.debug_logger.debug_after_permutation(cstate, optg)
 
+        if compute_all:
             self.print_traces(cstate)
             cstate.update_final_reachable(len(optg))
 
@@ -1062,7 +1064,6 @@ class SMSgreedy:
             # Just choose one element, as there is no clear alternative
             elif len(not_dependent_candidates) > 0:
                 return not_dependent_candidates[0], "instr", cstate.positive_idx2negative(-1)
-
 
             assert candidate is not None, "This case should not happen"
 
