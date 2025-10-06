@@ -86,8 +86,8 @@ class SymbolicState:
                                                       for output_var in instr["outpt_sk"]}
 
         # Variables that need to be duplicated and already in the stack
-        self.variables_to_dup: Set[var_id_T] = {stack_var for stack_var in initial_stack
-                                                if stack_var_copies_needed[stack_var] > 0}
+        self.variables_to_dup: List[var_id_T] = [stack_var for stack_var in initial_stack
+                                                 if stack_var_copies_needed[stack_var] > 0]
 
         self.stack_var_copies_needed: Dict[var_id_T, int] = stack_var_copies_needed.copy()
 
@@ -314,7 +314,7 @@ class SymbolicState:
 
         # If we need to duplicate it (because it is not cheap), we annotate that
         if not cheap(instr) and self.stack_var_copies_needed[output_var] > 0:
-            self.variables_to_dup.add(output_var)
+            self.variables_to_dup.append(output_var)
 
         # Solved: only the introduced element can modify the solved elements, being added if
         # in the new topmost element is correctly placed
@@ -548,7 +548,7 @@ class SymbolicState:
             return self.last_swap_occurrence(var_elem, min_pos)
         return -1
 
-    def candidates(self) -> Tuple[List[instr_id_T], Set[var_id_T], Set[var_id_T]]:
+    def candidates(self) -> Tuple[List[instr_id_T], Set[var_id_T], List[var_id_T]]:
         """
         Returns the possible candidates from the pool of available instructions, cheap instructions
         and stack variables that are needed to be duplicated
@@ -630,7 +630,7 @@ class SMSgreedy:
         self._condensed_graph = self._condense_graph(dep_graph)
 
         # Nodes that are considered computations
-        self._relevant_nodes = set(self._condensed_graph.nodes)
+        self._relevant_nodes = set(sorted(self._condensed_graph.nodes))
 
         self.debug_logger.debug_message(f"{self._relevant_nodes}")
         nx.nx_agraph.write_dot(dep_graph, "dependency.dot")
