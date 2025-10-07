@@ -1284,25 +1284,6 @@ class SMSgreedy:
                 seq = cstate.swap(position_reusing)
                 self.debug_logger.debug_message(f"SWAP{position_reusing} {cstate.stack}")
 
-            # Subcase I.2: there is an element to use for duplicating and then swapping. We only
-            # consider positions till the final stack, as they must be swapped at some point
-            elif position_reusing != -1 and cstate.elements_to_dup() > 0 and position_to_place >= - len(cstate.final_stack):
-                assert position_to_place == -len(cstate.stack) - 1, f"Position to place {position_to_place} is " \
-                                                                    f"not coherent in stack {cstate}"
-
-                # TODO: decide how which computation to duplicate
-                other_var_elem = self.intermediate_op_to_compute(cstate)
-                assert other_var_elem is not None, "No other element can be duplicated at this point"
-
-                self.debug_logger.debug_message(f"Other stack var element: {other_var_elem}", depth)
-                idx = cstate.first_occurrence(other_var_elem) + 1
-                seq = cstate.dup(idx)
-                self.debug_logger.debug_message(f"Computing other element to SWAP: DUP{idx} {cstate.stack}", depth)
-
-                # Afterwards, we swap the element we have computed (considering we have added an extra element)
-                # Strange case: we might just have computed the element we needed
-                seq.extend(cstate.swap(position_reusing + 1))
-
             # Case II: we duplicate the element that is within reach
             elif cstate.is_accessible_dup(var_elem):
                 idx = cstate.first_occurrence(var_elem) + 1
@@ -1312,15 +1293,6 @@ class SMSgreedy:
             # Case III: we retrieve the element from memory
             else:
                 seq = cstate.from_memory(var_elem, True)
-
-        # Finally, we place the topmost element that has been computed in the position to place
-        # TODO: case for multiple elements computed
-        self.debug_logger.debug_message(f"Pos {position_to_place}")
-        if cstate.is_in_negative_range(position_to_place) and cstate.stack[position_to_place] != var_elem:
-            assert cstate.top_stack() == var_elem, f"Var elem {var_elem} must be placed on top of the stack"
-            positive_idx_to_place = cstate.negative_idx2positive(position_to_place)
-            seq.extend(cstate.swap(positive_idx_to_place))
-            self.debug_logger.debug_message(f"SWAP{positive_idx_to_place} {cstate.stack}", depth)
 
         return seq
 
