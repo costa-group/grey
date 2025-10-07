@@ -12,7 +12,33 @@ output_stack_T = str
 id_T = str
 disasm_T = str
 
+WRITE_OPERATIONS = ['SSTORE','MSTORE8','MSTORE','MCOPY','CALLDATACOPY', 'CODECOPY', 'RETURNDATACOPY', 'CALL', 'DELEGATECALL' , 'STATICCALL']
+MWRITE_OPERATIONS = ['MSTORE8','MSTORE','MCOPY','CALLDATACOPY', 'CODECOPY', 'RETURNDATACOPY', 'CALL', 'DELEGATECALL' , 'STATICCALL']
+MWRITE_OPERATIONS_OUTPUT = ['CALL', 'DELEGATECALL' , 'STATICCALL']
+MWRITE_OPERATIONS_NO_OUTPUT = ['MSTORE8','MSTORE','MCOPY','CALLDATACOPY', 'CODECOPY', 'RETURNDATACOPY']
 
+def delete_extension(name):
+    if '_' in name:
+        n = name.find('_')
+        return name[:n]
+    return name
+
+def is_write(name):
+#    print("write?:", name, delete_extension(name) in WRITE_OPERATIONS)
+    return delete_extension(name) in WRITE_OPERATIONS
+    
+def is_mwrite(name):
+#    print("write?:", name, delete_extension(name) in WRITE_OPERATIONS)
+    return delete_extension(name) in MWRITE_OPERATIONS
+    
+def is_mwrite_no_output(name):
+#    print("write?:", name, delete_extension(name) in WRITE_OPERATIONS)
+    return delete_extension(name) in MWRITE_OPERATIONS_NO_OUTPUT
+    
+def is_mwrite_output(name):
+#    print("write?:", name, delete_extension(name) in WRITE_OPERATIONS)
+    return delete_extension(name) in MWRITE_OPERATIONS_OUTPUT
+    
 def get_ops_map(instructions: List[Dict[str, Any]], op: id_T) -> Dict[output_stack_T, id_T]:
     """
     Maps the output stack element from the instruction with op as a disasm to the corresponding id
@@ -20,11 +46,11 @@ def get_ops_map(instructions: List[Dict[str, Any]], op: id_T) -> Dict[output_sta
     return {ins['outpt_sk'][0]: ins['id'] for ins in instructions if ins['disasm'] == op}
 
 
-def get_ops_id(instructions: List[Dict[str, Any]], op: id_T) -> List[id_T]:
+def get_ops_id(instructions: List[Dict[str, Any]], ops: List[id_T]) -> List[id_T]:
     """
-    List of instruction ids who share the same disasm field
+    List of instruction ids who share the same disasm field in a list
     """
-    return [ins['id'] for ins in instructions if op in ins['disasm']]
+    return [ins['id'] for ins in instructions if ins['disasm'] in ops]
 
 
 def get_deps(e, instr_map, op):
@@ -67,12 +93,13 @@ def sort_with_deps(elems, deps, opid_instr_map, var_instr_map):
         pos[o] = get_min_pos(o, deps)
     maxpos = max(pos.values(), default=0)
     lpos = list(pos.items())
-    if len(list(filter(lambda x: 'STORE' in x[0], filter(lambda x: x[1] == maxpos, pos)))) > 0:
+    #print(pos)
+    if len(list(filter(lambda x: is_write(x[0]), filter(lambda x: x[1] == maxpos, pos)))) > 0:
         maxpos += 1
     poslops = {}
     possops = {}
     for p in lpos:
-        if "STORE" not in p[0]:
+        if not is_write(p[0]):
             mpos = get_max_pos_noSTORE(p[0], maxpos, deps, pos)
             if mpos not in poslops:
                 poslops[mpos] = [p[0]]
@@ -87,11 +114,12 @@ def sort_with_deps(elems, deps, opid_instr_map, var_instr_map):
     poslops.sort(key=lambda x: x[0])
     possops = list(possops.items())
     possops.sort(key=lambda x: x[0])
-    # print(poslops)
-    # print(possops)
+    #print(poslops)
+    #print(possops)
     opsord = []
     cur = 0
     for sop in possops:
+        #print(cur,sop)
         if sop[0] == cur:
             opsord += sop[1]
             if len(poslops) == 0 or poslops[0][0] != cur:
@@ -155,7 +183,7 @@ def merge(morder, sorder, final_no_mstore, final_no_sstore, opid_instr_map, var_
                 return torder + sorder + [o] + morder
         j = len(sorder) - 1
         while j > 0:
-            if "STORE" not in sorder[j] and computed(opid_instr_map[sorder[j]]['outpt_sk'][0], o, opid_instr_map,
+            if not is_write(sorder[j]) and computed(opid_instr_map[sorder[j]]['outpt_sk'][0], o, opid_instr_map,
                                                      var_instr_map):
                 torder += sorder[:j + 1] + [o]
                 return torder + merge(morder, sorder[j + 1:], final_no_mstore, final_no_sstore, opid_instr_map,
@@ -177,7 +205,7 @@ def needed_one(v, od, needed_set, opid_instr_map, var_instr_map):
     if isinstance(od, int):
         return 0
     inpts = []
-    if 'STORE' in od:
+    if is_write(od):
         inpts += opid_instr_map[od]['inpt_sk']
     else:
         if v == od:
@@ -193,7 +221,7 @@ def computed(v, od, opid_instr_map, var_instr_map):
     # checks if od needs v
     if isinstance(od, int):
         return False
-    if 'STORE' in od:
+    if is_write(od):
         inpts = opid_instr_map[od]['inpt_sk']
     else:
         if v == od:
@@ -212,26 +240,26 @@ def remove_nostores_and_rename(torder, opid_instr_map, var_instr_map):
     final_ops = []
     while len(torder) > 0:
         op = torder.pop(0)
-        if "STORE" in op:
+        if is_write(op):
             final_ops += [op]
         else:
             lchk = []
             lchk += final_ops
             if "SLOAD" in op:
                 for o in torder:
-                    if "STORE" not in o:
+                    if not is_write(o):
                         lchk += [opid_instr_map[o]['outpt_sk'][0]]
                     else:
                         lchk += [o]
                     if "SSTORE" in o:
                         break
-            elif "STORE" not in op:  # MLOAD or KECCAK256
+            elif not is_write(op):  # MLOAD or KECCAK256 or any other not write
                 for o in torder:
-                    if "STORE" not in o:
+                    if not is_write(o):
                         lchk += [opid_instr_map[o]['outpt_sk'][0]]
                     else:
                         lchk += [o]
-                    if "MSTORE" in o:
+                    if is_mwrite(o):
                         break
             vop = opid_instr_map[op]['outpt_sk'][0]
             for od in lchk:
@@ -245,9 +273,11 @@ def remove_nostores_and_rename(torder, opid_instr_map, var_instr_map):
 def needed_nostores(msops, final_stack, opid_instr_map, var_instr_map):
     result = []
     aux = msops.copy()
+    #print(aux)
     while len(aux) > 0:
         op = aux.pop(0)
-        if 'STORE' not in op:
+        #print(op)
+        if not is_write(op):
             lops = aux.copy()
             if "SLOAD" in op:
                 while len(lops) > 0:
@@ -257,11 +287,12 @@ def needed_nostores(msops, final_stack, opid_instr_map, var_instr_map):
             else:  # MLOAD or KECCAK256
                 while len(lops) > 0:
                     op1 = lops.pop(0)
-                    if 'MSTORE' in op1:
+                    if is_mwrite(op1):
                         break
+            #print(op,op1,lops)
             op = opid_instr_map[op]['outpt_sk'][0]
             for op2 in lops:
-                if 'STORE' not in op2:
+                if not is_write(op2):
                     op2 = opid_instr_map[op2]['outpt_sk'][0]
                 if computed(op, op2, opid_instr_map, var_instr_map):
                     result += [op]
@@ -270,6 +301,9 @@ def needed_nostores(msops, final_stack, opid_instr_map, var_instr_map):
                 if computed(op, v, opid_instr_map, var_instr_map):
                     result += [op]
                     break
+#        elif is_mwrite_output(op):
+#            assert(len(opid_instr_map[op]["outpt_sk"]) == 1)
+#            result += [opid_instr_map[op]["outpt_sk"][0]           
     return result
 
 
@@ -371,8 +405,8 @@ class SMSgreedy:
         self.occurrences = {}
         for o in self._initial_stack:
             self.occurrences[o] = 0
-        lmstore = get_ops_id(self._user_instr, 'MSTORE')
-        lsstore = get_ops_id(self._user_instr, 'SSTORE')
+        lmstore = get_ops_id(self._user_instr, MWRITE_OPERATIONS)
+        lsstore = get_ops_id(self._user_instr, ['SSTORE'])
         for o in lmstore + lsstore:
             inp = self._opid_instr_map[o]["inpt_sk"]
             self.count_ops_one(inp[0])
@@ -396,7 +430,7 @@ class SMSgreedy:
         if o in self.uses:
             self.uses[o] += 1
         else:
-            if self.duplicate(o):
+            if self.duplicate(o) or is_mwrite_output(self._var_instr_map[o]["id"]):
                 self.uses[o] = 1
             if o in self._var_instr_map:
                 for oi in self._var_instr_map[o]["inpt_sk"]:
@@ -405,14 +439,26 @@ class SMSgreedy:
     def count_uses(self):
         for o in self._initial_stack:
             self.uses[o] = 0
-        lmstore = get_ops_id(self._user_instr, 'MSTORE')
-        lsstore = get_ops_id(self._user_instr, 'SSTORE')
+        lmstore = get_ops_id(self._user_instr, MWRITE_OPERATIONS)
+        lsstore = get_ops_id(self._user_instr, ['SSTORE'])
         for o in lmstore + lsstore:
-            inp = self._opid_instr_map[o]["inpt_sk"]
-            self.count_uses_one(inp[0])
-            self.count_uses_one(inp[1])
+            #print("op to count:", o)
+            assert(len(self._opid_instr_map[o]["outpt_sk"])<=1)
+            if len(self._opid_instr_map[o]["outpt_sk"]) == 0:
+#            if len(self._opid_instr_map[o]["outpt_sk"]) == 1:
+#                self.count_uses_one(self._opid_instr_map[o]["outpt_sk"][0])
+#                print(self.uses)
+#            else:
+                inp = self._opid_instr_map[o]["inpt_sk"]
+                for o1 in inp:
+                    self.count_uses_one(o1)
+                #self.count_uses_one(inp[0])
+                #self.count_uses_one(inp[1])
+                #print(self.uses)
         for o in self._final_stack:
+            #print("op to count:", o)
             self.count_uses_one(o)
+            #print(self.uses)
 
     def precompute(self, final_stack, stack):
         opcode = []
@@ -513,8 +559,8 @@ class SMSgreedy:
         if not (o not in needed_stack or o in stack[:16]):
             if self._dup_stack_ini == 0:
                 self.clean_stack(o, stack, needed_stack, solved)
-        # if not (o not in needed_stack or o in stack[:16]):
-        #    print(o,stack,needed_stack,solved,self._dup_stack_ini)
+        if not (o not in needed_stack or o in stack[:16]):
+           print(o,stack,needed_stack,solved,self._dup_stack_ini)
         assert (o not in needed_stack or o in stack[:16])
         # print(o,stack,needed_stack)
         if o in stack and stack.index(o) < 16:
@@ -558,6 +604,8 @@ class SMSgreedy:
                             self._dup_stack_ini += 1
                             return (swaps, swaps.copy(), tstack)
             if o in needed_stack:
+                #print(needed_stack)
+                #print(o)
                 assert (1 <= needed_stack[o])
                 needed_stack[o] -= 1
             else:
@@ -578,7 +626,7 @@ class SMSgreedy:
             return (['PUSH' + str(n) + ' 0x' + h], ['PUSH' + str(n) + ' 0x' + h], [o] + stack)
         else:
             inpts = []
-            if 'STORE' in o:
+            if is_write(o):
                 inpts += self._opid_instr_map[o]['inpt_sk']
                 opcode = self._opid_instr_map[o]['disasm']
                 opcodeid = self._opid_instr_map[o]['id']
@@ -718,13 +766,13 @@ class SMSgreedy:
         i = len(stack) - 1
         num_no_store = 0
         for o in mem:
-            if "STORE" not in o:
+            if not is_write(o):
                 num_no_store += 1
         while (i + num_no_store >= 15):
             num_no_store_aux = num_no_store
             j = len(mem) - 1
             while j > 0:
-                if "STORE" not in mem[j]:
+                if not is_write(mem[j]):
                     num_no_store_aux -= 1
                 if stack[i] not in stack[:i]:
                     if needed_one(stack[i], mem[j], needed_stack, self._opid_instr_map, self._var_instr_map):
@@ -773,7 +821,7 @@ class SMSgreedy:
         if o in cstack:
             return
         assert (o not in self._initial_stack)
-        if 'STORE' in o:
+        if is_write(o):
             inpts = self._opid_instr_map[o]['inpt_sk']
         else:
             inpts = self._var_instr_map[o]['inpt_sk']
@@ -811,18 +859,19 @@ class SMSgreedy:
         return (opcodes, opcodeids, cstack)
 
     def compute_memory_op(self, o, cstack, cneeded_in_stack_map, solved, max_to_swap):
-        # print("memory",o)
+        #print("memory",o,cstack)
         opcodes = []
         opcodeids = []
         lord = []
         self.pre_compute_list(o, cstack, cneeded_in_stack_map, lord)
+        #print("list:", lord)
         (popcodes, popcodeids, cstack) = self.compute_pre_list(lord, cstack, cneeded_in_stack_map, solved, max_to_swap)
         opcodes += popcodes
         opcodeids += popcodeids
-        if 'STORE' not in o:
+        if not is_write(o):
             assert (lord[-1] == o)  # means o was not in stack before and now it's computed
         else:
-            # print("finally computing:", o)
+            #print("finally computing:", o)
             # Now we have to compute o
             (ops, cstack, cneeded_in_stack_map) = self.clean_stack(o, cstack, cneeded_in_stack_map, solved)
             opcodes += ops
@@ -832,21 +881,24 @@ class SMSgreedy:
                                                                          max_to_swap)
             opcodes += popcodes
             opcodeids += popcodeids
+            if len(self._opid_instr_map[o]["outpt_sk"]) == 1:
+                cstack = [self._opid_instr_map[o]["outpt_sk"][0]] + cstack
+        #print('end memory',cstack)
         return (opcodes, opcodeids, cstack)
 
     def compute_regular_op(self, o, cstack, cneeded_in_stack_map, solved, max_to_swap):
-        # print("regular",o,cstack)
+        #print("regular",o,cstack)
         opcodes = []
         opcodeids = []
         lord = []
         self.pre_compute_list(o, cstack, cneeded_in_stack_map, lord)
-        # print(o,lord)
+        #print(o,lord)
         (popcodes, popcodeids, cstack) = self.compute_pre_list(lord, cstack, cneeded_in_stack_map, solved, max_to_swap)
         opcodes += popcodes
         opcodeids += popcodeids
         if o not in lord:
-            # print("finally computing:", o)
-            (ops, cstack, cneeded_in_stack_map) = self.clean_stack(o, cstack, cneeded_in_stack_map, solved)
+            #print("finally computing:", o,cstack,)
+            (ops, cstack, cneeded_in_stack_map) = self.clean_stack(o, cstack,  cneeded_in_stack_map, solved)
             opcodes += ops
             opcodeids += ops
             self._dup_stack_ini = 0
@@ -873,7 +925,8 @@ class SMSgreedy:
         # print(cneeded_in_stack_map)
         case = 0
         while case != 2:
-            # print("enter",cstack,cneeded_in_stack_map,self._final_stack,solved)
+            #print("enter",cstack,cneeded_in_stack_map,self._final_stack,solved)
+            #print("instr:", instr)
             # print(solved)
             while len(cstack) > 0 and (cstack[0] not in cneeded_in_stack_map or cneeded_in_stack_map[cstack[0]] == 0):
                 if (len(self._final_stack) - len(cstack)) in solved:
@@ -882,7 +935,7 @@ class SMSgreedy:
                 topcodeids += ['POP']
                 cstack.pop(0)
                 if verbose: print('POP', cstack, len(cstack))
-            if (len(instr) > 0 and "STORE" in instr[0]) or self.stack_too_long(cstack, instr,
+            if (len(instr) > 0 and is_write(instr[0])) or self.stack_too_long(cstack, instr,
                                                                                set(cneeded_in_stack_map.keys())):
                 case = 3
             else:
@@ -907,13 +960,18 @@ class SMSgreedy:
                 before_store = False
                 # pos in final_stack
                 o = self._final_stack[pos]
-                # print(o,"case1")
+                #print(o,"case1")
                 i = len(instr) - 1
                 while i >= 0:
-                    if "STORE" not in instr[i]:
-                        if computed(instr[i], o, self._opid_instr_map, self._var_instr_map):
+                    if not is_mwrite_no_output(instr[i]):
+                        o1 = instr[i]
+                        if is_mwrite_output(o1):
+                            assert(len(self._opid_instr_map[o1]["outpt_sk"]) == 1)
+                            o1 = self._opid_instr_map[o1]["outpt_sk"][0]
+                        if computed(o1, o, self._opid_instr_map, self._var_instr_map):
                             break
                     i -= 1
+                #print("final_no_store",final_no_store)
                 j = len(final_no_store) - 1
                 while j >= 0:
                     if computed(final_no_store[j], o, self._opid_instr_map, self._var_instr_map):
@@ -928,7 +986,7 @@ class SMSgreedy:
                         if instr[i] == o:
                             p = i
                             for i in range(p, len(instr)):
-                                if "STORE" in instr[i]:
+                                if is_write(instr[i]):
                                     before_store = True
                                     break
                             instr = instr[:p] + instr[p + 1:]  # remove the operation
@@ -938,6 +996,7 @@ class SMSgreedy:
                         # print("previous",op,cneeded_in_stack_map)
                         # print(cstack)
                         self._dup_stack_ini = 0
+                        #print("memory1:", op)
                         (opcodes, opcodeids, cstack) = self.compute_memory_op(op, cstack, cneeded_in_stack_map, solved,
                                                                               max_to_swap)
                         topcodes += opcodes
@@ -950,11 +1009,14 @@ class SMSgreedy:
                 self._dup_stack_ini = 0
                 # print("compute", o)
                 if before_store:
+                    #print("memory2:", o)
                     (opcodes, opcodeids, cstack) = self.compute_memory_op(o, cstack, cneeded_in_stack_map, solved,
                                                                           max_to_swap)
                 else:
+                    #print("compute_regular1:", o)
                     (opcodes, opcodeids, cstack) = self.compute_regular_op(o, cstack, cneeded_in_stack_map, solved,
                                                                            max_to_swap)
+                    #print("end compute_regular1:", o)
                 topcodes += opcodes
                 topcodeids += opcodeids
                 pos_in_stack = len(cstack) + pos - len(self._final_stack)
@@ -971,13 +1033,18 @@ class SMSgreedy:
                 o = instr.pop(0)
                 # print(o)
                 self._dup_stack_ini = 0
+                #print("memory3:", o)
                 (opcodes, opcodeids, cstack) = self.compute_memory_op(o, cstack, cneeded_in_stack_map, solved,
                                                                       max_to_swap)
+                assert(len(self._opid_instr_map[o]["outpt_sk"]) <=1 )
+                if len(self._opid_instr_map[o]["outpt_sk"]) == 1:
+                    cstack = self._opid_instr_map[o]["outpt_sk"][0] + cstack
+                
                 topcodes += opcodes
                 topcodeids += opcodeids
             else:  # case 2
                 # print("remaining:",instr)
-                assert (len(instr) == 0 or "STORE" in instr[-1])
+                assert (len(instr) == 0 or is_write(instr[-1]))
                 # print("final:",instr)
                 if len(instr) > 0:  # needs to continue after performing all store ops
                     case = 0
@@ -987,6 +1054,7 @@ class SMSgreedy:
                     opcodes = []
                     opcodeids = []
                     self._dup_stack_ini = 0
+                    #print("memory4:", o)
                     (opcodes, opcodeids, cstack) = self.compute_memory_op(o, cstack, cneeded_in_stack_map, solved,
                                                                           max_to_swap)
                     while len(cstack) > 0 and (
@@ -1045,10 +1113,10 @@ class SMSgreedy:
         # print(mloadmap)
         # sloadmap = get_ops_map(self._user_instr,'SLOAD')
         # print(sloadmap)
-        lmstore = get_ops_id(self._user_instr, 'MSTORE')
-        # print(lmstore)
-        lsstore = get_ops_id(self._user_instr, 'SSTORE')
-        # print(lsstore)
+        lmstore = get_ops_id(self._user_instr, MWRITE_OPERATIONS)
+        #print(lmstore)
+        lsstore = get_ops_id(self._user_instr, ['SSTORE'])
+        #print(lsstore)
         # dep_target_mem = []
         # for e in self._final_stack:
         #    l = get_deps(e,self._var_instr_map,'MLOAD')
@@ -1062,19 +1130,20 @@ class SMSgreedy:
         # print(dep_target_str)
         (sorder, final_no_sstore) = sort_with_deps(lsstore, self._sto_order, self._opid_instr_map, self._var_instr_map)
         # print(self._mem_order)
-        # print(morder)
-        # print(final_no_mstore)
+        # print('Order: ',morder)
+        # print('No:', final_no_mstore)
         # print()
         # print(self._sto_order)
         # print(sorder)
         # print(final_no_sstore)
         # print()
         torder = merge(morder, sorder, final_no_mstore, final_no_sstore, self._opid_instr_map, self._var_instr_map)
-        # print(torder)
+        # print('torder',torder)
         final_no_store = []
         for o in final_no_mstore + final_no_sstore:
             final_no_store += [self._opid_instr_map[o]['outpt_sk'][0]]
         # print('torder:',torder)
+        # print('final_no_store',final_no_store)
         needed_nostores_in_stack = needed_nostores(torder, self._final_stack, self._opid_instr_map, self._var_instr_map)
         self._forced_in_stack = set(needed_nostores_in_stack)
         needed_nostores_in_stack = sorted(list(self._forced_in_stack))
@@ -1120,22 +1189,27 @@ class SMSgreedy:
         for v in self._initial_stack:
             self._needed_in_stack_map[v] += needed_list(v, final_ops_to_count, needed_set, self._opid_instr_map,
                                                         self._var_instr_map)
+        #     print('needed in stack:',v, self._needed_in_stack_map[v])
         self.count_uses()
         # print("target")
         # print(self._needed_in_stack_map)
         # print(self.uses)
         to_remove = set([])
         for o in self.uses.keys():
+            # print(o)
             if o not in self._needed_in_stack_map and self.uses[o] == 1:
-                to_remove.add(o)
+                if not (o in self._var_instr_map and is_mwrite_output(self._var_instr_map[o]["id"])):
+                    # print('remove:', o)
+                    to_remove.add(o)
         for o in to_remove:
             self.uses.pop(o, None)
+        # print("needed:",self._needed_in_stack_map)
         assert (set(self._needed_in_stack_map.keys()).issubset(set(self.uses.keys())))
         for o in self._needed_in_stack_map:
             self._needed_in_stack_map[o] <= self.uses[o]
-        # print(self.uses)
+        # print("uses:",self.uses)
         self._needed_in_stack_map = self.uses  # we don't want to recompute
-        # print(self._needed_in_stack_map)
+        # print("after:",self._needed_in_stack_map)
         # assert(sorted(list(self._needed_in_stack_map.items())) == sorted(list(self.uses.items())))
         # print('initial stack:  ', self._initial_stack)
         return (torder, final_no_store)
@@ -1299,9 +1373,9 @@ def greedy_from_json(json_data: Dict[str, Any], verb=True) -> Tuple[Dict[str, An
             # print(name, encoding._b0, encoding._b0)
         error = 0
     except AssertionError:
-        # _, _, tb = sys.exc_info()
-        # traceback.print_tb(tb)
-        # print("Error")
+        _, _, tb = sys.exc_info()
+        traceback.print_tb(tb)
+        print("Error")
         res = None
         resids = None
         # print(name,encoding._b0,0 )
@@ -1315,7 +1389,7 @@ def minsize_from_json(json_data: Dict[str, Any]) -> int:
     # print(encoding._initial_stack)
     encoding.count_ops()
     # print(encoding.occurrences)
-    s = len(get_ops_id(encoding._user_instr, 'MSTORE')) + len(get_ops_id(encoding._user_instr, 'SSTORE'))
+    s = len(get_ops_id(encoding._user_instr, MWRITE_OPERATIONS)) + len(get_ops_id(encoding._user_instr, ['SSTORE']))
     for i in encoding.occurrences:
         if i in encoding._initial_stack:
             # if less uses than occurrences we need to pop
@@ -1394,7 +1468,7 @@ if __name__ == "__main__":
         if error == 0:
             print(name, initial_size, len(rs))
             # print(rs)
-            # print(rsids)
+            print(rsids)
         else:
             print(name, initial_size, 0)
         # print(len(rs),rs,error)
