@@ -1333,18 +1333,38 @@ class SMSgreedy:
         recursive greedy and the input stack to ensure values that must be
         """
         new_stack = []
+
+        can_be_removed = Counter()
+        # Determine how many times an element can be "removed" from the stack
+        for var_, n_needed in elements_needed.items():
+
+            # In total, we need the stack_var_copies_needed + the computed ones
+            needed_total = cstate.stack_var_copies_needed[var_] + cstate.n_computed[var_]
+
+            # At least one of the elements must stay to duplicate later
+            if needed_total > n_needed:
+                keep = 1
+            elif needed_total == n_needed:
+                keep = 0
+            else:
+                raise ValueError(f"Total needs of {var_} {needed_total} cannot be smaller than "
+                                 f"elements needed for perform the computation{n_needed}")
+
+            # The number of elements that can be removed is the minimum
+            # between the needed and the available (minus one if an element must be kept)
+            can_be_removed[var_] = min(cstate.n_computed[var_] - keep, n_needed)
+
         # First detect which elements should not appear anymore
         # due to being consumed when computing the recursive function
         for var_ in cstate.stack:
 
-            # If the number it is computed in the stack + the number of times
-            # it stills needs to be computed correspond to the elements needed, then
-            # we have to remove that element
-            diff = cstate.n_computed[var_] + cstate.stack_var_copies_needed[var_] - elements_needed.get(var_, 0)
-            if diff == 0:
+            # We use the previous counter to detect
+            # which elements can be removed
+            left_to_remove = can_be_removed[var_]
+            if left_to_remove > 0:
                 new_stack.append(None)
+                can_be_removed[var_] -= 1
             else:
-                assert diff > 0, f"n_computed + stack_var_copies_needed must be >= elements to compute for {var_}"
                 new_stack.append(var_)
 
         i, j = 0, len(new_stack) - 1
