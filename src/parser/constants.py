@@ -5,7 +5,7 @@ terminal_ops = {"functionReturn", "functionReturn", "return", "revert", "stop", 
 
 memory_storage_instructions = {'calldatacopy', 'create', 'codecopy', 'call', 'log4', 'gas', 'delegatecall',
                                'extcodecopy', 'create2', 'assignimmutable', 'returndatacopy', 'log2', 'log1', 'log3',
-                               'log0', 'datacopy', 'staticcall', 'tstore', 'mstore', 'mcopy', 'mstore8', 'sstore8'}
+                               'log0', 'datacopy', 'staticcall', 'tstore', 'mstore', 'mcopy', 'mstore8'}
 
 # split_block = {"ASSIGNIMMUTABLE", "GAS", "MEMORYGUARD", "DATACOPY"}
 
