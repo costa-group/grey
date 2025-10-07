@@ -1468,7 +1468,7 @@ if __name__ == "__main__":
         if error == 0:
             print(name, initial_size, len(rs))
             # print(rs)
-            print(rsids)
+            # print(rsids)
         else:
             print(name, initial_size, 0)
         # print(len(rs),rs,error)
