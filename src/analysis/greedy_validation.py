@@ -108,6 +108,16 @@ def ensure_stack_vars_are_unique(user_instr: List[instr_JSON_T]) -> bool:
     return True
 
 
+def print_state(instr_id, stack):
+    max_list_len = 70 # - sum(len(elem) for elem in stack) - 2*len(stack) - 2*(len(stack)- 1)
+
+    # Calculate the maximum length of the string part
+    max_str_len = 40
+
+    # Print each tuple with aligned formatting
+    print(f"{instr_id:<{max_str_len}} {str(stack):>{max_list_len}}")
+
+
 def check_execution_from_ids(sfs: Dict, instr_ids: List[instr_id_T]) -> bool:
     """
     Given a SFS and a sequence of ids, checks the ids indeed represent a valid solution
@@ -118,7 +128,7 @@ def check_execution_from_ids(sfs: Dict, instr_ids: List[instr_id_T]) -> bool:
     cstack, fstack = sfs['src_ws'].copy(), sfs['tgt_ws']
 
     for instr_id in instr_ids:
-        print(instr_id, cstack)
+        print_state(instr_id, cstack)
         execute_instr_id(instr_id, cstack, user_instr)
 
     assert cstack == fstack, f"""
