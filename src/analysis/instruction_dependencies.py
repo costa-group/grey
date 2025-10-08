@@ -163,6 +163,39 @@ def compute_storage_dependences(instructions: List[CFGInstruction]) -> List[List
     return deps
 
 
+def compute_transient_dependences(instructions: List[CFGInstruction]) -> List[List[int]]:
+    """
+    Returns a list with the positions that have storage dependencies
+    """
+    trans_ins = []
+    # print(instructions)
+    for i, ins in enumerate(instructions):
+
+        if ins.get_op_name() in ["tload", "tstore"]:
+            v = ins.get_in_args()[0]
+            input_val = get_expression(v, instructions[:i])
+
+            # Store instructions have an empty offset
+            interval = (input_val, 0)
+
+            # We store the position of the store access, the position accessed and the type (whether write or read)
+            trans_ins.append([i, interval, ins.get_type_mem_op()])
+
+        elif ins.get_op_name() in ["call", "delegatecall", "staticcall", "callcode"]:
+            trans_ins.append([i, ["inf"], "write"])
+
+    deps = [[first_sto_access[0], second_sto_access[0]]
+            for i, first_sto_access in enumerate(trans_ins) for second_sto_access in trans_ins[i + 1:]
+            if are_dependent_accesses(first_sto_access[1], second_sto_access[1])
+            and generate_dep(first_sto_access[2], second_sto_access[2])]
+
+    # print("DEPS: "+str(deps))
+    # print("******")
+    return deps
+
+
+
+
 def compute_memory_dependences(instructions: List[CFGInstruction]):
     """
     Returns a list with the positions that have memory dependencies
