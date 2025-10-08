@@ -605,9 +605,10 @@ class SMSgreedy:
                             swaps = []
                             tstack = stack
                             for i in range(1, pos + 1):
-                                swaps += ['SWAP' + str(i)]
-                                tstack = [tstack[i]] + tstack[1:i] + [tstack[0]] + tstack[i + 1:]
-                                if verbose: print('SWAP' + str(i), tstack, len(tstack))
+                                if tstack[0] != tstack[i]:
+                                    swaps += ['SWAP' + str(i)]
+                                    tstack = [tstack[i]] + tstack[1:i] + [tstack[0]] + tstack[i + 1:]
+                                    if verbose: print('SWAP' + str(i), tstack, len(tstack))
                             for i in range(pos):
                                 if len(self._final_stack) + i - len(stack) in solved:
                                     assert (False)
@@ -616,7 +617,6 @@ class SMSgreedy:
                             return (swaps, swaps.copy(), tstack)
             if o in needed_stack:
                 # print(needed_stack)
-                # print(o)
                 assert (1 <= needed_stack[o])
                 needed_stack[o] -= 1
             else:
@@ -641,7 +641,7 @@ class SMSgreedy:
                 inpts += self._opid_instr_map[o]['inpt_sk']
                 opcode = self._opid_instr_map[o]['disasm']
                 opcodeid = self._opid_instr_map[o]['id']
-                outs = []
+                outs = self._opid_instr_map[o]["outpt_sk"]
             elif 'PUSH' in self._var_instr_map[o]['disasm'] and 'value' in self._var_instr_map[o] \
                     and isinstance(self._var_instr_map[o]['value'], int):
                 if 'tag' in self._var_instr_map[o]['disasm']:
@@ -670,7 +670,6 @@ class SMSgreedy:
                 opcode = self._var_instr_map[o]['disasm']
                 opcodeid = self._var_instr_map[o]['id']
                 outs = self._var_instr_map[o]['outpt_sk']
-                # print(opcodeid,inpts,outs)
             if len(inpts) == 2 and len(stack) >= 2 and self._dup_stack_ini == 0:
                 op1, op2 = stack[0], stack[1]
                 pos0_in_final = len(self._final_stack) - len(stack)
@@ -679,7 +678,6 @@ class SMSgreedy:
                             o in self._var_instr_map and self._var_instr_map[o]['commutative'] and inpts == [op2, op1]):
                         if op1 in needed_stack and needed_stack[op1] == 1:
                             if op2 in needed_stack and needed_stack[op2] == 1:
-                                # print("Applied!")
                                 needed_stack.pop(op1, None)
                                 needed_stack.pop(op2, None)
                                 self._dup_stack_ini += 1
@@ -882,7 +880,7 @@ class SMSgreedy:
         if not is_write(o):
             assert (lord[-1] == o)  # means o was not in stack before and now it's computed
         else:
-            # print("finally computing:", o)
+            print("finally computing:", o)
             # Now we have to compute o
             (ops, cstack, cneeded_in_stack_map) = self.clean_stack(o, cstack, cneeded_in_stack_map, solved)
             opcodes += ops
@@ -892,9 +890,8 @@ class SMSgreedy:
                                                                          max_to_swap)
             opcodes += popcodes
             opcodeids += popcodeids
-            if len(self._opid_instr_map[o]["outpt_sk"]) == 1:
-                cstack = [self._opid_instr_map[o]["outpt_sk"][0]] + cstack
-        # print('end memory',cstack)
+#            if len(self._opid_instr_map[o]["outpt_sk"]) == 1:
+#                cstack = [self._opid_instr_map[o]["outpt_sk"][0]] + cstack
         return (opcodes, opcodeids, cstack)
 
     def compute_regular_op(self, o, cstack, cneeded_in_stack_map, solved, max_to_swap):
@@ -1042,15 +1039,10 @@ class SMSgreedy:
                     assert (lens == len(cstack))
             elif case == 3:
                 o = instr.pop(0)
-                # print(o)
                 self._dup_stack_ini = 0
-                # print("memory3:", o)
                 (opcodes, opcodeids, cstack) = self.compute_memory_op(o, cstack, cneeded_in_stack_map, solved,
                                                                       max_to_swap)
                 assert (len(self._opid_instr_map[o]["outpt_sk"]) <= 1)
-                if len(self._opid_instr_map[o]["outpt_sk"]) == 1:
-                    cstack = self._opid_instr_map[o]["outpt_sk"][0] + cstack
-
                 topcodes += opcodes
                 topcodeids += opcodeids
             else:  # case 2
@@ -1346,7 +1338,7 @@ def greedy_from_json(json_data: Dict[str, Any], verb=True) -> Tuple[
     # print(encoding._mem_order)
     # print(encoding._sto_order)
     global verbose
-    verbose = False
+    verbose = True
     try:
         (instr, final_no_store) = encoding.target()
         # print("before pre:",encoding._needed_in_stack_map,encoding._initial_stack)
@@ -1366,10 +1358,11 @@ def greedy_from_json(json_data: Dict[str, Any], verb=True) -> Tuple[
         #    res = res1
         #    resids = resids1
         assert (len(res) == len(resids))
+        res, resids = remove_useless(res, resids)
         if encoding.accept(resids):
             # print(name, encoding._b0, len(res))
             # print(res)
-            # print(resids)
+            if verbose: print(resids)
             if len(res) < encoding._b0 or (len(res) <= encoding._b0 and encoding.correct(resids)):
                 json_data["init_progr_len"] = len(res)
                 json_data["original_instrs"] = str(res).replace(",", "")[1:-1].replace("\'", "")
@@ -1392,9 +1385,23 @@ def greedy_from_json(json_data: Dict[str, Any], verb=True) -> Tuple[
         resids = None
         # print(name,encoding._b0,0 )
         error = 1
-
     return json_data, encoding, res, resids, error
 
+def remove_useless(r: List[str], rid:List[str]) -> Tuple[List[str], List[str]]:
+    if len(r) <= 1:
+        return r, rid
+    fr = [r[0]]
+    frid = [rid[0]]
+    i = 1
+    while i < len(r):
+        if r[i-1] == 'SWAP1' and r[i] == 'SWAP1':
+            fr.pop(i-1)
+            frid.pop(i-1)
+        elif r[i-1] != 'DUP1' or r[i] != 'SWAP1':
+            fr = fr + [r[i]]
+            frid = frid + [r[i]]
+        i += 1
+    return fr, frid
 
 def minsize_from_json(json_data: Dict[str, Any]) -> int:
     encoding = SMSgreedy(json_data.copy())
