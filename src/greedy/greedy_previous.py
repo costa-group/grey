@@ -6,22 +6,21 @@ import sys
 import resource
 from typing import List, Dict, Tuple, Any, Union, Set
 import traceback
-from greedy.greedy_info import GreedyInfo
-from global_params.types import SMS_T
+import itertools
 
 output_stack_T = str
 id_T = str
 disasm_T = str
 
+#  <-- Add list if not dependences (2 + i params)
+
 WRITE_OPERATIONS = ['SSTORE', 'MSTORE8', 'MSTORE', 'MCOPY', 'CALLDATACOPY', 'CODECOPY', 'RETURNDATACOPY', 'CALL',
-                    'DELEGATECALL', 'STATICCALL', 'LOG0', 'LOG1', 'LOG2', 'LOG3', 'LOG4', 'EXTCODECOPY', 'ASSIGNIMMUTABLE',
-                    'CREATE', 'CREATE2', 'CALLCODE']
+                    'DELEGATECALL', 'STATICCALL', 'CALLCODE', 'EXTCODECOPY', 'ASSIGNIMMUTABLE','LOG0', 'LOG1', 'LOG2', 'LOG3', 'LOG4']
 MWRITE_OPERATIONS = ['MSTORE8', 'MSTORE', 'MCOPY', 'CALLDATACOPY', 'CODECOPY', 'RETURNDATACOPY', 'CALL',
-                     'DELEGATECALL', 'STATICCALL', 'LOG0', 'LOG1', 'LOG2', 'LOG3', 'LOG4', 'EXTCODECOPY',
-                     'ASSIGNIMMUTABLE', 'CREATE', 'CREATE2', 'CALLCODE']
-MWRITE_OPERATIONS_OUTPUT = ['CALL', 'DELEGATECALL', 'STATICCALL', 'CREATE', 'CREATE2', 'CALLCODE']
+                     'DELEGATECALL', 'STATICCALL', 'CALLCODE', 'EXTCODECOPY', 'ASSIGNIMMUTABLE','LOG0', 'LOG1', 'LOG2', 'LOG3', 'LOG4']
+MWRITE_OPERATIONS_OUTPUT = ['CALL', 'DELEGATECALL', 'STATICCALL', 'CALLCODE']
 MWRITE_OPERATIONS_NO_OUTPUT = ['MSTORE8', 'MSTORE', 'MCOPY', 'CALLDATACOPY', 'CODECOPY', 'RETURNDATACOPY',
-                               'LOG0', 'LOG1', 'LOG2', 'LOG3', 'EXTCODECOPY', 'ASSIGNIMMUTABLE']
+                               'EXTCODECOPY', 'ASSIGNIMMUTABLE','LOG0', 'LOG1', 'LOG2', 'LOG3', 'LOG4']
 
 
 def delete_extension(name):
@@ -606,9 +605,10 @@ class SMSgreedy:
                             swaps = []
                             tstack = stack
                             for i in range(1, pos + 1):
-                                swaps += ['SWAP' + str(i)]
-                                tstack = [tstack[i]] + tstack[1:i] + [tstack[0]] + tstack[i + 1:]
-                                if verbose: print('SWAP' + str(i), tstack, len(tstack))
+                                if tstack[0] != tstack[i]:
+                                    swaps += ['SWAP' + str(i)]
+                                    tstack = [tstack[i]] + tstack[1:i] + [tstack[0]] + tstack[i + 1:]
+                                    if verbose: print('SWAP' + str(i), tstack, len(tstack))
                             for i in range(pos):
                                 if len(self._final_stack) + i - len(stack) in solved:
                                     assert (False)
@@ -617,7 +617,6 @@ class SMSgreedy:
                             return (swaps, swaps.copy(), tstack)
             if o in needed_stack:
                 # print(needed_stack)
-                # print(o)
                 assert (1 <= needed_stack[o])
                 needed_stack[o] -= 1
             else:
@@ -642,7 +641,7 @@ class SMSgreedy:
                 inpts += self._opid_instr_map[o]['inpt_sk']
                 opcode = self._opid_instr_map[o]['disasm']
                 opcodeid = self._opid_instr_map[o]['id']
-                outs = []
+                outs = self._opid_instr_map[o]["outpt_sk"]
             elif 'PUSH' in self._var_instr_map[o]['disasm'] and 'value' in self._var_instr_map[o] \
                     and isinstance(self._var_instr_map[o]['value'], int):
                 if 'tag' in self._var_instr_map[o]['disasm']:
@@ -671,7 +670,6 @@ class SMSgreedy:
                 opcode = self._var_instr_map[o]['disasm']
                 opcodeid = self._var_instr_map[o]['id']
                 outs = self._var_instr_map[o]['outpt_sk']
-                # print(opcodeid,inpts,outs)
             if len(inpts) == 2 and len(stack) >= 2 and self._dup_stack_ini == 0:
                 op1, op2 = stack[0], stack[1]
                 pos0_in_final = len(self._final_stack) - len(stack)
@@ -680,7 +678,6 @@ class SMSgreedy:
                             o in self._var_instr_map and self._var_instr_map[o]['commutative'] and inpts == [op2, op1]):
                         if op1 in needed_stack and needed_stack[op1] == 1:
                             if op2 in needed_stack and needed_stack[op2] == 1:
-                                # print("Applied!")
                                 needed_stack.pop(op1, None)
                                 needed_stack.pop(op2, None)
                                 self._dup_stack_ini += 1
@@ -893,9 +890,8 @@ class SMSgreedy:
                                                                          max_to_swap)
             opcodes += popcodes
             opcodeids += popcodeids
-            if len(self._opid_instr_map[o]["outpt_sk"]) == 1:
-                cstack = [self._opid_instr_map[o]["outpt_sk"][0]] + cstack
-        # print('end memory',cstack)
+#            if len(self._opid_instr_map[o]["outpt_sk"]) == 1:
+#                cstack = [self._opid_instr_map[o]["outpt_sk"][0]] + cstack
         return (opcodes, opcodeids, cstack)
 
     def compute_regular_op(self, o, cstack, cneeded_in_stack_map, solved, max_to_swap):
@@ -1043,15 +1039,10 @@ class SMSgreedy:
                     assert (lens == len(cstack))
             elif case == 3:
                 o = instr.pop(0)
-                # print(o)
                 self._dup_stack_ini = 0
-                # print("memory3:", o)
                 (opcodes, opcodeids, cstack) = self.compute_memory_op(o, cstack, cneeded_in_stack_map, solved,
                                                                       max_to_swap)
                 assert (len(self._opid_instr_map[o]["outpt_sk"]) <= 1)
-                if len(self._opid_instr_map[o]["outpt_sk"]) == 1:
-                    cstack = self._opid_instr_map[o]["outpt_sk"][0] + cstack
-
                 topcodes += opcodes
                 topcodeids += opcodeids
             else:  # case 2
@@ -1367,10 +1358,11 @@ def greedy_from_json(json_data: Dict[str, Any], verb=True) -> Tuple[
         #    res = res1
         #    resids = resids1
         assert (len(res) == len(resids))
+        res, resids = remove_useless(res, resids)
         if encoding.accept(resids):
             # print(name, encoding._b0, len(res))
             # print(res)
-            # print(resids)
+            if verbose: print(resids)
             if len(res) < encoding._b0 or (len(res) <= encoding._b0 and encoding.correct(resids)):
                 json_data["init_progr_len"] = len(res)
                 json_data["original_instrs"] = str(res).replace(",", "")[1:-1].replace("\'", "")
@@ -1393,9 +1385,23 @@ def greedy_from_json(json_data: Dict[str, Any], verb=True) -> Tuple[
         resids = None
         # print(name,encoding._b0,0 )
         error = 1
-
     return json_data, encoding, res, resids, error
 
+def remove_useless(r: List[str], rid:List[str]) -> Tuple[List[str], List[str]]:
+    if len(r) <= 1:
+        return r, rid
+    fr = [r[0]]
+    frid = [rid[0]]
+    i = 1
+    while i < len(r):
+        if r[i-1] == 'SWAP1' and r[i] == 'SWAP1':
+            fr.pop(i-1)
+            frid.pop(i-1)
+        elif r[i-1] != 'DUP1' or r[i] != 'SWAP1':
+            fr = fr + [r[i]]
+            frid = frid + [r[i]]
+        i += 1
+    return fr, frid
 
 def minsize_from_json(json_data: Dict[str, Any]) -> int:
     encoding = SMSgreedy(json_data.copy())
@@ -1412,7 +1418,8 @@ def minsize_from_json(json_data: Dict[str, Any]) -> int:
             s += encoding.occurrences[i]
     return s
 
-def greedy_standalone(sms: Dict) -> GreedyInfo:
+
+def greedy_standalone(sms: Dict) -> Tuple[str, float, List[str]]:
     """
     Executes the greedy algorithm as a standalone configuration. Returns whether the execution has been
     sucessful or not ("non_optimal" or "error"), the total time and the sequence of ids returned.
@@ -1429,15 +1436,14 @@ def greedy_standalone(sms: Dict) -> GreedyInfo:
         error = 1
         seq_ids = []
     optimization_outcome = "error" if error == 1 else "non_optimal"
-    total_time = usage_stop.ru_utime + usage_stop.ru_stime - usage_start.ru_utime - usage_start.ru_stime
-    return GreedyInfo.from_old_version(seq_ids, optimization_outcome, total_time, sms["user_instrs"])
+    return optimization_outcome, usage_stop.ru_utime + usage_stop.ru_stime - usage_start.ru_utime - usage_start.ru_stime, seq_ids
 
 
-def greedy_from_file(filename: str) -> Tuple[SMS_T, GreedyInfo]:
+def greedy_from_file(filename: str):
     with open(filename, "r") as f:
         sfs = json.load(f)
-    greedy_info = greedy_standalone(sfs)
-    return sfs, greedy_info
+    outcome, time, ids = greedy_standalone(sfs)
+    return sfs, ids, outcome
 
 
 if __name__ == "__main__":
