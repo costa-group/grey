@@ -880,7 +880,7 @@ class SMSgreedy:
         if not is_write(o):
             assert (lord[-1] == o)  # means o was not in stack before and now it's computed
         else:
-            print("finally computing:", o)
+            # print("finally computing:", o)
             # Now we have to compute o
             (ops, cstack, cneeded_in_stack_map) = self.clean_stack(o, cstack, cneeded_in_stack_map, solved)
             opcodes += ops
