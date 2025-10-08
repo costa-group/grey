@@ -255,8 +255,8 @@ def detect_unused_instructions(instrs: List[instr_JSON_T], final_stack: List[var
 
     return set(dep_graph.nodes).difference(reachable_nodes)
 
-def delete_unsued_instructions_from_deps(sto_deps,mem_deps, unused_ids):
+def delete_unsued_instructions_from_deps(sto_deps, mem_deps, trans_deps, unused_ids):
     new_sto_deps = [x for x in sto_deps if x[0] not in unused_ids and x[1] not in unused_ids]
     new_mem_deps = [x for x in mem_deps if x[0] not in unused_ids and x[1] not in unused_ids]
-
-    return new_sto_deps, new_mem_deps
+    new_trans_deps = [x for x in trans_deps if x[0] not in unused_ids and x[1] not in unused_ids]
+    return new_sto_deps, new_mem_deps, new_trans_deps
