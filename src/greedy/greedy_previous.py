@@ -1399,7 +1399,7 @@ def remove_useless(r: List[str], rid:List[str]) -> Tuple[List[str], List[str]]:
             frid.pop(i-1)
         elif r[i-1] != 'DUP1' or r[i] != 'SWAP1':
             fr = fr + [r[i]]
-            frid = frid + [r[i]]
+            frid = frid + [rid[i]]
         i += 1
     return fr, frid
 
