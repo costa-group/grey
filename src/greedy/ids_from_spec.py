@@ -12,7 +12,6 @@ from parser.cfg_block_list import CFGBlockList
 from parser.cfg_object import CFGObject
 from parser.cfg import CFG
 import greedy.greedy_previous as previous
-import greedy.greedy_old as new_greedy
 from solution_generation.statistics import generate_statistics_info
 import greedy.greedy_new_version as alternative
 import numpy as np
@@ -37,27 +36,24 @@ def execute_previous_greedy(cfg_block):
 
     return outcome1, time1, greedy_ids1
 
+
 def cfg_block_spec_ids(cfg_block: CFGBlock) -> Tuple[str, float, List[instr_id_T]]:
     # Retrieve the information from each of the executions
     greedy_info1 = previous.greedy_standalone(cfg_block.spec)
     outcome1, time1, greedy_ids1 = greedy_info1.outcome, greedy_info1.execution_time, greedy_info1.greedy_ids
 
-    greedy_info2 = new_greedy.greedy_standalone(cfg_block.spec)
-    outcome2, time2, greedy_ids2 = greedy_info2.outcome, greedy_info2.execution_time, greedy_info2.greedy_ids
-
-    print("LLEGO", cfg_block.block_id)
     greedy_info3 = alternative.greedy_standalone(cfg_block.spec)
     outcome3, time3, greedy_ids3 = greedy_info3.outcome, greedy_info3.execution_time, greedy_info3.greedy_ids
 
-    lengths = [_length_or_zero(greedy_ids1, outcome1), _length_or_zero(greedy_ids2, outcome2),
+    lengths = [_length_or_zero(greedy_ids1, outcome1),
                _length_or_zero(greedy_ids3, outcome3)]
 
     chosen_idx = np.argmin(lengths)
     print(chosen_idx, lengths)
 
-    outcome = [outcome1, outcome2, outcome3][chosen_idx]
-    time = [time1, time2, time3][chosen_idx]
-    greedy_ids = [greedy_ids1, greedy_ids3, greedy_ids3][chosen_idx]
+    outcome = [outcome1, outcome3][chosen_idx]
+    time = [time1, time3][chosen_idx]
+    greedy_ids = [greedy_ids1, greedy_ids3][chosen_idx]
 
     cfg_block.greedy_ids = greedy_ids if greedy_ids is not None else []
     return outcome, time, greedy_ids
