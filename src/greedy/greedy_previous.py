@@ -1338,7 +1338,7 @@ def greedy_from_json(json_data: Dict[str, Any], verb=True) -> Tuple[
     # print(encoding._mem_order)
     # print(encoding._sto_order)
     global verbose
-    verbose = True
+    verbose = False
     try:
         (instr, final_no_store) = encoding.target()
         # print("before pre:",encoding._needed_in_stack_map,encoding._initial_stack)
