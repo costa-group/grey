@@ -95,18 +95,25 @@ def merge_list_swapping_topmost(list_with_nones: List[Optional[str]]) -> List:
     return list_with_nones[i:]
 
 
-def combine_lists_with_junk(original_list: List[Optional[str]], second_list: List) -> Tuple[List, int]:
+def combine_lists_with_junk(original_list: List[Optional[str]], second_list: List,
+                            can_have_junk: bool) -> Tuple[List, int]:
     """
     Combines the original list with the elements from the second list, possibly generating junk
     in the process.
     """
-    junk_idx, best_count = find_longest_none_sequence(original_list)
-    junk_negative_idx = len(original_list) - junk_idx
-    # We keep the elements emerged in the order found
-    elements_to_emerge = [element for element in original_list[junk_idx:] if element is not None]
+    if can_have_junk:
+        junk_idx, best_count = find_longest_none_sequence(original_list)
+        junk_negative_idx = len(original_list) - junk_idx
+        # We keep the elements emerged in the order found
+        elements_to_emerge = [element for element in original_list[junk_idx:] if element is not None]
 
-    # New bottom element
-    new_bottom = original_list[:junk_idx]
+        # New bottom element
+        new_bottom = original_list[:junk_idx]
+    else:
+        # Just keep the original list
+        new_bottom = original_list
+        elements_to_emerge = []
+        junk_negative_idx = 0
 
     # We prioritize first emerging the elements that are too deep within the stack
     combined_list_with_possibly_nones = combine_lists_with_order(new_bottom, second_list + elements_to_emerge)

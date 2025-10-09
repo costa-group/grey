@@ -20,6 +20,7 @@ from parser.cfg_block_list import CFGBlockList
 from parser.cfg_block import CFGBlock
 from analysis.abstract_state import digraph_from_block_info
 from graphs.algorithms import condense_to_dag, information_on_graph, compute_dominance_tree
+from graphs.cfg import compute_loop_nesting_forest_graph
 from liveness.liveness_analysis import LivenessAnalysisInfoSSA, construct_analysis_info, \
     perform_liveness_analysis_from_cfg_info
 from liveness.utils import functions_inputs_from_components
@@ -100,11 +101,16 @@ class LayoutGeneration:
         self._sfs_dir = name.joinpath("sfs")
         self._sfs_dir.mkdir(exist_ok=True, parents=True)
 
+        self._loop_nesting_forest = compute_loop_nesting_forest_graph(self._cfg_graph)
+
         # Guess: we need to traverse the code following the dominance tree in topological order
         # This is because in the dominance tree together with the SSA, all the nodes
 
         self._block_depth = compute_block_level(self._dominance_tree, self._start)
         self._unification_dict = unification_block_dict(block_list)
+
+    def _can_have_junk(self, block_id):
+        return self._is_main_component and block_id not in self._loop_nesting_forest
 
     def _construct_code_from_block(self, block: CFGBlock, input_stacks: Dict[str, List[str]],
                                    output_stacks: Dict[str, List[str]]):
@@ -165,7 +171,8 @@ class LayoutGeneration:
                                                                                      phi_instructions,
                                                                                      self._variable_order[
                                                                                          next_block_id],
-                                                                                     block_id, input_stack.copy())
+                                                                                     block_id, input_stack.copy(),
+                                                                                     self._can_have_junk(block_id))
 
                 # Update the output stacks with the ones generated from the unification
                 output_stacks.update(output_stacks_unified)
@@ -185,7 +192,10 @@ class LayoutGeneration:
 
             else:
                 output_stack, junk_idx = output_stack_layout(input_stack, block.final_stack_elements,
-                                                             liveness_info.out_state.live_vars, self._variable_order[block_id])
+                                                             liveness_info.out_state.live_vars,
+                                                             self._variable_order[block_id],
+                                                             self._can_have_junk(block_id)
+                                                             )
 
             # We store the output stack in the dict, as we have built a new element
             # We forget about the junk, because we propagate it assuming there is no garbage

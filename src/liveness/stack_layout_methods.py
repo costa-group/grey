@@ -94,7 +94,8 @@ def unification_block_dict(block_list: CFGBlockList) -> Dict[block_id_T, Tuple[b
 
 
 def output_stack_layout(input_stack: List[str], final_stack_elements: List[str],
-                        live_vars: Set[str], variable_depth_info: Dict[str, Tuple]) -> Tuple[List[str], int]:
+                        live_vars: Set[str], variable_depth_info: Dict[str, Tuple],
+                        can_have_junk: bool) -> Tuple[List[str], int]:
     """
     Generates the output stack layout before and after the last instruction
     (i.e. the one not optimized by the greedy algorithm), according to the variables
@@ -132,7 +133,8 @@ def output_stack_layout(input_stack: List[str], final_stack_elements: List[str],
     # Second case: there are more gaps. We might resurface part of the stack
     # to avoid shuffling too much in between
     else:
-        bottom_output_stack, junk_size = combine_lists_with_junk(bottom_output_stack, vars_to_place_sorted)
+        bottom_output_stack, junk_size = combine_lists_with_junk(bottom_output_stack, vars_to_place_sorted,
+                                                                 can_have_junk)
 
         junk_idx = len(bottom_output_stack)
 
@@ -306,7 +308,7 @@ def generate_combined_block_from_original(original_in_stack: List[var_id_T],
 def unify_stacks_brothers(target_block_id: block_id_T, predecessor_blocks: List[block_id_T],
                           live_vars_dict: Dict[block_id_T, Set[var_id_T]], phi_functions: List[CFGInstruction],
                           variable_depth_info: Dict[str, Tuple], original_block: block_id_T,
-                          original_in_stack: List[var_id_T]) -> Tuple[List[block_id_T], Dict[block_id_T, List[var_id_T]]]:
+                          original_in_stack: List[var_id_T], can_have_junk: bool) -> Tuple[List[block_id_T], Dict[block_id_T, List[var_id_T]]]:
     """
     Generate the output stack for all blocks that share a common block destination and the consolidated stack,
     considering the PhiFunctions
@@ -322,7 +324,7 @@ def unify_stacks_brothers(target_block_id: block_id_T, predecessor_blocks: List[
 
     # We generate the input stack of the combined information, considering the pseudo phi functions
     combined_output_stack, junk_idx = output_stack_layout(combined_init_stack, [], live_vars_with_pseudo_phi,
-                                                          dict(variable_depth_info, **{key: (0,) for key in introduced_phis}))
+                                                          dict(variable_depth_info, **{key: (0,) for key in introduced_phis}), can_have_junk)
 
     # Reconstruct all the output stacks
     predecessor_output_stacks = dict()
