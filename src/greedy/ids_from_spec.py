@@ -42,18 +42,19 @@ def cfg_block_spec_ids(cfg_block: CFGBlock) -> Tuple[str, float, List[instr_id_T
     greedy_info1 = previous.greedy_standalone(cfg_block.spec)
     outcome1, time1, greedy_ids1 = greedy_info1.outcome, greedy_info1.execution_time, greedy_info1.greedy_ids
 
-    greedy_info3 = alternative.greedy_standalone(cfg_block.spec)
-    outcome3, time3, greedy_ids3 = greedy_info3.outcome, greedy_info3.execution_time, greedy_info3.greedy_ids
+    # greedy_info3 = alternative.greedy_standalone(cfg_block.spec)
+    # outcome3, time3, greedy_ids3 = greedy_info3.outcome, greedy_info3.execution_time, greedy_info3.greedy_ids
 
     lengths = [_length_or_zero(greedy_ids1, outcome1),
-               _length_or_zero(greedy_ids3, outcome3)]
+               # _length_or_zero(greedy_ids3, outcome3)
+               ]
 
     chosen_idx = np.argmin(lengths)
     print(chosen_idx, lengths)
 
-    outcome = [outcome1, outcome3][chosen_idx]
-    time = [time1, time3][chosen_idx]
-    greedy_ids = [greedy_ids1, greedy_ids3][chosen_idx]
+    outcome = outcome1 # [outcome1, outcome3][chosen_idx]
+    time = time1 #  [time1, time3][chosen_idx]
+    greedy_ids = greedy_ids1 # [greedy_ids1, greedy_ids3][chosen_idx]
 
     cfg_block.greedy_ids = greedy_ids if greedy_ids is not None else []
     return outcome, time, greedy_ids
