@@ -252,7 +252,7 @@ class CFGInstruction:
     def get_type_mem_op(self):
         if self.op in ["tload","sload", "mload", "keccak256", "log0","log1","log2","log3","log4", "create","create2"]:
             return "read"
-        elif self.op in ["tstore","mstore", "mstore8", "codecopy","extcodecopy","calldatacopy","returndatacopy","mcopy","sstore"]:
+        elif self.op in ["assignimmutable","tstore","mstore", "mstore8", "codecopy","extcodecopy","calldatacopy","returndatacopy","mcopy","sstore"]:
             return "write"
         else:
             return None
