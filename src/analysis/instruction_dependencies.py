@@ -215,6 +215,9 @@ def compute_memory_dependences(instructions: List[CFGInstruction]):
             interval = (input_val, 32)
             mem_ins.append([i, interval, ins.get_type_mem_op()])
 
+        elif ins.get_op_name() == "assignimmutable":
+            mem_ins.append([i, (0,"inf"), "write"])
+            
         elif ins.get_op_name() in mem_instrs_offset:
             values = ins.get_in_args()
             interval_args = get_interval(ins.get_op_name(), values)
