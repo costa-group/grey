@@ -2,12 +2,34 @@
 Module for computing properties in the CFG
 """
 import networkx as nx
+from typing import List, Optional, Tuple
 
 # Methods for generating the loop nesting forest
 
 
-def is_back_edge(u, v, dominators: nx.DiGraph):
-    return u in nx.descendants(dominators, v)
+def find_back_edges(G: nx.DiGraph) -> List:
+    """
+    Compute all back edges in a directed graph G using DFS.
+    Returns a list of (u, v) tuples that are back edges.
+    """
+    visited = set()
+    rec_stack = set()
+    back_edges = []
+
+    def dfs(u):
+        visited.add(u)
+        rec_stack.add(u)
+        for v in G.successors(u):
+            if v not in visited:
+                dfs(v)
+            elif v in rec_stack:
+                back_edges.append((u, v))
+        rec_stack.remove(u)
+
+    for node in G.nodes():
+        if node not in visited:
+            dfs(node)
+    return back_edges
 
 
 def find_natural_loop(cfg, u, v):
@@ -24,8 +46,10 @@ def find_natural_loop(cfg, u, v):
     return loop_nodes
 
 
-def compute_loop_nesting_forest_graph(cfg, dominators):
-    back_edges = [(u, v) for u, v in cfg.edges if is_back_edge(u, v, dominators)]
+def compute_loop_nesting_forest_graph(cfg: nx.DiGraph, back_edges: Optional[List[Tuple]] = None):
+    if back_edges is None:
+        back_edges = find_back_edges(cfg)
+
     print("Back", back_edges)
     loops = []
 
@@ -57,3 +81,10 @@ def compute_loop_nesting_forest_graph(cfg, dominators):
                 nesting_forest.add_edge(parent_header, child)
 
     return nesting_forest
+
+
+def compute_cfg_without_backward_edges(cfg: nx.DiGraph) -> nx.DiGraph:
+    back_edges = find_back_edges(cfg)
+    new_cfg = cfg.copy()
+    cfg.remove_edges_from(back_edges)
+    return new_cfg
