@@ -4,7 +4,7 @@ import logging
 from global_params.types import instr_id_T, dependencies_T, var_id_T, block_id_T, function_name_T, SMS_T
 from parser.cfg_instruction import CFGInstruction, build_push_spec, build_pushtag_spec
 from parser.utils_parser import replace_pos_instrsid, replace_aliasing_spec, detect_unused_instructions, delete_unsued_instructions_from_deps
-from analysis.instruction_dependencies import compute_memory_dependences, compute_storage_dependences, compute_transient_dependences, simplify_dependences
+from analysis.instruction_dependencies import compute_memory_dependences, compute_storage_dependences, compute_transient_dependences, compute_gas_dependences, simplify_dependences
 import parser.constants as constants
 import json
 import networkx as nx
@@ -369,8 +369,12 @@ class CFGBlock:
         trans_dep = compute_transient_dependences(instructions)
         trans_dep = simplify_dependences(trans_dep)
         trans_deps = replace_pos_instrsid(trans_dep, map_positions)
-        
-        return sto_deps, mem_deps, trans_deps
+
+        gas_dep = compute_gas_dependences(instructions)
+        gas_dep = simplify_dependences(gas_dep)
+        gas_deps = replace_pos_instrsid(gas_dep, map_positions)
+
+        return sto_deps, mem_deps, trans_deps, gas_deps
 
 
     def translate_opcodes(self, objects_keys, next_idx, subobjects_idx):
@@ -626,21 +630,18 @@ class CFGBlock:
         with open("sms.json", 'w') as f:
             json.dump(spec, f, indent=4)
 
-        sto_deps, mem_deps, trans_deps = self._process_dependences(self.instructions_to_synthesize, map_positions)
-        sto_deps, mem_deps, trans_deps = delete_unsued_instructions_from_deps(sto_deps, mem_deps, trans_deps, unused_ids)
+        sto_deps, mem_deps, trans_deps, gas_deps = self._process_dependences(self.instructions_to_synthesize, map_positions)
+        sto_deps, mem_deps, trans_deps, gas_deps = delete_unsued_instructions_from_deps(sto_deps, mem_deps, trans_deps, gas_deps, unused_ids)
         spec["storage_dependences"] = sto_deps
         spec["memory_dependences"] = mem_deps
         spec["transient_dependences"] = trans_deps
-        spec["dependencies"] = [*sto_deps, *mem_deps, *trans_deps]
+        spec["dependencies"] = [*sto_deps, *mem_deps, *trans_deps, *gas_deps]
 
         # Just to print information if it is not a jump
         if not self._jump_type in ["conditional", "unconditional"]:
             logging.debug(f"Building Spec of block {self.block_id}...")
             logging.debug(json.dumps(spec, indent=4))
 
-
-        print("******")
-        print(spec)
             
         return spec
 
