@@ -14,7 +14,7 @@ disasm_T = str
 
 #  <-- Add list if not dependences (2 + i params)
 
-WRITE_OPERATIONS = ['SSTORE', 'MSTORE8', 'MSTORE', 'MCOPY', 'CALLDATACOPY', 'CODECOPY', 'RETURNDATACOPY', 'CALL',
+WRITE_OPERATIONS = ['SSTORE', 'TSTORE', 'MSTORE8', 'MSTORE', 'MCOPY', 'CALLDATACOPY', 'CODECOPY', 'RETURNDATACOPY', 'CALL',
                     'DELEGATECALL', 'STATICCALL', 'CALLCODE', 'EXTCODECOPY', 'ASSIGNIMMUTABLE','LOG0', 'LOG1', 'LOG2', 'LOG3', 'LOG4']
 MWRITE_OPERATIONS = ['MSTORE8', 'MSTORE', 'MCOPY', 'CALLDATACOPY', 'CODECOPY', 'RETURNDATACOPY', 'CALL',
                      'DELEGATECALL', 'STATICCALL', 'CALLCODE', 'EXTCODECOPY', 'ASSIGNIMMUTABLE','LOG0', 'LOG1', 'LOG2', 'LOG3', 'LOG4']
@@ -98,7 +98,7 @@ def get_max_pos_noSTORE(o, tmax, deps, pos):
 
 def sort_with_deps(elems, deps, opid_instr_map, var_instr_map):
     ops = sorted(list(set([e for p in deps for e in p] + elems)))
-    # print(ops)
+    # print("0.", elems, deps, ops)
     pos = {}
     for o in ops:
         pos[o] = get_min_pos(o, deps)
@@ -125,8 +125,8 @@ def sort_with_deps(elems, deps, opid_instr_map, var_instr_map):
     poslops.sort(key=lambda x: x[0])
     possops = list(possops.items())
     possops.sort(key=lambda x: x[0])
-    # print(poslops)
-    # print(possops)
+    # print("1.",poslops)
+    # print("2.",possops)
     opsord = []
     cur = 0
     for sop in possops:
@@ -252,7 +252,8 @@ def remove_nostores_and_rename(torder, opid_instr_map, var_instr_map):
     while len(torder) > 0:
         op = torder.pop(0)
         if is_write(op):
-            final_ops += [op]
+            if op not in torder:
+                final_ops += [op]
         else:
             lchk = []
             lchk += final_ops
@@ -263,6 +264,14 @@ def remove_nostores_and_rename(torder, opid_instr_map, var_instr_map):
                     else:
                         lchk += [o]
                     if "SSTORE" in o:
+                        break
+            elif "TLOAD" in op:
+                for o in torder:
+                    if not is_write(o):
+                        lchk += [opid_instr_map[o]['outpt_sk'][0]]
+                    else:
+                        lchk += [o]
+                    if "TSTORE" in o:
                         break
             elif not is_write(op):  # MLOAD or KECCAK256 or any other not write
                 for o in torder:
@@ -294,6 +303,11 @@ def needed_nostores(msops, final_stack, opid_instr_map, var_instr_map):
                 while len(lops) > 0:
                     op1 = lops.pop(0)
                     if 'SSTORE' in op1:
+                        break
+            if "TLOAD" in op:
+                while len(lops) > 0:
+                    op1 = lops.pop(0)
+                    if 'TSTORE' in op1:
                         break
             else:  # MLOAD or KECCAK256
                 while len(lops) > 0:
@@ -377,6 +391,7 @@ class SMSgreedy:
         self._final_stack = json_format['tgt_ws']
         self._mem_order = json_format['memory_dependences']
         self._sto_order = json_format['storage_dependences']
+        self._tsto_order = json_format['transient_dependences']
         self._original_instrs = json_format['original_instrs']
         self._var_instr_map = {}
         for ins in self._user_instr:
@@ -417,8 +432,9 @@ class SMSgreedy:
         for o in self._initial_stack:
             self.occurrences[o] = 0
         lmstore = get_ops_id(self._user_instr, MWRITE_OPERATIONS)
+        ltstore = get_ops_id(self._user_instr, ['TSTORE'])
         lsstore = get_ops_id(self._user_instr, ['SSTORE'])
-        for o in lmstore + lsstore:
+        for o in lmstore + ltstore + lsstore:
             inp = self._opid_instr_map[o]["inpt_sk"]
             self.count_ops_one(inp[0])
             self.count_ops_one(inp[1])
@@ -451,8 +467,9 @@ class SMSgreedy:
         for o in self._initial_stack:
             self.uses[o] = 0
         lmstore = get_ops_id(self._user_instr, MWRITE_OPERATIONS)
+        ltstore = get_ops_id(self._user_instr, ['TSTORE'])
         lsstore = get_ops_id(self._user_instr, ['SSTORE'])
-        for o in lmstore + lsstore:
+        for o in lmstore + ltstore + lsstore:
             # print("op to count:", o)
             assert (len(self._opid_instr_map[o]["outpt_sk"]) <= 1)
             if len(self._opid_instr_map[o]["outpt_sk"]) == 0:
@@ -767,6 +784,8 @@ class SMSgreedy:
         # print(cstack,self._final_stack)
         # assert(len(cstack) == len(self._final_stack))
         for e in self._final_stack:
+            if not cstack.count(e) == self._final_stack.count(e):
+                print(e,cstack,self._final_stack)
             assert (cstack.count(e) == self._final_stack.count(e))
         # assert(0 in solved)
         return (2, 0)  # We are in the permutation case
@@ -1120,6 +1139,8 @@ class SMSgreedy:
         # print(lmstore)
         lsstore = get_ops_id(self._user_instr, ['SSTORE'])
         # print(lsstore)
+        ltstore = get_ops_id(self._user_instr, ['TSTORE'])
+        # print(ltstore)
         # dep_target_mem = []
         # for e in self._final_stack:
         #    l = get_deps(e,self._var_instr_map,'MLOAD')
@@ -1132,18 +1153,30 @@ class SMSgreedy:
         #    dep_target_str += map(lambda x: [sloadmap[x],e], l)
         # print(dep_target_str)
         (sorder, final_no_sstore) = sort_with_deps(lsstore, self._sto_order, self._opid_instr_map, self._var_instr_map)
+        # dep_target_str = []
+        # for e in self._final_stack:
+        #    l = get_deps(e,self._var_instr_map,'SLOAD')
+        #    dep_target_str += map(lambda x: [sloadmap[x],e], l)
+        # print(dep_target_str)
+        (tsorder, final_no_tstore) = sort_with_deps(ltstore, self._tsto_order, self._opid_instr_map, self._var_instr_map)
         # print(self._mem_order)
-        # print('Order: ',morder)
+        # print('NOrder: ',morder)
         # print('No:', final_no_mstore)
         # print()
         # print(self._sto_order)
         # print(sorder)
         # print(final_no_sstore)
         # print()
-        torder = merge(morder, sorder, final_no_mstore, final_no_sstore, self._opid_instr_map, self._var_instr_map)
+        # print(self._tsto_order)
+        # print(tsorder)
+        # print(final_no_tstore)
+        # print()
+        tstorder = merge(tsorder, sorder, final_no_tstore, final_no_sstore, self._opid_instr_map, self._var_instr_map)
+        final_no_tsstore = final_no_tstore + final_no_sstore
+        torder = merge(morder, tstorder, final_no_mstore, final_no_tsstore, self._opid_instr_map, self._var_instr_map)
         # print('torder',torder)
         final_no_store = []
-        for o in final_no_mstore + final_no_sstore:
+        for o in final_no_mstore + final_no_tstore + final_no_sstore:
             final_no_store += [self._opid_instr_map[o]['outpt_sk'][0]]
         # print('torder:',torder)
         # print('final_no_store',final_no_store)
@@ -1408,7 +1441,7 @@ def minsize_from_json(json_data: Dict[str, Any]) -> int:
     # print(encoding._initial_stack)
     encoding.count_ops()
     # print(encoding.occurrences)
-    s = len(get_ops_id(encoding._user_instr, MWRITE_OPERATIONS)) + len(get_ops_id(encoding._user_instr, ['SSTORE']))
+    s = len(get_ops_id(encoding._user_instr, MWRITE_OPERATIONS)) + len(get_ops_id(encoding._user_instr, ['TSTORE'])) + len(get_ops_id(encoding._user_instr, ['SSTORE']))
     for i in encoding.occurrences:
         if i in encoding._initial_stack:
             # if less uses than occurrences we need to pop
