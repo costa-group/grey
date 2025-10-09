@@ -24,8 +24,7 @@ from liveness.liveness_analysis import LivenessAnalysisInfoSSA, construct_analys
     perform_liveness_analysis_from_cfg_info
 from liveness.utils import functions_inputs_from_components
 from liveness.stack_layout_methods import compute_variable_depth, output_stack_layout, unify_stacks_brothers, \
-    compute_block_level, unification_block_dict, propagate_output_stack, unify_stacks_brothers_missing_values, \
-    forget_values
+    compute_block_level, unification_block_dict, propagate_output_stack, forget_values
 
 
 def substitute_duplicates(input_stack: List[var_id_T]):
@@ -160,25 +159,13 @@ class LayoutGeneration:
                 combined_liveness_info[next_block_id] = self._liveness_info[next_block_id].in_state.live_vars
 
                 # If it is the main component, we do not care about the state of the stack afterwards
-                if False:
-                    (combined_output_stack,
-                     output_stacks_unified) = unify_stacks_brothers_missing_values(next_block_id,
-                                                                                   elements_to_unify,
-                                                                                   {previous_id: input_stacks.get(previous_id, [])
-                                                                                    for previous_id in elements_to_unify},
-                                                                                   combined_liveness_info,
-                                                                                   phi_instructions,
-                                                                                   self._variable_order[next_block_id],
-                                                                                   block_id, input_stack.copy())
-
-                else:
-                    combined_output_stack, output_stacks_unified = unify_stacks_brothers(next_block_id,
-                                                                                         elements_to_unify,
-                                                                                         combined_liveness_info,
-                                                                                         phi_instructions,
-                                                                                         self._variable_order[
-                                                                                             next_block_id],
-                                                                                         block_id, input_stack.copy())
+                combined_output_stack, output_stacks_unified = unify_stacks_brothers(next_block_id,
+                                                                                     elements_to_unify,
+                                                                                     combined_liveness_info,
+                                                                                     phi_instructions,
+                                                                                     self._variable_order[
+                                                                                         next_block_id],
+                                                                                     block_id, input_stack.copy())
 
                 # Update the output stacks with the ones generated from the unification
                 output_stacks.update(output_stacks_unified)
@@ -194,12 +181,15 @@ class LayoutGeneration:
                                                       liveness_info.out_state.live_vars, self._variable_order[block_id],
                                                       block.split_instruction.in_args if block.split_instruction else [])
 
+                junk_idx = len(output_stack)
+
             else:
-                output_stack = output_stack_layout(input_stack, block.final_stack_elements,
-                                                   liveness_info.out_state.live_vars, self._variable_order[block_id])
+                output_stack, junk_idx = output_stack_layout(input_stack, block.final_stack_elements,
+                                                             liveness_info.out_state.live_vars, self._variable_order[block_id])
 
             # We store the output stack in the dict, as we have built a new element
-            output_stacks[block_id] = output_stack
+            # We forget about the junk, because we propagate it assuming there is no garbage
+            output_stacks[block_id] = output_stack[:junk_idx]
 
         # We build the corresponding specification and store it in the block
         block_json = block.build_spec(substitute_duplicates(input_stack), output_stack)
