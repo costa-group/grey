@@ -476,7 +476,7 @@ class SMSgreedy:
         else:
             if self.duplicate(o) or is_mwrite_output(self._var_instr_map[o]["id"]):
                 self.uses[o] = 1
-            if o in self._var_instr_map:
+            if o in self._var_instr_map and not is_mwrite_output(self._var_instr_map[o]["id"]):
                 for oi in self._var_instr_map[o]["inpt_sk"]:
                     self.count_uses_one(oi)
 
@@ -489,14 +489,14 @@ class SMSgreedy:
         for o in lmstore + ltstore + lsstore:
             # print("op to count:", o)
             assert (len(self._opid_instr_map[o]["outpt_sk"]) <= 1)
-            if len(self._opid_instr_map[o]["outpt_sk"]) == 0:
+            # if len(self._opid_instr_map[o]["outpt_sk"]) == 0:
                 #            if len(self._opid_instr_map[o]["outpt_sk"]) == 1:
                 #                self.count_uses_one(self._opid_instr_map[o]["outpt_sk"][0])
                 #                print(self.uses)
                 #            else:
-                inp = self._opid_instr_map[o]["inpt_sk"]
-                for o1 in inp:
-                    self.count_uses_one(o1)
+            inp = self._opid_instr_map[o]["inpt_sk"]
+            for o1 in inp:
+                self.count_uses_one(o1)
                 # self.count_uses_one(inp[0])
                 # self.count_uses_one(inp[1])
                 # print(self.uses)
@@ -1293,14 +1293,16 @@ class SMSgreedy:
         for o in to_remove:
             self.uses.pop(o, None)
         # print("needed:",self._needed_in_stack_map)
+        # print("uses:",self.uses)
         assert (set(self._needed_in_stack_map.keys()).issubset(set(self.uses.keys())))
-        for o in self._needed_in_stack_map:
-            self._needed_in_stack_map[o] <= self.uses[o]
+        # for o in self._needed_in_stack_map:
+        #    assert(self._needed_in_stack_map[o] <= self.uses[o])
         # print("uses:",self.uses)
         self._needed_in_stack_map = self.uses  # we don't want to recompute
         # print("after:",self._needed_in_stack_map)
         # assert(sorted(list(self._needed_in_stack_map.items())) == sorted(list(self.uses.items())))
         # print('initial stack:  ', self._initial_stack)
+        # print('final stack:  ', self._final_stack)
         return (torder, final_no_store)
         # sort_dep(lm,self._mem_order)
         # sort_dep(ls,self._sto_order)
