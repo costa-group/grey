@@ -21,22 +21,6 @@ def _length_or_zero(l, outcome):
     return len(l) if l is not None and outcome != "error" else 10000
 
 
-def execute_previous_greedy(cfg_block):
-    source_stack = cfg_block.spec["src_ws"]
-    set_source_stack = set(source_stack)
-
-    if len(source_stack) != len(set_source_stack):
-        print("[WARNING]: Error in previous greedy")
-        print(source_stack)
-        outcome1 = "error"
-        time1 = None
-        greedy_ids1 = []
-    else:
-        outcome1, time1, greedy_ids1 = previous.greedy_standalone(cfg_block.spec)
-
-    return outcome1, time1, greedy_ids1
-
-
 def cfg_block_spec_ids(cfg_block: CFGBlock) -> Tuple[str, float, List[instr_id_T]]:
     # Retrieve the information from each of the executions
     greedy_info1 = previous.greedy_standalone(cfg_block.spec)
