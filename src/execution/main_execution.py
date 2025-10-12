@@ -44,6 +44,7 @@ def parse_args() -> argparse.Namespace:
                                      "showcasing the results from the liveness analysis")
     output_options.add_argument("-json-solc", "--json-solc", action="store_true", dest="json_solc",
                                 help="Stores the result in combined-json format")
+    output_options.add_argument("-auxdata", "--auxdata", action="store_true", dest="auxdata", help="Enabled the generation of auxdata as part of the evm code")
 
     synthesis_options = parser.add_argument_group("Synthesis Options")
     synthesis_options.add_argument("-g", "--greedy", action="store_true", help="Enables the greedy algorithm")
@@ -69,7 +70,7 @@ def yul_cfg_dict_from_format(input_format: str, filename: str, contract: Optiona
         with open(filename, 'r') as f:
             input_contract = json.load(f)
             settings_opt = input_contract["settings"]
-        return SolidityCompilation.from_json_input(input_contract, contract,
+        return SolidityCompilation.from_json_input(input_contract, contract, original_folder=str(Path(filename).parent),
                                                    solc_executable=solc_executable), settings_opt
     else:
         raise ValueError(f"Input format {input_format} not recognized.")
@@ -110,7 +111,7 @@ def analyze_single_cfg(cfg: CFG, final_dir: Path, args: argparse.Namespace, time
         asm_code = None
 
     x = dtimer()
-    json_asm_contract = asm_from_cfg(cfg, tags_dict, args.source, asm_code)
+    json_asm_contract = asm_from_cfg(cfg, tags_dict, args.source, asm_code, args.auxdata)
     y = dtimer()
 
     print("ASM generation: " + str(y - x) + "s")

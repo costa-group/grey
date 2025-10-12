@@ -4,7 +4,7 @@ import pytest
 from typing import Dict
 from parser.cfg_block import CFGBlock
 from parser.cfg_instruction import build_instr_spec, build_verbatim_spec, build_push_spec, CFGInstruction
-from greedy.greedy import SMSgreedy, greedy_from_file
+from greedy.greedy_old import SMSgreedy, greedy_from_file
 import json
 
 
@@ -20,5 +20,5 @@ class TestGreedyOld:
         FIX: adding condition "pos >= self._dup_stack_ini or o in stack[self._dup_stack_ini:])" to ensure
         we only try to swap it there is an available element
         """
-        _, _, error = greedy_from_file("greedy_old/swap_only_if_available.json")
-        assert error != "error", "Falla test"
+        sfs, greedy_info = greedy_from_file("greedy_old/swap_only_if_available.json")
+        assert greedy_info.outcome != "error", "Falla test"

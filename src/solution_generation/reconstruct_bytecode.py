@@ -324,7 +324,7 @@ def traverse_cfg(cfg_object: CFGObject, tags_dict: Dict[block_id_T, int], asm_di
     return object_code + function_code_list
 
 
-def recursive_asm_from_cfg_object(cfg_object: CFGObject, tags_dict: Dict, asm_dir: Optional[Path] = None) -> ASM_contract_T:
+def recursive_asm_from_cfg_object(cfg_object: CFGObject, tags_dict: Dict, asm_dir: Optional[Path] = None, auxdata: Optional[bool] = False) -> ASM_contract_T:
     """
     Returns the level of the form {.code: ..., .auxdata: ..., [.data: ...]}
     """
@@ -333,12 +333,15 @@ def recursive_asm_from_cfg_object(cfg_object: CFGObject, tags_dict: Dict, asm_di
     asm = traverse_cfg(cfg_object, tags, asm_dir)
 
     # 83 bytes of 0 + 0053 in CBOR encoding (see https://playground.sourcify.dev/)
-    aux_data = "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000053"
-    current_object_json = {".code": asm, ".auxdata": aux_data}
-
+    if auxdata:
+        aux_data = "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000053"
+        current_object_json = {".code": asm, ".auxdata": aux_data}
+    else:
+        current_object_json = {".code": asm}
+    
     sub_object = cfg_object.get_subobject()
     if sub_object is not None:
-        json_asm_subobjects = recursive_asm_from_cfg(sub_object, tags_dict, asm_dir)
+        json_asm_subobjects = recursive_asm_from_cfg(sub_object, tags_dict, asm_dir, auxdata)
         current_object_json[".data"] = {}
         for i, json_asm_subobject in enumerate(json_asm_subobjects):
             current_object_json[".data"][hex(i)[2:]] = json_asm_subobject
@@ -346,25 +349,26 @@ def recursive_asm_from_cfg_object(cfg_object: CFGObject, tags_dict: Dict, asm_di
     return current_object_json
 
 
-def recursive_asm_from_cfg(cfg: CFG, tags_dict: Dict, asm_dir: Optional[Path] = None) -> List[ASM_contract_T]:
+def recursive_asm_from_cfg(cfg: CFG, tags_dict: Dict, asm_dir: Optional[Path] = None, auxdata: Optional[bool] = False) -> List[ASM_contract_T]:
     """
     Returns the level of the form [{.code: ..., .auxdata: ..., [.data: ...]}]. This is later passed to the data object
     """
 
     multiple_object_json = []
     for obj_name, obj in cfg.get_objects().items():
-        multiple_object_json.append(recursive_asm_from_cfg_object(obj, tags_dict, asm_dir))
+        multiple_object_json.append(recursive_asm_from_cfg_object(obj, tags_dict, asm_dir, auxdata))
 
     return multiple_object_json
 
 
-def asm_from_cfg(cfg: CFG, tags_dict: Dict, filename: str, final_path: Optional[Path] = None) -> ASM_contract_T:
+def asm_from_cfg(cfg: CFG, tags_dict: Dict, filename: str, final_path: Optional[Path] = None, auxdata: Optional[bool]  = False) -> ASM_contract_T:
     """
     Generates an assembly JSON from a CFG structure and the results of the optimization
     """
     #We have to access index 0 (there is only one contract at root level)
-    asm_json = recursive_asm_from_cfg(cfg, tags_dict, final_path)[0]
-    asm_json.pop(".auxdata")
+    asm_json = recursive_asm_from_cfg(cfg, tags_dict, final_path, auxdata)[0]
+    if auxdata:
+        asm_json.pop(".auxdata")
     asm_json["sourceList"] = [filename]
 
     return asm_json
