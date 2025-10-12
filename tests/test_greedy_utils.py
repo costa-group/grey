@@ -1,9 +1,6 @@
 import glob
 
 import pytest
-from typing import Dict
-from parser.cfg_block import CFGBlock
-from parser.cfg_instruction import build_instr_spec, build_verbatim_spec, build_push_spec, CFGInstruction
 from greedy.greedy_new_version import SMSgreedy, greedy_from_file
 import json
 
@@ -20,8 +17,8 @@ class TestGreedyPermutation:
         assert initial_state.stack[deepest_position] == "s(17)", "Expected value: s(17)"
 
     def test_missing_element_list(self):
-        sfs, seq, outcome = greedy_from_file("sfs/missing_element_list.json")
-        assert outcome != "error", "Error in test test_missing_element_list"
+        sfs, greedy_info = greedy_from_file("sfs/missing_element_list.json")
+        assert greedy_info.outcome != "error", "Error in test test_missing_element_list"
 
     def test_repeated_argument_tree_dataflow(self):
         """
@@ -31,8 +28,8 @@ class TestGreedyPermutation:
         Also, this is an example in which we could consume an element that is already computed because
         this value is also used as part of a subcomputation
         """
-        sfs, seq, outcome = greedy_from_file("sfs/repeated_argument_tree_dataflow.json")
-        assert outcome != "error", "Error in test json"
+        sfs, greedy_info = greedy_from_file("sfs/repeated_argument_tree_dataflow.json")
+        assert greedy_info.outcome != "error", "Error in test json"
 
     def test_var_elem_reused_split(self):
         """
@@ -43,9 +40,14 @@ class TestGreedyPermutation:
         Fix: split function var_elem_can_be_reused into another method position_to_swap. var_elem_can_be_reused just
         checks if an element can be used safely and position_to_swap returns in which position we can reuse an element.
         """
-        sfs, seq, outcome = greedy_from_file("sfs/var_elem_reused_split.json")
-        assert outcome != "error", "Error in test json"
+        sfs, greedy_info = greedy_from_file("sfs/var_elem_reused_split.json")
+        assert greedy_info.outcome != "error", "Error in test json"
 
     def test_fails_16_1(self):
-        sfs, seq, outcome = greedy_from_file("sfs/fails_16_1.json")
-        assert outcome != "error", "Error in test json"
+        """
+        Problem: the mod instruction is handled as if it was commutative when it isn't.
+
+        Fix: there is a missing swap if we choose to have the first element to be reused.
+        """
+        sfs, greedy_info = greedy_from_file("sfs/fails_16_1.json")
+        assert greedy_info.outcome != "error", "Error in test json"
