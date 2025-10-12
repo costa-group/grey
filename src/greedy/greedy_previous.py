@@ -419,8 +419,8 @@ class SMSgreedy:
         self.uses = {}
         func_order = []
         memdeps = self._mem_order + self._sto_order + self._tsto_order
-        all_deps = json_format['dependencies']
-        for d in all_deps:
+        self._all_deps = json_format['dependencies']
+        for d in self._all_deps:
             if d not in memdeps:
                 func_order += [d]
         self._func_dep_map = {}
@@ -1107,7 +1107,7 @@ class SMSgreedy:
                 self._dup_stack_ini = 0
                 (opcodes, opcodeids, cstack) = self.compute_memory_op(o, cstack, cneeded_in_stack_map, solved,
                                                                       max_to_swap)
-                assert (len(self._opid_instr_map[o]["outpt_sk"]) <= 1)
+                assert (not is_write(o) or len(self._opid_instr_map[o]["outpt_sk"]) <= 1)
                 topcodes += opcodes
                 topcodeids += opcodeids
             else:  # case 2
@@ -1148,7 +1148,7 @@ class SMSgreedy:
             for e in cstack:
                 assert (cstack.count(e) == self._final_stack.count(e))
             #assert (0 in solved)
-            if 0 in solved: break
+            if 0 not in solved: break
             i = 1
             while i < len(cstack) - 1 and i in solved:
                 i += 1
@@ -1179,10 +1179,19 @@ class SMSgreedy:
                     # s print('SWAP'+str(i),cstack,len(cstack))
                 solved += [i]
             if 0 not in solved: break # had to swap to an unreachable position
+        if (cstack != self._final_stack):
+            print("Needs an unreachable position to get the final permutation",cstack,self._final_stack,len(opcodeids_ini + topcodeids))
         assert (cstack == self._final_stack) # should fail if needs unreachable position 
         # print("end",cstack,cneeded_in_stack_map)
         return (opcodes_ini + topcodes, opcodeids_ini + topcodeids)
 
+    def check_dependencies(self, opcodesids):
+        pos = {}
+        for i in range(len(opcodesids)):
+            pos[opcodesids[i]] = i
+        for p in self._all_deps:
+            assert(pos[p[0]] < pos[p[1]])
+            
     def target(self):
         # mloadmap = get_ops_map(self._user_instr,'MLOAD')
         # print(mloadmap)
@@ -1440,6 +1449,7 @@ def greedy_from_json(json_data: Dict[str, Any], verb=True) -> Tuple[
         instr_aux = instr.copy()
         final_no_store_aux = final_no_store.copy()
         (res, resids) = encoding.compute(instr, final_no_store, opcodes_ini, opcodeids_ini, solved, initial, 3)
+        encoding.check_dependencies(resids)
         # encoding._needed_in_stack_map = needed_in_stack_aux
         # (res1, resids1) = encoding.compute(instr_aux, final_no_store_aux, opcodes_ini_aux, opcodeids_ini_aux, solved_aux, initial, 2)
         # if len(res) > len(res1):
