@@ -41,6 +41,7 @@ def cfg_block_spec_ids(cfg_block: CFGBlock) -> Tuple[str, float, List[instr_id_T
     greedy_ids = greedy_ids1 # [greedy_ids1, greedy_ids3][chosen_idx]
 
     cfg_block.greedy_ids = greedy_ids if greedy_ids is not None else []
+    cfg_block.greedy_info = greedy_info1
     return outcome, time, greedy_ids
 
 
