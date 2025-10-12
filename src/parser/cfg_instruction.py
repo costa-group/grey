@@ -301,7 +301,7 @@ class CFGInstruction:
             self.translate_literal_args = ["{0:064X}".format(pos)]
         else:
             # TODO Maybe pass the element itself just in case?
-            self.op = "PUSHSIZE"
+            #self.op = "PUSHSIZE"
             if(literal_val.find(".") != 1):
                 pos = indirect_subobjects.get(literal_val, None)
                 if pos is None:
