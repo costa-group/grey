@@ -12,7 +12,7 @@ from typing import List, Dict, Tuple, Set, Optional
 from parser.cfg_block import CFGBlock
 from parser.cfg_block_list import CFGBlockList
 from graphs.cfg import compute_loop_nesting_forest_graph
-from reconstruction.atomic_merged_sets import AtomicMergedSets
+from reparation.atomic_merged_sets import AtomicMergedSets
 
 
 class ColourAssignment:

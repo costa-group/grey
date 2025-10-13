@@ -5,7 +5,7 @@ from symbolic execution of the stack + greedy ids
 import networkx as nx
 from typing import List, Dict, Tuple, Set
 from analysis.symbolic_execution import execute_instr_id
-from global_params.types import var_id_T, instr_id_T, instr_JSON_T
+from global_params.types import var_id_T, instr_id_T, instr_JSON_T, block_id_T
 from parser.cfg_block_list import CFGBlockList
 
 MAX_STACK_SIZE = 16
@@ -47,9 +47,25 @@ def block_unreachability(reachable: Set[var_id_T], previous_unreachable: Set[var
     return ((previous_unreachable.intersection(live_in)).union(live_out)).difference(reachable)
 
 
-def construct_reachability(cfg_blocklist: CFGBlockList, dominance_tree: nx.DiGraph):
+def construct_reachability_block(block_name: block_id_T, cfg_blocklist: CFGBlockList,
+                                 dominant_tree: nx.DiGraph, previous_unreachable: Set[var_id_T]):
+    block = cfg_blocklist.get_block(block_name)
+    greedy_info = block.greedy_info
+    reachable = reachability_from_greedy(greedy_info.greedy_ids, block.spec["inpt_stk"],
+                                         greedy_info.user_instrs)
+    unreachable = block_unreachability(reachable.keys(), previous_unreachable,
+                                       block.liveness["in"], block.liveness["out"])
+    # Assign the information
+    greedy_info.reachable = reachable
+    greedy_info.unreachable = unreachable
+
+    for successor in dominant_tree.successors(block_name):
+        construct_reachability_block(successor, cfg_blocklist, dominant_tree, unreachable)
+
+
+def construct_reachability(cfg_blocklist: CFGBlockList, dominance_tree: nx.DiGraph) -> None:
     """
     Computes the reachability of all blocks and stores the information in the
     corresponding field in GreedyInfo
     """
-    for block_name in nx.do
+    construct_reachability_block(cfg_blocklist.start_block, cfg_blocklist, dominance_tree, set())

@@ -17,7 +17,7 @@ import networkx as nx
 from global_params.types import var_id_T, block_id_T
 from greedy.greedy_info import GreedyInfo
 from parser.cfg_block_list import CFGBlockList
-from reconstruction.atomic_merged_sets import AtomicMergedSets
+from reparation.atomic_merged_sets import AtomicMergedSets
 
 
 def repair_unreachable(block_list: CFGBlockList, greedy_info: Dict[block_id_T, GreedyInfo],
