@@ -17,13 +17,14 @@ def compute_instr_id2var(json_instrs: List[instr_JSON_T]) -> Dict[var_id_T, List
 class GreedyInfo:
 
     def __init__(self, greedy_ids: List[str], outcome: str, execution_time: float,
-                 instr_id2var: Dict[var_id_T, List[instr_id_T]]):
+                 original_instrs: List[instr_JSON_T]):
         self.greedy_ids = greedy_ids if greedy_ids else []
         self.outcome = outcome
         self.execution_time = execution_time
         self.reachable = set()
         self.unreachable = set()
-        self.instr_id2var = instr_id2var
+        self.user_instrs = original_instrs
+        self.instr_id2var = compute_instr_id2var(original_instrs)
 
         # Elements that are accessed through get instructions.
         # Considers VGET-VSET elements.
@@ -37,11 +38,9 @@ class GreedyInfo:
     @classmethod
     def from_new_version(cls, greedy_ids: List[str], outcome: str, execution_time: float, original_instrs: List[instr_JSON_T],
                  get_count: Counter, elements_to_fix: Set[var_id_T], reachable: Dict[var_id_T, int]) -> 'GreedyInfo':
-        instr_id2var = compute_instr_id2var(original_instrs)
-        return GreedyInfo(greedy_ids, outcome, execution_time, instr_id2var)
+        return GreedyInfo(greedy_ids, outcome, execution_time, original_instrs)
 
     @classmethod
     def from_old_version(cls, greedy_ids: List[str], outcome: str,
                          execution_time: float, original_instrs: List[instr_JSON_T]):
-        instr_id2var = compute_instr_id2var(original_instrs)
-        return GreedyInfo(greedy_ids, outcome, execution_time, instr_id2var)
+        return GreedyInfo(greedy_ids, outcome, execution_time, original_instrs)
