@@ -6,7 +6,8 @@ import sys
 import resource
 from typing import List, Dict, Tuple, Any, Union, Set
 import traceback
-import itertools
+from global_params.types import SMS_T
+from greedy.greedy_info import GreedyInfo
 
 var_T = str
 id_T = str
@@ -1746,7 +1747,8 @@ def minsize_from_json(json_data: Dict[str, Any]) -> int:
             s += encoding.occurrences[i]
     return s
 
-def greedy_standalone(sms: Dict) -> Tuple[str, float, List[str]]:
+
+def greedy_standalone(sms: Dict) -> GreedyInfo:
     """
     Executes the greedy algorithm as a standalone configuration. Returns whether the execution has been
     sucessful or not ("non_optimal" or "error"), the total time and the sequence of ids returned.
@@ -1760,14 +1762,15 @@ def greedy_standalone(sms: Dict) -> Tuple[str, float, List[str]]:
         error = 1
         seq_ids = []
     optimization_outcome = "error" if error == 1 else "non_optimal"
-    return optimization_outcome, usage_stop.ru_utime + usage_stop.ru_stime - usage_start.ru_utime - usage_start.ru_stime, seq_ids
+    total_time = usage_stop.ru_utime + usage_stop.ru_stime - usage_start.ru_utime - usage_start.ru_stime
+    return GreedyInfo.from_old_version(seq_ids, optimization_outcome, total_time, sms["user_instrs"])
 
 
-def greedy_from_file(filename: str):
+def greedy_from_file(filename: str) -> Tuple[SMS_T, GreedyInfo]:
     with open(filename, "r") as f:
         sfs = json.load(f)
-    outcome, time, ids = greedy_standalone(sfs)
-    return sfs, ids, outcome
+    greedy_info = greedy_standalone(sfs)
+    return sfs, greedy_info
 
 
 if __name__ == "__main__":
@@ -1785,48 +1788,3 @@ if __name__ == "__main__":
 
     json_info, encod, rs, rsids, error = greedy_from_json(json_read)  # ,True) if verbose
     print(f"Solution {len(rsids)} instrs: ", rsids)
-
-    # if error == 0:
-    #    print(name, "m:", minst, "g:", len(rs), "e:", error)
-    # else:
-    #    print(name, "m:", minst, "g:", 0, "e:", error)
-    # assert(error != 0 or len(rs) >= minst)
-    # exit(0)
-
-    # json_result = json.dumps(json_info)
-    # checker_name = ""
-    # output_name = ""
-    # if len(sys.argv) > 2:
-    #     if os.path.isfile(sys.argv[2]):
-    #         checker_name = sys.argv[2]
-    #     else:
-    #         output_name = sys.argv[2] + "/" + name
-    # if len(sys.argv) > 3:
-    #     if checker_name == "":
-    #         checker_name = sys.argv[3]
-    #     else:
-    #         output_name = sys.argv[3] + "/" + name
-    # if output_name != "":
-    #     with open(output_name, 'w') as fw:
-    #         fw.write(json_result)
-    # else:
-    #     if error == 0:
-    #         print(name, initial_size, len(rs))
-    #         # print(rs)
-    #         # print(rsids)
-    #     else:
-    #         print(name, initial_size, 0)
-    #     # print(len(rs),rs,error)
-    #     # print(json_result)
-    # if checker_name != "" and error == 0:
-    #     print("generating files...")
-    #     with open("auxtemp1.evm", 'w') as fw1:
-    #         fw1.write(encod._original_instrs)
-    #         fw1.close()
-    #     with open("auxtemp2.evm", 'w') as fw2:
-    #         for bc in rs:
-    #             fw2.write(bc + "\n")
-    #         fw2.close()
-    #     os.system("python3 " + checker_name + " auxtemp1.evm auxtemp2.evm")
-    #     os.system("rm -f auxtemp1.evm")
-    #     os.system("rm -f auxtemp2.evm")

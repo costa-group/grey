@@ -4,7 +4,7 @@ import logging
 from global_params.types import instr_id_T, dependencies_T, var_id_T, block_id_T, function_name_T, SMS_T
 from parser.cfg_instruction import CFGInstruction, build_push_spec, build_pushtag_spec
 from parser.utils_parser import replace_pos_instrsid, replace_aliasing_spec, detect_unused_instructions, delete_unsued_instructions_from_deps
-from analysis.instruction_dependencies import compute_memory_dependences, compute_storage_dependences, simplify_dependences
+from analysis.instruction_dependencies import compute_memory_dependences, compute_storage_dependences, compute_transient_dependences, compute_gas_dependences, simplify_dependences
 import parser.constants as constants
 import json
 import networkx as nx
@@ -103,8 +103,16 @@ class CFGBlock:
         self._spec: SMS_T = None
         self._greedy_ids: List[instr_id_T] = None
 
+        # Sets that represent which variables can be reached using a DUP instruction.
+        # Useful for determining when to store a variable
+        self._reachable_in: Set[var_id_T] = None
+        self._reachable_out: Set[var_id_T] = None
+
+        # Set of variables that are computed in the current block
+        self._id2var = None
+
         self.liveness = {}
-        
+
     @property
     def final_stack_elements(self) -> List[str]:
         """
@@ -357,7 +365,16 @@ class CFGBlock:
         mem_dep = compute_memory_dependences(instructions)
         mem_dep = simplify_dependences(mem_dep)
         mem_deps = replace_pos_instrsid(mem_dep, map_positions)
-        return sto_deps, mem_deps
+
+        trans_dep = compute_transient_dependences(instructions)
+        trans_dep = simplify_dependences(trans_dep)
+        trans_deps = replace_pos_instrsid(trans_dep, map_positions)
+
+        gas_dep = compute_gas_dependences(instructions)
+        gas_dep = simplify_dependences(gas_dep)
+        gas_deps = replace_pos_instrsid(gas_dep, map_positions)
+
+        return sto_deps, mem_deps, trans_deps, gas_deps
 
 
     def translate_opcodes(self, objects_keys, next_idx, subobjects_idx):
@@ -613,17 +630,19 @@ class CFGBlock:
         with open("sms.json", 'w') as f:
             json.dump(spec, f, indent=4)
 
-        sto_deps, mem_deps = self._process_dependences(self.instructions_to_synthesize, map_positions)
-        sto_deps, mem_deps = delete_unsued_instructions_from_deps(sto_deps,mem_deps, unused_ids)
+        sto_deps, mem_deps, trans_deps, gas_deps = self._process_dependences(self.instructions_to_synthesize, map_positions)
+        sto_deps, mem_deps, trans_deps, gas_deps = delete_unsued_instructions_from_deps(sto_deps, mem_deps, trans_deps, gas_deps, unused_ids)
         spec["storage_dependences"] = sto_deps
         spec["memory_dependences"] = mem_deps
-        spec["dependencies"] = [*sto_deps, *mem_deps]
+        spec["transient_dependences"] = trans_deps
+        spec["dependencies"] = [*sto_deps, *mem_deps, *trans_deps, *gas_deps]
 
         # Just to print information if it is not a jump
         if not self._jump_type in ["conditional", "unconditional"]:
             logging.debug(f"Building Spec of block {self.block_id}...")
             logging.debug(json.dumps(spec, indent=4))
 
+            
         return spec
 
     @property
@@ -636,15 +655,68 @@ class CFGBlock:
             raise ValueError("Specification already computed")
         self._spec = spec
 
+        # We also assigne the set of reachable stack values at the beginning and end of the block
+        self._reachable_in = set(spec["src_ws"][:16])
+        self._reachable_out = set(spec["tgt_ws"][:16])
+
     @property
     def greedy_ids(self) -> List[instr_id_T]:
         return self._greedy_ids
 
     @greedy_ids.setter
     def greedy_ids(self, greedy_ids: List[instr_id_T]) -> None:
-        if self._greedy_ids is not None:
-            raise ValueError("Greedy ids already computed")
         self._greedy_ids = greedy_ids
+
+    def is_accessible_in(self, var_id: var_id_T):
+        """
+        Given a stack variable, detects whether it can be accessed
+        with a DUPx instruction by the beginning of the block
+        """
+        assert self._reachable_in is not None, "Trying to access reachable_in when not computed yet"
+        return var_id in self._reachable_in
+
+    def is_accessible_out(self, var_id: var_id_T):
+        """
+        Given a stack variable, detects whether it can be accessed
+        with a DUPx instruction by the end of the block
+        """
+        assert self._reachable_out is not None, "Trying to access reachable_out when not computed yet"
+        return var_id in self._reachable_out
+
+    def _compute_declared_variables(self):
+        """
+        Returns a dict that links every stack variable to the id of the instruction that
+        introduced it
+        """
+        return {instr["id"]: instr["outpt_sk"]  for instr in self._spec["user_instrs"]}
+
+    @property
+    def declared_variables(self) -> Set[var_id_T]:
+        """
+        Variables declared in the block
+        """
+        if self._id2var is None:
+            self._id2var = self._compute_declared_variables()
+        return set(out_var for out_var_list in self._id2var.values() for out_var in out_var_list)
+
+    def out_vars_from_id(self, instr_id: instr_id_T) -> List[var_id_T]:
+        """
+        Returns the out vars associated to an instruction id.
+        Assumes the id belongs to the spec
+        """
+        if self._id2var is None:
+            self._id2var = self._compute_declared_variables()
+
+        return self._id2var.get(instr_id, [])
+
+    def instruction_from_out(self, out_var: var_id_T) -> Optional[CFGInstruction]:
+        for instruction in self._instructions:
+            out_list = instruction.get_out_args()
+            for out_elem in out_list:
+                if out_var == out_elem:
+                    return instruction
+        return None
+
 
     def __str__(self):
         s = "BlockID: " + self.block_id + "\n"
