@@ -1,10 +1,12 @@
 """
-Methods for computing the reachability of the greedy algorithm
+Methods for computing the reachability of the stack vars
+from symbolic execution of the stack + greedy ids
 """
 import networkx as nx
 from typing import List, Dict, Tuple, Set
 from analysis.symbolic_execution import execute_instr_id
 from global_params.types import var_id_T, instr_id_T, instr_JSON_T
+from parser.cfg_block_list import CFGBlockList
 
 MAX_STACK_SIZE = 16
 
@@ -43,3 +45,11 @@ def block_unreachability(reachable: Set[var_id_T], previous_unreachable: Set[var
     Given the sets, determine which elements are unreachable
     """
     return ((previous_unreachable.intersection(live_in)).union(live_out)).difference(reachable)
+
+
+def construct_reachability(cfg_blocklist: CFGBlockList, dominance_tree: nx.DiGraph):
+    """
+    Computes the reachability of all blocks and stores the information in the
+    corresponding field in GreedyInfo
+    """
+    for block_name in nx.do
