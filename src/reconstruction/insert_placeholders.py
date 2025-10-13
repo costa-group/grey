@@ -9,12 +9,14 @@ repair unreachable elements. Notation:
            Needed for unification of the phi-functions. Can be just an empty instruction
            if the variable is introduced in the same position
 """
-import networkx as nx
-from typing import Set, Tuple, Dict, List, Optional
 from collections import Counter
+from typing import Set, Tuple, Dict, List, Optional
+
+import networkx as nx
+
 from global_params.types import var_id_T, block_id_T
-from parser.cfg_block_list import CFGBlockList
 from greedy.greedy_info import GreedyInfo
+from parser.cfg_block_list import CFGBlockList
 from reconstruction.atomic_merged_sets import AtomicMergedSets
 
 

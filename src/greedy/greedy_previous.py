@@ -1488,6 +1488,7 @@ def greedy_from_json(json_data: Dict[str, Any], verb=True) -> Tuple[
         error = 1
     return json_data, encoding, res, resids, error
 
+
 def remove_useless(r: List[str], rid:List[str]) -> Tuple[List[str], List[str]]:
     if len(r) <= 1:
         return r, rid
@@ -1503,6 +1504,7 @@ def remove_useless(r: List[str], rid:List[str]) -> Tuple[List[str], List[str]]:
             frid = frid + [rid[i]]
         i += 1
     return fr, frid
+
 
 def minsize_from_json(json_data: Dict[str, Any]) -> int:
     encoding = SMSgreedy(json_data.copy())
@@ -1520,7 +1522,7 @@ def minsize_from_json(json_data: Dict[str, Any]) -> int:
     return s
 
 
-def greedy_standalone(sms: Dict) -> Tuple[str, float, List[str]]:
+def greedy_standalone(sms: Dict) -> GreedyInfo:
     """
     Executes the greedy algorithm as a standalone configuration. Returns whether the execution has been
     sucessful or not ("non_optimal" or "error"), the total time and the sequence of ids returned.

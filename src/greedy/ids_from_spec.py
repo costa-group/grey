@@ -2,11 +2,11 @@
 Module that handles the generation of the ids from the greedy algorithm.
 """
 from pathlib import Path
-from typing import Tuple, List, Dict, Optional
+from typing import Tuple, List, Dict, Optional, Set, Iterable
 
 import pandas as pd
 
-from global_params.types import instr_id_T
+from global_params.types import instr_id_T, var_id_T
 from parser.cfg_block import CFGBlock
 from parser.cfg_block_list import CFGBlockList
 from parser.cfg_object import CFGObject
@@ -21,7 +21,7 @@ def _length_or_zero(l, outcome):
     return len(l) if l is not None and outcome != "error" else 10000
 
 
-def cfg_block_spec_ids(cfg_block: CFGBlock) -> Tuple[str, float, List[instr_id_T]]:
+def cfg_block_spec_ids(cfg_block: CFGBlock) -> Tuple[str, float, List[instr_id_T], Iterable[var_id_T]]:
     # Retrieve the information from each of the executions
     greedy_info1 = previous.greedy_standalone(cfg_block.spec)
     outcome1, time1, greedy_ids1 = greedy_info1.outcome, greedy_info1.execution_time, greedy_info1.greedy_ids
@@ -42,7 +42,7 @@ def cfg_block_spec_ids(cfg_block: CFGBlock) -> Tuple[str, float, List[instr_id_T
 
     cfg_block.greedy_ids = greedy_ids if greedy_ids is not None else []
     cfg_block.greedy_info = greedy_info1
-    return outcome, time, greedy_ids
+    return outcome, time, greedy_ids, greedy_info1.elements_to_fix
 
 
 def cfg_block_list_spec_ids(cfg_blocklist: CFGBlockList) -> List[Dict]:
@@ -50,9 +50,15 @@ def cfg_block_list_spec_ids(cfg_blocklist: CFGBlockList) -> List[Dict]:
     Generates the assembly code of all the blocks in a block list and returns the statistics
     """
     csv_dicts = []
+    to_fix = set()
     for block_name, block in cfg_blocklist.blocks.items():
-        outcome, time, greedy_ids = cfg_block_spec_ids(block)
+        outcome, time, greedy_ids, to_fix_block = cfg_block_spec_ids(block)
+        to_fix.update(to_fix_block)
         csv_dicts.append(generate_statistics_info(block_name, greedy_ids, time, block.spec))
+
+    # If there are elements to fix
+    if len(to_fix) > 0:
+        pass
     return csv_dicts
 
 
