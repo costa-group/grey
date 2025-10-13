@@ -195,7 +195,7 @@ class LayoutGeneration:
             output_stacks[block_id] = output_stack
 
         # We build the corresponding specification and store it in the block
-        block_json = block.build_spec(substitute_duplicates(input_stack), output_stack)
+        block_json = block.build_spec(input_stack, output_stack)
         block_json["admits_junk"] = self._can_have_junk(block_id)
         block.spec = block_json
 
