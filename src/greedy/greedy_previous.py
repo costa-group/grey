@@ -7,9 +7,6 @@ import resource
 from typing import List, Dict, Tuple, Any, Union, Set
 import traceback
 import itertools
-from global_params.types import SMS_T
-from greedy.greedy_info import GreedyInfo
-
 
 output_stack_T = str
 id_T = str
@@ -1430,7 +1427,7 @@ class SMSgreedy:
         return True
 
 
-def greedy_from_json(json_data: Dict[str, Any], verb=True) -> Tuple[
+def greedy_from_json(json_data: Dict[str, Any], verb=True, garbage=False) -> Tuple[
     Dict[str, Any], SMSgreedy, List[str], List[str], int]:
     # print(encoding._var_instr_map)
     # print()
@@ -1440,7 +1437,7 @@ def greedy_from_json(json_data: Dict[str, Any], verb=True) -> Tuple[
     global verbose
     verbose = False
     global extend_tgt
-    extend_tgt = True
+    extend_tgt = garbage
     encoding = SMSgreedy(json_data.copy())
     try:
         (instr, final_no_store) = encoding.target()
@@ -1548,14 +1545,14 @@ def minsize_from_json(json_data: Dict[str, Any]) -> int:
     return s
 
 
-def greedy_standalone(sms: Dict) -> Tuple[str, float, List[str]]:
+def greedy_standalone(sms: Dict, garb=False) -> Tuple[str, float, List[str]]:
     """
     Executes the greedy algorithm as a standalone configuration. Returns whether the execution has been
     sucessful or not ("non_optimal" or "error"), the total time and the sequence of ids returned.
     """
     usage_start = resource.getrusage(resource.RUSAGE_SELF)
     try:
-        json_info, _, _, seq_ids, error = greedy_from_json(sms)
+        json_info, _, _, seq_ids, error = greedy_from_json(sms,garbage = garb)
         usage_stop = resource.getrusage(resource.RUSAGE_SELF)
     except Exception as e:
         print(str(e))
@@ -1565,15 +1562,14 @@ def greedy_standalone(sms: Dict) -> Tuple[str, float, List[str]]:
         error = 1
         seq_ids = []
     optimization_outcome = "error" if error == 1 else "non_optimal"
-    total_time = usage_stop.ru_utime + usage_stop.ru_stime - usage_start.ru_utime - usage_start.ru_stime
-    return GreedyInfo.from_old_version(seq_ids, optimization_outcome, total_time, sms["user_instrs"])
+    return optimization_outcome, usage_stop.ru_utime + usage_stop.ru_stime - usage_start.ru_utime - usage_start.ru_stime, seq_ids
 
 
-def greedy_from_file(filename: str) -> Tuple[SMS_T, GreedyInfo]:
+def greedy_from_file(filename: str):
     with open(filename, "r") as f:
         sfs = json.load(f)
-    greedy_info = greedy_standalone(sfs)
-    return sfs, greedy_info
+    outcome, time, ids = greedy_standalone(sfs)
+    return sfs, ids, outcome
 
 
 if __name__ == "__main__":
