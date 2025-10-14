@@ -292,8 +292,8 @@ class CFGInstruction:
         
         
     def translate_datasize(self, subobjects_keys: Dict[str, int], next_idx: int, indirect_subobjects: Dict[str, int]):
-        self.op = "push #[$]"
-        
+        #self.op = "push #[$]"
+        self.op = "pushsize"
         literal_val = self.literal_args[0]
 
         pos = subobjects_keys.get(literal_val, None)
