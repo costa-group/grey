@@ -393,6 +393,7 @@ class SMSgreedy:
         self._mem_order = json_format['memory_dependences']
         self._sto_order = json_format['storage_dependences']
         self._tsto_order = json_format['transient_dependences']
+        
         self._original_instrs = json_format['original_instrs']
         self._var_instr_map = {}
         for ins in self._user_instr:
@@ -401,6 +402,37 @@ class SMSgreedy:
         self._opid_instr_map = {}
         for ins in self._user_instr:
             self._opid_instr_map[ins['id']] = ins
+
+        mdepop = set([])
+        for p in self._mem_order:
+            mdepop.add(p[0])
+            mdepop.add(p[1])
+        for o in mdepop:
+            if o in self._opid_instr_map and len(self._opid_instr_map[o]['outpt_sk']) == 1:
+                for o1 in mdepop:
+                    if o != o1 and computed(self._opid_instr_map[o]['outpt_sk'][0], o1, self._opid_instr_map, self._var_instr_map):
+                        self._mem_order += [[o,o1]]
+
+        sdepop = set([])
+        for p in self._sto_order:
+            sdepop.add(p[0])
+            sdepop.add(p[1])
+        for o in sdepop:
+            if o in self._opid_instr_map and len(self._opid_instr_map[o]['outpt_sk']) == 1:
+                for o1 in sdepop:
+                    if o != o1 and computed(self._opid_instr_map[o]['outpt_sk'][0], o1, self._opid_instr_map, self._var_instr_map):
+                        self._sto_order += [[o,o1]]
+
+        tdepop = set([])
+        for p in self._tsto_order:
+            tdepop.add(p[0])
+            tdepop.add(p[1])
+        for o in tdepop:
+            if o in self._opid_instr_map and len(self._opid_instr_map[o]['outpt_sk']) == 1:
+                for o1 in tdepop:
+                    if o != o1 and computed(self._opid_instr_map[o]['outpt_sk'][0], o1, self._opid_instr_map, self._var_instr_map):
+                        self._tsto_order += [[o,o1]]
+
         self._opid_times_used = {}
         for o in self._opid_instr_map:
             if len(self._opid_instr_map[o]['outpt_sk']) == 0:
@@ -646,6 +678,8 @@ class SMSgreedy:
                     if not solved_before:
                         assert (max_to_swap <= 16)
                         if pos < max_to_swap or len(stack) >= 16:
+                            # if pos == max_to_swap-1:
+                            #     print("SWAPTHREE")
                             needed_stack.pop(o, None)
                             swaps = []
                             tstack = stack
@@ -1193,6 +1227,8 @@ class SMSgreedy:
         for i in range(len(opcodesids)):
             pos[opcodesids[i]] = i
         for p in self._all_deps:
+            if not (pos[p[0]] < pos[p[1]]):
+                print(p)
             assert(pos[p[0]] < pos[p[1]])
             
     def target(self):
