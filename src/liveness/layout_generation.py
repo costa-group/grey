@@ -119,6 +119,10 @@ class LayoutGeneration:
         """
         block_id = block.block_id
         liveness_info = self._liveness_info[block_id]
+
+        block.set_liveness({"in": liveness_info.in_state.live_vars,
+                            "out": liveness_info.out_state.live_vars})
+
         comes_from = block.get_comes_from()
 
         # Computing input stack...

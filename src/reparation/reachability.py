@@ -51,10 +51,12 @@ def construct_reachability_block(block_name: block_id_T, cfg_blocklist: CFGBlock
                                  dominant_tree: nx.DiGraph, previous_unreachable: Set[var_id_T]):
     block = cfg_blocklist.get_block(block_name)
     greedy_info = block.greedy_info
-    reachable = reachability_from_greedy(greedy_info.greedy_ids, block.spec["inpt_stk"],
+    reachable = reachability_from_greedy(greedy_info.greedy_ids, block.spec["src_ws"],
                                          greedy_info.user_instrs)
+
     unreachable = block_unreachability(reachable.keys(), previous_unreachable,
                                        block.liveness["in"], block.liveness["out"])
+
     # Assign the information
     greedy_info.reachable = reachable
     greedy_info.unreachable = unreachable

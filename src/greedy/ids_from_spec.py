@@ -16,6 +16,7 @@ from solution_generation.statistics import generate_statistics_info
 from greedy.greedy_info import GreedyInfo
 import greedy.greedy_new_version as alternative
 import numpy as np
+from reparation.repair_unreachable import repair_unreachable_blocklist
 
 
 def _length_or_zero(l, outcome):
@@ -42,8 +43,8 @@ def cfg_block_spec_ids(cfg_block: CFGBlock) -> Tuple[str, float, List[instr_id_T
     greedy_ids = greedy_ids1 # [greedy_ids1, greedy_ids3][chosen_idx]
 
     cfg_block.greedy_ids = greedy_ids if greedy_ids is not None else []
-    cfg_block.greedy_info = greedy_info1
-    return outcome, time, greedy_ids, greedy_info1.elements_to_fix
+    cfg_block.greedy_info = greedy_info
+    return outcome, time, greedy_ids, greedy_info.elements_to_fix
 
 
 def cfg_block_list_spec_ids(cfg_blocklist: CFGBlockList) -> List[Dict]:
@@ -58,8 +59,7 @@ def cfg_block_list_spec_ids(cfg_blocklist: CFGBlockList) -> List[Dict]:
         csv_dicts.append(generate_statistics_info(block_name, greedy_ids, time, block.spec))
 
     # If there are elements to fix
-    if len(to_fix) > 0:
-        pass
+    repair_unreachable_blocklist(cfg_blocklist, to_fix)
     return csv_dicts
 
 
