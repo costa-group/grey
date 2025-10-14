@@ -5,8 +5,8 @@ from typing import List
 from global_params.types import var_id_T, instr_id_T, instr_JSON_T
 import re
 
-get_re = re.compile('GET\((.*)\)')
-set_re = re.compile('SET\((.*)\)')
+get_re = re.compile('VGET\((.*)\)')
+set_re = re.compile('VSET\((.*)\)')
 
 
 def extract_idx_from_id(instr_id: str) -> int:
