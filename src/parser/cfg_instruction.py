@@ -48,7 +48,7 @@ def build_push_spec(val: str, idx: int, out_args: List[str]):
     obj["commutative"] = False
     obj["push"] = True
     obj["storage"] = False  # It is true only for MSTORE and SSTORE
-    obj["size"] = get_ins_size("PUSH", value)
+    obj["size"] = get_ins_size("PUSH", value) if value != 0 else 1 # Size is one
 
     return obj
 

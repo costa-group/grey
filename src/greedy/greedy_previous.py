@@ -7,9 +7,6 @@ import resource
 from typing import List, Dict, Tuple, Any, Union, Set
 import traceback
 import itertools
-from global_params.types import SMS_T
-from greedy.greedy_info import GreedyInfo
-
 
 output_stack_T = str
 id_T = str
@@ -388,6 +385,7 @@ def needed(p0, p1, var_instr_map):
 class SMSgreedy:
 
     def __init__(self, json_format):
+        self._extended = False
         self._user_instr = json_format['user_instrs']
         self._b0 = json_format["init_progr_len"]
         self._initial_stack = json_format['src_ws']
@@ -1429,9 +1427,8 @@ class SMSgreedy:
         return True
 
 
-def greedy_from_json(json_data: Dict[str, Any], verb=True) -> Tuple[
+def greedy_from_json(json_data: Dict[str, Any], verb=True, garbage=False) -> Tuple[
     Dict[str, Any], SMSgreedy, List[str], List[str], int]:
-    encoding = SMSgreedy(json_data.copy())
     # print(encoding._var_instr_map)
     # print()
     # print(encoding._opid_instr_map)
@@ -1439,6 +1436,9 @@ def greedy_from_json(json_data: Dict[str, Any], verb=True) -> Tuple[
     # print(encoding._sto_order)
     global verbose
     verbose = False
+    global extend_tgt
+    extend_tgt = garbage
+    encoding = SMSgreedy(json_data.copy())
     try:
         (instr, final_no_store) = encoding.target()
         # print("before pre:",encoding._needed_in_stack_map,encoding._initial_stack)
@@ -1460,10 +1460,35 @@ def greedy_from_json(json_data: Dict[str, Any], verb=True) -> Tuple[
         #    resids = resids1
         assert (len(res) == len(resids))
         res, resids = remove_useless(res, resids)
+        if extend_tgt:
+            encoding_ext = SMSgreedy(json_data.copy())
+            encoding_ext._final_stack += encoding_ext._initial_stack
+            encoding_ext._extended = True
+            (instr_ext, final_no_store_ext) = encoding_ext.target()
+            (opcodes_ini_ext, opcodeids_ini_ext, solved_ext, initial_ext) = encoding_ext.precompute(encoding_ext._final_stack.copy(),
+                                                                                encoding_ext._initial_stack.copy())
+            solved_aux_ext = solved_ext.copy()
+            needed_in_stack_aux_ext = encoding_ext._needed_in_stack_map.copy()
+            opcodes_ini_aux_ext = opcodes_ini_ext.copy()
+            opcodeids_ini_aux_ext = opcodeids_ini_ext.copy()
+            instr_aux_ext = instr_ext.copy()
+            final_no_store_aux_ext = final_no_store_ext.copy()
+            (res_ext, resids_ext) = encoding_ext.compute(instr_ext, final_no_store_ext, opcodes_ini_ext, opcodeids_ini_ext, solved_ext, initial_ext, 2)
+            encoding_ext.check_dependencies(resids_ext)
+            assert (len(res_ext) == len(resids_ext))
+            res_ext, resids_ext = remove_useless(res_ext, resids_ext)
         if encoding.accept(resids):
             # print(name, encoding._b0, len(res))
             # print(res)
-            if verbose: print(resids)
+            if extend_tgt and encoding_ext.accept(resids_ext):
+                if len(resids_ext) < len(resids):
+                    encoding_ext._diff = len(resids) - len(resids_ext)
+                    res, resids, encoding = res_ext, resids_ext, encoding_ext
+            if verbose:
+                if extend_tgt:
+                    print(resids,encoding._extended,encoding._diff)
+                else:
+                    print(resids)
             if len(res) < encoding._b0 or (len(res) <= encoding._b0 and encoding.correct(resids)):
                 json_data["init_progr_len"] = len(res)
                 json_data["original_instrs"] = str(res).replace(",", "")[1:-1].replace("\'", "")
@@ -1522,14 +1547,14 @@ def minsize_from_json(json_data: Dict[str, Any]) -> int:
     return s
 
 
-def greedy_standalone(sms: Dict) -> GreedyInfo:
+def greedy_standalone(sms: Dict, garb=False) -> Tuple[str, float, List[str]]:
     """
     Executes the greedy algorithm as a standalone configuration. Returns whether the execution has been
     sucessful or not ("non_optimal" or "error"), the total time and the sequence of ids returned.
     """
     usage_start = resource.getrusage(resource.RUSAGE_SELF)
     try:
-        json_info, _, _, seq_ids, error = greedy_from_json(sms)
+        json_info, _, _, seq_ids, error = greedy_from_json(sms,garbage = garb)
         usage_stop = resource.getrusage(resource.RUSAGE_SELF)
     except Exception as e:
         print(str(e))
@@ -1539,15 +1564,14 @@ def greedy_standalone(sms: Dict) -> GreedyInfo:
         error = 1
         seq_ids = []
     optimization_outcome = "error" if error == 1 else "non_optimal"
-    total_time = usage_stop.ru_utime + usage_stop.ru_stime - usage_start.ru_utime - usage_start.ru_stime
-    return GreedyInfo.from_old_version(seq_ids, optimization_outcome, total_time, sms["user_instrs"])
+    return optimization_outcome, usage_stop.ru_utime + usage_stop.ru_stime - usage_start.ru_utime - usage_start.ru_stime, seq_ids
 
 
-def greedy_from_file(filename: str) -> Tuple[SMS_T, GreedyInfo]:
+def greedy_from_file(filename: str):
     with open(filename, "r") as f:
         sfs = json.load(f)
-    greedy_info = greedy_standalone(sfs)
-    return sfs, greedy_info
+    outcome, time, ids = greedy_standalone(sfs)
+    return sfs, ids, outcome
 
 
 if __name__ == "__main__":
@@ -1590,7 +1614,11 @@ if __name__ == "__main__":
             fw.write(json_result)
     else:
         if error == 0:
-            print(name, initial_size, len(rs))
+            if encod._extended: 
+                print(name, initial_size, len(rs))
+                # print(name, initial_size, len(rs), encod._diff)
+            else:
+                print(name, initial_size, len(rs))
             # print(rs)
             # print(rsids)
         else:
