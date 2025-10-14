@@ -1588,7 +1588,7 @@ if __name__ == "__main__":
         name = name[p + 1:]
 
     json_info, encod, rs, rsids, error = greedy_from_json(json_read)  # ,True) if verbose
-
+    print(rsids)
     # if error == 0:
     #    print(name, "m:", minst, "g:", len(rs), "e:", error)
     # else:

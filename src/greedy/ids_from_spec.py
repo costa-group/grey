@@ -1,6 +1,7 @@
 """
 Module that handles the generation of the ids from the greedy algorithm.
 """
+import copy
 from pathlib import Path
 from typing import Tuple, List, Dict, Optional, Set, Iterable
 
@@ -17,7 +18,7 @@ from greedy.greedy_info import GreedyInfo
 import greedy.greedy_new_version as alternative
 import numpy as np
 from reparation.repair_unreachable import repair_unreachable_blocklist
-
+from analysis.greedy_validation import check_execution_from_ids
 
 def _length_or_zero(l, outcome):
     return len(l) if l is not None and outcome != "error" else 10000
@@ -25,7 +26,9 @@ def _length_or_zero(l, outcome):
 
 def cfg_block_spec_ids(cfg_block: CFGBlock) -> Tuple[str, float, List[instr_id_T], Iterable[var_id_T]]:
     # Retrieve the information from each of the executions
-    outcome1, time1, greedy_ids1 = previous.greedy_standalone(cfg_block.spec, cfg_block.spec["admits_junk"])
+    sfs = copy.deepcopy(cfg_block._spec)
+    admits_junk = sfs["admits_junk"]
+    outcome1, time1, greedy_ids1 = previous.greedy_standalone(sfs, admits_junk)
     greedy_info = GreedyInfo.from_old_version(greedy_ids1, outcome1, time1, cfg_block.spec["user_instrs"])
 
     # greedy_info3 = alternative.greedy_standalone(cfg_block.spec)
@@ -41,6 +44,8 @@ def cfg_block_spec_ids(cfg_block: CFGBlock) -> Tuple[str, float, List[instr_id_T
     outcome = outcome1 # [outcome1, outcome3][chosen_idx]
     time = time1 #  [time1, time3][chosen_idx]
     greedy_ids = greedy_ids1 # [greedy_ids1, greedy_ids3][chosen_idx]
+
+    assert check_execution_from_ids(copy.deepcopy(cfg_block.spec), greedy_ids, admits_junk), f"Fails in block: {cfg_block.block_id}"
 
     cfg_block.greedy_ids = greedy_ids if greedy_ids is not None else []
     cfg_block.greedy_info = greedy_info

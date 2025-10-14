@@ -58,7 +58,7 @@ def print_state(instr_id, stack):
     print(f"{instr_id:<{max_str_len}} {str(stack):>{max_list_len}}")
 
 
-def check_execution_from_ids(sfs: Dict, instr_ids: List[instr_id_T]) -> bool:
+def check_execution_from_ids(sfs: Dict, instr_ids: List[instr_id_T], allows_junk: bool = False) -> bool:
     """
     Given a SFS and a sequence of ids, checks the ids indeed represent a valid solution
     """
@@ -71,10 +71,16 @@ def check_execution_from_ids(sfs: Dict, instr_ids: List[instr_id_T]) -> bool:
         print_state(instr_id, cstack)
         execute_instr_id(instr_id, cstack, user_instr)
 
-    assert cstack == fstack, f"""
+    if allows_junk:
+        stack_to_compare = cstack[:len(fstack)]
+    else:
+        stack_to_compare = cstack
+
+    assert stack_to_compare == fstack, f"""
                              Ids - Stack do not match. 
-                             Cstack {cstack}
+                             Cstack {stack_to_compare}
                              Fstack {fstack}
+                             Block {sfs['name']}
                              """
 
     assert check_deps(instr_ids, dependencies), 'Dependencies are not coherent'
