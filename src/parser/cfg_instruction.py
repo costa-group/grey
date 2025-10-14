@@ -296,7 +296,6 @@ class CFGInstruction:
         # self.op = "pushsize"
         literal_val = self.literal_args[0]
 
-        print(literal_val)
         if literal_val == object_id:
             self.op = "pushsize"
         
