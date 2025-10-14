@@ -100,6 +100,12 @@ def insert_constants_block_dominant_preorder(block_name: block_id_T, cfg_block_l
         push_instr.literal_args = [constant_value]
         cfg_block.insert_instruction(first_non_phi, push_instr)
 
+    # For the constants we need to use, we add the possibility of computing
+    # it through push
+    for constant in constants_per_block[block_name]:
+        if constant in introduced_so_far:
+            cfg_block.assignment_dict[introduced_so_far[constant]] = constant
+
     insert_constants_block(cfg_block, introduced_so_far)
 
     # We traverse the tree in preorder, updating the free index
