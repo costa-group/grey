@@ -52,7 +52,7 @@ def cfg_block_spec_ids(cfg_block: CFGBlock) -> Tuple[str, float, List[instr_id_T
     return outcome, time, greedy_ids, greedy_info.elements_to_fix
 
 
-def cfg_block_list_spec_ids(cfg_blocklist: CFGBlockList) -> List[Dict]:
+def cfg_block_list_spec_ids(cfg_blocklist: CFGBlockList, path_to_files: Optional[Path] = None) -> List[Dict]:
     """
     Generates the assembly code of all the blocks in a block list and returns the statistics
     """
@@ -64,38 +64,39 @@ def cfg_block_list_spec_ids(cfg_blocklist: CFGBlockList) -> List[Dict]:
         csv_dicts.append(generate_statistics_info(block_name, greedy_ids, time, block.spec))
 
     # If there are elements to fix
-    repair_unreachable_blocklist(cfg_blocklist, to_fix)
+    repair_unreachable_blocklist(cfg_blocklist, to_fix, path_to_files)
     return csv_dicts
 
 
-def cfg_object_spec_ids(cfg: CFGObject):
+def cfg_object_spec_ids(cfg: CFGObject, path_to_files: Path):
     """
     Generates the assembly code for a
     """
-    csv_dicts = cfg_block_list_spec_ids(cfg.blocks)
+    csv_dicts = cfg_block_list_spec_ids(cfg.blocks, path_to_files.joinpath(cfg.name))
     for cfg_function in cfg.functions.values():
-        csv_dicts.extend(cfg_block_list_spec_ids(cfg_function.blocks))
+        csv_dicts.extend(cfg_block_list_spec_ids(cfg_function.blocks, path_to_files.joinpath(cfg.name)))
     return csv_dicts
 
 
-def recursive_cfg_spec_ids(cfg: CFG):
+def recursive_cfg_spec_ids(cfg: CFG, path_to_files: Optional[Path]):
     """
     Generates the assembly for all the blocks inside the CFG, excluding the sub objects.
     """
     csv_dicts = []
     for cfg_object in cfg.get_objects().values():
-        csv_dicts.extend(cfg_object_spec_ids(cfg_object))
+        csv_dicts.extend(cfg_object_spec_ids(cfg_object, path_to_files))
         sub_object = cfg_object.subObject
         if sub_object is not None:
-            csv_dicts.extend(recursive_cfg_spec_ids(sub_object))
+            csv_dicts.extend(recursive_cfg_spec_ids(sub_object, path_to_files))
     return csv_dicts
 
 
-def cfg_spec_ids(cfg: CFG, csv_file: Optional[Path], visualize: bool) -> None:
+def cfg_spec_ids(cfg: CFG, path_to_files: Optional[Path],
+                 csv_file: Optional[Path], visualize: bool) -> None:
     """
     Generates the greedy ids from the specification inside the cfg and stores in the field "greedy_ids" inside
     each block. Stores the information from the greedy generation in a csv file
     """
-    csv_dicts = recursive_cfg_spec_ids(cfg)
+    csv_dicts = recursive_cfg_spec_ids(cfg, path_to_files)
     if visualize:
         pd.DataFrame(csv_dicts).to_csv(csv_file)

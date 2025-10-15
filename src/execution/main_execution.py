@@ -98,7 +98,7 @@ def analyze_single_cfg(cfg: CFG, final_dir: Path, args: argparse.Namespace, time
     times[3] += (y - x)
 
     x = dtimer()
-    cfg_spec_ids(cfg, final_dir.joinpath("statistics.csv"), args.visualize)
+    cfg_spec_ids(cfg, final_dir.joinpath("repair"), final_dir.joinpath("statistics.csv"), args.visualize)
     y = dtimer()
 
     print("Greedy algorithm: " + str(y - x) + "s")
