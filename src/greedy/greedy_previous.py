@@ -1506,7 +1506,7 @@ def greedy_from_json(json_data: Dict[str, Any], verb=True, garbage=False) -> Tup
     except AssertionError:
         _, _, tb = sys.exc_info()
         traceback.print_tb(tb)
-        print("Error")
+        print(f"Error in {json_data['name']}. Junk: {json_data['admits_junk']}")
         res = None
         resids = None
         # print(name,encoding._b0,0 )
