@@ -4,10 +4,11 @@ from symbolic execution of the stack + greedy ids
 """
 import copy
 import networkx as nx
-from typing import List, Dict, Tuple, Set
+from typing import List, Dict, Tuple, Set, Optional
 from analysis.symbolic_execution import execute_instr_id
 from global_params.types import var_id_T, instr_id_T, instr_JSON_T, block_id_T
 from parser.cfg_block_list import CFGBlockList
+from parser.cfg_instruction import CFGInstruction
 
 MAX_STACK_SIZE = 16
 
@@ -24,9 +25,10 @@ def update_reachable(stack: List[var_id_T], instr_idx: int,
 
 def reachability_from_greedy(greedy_ids: List[instr_id_T],
                              initial_stack: List[var_id_T],
-                             user_instrs: List[instr_JSON_T]):
+                             user_instrs: List[instr_JSON_T],
+                             split_instruction_call: Optional[CFGInstruction] = None):
     """
-    Produces the reachability of a block with the greedy ids
+    Produces the reachability of a block with the greedy ids and the split instruction
     """
     num_instr = 0
     reachable = update_reachable(initial_stack, num_instr, {})
@@ -35,6 +37,14 @@ def reachability_from_greedy(greedy_ids: List[instr_id_T],
     for instr in greedy_ids:
         num_instr += 1
         execute_instr_id(instr, initial_stack, user_instrs)
+        update_reachable(initial_stack, num_instr, reachable)
+
+    # We also have to execute the split instruction just in case
+    # it produces a value that can be accessed (only for functions)
+    if split_instruction_call is not None:
+        # Consuming elements
+        num_instr += 1
+        initial_stack = split_instruction_call.out_args + initial_stack[len(split_instruction_call.in_args):]
         update_reachable(initial_stack, num_instr, reachable)
 
     return reachable
@@ -55,7 +65,8 @@ def construct_reachability_block(block_name: block_id_T, cfg_blocklist: CFGBlock
 
     spec = copy.deepcopy(block.spec)
     reachable = reachability_from_greedy(greedy_info.greedy_ids, spec["src_ws"],
-                                         greedy_info.user_instrs)
+                                         greedy_info.user_instrs,
+                                         block.split_instruction if block.get_jump_type() == "sub_block" else None)
 
     unreachable = block_unreachability(reachable.keys(), previous_unreachable,
                                        block.liveness["in"], block.liveness["out"])
