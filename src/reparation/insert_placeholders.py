@@ -187,7 +187,12 @@ def within_loop(v: var_id_T, block_id: block_id_T, loop_tree: nx.DiGraph,
     Determines whether the point in which variable var v and the block block_id are within the
     same loop scope, according to loop_tree
     """
-    v_definition_block = var2header[v]
+    v_definition_block = var2header.get(v)
+
+    # If the definition is outside loops, then
+    # the block id must be as well
+    if v_definition_block is None:
+        return block_id not in loop_tree
 
     # Two options: either both of them have the same header or no header at all
     entry_v_definition_block = entry_loop(v_definition_block, loop_tree)
@@ -210,7 +215,10 @@ def substract_zero(left_counter: Counter, right_counter: Counter) -> Set:
             zero_elements.add(element)
             # We remove the element from both counters
             left_counter.pop(element)
-            right_counter.pop(element)
+
+    # Elements to remove
+    for element in zero_elements:
+        right_counter.pop(element)
 
     return zero_elements
 
@@ -248,7 +256,9 @@ def store_stack_elements_block(current_block_id: block_id_T, block_list: CFGBloc
         get_counter_combined += get_counter_succ
 
     current_greedy_info = block_list.get_block(current_block_id).greedy_info
-    final_code = []
+
+    # Consumed so far
+    get_counter_combined += current_greedy_info.get_count
 
     # First, we update the variables that are accessed through VGET or VGET-VSET
     # and analyze the values that are 0
@@ -263,9 +273,7 @@ def store_stack_elements_block(current_block_id: block_id_T, block_list: CFGBloc
         num_instructions, dup_pos = reachable_info[var]
         if within_loop(var, current_block_id,
                        block_list.loop_nesting_forest, var2header):
-            insert_dup_set(final_code, dup_pos, var, num_instructions)
+            insert_dup_set(current_greedy_info.greedy_ids, dup_pos, var, num_instructions)
             vars_stored.add(var)
 
-    # We update the corresponding code
-    current_greedy_info.greedy_ids = final_code
     return vars_to_introduce.difference(vars_stored), get_counter_combined
