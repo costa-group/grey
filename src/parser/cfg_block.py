@@ -374,9 +374,9 @@ class CFGBlock:
         return sto_deps, mem_deps, trans_deps, gas_deps
 
 
-    def translate_opcodes(self, objects_keys, next_idx, subobjects_idx):
+    def translate_opcodes(self, objects_keys, next_idx, object_id, subobjects_idx):
         for ins in self._instructions:
-            next_idx = ins.translate_opcode(objects_keys, next_idx, subobjects_idx)
+            next_idx = ins.translate_opcode(objects_keys, next_idx, object_id, subobjects_idx)
 
         return next_idx
     

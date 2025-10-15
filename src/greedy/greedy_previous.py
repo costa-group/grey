@@ -530,6 +530,8 @@ class SMSgreedy:
                     break
                 if pos_in_stack == 0:
                     break
+                if stack[pos_in_stack] == stack[0]: # just in case there are repeated values in the initial stack
+                    break
                 if pos_in_stack > 0:
                     opcode += ['SWAP' + str(pos_in_stack)]
                     opcodeids += ['SWAP' + str(pos_in_stack)]
@@ -1286,7 +1288,8 @@ class SMSgreedy:
 
         # print('needed in stack:',self._needed_in_stack_map,final_ops_to_count)
         for v in self._initial_stack:
-            self._needed_in_stack_map[v] += needed_list(v, final_ops_to_count, needed_set, self._opid_instr_map,
+            if v not in self._needed_in_stack_map:
+                self._needed_in_stack_map[v] += needed_list(v, final_ops_to_count, needed_set, self._opid_instr_map,
                                                         self._var_instr_map)
         #     print('needed in stack:',v, self._needed_in_stack_map[v])
         self.count_uses()
@@ -1321,7 +1324,7 @@ class SMSgreedy:
 
     def small_zeroary(self, op):
         return op in self._var_instr_map and len(self._var_instr_map[op]['inpt_sk']) == 0 and self._var_instr_map[op][
-            'size'] <= 2
+            'size'] <= 1
 
     def tree_size(self, op):
         if op not in self._var_instr_map:
@@ -1473,7 +1476,7 @@ def greedy_from_json(json_data: Dict[str, Any], verb=True, garbage=False) -> Tup
             opcodeids_ini_aux_ext = opcodeids_ini_ext.copy()
             instr_aux_ext = instr_ext.copy()
             final_no_store_aux_ext = final_no_store_ext.copy()
-            (res_ext, resids_ext) = encoding_ext.compute(instr_ext, final_no_store_ext, opcodes_ini_ext, opcodeids_ini_ext, solved_ext, initial_ext, 2)
+            (res_ext, resids_ext) = encoding_ext.compute(instr_ext, final_no_store_ext, opcodes_ini_ext, opcodeids_ini_ext, solved_ext, initial_ext, 3)
             encoding_ext.check_dependencies(resids_ext)
             assert (len(res_ext) == len(resids_ext))
             res_ext, resids_ext = remove_useless(res_ext, resids_ext)
@@ -1484,10 +1487,13 @@ def greedy_from_json(json_data: Dict[str, Any], verb=True, garbage=False) -> Tup
                 if len(resids_ext) < len(resids):
                     encoding_ext._diff = len(resids) - len(resids_ext)
                     res, resids, encoding = res_ext, resids_ext, encoding_ext
-            if verbose:
-                if extend_tgt:
-                    print(resids,encoding._extended,encoding._diff)
+                    if verbose:
+                        print(resids,encoding._extended,encoding._diff)
                 else:
+                    if verbose:
+                        print(resids)
+            else:
+                if verbose:
                     print(resids)
             if len(res) < encoding._b0 or (len(res) <= encoding._b0 and encoding.correct(resids)):
                 json_data["init_progr_len"] = len(res)
@@ -1614,11 +1620,17 @@ if __name__ == "__main__":
             fw.write(json_result)
     else:
         if error == 0:
+            size = 0
+            for o in rsids:
+                if o in encod._opid_instr_map:
+                    size += encod._opid_instr_map[o]['size']
+                else:
+                    size += 1
             if encod._extended: 
-                print(name, initial_size, len(rs))
+                print(name, initial_size, len(rs), size)
                 # print(name, initial_size, len(rs), encod._diff)
             else:
-                print(name, initial_size, len(rs))
+                print(name, initial_size, len(rs), size)
             # print(rs)
             # print(rsids)
         else:
