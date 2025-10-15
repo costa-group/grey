@@ -28,7 +28,7 @@ class GreedyInfo:
 
         # Elements that are accessed through get instructions.
         # Considers VGET-VSET elements.
-        self.get_count = Counter(id_instr[4:-1] for id_instr in self.greedy_ids
+        self.get_count = Counter(id_instr[5:-1] for id_instr in self.greedy_ids
                                  if "VGET" in id_instr)
 
     @property

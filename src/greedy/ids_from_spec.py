@@ -64,7 +64,8 @@ def cfg_block_list_spec_ids(cfg_blocklist: CFGBlockList, path_to_files: Optional
         csv_dicts.append(generate_statistics_info(block_name, greedy_ids, time, block.spec))
 
     # If there are elements to fix
-    repair_unreachable_blocklist(cfg_blocklist, to_fix, path_to_files)
+    if len(to_fix) > 0:
+        repair_unreachable_blocklist(cfg_blocklist, to_fix, path_to_files)
     return csv_dicts
 
 

@@ -20,24 +20,25 @@ from parser.cfg_block_list import CFGBlockList
 from reparation.atomic_merged_sets import AtomicMergedSets
 
 
-def repair_unreachable(block_list: CFGBlockList, greedy_info: Dict[block_id_T, GreedyInfo],
-                       dominance_tree: nx.DiGraph, loop_tree: nx.DiGraph, forest_graph: nx.DiGraph,
-                       get_count: Counter[var_id_T],
-                       elements_to_fix: Set[var_id_T]) -> Tuple[AtomicMergedSets, Set[var_id_T]]:
+def repair_unreachable(block_list: CFGBlockList, elements_to_fix: Set[var_id_T]) -> AtomicMergedSets:
     """
-    Repairs unreachable elements in two steps. First, it determines at which 
-        
+    Repairs unreachable elements in two steps. First, it determines at which
     block_list already contains the instructions generated
     in the greedy algorithm phase.
     """
     phi_def2block = compute_phi_def2block(block_list)
-    atomic_merged_sets, combined_elements_to_fix = fix_inaccessible_phi_values(block_list, greedy_info, get_count,
-                                                                               elements_to_fix, phi_def2block)
 
-    var2header = variable2block_header(block_list, forest_graph)
-    store_stack_elements_block(block_list.start_block, block_list, dominance_tree, greedy_info,
-                               get_count, loop_tree, var2header)
-    return atomic_merged_sets, combined_elements_to_fix
+    # The phi elements to fix are those that are unreachable in their definition
+    # TODO: Check it is indeed the case
+    phi_elements_to_fix = set(element for element in elements_to_fix
+                              if (block_def := phi_def2block.get(element)) is not None
+                              and element in block_list.get_block(block_def).greedy_info.unreachable)
+
+    atomic_merged_sets = fix_inaccessible_phi_values(block_list, phi_elements_to_fix, phi_def2block)
+
+    var2header = variable2block_header(block_list, block_list.loop_nesting_forest)
+    store_stack_elements_tree(block_list, var2header)
+    return atomic_merged_sets
 
 
 # Phi value to block in which it is defined
@@ -50,8 +51,6 @@ def compute_phi_def2block(cfg_block_list: CFGBlockList) -> Dict[var_id_T, block_
 # Methods for first step: fixing inaccessible phi values
 
 def fix_inaccessible_phi_values(block_list: CFGBlockList,
-                                greedy_info: Dict[block_id_T, GreedyInfo],
-                                get_count: Counter[var_id_T],
                                 phi_elements_to_fix: Set[var_id_T],
                                 phi_def2block: Dict[var_id_T, block_id_T]) -> AtomicMergedSets:
     """
@@ -61,7 +60,7 @@ def fix_inaccessible_phi_values(block_list: CFGBlockList,
     (although not necessary in practice).
     """
     atomic_merged_sets, color, handled_values = AtomicMergedSets(), 0, set()
-
+    new_elements_to_fix = set()
     for element in phi_elements_to_fix:
         definition = phi_def2block[element]
 
@@ -76,7 +75,7 @@ def fix_inaccessible_phi_values(block_list: CFGBlockList,
 
             assert phi_instruction.get_op_name() == "PhiInstruction"
             for ai, Bi in zip(phi_instruction.get_in_args(), current_block.entries):
-                Bi_greedy_info = greedy_info[Bi]
+                Bi_greedy_info = block_list.get_block(Bi).greedy_info
                 num_instructions, dup_pos = Bi_greedy_info.reachable.get(ai, (None, None))
 
                 # First case: the element is unreachable in all its predecessors,
@@ -85,7 +84,7 @@ def fix_inaccessible_phi_values(block_list: CFGBlockList,
 
                     # Unreachable elements always correspond to phi values
                     B_def = phi_def2block[ai]
-                    process_get_set(Bi_greedy_info, ai, num_instructions, get_count)
+                    process_get_set(Bi_greedy_info, ai, num_instructions)
 
                     # We only process values that
                     if ai not in handled_values:
@@ -101,7 +100,7 @@ def fix_inaccessible_phi_values(block_list: CFGBlockList,
                 # Third case: we need to retrieve the value from another register.
                 #             This value was accessible at some point.
                 else:
-                    process_get_set(Bi_greedy_info, ai, num_instructions, get_count)
+                    process_get_set(Bi_greedy_info, ai, num_instructions)
 
                 # Update the dup-set
                 add_set.add((ai, Bi))
@@ -112,8 +111,7 @@ def fix_inaccessible_phi_values(block_list: CFGBlockList,
     return atomic_merged_sets
 
 
-def process_get_set(greedy_info: GreedyInfo, ai: var_id_T, num_instructions: int,
-                    get_count: Counter[var_id_T]):
+def process_get_set(greedy_info: GreedyInfo, ai: var_id_T, num_instructions: int):
     """
     Handles a GET-SET annotation, updating elements_to_fix and get_count in the process
     with the corresponding information.
@@ -123,10 +121,7 @@ def process_get_set(greedy_info: GreedyInfo, ai: var_id_T, num_instructions: int
 
     # We add the corresponding get access to the
     # set of elements that are accessed
-    greedy_info.get_elements.update(ai)
-
-    # We add the get instruction to the corresponding set
-    get_count.update(ai)
+    greedy_info.get_count.update(ai)
 
 
 def insert_dup_set(instructions: List[str], dup_pos: int, ai: var_id_T, position: int):
@@ -220,11 +215,21 @@ def substract_zero(left_counter: Counter, right_counter: Counter) -> Set:
     return zero_elements
 
 
+def store_stack_elements_tree(block_list: CFGBlockList,
+                              var2header: Dict[var_id_T, block_id_T]) -> None:
+    # TODO: more efficient
+    # Compute the global get_count, considering the information from
+    # the new introduced placeholders
+    get_count = sum((block.greedy_info.get_count for block in block_list.blocks.values()),
+                    Counter())
+
+    # Just invoke the recursive function with the stack block
+    store_stack_elements_block(block_list.start_block, block_list,
+                               get_count, var2header)
+
+
 def store_stack_elements_block(current_block_id: block_id_T, block_list: CFGBlockList,
-                               dominance_tree: nx.DiGraph,
-                               greedy_info: Dict[block_id_T, GreedyInfo],
                                initial_get_counter: Counter[var_id_T],
-                               loop_tree: nx.DiGraph,
                                var2header: Dict[var_id_T, block_id_T]) -> Tuple[Set[var_id_T], Counter[var_id_T]]:
     """
     Second pass: introduce the DUP-SET instructions that are needed
@@ -236,18 +241,19 @@ def store_stack_elements_block(current_block_id: block_id_T, block_list: CFGBloc
 
     # Traverse the tree in post-order, updating the
     # values to introduce and the number of get occurrences so far
-    for next_block_id in dominance_tree.successors(current_block_id):
-        vars_successors, get_counter_succ = store_stack_elements_block(next_block_id, block_list, dominance_tree,
-                                                     greedy_info, initial_get_counter, loop_tree, var2header)
+    for next_block_id in block_list.dominant_tree.successors(current_block_id):
+        vars_successors, get_counter_succ = store_stack_elements_block(next_block_id, block_list,
+                                                                       initial_get_counter, var2header)
         vars_to_introduce.update(vars_successors)
         get_counter_combined += get_counter_succ
 
-    current_greedy_info = greedy_info[current_block_id]
+    current_greedy_info = block_list.get_block(current_block_id).greedy_info
     final_code = []
 
     # First, we update the variables that are accessed through VGET or VGET-VSET
     # and analyze the values that are 0
     elements_popped = substract_zero(initial_get_counter, get_counter_combined)
+
     # These elements are now introduced to the set
     vars_to_introduce.update(elements_popped)
 
@@ -255,8 +261,8 @@ def store_stack_elements_block(current_block_id: block_id_T, block_list: CFGBloc
     reachable_info = current_greedy_info.reachable
     for var in vars_to_introduce.intersection(reachable_info.keys()):
         num_instructions, dup_pos = reachable_info[var]
-
-        if within_loop(var, current_block_id, loop_tree, var2header):
+        if within_loop(var, current_block_id,
+                       block_list.loop_nesting_forest, var2header):
             insert_dup_set(final_code, dup_pos, var, num_instructions)
             vars_stored.add(var)
 

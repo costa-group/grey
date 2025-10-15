@@ -8,6 +8,7 @@ import networkx as nx
 from parser.parser import CFGBlockList, CFGBlock
 from global_params.types import var_id_T
 from reparation.reachability import construct_reachability
+from reparation.insert_placeholders import repair_unreachable
 from graphs.algorithms import information_on_graph
 from greedy.greedy_info import GreedyInfo
 
@@ -26,6 +27,8 @@ def repair_unreachable_blocklist(cfg_blocklist: CFGBlockList, elements_to_fix: S
         reachability_path = path_to_files.joinpath("reachability")
         reachability_path.mkdir(exist_ok=True, parents=True)
         _debug_cfg_reachability(cfg_blocklist, reachability_path)
+
+    repair_unreachable(cfg_blocklist, elements_to_fix)
 
 
 def _represent_reachability_info(block: CFGBlock, num_elements: int = 5):
