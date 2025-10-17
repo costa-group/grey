@@ -60,7 +60,6 @@ def fix_inaccessible_phi_values(block_list: CFGBlockList,
     (although not necessary in practice).
     """
     atomic_merged_sets, color, handled_values = AtomicMergedSets(), 0, set()
-    new_elements_to_fix = set()
     for element in phi_elements_to_fix:
         definition = phi_def2block[element]
 
