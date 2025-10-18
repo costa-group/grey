@@ -4,30 +4,68 @@ that keeps which elements must be assigned the same colour
 """
 from typing import Dict, List, Optional, Set, Iterable
 from global_params.types import var_id_T
+from collections import defaultdict
 
 
-class AtomicMergedSets:
+class MergedSets:
     """
-    Data structure that combines all atomic merged sets into
-    a single object.
+    Data structure based on Union-Find that combines
+    all interference values in a single class
     """
 
     def __init__(self):
         self._var2class: Dict[var_id_T, int] = dict()
-        self._class2vars: List[Set[var_id_T]] = []
+        self._class2parent: List[int] = []
+        self._n_elems_class: List[int] = []
+        self._rank: List[int] = []
+        self._num_sets = 0
 
-    def add_set(self, var_set: Iterable[var_id_T]) -> None:
-        # Assumes None of the elements are already assigned
-        class_number = len(self._class2vars)
-        for var in var_set:
-            self._var2class[var] = class_number
-        self._class2vars.append(set(var_set))
+    def initialize_element(self, var_: var_id_T):
+        if var_ not in self._var2class:
+            index = len(self._class2parent)
+            self._var2class[var_] = index
+            self._class2parent.append(index)
+            self._n_elems_class.append(1)
+            self._rank.append(0)
+            self._num_sets += 1
 
-    def same_colour(self, variable: var_id_T) -> Optional[Set[var_id_T]]:
+    def _find_index(self, index: int) -> int:
+        if self._class2parent[index] != index:
+            self._class2parent[index] = self._find_index(self._class2parent[index])
+        return self._class2parent[index]
+
+    def find_set(self, var_: var_id_T) -> int:
+        return self._find_index(self._var2class[var_])
+
+    def union_set(self, var1: var_id_T, var2: var_id_T):
+        class1, class2 = self.find_set(var1), self.find_set(var2)
+        if class1 != class2:
+            if self._rank[class1] > self._rank[class2]:
+                self._class2parent[class2] = class1
+                self._n_elems_class[class1] += self._n_elems_class[class2]
+            else:
+                self._class2parent[class1] = class2
+                self._n_elems_class[class2] += self._n_elems_class[class1]
+                if self._rank[class1] == self._rank[class2]:
+                    self._rank[class2] += 1
+
+            self._num_sets -= 1
+
+    def join_phi(self, phi_def: var_id_T, phi_values: Set[var_id_T]):
+        self.initialize_element(phi_def)
+        for phi_value in phi_values:
+            self.initialize_element(phi_value)
+            self.union_set(phi_def, phi_value)
+
+    def get_sets(self) -> List[Set[var_id_T]]:
         """
-        Returns the set of variables that are associated to the same resource
+        Returns a list of disjoint sets, where each set contains
+        the variables that belong to the same class.
         """
-        eq_class = self._var2class.get(variable)
-        if eq_class is None:
-            return None
-        return self._class2vars[eq_class]
+        sets_by_root: Dict[int, Set[var_id_T]] = defaultdict(set)
+
+        for var, idx in self._var2class.items():
+            root = self._find_index(idx)
+            sets_by_root[root].add(var)
+
+        return [set_ for set_ in sets_by_root.values() if len(set_) > 1]
