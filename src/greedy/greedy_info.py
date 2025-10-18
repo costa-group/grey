@@ -1,7 +1,7 @@
 """
 Module for computing relevant information from the greedy algorithm
 """
-from typing import List, Set, Dict, Iterable
+from typing import List, Set, Dict, Iterable, Tuple
 from collections import Counter, defaultdict
 from global_params.types import var_id_T, instr_id_T, instr_JSON_T
 
@@ -21,8 +21,8 @@ class GreedyInfo:
         self.greedy_ids = greedy_ids if greedy_ids else []
         self.outcome = outcome
         self.execution_time = execution_time
-        self.reachable = set()
-        self.unreachable = set()
+        self.reachable: Dict[var_id_T, Tuple[int, int, bool]] = dict()
+        self.unreachable: Set[var_id_T] = set()
         self.user_instrs = original_instrs
         self.instr_id2var = compute_instr_id2var(original_instrs)
 
@@ -31,9 +31,47 @@ class GreedyInfo:
         self.get_count = Counter(id_instr[5:-1] for id_instr in self.greedy_ids
                                  if "VGET" in id_instr)
 
+        # Elements that might need to be copied in order to propagate
+        # the information on the phi-function. We also store whether it
+        # is reachable or not (true or false)
+        self.virtual_copies: Set[Tuple[var_id_T, bool]] = None
+
     @property
     def elements_to_fix(self) -> Iterable:
         return self.get_count.keys()
+
+    def add_virtual_copy(self, v: var_id_T):
+        """
+        Introduces v as a virtual_copy that might need to be
+        introduced in registers. We distinguish two cases: v is accessible at late(B)
+        (and hence, we can just dup it to access) or not.
+        """
+        _, _, is_last = self.reachable.get(v, (None, None, None))
+
+        last_accessible = bool(is_last)
+        self.virtual_copies.add((v, last_accessible))
+
+        # If it is not accessible in the last instruction,
+        # we need to load the GET the instruction elsewhere
+        if not last_accessible:
+            self.get_count.update(v)
+
+    def insert_dup_vset(self, var: var_id_T):
+        """
+        Inserts an instruction (probably a DUP-VSET).
+        We have to update the information on the reachability
+
+        TODO: more efficient implementation based on intervals
+        """
+        pos_introduced, dup_pos, is_last = self.reachable[var]
+        self.greedy_ids.insert(pos_introduced, f"DUP-VSET({var},{dup_pos})")
+
+        vars_to_update = self.reachable.keys()
+        for var_ in vars_to_update:
+            num_instr, dup_pos, is_last = self.reachable[var_]
+            # Only update indexis from the old position
+            if num_instr >= pos_introduced:
+                self.reachable[var_] = num_instr + 1, dup_pos, is_last
 
     @classmethod
     def from_new_version(cls, greedy_ids: List[str], outcome: str, execution_time: float, original_instrs: List[instr_JSON_T],

@@ -17,9 +17,10 @@ MAX_STACK_SIZE = 16
 
 
 def update_reachable(stack: List[var_id_T], instr_idx: int,
-                     reachability_dict: Dict[var_id_T, Tuple[int, int]]) -> Dict[var_id_T, Tuple[int, int]]:
+                     reachability_dict: Dict[var_id_T, Tuple[int, int, bool]],
+                     is_last: bool) -> Dict[var_id_T, Tuple[int, int, bool]]:
     for i, elem in enumerate(stack):
-        reachability_dict[elem] = (i, instr_idx)
+        reachability_dict[elem] = (i, instr_idx, is_last)
     return reachability_dict
 
 
@@ -31,13 +32,17 @@ def reachability_from_greedy(greedy_ids: List[instr_id_T],
     Produces the reachability of a block with the greedy ids and the split instruction
     """
     num_instr = 0
-    reachable = update_reachable(initial_stack, num_instr, {})
+    reachable = update_reachable(initial_stack, num_instr, {}, len(greedy_ids) == 0)
     # We execute instruction in the greedy
 
     for instr in greedy_ids:
         num_instr += 1
         execute_instr_id(instr, initial_stack, user_instrs)
-        update_reachable(initial_stack, num_instr, reachable)
+
+        # Condition for last: split_instruction_call is None and
+        # it is the last index
+        update_reachable(initial_stack, num_instr, reachable,
+                         split_instruction_call is None and num_instr == len(greedy_ids))
 
     # We also have to execute the split instruction just in case
     # it produces a value that can be accessed (only for functions)
@@ -45,7 +50,7 @@ def reachability_from_greedy(greedy_ids: List[instr_id_T],
         # Consuming elements
         num_instr += 1
         initial_stack = split_instruction_call.out_args + initial_stack[len(split_instruction_call.in_args):]
-        update_reachable(initial_stack, num_instr, reachable)
+        update_reachable(initial_stack, num_instr, reachable, True)
 
     return reachable
 
