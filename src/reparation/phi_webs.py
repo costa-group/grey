@@ -7,7 +7,7 @@ from global_params.types import var_id_T
 from collections import defaultdict
 
 
-class MergedSets:
+class PhiWebs:
     """
     Data structure based on Union-Find that combines
     all interference values in a single class

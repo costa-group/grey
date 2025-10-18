@@ -17,10 +17,10 @@ import networkx as nx
 from global_params.types import var_id_T, block_id_T
 from greedy.greedy_info import GreedyInfo
 from parser.cfg_block_list import CFGBlockList
-from reparation.atomic_merged_sets import MergedSets
+from reparation.phi_webs import PhiWebs
 
 
-def repair_unreachable(block_list: CFGBlockList, elements_to_fix: Set[var_id_T]) -> MergedSets:
+def repair_unreachable(block_list: CFGBlockList, elements_to_fix: Set[var_id_T]) -> PhiWebs:
     """
     Repairs unreachable elements in two steps. First, it determines at which
     block_list already contains the instructions generated
@@ -52,14 +52,14 @@ def compute_phi_def2block(cfg_block_list: CFGBlockList) -> Dict[var_id_T, block_
 
 def fix_inaccessible_phi_values(block_list: CFGBlockList,
                                 phi_elements_to_fix: Set[var_id_T],
-                                phi_def2block: Dict[var_id_T, block_id_T]) -> MergedSets:
+                                phi_def2block: Dict[var_id_T, block_id_T]) -> PhiWebs:
     """
     First pass: introduce the GET-SET and DUP-SET annotations
     for handling phi values. It returns the atomic-merged-sets, which is the
     set of elements that aims to use the same memory resource 
     (although not necessary in practice).
     """
-    atomic_merged_sets, color, handled_values = MergedSets(), 0, set()
+    atomic_merged_sets, color, handled_values = PhiWebs(), 0, set()
 
     for element in phi_elements_to_fix:
         definition = phi_def2block[element]
