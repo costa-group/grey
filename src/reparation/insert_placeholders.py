@@ -76,67 +76,31 @@ def fix_inaccessible_phi_values(block_list: CFGBlockList,
             assert phi_instruction.get_op_name() == "PhiInstruction"
             for ai, Bi in zip(phi_instruction.get_in_args(), current_block.entries):
                 Bi_greedy_info = block_list.get_block(Bi).greedy_info
-                num_instructions, dup_pos = Bi_greedy_info.reachable.get(ai, (None, None))
 
-                # First case: the element is unreachable in all its predecessors,
-                # so we repeat the same process. Hence, it corresponds to a phi_def value
-                if ai in Bi_greedy_info.unreachable:
-
-                    # Unreachable elements always correspond to phi values
+                # We iterate if the value is unreachable
+                # (i.e it can be reached at no point)
+                if ai in Bi_greedy_info.unreachable and ai not in handled_values:
                     B_def = phi_def2block[ai]
-                    process_get_set(Bi_greedy_info, ai, num_instructions)
+                    # We need to find in which block ai is
+                    # defined to perform the same process (if needed)
+                    pairs_to_traverse.append((ai, B_def))
 
-                    # We only process values that
-                    if ai not in handled_values:
-                        # We need to find in which block ai is
-                        # defined to perform the same process (if needed)
-                        pairs_to_traverse.append((ai, B_def))
+                # For all cases, we need to add a virtual copy
+                Bi_greedy_info.add_virtual_copy(ai)
 
-                # Second case: the element can be reached with a dup instruction in the
-                # current block
-                elif num_instructions is not None:
-                    insert_dup_set(Bi_greedy_info.greedy_ids, dup_pos, ai, num_instructions)
-
-                # Third case: we need to retrieve the value from another register.
-                #             This value was accessible at some point.
-                else:
-                    process_get_set(Bi_greedy_info, ai, num_instructions)
-
-                # Update the dup-set
                 add_set.add(ai)
 
-            if add_set:
-                atomic_merged_sets.join_phi(current_var, add_set)
+            atomic_merged_sets.join_phi(current_var, add_set)
 
     return atomic_merged_sets
 
 
-def process_get_set(greedy_info: GreedyInfo, ai: var_id_T, num_instructions: int):
-    """
-    Handles a GET-SET annotation, updating elements_to_fix and get_count in the process
-    with the corresponding information.
-    """
-    # We insert the annotation
-    insert_get_set(greedy_info.greedy_ids, ai, num_instructions)
-
-    # We add the corresponding get access to the
-    # set of elements that are accessed
-    greedy_info.get_count.update(ai)
-
-
-def insert_dup_set(instructions: List[str], dup_pos: int, ai: var_id_T, position: int):
+def process_dup_set(instructions: List[str], dup_pos: int, ai: var_id_T, position: int):
     """
     Inserts a DUP-SET to access element ai with a given color. The position from which the dup
     must be done is passed as a parameter as well.
     """
     instructions.insert(position, f"DUP-VSET({ai}, {dup_pos + 1})")
-
-
-def insert_get_set(instructions: List[str], ai: var_id_T, position: int):
-    """
-    Inserts a GET + SET to access element ai with a given color.
-    """
-    instructions.insert(position, f"VGET-VSET({ai})")
 
 
 # Second phase: decide when values are stored using a STORE instruction
@@ -270,10 +234,9 @@ def store_stack_elements_block(current_block_id: block_id_T, block_list: CFGBloc
     vars_stored = set()
     reachable_info = current_greedy_info.reachable
     for var in vars_to_introduce.intersection(reachable_info.keys()):
-        num_instructions, dup_pos = reachable_info[var]
         if within_loop(var, current_block_id,
                        block_list.loop_nesting_forest, var2header):
-            insert_dup_set(current_greedy_info.greedy_ids, dup_pos, var, num_instructions)
+            current_greedy_info.insert_dup_vset(var)
             vars_stored.add(var)
 
     return vars_to_introduce.difference(vars_stored), get_counter_combined
