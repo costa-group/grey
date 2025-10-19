@@ -188,7 +188,14 @@ def merge(morder, sorder, final_no_mstore, final_no_sstore, opid_instr_map, var_
         return morder
     while len(morder) > 0:
         o = morder.pop(0)
-        i = -1
+        if o in sorder:
+            if sorder[0] == o:
+                sorder.pop(0)
+            else:
+                i = sorder.index(o)
+                torder += sorder[:i] + [o]
+                return torder + merge(morder, sorder[i + 1:], final_no_mstore, final_no_sstore, opid_instr_map,
+                                      var_instr_map)
         for op in final_no_sstore:
             if computed(opid_instr_map[op]['outpt_sk'][0], o, opid_instr_map, var_instr_map):
                 return torder + sorder + [o] + morder
@@ -1390,7 +1397,7 @@ class SMSgreedy:
         # print(sorder, final_no_sstore)
         tstorder = merge(tsorder, sorder, final_no_tstore, final_no_sstore, self._opid_instr_map, self._var_instr_map)
         final_no_tsstore = final_no_tstore + final_no_sstore
-        # print(tstorder, final_no_tsstore)
+        # print('First megre:',tstorder, final_no_tsstore)
         # print(morder, final_no_mstore)
         torder = merge(morder, tstorder, final_no_mstore, final_no_tsstore, self._opid_instr_map, self._var_instr_map)
         # print('torder',torder)
