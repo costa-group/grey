@@ -36,6 +36,10 @@ class GreedyInfo:
         # is reachable or not (true or false)
         self.virtual_copies: Set[Tuple[var_id_T, bool]] = None
 
+        # Position of VGETs s.t. it corresponds to the last use according
+        # to the dominator tree
+        self.last_use: Set[int] = set()
+
     @property
     def elements_to_fix(self) -> Iterable:
         return self.get_count.keys()

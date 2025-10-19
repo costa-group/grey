@@ -4,6 +4,7 @@ the colour assignment
 """
 from global_params.types import var_id_T, block_id_T
 from typing import List, Dict, Tuple, Set, Optional
+from reparation.phi_webs import PhiWebs
 
 
 class ColourAssignment:
@@ -21,7 +22,7 @@ class ColourAssignment:
     def num_colors(self) -> int:
         return self._total_colors
 
-    def pick_colour(self, v: var_id_T, available: List[bool]):
+    def pick_available_colour(self, v: var_id_T, available: List[bool]) -> int:
         """
         Chooses an available colour, adding a new one if there are not enough
         """
@@ -31,6 +32,7 @@ class ColourAssignment:
             self._used_colors += 1
             available.append(False)
             self._var2color[v] = self._total_colors - 1
+            return self._total_colors - 1
         else:
             i = 0
             found_colour = False
@@ -42,8 +44,18 @@ class ColourAssignment:
                     self._var2color[v] = i
                 else:
                     i += 1
+            if not found_colour:
+                raise ValueError("There must exist a colour that has not been assigned so far")
+            return i
 
-            raise ValueError("There must exist a colour that has not been assigned so far")
+    def pick_specific_colour(self, v: var_id_T, available: List[bool], color: int):
+        """
+        Picks a specific colour
+        """
+        assert available[color], f"Picked color {color} for variable {v} is not available"
+        available[color] = False
+        self._used_colors += 1
+        self._var2color[v] = color
 
     def has_variable(self, v: var_id_T):
         return v in self._var2color

@@ -29,6 +29,10 @@ class PhiWebs:
             self._rank.append(0)
             self._num_sets += 1
 
+    @property
+    def num_sets(self):
+        return self._num_sets
+
     def _find_index(self, index: int) -> int:
         if self._class2parent[index] != index:
             self._class2parent[index] = self._find_index(self._class2parent[index])
