@@ -619,7 +619,14 @@ class SMSgreedy:
                         if verbose: print(opcodeid + ' ' + tag, [o] + stack, len([o] + stack))
                         self._dup_stack_ini += 1
                         return ([opcode + ' ' + tag], [opcodeid], [o] + stack)
+                    elif 'PUSH0' in self._var_instr_map[o]['disasm']:
+                        opcodeid = self._var_instr_map[o]['id']
+                        opcode = self._var_instr_map[o]['disasm']
+                        self._dup_stack_ini += 1
+                        if verbose: print(opcodeid, [o] + stack, len([o] + stack))
+                        return ([opcode], [opcodeid], [o] + stack)
                     else:
+                        print(o)
                         h = hex(self._var_instr_map[o]['value'][0])
                         h = h[2:]
                         n = (len(h) + 1) // 2
@@ -1484,8 +1491,9 @@ class SMSgreedy:
         # uses_per_val = compute_uses(lm++self._variables)
 
     def small_zeroary(self, op):
-        return op in self._var_instr_map and len(self._var_instr_map[op]['inpt_sk']) == 0 and self._var_instr_map[op][
-            'size'] <= 1
+        return op in self._var_instr_map and len(self._var_instr_map[op]['inpt_sk']) == 0 and (self._var_instr_map[op]['disasm'] == 'PUSH0' or self._var_instr_map[op]['size'] <= 1)
+    #self._var_instr_map[op]['size'] <= 2
+    #(self._var_instr_map[op]['disasm'] == 'PUSH0' or self._var_instr_map[op]['size'] <= 1)
 
     def tree_size(self, op):
         if op not in self._var_instr_map:
@@ -1599,7 +1607,7 @@ def greedy_from_json(json_data: Dict[str, Any], verb=True, garbage=False) -> Tup
     # print(encoding._mem_order)
     # print(encoding._sto_order)
     global verbose
-    verbose = False # True
+    verbose = False # True # 
     global extend_tgt
     extend_tgt = garbage
     encoding = SMSgreedy(json_data.copy())
@@ -1792,7 +1800,10 @@ if __name__ == "__main__":
             size = 0
             for o in rsids:
                 if o in encod._opid_instr_map:
-                    size += encod._opid_instr_map[o]['size']
+                    if encod._opid_instr_map[o]['disasm'] == 'PUSH0':
+                        size += 1
+                    else:
+                        size += encod._opid_instr_map[o]['size']
                 else:
                     size += 1
             if encod._extended: 
