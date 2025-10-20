@@ -13,6 +13,6 @@ def extract_value_from_pseudo_instr(instruction: str) -> str:
     return None
 
 
-def extract_dup_pos_from_dup_vset(instruction: str) -> str:
+def extract_dup_pos_from_dup_vset(instruction: str) -> int:
     assert instruction.startswith("DUP-VSET"), f"Instruction {instruction} must be DUP-VSET"
-    return instruction[9:-1].split(",")[1]
+    return int(instruction[9:-1].split(",")[1])
