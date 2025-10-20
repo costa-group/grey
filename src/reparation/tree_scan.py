@@ -5,8 +5,8 @@ an unbounded number of registers to colour, as the EVM memory can
 grow indefinitely (although dangerously in cost...). Moreover, the liveness sets
 are determined according to the last point in which a variable could be accessed
 """
-from typing import List
-from global_params.types import block_id_T, constant_T, var_id_T
+from typing import List, Tuple, Dict
+from global_params.types import block_id_T, constant_T, var_id_T, instr_id_T
 from parser.cfg_block_list import CFGBlockList
 from reparation.colour_assignment import ColourAssignment
 from reparation.phi_webs import PhiWebs
@@ -63,7 +63,7 @@ class TreenScan:
                 self._biased_pick_color(var, color_assignment, available)
 
         # Finally, we check the values that are passed to phi-functions
-        for value, _ in greedy_info.virtual_copies:
+        for value in greedy_info.virtual_copies:
             # Case -2: PhiDefs
             if (-2, value) in greedy_info.last_use:
                 color_assignment.release_colour(value, available)
@@ -125,18 +125,21 @@ class TreenScan:
             for i, instr_id in enumerate(greedy_info.greedy_ids):
                 if instr_id.startswith("VGET"):
                     var = extract_value_from_pseudo_instr(instr_id)
-                    new_greedy_ids.extend([f"PUSH {color_to_constant[color_assignment.color(var)]}", "MLOAD"])
+                    constant = color_to_constant[color_assignment.color(var)]
+                    new_greedy_ids.extend(self._emit_vget(constant))
 
                 # Both VSET and DUP-VSET are handled accordingly
                 elif instr_id.startswith("VSET"):
                     var = extract_value_from_pseudo_instr(instr_id)
-                    new_greedy_ids.extend([f"PUSH {color_to_constant[color_assignment.color(var)]}", "MSTORE"])
+                    constant = color_to_constant[color_assignment.color(var)]
+                    new_greedy_ids.extend(self._emit_vset(constant))
 
                 elif instr_id.startswith("DUP-VSET"):
                     var = extract_value_from_pseudo_instr(instr_id)
                     dup_pos = extract_dup_pos_from_dup_vset(instr_id)
-                    new_greedy_ids.extend([f"DUP{dup_pos}", f"PUSH {color_to_constant[color_assignment.color(var)]}",
-                                           "MSTORE"])
+                    constant = color_to_constant[color_assignment.color(var)]
+
+                    new_greedy_ids.extend(self._emit_dup_vset(constant, dup_pos))
                 else:
                     # We respect the greedy ids
                     new_greedy_ids.append(instr_id)
@@ -144,7 +147,11 @@ class TreenScan:
             # If there are some virtual copies that need to be managed,
             # it means we have to emit copies for phi-functions
             if len(greedy_info.virtual_copies) > 0:
-                copies_to_manage = []
+                # We separate values that must be loaded from registers
+                # and those that are duplicated
+                copies_to_manage_regs = dict()
+                copies_to_manage_dup = dict()
+
                 for successor_name in block.successors:
                     successor_block = self._block_list.get_block(successor_name)
 
@@ -153,20 +160,78 @@ class TreenScan:
                         phi_instrs = successor_block.phi_instructions()
                         successor_greedy_info = successor_block.greedy_info
                         assert len(phi_instrs) > 0, "There must be at least one phi instruction"
-
+                        entry_idx = successor_block.entries.index(block_name)
                         # We only care about the phi instruction that define
                         # a value which appears in our (phi values to fix)
-                        for phi in phi_instrs:
-                            phi_def = phi.out_args[0]
+                        for phi_instr in phi_instrs:
+                            phi_def = phi_instr.out_args[0]
                             if phi_def in successor_greedy_info.phi_defs_to_solve:
                                 color_phi = color_assignment.color(phi_def)
+                                phi_arg = phi_instr.in_args[entry_idx]
 
-                if copies_to_manage:
-                    new_greedy_ids.extend(self._emit_copies(block_name, ))
+                                # The phi arg might not have a color
+                                # is we could just duplicate it
+                                if color_assignment.is_coloured(phi_arg):
+                                    color_phi_arg = color_assignment.color(phi_arg)
+
+                                    # They have different colours, so we need to emit a copy.
+                                    if color_phi_arg != color_phi:
+                                        copies_to_manage_regs[phi_arg] = (color_phi, color_phi_arg)
+
+                                # Otherwise, we just need to duplicate it
+                                # and put it in their position. We store the position to dup
+                                else:
+                                    dup_pos, _, is_last = greedy_info.reachable[phi_arg]
+                                    assert is_last, f"A variable that is duplicated must be reachable at that point: {phi_arg}"
+                                    copies_to_manage_dup[phi_arg] = (color_phi, dup_pos)
+
+                if copies_to_manage_dup or copies_to_manage_regs:
+                    new_greedy_ids.extend(self._emit_copies(block_name, copies_to_manage_regs,
+                                                            copies_to_manage_dup))
+
+    def _emit_vget(self, constant: constant_T) -> List[instr_id_T]:
+        return [f"PUSH {constant}", "MLOAD"]
+
+    def _emit_vset(self, constant: constant_T) -> List[instr_id_T]:
+        return [f"PUSH {constant}", "MSTORE"]
+
+    def _emit_dup_vset(self, constant: constant_T, dup_pos: int) -> List[instr_id_T]:
+        return [f"DUP{dup_pos + 1}"] + self._emit_vset(constant)
 
     def _assign_colours_to_constants(self, color_assignment: ColourAssignment) -> List[constant_T]:
         # TODO: implement HACK2 (not very difficult)
         return [hex(128 + 32*i) for i in range(color_assignment.num_colors)]
+
+    def _emit_copies(self, copies_to_manage_regs: Dict[var_id_T, Tuple[int, int]],
+                     copies_to_manage_dup: Dict[var_id_T, Tuple[int, int]],
+                     color2constant: List[constant_T]) -> List[instr_id_T]:
+        """
+        Emites instructions that ensure every value in a
+        """
+        ids_for_copies = []
+
+        colors2store = []
+        # First we solve the values that have values that
+        # must be loaded from registers
+        for variable, (color_dst, color_orig) in copies_to_manage_regs.items():
+            constant = color2constant[color_orig]
+            ids_for_copies.extend(self._emit_vget(constant))
+            colors2store.insert(0, color_dst)
+
+        # Now, we traverse them as a stack to
+        # place in their corresponding position
+        for color2store in colors2store:
+            constant_dst = color2constant[color2store]
+            ids_for_copies.extend(self._emit_vset(constant_dst))
+
+        # Finally, we solve the values that can be dupped as DUP-VSET
+        for variable, (color_dst, pos_to_dup) in copies_to_manage_dup.items():
+            # Finally, we solve the remaining values one by one, so that
+            # they can always be dupped and assigned to the corresponding register
+            constant_dst = color2constant[color_dst]
+            ids_for_copies.extend(self._emit_dup_vset(constant_dst, pos_to_dup + 1))
+
+        return ids_for_copies
 
     def executable_from_code(self):
         pass

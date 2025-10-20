@@ -21,6 +21,7 @@ class GreedyInfo:
         self.greedy_ids = greedy_ids if greedy_ids else []
         self.outcome = outcome
         self.execution_time = execution_time
+        # Three args: dup position / last instruction accessible / is last instruction in the block
         self.reachable: Dict[var_id_T, Tuple[int, int, bool]] = dict()
         self.unreachable: Set[var_id_T] = set()
         self.user_instrs = original_instrs
@@ -34,7 +35,7 @@ class GreedyInfo:
         # Elements that might need to be copied in order to propagate
         # the information on the phi-function. We also store whether it
         # is reachable or not (true or false)
-        self.virtual_copies: Set[Tuple[var_id_T, bool]] = set()
+        self.virtual_copies: Dict[var_id_T, bool] = dict()
 
         # Position of VGETs s.t. it corresponds to the last use according
         # to the dominator tree. Updated when inserting the DUP-VSETs
@@ -59,7 +60,7 @@ class GreedyInfo:
         _, _, is_last = self.reachable.get(v, (None, None, None))
 
         last_accessible = bool(is_last)
-        self.virtual_copies.add((v, last_accessible))
+        self.virtual_copies[v] = last_accessible
 
         # If it is not accessible in the last instruction,
         # we need to load the GET the instruction elsewhere

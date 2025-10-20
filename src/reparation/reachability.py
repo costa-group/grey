@@ -4,7 +4,7 @@ from symbolic execution of the stack + greedy ids
 """
 import copy
 import networkx as nx
-from typing import List, Dict, Tuple, Set, Optional
+from typing import List, Dict, Tuple, Set, Optional, Iterable
 from analysis.symbolic_execution import execute_instr_id
 from global_params.types import var_id_T, instr_id_T, instr_JSON_T, block_id_T
 from parser.cfg_block_list import CFGBlockList
@@ -19,7 +19,7 @@ MAX_STACK_SIZE = 16
 def update_reachable(stack: List[var_id_T], instr_idx: int,
                      reachability_dict: Dict[var_id_T, Tuple[int, int, bool]],
                      is_last: bool) -> Dict[var_id_T, Tuple[int, int, bool]]:
-    for i, elem in enumerate(stack):
+    for i, elem in enumerate(stack[:MAX_STACK_SIZE]):
         reachability_dict[elem] = (i, instr_idx, is_last)
     return reachability_dict
 
@@ -55,7 +55,7 @@ def reachability_from_greedy(greedy_ids: List[instr_id_T],
     return reachable
 
 
-def block_unreachability(reachable: Set[var_id_T], previous_unreachable: Set[var_id_T],
+def block_unreachability(reachable: Iterable[var_id_T], previous_unreachable: Set[var_id_T],
                          live_in: Set[var_id_T], live_out: Set[var_id_T]):
     """
     Given the sets, determine which elements are unreachable
