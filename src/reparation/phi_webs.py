@@ -76,3 +76,9 @@ class PhiWebs:
             sets_by_root[root].add(var)
 
         return [set_ for set_ in sets_by_root.values() if len(set_) > 1]
+
+    def has_element(self, var: var_id_T):
+        """
+        Needed to signal that an element has to be passed
+        """
+        return var in self._var2class

@@ -77,16 +77,20 @@ class TreeScan:
         """
         Picks the class colour (if any) to favour the encoding
         """
-        phi_class = self._phi_webs.find_set(var)
-        # We try to bias the assignment
-        for biased_color in reversed(self._phi_class2colors[phi_class]):
-            if available[biased_color]:
-                color_assignment.pick_specific_colour(var, available, biased_color)
+        # Only try to bias the colouring for variables with conflicts
+        if self._phi_webs.has_element(var):
+            phi_class = self._phi_webs.find_set(var)
+            # We try to bias the assignment
+            for biased_color in reversed(self._phi_class2colors[phi_class]):
+                if available[biased_color]:
+                    color_assignment.pick_specific_colour(var, available, biased_color)
 
-        # Otherwise, just pick a colour
-        # TODO: heuristics for picking a color
-        new_color = color_assignment.pick_available_colour(var, available)
-        self._phi_class2colors[phi_class].append(new_color)
+            # Otherwise, just pick a colour
+            # TODO: heuristics for picking a color
+            new_color = color_assignment.pick_available_colour(var, available)
+            self._phi_class2colors[phi_class].append(new_color)
+        else:
+            color_assignment.pick_available_colour(var, available)
 
     def _tree_scan_with_last_uses(self) -> ColourAssignment:
         """
