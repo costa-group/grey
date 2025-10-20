@@ -2,12 +2,13 @@
 Module that contains the methods needed to
 repair unreachable elements. Notation:
 
-* DUP-SET(a_i, pos): duplicate an element a_i (from position pos)
+* DUP-VSET(a_i, pos): duplicate an element a_i (from position pos)
                      and then store it in a register.
 
-* GET-SET: retrieve an element a_i from memory and then story it elsewhere.
-           Needed for unification of the phi-functions. Can be just an empty instruction
-           if the variable is introduced in the same position
+* VGET(a_i): loads a_i from some register
+
+* VSET(a_i): stores the top of the stack in some register, which should be a_i.
+             This makes the analysis easier
 """
 from collections import Counter
 from typing import Set, Tuple, Dict, List, Optional, Iterable
@@ -36,11 +37,11 @@ def repair_unreachable(block_list: CFGBlockList, elements_to_fix: Set[var_id_T])
                               if (block_def := phi_def2block.get(element)) is not None
                               and element in block_list.get_block(block_def).greedy_info.unreachable)
 
-    atomic_merged_sets = fix_inaccessible_phi_values(block_list, phi_elements_to_fix, phi_def2block)
+    phi_web = fix_inaccessible_phi_values(block_list, phi_elements_to_fix, phi_def2block)
 
     var2header = variable2block_header(block_list, block_list.loop_nesting_forest)
     store_stack_elements_tree(block_list, var2header)
-    return atomic_merged_sets
+    return phi_web
 
 
 # Phi value to block in which it is defined

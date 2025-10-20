@@ -13,7 +13,7 @@ from reparation.phi_webs import PhiWebs
 from reparation.utils import extract_value_from_pseudo_instr, extract_dup_pos_from_dup_vset
 
 
-class TreenScan:
+class TreeScan:
     """
     Class to represents the colouring of the graph using a tree scan pass
     """
@@ -103,11 +103,7 @@ class TreenScan:
     # easier for stack-based machine because we can just load
     # in the stack and store them adequately
 
-    # HACK1: we know which phi-functions are "modelled"
-    # in our problem: the ones that appear in the phi-webs.
-    # Hence, we will use this data structure
-
-    # HACK2: assign to PUSH2 0x80 to the color that is repeated the most
+    # HACK: assign to PUSH2 0x80 to the color that is repeated the most
     # (both by accessing VGET + VGET-VSET + VSET).
     # For the other colours, we don't care
     def _emit_valid_bytecode(self, color_assignment: ColourAssignment):
@@ -189,6 +185,9 @@ class TreenScan:
                     new_greedy_ids.extend(self._emit_copies(block_name, copies_to_manage_regs,
                                                             copies_to_manage_dup))
 
+            # FINALLY we assign the greedy ids corrected to the corresponding field
+            block.greedy_ids = greedy_info
+
     def _emit_vget(self, constant: constant_T) -> List[instr_id_T]:
         return [f"PUSH {constant}", "MLOAD"]
 
@@ -234,4 +233,5 @@ class TreenScan:
         return ids_for_copies
 
     def executable_from_code(self):
-        pass
+        color_assignment = self._tree_scan_with_last_uses()
+        self._emit_valid_bytecode(color_assignment)
