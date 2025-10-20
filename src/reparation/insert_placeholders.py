@@ -10,14 +10,16 @@ repair unreachable elements. Notation:
            if the variable is introduced in the same position
 """
 from collections import Counter
-from typing import Set, Tuple, Dict, List, Optional
+from typing import Set, Tuple, Dict, List, Optional, Iterable
 
 import networkx as nx
 
 from global_params.types import var_id_T, block_id_T
 from greedy.greedy_info import GreedyInfo
+from parser.cfg_block import CFGBlock
 from parser.cfg_block_list import CFGBlockList
 from reparation.phi_webs import PhiWebs
+from reparation.utils import extract_value_from_pseudo_instr
 
 
 def repair_unreachable(block_list: CFGBlockList, elements_to_fix: Set[var_id_T]) -> PhiWebs:
@@ -205,7 +207,7 @@ def store_stack_elements_tree(block_list: CFGBlockList,
 
 def store_stack_elements_block(current_block_id: block_id_T, block_list: CFGBlockList,
                                initial_get_counter: Counter[var_id_T],
-                               var2header: Dict[var_id_T, block_id_T]) -> Tuple[Set[var_id_T], Counter[var_id_T]]:
+                               var2header: Dict[var_id_T, block_id_T]) -> Tuple[Set[var_id_T], Counter[var_id_T], Set[var_id_T]]:
     """
     Second pass: introduce the DUP-SET instructions that are needed
     for later accessing the corresponding elements according to the
@@ -213,22 +215,21 @@ def store_stack_elements_block(current_block_id: block_id_T, block_list: CFGBloc
     """
     vars_to_introduce = set()
     get_counter_combined = Counter()
+    current_block = block_list.get_block(current_block_id)
+    already_used_combined = set()
 
     # Traverse the tree in post-order, updating the
     # values to introduce and the number of get occurrences so far
     for next_block_id in block_list.dominant_tree.successors(current_block_id):
-        vars_successors, get_counter_succ = store_stack_elements_block(next_block_id, block_list,
-                                                                       initial_get_counter, var2header)
+        vars_successors, get_counter_succ, already_used = \
+            store_stack_elements_block(next_block_id, block_list, initial_get_counter, var2header)
         vars_to_introduce.update(vars_successors)
         get_counter_combined += get_counter_succ
+        already_used_combined.update(already_used)
 
-    current_greedy_info = block_list.get_block(current_block_id).greedy_info
+    current_greedy_info = current_block.greedy_info
 
-    # We check whether some of the accessed variable belongs to
-    # the last use
-    for variable in current_greedy_info.get_count:
-        if variable not in get_counter_combined:
-            current_greedy_info.last_use.add(variable)
+    updated_already_used = mark_last_uses(current_greedy_info, already_used_combined, current_block)
 
     # Consumed so far
     get_counter_combined += current_greedy_info.get_count
@@ -248,4 +249,39 @@ def store_stack_elements_block(current_block_id: block_id_T, block_list: CFGBloc
             current_greedy_info.insert_dup_vset(var)
             vars_stored.add(var)
 
-    return vars_to_introduce.difference(vars_stored), get_counter_combined
+    return vars_to_introduce.difference(vars_stored), get_counter_combined, updated_already_used
+
+
+def mark_last_uses(current_greedy_info: GreedyInfo,
+                   already_used: Iterable[var_id_T],
+                   block: CFGBlock) -> Set[var_id_T]:
+    """
+    Stores which variables are accessed last time in the current branch of the
+    dominant tree, considering phi-functions as well
+    """
+    new_already_used = set(already_used)
+
+    # First, we check the phi-uses
+    for phi_use_var, _ in current_greedy_info.virtual_copies:
+        if phi_use_var not in already_used:
+            current_greedy_info.last_use.add((-2, phi_use_var))
+            new_already_used.add(phi_use_var)
+
+    # Then, We check whether some of the accessed variable belongs to
+    # the last use
+    for position, instr in reversed(list(enumerate(current_greedy_info.greedy_ids))):
+        if instr.startswith("VGET"):
+            variable = extract_value_from_pseudo_instr(instr)
+            if variable not in already_used:
+                current_greedy_info.last_use.add(position)
+                new_already_used.add(variable)
+
+    # Finally, also for the in-args of the phi instructions
+    for phi_instr in block.phi_instructions():
+        if phi_instr.out_args[0] in current_greedy_info.phi_defs_to_solve:
+            for arg_ in phi_instr.in_args:
+                if arg_ not in already_used:
+                    current_greedy_info.last_use.add((-1, arg_))
+                    new_already_used.add(arg_)
+
+    return new_already_used

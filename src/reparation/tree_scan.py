@@ -36,12 +36,19 @@ class TreenScan:
 
         # First, we process the phi instructions that we must handle
         for phi_instr in block.phi_instructions():
-
-            if phi_instr.out_args[0] in greedy_info.phi_defs_to_solve:
+            out_arg = phi_instr.out_args[0]
+            if out_arg in greedy_info.phi_defs_to_solve:
                 # First, we must check the arguments
+                for in_arg in phi_instr.in_args:
 
-                self._biased_pick_color(var, color_assignment, available)
+                    # Case -1: it corresponds to a phi argument
+                    if (-1, in_arg) in greedy_info.last_use:
+                        color_assignment.release_colour(in_arg, available)
 
+                # Then we assign the generated value
+                self._biased_pick_color(phi_instr.out_args[0], color_assignment, available)
+
+        # Then, we update the greedy ids
         for i, instr_id in enumerate(greedy_info.greedy_ids):
             # First process the values in
             if instr_id.startswith("VGET"):
@@ -54,6 +61,12 @@ class TreenScan:
             elif "VSET" in instr_id:
                 var = extract_value_from_pseudo_instr(instr_id)
                 self._biased_pick_color(var, color_assignment, available)
+
+        # Finally, we check the values that are passed to phi-functions
+        for value, _ in greedy_info.virtual_copies:
+            # Case -2: PhiDefs
+            if (-2, value) in greedy_info.last_use:
+                color_assignment.release_colour(value, available)
 
         # We invoke the call to the children
         for successor in self._block_list.dominant_tree.successors(block_name):
@@ -146,7 +159,7 @@ class TreenScan:
                         for phi in phi_instrs:
                             phi_def = phi.out_args[0]
                             if phi_def in successor_greedy_info.phi_defs_to_solve:
-                                color_phi = self._
+                                color_phi = color_assignment.color(phi_def)
 
                 if copies_to_manage:
                     new_greedy_ids.extend(self._emit_copies(block_name, ))

@@ -1,7 +1,7 @@
 """
 Module for computing relevant information from the greedy algorithm
 """
-from typing import List, Set, Dict, Iterable, Tuple
+from typing import List, Set, Dict, Iterable, Tuple, Union
 from collections import Counter, defaultdict
 from global_params.types import var_id_T, instr_id_T, instr_JSON_T
 
@@ -34,11 +34,13 @@ class GreedyInfo:
         # Elements that might need to be copied in order to propagate
         # the information on the phi-function. We also store whether it
         # is reachable or not (true or false)
-        self.virtual_copies: Set[Tuple[var_id_T, bool]] = None
+        self.virtual_copies: Set[Tuple[var_id_T, bool]] = set()
 
         # Position of VGETs s.t. it corresponds to the last use according
         # to the dominator tree. Updated when inserting the DUP-VSETs
-        self.last_use: Set[int] = set()
+        # Also contains values (-1, var) and (-2, var) to represent both that
+        # the last use corresponds to a phi-arg (-1) or a phi
+        self.last_use: Set[Union[int, Tuple[int, var_id_T]]] = set()
 
         # Phi defs defined in the block that must be solved as part
         # of the reparation process
