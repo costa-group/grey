@@ -190,7 +190,7 @@ class TreeScan:
                                                             copies_to_manage_dup))
 
             # FINALLY we assign the greedy ids corrected to the corresponding field
-            block.greedy_ids = greedy_info
+            block.greedy_ids = new_greedy_ids
 
     def _emit_vget(self, constant: constant_T) -> List[instr_id_T]:
         return [f"PUSH {constant}", "MLOAD"]
@@ -203,7 +203,7 @@ class TreeScan:
 
     def _assign_colours_to_constants(self, color_assignment: ColourAssignment) -> List[constant_T]:
         # TODO: implement HACK2 (not very difficult)
-        return [hex(128 + 32*i) for i in range(color_assignment.num_colors)]
+        return [hex(128 + 32*i)[2:] for i in range(color_assignment.num_colors)]
 
     def _emit_copies(self, copies_to_manage_regs: Dict[var_id_T, Tuple[int, int]],
                      copies_to_manage_dup: Dict[var_id_T, Tuple[int, int]],
