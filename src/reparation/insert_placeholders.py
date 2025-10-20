@@ -73,6 +73,9 @@ def fix_inaccessible_phi_values(block_list: CFGBlockList,
             current_block = block_list.get_block(current_block_id)
             phi_instruction = current_block.instruction_from_out(current_var)
 
+            # Mark the phi definition as one to solve
+            current_block.greedy_info.phi_defs_to_solve.add(current_var)
+
             assert phi_instruction.get_op_name() == "PhiInstruction"
             for ai, Bi in zip(phi_instruction.get_in_args(), current_block.entries):
                 Bi_greedy_info = block_list.get_block(Bi).greedy_info
@@ -220,6 +223,12 @@ def store_stack_elements_block(current_block_id: block_id_T, block_list: CFGBloc
         get_counter_combined += get_counter_succ
 
     current_greedy_info = block_list.get_block(current_block_id).greedy_info
+
+    # We check whether some of the accessed variable belongs to
+    # the last use
+    for variable in current_greedy_info.get_count:
+        if variable not in get_counter_combined:
+            current_greedy_info.last_use.add(variable)
 
     # Consumed so far
     get_counter_combined += current_greedy_info.get_count

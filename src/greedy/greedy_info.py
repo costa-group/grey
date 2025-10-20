@@ -37,8 +37,12 @@ class GreedyInfo:
         self.virtual_copies: Set[Tuple[var_id_T, bool]] = None
 
         # Position of VGETs s.t. it corresponds to the last use according
-        # to the dominator tree
+        # to the dominator tree. Updated when inserting the DUP-VSETs
         self.last_use: Set[int] = set()
+
+        # Phi defs defined in the block that must be solved as part
+        # of the reparation process
+        self.phi_defs_to_solve: Set[var_id_T] = set()
 
     @property
     def elements_to_fix(self) -> Iterable:

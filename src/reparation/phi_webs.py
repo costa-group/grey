@@ -29,6 +29,9 @@ class PhiWebs:
             self._rank.append(0)
             self._num_sets += 1
 
+    def is_in_some_set(self, var_: var_id_T):
+        return var_ in self._var2class
+
     @property
     def num_sets(self):
         return self._num_sets
