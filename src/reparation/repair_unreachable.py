@@ -6,7 +6,8 @@ from pathlib import Path
 import networkx as nx
 
 from parser.parser import CFGBlockList, CFGBlock
-from global_params.types import var_id_T
+from greedy.greedy_info import GreedyInfo
+from global_params.types import var_id_T, block_id_T
 from reparation.reachability import construct_reachability
 from reparation.insert_placeholders import repair_unreachable
 from reparation.tree_scan import TreeScan
@@ -29,6 +30,12 @@ def repair_unreachable_blocklist(cfg_blocklist: CFGBlockList, elements_to_fix: S
         _debug_cfg_reachability(cfg_blocklist, reachability_path)
 
     phi_webs = repair_unreachable(cfg_blocklist, elements_to_fix)
+
+    if path_to_files is not None:
+        repaired = path_to_files.joinpath("repaired_vget")
+        repaired.mkdir(exist_ok=True, parents=True)
+        _debug_reparation(cfg_blocklist, repaired)
+
     TreeScan(cfg_blocklist, phi_webs).executable_from_code()
 
 
@@ -67,3 +74,16 @@ def _debug_cfg_reachability(cfg_blocklist: CFGBlockList, path_to_files: Path):
                                           for block_name, block in cfg_blocklist.blocks.items()})
 
     nx.nx_agraph.write_dot(renamed_graph, path_to_files.joinpath(f"{cfg_blocklist.name}.dot"))
+
+
+def _debug_reparation(cfg_blocklist: CFGBlockList, path_to_files: Path):
+    cfg_graph = cfg_blocklist.to_graph()
+    renamed_graph = information_on_graph(cfg_graph,
+                                         {block_name: _represent_greedy_info(block_name, block.greedy_info)
+                                          for block_name, block in cfg_blocklist.blocks.items()})
+
+    nx.nx_agraph.write_dot(renamed_graph, path_to_files.joinpath(f"{cfg_blocklist.name}.dot"))
+
+
+def _represent_greedy_info(block_name: block_id_T, greedy_info: GreedyInfo) -> str:
+    return block_name + '\n' + '\n'.join(greedy_info.greedy_ids)
