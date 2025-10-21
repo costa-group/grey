@@ -48,7 +48,7 @@ def build_push_spec(val: str, idx: int, out_args: List[str]):
     obj["commutative"] = False
     obj["push"] = True
     obj["storage"] = False  # It is true only for MSTORE and SSTORE
-    obj["size"] = get_ins_size("PUSH", value)
+    obj["size"] = get_ins_size("PUSH", value) if value != 0 else 1 # Size is one
 
     return obj
 
@@ -252,7 +252,7 @@ class CFGInstruction:
     def get_type_mem_op(self):
         if self.op in ["tload","sload", "mload", "keccak256", "log0","log1","log2","log3","log4", "create","create2"]:
             return "read"
-        elif self.op in ["tstore","mstore", "mstore8", "codecopy","extcodecopy","calldatacopy","returndatacopy","mcopy","sstore"]:
+        elif self.op in ["assignimmutable","tstore","mstore", "mstore8", "codecopy","extcodecopy","calldatacopy","returndatacopy","mcopy","sstore"]:
             return "write"
         else:
             return None
@@ -291,17 +291,20 @@ class CFGInstruction:
         self.translate_literal_args = new_literals
         
         
-    def translate_datasize(self, subobjects_keys: Dict[str, int], next_idx: int, indirect_subobjects: Dict[str, int]):
+    def translate_datasize(self, subobjects_keys: Dict[str, int], next_idx: int, object_id: str, indirect_subobjects: Dict[str, int]):
         self.op = "push #[$]"
-        
+        # self.op = "pushsize"
         literal_val = self.literal_args[0]
 
+        if literal_val == object_id:
+            self.op = "pushsize"
+        
         pos = subobjects_keys.get(literal_val, None)
         if pos is not None:
             self.translate_literal_args = ["{0:064X}".format(pos)]
         else:
             # TODO Maybe pass the element itself just in case?
-            self.op = "PUSHSIZE"
+            #self.op = "PUSHSIZE"
             if(literal_val.find(".") != 1):
                 pos = indirect_subobjects.get(literal_val, None)
                 if pos is None:
@@ -357,7 +360,7 @@ class CFGInstruction:
        self.op = "pushimmutable"
        self.translate_literal_args = self.literal_args
 
-    def translate_built_in_function(self, subobjects_keys: Dict[str, int], next_idx: int, indirect_subobjects: Dict[str, int]):
+    def translate_built_in_function(self, subobjects_keys: Dict[str, int], next_idx: int, object_id: str, indirect_subobjects: Dict[str, int]):
         self.builtin_op = self.op
         
         if self.op == "linkersymbol":
@@ -365,7 +368,7 @@ class CFGInstruction:
         elif self.op == "memoryguard":
             self.translate_memoryguard()
         elif self.op == "datasize":
-            next_idx = self.translate_datasize(subobjects_keys,next_idx, indirect_subobjects)
+            next_idx = self.translate_datasize(subobjects_keys,next_idx, object_id, indirect_subobjects)
         elif self.op == "dataoffset":
             next_idx = self.translate_dataoffset(subobjects_keys,next_idx, indirect_subobjects)
         elif self.op == "datacopy":
@@ -379,9 +382,9 @@ class CFGInstruction:
 
         return next_idx
     
-    def translate_opcode(self, subobjects_keys: Dict[str, int], next_idx: int, indirect_subobjects: Dict[str, int]):
+    def translate_opcode(self, subobjects_keys: Dict[str, int], next_idx: int, object_id, indirect_subobjects: Dict[str, int]):
         if self.op in ["linkersymbol","memoryguard", "datasize", "dataoffset", "datacopy", "setimmutable", "loadimmutable"]:
-            next_idx = self.translate_built_in_function(subobjects_keys, next_idx, indirect_subobjects)
+            next_idx = self.translate_built_in_function(subobjects_keys, next_idx, object_id, indirect_subobjects)
 
         return next_idx
     
