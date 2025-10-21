@@ -4,6 +4,7 @@ Module for computing relevant information from the greedy algorithm
 from typing import List, Set, Dict, Iterable, Tuple, Union
 from collections import Counter, defaultdict
 from global_params.types import var_id_T, instr_id_T, instr_JSON_T
+from reparation.utils import extract_value_from_pseudo_instr
 
 
 def compute_instr_id2var(json_instrs: List[instr_JSON_T]) -> Dict[var_id_T, List[instr_id_T]]:
@@ -27,10 +28,8 @@ class GreedyInfo:
         self.user_instrs = original_instrs
         self.instr_id2var = compute_instr_id2var(original_instrs)
 
-        # Elements that are accessed through get instructions.
-        # Considers VGET-VSET elements.
-        self.get_count = Counter(id_instr[5:-1] for id_instr in self.greedy_ids
-                                 if "VGET" in id_instr)
+        # Elements that are accessed through get instructions and are not dominated by a vset
+        self.get_count = self._initial_get_count()
 
         # Elements that might need to be copied in order to propagate
         # the information on the phi-function. We also store whether it
@@ -46,6 +45,26 @@ class GreedyInfo:
         # Phi defs defined in the block that must be solved as part
         # of the reparation process
         self.phi_defs_to_solve: Set[var_id_T] = set()
+
+    def _initial_get_count(self):
+        """
+        Sets the number of times we have to fix an element that
+        is accessed through VGET, ignoring those values directly dominated
+        by VSET.
+        """
+        # TODO: maybe sometimes it is worth considering an element if
+        #  it is going to be fixed, due to introducing a POP
+        get_count = Counter()
+        already_accessed = set()
+        for id_instr in self.greedy_ids:
+            if id_instr.startswith("VGET"):
+                value = extract_value_from_pseudo_instr(id_instr)
+                if value not in already_accessed:
+                    get_count[value] += 1
+            elif id_instr.startswith("VSET"):
+                value = extract_value_from_pseudo_instr(id_instr)
+                already_accessed.add(value)
+        return get_count
 
     @property
     def elements_to_fix(self) -> Iterable:
