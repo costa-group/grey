@@ -476,35 +476,26 @@ class SMSgreedy:
         self._dependences_done = set([])
         self.add_dup_pushes()
 
-    def count_pushes_one(self, o):
-        if o in self._pushes:
-            self._pushes[o] += 1
-        else:
-            if o in self._var_instr_map:
-                if 'PUSH' in self._var_instr_map[o]['disasm']:
-                    if 'PUSH0' not in self._var_instr_map[o]['disasm']:
-                        self._pushes[o] = 1
-                else:
-                    for oi in self._var_instr_map[o]["inpt_sk"]:
-                        self.count_pushes_one(oi)
-
     def count_pushes(self):
         self._pushes = {}
-        lmstore = get_ops_id(self._user_instr, MWRITE_OPERATIONS)
-        ltstore = get_ops_id(self._user_instr, ['TSTORE'])
-        lsstore = get_ops_id(self._user_instr, ['SSTORE'])
-        for o in lmstore + ltstore + lsstore:
-            inp = self._opid_instr_map[o]["inpt_sk"]
-            for o1 in inp:
-                self.count_pushes_one(o1)
-        for o in self._final_stack:
-            self.count_pushes_one(o)
+        for o in self._var_instr_map:
+            if 'PUSH' in self._var_instr_map[o]['disasm']:
+                if 'PUSH0' not in self._var_instr_map[o]['disasm']:
+                    self._pushes[o] = self._final_stack.count(o)
+        for o in self._pushes:
+            for o1 in self._var_instr_map:
+               self._pushes[o] += self._var_instr_map[o1]['inpt_sk'].count(o)               
 
     def add_dup_pushes(self):
         self.count_pushes()
+        # print(self._final_stack)
+        # print(self._pushes)
         self._dup_pushes = set([])
         for p in self._pushes:
-            if self._pushes[p]*self._var_instr_map[p]['size'] >= self._pushes[p]+self._var_instr_map[p]['size']+2: #+1
+            # if self._var_instr_map[p]['size'] >= 3:
+            #     self._dup_pushes.add(p)
+            # elif self._pushes[p]*self._var_instr_map[p]['size'] >= self._pushes[p]+self._var_instr_map[p]['size']+1: #+2
+            if self._pushes[p]*self._var_instr_map[p]['size'] >= self._pushes[p]+self._var_instr_map[p]['size']+2: #+2
                 self._dup_pushes.add(p)
 
     def count_ops_one(self, o):
@@ -1523,10 +1514,10 @@ class SMSgreedy:
         # uses_per_val = compute_uses(lm++self._variables)
 
     def small_zeroary(self, op):
-        return op in self._var_instr_map and len(self._var_instr_map[op]['inpt_sk']) == 0 and (op in self._dup_pushes or self._var_instr_map[op]['size'] <= 1)
+        return op in self._var_instr_map and len(self._var_instr_map[op]['inpt_sk']) == 0 and (op not in self._dup_pushes or self._var_instr_map[op]['size'] <= 1)
     #self._var_instr_map[op]['size'] <= 2
     #(self._var_instr_map[op]['disasm'] == 'PUSH0' or self._var_instr_map[op]['size'] <= 1)
-    #(op in self._dup_pushes or self._var_instr_map[op]['size'] <= 1)
+    #(op not in self._dup_pushes or self._var_instr_map[op]['size'] <= 1)
 
     def tree_size(self, op):
         if op not in self._var_instr_map:
