@@ -85,8 +85,5 @@ def compute_loop_nesting_forest_graph(cfg: nx.DiGraph, back_edges: Optional[List
 def compute_cfg_without_backward_edges(cfg: nx.DiGraph) -> nx.DiGraph:
     back_edges = find_back_edges(cfg)
     new_cfg = cfg.copy()
-
-
     new_cfg.remove_edges_from(back_edges)
-
     return new_cfg

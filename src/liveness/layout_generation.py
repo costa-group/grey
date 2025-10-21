@@ -171,7 +171,9 @@ class LayoutGeneration:
                                                                                      phi_instructions,
                                                                                      self._variable_order[
                                                                                          next_block_id],
-                                                                                     block_id, input_stack.copy())
+                                                                                     block_id, input_stack.copy(),
+                                                                                     self._can_have_junk(block_id))
+
 
                 # Update the output stacks with the ones generated from the unification
                 output_stacks.update(output_stacks_unified)
@@ -187,12 +189,18 @@ class LayoutGeneration:
                                                       liveness_info.out_state.live_vars, self._variable_order[block_id],
                                                       block.split_instruction.in_args if block.split_instruction else [])
 
+                junk_idx = len(output_stack)
+
             else:
-                output_stack = output_stack_layout(input_stack, block.final_stack_elements,
-                                                   liveness_info.out_state.live_vars, self._variable_order[block_id])
+                output_stack, junk_idx = output_stack_layout(input_stack, block.final_stack_elements,
+                                                             liveness_info.out_state.live_vars,
+                                                             self._variable_order[block_id],
+                                                             self._can_have_junk(block_id)
+                                                             )
 
             # We store the output stack in the dict, as we have built a new element
-            output_stacks[block_id] = output_stack
+            # We forget about the junk, because we propagate it assuming there is no garbage
+            output_stacks[block_id] = output_stack[:junk_idx]
 
         # We build the corresponding specification and store it in the block
         block_json = block.build_spec(substitute_duplicates(input_stack), output_stack)
