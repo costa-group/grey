@@ -251,18 +251,20 @@ class CFGBlockList:
         return order
 
 
-    def translate_opcodes(self,objects_keys):
+    def translate_opcodes(self,objects_keys,main_obj_id = None):
         block_list_dfs = self.dfs()
 
-        print("NAME")
-        print(self.name)
+        if main_obj_id == None:
+            name = self.name
+        else:
+            name = main_obj_id
         
         next_idx = 0
         subobjects_idx = {}
 
         for block_id in block_list_dfs[::-1]:
             block = self.blocks[block_id]
-            next_idx = block.translate_opcodes(objects_keys,next_idx,self.name,subobjects_idx)
+            next_idx = block.translate_opcodes(objects_keys,next_idx,name,subobjects_idx)
     
     def __repr__(self):
         text_repr = []
