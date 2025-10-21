@@ -74,7 +74,7 @@ class GreedyInfo:
 
         TODO: more efficient implementation based on intervals
         """
-        pos_introduced, dup_pos, is_last = self.reachable[var]
+        dup_pos, pos_introduced, is_last = self.reachable[var]
         self.greedy_ids.insert(pos_introduced, f"DUP-VSET({var},{dup_pos})")
 
         vars_to_update = self.reachable.keys()
