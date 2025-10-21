@@ -79,10 +79,10 @@ class GreedyInfo:
 
         vars_to_update = self.reachable.keys()
         for var_ in vars_to_update:
-            num_instr, dup_pos, is_last = self.reachable[var_]
+            dup_pos, num_instr, is_last = self.reachable[var_]
             # Only update indexis from the old position
             if num_instr >= pos_introduced:
-                self.reachable[var_] = num_instr + 1, dup_pos, is_last
+                self.reachable[var_] = dup_pos, num_instr + 1, is_last
 
     @classmethod
     def from_new_version(cls, greedy_ids: List[str], outcome: str, execution_time: float, original_instrs: List[instr_JSON_T],
