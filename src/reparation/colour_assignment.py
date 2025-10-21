@@ -50,6 +50,10 @@ class ColourAssignment:
         """
         Picks a specific colour
         """
+        # This might be a color for which current available
+        # has no sufficient elements first. Hence, we extend it with false
+        if len(available) <= color:
+            available = available + [False] * (color - len(available) + 1)
         assert available[color], f"Picked color {color} for variable {v} is not available"
         available[color] = False
         self._var2color[v] = color
