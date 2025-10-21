@@ -7,9 +7,6 @@ import resource
 from typing import List, Dict, Tuple, Any, Union, Set
 import traceback
 import itertools
-from global_params.types import SMS_T
-from greedy.greedy_info import GreedyInfo
-
 
 output_stack_T = str
 id_T = str
@@ -191,7 +188,14 @@ def merge(morder, sorder, final_no_mstore, final_no_sstore, opid_instr_map, var_
         return morder
     while len(morder) > 0:
         o = morder.pop(0)
-        i = -1
+        if o in sorder:
+            if sorder[0] == o:
+                sorder.pop(0)
+            else:
+                i = sorder.index(o)
+                torder += sorder[:i] + [o]
+                return torder + merge(morder, sorder[i + 1:], final_no_mstore, final_no_sstore, opid_instr_map,
+                                      var_instr_map)
         for op in final_no_sstore:
             if computed(opid_instr_map[op]['outpt_sk'][0], o, opid_instr_map, var_instr_map):
                 return torder + sorder + [o] + morder
@@ -255,7 +259,7 @@ def remove_nostores_and_rename(torder, opid_instr_map, var_instr_map):
     while len(torder) > 0:
         op = torder.pop(0)
         if is_write(op):
-            if op not in torder:
+            if op not in final_ops:
                 final_ops += [op]
         else:
             lchk = []
@@ -388,6 +392,7 @@ def needed(p0, p1, var_instr_map):
 class SMSgreedy:
 
     def __init__(self, json_format):
+        self._extended = False
         self._user_instr = json_format['user_instrs']
         self._b0 = json_format["init_progr_len"]
         self._initial_stack = json_format['src_ws']
@@ -395,6 +400,7 @@ class SMSgreedy:
         self._mem_order = json_format['memory_dependences']
         self._sto_order = json_format['storage_dependences']
         self._tsto_order = json_format['transient_dependences']
+        
         self._original_instrs = json_format['original_instrs']
         self._var_instr_map = {}
         for ins in self._user_instr:
@@ -403,6 +409,37 @@ class SMSgreedy:
         self._opid_instr_map = {}
         for ins in self._user_instr:
             self._opid_instr_map[ins['id']] = ins
+
+        mdepop = set([])
+        for p in self._mem_order:
+            mdepop.add(p[0])
+            mdepop.add(p[1])
+        for o in mdepop:
+            if o in self._opid_instr_map and len(self._opid_instr_map[o]['outpt_sk']) == 1:
+                for o1 in mdepop:
+                    if o != o1 and computed(self._opid_instr_map[o]['outpt_sk'][0], o1, self._opid_instr_map, self._var_instr_map):
+                        self._mem_order += [[o,o1]]
+
+        sdepop = set([])
+        for p in self._sto_order:
+            sdepop.add(p[0])
+            sdepop.add(p[1])
+        for o in sdepop:
+            if o in self._opid_instr_map and len(self._opid_instr_map[o]['outpt_sk']) == 1:
+                for o1 in sdepop:
+                    if o != o1 and computed(self._opid_instr_map[o]['outpt_sk'][0], o1, self._opid_instr_map, self._var_instr_map):
+                        self._sto_order += [[o,o1]]
+
+        tdepop = set([])
+        for p in self._tsto_order:
+            tdepop.add(p[0])
+            tdepop.add(p[1])
+        for o in tdepop:
+            if o in self._opid_instr_map and len(self._opid_instr_map[o]['outpt_sk']) == 1:
+                for o1 in tdepop:
+                    if o != o1 and computed(self._opid_instr_map[o]['outpt_sk'][0], o1, self._opid_instr_map, self._var_instr_map):
+                        self._tsto_order += [[o,o1]]
+
         self._opid_times_used = {}
         for o in self._opid_instr_map:
             if len(self._opid_instr_map[o]['outpt_sk']) == 0:
@@ -420,6 +457,55 @@ class SMSgreedy:
         self._needed_in_stack_map = {}
         self._dup_stack_ini = 0
         self.uses = {}
+        func_order = []
+        memdeps = self._mem_order + self._sto_order + self._tsto_order
+        self._all_deps = json_format['dependencies']
+        for d in self._all_deps:
+            if d not in memdeps:
+                func_order += [d]
+        self._func_dep_map = {}
+        self._dependences_to_do = set([])
+        for d in func_order:
+            o0 = self._opid_instr_map[d[0]]['outpt_sk'][0]
+            o1 = self._opid_instr_map[d[1]]['outpt_sk'][0]
+            if o1 not in self._func_dep_map:
+                self._func_dep_map[o1] = [o0]
+            else:
+                self._func_dep_map[o1] += [o0]                
+            self._dependences_to_do.add(o0)
+        self._dependences_done = set([])
+        self.add_dup_pushes()
+
+    def count_pushes_one(self, o):
+        if o in self._pushes:
+            self._pushes[o] += 1
+        else:
+            if o in self._var_instr_map:
+                if 'PUSH' in self._var_instr_map[o]['disasm']:
+                    if 'PUSH0' not in self._var_instr_map[o]['disasm']:
+                        self._pushes[o] = 1
+                else:
+                    for oi in self._var_instr_map[o]["inpt_sk"]:
+                        self.count_pushes_one(oi)
+
+    def count_pushes(self):
+        self._pushes = {}
+        lmstore = get_ops_id(self._user_instr, MWRITE_OPERATIONS)
+        ltstore = get_ops_id(self._user_instr, ['TSTORE'])
+        lsstore = get_ops_id(self._user_instr, ['SSTORE'])
+        for o in lmstore + ltstore + lsstore:
+            inp = self._opid_instr_map[o]["inpt_sk"]
+            for o1 in inp:
+                self.count_pushes_one(o1)
+        for o in self._final_stack:
+            self.count_pushes_one(o)
+
+    def add_dup_pushes(self):
+        self.count_pushes()
+        self._dup_pushes = set([])
+        for p in self._pushes:
+            if self._pushes[p]*self._var_instr_map[p]['size'] >= self._pushes[p]+self._var_instr_map[p]['size']+2: #+1
+                self._dup_pushes.add(p)
 
     def count_ops_one(self, o):
         if o in self.occurrences:
@@ -439,8 +525,8 @@ class SMSgreedy:
         lsstore = get_ops_id(self._user_instr, ['SSTORE'])
         for o in lmstore + ltstore + lsstore:
             inp = self._opid_instr_map[o]["inpt_sk"]
-            self.count_ops_one(inp[0])
-            self.count_ops_one(inp[1])
+            for o1 in inp:
+                self.count_ops_one(o1)
         for o in self._final_stack:
             self.count_ops_one(o)
 
@@ -462,7 +548,7 @@ class SMSgreedy:
         else:
             if self.duplicate(o) or is_mwrite_output(self._var_instr_map[o]["id"]):
                 self.uses[o] = 1
-            if o in self._var_instr_map:
+            if o in self._var_instr_map and not is_mwrite_output(self._var_instr_map[o]["id"]):
                 for oi in self._var_instr_map[o]["inpt_sk"]:
                     self.count_uses_one(oi)
 
@@ -475,14 +561,14 @@ class SMSgreedy:
         for o in lmstore + ltstore + lsstore:
             # print("op to count:", o)
             assert (len(self._opid_instr_map[o]["outpt_sk"]) <= 1)
-            if len(self._opid_instr_map[o]["outpt_sk"]) == 0:
+            # if len(self._opid_instr_map[o]["outpt_sk"]) == 0:
                 #            if len(self._opid_instr_map[o]["outpt_sk"]) == 1:
                 #                self.count_uses_one(self._opid_instr_map[o]["outpt_sk"][0])
                 #                print(self.uses)
                 #            else:
-                inp = self._opid_instr_map[o]["inpt_sk"]
-                for o1 in inp:
-                    self.count_uses_one(o1)
+            inp = self._opid_instr_map[o]["inpt_sk"]
+            for o1 in inp:
+                self.count_uses_one(o1)
                 # self.count_uses_one(inp[0])
                 # self.count_uses_one(inp[1])
                 # print(self.uses)
@@ -497,7 +583,7 @@ class SMSgreedy:
         while len(stack) > 0:
             if (stack[0] not in self._needed_in_stack_map or self._needed_in_stack_map[stack[0]] == 0):
                 if stack[0] in self._needed_in_stack_map:
-                    self._needed_in_stack_map.pop(stack[0], None);
+                    self._needed_in_stack_map.pop(stack[0], None)
                 stack.pop(0)
                 opcode += ['POP']
                 opcodeids += ['POP']
@@ -515,6 +601,8 @@ class SMSgreedy:
                     break
                 if pos_in_stack == 0:
                     break
+                if stack[pos_in_stack] == stack[0]: # just in case there are repeated values in the initial stack
+                    break
                 if pos_in_stack > 0:
                     opcode += ['SWAP' + str(pos_in_stack)]
                     opcodeids += ['SWAP' + str(pos_in_stack)]
@@ -529,7 +617,7 @@ class SMSgreedy:
                 if stack[i] in self._needed_in_stack_map:
                     assert (self._needed_in_stack_map[stack[i]] > 0)
                     if self._needed_in_stack_map[stack[i]] == 1:
-                        self._needed_in_stack_map.pop(stack[i], None);
+                        self._needed_in_stack_map.pop(stack[i], None)
                     else:
                         self._needed_in_stack_map[stack[i]] -= 1
             i -= 1
@@ -552,7 +640,7 @@ class SMSgreedy:
     def compute_one_with_stack(self, o, stack, needed_stack, solved, max_to_swap):
         # print(o,stack,needed_stack,self._dup_stack_ini)
         if o in self._var_instr_map:
-            if self.small_zeroary(o):
+            if self.small_zeroary(o) and o not in self._dependences_done:
                 if 'PUSH' in self._var_instr_map[o]['disasm'] and 'value' in self._var_instr_map[o]:
                     if 'tag' in self._var_instr_map[o]['disasm']:
                         tag = str(self._var_instr_map[o]['value'][0])
@@ -560,21 +648,28 @@ class SMSgreedy:
                         # tag = tag[2:]
                         opcode = self._var_instr_map[o]['disasm']
                         opcodeid = self._var_instr_map[o]['id']
-                        if verbose: print(opcode + ' ' + tag, [o] + stack, len([o] + stack))
+                        if verbose: print(opcodeid + ' ' + tag, [o] + stack, len([o] + stack))
                         self._dup_stack_ini += 1
                         return ([opcode + ' ' + tag], [opcodeid], [o] + stack)
+                    # elif 'PUSH0' in self._var_instr_map[o]['disasm'] or '#' in self._var_instr_map[o]['disasm']:
                     else:
-                        h = hex(self._var_instr_map[o]['value'][0])
-                        h = h[2:]
-                        n = (len(h) + 1) // 2
-                        if verbose: print('PUSH' + str(n) + ' ' + h, [o] + stack, len([o] + stack))
                         opcodeid = self._var_instr_map[o]['id']
-                        if "[" in self._var_instr_map[o]['disasm'] or 'data' in self._var_instr_map[o]['disasm']:
-                            opcode = self._var_instr_map[o]['disasm']
-                        else:
-                            opcode = 'PUSH' + str(n)
+                        opcode = self._var_instr_map[o]['disasm']
                         self._dup_stack_ini += 1
-                        return ([opcode + ' 0x' + h], [opcodeid], [o] + stack)
+                        if verbose: print(opcodeid, [o] + stack, len([o] + stack))
+                        return ([opcode], [opcodeid], [o] + stack)
+                    # else:
+                    #     h = hex(self._var_instr_map[o]['value'][0])
+                    #     h = h[2:]
+                    #     n = (len(h) + 1) // 2
+                    #     if verbose: print('PUSH' + str(n) + ' ' + h, [o] + stack, len([o] + stack))
+                    #     opcodeid = self._var_instr_map[o]['id']
+                    #     if "[" in self._var_instr_map[o]['disasm'] or 'data' in self._var_instr_map[o]['disasm']:
+                    #         opcode = self._var_instr_map[o]['disasm']
+                    #     else:
+                    #         opcode = 'PUSH' + str(n)
+                    #     self._dup_stack_ini += 1
+                    #     return ([opcode + ' 0x' + h], [opcodeid], [o] + stack)
                 if isinstance(o, int):
                     h = hex(o)
                     h = h[2:]
@@ -586,13 +681,21 @@ class SMSgreedy:
                 opcode = self._var_instr_map[o]['disasm']
                 opcodeid = self._var_instr_map[o]['id']
                 self._dup_stack_ini += 1
+                if verbose: print(opcodeid, [o] + stack, len([o] + stack))
                 return ([opcode], [opcodeid], [o] + stack)
         if not (o not in needed_stack or o in stack[:16]):
             if self._dup_stack_ini == 0:
                 self.clean_stack(o, stack, needed_stack, solved)
-        if not (o not in needed_stack or o in stack[:16]):
-            print(o, stack, needed_stack, solved, self._dup_stack_ini)
-        assert (o not in needed_stack or o in stack[:16])
+        if o in needed_stack and o not in stack[:16]:
+            assert (1 <= needed_stack[o])
+            needed_stack[o] -= 1
+            self._dup_stack_ini += 1
+            # print(o, stack, needed_stack, solved, self._dup_stack_ini)
+            tstack = [o] + stack
+            vget = ['VGET(' + o +')']
+            if verbose: print('VGET(' + o +')', [o] + stack, len([o] + stack))
+            return (vget, vget.copy(), tstack)
+        #assert (o not in needed_stack or o in stack[:16])
         # print(o,stack,needed_stack)
         if o in stack and stack.index(o) < 16:
             pos = stack.index(o)
@@ -621,6 +724,8 @@ class SMSgreedy:
                     if not solved_before:
                         assert (max_to_swap <= 16)
                         if pos < max_to_swap or len(stack) >= 16:
+                            # if pos == max_to_swap-1:
+                            #     print("SWAPTHREE")
                             needed_stack.pop(o, None)
                             swaps = []
                             tstack = stack
@@ -701,7 +806,7 @@ class SMSgreedy:
                                 needed_stack.pop(op1, None)
                                 needed_stack.pop(op2, None)
                                 self._dup_stack_ini += 1
-                                if verbose: print(opcode, stack, len(stack))
+                                if verbose: print(opcodeid, stack, len(stack))
                                 return ([opcode], [opcodeid], outs + stack[len(inpts):])
             if len(inpts) == 2 and len(stack) >= 1 and self._dup_stack_ini == 0:
                 op = stack[0]
@@ -719,7 +824,7 @@ class SMSgreedy:
                             self._dup_stack_ini -= len(inpts)
                             self._dup_stack_ini += len(outs)
                             stack = outs + stack[len(inpts):]
-                            if verbose: print(opcode, stack, len(stack))
+                            if verbose: print(opcodeid, stack, len(stack))
                             return (opcodes, opcodeids, stack)
             if self.must_reverse(o, inpts, stack, needed_stack):
                 inpts.reverse()
@@ -732,7 +837,7 @@ class SMSgreedy:
             stack = outs + stack[len(inpts):]
             self._dup_stack_ini -= len(inpts)
             self._dup_stack_ini += len(outs)
-            if verbose: print(opcode, stack, len(stack))
+            if verbose: print(opcodeid, stack, len(stack))
             if (o in needed_stack and o not in stack[1:]):
                 # first time computed inside the term --> ERROR
                 assert (False)
@@ -757,7 +862,8 @@ class SMSgreedy:
                 if pos not in solved:
                     if self._final_stack[pos] == cstack[0]:
                         # print("case 0",posc)
-                        return (0, posc)  # position in cstack (negative) SWAP if different
+                        if len(cstack) + posc <= 16: 
+                            return (0, posc)  # position in cstack (negative) SWAP if different
                 pos -= 1
                 posc -= 1
         # up_top_in_final = len(self._final_stack)-len(cstack)-1
@@ -858,6 +964,12 @@ class SMSgreedy:
             inpts = self._var_instr_map[o]['inpt_sk']
         for op in inpts:
             self.pre_compute_list(op, cstack, cneeded_in_stack_map, lord)
+        if o in self._func_dep_map:
+            for op in self._func_dep_map[o]:
+                self.pre_compute_list(op, cstack, cneeded_in_stack_map, lord)
+        if o not in lord and o in self._dependences_to_do:
+            if o not in cneeded_in_stack_map:
+                cneeded_in_stack_map[o] = 1
         if o not in lord and o in cneeded_in_stack_map:
             lord.append(o)
 
@@ -886,7 +998,10 @@ class SMSgreedy:
             opcodeids += popcodeids
             opcodeids += [opcodeid]
             cstack = outs + cstack[len(inpts):]
-            if verbose: print(opcode, cstack, len(cstack))
+            if op in self._dependences_to_do:
+                self._dependences_to_do.remove(op)
+                self._dependences_done.add(op)
+            if verbose: print(opcodeid, cstack, len(cstack))
         return (opcodes, opcodeids, cstack)
 
     def compute_memory_op(self, o, cstack, cneeded_in_stack_map, solved, max_to_swap):
@@ -912,6 +1027,9 @@ class SMSgreedy:
                                                                          max_to_swap)
             opcodes += popcodes
             opcodeids += popcodeids
+            if o in self._dependences_to_do:
+                self._dependences_to_do.remove(o)
+                self._dependences_done.add(o)
 #            if len(self._opid_instr_map[o]["outpt_sk"]) == 1:
 #                cstack = [self._opid_instr_map[o]["outpt_sk"][0]] + cstack
         return (opcodes, opcodeids, cstack)
@@ -936,10 +1054,13 @@ class SMSgreedy:
                                                                          max_to_swap)
             opcodes += popcodes
             opcodeids += popcodeids
+            if o in self._dependences_to_do:
+                self._dependences_to_do.remove(o)
+                self._dependences_done.add(o)
         return (opcodes, opcodeids, cstack)
 
     def compute(self, instr, final_no_store, opcodes_ini, opcodeids_ini, solved, initial, max_to_swap):
-        # print(solved)
+        # print("start compute:",solved)
         # print('new initial stack:',initial)
         # print('final_stack:', self._final_stack)
         # print('store ops:',instr)
@@ -957,7 +1078,9 @@ class SMSgreedy:
         while case != 2:
             # print("enter",cstack,cneeded_in_stack_map,self._final_stack,solved)
             # print("instr:", instr)
-            # print(solved)
+            # print("enter while:", sorted(solved))
+            # print('current stack:',cstack)
+            # print('final_stack:', self._final_stack)
             while len(cstack) > 0 and (cstack[0] not in cneeded_in_stack_map or cneeded_in_stack_map[cstack[0]] == 0):
                 if (len(self._final_stack) - len(cstack)) in solved:
                     break
@@ -979,7 +1102,7 @@ class SMSgreedy:
                     solved += [len(self._final_stack) + pos]
                 else:
                     pos_in_stack = len(cstack) + pos
-                    assert (pos_in_stack > 0 and pos_in_stack <= 16)
+                    assert (pos_in_stack > 0 and pos_in_stack <= 16) #when case 0 should not happen
                     topcodes += ['SWAP' + str(pos_in_stack)]
                     topcodeids += ['SWAP' + str(pos_in_stack)]
                     lens = len(cstack)
@@ -1050,13 +1173,18 @@ class SMSgreedy:
                 topcodes += opcodes
                 topcodeids += opcodeids
                 pos_in_stack = len(cstack) + pos - len(self._final_stack)
-                assert (pos_in_stack >= 0 and pos_in_stack <= 16)
-                solved += [pos]
-                if pos_in_stack > 0:
+                assert (pos_in_stack >= 0)
+                # assert (pos_in_stack <= 16)
+                # added only to avoid being removed when cannot be place in its position because is beyond 16 ****
+                if pos_in_stack > 16 and o not in self._needed_in_stack_map:
+                    cneeded_in_stack_map[cstack[0]] = 1
+                # end of added code
+                if pos_in_stack > 0  and  pos_in_stack <= 16: #othewise leave it on top
                     topcodes += ['SWAP' + str(pos_in_stack)]
                     topcodeids += ['SWAP' + str(pos_in_stack)]
                     lens = len(cstack)
                     cstack = [cstack[pos_in_stack]] + cstack[1:pos_in_stack] + [cstack[0]] + cstack[pos_in_stack + 1:]
+                    solved += [pos]
                     if verbose: print('SWAP' + str(pos_in_stack), cstack, len(cstack))
                     assert (lens == len(cstack))
             elif case == 3:
@@ -1064,7 +1192,7 @@ class SMSgreedy:
                 self._dup_stack_ini = 0
                 (opcodes, opcodeids, cstack) = self.compute_memory_op(o, cstack, cneeded_in_stack_map, solved,
                                                                       max_to_swap)
-                assert (len(self._opid_instr_map[o]["outpt_sk"]) <= 1)
+                assert (not is_write(o) or len(self._opid_instr_map[o]["outpt_sk"]) <= 1)
                 topcodes += opcodes
                 topcodeids += opcodeids
             else:  # case 2
@@ -1089,50 +1217,180 @@ class SMSgreedy:
                         opcodes += ['POP']
                         opcodeids += ['POP']
                         cstack.pop(0)
-                        # s print('POP',cstack,len(cstack))
+                        if verbose: print('POP',cstack,len(cstack))
                     topcodes += opcodes
                     topcodeids += opcodeids
                 instr = []
+            self.add_solved(cstack,solved)    
         # print('current stack:',cstack)
         # print('final stack:',self._final_stack)
-        # print(solved)
-        while cstack != self._final_stack:
-            # invariant
-            assert (len(cstack) == len(self._final_stack))
-            for e in cstack:
-                assert (cstack.count(e) == self._final_stack.count(e))
-            assert (0 in solved)
-            i = 1
-            while i < len(cstack) - 1 and i in solved:
-                i += 1
-            # print(i,cstack,self._final_stack,solved)
-            assert (i not in solved)
-            assert (i <= 16)
-            topcodes += ['SWAP' + str(i)]
-            topcodeids += ['SWAP' + str(i)]
-            lens = len(cstack)
-            cstack = [cstack[i]] + cstack[1:i] + [cstack[0]] + cstack[i + 1:]
-            assert (lens == len(cstack))
-            # s print('SWAP'+str(i),cstack,len(cstack))
-            solved.remove(0)
-            while 0 not in solved:
-                i = 0
-                while i in solved or cstack[0] != self._final_stack[i]:
-                    i += 1
-                if i > 0:
-                    assert (i < len(cstack))
-                    assert (i <= 16)
-                    topcodes += ['SWAP' + str(i)]
-                    topcodeids += ['SWAP' + str(i)]
-                    lens = len(cstack)
-                    cstack = [cstack[i]] + cstack[1:i] + [cstack[0]] + cstack[i + 1:]
-                    assert (lens == len(cstack))
-                    # s print('SWAP'+str(i),cstack,len(cstack))
-                solved += [i]
-        assert (cstack == self._final_stack)
-        # print("end",cstack,cneeded_in_stack_map)
-        return (opcodes_ini + topcodes, opcodeids_ini + topcodeids)
+        # print(sorted(solved))
+        # print(opcodeids_ini + topcodeids)
 
+        # print("end",cstack,cneeded_in_stack_map)
+        (popcodes, popcodeids) = self.compute_permut_and_clean(cstack, solved)        
+        return (opcodes_ini + topcodes + popcodes, opcodeids_ini + topcodeids+popcodeids)
+
+    def add_solved(self,cstack,solved):
+        k = min(len(cstack),len(self._final_stack))
+        for i in range(k):
+            if cstack[-(i+1)] == self._final_stack[-(i+1)]:
+                if len(self._final_stack)-1-i not in solved: solved.append(len(self._final_stack)-1-i)
+            
+    def first_unsolved_position(self,n,cstack,solved):
+        i = n
+        k = 1
+        while k <= 16 and k < len(cstack) and i not in sloved:
+            k += 1
+            i += 1
+        return k
+
+    def get_register(self,reg,cstack,solved):
+        k = max(0,len(cstack)-len(self._final_stack))
+        for r in reg:
+            for i in reversed(range(k,len(cstack))):
+                if cstack[i] != r and self._final_stack[i-len(cstack)] == r:
+                    # print(r,i,cstack, self._final_stack)
+                    assert(len(self._final_stack)+i-len(cstack) not in solved)
+                    return r
+        assert(False)
+
+    def compute_permut_and_clean(self, cstack, solved):
+        popcodes = []
+        popcodeids = []
+        reg = []
+        lpos = -1
+        while cstack != self._final_stack:
+            # print('start:',reg,cstack,self._final_stack,sorted(solved))
+            # invariant
+            allelems = reg + cstack
+            assert (len(allelems) >= len(self._final_stack))
+            elems = set(self._final_stack)
+            for i in elems:
+                assert(allelems.count(i) >= self._final_stack.count(i))
+            if len(cstack) <= len(self._final_stack) and cstack == self._final_stack[-len(cstack):]:
+                for i in reversed(range(len(self._final_stack)-len(cstack))):
+                    r = self._final_stack[i]
+                    popcodes += ['VGET(' + r +')']
+                    popcodeids += ['VGET(' + r +')']
+                    reg.remove(r)
+                    cstack = [r] + cstack
+                    if verbose: print('VGET(' + r +')',cstack,len(cstack))
+                break
+            while cstack[lpos] == self._final_stack[lpos] and len(self._final_stack)-lpos >= 0 and len(cstack)-lpos >= 0:
+                lpos -= 1
+            if cstack.count(cstack[0]) > self._final_stack.count(cstack[0]):
+                popcodes += ['POP']
+                popcodeids += ['POP']
+                cstack.pop(0)
+                if verbose: print('POP',cstack,len(cstack))
+            elif len(self._final_stack) >= len(cstack) and len(self._final_stack)-len(cstack) not in solved and cstack[0] == self._final_stack[len(self._final_stack)-len(cstack)]:
+                #the first position in cstack is not marked as solved but is solved
+                # print("Top is solved")
+                solved.append(len(self._final_stack)-len(cstack))
+            elif len(self._final_stack)-len(cstack) not in solved:
+                #the first position in cstack is not solved
+                i = max(1,len(cstack)-len(self._final_stack))
+                while i < len(cstack) and i <=16 and (len(self._final_stack)-len(cstack)+i in solved or self._final_stack[len(self._final_stack)-len(cstack)+i] != cstack[0]):
+                    i += 1
+                if i <= 16 and i < len(cstack): # can be swaped to its position 
+                    popcodes += ['SWAP' + str(i)]
+                    popcodeids += ['SWAP' + str(i)]
+                    cstack = [cstack[i]] + cstack[1:i] + [cstack[0]] + cstack[i + 1:]
+                    solved += [len(self._final_stack)-len(cstack)+i]
+                    if verbose: print('SWAP' + str(i),cstack,len(cstack))
+                    continue
+                j = 1
+                while j < len(cstack) and j <=16 and allelems.count(cstack[j]) == self._final_stack.count(cstack[j]):
+                    j += 1
+                if j <= 16 and j < len(cstack): # can be swaped with garbage 
+                    popcodes += ['SWAP' + str(j)]
+                    popcodeids += ['SWAP' + str(j)]
+                    if (len(self._final_stack)-len(cstack) in solved): solved.remove(len(self._final_stack)-len(cstack))
+                    cstack = [cstack[j]] + cstack[1:j] + [cstack[0]] + cstack[j + 1:]
+                    if verbose: print('SWAP' + str(j),cstack,len(cstack))
+                else: # must be swaped to an unreachable position (or its position its position is before the current stack because of registers) and there is no garbage to swap
+                    if len(cstack)+lpos >= 16:
+                        u = len(allelems) - len(self._final_stack) #useless elems are before lpos (maybe including it)
+                        if i != len(cstack) + lpos - u: # or we cannot swap any elem 
+                            # it is the element in the last not solved unreachable position 
+                            popcodes += ['VSET(' + cstack[0] +')']
+                            popcodeids += ['VSET(' + cstack[0] +')']
+                            reg.append(cstack.pop(0))
+                            if verbose: print('VSET(' + reg[-1] +')',cstack,len(cstack))
+                        else:
+                            k = min(16,len(cstack)+lpos - 16 - u)
+                            popcodes += ['SWAP' + str(k)]
+                            popcodeids += ['SWAP' + str(k)]
+                            cstack = [cstack[k]] + cstack[1:k] + [cstack[0]] + cstack[k + 1:]
+                            if verbose: print('SWAP' + str(k),cstack,len(cstack))
+                            if len(self._final_stack)-len(cstack)+k in solved: solved.remove(len(self._final_stack)-len(cstack)+k)
+                            popcodes += ['VSET(' + cstack[0] +')']
+                            popcodeids += ['VSET(' + cstack[0] +')']
+                            reg.append(cstack.pop(0))
+                            if verbose: print('VSET(' + reg[-1] +')',cstack,len(cstack))
+                    else:
+                        # print('0:',reg,cstack,self._final_stack,lpos,sorted(solved))
+                        assert(len(cstack)+lpos < 16)
+                        r = self.get_register(reg,cstack,solved)
+                        popcodes += ['VGET(' + r +')']
+                        popcodeids += ['VGET(' + r +')']
+                        reg.remove(r)
+                        cstack = [r] + cstack
+                        # print(sorted(solved),cstack,self._final_stack)
+                        assert(len(self._final_stack)-len(cstack) not in solved)
+                        if verbose: print('VGET(' + r +')',cstack,len(cstack))
+            else: # len(reg) in solved --> current top of the stack is solved
+                # Search for a usless
+                j = 1
+                while j < len(cstack) and j <=16 and allelems.count(cstack[j]) ==  self._final_stack.count(cstack[j]):
+                    j += 1
+                if j <= 16 and j < len(cstack): # can be swaped with garbage 
+                    popcodes += ['SWAP' + str(j)]
+                    popcodeids += ['SWAP' + str(j)]
+                    if (len(self._final_stack)-len(cstack) in solved): solved.remove(len(self._final_stack)-len(cstack))
+                    cstack = [cstack[j]] + cstack[1:j] + [cstack[0]] + cstack[j + 1:]
+                    if verbose: print('SWAP' + str(j),cstack,len(cstack))
+                else: # search for an unsolved
+                    if len(cstack)+lpos >= 16:
+                        # it is the element in the last not solved unreachable position 
+                        popcodes += ['VSET(' + cstack[0] +')']
+                        popcodeids += ['VSET(' + cstack[0] +')']
+                        solved.remove(len(self._final_stack)-len(cstack))
+                        reg.append(cstack.pop(0))
+                        if verbose: print('VSET(' + reg[-1] +')',cstack,len(cstack))
+                    else:
+                        i = max(1,len(cstack)-len(self._final_stack))
+                        while len(self._final_stack)-len(cstack)+i in solved:
+                            i += 1
+                        if i <= 16 and i < len(cstack): 
+                            popcodes += ['SWAP' + str(i)]
+                            popcodeids += ['SWAP' + str(i)]
+                            # print(reg,cstack,self._final_stack)
+                            cstack = [cstack[i]] + cstack[1:i] + [cstack[0]] + cstack[i + 1:]
+                            solved.remove(len(self._final_stack)-len(cstack))
+                            if verbose: print('SWAP' + str(i),cstack,len(cstack))
+                        else:
+                            # print('1:',reg,cstack,self._final_stack,lpos,sorted(solved))
+                            assert(len(cstack)+lpos < 16)
+                            r = self.get_register(reg,cstack,solved)
+                            popcodes += ['VGET(' + r +')']
+                            popcodeids += ['VGET(' + r +')']
+                            reg.remove(r)
+                            cstack = [r] + cstack
+                            if verbose: print('VGET(' + r +')',cstack,len(cstack))
+        assert (cstack == self._final_stack and reg == [])
+        return (popcodes,popcodeids)
+                
+    def check_dependencies(self, opcodesids):
+        pos = {}
+        for i in range(len(opcodesids)):
+            pos[opcodesids[i]] = i
+        for p in self._all_deps:
+            if not (pos[p[0]] < pos[p[1]]):
+                print(p)
+            assert(pos[p[0]] < pos[p[1]])
+            
     def target(self):
         # mloadmap = get_ops_map(self._user_instr,'MLOAD')
         # print(mloadmap)
@@ -1174,8 +1432,12 @@ class SMSgreedy:
         # print(tsorder)
         # print(final_no_tstore)
         # print()
+        # print(tsorder, final_no_tstore)
+        # print(sorder, final_no_sstore)
         tstorder = merge(tsorder, sorder, final_no_tstore, final_no_sstore, self._opid_instr_map, self._var_instr_map)
         final_no_tsstore = final_no_tstore + final_no_sstore
+        # print('First megre:',tstorder, final_no_tsstore)
+        # print(morder, final_no_mstore)
         torder = merge(morder, tstorder, final_no_mstore, final_no_tsstore, self._opid_instr_map, self._var_instr_map)
         # print('torder',torder)
         final_no_store = []
@@ -1226,7 +1488,8 @@ class SMSgreedy:
 
         # print('needed in stack:',self._needed_in_stack_map,final_ops_to_count)
         for v in self._initial_stack:
-            self._needed_in_stack_map[v] += needed_list(v, final_ops_to_count, needed_set, self._opid_instr_map,
+            if v not in self._needed_in_stack_map:
+                self._needed_in_stack_map[v] += needed_list(v, final_ops_to_count, needed_set, self._opid_instr_map,
                                                         self._var_instr_map)
         #     print('needed in stack:',v, self._needed_in_stack_map[v])
         self.count_uses()
@@ -1243,14 +1506,16 @@ class SMSgreedy:
         for o in to_remove:
             self.uses.pop(o, None)
         # print("needed:",self._needed_in_stack_map)
+        # print("uses:",self.uses)
         assert (set(self._needed_in_stack_map.keys()).issubset(set(self.uses.keys())))
-        for o in self._needed_in_stack_map:
-            self._needed_in_stack_map[o] <= self.uses[o]
+        # for o in self._needed_in_stack_map:
+        #    assert(self._needed_in_stack_map[o] <= self.uses[o])
         # print("uses:",self.uses)
         self._needed_in_stack_map = self.uses  # we don't want to recompute
         # print("after:",self._needed_in_stack_map)
         # assert(sorted(list(self._needed_in_stack_map.items())) == sorted(list(self.uses.items())))
         # print('initial stack:  ', self._initial_stack)
+        # print('final stack:  ', self._final_stack)
         return (torder, final_no_store)
         # sort_dep(lm,self._mem_order)
         # sort_dep(ls,self._sto_order)
@@ -1258,8 +1523,10 @@ class SMSgreedy:
         # uses_per_val = compute_uses(lm++self._variables)
 
     def small_zeroary(self, op):
-        return op in self._var_instr_map and len(self._var_instr_map[op]['inpt_sk']) == 0 and self._var_instr_map[op][
-            'size'] <= 2
+        return op in self._var_instr_map and len(self._var_instr_map[op]['inpt_sk']) == 0 and (op in self._dup_pushes or self._var_instr_map[op]['size'] <= 1)
+    #self._var_instr_map[op]['size'] <= 2
+    #(self._var_instr_map[op]['disasm'] == 'PUSH0' or self._var_instr_map[op]['size'] <= 1)
+    #(op in self._dup_pushes or self._var_instr_map[op]['size'] <= 1)
 
     def tree_size(self, op):
         if op not in self._var_instr_map:
@@ -1364,23 +1631,25 @@ class SMSgreedy:
                                 return False
         return True
 
-
-def greedy_from_json(json_data: Dict[str, Any], verb=True) -> Tuple[
+def greedy_from_json(json_data: Dict[str, Any], verb=True, garbage=False) -> Tuple[
     Dict[str, Any], SMSgreedy, List[str], List[str], int]:
-    encoding = SMSgreedy(json_data.copy())
     # print(encoding._var_instr_map)
     # print()
     # print(encoding._opid_instr_map)
     # print(encoding._mem_order)
     # print(encoding._sto_order)
     global verbose
-    verbose = False
+    verbose = False # True # 
+    global extend_tgt
+    extend_tgt = garbage
+    encoding = SMSgreedy(json_data.copy())
     try:
         (instr, final_no_store) = encoding.target()
         # print("before pre:",encoding._needed_in_stack_map,encoding._initial_stack)
         (opcodes_ini, opcodeids_ini, solved, initial) = encoding.precompute(encoding._final_stack.copy(),
                                                                             encoding._initial_stack.copy())
         # print("after pre:",encoding._needed_in_stack_map,initial,opcodeids_ini,solved)
+        # print(encoding._dup_pushes)
         solved_aux = solved.copy()
         needed_in_stack_aux = encoding._needed_in_stack_map.copy()
         opcodes_ini_aux = opcodes_ini.copy()
@@ -1388,6 +1657,7 @@ def greedy_from_json(json_data: Dict[str, Any], verb=True) -> Tuple[
         instr_aux = instr.copy()
         final_no_store_aux = final_no_store.copy()
         (res, resids) = encoding.compute(instr, final_no_store, opcodes_ini, opcodeids_ini, solved, initial, 3)
+        encoding.check_dependencies(resids)
         # encoding._needed_in_stack_map = needed_in_stack_aux
         # (res1, resids1) = encoding.compute(instr_aux, final_no_store_aux, opcodes_ini_aux, opcodeids_ini_aux, solved_aux, initial, 2)
         # if len(res) > len(res1):
@@ -1395,10 +1665,38 @@ def greedy_from_json(json_data: Dict[str, Any], verb=True) -> Tuple[
         #    resids = resids1
         assert (len(res) == len(resids))
         res, resids = remove_useless(res, resids)
+        if extend_tgt:
+            encoding_ext = SMSgreedy(json_data.copy())
+            encoding_ext._final_stack += encoding_ext._initial_stack
+            encoding_ext._extended = True
+            (instr_ext, final_no_store_ext) = encoding_ext.target()
+            (opcodes_ini_ext, opcodeids_ini_ext, solved_ext, initial_ext) = encoding_ext.precompute(encoding_ext._final_stack.copy(),
+                                                                                encoding_ext._initial_stack.copy())
+            solved_aux_ext = solved_ext.copy()
+            needed_in_stack_aux_ext = encoding_ext._needed_in_stack_map.copy()
+            opcodes_ini_aux_ext = opcodes_ini_ext.copy()
+            opcodeids_ini_aux_ext = opcodeids_ini_ext.copy()
+            instr_aux_ext = instr_ext.copy()
+            final_no_store_aux_ext = final_no_store_ext.copy()
+            (res_ext, resids_ext) = encoding_ext.compute(instr_ext, final_no_store_ext, opcodes_ini_ext, opcodeids_ini_ext, solved_ext, initial_ext, 3)
+            encoding_ext.check_dependencies(resids_ext)
+            assert (len(res_ext) == len(resids_ext))
+            res_ext, resids_ext = remove_useless(res_ext, resids_ext)
         if encoding.accept(resids):
             # print(name, encoding._b0, len(res))
             # print(res)
-            if verbose: print(resids)
+            if extend_tgt and encoding_ext.accept(resids_ext):
+                if len(resids_ext) < len(resids):
+                    encoding_ext._diff = len(resids) - len(resids_ext)
+                    res, resids, encoding = res_ext, resids_ext, encoding_ext
+                    if verbose:
+                        print(resids,encoding._extended,encoding._diff)
+                else:
+                    if verbose:
+                        print(resids)
+            else:
+                if verbose:
+                    print(resids)
             if len(res) < encoding._b0 or (len(res) <= encoding._b0 and encoding.correct(resids)):
                 json_data["init_progr_len"] = len(res)
                 json_data["original_instrs"] = str(res).replace(",", "")[1:-1].replace("\'", "")
@@ -1429,13 +1727,23 @@ def remove_useless(r: List[str], rid:List[str]) -> Tuple[List[str], List[str]]:
     fr = [r[0]]
     frid = [rid[0]]
     i = 1
+    j = 0
     while i < len(r):
-        if r[i-1] == 'SWAP1' and r[i] == 'SWAP1':
-            fr.pop(i-1)
-            frid.pop(i-1)
-        elif r[i-1] != 'DUP1' or r[i] != 'SWAP1':
+        if fr[j] == 'SWAP1' and r[i] == 'SWAP1':
+            fr.pop()
+            frid.pop()
+            j -= 1
+            if j == -1 and i+1 < len(r):
+                fr = [r[i+1]]
+                frid = [rid[i+1]]
+                j = 0
+                i += 1
+        elif fr[j] == 'DUP1' and r[i] == 'SWAP1':
+            pass
+        else:    
             fr = fr + [r[i]]
             frid = frid + [rid[i]]
+            j += 1
         i += 1
     return fr, frid
 
@@ -1455,14 +1763,14 @@ def minsize_from_json(json_data: Dict[str, Any]) -> int:
     return s
 
 
-def greedy_standalone(sms: Dict) -> Tuple[str, float, List[str]]:
+def greedy_standalone(sms: Dict, garb=False) -> Tuple[str, float, List[str]]:
     """
     Executes the greedy algorithm as a standalone configuration. Returns whether the execution has been
     sucessful or not ("non_optimal" or "error"), the total time and the sequence of ids returned.
     """
     usage_start = resource.getrusage(resource.RUSAGE_SELF)
     try:
-        json_info, _, _, seq_ids, error = greedy_from_json(sms)
+        json_info, _, _, seq_ids, error = greedy_from_json(sms,garbage = garb)
         usage_stop = resource.getrusage(resource.RUSAGE_SELF)
     except Exception as e:
         print(str(e))
@@ -1472,15 +1780,14 @@ def greedy_standalone(sms: Dict) -> Tuple[str, float, List[str]]:
         error = 1
         seq_ids = []
     optimization_outcome = "error" if error == 1 else "non_optimal"
-    total_time = usage_stop.ru_utime + usage_stop.ru_stime - usage_start.ru_utime - usage_start.ru_stime
-    return GreedyInfo.from_old_version(seq_ids, optimization_outcome, total_time, sms["user_instrs"])
+    return optimization_outcome, usage_stop.ru_utime + usage_stop.ru_stime - usage_start.ru_utime - usage_start.ru_stime, seq_ids
 
 
-def greedy_from_file(filename: str) -> Tuple[SMS_T, GreedyInfo]:
+def greedy_from_file(filename: str):
     with open(filename, "r") as f:
         sfs = json.load(f)
-    greedy_info = greedy_standalone(sfs)
-    return sfs, greedy_info
+    outcome, time, ids = greedy_standalone(sfs)
+    return sfs, ids, outcome
 
 
 if __name__ == "__main__":
@@ -1523,7 +1830,20 @@ if __name__ == "__main__":
             fw.write(json_result)
     else:
         if error == 0:
-            print(name, initial_size, len(rs))
+            size = 0
+            for o in rsids:
+                if o in encod._opid_instr_map:
+                    if encod._opid_instr_map[o]['disasm'] == 'PUSH0':
+                        size += 1
+                    else:
+                        size += encod._opid_instr_map[o]['size']
+                else:
+                    size += 1
+            if encod._extended: 
+                print(name, initial_size, len(rs), size)
+                # print(name, initial_size, len(rs), encod._diff)
+            else:
+                print(name, initial_size, len(rs), size)
             # print(rs)
             # print(rsids)
         else:

@@ -215,6 +215,9 @@ def compute_memory_dependences(instructions: List[CFGInstruction]):
             interval = (input_val, 32)
             mem_ins.append([i, interval, ins.get_type_mem_op()])
 
+        elif ins.get_op_name() == "assignimmutable":
+            mem_ins.append([i, (0,"inf"), "write"])
+            
         elif ins.get_op_name() in mem_instrs_offset:
             values = ins.get_in_args()
             interval_args = get_interval(ins.get_op_name(), values)
@@ -242,6 +245,21 @@ def compute_memory_dependences(instructions: List[CFGInstruction]):
     # print("******")
     return deps
 
+
+def compute_gas_dependences(instructions: List[CFGInstruction]):
+
+    gas_ins = []
+    
+    gas_instructions = ["gas"]
+    for i, ins in enumerate(instructions):
+        if ins.get_op_name() in gas_instructions:
+            gas_ins.append(i)
+
+    deps = [[first_gas_ins, second_gas_ins]
+            for i, first_gas_ins in enumerate(gas_ins) for second_gas_ins in gas_ins[i + 1:]]
+
+    return deps
+                    
 
 def simplify_dependences(deps: List[Tuple[int, int]]) -> List[Tuple[int, int]]:
     dg = nx.DiGraph(deps)

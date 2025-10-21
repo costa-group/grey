@@ -50,7 +50,6 @@ def compute_loop_nesting_forest_graph(cfg: nx.DiGraph, back_edges: Optional[List
     if back_edges is None:
         back_edges = find_back_edges(cfg)
 
-    print("Back", back_edges)
     loops = []
 
     for u, v in back_edges:

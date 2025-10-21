@@ -174,6 +174,7 @@ class LayoutGeneration:
                                                                                      block_id, input_stack.copy(),
                                                                                      self._can_have_junk(block_id))
 
+
                 # Update the output stacks with the ones generated from the unification
                 output_stacks.update(output_stacks_unified)
                 output_stack = output_stacks[block_id]
@@ -203,6 +204,7 @@ class LayoutGeneration:
 
         # We build the corresponding specification and store it in the block
         block_json = block.build_spec(substitute_duplicates(input_stack), output_stack)
+        block_json["admits_junk"] = self._can_have_junk(block_id)
         block.spec = block_json
 
         return block_json
