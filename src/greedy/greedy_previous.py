@@ -475,7 +475,7 @@ class SMSgreedy:
             self._dependences_to_do.add(o0)
         self._dependences_done = set([])
         self.add_dup_pushes()
-
+        
     def count_pushes(self):
         self._pushes = {}
         for o in self._var_instr_map:
@@ -483,20 +483,23 @@ class SMSgreedy:
                 if 'PUSH0' not in self._var_instr_map[o]['disasm']:
                     self._pushes[o] = self._final_stack.count(o)
         for o in self._pushes:
-            for o1 in self._var_instr_map:
-               self._pushes[o] += self._var_instr_map[o1]['inpt_sk'].count(o)               
+            for ins in self._user_instr:
+               self._pushes[o] += ins['inpt_sk'].count(o)               
+            self._pushes[o] += self._final_stack.count(o)               
 
     def add_dup_pushes(self):
         self.count_pushes()
         # print(self._final_stack)
-        # print(self._pushes)
         self._dup_pushes = set([])
         for p in self._pushes:
+            # print(p,self._pushes[p],self._var_instr_map[p]['size'])
             # if self._var_instr_map[p]['size'] >= 3:
             #     self._dup_pushes.add(p)
             # elif self._pushes[p]*self._var_instr_map[p]['size'] >= self._pushes[p]+self._var_instr_map[p]['size']+1: #+2
-            if self._pushes[p]*self._var_instr_map[p]['size'] >= self._pushes[p]+self._var_instr_map[p]['size']+2: #+2
+            if self._pushes[p]*self._var_instr_map[p]['size'] >= self._pushes[p]+self._var_instr_map[p]['size']+push_dup_add: #+2
                 self._dup_pushes.add(p)
+        # print(self._pushes)
+        # print(self._dup_pushes)
 
     def count_ops_one(self, o):
         if o in self.occurrences:
@@ -1622,7 +1625,7 @@ class SMSgreedy:
                                 return False
         return True
 
-def greedy_from_json(json_data: Dict[str, Any], verb=True, garbage=False) -> Tuple[
+def greedy_from_json(json_data: Dict[str, Any], verb=True, garbage=False, push_dup=2) -> Tuple[
     Dict[str, Any], SMSgreedy, List[str], List[str], int]:
     # print(encoding._var_instr_map)
     # print()
@@ -1633,6 +1636,8 @@ def greedy_from_json(json_data: Dict[str, Any], verb=True, garbage=False) -> Tup
     verbose = False # True # 
     global extend_tgt
     extend_tgt = garbage
+    global push_dup_add
+    push_dup_add = push_dup
     encoding = SMSgreedy(json_data.copy())
     try:
         (instr, final_no_store) = encoding.target()
