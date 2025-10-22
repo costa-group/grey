@@ -474,7 +474,33 @@ class SMSgreedy:
                 self._func_dep_map[o1] += [o0]                
             self._dependences_to_do.add(o0)
         self._dependences_done = set([])
+        self.add_dup_pushes()
         
+    def count_pushes(self):
+        self._pushes = {}
+        for o in self._var_instr_map:
+            if 'PUSH' in self._var_instr_map[o]['disasm']:
+                if 'PUSH0' not in self._var_instr_map[o]['disasm']:
+                    self._pushes[o] = self._final_stack.count(o)
+        for o in self._pushes:
+            for ins in self._user_instr:
+               self._pushes[o] += ins['inpt_sk'].count(o)               
+            self._pushes[o] += self._final_stack.count(o)               
+
+    def add_dup_pushes(self):
+        self.count_pushes()
+        # print(self._final_stack)
+        self._dup_pushes = set([])
+        for p in self._pushes:
+            # print(p,self._pushes[p],self._var_instr_map[p]['size'])
+            # if self._var_instr_map[p]['size'] >= 3:
+            #     self._dup_pushes.add(p)
+            # elif self._pushes[p]*self._var_instr_map[p]['size'] >= self._pushes[p]+self._var_instr_map[p]['size']+1: #+2
+            if self._pushes[p]*self._var_instr_map[p]['size'] >= self._pushes[p]+self._var_instr_map[p]['size']+push_dup_add: #+2
+                self._dup_pushes.add(p)
+        # print(self._pushes)
+        # print(self._dup_pushes)
+
     def count_ops_one(self, o):
         if o in self.occurrences:
             self.occurrences[o] += 1
@@ -493,8 +519,8 @@ class SMSgreedy:
         lsstore = get_ops_id(self._user_instr, ['SSTORE'])
         for o in lmstore + ltstore + lsstore:
             inp = self._opid_instr_map[o]["inpt_sk"]
-            self.count_ops_one(inp[0])
-            self.count_ops_one(inp[1])
+            for o1 in inp:
+                self.count_ops_one(o1)
         for o in self._final_stack:
             self.count_ops_one(o)
 
@@ -619,18 +645,25 @@ class SMSgreedy:
                         if verbose: print(opcodeid + ' ' + tag, [o] + stack, len([o] + stack))
                         self._dup_stack_ini += 1
                         return ([opcode + ' ' + tag], [opcodeid], [o] + stack)
+                    # elif 'PUSH0' in self._var_instr_map[o]['disasm'] or '#' in self._var_instr_map[o]['disasm']:
                     else:
-                        h = hex(self._var_instr_map[o]['value'][0])
-                        h = h[2:]
-                        n = (len(h) + 1) // 2
-                        if verbose: print('PUSH' + str(n) + ' ' + h, [o] + stack, len([o] + stack))
                         opcodeid = self._var_instr_map[o]['id']
-                        if "[" in self._var_instr_map[o]['disasm'] or 'data' in self._var_instr_map[o]['disasm']:
-                            opcode = self._var_instr_map[o]['disasm']
-                        else:
-                            opcode = 'PUSH' + str(n)
+                        opcode = self._var_instr_map[o]['disasm']
                         self._dup_stack_ini += 1
-                        return ([opcode + ' 0x' + h], [opcodeid], [o] + stack)
+                        if verbose: print(opcodeid, [o] + stack, len([o] + stack))
+                        return ([opcode], [opcodeid], [o] + stack)
+                    # else:
+                    #     h = hex(self._var_instr_map[o]['value'][0])
+                    #     h = h[2:]
+                    #     n = (len(h) + 1) // 2
+                    #     if verbose: print('PUSH' + str(n) + ' ' + h, [o] + stack, len([o] + stack))
+                    #     opcodeid = self._var_instr_map[o]['id']
+                    #     if "[" in self._var_instr_map[o]['disasm'] or 'data' in self._var_instr_map[o]['disasm']:
+                    #         opcode = self._var_instr_map[o]['disasm']
+                    #     else:
+                    #         opcode = 'PUSH' + str(n)
+                    #     self._dup_stack_ini += 1
+                    #     return ([opcode + ' 0x' + h], [opcodeid], [o] + stack)
                 if isinstance(o, int):
                     h = hex(o)
                     h = h[2:]
@@ -1484,8 +1517,10 @@ class SMSgreedy:
         # uses_per_val = compute_uses(lm++self._variables)
 
     def small_zeroary(self, op):
-        return op in self._var_instr_map and len(self._var_instr_map[op]['inpt_sk']) == 0 and self._var_instr_map[op][
-            'size'] <= 1
+        return op in self._var_instr_map and len(self._var_instr_map[op]['inpt_sk']) == 0 and (op not in self._dup_pushes or self._var_instr_map[op]['size'] <= 1)
+    #self._var_instr_map[op]['size'] <= 2
+    #(self._var_instr_map[op]['disasm'] == 'PUSH0' or self._var_instr_map[op]['size'] <= 1)
+    #(op not in self._dup_pushes or self._var_instr_map[op]['size'] <= 1)
 
     def tree_size(self, op):
         if op not in self._var_instr_map:
@@ -1590,8 +1625,7 @@ class SMSgreedy:
                                 return False
         return True
 
-
-def greedy_from_json(json_data: Dict[str, Any], verb=True, garbage=False) -> Tuple[
+def greedy_from_json(json_data: Dict[str, Any], verb=True, garbage=False, push_dup=2) -> Tuple[
     Dict[str, Any], SMSgreedy, List[str], List[str], int]:
     # print(encoding._var_instr_map)
     # print()
@@ -1599,9 +1633,11 @@ def greedy_from_json(json_data: Dict[str, Any], verb=True, garbage=False) -> Tup
     # print(encoding._mem_order)
     # print(encoding._sto_order)
     global verbose
-    verbose = False # True
+    verbose = False # True # 
     global extend_tgt
     extend_tgt = garbage
+    global push_dup_add
+    push_dup_add = push_dup
     encoding = SMSgreedy(json_data.copy())
     try:
         (instr, final_no_store) = encoding.target()
@@ -1609,6 +1645,7 @@ def greedy_from_json(json_data: Dict[str, Any], verb=True, garbage=False) -> Tup
         (opcodes_ini, opcodeids_ini, solved, initial) = encoding.precompute(encoding._final_stack.copy(),
                                                                             encoding._initial_stack.copy())
         # print("after pre:",encoding._needed_in_stack_map,initial,opcodeids_ini,solved)
+        # print(encoding._dup_pushes)
         solved_aux = solved.copy()
         needed_in_stack_aux = encoding._needed_in_stack_map.copy()
         opcodes_ini_aux = opcodes_ini.copy()
@@ -1792,7 +1829,10 @@ if __name__ == "__main__":
             size = 0
             for o in rsids:
                 if o in encod._opid_instr_map:
-                    size += encod._opid_instr_map[o]['size']
+                    if encod._opid_instr_map[o]['disasm'] == 'PUSH0':
+                        size += 1
+                    else:
+                        size += encod._opid_instr_map[o]['size']
                 else:
                     size += 1
             if encod._extended: 
