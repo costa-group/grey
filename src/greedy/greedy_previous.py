@@ -22,6 +22,8 @@ MWRITE_OPERATIONS_OUTPUT = ['CALL', 'DELEGATECALL', 'STATICCALL', 'CALLCODE']
 MWRITE_OPERATIONS_NO_OUTPUT = ['MSTORE8', 'MSTORE', 'MCOPY', 'CALLDATACOPY', 'CODECOPY', 'RETURNDATACOPY',
                                'EXTCODECOPY', 'ASSIGNIMMUTABLE','LOG0', 'LOG1', 'LOG2', 'LOG3', 'LOG4']
 
+SWRITE_OPERATIONS = ['SSTORE',  'CALL', 'DELEGATECALL', 'STATICCALL']
+TWRITE_OPERATIONS = ['TSTORE',  'CALL', 'DELEGATECALL', 'STATICCALL']
 
 def delete_extension(name):
     if '_' in name:
@@ -410,35 +412,9 @@ class SMSgreedy:
         for ins in self._user_instr:
             self._opid_instr_map[ins['id']] = ins
 
-        mdepop = set([])
-        for p in self._mem_order:
-            mdepop.add(p[0])
-            mdepop.add(p[1])
-        for o in mdepop:
-            if o in self._opid_instr_map and len(self._opid_instr_map[o]['outpt_sk']) == 1:
-                for o1 in mdepop:
-                    if o != o1 and computed(self._opid_instr_map[o]['outpt_sk'][0], o1, self._opid_instr_map, self._var_instr_map):
-                        self._mem_order += [[o,o1]]
-
-        sdepop = set([])
-        for p in self._sto_order:
-            sdepop.add(p[0])
-            sdepop.add(p[1])
-        for o in sdepop:
-            if o in self._opid_instr_map and len(self._opid_instr_map[o]['outpt_sk']) == 1:
-                for o1 in sdepop:
-                    if o != o1 and computed(self._opid_instr_map[o]['outpt_sk'][0], o1, self._opid_instr_map, self._var_instr_map):
-                        self._sto_order += [[o,o1]]
-
-        tdepop = set([])
-        for p in self._tsto_order:
-            tdepop.add(p[0])
-            tdepop.add(p[1])
-        for o in tdepop:
-            if o in self._opid_instr_map and len(self._opid_instr_map[o]['outpt_sk']) == 1:
-                for o1 in tdepop:
-                    if o != o1 and computed(self._opid_instr_map[o]['outpt_sk'][0], o1, self._opid_instr_map, self._var_instr_map):
-                        self._tsto_order += [[o,o1]]
+        self.extend_dependencies(self._mem_order, MWRITE_OPERATIONS)
+        self.extend_dependencies(self._sto_order, SWRITE_OPERATIONS)
+        self.extend_dependencies(self._tsto_order, TWRITE_OPERATIONS)
 
         self._opid_times_used = {}
         for o in self._opid_instr_map:
@@ -475,7 +451,21 @@ class SMSgreedy:
             self._dependences_to_do.add(o0)
         self._dependences_done = set([])
         self.add_dup_pushes()
-        
+
+    def extend_dependencies(self, deps, ops):
+        depop_res = set([])
+        for p in deps:
+            if p[0] in self._opid_instr_map and len(self._opid_instr_map[p[0]]['outpt_sk']) == 1:
+                depop_res.add(p[0])
+            if p[1] in self._opid_instr_map and len(self._opid_instr_map[p[1]]['outpt_sk']) == 1:
+                depop_res.add(p[1])
+        depop = get_ops_id(self._user_instr, ops)
+        for o in depop_res:
+                for o1 in depop:
+                     if o != o1 and computed(self._opid_instr_map[o]['outpt_sk'][0], o1, self._opid_instr_map, self._var_instr_map):
+                        if [o,o1] not in deps:
+                            deps += [[o,o1]]
+
     def count_pushes(self):
         self._pushes = {}
         for o in self._var_instr_map:
