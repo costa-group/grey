@@ -132,6 +132,12 @@ def variable2block_header(cfg_block_list: CFGBlockList, forest_graph: nx.DiGraph
             for variable in block.declared_variables:
                 # We link the variable with the block
                 var2header[variable] = predecessor
+        else:
+            # It is the loop header
+            for variable in block.declared_variables:
+                # We link the variable with the block
+                var2header[variable] = block_id
+
     return var2header
 
 
