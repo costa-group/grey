@@ -673,7 +673,7 @@ class CFGBlock:
         Returns a dict that links every stack variable to the id of the instruction that
         introduced it
         """
-        return {instr["id"]: instr["outpt_sk"]  for instr in self._spec["user_instrs"]}
+        return {instr["id"]: instr["outpt_sk"] for instr in self._spec["user_instrs"]}
 
     @property
     def declared_variables(self) -> Set[var_id_T]:
@@ -682,7 +682,10 @@ class CFGBlock:
         """
         if self._id2var is None:
             self._id2var = self._compute_declared_variables()
-        return set(out_var for out_var_list in self._id2var.values() for out_var in out_var_list)
+
+        # We also need to consider values introduced by phi-functions
+        return (set(out_var for out_var_list in self._id2var.values() for out_var in out_var_list).
+                union(phi_function.out_args[0] for phi_function in self.phi_instructions()))
 
     def out_vars_from_id(self, instr_id: instr_id_T) -> List[var_id_T]:
         """
