@@ -68,7 +68,7 @@ def compile_source_code(source_code_plain: str, contract_address: str, optimizat
             print("")
 
         # Erase the contract
-        shutil.rmtree(file_path)
+        os.unlink(source_file)
 
 
 def compile_json_input(source_code_dict: Dict[str, Any], contract_address: str, version: str, file_path: Path):
@@ -110,7 +110,7 @@ def compile_json_input(source_code_dict: Dict[str, Any], contract_address: str, 
             print("")
 
         # Erase the contract
-        shutil.rmtree(file_path)
+        os.unlink(source_file)
 
 def compile_multiple_sources(source_code_dict: Dict[str, Dict[str, str]], contract_address: str, optimization_used: bool,
                              runs: int, deployed_contract: str, file_path: Path):
@@ -194,7 +194,7 @@ if __name__ == "__main__":
         is_optimized = True if int(etherscan_info[0]["OptimizationUsed"]) == 1 else False
         n_runs = int(etherscan_info[0]["Runs"])
 
-        address_path = final_folder_path.joinpath(address)
+        address_path = final_folder_path # final_folder_path.joinpath(address)
         address_path.mkdir(exist_ok=True, parents=True)
         try:
             code_dict = json.loads(source_code[1:-1])
