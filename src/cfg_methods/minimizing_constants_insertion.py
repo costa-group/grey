@@ -102,9 +102,9 @@ def insert_constants_block_dominant_preorder(block_name: block_id_T, cfg_block_l
 
     # For the constants we need to use, we add the possibility of computing
     # it through push
-    for constant in constants_per_block[block_name]:
-        if constant in introduced_so_far:
-            cfg_block.assignment_dict[introduced_so_far[constant]] = constant
+    # for constant in constants_per_block[block_name]:
+    #     if constant in introduced_so_far:
+    #         cfg_block.assignment_dict[introduced_so_far[constant]] = constant
 
     insert_constants_block(cfg_block, introduced_so_far)
 
