@@ -707,7 +707,7 @@ class SMSgreedy:
                             solved_before = True
                     if not solved_before:
                         assert (max_to_swap <= 16)
-                        if pos < max_to_swap or len(stack) >= 16:
+                        if pos < max_to_swap: #or len(stack) >= 16:
                             # if pos == max_to_swap-1:
                             #     print("SWAPTHREE")
                             needed_stack.pop(o, None)
@@ -942,6 +942,8 @@ class SMSgreedy:
         if o in cstack:
             return
         assert (o not in self._initial_stack)
+        if o in lord:
+            return
         if is_write(o):
             inpts = self._opid_instr_map[o]['inpt_sk']
         else:
@@ -1240,6 +1242,7 @@ class SMSgreedy:
         assert(False)
 
     def compute_permut_and_clean(self, cstack, solved):
+        # print("start permut")
         popcodes = []
         popcodeids = []
         reg = []
@@ -1261,7 +1264,7 @@ class SMSgreedy:
                     cstack = [r] + cstack
                     if verbose: print('VGET(' + r +')',cstack,len(cstack))
                 break
-            while cstack[lpos] == self._final_stack[lpos] and len(self._final_stack)-lpos >= 0 and len(cstack)-lpos >= 0:
+            while len(self._final_stack)+lpos >= 0 and len(cstack)+lpos >= 0 and cstack[lpos] == self._final_stack[lpos]:
                 lpos -= 1
             if cstack.count(cstack[0]) > self._final_stack.count(cstack[0]):
                 popcodes += ['POP']
