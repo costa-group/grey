@@ -79,7 +79,7 @@ def fix_inaccessible_phi_values(block_list: CFGBlockList,
             # Mark the phi definition as one to solve
             current_block.greedy_info.phi_defs_to_solve.add(current_var)
 
-            assert phi_instruction.get_op_name() == "PhiInstruction"
+            assert phi_instruction.get_op_name() == "PhiFunction"
             for ai, Bi in zip(phi_instruction.get_in_args(), current_block.entries):
                 Bi_greedy_info = block_list.get_block(Bi).greedy_info
 
