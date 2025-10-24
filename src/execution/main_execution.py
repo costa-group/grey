@@ -88,7 +88,7 @@ def analyze_single_cfg(cfg: CFG, final_dir: Path, args: argparse.Namespace, time
     y_preprocess = dtimer()
 
     x = dtimer()
-    init_time_liveness, end_time_liveness = layout_generation(cfg, final_dir.joinpath("stack_layouts"))
+    init_time_liveness, end_time_liveness = layout_generation(cfg, final_dir.joinpath("stack_layouts"), args.visualize)
     y = dtimer()
 
     preprocess_time = (y_preprocess-x_preprocess)+(end_time_liveness-init_time_liveness)
