@@ -124,8 +124,6 @@ def analyze_single_cfg(cfg: CFG, final_dir: Path, args: argparse.Namespace, time
 
 def main(args):
     print("Grey Main")
-
-    print(args.visualize)
     
     times = [0, 0, 0, 0, 0, 0, 0]
 
