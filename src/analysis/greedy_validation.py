@@ -68,7 +68,8 @@ def check_execution_from_ids(sfs: Dict, instr_ids: List[instr_id_T], allows_junk
     cstack, fstack = sfs['src_ws'].copy(), sfs['tgt_ws']
 
     for instr_id in instr_ids:
-        print_state(instr_id, cstack)
+        if DEBUG_MODE:
+            print_state(instr_id, cstack)
         execute_instr_id(instr_id, cstack, user_instr)
 
     if allows_junk:
