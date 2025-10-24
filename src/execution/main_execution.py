@@ -83,19 +83,21 @@ def analyze_single_cfg(cfg: CFG, final_dir: Path, args: argparse.Namespace, time
     else:
         dot_file_dir = None
 
-    x = dtimer()
+    x_preprocess = dtimer()
     tags_dict = preprocess_cfg(cfg, dot_file_dir, args.visualize)
-    y = dtimer()
-
-    print("Preprocessing CFG: " + str(y - x) + "s")
-    times[2] += (y - x)
+    y_preprocess = dtimer()
 
     x = dtimer()
-    layout_generation(cfg, final_dir.joinpath("stack_layouts"))
+    init_time_liveness, end_time_liveness = layout_generation(cfg, final_dir.joinpath("stack_layouts"))
     y = dtimer()
 
-    print("Layout generation: " + str(y - x) + "s")
-    times[3] += (y - x)
+    preprocess_time = (y_preprocess-x_preprocess)+(end_time_liveness-init_time_liveness)
+    print("Preprocessing CFG: " + str(preprocess_time) + "s")
+    times[2] += (preprocess_time)
+
+    layout_time = (y-x)-(end_time_liveness-init_time_liveness)
+    print("Layout generation: " + str(layout_time) + "s")
+    times[3] += (layout_time)
 
     x = dtimer()
     cfg_spec_ids(cfg, final_dir.joinpath("statistics.csv"), args.visualize)
