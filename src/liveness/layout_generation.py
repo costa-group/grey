@@ -63,7 +63,7 @@ class LayoutGeneration:
 
     def __init__(self, object_id: str, block_list: CFGBlockList, liveness_info: Dict[str, LivenessAnalysisInfoSSA],
                  function_inputs: Dict[component_name_T, List[var_id_T]], name: Path, is_main_component: bool,
-                 cfg_graph: Optional[nx.Graph] = None):
+                 cfg_graph: Optional[nx.Graph] = None, visualize:bool = False):
         self._component_id = object_id
         self._block_list = block_list
         self._liveness_info = liveness_info
@@ -79,27 +79,31 @@ class LayoutGeneration:
 
         self._start = block_list.start_block
 
-        _tree_dir = name.joinpath("tree")
-        _tree_dir.mkdir(exist_ok=True, parents=True)
-
         self._dominance_tree = compute_dominance_tree(self._cfg_graph, self._start)
 
-        nx.nx_agraph.write_dot(self._dominance_tree, _tree_dir.joinpath(f"{object_id}.dot"))
+        if visualize:
+            _tree_dir = name.joinpath("tree")
+            _tree_dir.mkdir(exist_ok=True, parents=True)
+
+            nx.nx_agraph.write_dot(self._dominance_tree, _tree_dir.joinpath(f"{object_id}.dot"))
+
         self._block_order = list(nx.topological_sort(self._dominance_tree))
 
         self._variable_order = compute_variable_depth(liveness_info, self._block_order)
 
         renamed_graph = information_on_graph(self._cfg_graph, {name: var_order_repr(name, assignments)
                                                                for name, assignments in self._variable_order.items()})
-        _var_dir = name.joinpath("var_order")
-        _var_dir.mkdir(exist_ok=True, parents=True)
-        nx.nx_agraph.write_dot(renamed_graph, _var_dir.joinpath(f"{object_id}.dot"))
 
-        self._layout_dir = name.joinpath("layouts")
-        self._layout_dir.mkdir(exist_ok=True, parents=True)
+        if visualize:
+            _var_dir = name.joinpath("var_order")
+            _var_dir.mkdir(exist_ok=True, parents=True)
+            nx.nx_agraph.write_dot(renamed_graph, _var_dir.joinpath(f"{object_id}.dot"))
 
-        self._sfs_dir = name.joinpath("sfs")
-        self._sfs_dir.mkdir(exist_ok=True, parents=True)
+            self._layout_dir = name.joinpath("layouts")
+            self._layout_dir.mkdir(exist_ok=True, parents=True)
+
+            self._sfs_dir = name.joinpath("sfs")
+            self._sfs_dir.mkdir(exist_ok=True, parents=True)
 
         self._loop_nesting_forest = compute_loop_nesting_forest_graph(self._cfg_graph)
 
@@ -241,7 +245,7 @@ class LayoutGeneration:
 
         return json_info
 
-    def build_layout(self) -> None:
+    def build_layout(self, visualize: bool = False) -> None:
         """
         Builds the layout of the blocks from the given representation and stores it inside the CFG
         """
@@ -253,13 +257,14 @@ class LayoutGeneration:
                                               for block_name in
                                               self._block_list.blocks})
 
-        nx.nx_agraph.write_dot(renamed_graph, self._layout_dir.joinpath(f"{self._component_id}.dot"))
-        for block_name, specification in json_info.items():
-            with open(self._sfs_dir.joinpath(block_name + ".json"), 'w') as f:
-                json.dump(specification, f)
+        if visualize:
+            nx.nx_agraph.write_dot(renamed_graph, self._layout_dir.joinpath(f"{self._component_id}.dot"))
+            for block_name, specification in json_info.items():
+                with open(self._sfs_dir.joinpath(block_name + ".json"), 'w') as f:
+                    json.dump(specification, f)
 
 
-def layout_generation_cfg(cfg: CFG, final_dir: Path = Path(".")) -> None:
+def layout_generation_cfg(cfg: CFG, final_dir: Path = Path("."), visualize: bool = False) -> None:
     """
     Generates the layout for all the blocks in the objects inside the CFG level, excluding sub-objects
     """
@@ -278,25 +283,25 @@ def layout_generation_cfg(cfg: CFG, final_dir: Path = Path(".")) -> None:
 
             layout = LayoutGeneration(component_name, component2block_list[object_name][component_name],
                                       component_liveness, component2inputs, final_dir, component_name == object_name,
-                                      digraph)
+                                      digraph, visualize)
 
-            layout.build_layout()
+            layout.build_layout(visualize)
 
     return x, y
 
-def layout_generation(cfg: CFG, final_dir: Path = Path("."), positions: List[str] = None) -> None:
+def layout_generation(cfg: CFG, final_dir: Path = Path("."), visualize: bool = False, positions: List[str] = None) -> None:
     """
     Returns the information from the liveness analysis and also stores a dot file for each analyzed structure
     in "final_dir"
     """
     if positions is None:
         positions = ["0"]
-
-
         
+
     layout_dir = final_dir.joinpath('_'.join([str(position) for position in positions]))
     layout_dir.mkdir(parents=True, exist_ok=True)
-    init_time, end_time = layout_generation_cfg(cfg, layout_dir)
+        
+    init_time, end_time = layout_generation_cfg(cfg, layout_dir, visualize)
 
     total_x = init_time
     total_y = end_time
@@ -304,7 +309,7 @@ def layout_generation(cfg: CFG, final_dir: Path = Path("."), positions: List[str
 
         sub_object = cfg_object.get_subobject()
         if sub_object is not None:
-            x, y = layout_generation(sub_object, final_dir, positions + [str(i)])
+            x, y = layout_generation(sub_object, final_dir, visualize, positions + [str(i)])
             total_x+=x
             total_y+=y
 
