@@ -26,7 +26,7 @@ from liveness.liveness_analysis import LivenessAnalysisInfoSSA, construct_analys
 from liveness.utils import functions_inputs_from_components
 from liveness.stack_layout_methods import compute_variable_depth, output_stack_layout, unify_stacks_brothers, \
     compute_block_level, unification_block_dict, propagate_output_stack, forget_values
-
+from timeit import default_timer as dtimer
 
 def substitute_duplicates(input_stack: List[var_id_T]):
     substituted = []
@@ -263,11 +263,14 @@ def layout_generation_cfg(cfg: CFG, final_dir: Path = Path(".")) -> None:
     """
     Generates the layout for all the blocks in the objects inside the CFG level, excluding sub-objects
     """
+    x = dtimer()
     cfg_info = construct_analysis_info(cfg)
     component2inputs = functions_inputs_from_components(cfg)
     results = perform_liveness_analysis_from_cfg_info(cfg_info)
-    component2block_list = cfg.generate_id2block_list()
+    y = dtimer()
 
+    component2block_list = cfg.generate_id2block_list()
+    
     for object_name, object_liveness in results.items():
         for component_name, component_liveness in object_liveness.items():
             cfg_info_suboject = cfg_info[object_name][component_name]["block_info"]
@@ -279,6 +282,7 @@ def layout_generation_cfg(cfg: CFG, final_dir: Path = Path(".")) -> None:
 
             layout.build_layout()
 
+    return x, y
 
 def layout_generation(cfg: CFG, final_dir: Path = Path("."), positions: List[str] = None) -> None:
     """
@@ -288,11 +292,20 @@ def layout_generation(cfg: CFG, final_dir: Path = Path("."), positions: List[str
     if positions is None:
         positions = ["0"]
 
+
+        
     layout_dir = final_dir.joinpath('_'.join([str(position) for position in positions]))
     layout_dir.mkdir(parents=True, exist_ok=True)
-    layout_generation_cfg(cfg, layout_dir)
+    init_time, end_time = layout_generation_cfg(cfg, layout_dir)
+
+    total_x = init_time
+    total_y = end_time
     for i, (cfg_name, cfg_object) in enumerate(cfg.get_objects().items()):
 
         sub_object = cfg_object.get_subobject()
         if sub_object is not None:
-            layout_generation(sub_object, final_dir, positions + [str(i)])
+            x, y = layout_generation(sub_object, final_dir, positions + [str(i)])
+            total_x+=x
+            total_y+=y
+
+    return total_x, total_y
