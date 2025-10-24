@@ -253,9 +253,6 @@ class CFGBlockList:
 
     def translate_opcodes(self,objects_keys):
         block_list_dfs = self.dfs()
-
-        print("NAME")
-        print(self.name)
         
         next_idx = 0
         subobjects_idx = {}

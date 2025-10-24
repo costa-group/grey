@@ -123,6 +123,8 @@ def analyze_single_cfg(cfg: CFG, final_dir: Path, args: argparse.Namespace, time
 def main(args):
     print("Grey Main")
 
+    print(args.visualize)
+    
     times = [0, 0, 0, 0, 0, 0, 0]
 
     x = dtimer()
@@ -179,8 +181,9 @@ def main(args):
                                                                                            deployed_contract=cfg_name,
                                                                                            solc_executable=args.solc_executable)
 
+
+            print("Contract: " + cfg_name + " -> EVM Code: " + synt_binary_stdjson)
             if args.visualize:
-                print("Contract: " + cfg_name + " -> EVM Code: " + synt_binary_stdjson)
                 store_binary_output(cfg_name, synt_binary_stdjson, cfg_dir)
 
         else:
