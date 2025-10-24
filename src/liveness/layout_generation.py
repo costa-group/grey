@@ -103,6 +103,10 @@ class LayoutGeneration:
 
         self._loop_nesting_forest = compute_loop_nesting_forest_graph(self._cfg_graph)
 
+        _loop_nesting_dir = name.joinpath("loop-nesting")
+        _loop_nesting_dir.mkdir(exist_ok=True, parents=True)
+        nx.nx_agraph.write_dot(self._loop_nesting_forest, _loop_nesting_dir.joinpath(f"{object_id}.dot"))
+
         # Guess: we need to traverse the code following the dominance tree in topological order
         # This is because in the dominance tree together with the SSA, all the nodes
 
