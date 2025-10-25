@@ -21,8 +21,12 @@ fi
 
 # start=$(date +%s.%N)
 
+# find "$DIRECTORIO_BASE" -type f -name "*standard_input.json" |  grep '/externalContract[^/]*/' | while read -r yul_file; do
+
+
 find "$DIRECTORIO_BASE" -type f -name "*standard_input.json" | while read -r yul_file; do
 
+    
     # Obtener el directorio y el nombre base del archivo
 
     yul_dir=$(dirname "$yul_file")
@@ -58,7 +62,7 @@ find "$DIRECTORIO_BASE" -type f -name "*standard_input.json" | while read -r yul
     
 
     start=$(gdate +%s.%N)
-    python3 $GREY_PATH -s "$yul_file" -g -v -if standard-json -solc $SOLC_PATH -o "/tmp/$yul_base" &> "$yul_dir/$yul_base.log"
+    python3 $GREY_PATH -s "$yul_file" -g -if standard-json -solc $SOLC_PATH -o "/tmp/$yul_base" &> "$yul_dir/$yul_base.log"
     end=$(gdate +%s.%N)
     popd
     elapsed=$(echo "$end - $start" | bc)
@@ -89,6 +93,7 @@ find "$DIRECTORIO_BASE" -type f -name "*standard_input.json" | while read -r yul
 
         # python3 compare_outputs.py $yul_dir/resultOriginal.json $yul_dir/resultGrey.json $yul_file
         python3 compare_outputs.py $yul_dir/resultOriginal.json $yul_dir/test $yul_dir/resultGrey.json $yul_dir/test_grey $yul_file
+        echo "python3 compare_outputs.py $yul_dir/resultOriginal.json $yul_dir/test $yul_dir/resultGrey.json $yul_dir/test_grey $yul_file"
         RES=$?
         # if diff $yul_dir/resultOriginal.json $yul_dir/resultGrey.json > /dev/null; then
         if [ $RES -eq 0 ]; then
