@@ -66,9 +66,13 @@ class GreedyInfo:
                 already_accessed.add(value)
         return get_count
 
+    def set_greedy_ids(self, new_greedy_ids: List[instr_id_T]) -> None:
+        self.greedy_ids = new_greedy_ids
+        self.get_count = self._initial_get_count()
+
     @property
-    def elements_to_fix(self) -> Iterable:
-        return self.get_count.keys()
+    def elements_to_fix(self) -> Counter:
+        return self.get_count
 
     def add_virtual_copy(self, v: var_id_T):
         """

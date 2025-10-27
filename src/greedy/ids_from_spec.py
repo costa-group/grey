@@ -4,6 +4,7 @@ Module that handles the generation of the ids from the greedy algorithm.
 import copy
 from pathlib import Path
 from typing import Tuple, List, Dict, Optional, Set, Iterable
+from collections import Counter
 
 import pandas as pd
 
@@ -24,7 +25,7 @@ def _length_or_zero(l, outcome):
     return len(l) if l is not None and outcome != "error" else 10000
 
 
-def cfg_block_spec_ids(cfg_block: CFGBlock) -> Tuple[str, float, List[instr_id_T], Iterable[var_id_T]]:
+def cfg_block_spec_ids(cfg_block: CFGBlock) -> Tuple[str, float, List[instr_id_T], Counter[var_id_T]]:
     # Retrieve the information from each of the executions
     sfs = copy.deepcopy(cfg_block._spec)
     admits_junk = sfs["admits_junk"]
@@ -56,10 +57,10 @@ def cfg_block_list_spec_ids(cfg_blocklist: CFGBlockList, path_to_files: Optional
     Generates the assembly code of all the blocks in a block list and returns the statistics
     """
     csv_dicts = []
-    to_fix = set()
+    to_fix = Counter()
     for block_name, block in cfg_blocklist.blocks.items():
         outcome, time, greedy_ids, to_fix_block = cfg_block_spec_ids(block)
-        to_fix.update(to_fix_block)
+        to_fix += to_fix_block
         csv_dicts.append(generate_statistics_info(block_name, greedy_ids, time, block.spec))
 
     # If there are elements to fix
