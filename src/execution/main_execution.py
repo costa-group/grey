@@ -201,7 +201,7 @@ def main(args):
 
     times_str = map(lambda x: str(x), times)
     print("Times " + args.source + ": " + ",".join(times_str))
-    print("Total times " + args.source +": "+ str(sum(times[1:])))
+    print("Total times " + args.source +": "+ str(sum(times)))
 
     print("Total Blocks CFG "+ args.source +": "+str(total_blocks_cfg))
     print("Total Ins CFG "+ args.source +": "+str(total_ins_cfg))
