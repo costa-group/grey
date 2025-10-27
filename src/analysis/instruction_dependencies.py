@@ -15,7 +15,7 @@ def get_interval(opcode_name, input_args):
     """
     if opcode_name in ["keccak256", "log0", "log1", "log2", "log3", "log4"]:
         return [input_args[0], input_args[1]]
-    elif opcode_name in ["codecopy", "calldatacopy", "returndatacopy", "mcopy"]:
+    elif opcode_name in ["codecopy", "calldatacopy", "returndatacopy"]:
         return [input_args[0], input_args[2]]
     elif opcode_name in ["extcodecopy"]:
         return [input_args[1], input_args[3]]
@@ -23,6 +23,8 @@ def get_interval(opcode_name, input_args):
         return [input_args[1], input_args[2]]
     elif opcode_name in ["call", "callcode"]:
         return [[input_args[3], input_args[4]], [input_args[5], input_args[6]]]
+    elif opcode_name in ["mcopy"]:
+        return [[input_args[1], input_args[2]], [input_args[0], input_args[2]]]
     elif opcode_name in ["delegatecall", "staticcall"]:
         return [[input_args[2], input_args[3]], [input_args[4], input_args[5]]]
 
@@ -222,7 +224,7 @@ def compute_memory_dependences(instructions: List[CFGInstruction]):
             values = ins.get_in_args()
             interval_args = get_interval(ins.get_op_name(), values)
 
-            if ins.get_op_name() not in ["call", "callcode", "delegatecall", "staticcall"]:
+            if ins.get_op_name() not in ["call", "callcode", "delegatecall", "staticcall", "mcopy"]:
                 input_vals = list(map(lambda x: get_expression(x, instructions[:i]), interval_args))
                 interval = (input_vals[0], input_vals[1])
                 mem_ins.append([i, interval, ins.get_type_mem_op()])

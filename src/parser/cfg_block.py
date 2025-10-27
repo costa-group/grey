@@ -5,9 +5,8 @@ from global_params.types import instr_id_T, dependencies_T, var_id_T, block_id_T
 from parser.cfg_instruction import CFGInstruction, build_push_spec, build_pushtag_spec
 from parser.utils_parser import replace_pos_instrsid, replace_aliasing_spec, detect_unused_instructions, delete_unsued_instructions_from_deps
 from analysis.instruction_dependencies import compute_memory_dependences, compute_storage_dependences, compute_transient_dependences, compute_gas_dependences, simplify_dependences
-import parser.constants as constants
+from greedy.greedy_info import GreedyInfo
 import json
-import networkx as nx
 from parser.constants import split_block
 from enum import Enum, auto
 from typing import List, Dict, Tuple, Any, Set, Optional
@@ -103,10 +102,8 @@ class CFGBlock:
         self._spec: SMS_T = None
         self._greedy_ids: List[instr_id_T] = None
 
-        # Sets that represent which variables can be reached using a DUP instruction.
-        # Useful for determining when to store a variable
-        self._reachable_in: Set[var_id_T] = None
-        self._reachable_out: Set[var_id_T] = None
+        # Greedy Information that needs to be passed
+        self._greedy_info: GreedyInfo = None
 
         # Set of variables that are computed in the current block
         self._id2var = None
@@ -655,10 +652,6 @@ class CFGBlock:
             raise ValueError("Specification already computed")
         self._spec = spec
 
-        # We also assigne the set of reachable stack values at the beginning and end of the block
-        self._reachable_in = set(spec["src_ws"][:16])
-        self._reachable_out = set(spec["tgt_ws"][:16])
-
     @property
     def greedy_ids(self) -> List[instr_id_T]:
         return self._greedy_ids
@@ -667,28 +660,20 @@ class CFGBlock:
     def greedy_ids(self, greedy_ids: List[instr_id_T]) -> None:
         self._greedy_ids = greedy_ids
 
-    def is_accessible_in(self, var_id: var_id_T):
-        """
-        Given a stack variable, detects whether it can be accessed
-        with a DUPx instruction by the beginning of the block
-        """
-        assert self._reachable_in is not None, "Trying to access reachable_in when not computed yet"
-        return var_id in self._reachable_in
+    @property
+    def greedy_info(self) -> GreedyInfo:
+        return self._greedy_info
 
-    def is_accessible_out(self, var_id: var_id_T):
-        """
-        Given a stack variable, detects whether it can be accessed
-        with a DUPx instruction by the end of the block
-        """
-        assert self._reachable_out is not None, "Trying to access reachable_out when not computed yet"
-        return var_id in self._reachable_out
+    @greedy_info.setter
+    def greedy_info(self, value: GreedyInfo) -> None:
+        self._greedy_info = value
 
     def _compute_declared_variables(self):
         """
         Returns a dict that links every stack variable to the id of the instruction that
         introduced it
         """
-        return {instr["id"]: instr["outpt_sk"]  for instr in self._spec["user_instrs"]}
+        return {instr["id"]: instr["outpt_sk"] for instr in self._spec["user_instrs"]}
 
     @property
     def declared_variables(self) -> Set[var_id_T]:
@@ -697,7 +682,10 @@ class CFGBlock:
         """
         if self._id2var is None:
             self._id2var = self._compute_declared_variables()
-        return set(out_var for out_var_list in self._id2var.values() for out_var in out_var_list)
+
+        # We also need to consider values introduced by phi-functions
+        return (set(out_var for out_var_list in self._id2var.values() for out_var in out_var_list).
+                union(phi_function.out_args[0] for phi_function in self.phi_instructions()))
 
     def out_vars_from_id(self, instr_id: instr_id_T) -> List[var_id_T]:
         """
