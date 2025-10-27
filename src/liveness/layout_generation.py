@@ -55,7 +55,7 @@ def print_json_instr(instr: Dict[str, Any]) -> str:
 
 def print_stacks(block_name: str, json_dict: Dict[str, Any]) -> str:
     text_format = [f"{block_name}:", f"Src: {json_dict['src_ws']}", f"Tgt: {json_dict['tgt_ws']}"]
-    text_format += [print_json_instr(instr) for instr in json_dict["user_instrs"]]
+    # text_format += [print_json_instr(instr) for instr in json_dict["user_instrs"]]
     return '\n'.join(text_format)
 
 
@@ -143,7 +143,7 @@ class LayoutGeneration:
             input_stack = self._function_inputs[self._block_list.name]
 
         # We forget the deepest elements in the main component
-        if self._is_main_component:
+        if self._can_have_junk(block_id):
             input_stack = forget_values(input_stack, self._liveness_info[block_id].in_state.live_vars)
 
         input_stacks[block.block_id] = input_stack
