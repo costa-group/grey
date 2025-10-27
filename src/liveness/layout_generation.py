@@ -139,7 +139,7 @@ class LayoutGeneration:
             input_stack = self._function_inputs[self._block_list.name]
 
         # We forget the deepest elements in the main component
-        if self._is_main_component:
+        if self._can_have_junk(block_id):
             input_stack = forget_values(input_stack, self._liveness_info[block_id].in_state.live_vars)
 
         input_stacks[block.block_id] = input_stack
