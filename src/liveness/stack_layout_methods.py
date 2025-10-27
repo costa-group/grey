@@ -121,7 +121,7 @@ def output_stack_layout(input_stack: List[str], final_stack_elements: List[str],
     vars_to_place = live_vars.difference(set(final_stack_elements + bottom_output_stack))
 
     # Sort the vars to place according to the variable depth info order in reversed order
-    vars_to_place_sorted = sorted(vars_to_place, key=lambda x: (variable_depth_info[x], x))
+    vars_to_place_sorted = sorted(vars_to_place, key=lambda x: (variable_depth_info.get(x, (-1, )), x))
 
     # First case: there are more elements than gaps. Hence, we keep the
     # same order
@@ -248,10 +248,9 @@ def unify_stack_joint(predecessor_id: var_id_T, combined_output_stack: List[var_
             predecessor_output_stack.append(in_arg)
 
         # Second case: the variable is already live
-        elif out_var in live_vars:
-            predecessor_output_stack.append(out_var)
         else:
-            predecessor_output_stack.append("bottom")
+            predecessor_output_stack.append(out_var)
+
             # Otherwise, we have to introduce a bottom value
     return predecessor_output_stack
 
@@ -344,6 +343,64 @@ def unify_stacks_brothers(target_block_id: block_id_T, predecessor_blocks: List[
             predecessor_output_stacks[predecessor_id] = predecessor_stack[:junk_idx]
 
     return combined_output_stack[:junk_idx], predecessor_output_stacks
+
+
+def unify_stacks_dominant(target_block_id: block_id_T, predecessor_blocks: List[block_id_T],
+                          live_vars_dict: Dict[block_id_T, Set[var_id_T]],
+                          phi_functions: List[CFGInstruction], variable_depth_info: Dict[str, Tuple],
+                          original_block: block_id_T, original_in_stack: List[var_id_T],
+                          can_have_junk: bool) -> Tuple[List[block_id_T], Dict[block_id_T, List[var_id_T]], Set[var_id_T]]:
+    """
+    Generate the output stack for two blocks such that the original block dominates the other block.
+    In this case, we preserve the stack as is to avoid introducing bottoms in between, possibly
+    modifying the liveness that connect the target block with the original block with the target through
+    the second path
+    """
+    phi_func, introduced_phis = generate_phi_func(target_block_id, predecessor_blocks, live_vars_dict, phi_functions)
+
+    # INVARIANT: The original block is the one with no bottom values,
+    # as it is the one that has ALL the values
+    assert all(phi_value != "bottom" for phi_value in phi_func[original_block].values()), \
+        f"We assumed the original block had no bottom value in the combined phi, but {phi_func[original_block]}"
+
+    values_to_propagate = set()
+    for block in phi_func:
+        if block != original_block:
+            for target_var in phi_func[block]:
+                if phi_func[block][target_var] == "bottom":
+                    phi_func[block][target_var] = phi_func[original_block][target_var]
+                    values_to_propagate.add(phi_func[original_block][target_var])
+
+    live_vars_with_pseudo_phi = live_vars_dict[target_block_id].union(introduced_phis)
+
+    # We update the initial stack of the predecessor
+    # so that the combined output stack considers this information
+    combined_init_stack = generate_combined_block_from_original(original_in_stack, live_vars_with_pseudo_phi,
+                                                                phi_func[original_block])
+
+    # We generate the input stack of the combined information, considering the pseudo phi functions
+    combined_output_stack, junk_idx = output_stack_layout(combined_init_stack, [], live_vars_with_pseudo_phi,
+                                                          dict(variable_depth_info, **{key: (0,) for key in introduced_phis}), can_have_junk)
+
+    # Reconstruct all the output stacks
+    predecessor_output_stacks = dict()
+
+    # We unify the combined stack with all the other blocks
+    for predecessor_id in predecessor_blocks:
+
+        predecessor_stack = unify_stack_joint(predecessor_id, combined_output_stack,
+                                              phi_func, live_vars_dict[predecessor_id])
+
+        # The only one that goes with junk corresponds to the original block
+        # we have used
+        # We unify non junk elements
+        if predecessor_id == original_block:
+            predecessor_output_stacks[predecessor_id] = predecessor_stack
+        else:
+            predecessor_output_stacks[predecessor_id] = predecessor_stack[:junk_idx]
+
+    return combined_output_stack[:junk_idx], predecessor_output_stacks, values_to_propagate
+
 
 
 def joined_stack(combined_output_stack: List[str], live_vars: Set[str]):

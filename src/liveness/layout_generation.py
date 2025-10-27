@@ -14,7 +14,7 @@ from pathlib import Path
 from itertools import zip_longest
 from collections import defaultdict
 
-from global_params.types import SMS_T, component_name_T, var_id_T
+from global_params.types import SMS_T, component_name_T, var_id_T, block_id_T
 from parser.cfg import CFG
 from parser.cfg_block_list import CFGBlockList
 from parser.cfg_block import CFGBlock
@@ -25,7 +25,7 @@ from liveness.liveness_analysis import LivenessAnalysisInfoSSA, construct_analys
     perform_liveness_analysis_from_cfg_info
 from liveness.utils import functions_inputs_from_components
 from liveness.stack_layout_methods import compute_variable_depth, output_stack_layout, unify_stacks_brothers, \
-    compute_block_level, unification_block_dict, propagate_output_stack, forget_values
+    compute_block_level, unification_block_dict, propagate_output_stack, forget_values, unify_stacks_dominant
 
 
 def substitute_duplicates(input_stack: List[var_id_T]):
@@ -39,6 +39,7 @@ def substitute_duplicates(input_stack: List[var_id_T]):
             added.add(var_)
 
     return substituted[::-1]
+
 
 def var_order_repr(block_name: str, var_info: Dict[str, int]):
     """
@@ -150,6 +151,9 @@ class LayoutGeneration:
         next_block_id, elements_to_unify, phi_instructions = self._unification_dict.get(block_id, (None, [], []))
         output_stack = None
 
+        if block_id == "PermitHash_3242_deployed_Block0":
+            print("HOLA")
+
         if len(elements_to_unify) > 1:
 
             # If one of the brothers was assigned previously, the corresponding id is already assigned as well
@@ -164,16 +168,35 @@ class LayoutGeneration:
                                           for element_to_unify in elements_to_unify}
                 combined_liveness_info[next_block_id] = self._liveness_info[next_block_id].in_state.live_vars
 
-                # If it is the main component, we do not care about the state of the stack afterwards
-                combined_output_stack, output_stacks_unified = unify_stacks_brothers(next_block_id,
-                                                                                     elements_to_unify,
-                                                                                     combined_liveness_info,
-                                                                                     phi_instructions,
-                                                                                     self._variable_order[
-                                                                                         next_block_id],
-                                                                                     block_id, input_stack.copy(),
-                                                                                     self._can_have_junk(block_id))
+                if len(elements_to_unify) == 2 and ((
+                        path := self._preserve_junk_dominance(elements_to_unify[0], elements_to_unify[1])) is not None):
+                    (combined_output_stack,
+                     output_stacks_unified,
+                     values_to_propagate) = unify_stacks_dominant(next_block_id,
+                                                                  elements_to_unify,
+                                                                  combined_liveness_info,
+                                                                  phi_instructions,
+                                                                  self._variable_order[
+                                                                      next_block_id],
+                                                                  block_id, input_stack.copy(),
+                                                                  self._can_have_junk(block_id))
 
+                    # TRICK: We have to preserve the values in between that are lost otherwise
+                    if len(values_to_propagate) > 0:
+                        for block_path in path[1:]:
+                            self._liveness_info[block_path].in_state.live_vars.update(values_to_propagate)
+                            self._liveness_info[block_path].out_state.live_vars.update(values_to_propagate)
+
+                else:
+                    # If it is the main component, we do not care about the state of the stack afterwards
+                    combined_output_stack, output_stacks_unified = unify_stacks_brothers(next_block_id,
+                                                                                         elements_to_unify,
+                                                                                         combined_liveness_info,
+                                                                                         phi_instructions,
+                                                                                         self._variable_order[
+                                                                                             next_block_id],
+                                                                                         block_id, input_stack.copy(),
+                                                                                         self._can_have_junk(block_id))
 
                 # Update the output stacks with the ones generated from the unification
                 output_stacks.update(output_stacks_unified)
@@ -208,6 +231,35 @@ class LayoutGeneration:
         block.spec = block_json
 
         return block_json
+
+    def _preserve_junk_dominance(self, block1: block_id_T, block2: block_id_T) -> Optional[List[block_id_T]]:
+        """
+        Returns the path that connects u and v iff u dom v and we want to preserve the path that connects u to v.
+        Otherwise, returns None.
+        """
+        if nx.has_path(self._dominance_tree, block1, block2):
+            shortest_path = nx.shortest_path(self._dominance_tree, block1, block2)
+        elif nx.has_path(self._dominance_tree, block2, block1):
+            shortest_path = nx.shortest_path(self._dominance_tree, block2, block1)
+        else:
+            return None
+
+        # The path must have at least 5 nodes (3 intermediate + block1 and block2)
+        if len(shortest_path) < 5:
+            return shortest_path
+
+        # Otherwise, we check how many of those blocks admit junk. If > 3 do not admit junk,
+        # then we prefer to combine the phis.
+        num_without_junk = 0
+
+        # TODO: count successors with junks that are not in the path
+        for block_id in shortest_path[1:-1]:
+            num_without_junk += int(not self._can_have_junk(block_id))
+
+        if num_without_junk > 3:
+            return None
+        else:
+            return shortest_path
 
     def _construct_code_from_block_list(self):
         """
