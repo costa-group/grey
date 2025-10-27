@@ -100,6 +100,9 @@ def insert_constants_block_dominant_preorder(block_name: block_id_T, cfg_block_l
         push_instr.literal_args = [constant_value]
         cfg_block.insert_instruction(first_non_phi, push_instr)
 
+        # We annotate the introduced var is part of the assignment dict
+        cfg_block_list.assigment_dict[arg] = constant_value
+
     # For the constants we need to use, we add the possibility of computing
     # it through push
     # for constant in constants_per_block[block_name]:
