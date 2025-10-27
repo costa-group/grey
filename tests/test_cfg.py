@@ -18,10 +18,7 @@ class TestGreedyNewVersion:
         cfg.add_edges_from(edges)
         # nx.nx_agraph.write_dot(cfg, "../cfg.dot")
 
-        dominance_tree = compute_dominance_tree(cfg, 1)
-        # nx.nx_agraph.write_dot(dominance_tree, "../dominance.dot")
-
-        loop_forest = compute_loop_nesting_forest_graph(cfg, dominance_tree)
+        loop_forest = compute_loop_nesting_forest_graph(cfg)
         # nx.nx_agraph.write_dot(loop_forest, "../loop_forest.dot")
 
         expected_forest = nx.DiGraph()
