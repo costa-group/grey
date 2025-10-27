@@ -1,10 +1,10 @@
 """
 Module to compute the different dependencies among instructions
 """
-from typing import List, Tuple
+from typing import List, Tuple, Dict
 import networkx as nx
 from parser.cfg_instruction import CFGInstruction
-from global_params.types import var_id_T, expression_T, memory_instr_interval_T
+from global_params.types import var_id_T, expression_T, memory_instr_interval_T, constant_T
 
 
 # Methods to manipulate expressions
@@ -29,7 +29,7 @@ def get_interval(opcode_name, input_args):
         return [[input_args[2], input_args[3]], [input_args[4], input_args[5]]]
 
 
-def get_expression(var: var_id_T, instructions) -> expression_T:
+def get_expression(var: var_id_T, instructions, assignment_dict: Dict[var_id_T, constant_T]) -> expression_T:
     """
     It returns the expression that an instruction takes as argument
     It returns an expression of the form:
@@ -39,6 +39,9 @@ def get_expression(var: var_id_T, instructions) -> expression_T:
     # Case: constant
     if var.startswith("0x"):
         return int(var, 16)
+
+    elif (constant := assignment_dict.get(var)) is not None:
+        return int(constant, 16)
 
     candidates = list(filter(lambda x: var in x.get_out_args(), instructions))
 
@@ -52,7 +55,7 @@ def get_expression(var: var_id_T, instructions) -> expression_T:
 
     sub_expression = []
     for v in new_instruction.get_in_args():
-        new_subexp = get_expression(v, instructions)
+        new_subexp = get_expression(v, instructions, assignment_dict)
         sub_expression.append(new_subexp)
 
     return new_instruction.get_op_name(), sub_expression
@@ -134,7 +137,8 @@ def generate_dep(t_ins1: str, t_ins2: str) -> bool:
 
 # Methods to compute dependencies
 
-def compute_storage_dependences(instructions: List[CFGInstruction]) -> List[List[int]]:
+def compute_storage_dependences(instructions: List[CFGInstruction],
+                                assignment_dict: Dict[var_id_T, constant_T]) -> List[List[int]]:
     """
     Returns a list with the positions that have storage dependencies
     """
@@ -144,7 +148,7 @@ def compute_storage_dependences(instructions: List[CFGInstruction]) -> List[List
 
         if ins.get_op_name() in ["sload", "sstore"]:
             v = ins.get_in_args()[0]
-            input_val = get_expression(v, instructions[:i])
+            input_val = get_expression(v, instructions[:i], assignment_dict)
 
             # Store instructions have an empty offset
             interval = (input_val, 0)
@@ -165,7 +169,8 @@ def compute_storage_dependences(instructions: List[CFGInstruction]) -> List[List
     return deps
 
 
-def compute_transient_dependences(instructions: List[CFGInstruction]) -> List[List[int]]:
+def compute_transient_dependences(instructions: List[CFGInstruction],
+                                  assignment_dict: Dict[var_id_T, constant_T]) -> List[List[int]]:
     """
     Returns a list with the positions that have storage dependencies
     """
@@ -175,7 +180,7 @@ def compute_transient_dependences(instructions: List[CFGInstruction]) -> List[Li
 
         if ins.get_op_name() in ["tload", "tstore"]:
             v = ins.get_in_args()[0]
-            input_val = get_expression(v, instructions[:i])
+            input_val = get_expression(v, instructions[:i], assignment_dict)
 
             # Store instructions have an empty offset
             interval = (input_val, 0)
@@ -198,7 +203,8 @@ def compute_transient_dependences(instructions: List[CFGInstruction]) -> List[Li
 
 
 
-def compute_memory_dependences(instructions: List[CFGInstruction]):
+def compute_memory_dependences(instructions: List[CFGInstruction],
+                               assignment_dict: Dict[var_id_T, constant_T]):
     """
     Returns a list with the positions that have memory dependencies
     """
@@ -213,7 +219,7 @@ def compute_memory_dependences(instructions: List[CFGInstruction]):
 
         if ins.get_op_name() in mem_instrs_access:
             v = ins.get_in_args()[0]
-            input_val = get_expression(v, instructions[:i])
+            input_val = get_expression(v, instructions[:i], assignment_dict)
             interval = (input_val, 32)
             mem_ins.append([i, interval, ins.get_type_mem_op()])
 
@@ -225,16 +231,16 @@ def compute_memory_dependences(instructions: List[CFGInstruction]):
             interval_args = get_interval(ins.get_op_name(), values)
 
             if ins.get_op_name() not in ["call", "callcode", "delegatecall", "staticcall", "mcopy"]:
-                input_vals = list(map(lambda x: get_expression(x, instructions[:i]), interval_args))
+                input_vals = list(map(lambda x: get_expression(x, instructions[:i], assignment_dict), interval_args))
                 interval = (input_vals[0], input_vals[1])
                 mem_ins.append([i, interval, ins.get_type_mem_op()])
 
             else:
-                input_vals = list(map(lambda x: get_expression(x, instructions[:i]), interval_args[0]))
+                input_vals = list(map(lambda x: get_expression(x, instructions[:i], assignment_dict), interval_args[0]))
                 interval = [input_vals[0], input_vals[1]]
                 mem_ins.append([i, interval, "read"])
 
-                input_vals = list(map(lambda x: get_expression(x, instructions[:i]), interval_args[1]))
+                input_vals = list(map(lambda x: get_expression(x, instructions[:i], assignment_dict), interval_args[1]))
                 interval = [input_vals[0], input_vals[1]]
                 mem_ins.append([i, interval, "write"])
 

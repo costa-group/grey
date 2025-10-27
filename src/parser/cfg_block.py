@@ -1,7 +1,7 @@
 import itertools
 import logging
 
-from global_params.types import instr_id_T, dependencies_T, var_id_T, block_id_T, function_name_T, SMS_T
+from global_params.types import instr_id_T, dependencies_T, var_id_T, block_id_T, function_name_T, SMS_T, constant_T
 from parser.cfg_instruction import CFGInstruction, build_push_spec, build_pushtag_spec
 from parser.utils_parser import replace_pos_instrsid, replace_aliasing_spec, detect_unused_instructions, delete_unsued_instructions_from_deps
 from analysis.instruction_dependencies import compute_memory_dependences, compute_storage_dependences, compute_transient_dependences, compute_gas_dependences, simplify_dependences
@@ -353,20 +353,21 @@ class CFGBlock:
                     logging.warning("[WARNING]: Aliasing between variables!")
 
     def _process_dependences(self, instructions: List[CFGInstruction],
-                             map_positions: Dict[int, instr_id_T]) -> Tuple[dependencies_T, dependencies_T]:
+                             map_positions: Dict[int, instr_id_T],
+                             assignment_dict: Dict[var_id_T, constant_T]) -> Tuple[dependencies_T, dependencies_T]:
         """
         Given the list of instructions and a dict that maps each position in a sequence to the instruction id, generates
         a list of dependencies
         """
-        sto_dep = compute_storage_dependences(instructions)
+        sto_dep = compute_storage_dependences(instructions, assignment_dict)
         sto_dep = simplify_dependences(sto_dep)
         sto_deps = replace_pos_instrsid(sto_dep, map_positions)
 
-        mem_dep = compute_memory_dependences(instructions)
+        mem_dep = compute_memory_dependences(instructions, assignment_dict)
         mem_dep = simplify_dependences(mem_dep)
         mem_deps = replace_pos_instrsid(mem_dep, map_positions)
 
-        trans_dep = compute_transient_dependences(instructions)
+        trans_dep = compute_transient_dependences(instructions, assignment_dict)
         trans_dep = simplify_dependences(trans_dep)
         trans_deps = replace_pos_instrsid(trans_dep, map_positions)
 
@@ -375,7 +376,6 @@ class CFGBlock:
         gas_deps = replace_pos_instrsid(gas_dep, map_positions)
 
         return sto_deps, mem_deps, trans_deps, gas_deps
-
 
     def translate_opcodes(self, objects_keys, next_idx, object_id, subobjects_idx):
         for ins in self._instructions:
@@ -619,8 +619,15 @@ class CFGBlock:
 
         return block_spec, out_idx, block_tag_idx
 
-    def build_spec(self, initial_stack: List[str], final_stack: List[str]) -> Dict[str, Any]:
-        
+    def build_spec(self, initial_stack: List[str], final_stack: List[str],
+                   assignment_dict: Dict[var_id_T, constant_T] = None) -> Dict[str, Any]:
+
+        if assignment_dict is None:
+            assignment_dict = dict()
+
+        if self.block_id == "LibMulticaller_2469_Block0":
+            print("HOLA")
+
         map_instructions = {}
 
         out_idx = 0
@@ -630,7 +637,8 @@ class CFGBlock:
         with open("sms.json", 'w') as f:
             json.dump(spec, f, indent=4)
 
-        sto_deps, mem_deps, trans_deps, gas_deps = self._process_dependences(self.instructions_to_synthesize, map_positions)
+        sto_deps, mem_deps, trans_deps, gas_deps = self._process_dependences(self.instructions_to_synthesize,
+                                                                             map_positions, assignment_dict)
         sto_deps, mem_deps, trans_deps, gas_deps = delete_unsued_instructions_from_deps(sto_deps, mem_deps, trans_deps, gas_deps, unused_ids)
         spec["storage_dependences"] = sto_deps
         spec["memory_dependences"] = mem_deps
@@ -642,7 +650,7 @@ class CFGBlock:
             logging.debug(f"Building Spec of block {self.block_id}...")
             logging.debug(json.dumps(spec, indent=4))
 
-            
+
         return spec
 
     @property
