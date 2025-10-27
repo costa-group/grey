@@ -33,6 +33,11 @@ def repair_unreachable_blocklist(cfg_blocklist: CFGBlockList,
         reachability_path.mkdir(exist_ok=True, parents=True)
         _debug_cfg_reachability(cfg_blocklist, reachability_path)
 
+    if path_to_files is not None:
+        vget_annotated = path_to_files.joinpath("annotated_vget")
+        vget_annotated.mkdir(exist_ok=True, parents=True)
+        _debug_reparation(cfg_blocklist, vget_annotated)
+
     phi_webs = repair_unreachable(cfg_blocklist, set(elements_to_fix.keys()))
 
     if path_to_files is not None:
