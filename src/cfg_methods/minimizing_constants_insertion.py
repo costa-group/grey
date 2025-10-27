@@ -3,7 +3,7 @@ Module that inserts an instruction for each constant that appears in the code. T
 ways to introduce such instructions if we want to reuse computations across different blocks in the CFG
 """
 from typing import Dict, Tuple, Set
-from collections import defaultdict
+from collections import defaultdict, Counter
 from global_params.types import block_id_T, var_id_T, constant_T
 from parser.cfg import CFG
 from parser.cfg_block_list import CFGBlockList
@@ -23,15 +23,15 @@ def insert_variables_for_constants_propagated(cfg: CFG) -> None:
         constant_counter = 0
 
         # We insert the variables of the block list in the cfg object
-        constants_per_block = insert_variables_for_constants_block_list(cfg_object.blocks)
-        insert_constants_block_list(cfg_object.blocks, constants_per_block)
+        constants_per_block, total_uses = insert_variables_for_constants_block_list(cfg_object.blocks)
+        insert_constants_block_list(cfg_object.blocks, constants_per_block, total_uses)
 
         for function_name, cfg_function in cfg_object.functions.items():
 
             # Insert the tags and jumps of the block list
-            constants_per_block = insert_variables_for_constants_block_list(cfg_function.blocks)
+            constants_per_block, total_uses = insert_variables_for_constants_block_list(cfg_function.blocks)
 
-            insert_constants_block_list(cfg_function.blocks, constants_per_block)
+            insert_constants_block_list(cfg_function.blocks, constants_per_block, total_uses)
 
         sub_object = cfg_object.get_subobject()
         if sub_object is not None:
@@ -39,11 +39,13 @@ def insert_variables_for_constants_propagated(cfg: CFG) -> None:
 
 
 def insert_variables_for_constants_block_list(cfg_block_list: CFGBlockList) -> \
-        Dict[block_id_T, Set[constant_T]]:
+        Tuple[Dict[block_id_T, Set[constant_T]], Counter[constant_T]]:
     """
     Traverse a CFG to annotate which constants must be introduced in each block
+    and how many times each instruction is used
     """
     constants_per_block = defaultdict(lambda: set())
+    constant_uses = Counter()
 
     for block_name, block in cfg_block_list.blocks.items():
         # We must insert constants for phi instructions if they are needed
@@ -60,26 +62,39 @@ def insert_variables_for_constants_block_list(cfg_block_list: CFGBlockList) -> \
                     if in_arg not in constants_in_block:
                         constants_in_block.add(in_arg)
 
-    return constants_per_block
+                    constant_uses.update([in_arg])
+
+                elif instr.get_op_name() == "LiteralAssignment":
+                    constant_uses.update([in_arg])
+
+    return constants_per_block, constant_uses
 
 
-def insert_constants_block_list(cfg_block_list: CFGBlockList, constants_per_block: insertion_dict_T) -> None:
+def insert_constants_block_list(cfg_block_list: CFGBlockList,
+                                constants_per_block: insertion_dict_T,
+                                total_uses: Counter[constant_T]) -> None:
     """
     Given the dict that assigns a unique variable for each introduced constant in each block,
     modifies all the blocks in the block_list accordingly.
     """
     insert_constants_block_dominant_preorder(cfg_block_list.start_block, cfg_block_list,
-                                             constants_per_block, dict(), 0)
+                                             constants_per_block, dict(), 0, total_uses)
 
 
-def decide_if_propagated(constant: constant_T):
-    return len(constant) > 4
+def decide_if_propagated(constant: constant_T, total_uses: Counter[constant_T]):
+    # Albert's formula for duplicating: uses*size >= #uses + size + 2
+
+    # We remove two because of the 0x
+    size = (len(constant) - 2) // 2
+
+    uses = total_uses[constant]
+    return uses * size >= uses + size + 2
 
 
 def insert_constants_block_dominant_preorder(block_name: block_id_T, cfg_block_list: CFGBlockList,
                                              constants_per_block: insertion_dict_T,
                                              introduced_so_far: Dict[constant_T, var_id_T],
-                                             free_idx: int) -> int:
+                                             free_idx: int, total_uses: Counter[constant_T]) -> int:
 
     # First we detect which elements must be introduced
     cfg_block = cfg_block_list.get_block(block_name)
@@ -88,7 +103,7 @@ def insert_constants_block_dominant_preorder(block_name: block_id_T, cfg_block_l
     first_non_phi = len(cfg_block.phi_instructions())
 
     constants_to_introduce = set(constant for constant in constants_per_block[block_name].difference(introduced_so_far.keys())
-                                 if decide_if_propagated(constant))
+                                 if decide_if_propagated(constant, total_uses))
 
     # The constants we need to add are the ones not added so far
     for constant_value in constants_to_introduce:
@@ -114,7 +129,7 @@ def insert_constants_block_dominant_preorder(block_name: block_id_T, cfg_block_l
     # We traverse the tree in preorder, updating the free index
     for next_block in cfg_block_list.dominant_tree.successors(block_name):
         free_idx = insert_constants_block_dominant_preorder(
-            next_block, cfg_block_list, constants_per_block, introduced_so_far, free_idx)
+            next_block, cfg_block_list, constants_per_block, introduced_so_far, free_idx, total_uses)
 
     # Before exiting the block ,we pop the constant values
     for constant_value in constants_to_introduce:
