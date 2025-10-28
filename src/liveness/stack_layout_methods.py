@@ -298,9 +298,9 @@ def generate_combined_block_from_original(original_in_stack: List[var_id_T],
         if propagated_value is not None:
             combined_in.append(propagated_value)
             already_added.add(propagated_value)
-        # Otherwise, we introduce a dummy value
+        # Otherwise, we introduce the initial variable
         else:
-            combined_in.append("pl")
+            combined_in.append(var_)
     return list(reversed(combined_in))
 
 
