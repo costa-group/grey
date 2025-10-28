@@ -38,6 +38,15 @@ class LivenessState(AbstractState):
     def __init__(self):
         super().__init__()
         self.live_vars = set()
+        self.extra_values = set()
+
+    @property
+    def vars_to_introduce(self):
+        """
+        Considers the union of the live vars
+        and the extra values we need to store
+        """
+        return self.live_vars.union(self.extra_values)
 
     def lub(self, state: 'LivenessState') -> None:
         self.live_vars.update(state.live_vars)
