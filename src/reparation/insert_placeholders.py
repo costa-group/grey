@@ -269,7 +269,7 @@ def mark_last_uses(current_greedy_info: GreedyInfo,
     new_already_used = set(already_used)
 
     # First, we check the phi-uses
-    for phi_use_var, _ in current_greedy_info.virtual_copies:
+    for phi_use_var, _ in current_greedy_info.virtual_copies.items():
         if phi_use_var not in already_used:
             current_greedy_info.last_use.add((-2, phi_use_var))
             new_already_used.add(phi_use_var)

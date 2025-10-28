@@ -65,11 +65,11 @@ def reachability_from_greedy(greedy_ids: List[instr_id_T],
 
 
 def block_unreachability(reachable: Iterable[var_id_T], previous_unreachable: Set[var_id_T],
-                         live_in: Set[var_id_T], live_out: Set[var_id_T]):
+                         live_in: Set[var_id_T], declared_vars: Set[var_id_T]):
     """
     Given the sets, determine which elements are unreachable
     """
-    return ((previous_unreachable.intersection(live_in)).union(live_out)).difference(reachable)
+    return ((previous_unreachable.intersection(live_in)).union(declared_vars)).difference(reachable)
 
 
 def construct_reachability_block(block_name: block_id_T, cfg_blocklist: CFGBlockList,
@@ -83,7 +83,7 @@ def construct_reachability_block(block_name: block_id_T, cfg_blocklist: CFGBlock
                                          block.split_instruction if block.get_jump_type() == "sub_block" else None)
 
     unreachable = block_unreachability(reachable.keys(), previous_unreachable,
-                                       block.liveness["in"], block.liveness["out"])
+                                       block.liveness["in"], block.declared_variables)
 
     # Assign the information
     greedy_info.reachable = reachable
