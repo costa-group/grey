@@ -164,9 +164,6 @@ class LayoutGeneration:
         next_block_id, elements_to_unify, phi_instructions = self._unification_dict.get(block_id, (None, [], []))
         output_stack = None
 
-        if block_id == "BunniHook_15680_deployed_Block677":
-            print("HOLA")
-
         if len(elements_to_unify) > 1:
 
             # If one of the brothers was assigned previously, the corresponding id is already assigned as well
@@ -181,8 +178,11 @@ class LayoutGeneration:
                                           for element_to_unify in elements_to_unify}
                 combined_liveness_info[next_block_id] = self._liveness_info[next_block_id].in_state.live_vars
 
+                # We avoid going through loop headers because it can confuse the algorithm
                 if len(elements_to_unify) == 2 and ((
-                        path := self._preserve_junk_dominance(elements_to_unify[0], elements_to_unify[1])) is not None):
+                        path := self._preserve_junk_dominance(elements_to_unify[0], elements_to_unify[1])) is not None)\
+                        and all(self._loop_nesting_forest.successors(element) == 0
+                                for element in path if element in self._loop_nesting_forest):
                     (combined_output_stack,
                      output_stacks_unified,
                      values_to_propagate) = unify_stacks_dominant(next_block_id,
@@ -194,11 +194,24 @@ class LayoutGeneration:
                                                                   block_id, input_stack.copy(),
                                                                   self._can_have_junk(block_id))
 
+                    # We want to propagate the liveness backwards
+                    next_block_liveness = self._liveness_info[path[-1]].out_state.live_vars
+
+                    # Consider only the deepest elements, without the split instruction
+                    junk = set(value for value in output_stacks_unified[path[-1]][-len(combined_output_stack):]
+                               if value not in next_block_liveness)
+
+                    # Combined values: values_to_propagate from phi functions + junk
+                    combined_propagation = values_to_propagate.union(junk)
+
                     # TRICK: We have to preserve the values in between that are lost otherwise
-                    if len(values_to_propagate) > 0:
-                        for block_path in path[1:]:
-                            self._liveness_info[block_path].in_state.live_vars.update(values_to_propagate)
-                            self._liveness_info[block_path].out_state.live_vars.update(values_to_propagate)
+                    if len(combined_propagation) > 0:
+
+                        for block_path in path[1:-1]:
+                            self._liveness_info[block_path].in_state.live_vars.update(combined_propagation)
+                            self._liveness_info[block_path].out_state.live_vars.update(combined_propagation)
+
+                        self._liveness_info[path[-1]].in_state.live_vars.update(combined_propagation)
 
                 else:
                     # If it is the main component, we do not care about the state of the stack afterwards
@@ -217,6 +230,39 @@ class LayoutGeneration:
 
                 # The combined output stack is the input stack of the successor
                 input_stacks[next_block_id] = combined_output_stack
+
+                # Mark the garbage as live to preserve it as is
+                if next_block_id in self._loop_nesting_forest and len(
+                        list(self._loop_nesting_forest.successors(next_block_id))) > 0:
+                    next_block_liveness = self._liveness_info[next_block_id].in_state.live_vars
+                    junk = [value for value in combined_output_stack
+                            if value not in next_block_liveness]
+
+                    # We also mark the out state of the current block
+                    liveness_info.out_state.live_vars.update(junk)
+                    if len(junk) > 0:
+                        for succ in self._loop_nesting_forest.successors(next_block_id):
+                            self._liveness_info[succ].in_state.live_vars.update(junk)
+                            self._liveness_info[succ].out_state.live_vars.update(junk)
+
+                # SPECIAL CASE: if there is already an out stack, we unify them
+                if next_block_id in output_stacks:
+                    new_output_stack = []
+                    for idx, element in reversed(list(enumerate(output_stacks[next_block_id]))):
+                        if element not in self._liveness_info[next_block_id].out_state.live_vars:
+                            # First case: use the same element as in the input
+                            if idx < len(combined_output_stack):
+                                new_output_stack.insert(0, combined_output_stack[idx])
+                            # Second case: we keep the same element if it is in the input stack
+                            elif element in combined_output_stack:
+                                new_output_stack.insert(0, element)
+                            # Third case: just bottom
+                            else:
+                                new_output_stack.insert(0, "bottom")
+                        else:
+                            new_output_stack.insert(0, element)
+
+                    output_stacks[next_block_id] = new_output_stack
 
         if output_stack is None:
             if block.get_jump_type() in ["terminal", "mainExit"] or block.previous_type in ["terminal", "mainExit"]:
