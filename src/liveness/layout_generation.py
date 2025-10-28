@@ -24,8 +24,9 @@ from graphs.cfg import compute_loop_nesting_forest_graph
 from liveness.liveness_analysis import LivenessAnalysisInfoSSA, construct_analysis_info, \
     perform_liveness_analysis_from_cfg_info
 from liveness.utils import functions_inputs_from_components
-from liveness.stack_layout_methods import compute_variable_depth, output_stack_layout, unify_stacks_brothers, \
-    compute_block_level, unification_block_dict, propagate_output_stack, forget_values, unify_stacks_dominant
+from liveness.stack_layout_methods import (compute_variable_depth, output_stack_layout, unify_stacks_brothers,
+                                           compute_block_level, unification_block_dict, propagate_output_stack,
+                                           forget_values, unify_stacks_dominant)
 
 from timeit import default_timer as dtimer
 
@@ -65,7 +66,7 @@ class LayoutGeneration:
 
     def __init__(self, object_id: str, block_list: CFGBlockList, liveness_info: Dict[str, LivenessAnalysisInfoSSA],
                  function_inputs: Dict[component_name_T, List[var_id_T]], name: Path, is_main_component: bool,
-                 cfg_graph: Optional[nx.Graph] = None, visualize:bool = False):
+                 cfg_graph: Optional[nx.DiGraph] = None, visualize:bool = False):
         self._component_id = object_id
         self._block_list = block_list
         self._liveness_info = liveness_info
@@ -248,13 +249,11 @@ class LayoutGeneration:
         """
         if nx.has_path(self._dominance_tree, block1, block2):
             shortest_path = nx.shortest_path(self._dominance_tree, block1, block2)
-        elif nx.has_path(self._dominance_tree, block2, block1):
-            shortest_path = nx.shortest_path(self._dominance_tree, block2, block1)
         else:
             return None
 
-        # The path must have at least 5 nodes (3 intermediate + block1 and block2)
-        if len(shortest_path) < 5:
+        # The path must have at least 6 nodes (3 intermediate + block1 and block2)
+        if len(shortest_path) < 6:
             return shortest_path
 
         # Otherwise, we check how many of those blocks admit junk. If > 3 do not admit junk,
@@ -263,7 +262,8 @@ class LayoutGeneration:
 
         # TODO: count successors with junks that are not in the path
         for block_id in shortest_path[1:-1]:
-            num_without_junk += int(not self._can_have_junk(block_id))
+            for succ in self._cfg_graph.successors(block_id):
+                num_without_junk += int(not self._can_have_junk(succ))
 
         if num_without_junk > 3:
             return None
@@ -303,6 +303,8 @@ class LayoutGeneration:
         next_block_liveness = self._liveness_info[path[-1]].out_state.vars_to_introduce
 
         # Consider only the deepest elements, without the split instruction
+        # We choose the junk for the last block instead of the first one due to the trick of
+        # "forgetting" values that are very deep within the stack
         junk = set(value for value in out_stack_last
                    if value not in next_block_liveness)
 
@@ -312,11 +314,21 @@ class LayoutGeneration:
         # TRICK: We have to preserve the values in between that are lost otherwise
         if len(combined_propagation) > 0:
 
-            for block_path in path[1:-1]:
-                self._liveness_info[block_path].in_state.extra_values.update(combined_propagation)
-                self._liveness_info[block_path].out_state.extra_values.update(combined_propagation)
+            # We start with the last element upwards
+            elements_to_traverse = [path[-1]]
+            already_traversed = set()
+            while elements_to_traverse:
+                next_block = elements_to_traverse.pop()
 
-            self._liveness_info[path[-1]].in_state.extra_values.update(combined_propagation)
+                # We stop when reaching the first element
+                if next_block in already_traversed or next_block == path[0]:
+                    continue
+                already_traversed.add(next_block)
+                self._liveness_info[next_block].in_state.extra_values.update(combined_propagation)
+                self._liveness_info[next_block].out_state.extra_values.update(combined_propagation)
+
+                # Extend backwards
+                elements_to_traverse.extend(self._cfg_graph.predecessors(next_block))
 
     def _construct_code_from_block_list(self):
         """
