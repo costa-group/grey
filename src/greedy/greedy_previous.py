@@ -1618,7 +1618,7 @@ class SMSgreedy:
                                 return False
         return True
 
-def greedy_from_json(json_data: Dict[str, Any], verb=True, garbage=False, push_dup=2) -> Tuple[
+def greedy_from_json(json_data: Dict[str, Any], verb=True, garbage=False, push_dup=1) -> Tuple[
     Dict[str, Any], SMSgreedy, List[str], List[str], int]:
     # print(encoding._var_instr_map)
     # print()
