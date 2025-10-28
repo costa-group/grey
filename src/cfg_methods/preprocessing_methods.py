@@ -12,6 +12,7 @@ from cfg_methods.sub_block_generation import combine_remove_blocks_cfg, split_bl
 from cfg_methods.jump_insertion import insert_jumps_tags_cfg
 from cfg_methods.variable_renaming import rename_variables_cfg
 from cfg_methods.constants_insertion import insert_variables_for_constants
+from cfg_methods.minimizing_constants_insertion import insert_variables_for_constants_propagated
 
 
 def preprocess_cfg(cfg: CFG, dot_file_dir: Path, visualization: bool) -> Dict[str, Dict[str, int]]:
@@ -49,7 +50,8 @@ def preprocess_cfg(cfg: CFG, dot_file_dir: Path, visualization: bool) -> Dict[st
         liveness_info = dot_from_analysis(cfg, dot_file_dir.joinpath("split"))
 
     # We replace variables for constants
-    insert_variables_for_constants(cfg)
+    # insert_variables_for_constants(cfg)
+    insert_variables_for_constants_propagated(cfg)
     if visualization:
         liveness_info = dot_from_analysis(cfg, dot_file_dir.joinpath("constants"))
 

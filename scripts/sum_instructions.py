@@ -121,22 +121,24 @@ for i in range(len(origin_number)):
    
         
     tsol, pops_sol, allpops, torigin, pops_origin , allpops_orig, inst_opt, inst_sol, blocks_solc, blocks_opt, total_ins_solc, total_ins_grey = compare_blocks.execute_function(fname_without_ext+"output", fname_without_ext+"log")
-
-
-    time_grey, time_solc, blocks_cfg, ins_cfg = get_stats(fname_without_ext+"log")
-
-    list_times_grey.append(time_grey)
-    list_times_solc.append(time_solc)
-    list_ins_cfg.append(ins_cfg)
-    list_blocks_cfg.append(blocks_cfg)
     
-    print([fname_without_ext,time_solc,blocks_solc,time_grey,blocks_opt])
-    f_scal.write(",".join([fname_without_ext[:-1],str(time_solc),str(blocks_solc),str(time_grey),str(blocks_opt)])+"\n")
+    try:
+        time_grey, time_solc, blocks_cfg, ins_cfg = get_stats(fname_without_ext+"log")
 
-    f_scal_ins.write(",".join([fname_without_ext[:-1],str(time_solc),str(total_ins_solc),str(time_grey),str(total_ins_grey)])+"\n")
+        list_times_grey.append(time_grey)
+        list_times_solc.append(time_solc)
+        list_ins_cfg.append(ins_cfg)
+        list_blocks_cfg.append(blocks_cfg)
+    
+        print([fname_without_ext,time_solc,blocks_solc,time_grey,blocks_opt])
+        f_scal.write(",".join([fname_without_ext[:-1],str(time_solc),str(blocks_solc),str(time_grey),str(blocks_opt)])+"\n")
 
-    f_scal_cfg.write(",".join([fname_without_ext[:-1],str(blocks_cfg), str(ins_cfg),str(time_grey),str(time_solc)])+"\n")
+        f_scal_ins.write(",".join([fname_without_ext[:-1],str(time_solc),str(total_ins_solc),str(time_grey),str(total_ins_grey)])+"\n")
 
+        f_scal_cfg.write(",".join([fname_without_ext[:-1],str(blocks_cfg), str(ins_cfg),str(time_grey),str(time_solc)])+"\n")
+
+    except:
+        print("Error in get stats")
 
     ########################
     if original > optimizado:
