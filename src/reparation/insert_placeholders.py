@@ -123,8 +123,10 @@ def variable2block_header(cfg_block_list: CFGBlockList, forest_graph: nx.DiGraph
         block = cfg_block_list.get_block(block_id)
 
         predecessors = list(forest_graph.predecessors(block_id))
-        if len(predecessors) != 0:
-            assert len(predecessors) == 1, "There can only be one predecessor in the forest graph"
+        successors = list(forest_graph.successors(block_id))
+        if len(successors) == 0:
+            # It is not a loop header, so it has at least one element
+            assert len(predecessors) == 1, f"There can only be one predecessor in the forest graph {block_id}"
             predecessor = predecessors[0]
 
             # We only consider the variables defined in the block
@@ -251,6 +253,8 @@ def store_stack_elements_block(current_block_id: block_id_T, block_list: CFGBloc
     vars_stored = set()
     reachable_info = current_greedy_info.reachable
     for var in vars_to_introduce.intersection(reachable_info.keys()):
+        if var == "v3287":
+            print("HOLA")
         if within_loop(var, current_block_id,
                        block_list.loop_nesting_forest, var2header):
             current_greedy_info.insert_dup_vset(var)
