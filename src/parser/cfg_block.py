@@ -683,8 +683,15 @@ class CFGBlock:
         if self._id2var is None:
             self._id2var = self._compute_declared_variables()
 
+        # We also need to consider the values defined
+        # by the split instruction if any
+        if self.split_instruction is not None:
+            split_vals = set(self.split_instruction.get_out_args())
+        else:
+            split_vals = set()
+
         # We also need to consider values introduced by phi-functions
-        return (set(out_var for out_var_list in self._id2var.values() for out_var in out_var_list).
+        return (split_vals.union(out_var for out_var_list in self._id2var.values() for out_var in out_var_list).
                 union(phi_function.out_args[0] for phi_function in self.phi_instructions()))
 
     def out_vars_from_id(self, instr_id: instr_id_T) -> List[var_id_T]:
