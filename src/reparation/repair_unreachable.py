@@ -79,7 +79,7 @@ def prepass_fixing_constants(cfg_blocklist: CFGBlockList,
                         new_ids.append(instr)
                 else:
                     new_ids.append(instr)
-            print(new_ids)
+
             # We update the greedy ids
             greedy_info.set_greedy_ids(new_ids)
 
