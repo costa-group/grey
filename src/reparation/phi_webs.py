@@ -36,6 +36,14 @@ class PhiWebs:
     def num_sets(self):
         return self._num_sets
 
+    @property
+    def classes_with_elements(self) -> Set[int]:
+        """
+        Returns for which classes there are elements that belong to that class
+        """
+        return set(class_number for class_number, num_elems
+                   in enumerate(self._n_elems_class) if num_elems > 0)
+
     def _find_index(self, index: int) -> int:
         if self._class2parent[index] != index:
             self._class2parent[index] = self._find_index(self._class2parent[index])
@@ -50,9 +58,12 @@ class PhiWebs:
             if self._rank[class1] > self._rank[class2]:
                 self._class2parent[class2] = class1
                 self._n_elems_class[class1] += self._n_elems_class[class2]
+                self._n_elems_class[class2] = 0
             else:
                 self._class2parent[class1] = class2
                 self._n_elems_class[class2] += self._n_elems_class[class1]
+                self._n_elems_class[class1] = 0
+
                 if self._rank[class1] == self._rank[class2]:
                     self._rank[class2] += 1
 

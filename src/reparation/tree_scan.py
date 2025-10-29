@@ -28,7 +28,7 @@ class TreeScan:
         self._phi_webs = phi_webs
 
         # We aim to coalesce all
-        self._phi_class2colors = [[]] * phi_webs.num_sets
+        self._phi_class2colors = {phi_class: [] for phi_class in phi_webs.classes_with_elements}
 
     def _assign_color(self, block_name: block_id_T, color_assignment: ColourAssignment, available: List[bool]):
         block = self._block_list.get_block(block_name)
@@ -186,8 +186,9 @@ class TreeScan:
                                     copies_to_manage_dup[phi_arg] = (color_phi, dup_pos)
 
                 if copies_to_manage_dup or copies_to_manage_regs:
-                    new_greedy_ids.extend(self._emit_copies(block_name, copies_to_manage_regs,
-                                                            copies_to_manage_dup))
+                    new_greedy_ids.extend(self._emit_copies(copies_to_manage_regs,
+                                                            copies_to_manage_dup,
+                                                            color_to_constant))
 
             # FINALLY we assign the greedy ids corrected to the corresponding field
             block.greedy_ids = new_greedy_ids
