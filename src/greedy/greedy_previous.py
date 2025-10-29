@@ -1079,7 +1079,7 @@ class SMSgreedy:
                 case = 3
             else:
                 (case, pos) = self.choose_element(solved, cstack, cneeded_in_stack_map)
-                # print('case:', case, pos)
+                # print('case:', case, pos, cstack)
             if case == 0:
                 # pos in cstack (negative)
                 if (cstack[0] == cstack[pos]):
@@ -1159,10 +1159,11 @@ class SMSgreedy:
                 topcodes += opcodes
                 topcodeids += opcodeids
                 pos_in_stack = len(cstack) + pos - len(self._final_stack)
-                assert (pos_in_stack >= 0)
+                # print(pos,pos_in_stack,cstack,self._final_stack)
+                # assert (pos_in_stack >= 0)
                 # assert (pos_in_stack <= 16)
                 # added only to avoid being removed when cannot be place in its position because is beyond 16 ****
-                if pos_in_stack > 16 and o not in self._needed_in_stack_map:
+                if (pos_in_stack < 0 or pos_in_stack > 16) and o not in self._needed_in_stack_map:
                     cneeded_in_stack_map[cstack[0]] = 1
                 # end of added code
                 if pos_in_stack > 0  and  pos_in_stack <= 16: #othewise leave it on top
@@ -1637,7 +1638,7 @@ def greedy_from_json(json_data: Dict[str, Any], verb=True, garbage=False, push_d
     global verbose
     verbose = False # True # 
     global extend_tgt
-    extend_tgt = garbage
+    extend_tgt = garbage # True #
     global push_dup_add
     push_dup_add = push_dup # 1 # 
     encoding = SMSgreedy(json_data.copy())
