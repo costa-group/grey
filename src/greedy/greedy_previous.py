@@ -1242,7 +1242,7 @@ class SMSgreedy:
         assert(False)
 
     def compute_permut_and_clean(self, cstack, solved):
-        # print("start permut")
+        # print("start permut:",cstack,self._final_stack)
         popcodes = []
         popcodeids = []
         reg = []
@@ -1346,16 +1346,25 @@ class SMSgreedy:
                         solved.remove(len(self._final_stack)-len(cstack))
                         reg.append(cstack.pop(0))
                         if verbose: print('VSET(' + reg[-1] +')',cstack,len(cstack))
+                    elif self._final_stack[lpos] == cstack[0]:
+                        popcodes += ['SWAP' + str(len(cstack)+lpos)]
+                        popcodeids += ['SWAP' + str(len(cstack)+lpos)]
+                        # print(reg,cstack,self._final_stack)
+                        cstack = [cstack[lpos]] + cstack[1:lpos] + [cstack[0]] + cstack[lpos + 1:]
+                        solved.remove(len(self._final_stack)-len(cstack))
+                        solved.append(len(self._final_stack)-lpos)
+                        if verbose: print('SWAP' + str(i),cstack,len(cstack))
                     else:
                         i = max(1,len(cstack)-len(self._final_stack))
-                        while len(self._final_stack)-len(cstack)+i in solved:
+                        while len(self._final_stack)-len(cstack)+i in solved and i < len(cstack) and cstack[0] != cstack[i]:
                             i += 1
-                        if i <= 16 and i < len(cstack): 
+                        if i <= 16 and i < len(cstack):
                             popcodes += ['SWAP' + str(i)]
                             popcodeids += ['SWAP' + str(i)]
                             # print(reg,cstack,self._final_stack)
                             cstack = [cstack[i]] + cstack[1:i] + [cstack[0]] + cstack[i + 1:]
                             solved.remove(len(self._final_stack)-len(cstack))
+                            
                             if verbose: print('SWAP' + str(i),cstack,len(cstack))
                         else:
                             # print('1:',reg,cstack,self._final_stack,lpos,sorted(solved))
@@ -1630,11 +1639,11 @@ def greedy_from_json(json_data: Dict[str, Any], verb=True, garbage=False, push_d
     global extend_tgt
     extend_tgt = garbage
     global push_dup_add
-    push_dup_add = push_dup
+    push_dup_add = push_dup # 1 # 
     encoding = SMSgreedy(json_data.copy())
     try:
         (instr, final_no_store) = encoding.target()
-        # print("before pre:",encoding._needed_in_stack_map,encoding._initial_stack)
+        # print("before pre:",encoding._needed_in_stack_map,encoding._initial_stack,encoding._final_stack)
         (opcodes_ini, opcodeids_ini, solved, initial) = encoding.precompute(encoding._final_stack.copy(),
                                                                             encoding._initial_stack.copy())
         # print("after pre:",encoding._needed_in_stack_map,initial,opcodeids_ini,solved)
