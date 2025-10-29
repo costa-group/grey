@@ -63,12 +63,17 @@ def prepass_fixing_constants(cfg_blocklist: CFGBlockList,
         greedy_info = block.greedy_info
 
         # Values in the intersection
-        if len(get_with_constants.intersection(greedy_info.elements_to_fix)) > 0:
+        if len(greedy_info.elements_to_fix) > 0:
             new_ids = []
             for instr in greedy_info.greedy_ids:
-                if instr.startswith("VGET") and (var := extract_value_from_pseudo_instr(instr)) in get_with_constants:
-                    constant = cfg_blocklist.assigment_dict[var]
-                    new_ids.append(f"PUSH {constant[2:]}")
+                if instr.startswith("VGET"):
+                    var = extract_value_from_pseudo_instr(instr)
+                    # First case: a variable that has been propagated
+                    if var in get_with_constants:
+                        constant = cfg_blocklist.assigment_dict[var]
+                        new_ids.append(f"PUSH {constant[2:]}")
+                    elif (instr := block.instruction_from_out(var)) is not None and instr.op == "PUSH":
+                        new_ids.append(f"PUSH {instr.get_literal_args()[0]}")
                 else:
                     new_ids.append(instr)
 
