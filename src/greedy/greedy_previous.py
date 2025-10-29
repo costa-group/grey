@@ -918,14 +918,14 @@ class SMSgreedy:
         i = 0
         if self.needs_in_stack_too_far(o, stack, needed_stack) <= 14:
             return ([], stack, needed_stack)
-        while i < len(stack) and len(stack) >= 10:
-            while i < len(stack) and (len(self._final_stack) + i - len(stack)) not in solved:
+        while i < len(stack) and len(stack) >= 10 and i <= 16:
+            while i < len(stack) and i <= 16 and (len(self._final_stack) + i - len(stack)) not in solved:
                 if stack[i] in needed_stack and needed_stack[stack[i]] == 0:
                     break
                 i += 1
-            if i < len(stack) and (len(self._final_stack) + i - len(stack)) not in solved:
+            if i < len(stack) and i <= 16 and (len(self._final_stack) + i - len(stack)) not in solved:
                 opr = stack[i]
-                # print("Enter:",opr,stack,needed_stack,solved)
+                print("Enter:",opr,stack,needed_stack,solved)
                 ops += ['SWAP' + str(i)]
                 stack = [stack[i]] + stack[1:i] + [stack[0]] + stack[i + 1:]
                 if verbose: print('SWAP' + str(i), stack, len(stack))
@@ -1628,6 +1628,17 @@ class SMSgreedy:
                                 return False
         return True
 
+def check_dup_swap(resids):
+    for o in resids:
+        if 'SWAP' in o:
+            n = int(o[4:])
+            assert(n>=1)
+            assert(n<=16)
+        elif 'DUP' in o:
+            n = int(o[3:])
+            assert(n>=1)
+            assert(n<=16)
+
 def greedy_from_json(json_data: Dict[str, Any], verb=True, garbage=False, push_dup=2) -> Tuple[
     Dict[str, Any], SMSgreedy, List[str], List[str], int]:
     # print(encoding._var_instr_map)
@@ -1663,6 +1674,7 @@ def greedy_from_json(json_data: Dict[str, Any], verb=True, garbage=False, push_d
         #    res = res1
         #    resids = resids1
         assert (len(res) == len(resids))
+        check_dup_swap(resids)
         res, resids = remove_useless(res, resids)
         if extend_tgt:
             encoding_ext = SMSgreedy(json_data.copy())
@@ -1680,6 +1692,7 @@ def greedy_from_json(json_data: Dict[str, Any], verb=True, garbage=False, push_d
             (res_ext, resids_ext) = encoding_ext.compute(instr_ext, final_no_store_ext, opcodes_ini_ext, opcodeids_ini_ext, solved_ext, initial_ext, 3)
             encoding_ext.check_dependencies(resids_ext)
             assert (len(res_ext) == len(resids_ext))
+            check_dup_swap(resids_ext)
             res_ext, resids_ext = remove_useless(res_ext, resids_ext)
         if encoding.accept(resids):
             # print(name, encoding._b0, len(res))
