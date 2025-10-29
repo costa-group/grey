@@ -9,7 +9,7 @@ def split_blocks_ids(current_node: str) -> Tuple[str, str]:
     """
     Given a node, generates a new name for the resulting split
     """
-    return current_node + "_split_0", current_node + "_split_1"
+    return current_node + "_s0", current_node + "_s1"
 
 
 class SplitBlock(BlockAction):
