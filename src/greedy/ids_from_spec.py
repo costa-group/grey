@@ -35,7 +35,6 @@ def cfg_block_spec_ids(cfg_block: CFGBlock) -> Tuple[str, float, List[instr_id_T
                ]
 
     chosen_idx = np.argmin(lengths)
-    print(chosen_idx, lengths)
 
     outcome = outcome1 # [outcome1, outcome3][chosen_idx]
     time = time1 #  [time1, time3][chosen_idx]

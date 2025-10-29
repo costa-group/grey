@@ -9,6 +9,8 @@ import networkx
 from global_params.types import block_id_T
 from parser.cfg_block import CFGBlock, include_function_call_tags
 from parser.constants import split_block
+from graphs.cfg import compute_loop_nesting_forest_graph
+from graphs.algorithms import compute_dominance_tree
 
 
 class CFGBlockList:
@@ -25,6 +27,10 @@ class CFGBlockList:
         self._function_return_blocks: List[block_id_T] = []
         self.block_tags_dict = {}
         self.assigment_dict = {}
+
+        # Graph forms for the following data structures
+        self._dominant_tree = None
+        self._loop_nesting_forest = None
         
     @property
     def terminal_blocks(self) -> List[block_id_T]:
@@ -154,6 +160,18 @@ class CFGBlockList:
             return graph
         return self.graph
 
+    @property
+    def dominant_tree(self):
+        if self._dominant_tree is None:
+            self._dominant_tree = compute_dominance_tree(self.to_graph(), self.start_block)
+        return self._dominant_tree
+
+    @property
+    def loop_nesting_forest(self):
+        if self._loop_nesting_forest is None:
+            self._loop_nesting_forest = compute_loop_nesting_forest_graph(self.to_graph())
+        return self._loop_nesting_forest
+
     def to_graph_info(self) -> networkx.DiGraph:
         """
         Creates a networkx.DiGraph from the blocks information. Useful for debugging
@@ -235,9 +253,6 @@ class CFGBlockList:
 
     def translate_opcodes(self,objects_keys):
         block_list_dfs = self.dfs()
-
-        print("NAME")
-        print(self.name)
         
         next_idx = 0
         subobjects_idx = {}

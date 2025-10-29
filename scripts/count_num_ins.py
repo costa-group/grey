@@ -19,6 +19,7 @@ import sys
 import json as js
 from typing import Dict, List
 from pathlib import Path
+from opcodes import get_ins_cost
 
 # Diccionario de las instrucciones EVM
 instructions = {
@@ -100,11 +101,18 @@ def split_evm_instructions(bytecode: str) -> List[str]:
     count = 0
     split_init = 0
     partitions = []
+    gas = 0
     while i < len(bytecode):
         try:
             # Leer un byte (dos caracteres hexadecimales)
             opcode = int(bytecode[i:i+2], 16)
             count += 1  # Contar la instrucción
+
+            
+            ins_op = instructions.get(opcode, "")
+            if ins_op != "":
+                opcode_gas = get_ins_cost(instructions.get(opcode))
+                gas+=opcode_gas
 
             # Manejar instrucciones PUSH (PUSH0 no requiere datos adicionales)
             if 0x60 <= opcode <= 0x7f:
@@ -124,7 +132,8 @@ def split_evm_instructions(bytecode: str) -> List[str]:
 
     if split_init < len(bytecode):
         partitions.append(bytecode[split_init:])
-    return partitions
+
+    return partitions, gas
 
 
 def count_evm_instructions(bytecode: str) -> int:
@@ -184,14 +193,15 @@ def count_num_ins(evm: str):
     """
     Assumes the evm bytecode has no CBOR metadata appended
     """
-    code_regions = split_evm_instructions(evm)
-    return sum(count_evm_instructions(remove_auxdata(region)) for region in code_regions)
+    code_regions, gas = split_evm_instructions(evm)
+    print(gas)
+    return sum(count_evm_instructions(remove_auxdata(region)) for region in code_regions), gas
 
 def count_num_bytes(evm: str):
     """
     Assumes the evm bytecode has no CBOR metadata appended
     """
-    code_regions = split_evm_instructions(evm)
+    code_regions, _ = split_evm_instructions(evm)
     return sum(count_bytes(remove_auxdata(region)) for region in code_regions)
 
 
@@ -208,7 +218,7 @@ def execute_script():
     for c in evm_opt:
         evm = evm_opt[c]
 
-        opt = count_num_ins(evm.strip())
+        opt, gas_opt = count_num_ins(evm.strip())
         opt_bytes = count_num_bytes(evm.strip())
 
         
@@ -217,13 +227,17 @@ def execute_script():
 
         origin_ins = 0
         origin_bytes = 0
+
+        gas_origin = 0
         
         for cc in contracts:
             json = contracts[cc]
 
             if c.strip() in json:
                 bytecode = json[c.strip()]["evm"]["bytecode"]["object"]
-                origin_ins += count_num_ins(bytecode.strip())
+                origin_num_ins, origin_gas = count_num_ins(bytecode.strip())
+                origin_ins += origin_num_ins
+                gas_origin += origin_num_ins
                 origin_bytes += count_num_bytes(bytecode.strip())
                 
     if origin_ins != 0:
@@ -250,7 +264,7 @@ def execute_script_solx():
     for c in evm_opt:
         evm = evm_opt[c]
 
-        opt = count_num_ins(evm.strip())
+        opt, opt_gas = count_num_ins(evm.strip())
         opt_bytes = count_num_bytes(evm.strip())
 
         
@@ -265,16 +279,21 @@ def execute_script_solx():
             
         origin_ins = 0
         origin_bytes = 0
-
+        origin_gas = 0
+        
         origin_ins_solx = 0
         origin_bytes_solx = 0
+        origin_gas_solx = 0
         
         for cc in contracts:
             json = contracts[cc]
             
             if c.strip() in json:
                 bytecode = json[c.strip()]["evm"]["bytecode"]["object"]
-                origin_ins += count_num_ins(bytecode.strip())
+
+                origin_ins_aux, gas = count_num_ins(bytecode.strip()) 
+                origin_ins += origin_ins_aux
+                origin_gas += gas
                 origin_bytes += count_num_bytes(bytecode.strip())
 
 
@@ -282,7 +301,10 @@ def execute_script_solx():
             
             if c.strip() in json_solx:
                 bytecode = json_solx[c.strip()]["evm"]["bytecode"]["object"]
-                origin_ins_solx += count_num_ins(bytecode.strip())
+                origin_solx, gas_solx = count_num_ins(bytecode.strip())
+                origin_ins_solx +=origin_solx
+                origin_gas_solx += gas_solx
+                
                 origin_bytes_solx += count_num_bytes(bytecode.strip())
                 
         if origin_ins != 0:
@@ -293,7 +315,12 @@ def execute_script_solx():
             print(log_opt_file + " ORIGIN NUM BYTES: " + str(origin_bytes))
             print(log_opt_file + " ORIGIN NUM BYTES SOLX: " + str(origin_bytes_solx))
             print(log_opt_file + " OPT NUM BYTES: " + str(opt_bytes))
-        
+
+            print(log_opt_file + " ORIGIN OWN COSTAG: " + str(origin_gas))
+            print(log_opt_file + " ORIGIN OWN COSTAG SOLX: " + str(origin_gas_solx))
+            print(log_opt_file + " OPT OWN COSTAG: " + str(opt_gas))
+
+            
 
 def instrs_from_opcodes(origin_file, log_opt_file):
     with open(origin_file, 'r') as f:

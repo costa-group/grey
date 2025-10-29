@@ -32,17 +32,10 @@ ff = open(f, "r")
 lines = ff.readlines()
 
 origin = list(filter(lambda x: x.find("ORIGIN")!= -1, lines))
-origin_number = list(map(lambda x: int(x.split(":")[-1].strip()), origin))
 
-f_names = list(map(lambda x: x.split(":")[0].rstrip(" ORIGIN NUM INS"),origin))
+f_names_aux = list(map(lambda x: x.split(":")[0].rstrip(" ORIGIN NUM INS"),origin))
 
-total_origin = sum(origin_number)
-
-
-opt = list(filter(lambda x: x.find("OPT")!= -1, lines))
-opt_number = list(map(lambda x: int(x.split(":")[-1].strip()), opt))
-
-total_opt = sum(opt_number)
+f_names = list(set(f_names_aux))
 
 scalability_cfg = "scalability_cfg.csv"
 f_scal_cfg = open(scalability_cfg, "w")
@@ -64,9 +57,7 @@ time_greedy = []
 time_asm_generation = []
 time_solc_importer = []
 
-for i in range(len(origin_number)):
-    original = origin_number[i]
-    optimizado = opt_number[i]
+for i in range(len(f_names)):
 
     fname = f_names[i]
     fname_without_ext = fname.rstrip("log")
@@ -105,6 +96,16 @@ ins_cfg_sorted, times_solc_sorted = list(ins_cfg_sorted), list(times_solc_sorted
 
 index_list = range(len(ins_cfg_sorted))
 
+
+# max_time_grey = max(times_grey_sorted)
+# times_grey_sorted = list(map(lambda x: x/max_time_grey*1.0, times_grey_sorted))
+
+# max_time_solc = max(times_solc_sorted)
+# times_solc_sorted = list(map(lambda x: x/max_time_solc*1.0, times_solc_sorted))
+
+
+print(len(times_solc_sorted))
+
 plt.figure()
 # Crear DataFrame
 df = pd.DataFrame({"x": index_list, "y": times_grey_sorted})
@@ -114,10 +115,10 @@ sns.scatterplot(data=df, x="x", y="y")
 
 plt.xlabel("Contracts ordered by number of instructions")
 plt.ylabel("Time (s)")
-plt.title("Grey")
+plt.title("(a) Execution time of grey")
 
 
-plt.savefig("figs/scatter_plot_grey.png")
+plt.savefig("figs/scatter-plot-grey.png")
 #plt.show()
 
 plt.figure()
@@ -129,10 +130,9 @@ sns.scatterplot(data=df_solc, x="x", y="y")
 
 plt.xlabel("Contracts ordered by number of instructions")
 plt.ylabel("Time (s)")
-plt.title("Solc")
+plt.title("(b) Execution time of solc")
 
-
-plt.savefig("figs/scatter_plot_solc.png")
+plt.savefig("figs/scatter-plot-solc.png")
 #plt.show()
 
 plt.figure()
@@ -144,10 +144,10 @@ sns.scatterplot(data=df, x="x", y="y")
 
 plt.xlabel("Num Instructions")
 plt.ylabel("Time (s)")
-plt.title("Grey")
+plt.title("(a) Executio time of grey")
 
 
-plt.savefig("figs/scatter_plot_grey_ins.png")
+plt.savefig("figs/scatter-plot-grey-ins.png")
 #plt.show()
 
 plt.figure()
@@ -159,10 +159,10 @@ sns.scatterplot(data=df_solc, x="x", y="y")
 
 plt.xlabel("Num Instructions")
 plt.ylabel("Time (s)")
-plt.title("Solc")
+plt.title("(b) Execution time of solc")
 
 
-plt.savefig("figs/scatter_plot_solc_ins.png")
+plt.savefig("figs/scatter-plot-solc-ins.png")
 #plt.show()
 
 
@@ -189,10 +189,10 @@ sns.scatterplot(data=df, x="x", y="y")
 
 plt.xlabel("Contracts ordered by number of blocks")
 plt.ylabel("Time (s)")
-plt.title("Grey")
+plt.title("(a) Execution time of grey")
 
 
-plt.savefig("figs/scatter_plot_grey_blocks_relative.png")
+plt.savefig("figs/scatter-plot-grey-blocks-relative.png")
 #plt.show()
 
 plt.figure()
@@ -204,10 +204,10 @@ sns.scatterplot(data=df_solc, x="x", y="y")
 
 plt.xlabel("Contracts ordered by number of blocks")
 plt.ylabel("Time (s)")
-plt.title("Solc")
+plt.title("(b) Execution time of solc")
 
 
-plt.savefig("figs/scatter_plot_solc_blocks_relative.png")
+plt.savefig("figs/scatter-plot-solc-blocks-relative.png")
 #plt.show()
 
 plt.figure()
@@ -219,10 +219,9 @@ sns.scatterplot(data=df, x="x", y="y")
 
 plt.xlabel("Num Blocks")
 plt.ylabel("Time (s)")
-plt.title("Grey")
+plt.title("(a) Execution time of grey")
 
-
-plt.savefig("figs/scatter_plot_grey_blocks.png")
+plt.savefig("figs/scatter-plot-grey-blocks.png")
 #plt.show()
 
 plt.figure()
@@ -234,15 +233,13 @@ sns.scatterplot(data=df_solc, x="x", y="y")
 
 plt.xlabel("Num Blocks")
 plt.ylabel("Time (s)")
-plt.title("Solc")
+plt.title("(b) Execution time of solc")
 
-
-plt.savefig("figs/scatter_plot_solc_blocks.png")
+plt.savefig("figs/scatter-plot-solc-blocks.png")
 #plt.show()
 
 
 #Times by phases
-
 paired = sorted(zip(list_ins_cfg, time_cfg_generation))
 ins_cfg_sorted, time_cfg_generation_sorted = zip(*paired)
 
@@ -289,12 +286,12 @@ for y, label in zip(ys, labels):
 # Personalizar gráfico
 plt.xlabel('Instructions in CFG')
 plt.ylabel('Time (s)')
-plt.title('Time of different phases')
+plt.title('(c) Execution time of different phases')
 plt.legend()
-plt.grid(True)
+plt.grid(False)
 #plt.show()
 
-plt.savefig("figs/times_per_phase.png")
+plt.savefig("figs/times-per-phase.png")
 
 #Barras acumulado
 
@@ -303,6 +300,9 @@ import numpy as np
 plt.figure()
 # Eje x como posiciones (pueden ser índices o categorías)
 x_pos = np.arange(len(ins_cfg_sorted))
+
+print(times_cfg_generation_sorted[-3:])
+print(ins_cfg_sorted[-3:])
 
 # Listas de valores
 ys = [time_cfg_generation_sorted, time_cfg_parser_sorted, time_cfg_preprocess_sorted, time_layout_sorted, time_greedy_sorted, time_asm_generation_sorted, time_solc_importer_sorted]
@@ -328,7 +328,7 @@ plt.xticks(np.arange(0, len(ins_cfg_sorted)+1, 50))
 plt.legend()
 plt.grid(True, axis='y', linestyle='--', alpha=0.5)
 
-plt.savefig("figs/times_per_phase_bars.png")
+plt.savefig("figs/times-per-phase-bars.png")
 plt.show()
 
 
