@@ -72,8 +72,8 @@ def prepass_fixing_constants(cfg_blocklist: CFGBlockList,
                     if var in get_with_constants:
                         constant = cfg_blocklist.assigment_dict[var]
                         new_ids.append(f"PUSH {constant[2:]}")
-                    elif (push_instr := block.instruction_from_out(var)) is not None and push_instr.op == "PUSH":
-                        new_ids.append(f"PUSH {push_instr.get_literal_args()[0]}")
+                    elif (push_instr := greedy_info.var2push.get(var)) is not None:
+                        new_ids.append(f"PUSH {hex(push_instr['value'][0])[2:]}")
                     else:
                         # If no PUSH instruction can be replaced, then we just add the new instruction
                         new_ids.append(instr)

@@ -7,12 +7,12 @@ from global_params.types import var_id_T, instr_id_T, instr_JSON_T
 from reparation.utils import extract_value_from_pseudo_instr
 
 
-def compute_instr_id2var(json_instrs: List[instr_JSON_T]) -> Dict[var_id_T, List[instr_id_T]]:
-    instr_id2var = dict()
+def compute_out_var2push(json_instrs: List[instr_JSON_T]) -> Dict[var_id_T, instr_JSON_T]:
+    out_var2push = dict()
     for instr in json_instrs:
-        if len(instr["outpt_sk"]) > 0:
-            instr_id2var[instr["id"]] = instr["outpt_sk"]
-    return instr_id2var
+        if instr["disasm"] == "PUSH":
+            out_var2push[instr["outpt_sk"][0]] = instr
+    return out_var2push
 
 
 class GreedyInfo:
@@ -26,7 +26,7 @@ class GreedyInfo:
         self.reachable: Dict[var_id_T, Tuple[int, int, bool]] = dict()
         self.unreachable: Set[var_id_T] = set()
         self.user_instrs = original_instrs
-        self.instr_id2var = compute_instr_id2var(original_instrs)
+        self.var2push = compute_out_var2push(original_instrs)
 
         # Elements that are accessed through get instructions and are not dominated by a vset
         self.get_count = self._initial_get_count()
