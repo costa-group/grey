@@ -957,7 +957,7 @@ class SMSgreedy:
                 if stack[i] in needed_stack and needed_stack[stack[i]] == 0:
                     break
                 i += 1
-            if i < len(stack) and i <= 16 and (len(self._final_stack) + i - len(stack)) not in solved:
+            if i > 0 and i < len(stack) and i <= 16 and (len(self._final_stack) + i - len(stack)) not in solved:
                 opr = stack[i]
                 ops += ['SWAP' + str(i)]
                 stack = [stack[i]] + stack[1:i] + [stack[0]] + stack[i + 1:]
@@ -1313,7 +1313,7 @@ class SMSgreedy:
                 i = max(1,len(cstack)-len(self._final_stack))
                 while i < len(cstack) and i <=16 and (len(self._final_stack)-len(cstack)+i in solved or self._final_stack[len(self._final_stack)-len(cstack)+i] != cstack[0]):
                     i += 1
-                if i <= 16 and i < len(cstack): # can be swaped to its position 
+                if i <= 16 and i < len(cstack): # can be swaped to its position
                     popcodes += ['SWAP' + str(i)]
                     popcodeids += ['SWAP' + str(i)]
                     cstack = [cstack[i]] + cstack[1:i] + [cstack[0]] + cstack[i + 1:]
@@ -1338,7 +1338,7 @@ class SMSgreedy:
                             popcodeids += ['VSET(' + cstack[0] +')']
                             reg.append(cstack.pop(0))
                             if verbose: print('VSET(' + reg[-1] +')',cstack,len(cstack))
-                        else:
+                        else:                            
                             k = min(16,len(cstack)+lpos - 16 - u)
                             popcodes += ['SWAP' + str(k)]
                             popcodeids += ['SWAP' + str(k)]
@@ -1397,7 +1397,6 @@ class SMSgreedy:
                             # print(reg,cstack,self._final_stack)
                             cstack = [cstack[i]] + cstack[1:i] + [cstack[0]] + cstack[i + 1:]
                             solved.remove(len(self._final_stack)-len(cstack))
-                            
                             if verbose: print('SWAP' + str(i),cstack,len(cstack))
                         else:
                             # print('1:',reg,cstack,self._final_stack,lpos,sorted(solved))
@@ -1664,6 +1663,7 @@ def check_dup_swap(resids):
     for o in resids:
         if 'SWAP' in o:
             n = int(o[4:])
+            if n<1: print(o)
             assert(n>=1)
             assert(n<=16)
         elif 'DUP' in o:
@@ -1681,7 +1681,7 @@ def greedy_from_json(json_data: Dict[str, Any], verb=True, garbage=False, push_d
     global verbose
     verbose = False # True # 
     global extend_tgt
-    extend_tgt = garbage # True #
+    extend_tgt = garbage # True # 
     global push_dup_add
     push_dup_add = push_dup # 1 # 
     encoding = SMSgreedy(json_data.copy())
