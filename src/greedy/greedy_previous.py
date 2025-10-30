@@ -82,6 +82,31 @@ def get_deps(e, instr_map, op):
             return l
 
 
+def get_min_deps_map(deps):
+    mdeps = {}
+    for p in deps:
+        if p[0] not in mdeps:
+            mdeps[p[0]] = set([])
+        if p[1] not in mdeps:
+            mdeps[p[1]] = set([])
+        mdeps[p[1]].add(p[0])
+    lkeys = list(mdeps.keys())
+    minmap = {}
+    cmin = 0
+    while len(lkeys) > 0:
+        rkeys = []
+        for e in lkeys:
+            if len(mdeps[e]) == 0:
+                rkeys.append(e)
+                minmap[e] = cmin
+                del mdeps[e]
+        for x in rkeys: 
+            for k in mdeps:
+                mdeps[k].discard(x)
+        cmin += 1
+        lkeys = list(mdeps.keys())
+    return minmap
+
 def get_min_pos(o, deps):
     minpos = 0
     for p in deps:
@@ -100,13 +125,22 @@ def get_max_pos_noSTORE(o, tmax, deps, pos):
 
 def sort_with_deps(elems, deps, opid_instr_map, var_instr_map):
     ops = sorted(list(set([e for p in deps for e in p] + elems)))
-    # print("0.", elems, deps, ops)
+    mindeps = get_min_deps_map(deps)
+    for o in ops:
+        if o not in mindeps:
+            mindeps[o] = 0
+    #print(mindeps)
+    #print("0.", elems, deps, ops)
     pos = {}
     for o in ops:
-        pos[o] = get_min_pos(o, deps)
+        # print('in:',o)
+        # pos[o] = get_min_pos(o, deps)
+        pos[o] = mindeps[o]
+        # if pos[o] != mindeps[o]: print(o, pos[o], mindeps[o])
+        # assert(pos[o] == get_min_pos(o, deps))
     maxpos = max(pos.values(), default=0)
     lpos = list(pos.items())
-    # print(pos)
+    # print("3.",pos)
     if len(list(filter(lambda x: is_write(x[0]), filter(lambda x: x[1] == maxpos, pos)))) > 0:
         maxpos += 1
     poslops = {}
@@ -925,7 +959,6 @@ class SMSgreedy:
                 i += 1
             if i < len(stack) and i <= 16 and (len(self._final_stack) + i - len(stack)) not in solved:
                 opr = stack[i]
-                print("Enter:",opr,stack,needed_stack,solved)
                 ops += ['SWAP' + str(i)]
                 stack = [stack[i]] + stack[1:i] + [stack[0]] + stack[i + 1:]
                 if verbose: print('SWAP' + str(i), stack, len(stack))
@@ -933,7 +966,6 @@ class SMSgreedy:
                 stack.pop(0)
                 if verbose: print('POP', stack, len(stack))
                 needed_stack.pop(opr, None)
-                # print("Exit:",opr,stack,needed_stack,solved)
             else:
                 break
         return (ops, stack, needed_stack)
