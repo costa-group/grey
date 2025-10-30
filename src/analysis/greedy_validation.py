@@ -81,7 +81,8 @@ def check_execution_from_ids(sfs: Dict, instr_ids: List[instr_id_T]) -> bool:
     assert check_deps(instr_ids, dependencies), 'Dependencies are not coherent'
     for instr in user_instr:
         # If there is a function that must be computed at most once
-        if instr["storage"]:
+        # CONSIDERATION: GAS instructions are not harmful, so we avoid doing
+        if instr["storage"] and "GAS" not in instr["disasm"]:
             assert instr_ids.count(instr["id"]) == 1, "Mem operation used more than once"
 
     return True
