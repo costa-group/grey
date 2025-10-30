@@ -72,14 +72,22 @@ def compile_json_input(source_code_dict):
 
 def extract_info(output_dict):
     contract_info = []
+    added = dict()
+
     for file_name in output_dict["contracts"]:
         for contract_name, contract in output_dict["contracts"][file_name].items():
             if isinstance(contract, dict):
                 evm = contract["evm"]["bytecode"]["object"]
                 if len(evm) > 0:
                     size = len(evm) // 2
-                    contract_info.append({"contract": f"{file_name}:{contract_name}",
-                                          "bin_code": evm, "num_bytes": size})
+
+                    if contract_name in added:
+                        assert (added[contract_name] == size,
+                                f"Expect same name in {contract_name} for file {file_name}")
+                    else:
+                        added[contract_name] = size
+                        contract_info.append({"contract": f"{contract_name}",
+                                              "bin_code": evm, "num_bytes": size})
 
     return contract_info
 
