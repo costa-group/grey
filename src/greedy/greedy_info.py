@@ -88,7 +88,7 @@ class GreedyInfo:
         # If it is not accessible in the last instruction,
         # we need to load the GET the instruction elsewhere
         if not last_accessible:
-            self.get_count.update(v)
+            self.get_count.update([v])
 
     def insert_dup_vset(self, var: var_id_T):
         """
