@@ -4,6 +4,9 @@ from typing import Dict, Optional, List
 from pathlib import Path
 from timeit import default_timer as dtimer
 from collections import defaultdict
+
+import pandas as pd
+
 from parser.utils_parser import split_json
 from global_params.types import Yul_CFG_T
 from parser.parser import parse_CFG_from_json_dict
@@ -155,7 +158,7 @@ def main(args):
     total_blocks_cfg = 0
     total_ins_cfg = 0
 
-    
+    contract_info = []
     for cfg_name, cfg in cfgs.items():
 
         blocks, ins = cfg.get_stats()
@@ -183,6 +186,9 @@ def main(args):
 
 
             print("Contract: " + cfg_name + " -> EVM Code: " + synt_binary_stdjson)
+            contract_info.append({"contract": cfg_name, "bin_code": synt_binary_stdjson,
+                                   "num_bytes": len(synt_binary_stdjson) // 2})
+
             if args.visualize:
                 store_binary_output(cfg_name, synt_binary_stdjson, cfg_dir)
 
@@ -191,6 +197,7 @@ def main(args):
                                                                                             deployed_contract=cfg_name,
                                                                                             solc_executable=args.solc_executable,
                                                                                             selected_result="opcodes")
+            contract_info.append({"contract": cfg_name, "bin_code": synt_opcodes_stdjson})
 
             asm_contracts_after_importer[cfg_name]["asm"] = asm_from_opcodes(synt_opcodes_stdjson)
 
@@ -215,3 +222,5 @@ def main(args):
     if args.json_solc:
         with open(str(final_dir.joinpath(Path(args.source).stem)) + "_aft_importer.json_solc", 'w') as f:
             json.dump({"contracts": asm_contracts_after_importer, "version": "grey"}, f, indent=4)
+
+    pd.DataFrame(contract_info).to_csv(final_dir.joinpath(f"{Path(args.source).stem}.csv"))
