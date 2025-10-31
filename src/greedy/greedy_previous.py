@@ -483,6 +483,7 @@ class SMSgreedy:
             else:
                 self._func_dep_map[o1] += [o0]                
             self._dependences_to_do.add(o0)
+        # print(self._dependences_to_do)
         self._dependences_done = set([])
         self.add_dup_pushes()
 
@@ -552,6 +553,8 @@ class SMSgreedy:
         if o in self._forced_in_stack:
             return True
         if o in self._initial_stack:
+            return True
+        if o in self._dependences_to_do:
             return True
         if not self.small_zeroary(o):
             return True
@@ -656,7 +659,7 @@ class SMSgreedy:
         return True
 
     def compute_one_with_stack(self, o, stack, needed_stack, solved, max_to_swap):
-        # print(o,stack,needed_stack,self._dup_stack_ini)
+        # print("one_with_stack",o,stack,needed_stack,self._dup_stack_ini)
         if o in self._var_instr_map:
             if self.small_zeroary(o) and o not in self._dependences_done:
                 if 'PUSH' in self._var_instr_map[o]['disasm'] and 'value' in self._var_instr_map[o]:
@@ -699,6 +702,12 @@ class SMSgreedy:
                 opcode = self._var_instr_map[o]['disasm']
                 opcodeid = self._var_instr_map[o]['id']
                 self._dup_stack_ini += 1
+                if o in self._dependences_to_do:
+                    self._dependences_to_do.remove(o)
+                    self._dependences_done.add(o)
+                if o in needed_stack:
+                    assert(needed_stack[o]>=1)
+                    needed_stack[o] -= 1
                 if verbose: print(opcodeid, [o] + stack, len([o] + stack))
                 return ([opcode], [opcodeid], [o] + stack)
         if not (o not in needed_stack or o in stack[:16]):
@@ -708,13 +717,11 @@ class SMSgreedy:
             assert (1 <= needed_stack[o])
             needed_stack[o] -= 1
             self._dup_stack_ini += 1
-            # print(o, stack, needed_stack, solved, self._dup_stack_ini)
             tstack = [o] + stack
             vget = ['VGET(' + o +')']
             if verbose: print('VGET(' + o +')', [o] + stack, len([o] + stack))
             return (vget, vget.copy(), tstack)
         #assert (o not in needed_stack or o in stack[:16])
-        # print(o,stack,needed_stack)
         if o in stack and stack.index(o) < 16:
             pos = stack.index(o)
             if o in needed_stack and needed_stack[o] == 1:
@@ -759,7 +766,6 @@ class SMSgreedy:
                             self._dup_stack_ini += 1
                             return (swaps, swaps.copy(), tstack)
             if o in needed_stack:
-                # print(needed_stack)
                 assert (1 <= needed_stack[o])
                 needed_stack[o] -= 1
             else:
@@ -911,8 +917,8 @@ class SMSgreedy:
         # print(cstack,self._final_stack)
         # assert(len(cstack) == len(self._final_stack))
         for e in self._final_stack:
-            if not cstack.count(e) == self._final_stack.count(e):
-                print(e,cstack,self._final_stack)
+            # if not cstack.count(e) == self._final_stack.count(e):
+            #     print(e,cstack,self._final_stack)
             assert (cstack.count(e) == self._final_stack.count(e))
         # assert(0 in solved)
         return (2, 0)  # We are in the permutation case
@@ -984,18 +990,20 @@ class SMSgreedy:
             self.pre_compute_list(op, cstack, cneeded_in_stack_map, lord)
         if o in self._func_dep_map:
             for op in self._func_dep_map[o]:
-                self.pre_compute_list(op, cstack, cneeded_in_stack_map, lord)
-        if o not in lord and o in self._dependences_to_do:
-            if o not in cneeded_in_stack_map:
-                cneeded_in_stack_map[o] = 1
-        if o not in lord and o in cneeded_in_stack_map:
+                if op not in self._dependences_done: 
+                    if op not in lord:
+                        if op not in cneeded_in_stack_map:
+                            cneeded_in_stack_map[op] = 1
+                    self.pre_compute_list(op, cstack, cneeded_in_stack_map, lord)
+        if o not in lord and o in cneeded_in_stack_map and cneeded_in_stack_map[o] > 0:
             lord.append(o)
+            #insert_ord(lord,o)
 
     def compute_pre_list(self, lord, cstack, cneeded_in_stack_map, solved, max_to_swap):
         opcodes = []
         opcodeids = []
         for op in lord:
-            # print("computing:", op)
+            # print("computing pre:", op)
             (ops, cstack, cneeded_in_stack_map) = self.clean_stack(op, cstack, cneeded_in_stack_map, solved)
             opcodes += ops
             opcodeids += ops
@@ -1028,7 +1036,7 @@ class SMSgreedy:
         opcodeids = []
         lord = []
         self.pre_compute_list(o, cstack, cneeded_in_stack_map, lord)
-        # print("list:", lord)
+        # print(o, "list:", lord)
         (popcodes, popcodeids, cstack) = self.compute_pre_list(lord, cstack, cneeded_in_stack_map, solved, max_to_swap)
         opcodes += popcodes
         opcodeids += popcodeids
@@ -1111,7 +1119,7 @@ class SMSgreedy:
                 case = 3
             else:
                 (case, pos) = self.choose_element(solved, cstack, cneeded_in_stack_map)
-                # print('case:', case, pos, cstack)
+                # print('case:', case, pos, cstack, self._final_stack)
             if case == 0:
                 # pos in cstack (negative)
                 if (cstack[0] == cstack[pos]):
@@ -1195,7 +1203,7 @@ class SMSgreedy:
                 # assert (pos_in_stack >= 0)
                 # assert (pos_in_stack <= 16)
                 # added only to avoid being removed when cannot be place in its position because is beyond 16 ****
-                if (pos_in_stack < 0 or pos_in_stack > 16) and o not in self._needed_in_stack_map:
+                if (pos_in_stack < 0 or pos_in_stack > 16) and (o not in cneeded_in_stack_map or cneeded_in_stack_map[o] == 0):
                     cneeded_in_stack_map[cstack[0]] = 1
                 # end of added code
                 if pos_in_stack > 0  and  pos_in_stack <= 16: #othewise leave it on top
@@ -1415,8 +1423,8 @@ class SMSgreedy:
         for i in range(len(opcodesids)):
             pos[opcodesids[i]] = i
         for p in self._all_deps:
-            if not (pos[p[0]] < pos[p[1]]):
-                print(p)
+            # if not (pos[p[0]] < pos[p[1]]):
+            #     print(p)
             assert(pos[p[0]] < pos[p[1]])
             
     def target(self):
@@ -1690,7 +1698,7 @@ def greedy_from_json(json_data: Dict[str, Any], verb=True, garbage=False, push_d
         # print("before pre:",encoding._needed_in_stack_map,encoding._initial_stack,encoding._final_stack)
         (opcodes_ini, opcodeids_ini, solved, initial) = encoding.precompute(encoding._final_stack.copy(),
                                                                             encoding._initial_stack.copy())
-        # print("after pre:",encoding._needed_in_stack_map,initial,opcodeids_ini,solved)
+        # print("after pre:",instr,encoding._needed_in_stack_map,initial,opcodeids_ini,solved)
         # print(encoding._dup_pushes)
         solved_aux = solved.copy()
         needed_in_stack_aux = encoding._needed_in_stack_map.copy()
