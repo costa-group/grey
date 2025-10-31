@@ -1285,7 +1285,7 @@ class SMSgreedy:
         assert(False)
 
     def compute_permut_and_clean(self, cstack, solved):
-        # print("start permut:",cstack,self._final_stack)
+        print("start permut:",cstack,self._final_stack)
         popcodes = []
         popcodeids = []
         reg = []
@@ -1399,7 +1399,7 @@ class SMSgreedy:
                         if verbose: print('SWAP' + str(i),cstack,len(cstack))
                     else:
                         i = max(1,len(cstack)-len(self._final_stack))
-                        while len(self._final_stack)-len(cstack)+i in solved and i < len(cstack) and cstack[0] != cstack[i]:
+                        while  i < len(cstack) and i <= 16 and (len(self._final_stack)-len(cstack)+i in solved or cstack[0] == cstack[i]):
                             i += 1
                         if i <= 16 and i < len(cstack):
                             popcodes += ['SWAP' + str(i)]
