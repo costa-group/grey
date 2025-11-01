@@ -99,6 +99,8 @@ class SMSremove:
             else:
                 no = o
                 inpt = self._opid_instr_map[o]['inpt_sk']
+                for i in range(len(inpt)):
+                    assert(i not in cpositions)
                 outpt = self._opid_instr_map[o]['outpt_sk']
                 if self._opid_instr_map[o]['commutative']:
                     assert(inpt == cstack[:len(inpt)] or [inpt[1],inpt[0]] == cstack[:len(inpt)])
