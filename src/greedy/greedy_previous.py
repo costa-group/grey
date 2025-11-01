@@ -1285,7 +1285,7 @@ class SMSgreedy:
         assert(False)
 
     def compute_permut_and_clean(self, cstack, solved):
-        print("start permut:",cstack,self._final_stack)
+        # print("start permut:",cstack,self._final_stack)
         popcodes = []
         popcodeids = []
         reg = []

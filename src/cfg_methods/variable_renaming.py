@@ -62,6 +62,11 @@ def rename_function(cfg_function: CFGFunction, renaming_dict: Dict[var_id_T, var
 
 def rename_block_list(block_list: CFGBlockList, renaming_dict: Dict[var_id_T, var_id_T]) -> None:
     # The renaming dict keeps track of the changes in this block to maintain the coherence
+    new_assignment_dict = dict()
+    for assigned_variable, constant in block_list.assigment_dict.items():
+        new_assignment_dict[renaming_dict.get(assigned_variable, assigned_variable)] = constant
+    block_list.assigment_dict = new_assignment_dict
+
     for block_name, block in block_list.blocks.items():
 
         for instruction in block.get_instructions():
