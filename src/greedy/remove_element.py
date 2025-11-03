@@ -46,7 +46,16 @@ def trans_pos(p,positions_in_stack):
     
 def recalculate(n,positions_in_stack):
     return list(map(lambda x: x+n, positions_in_stack))
- 
+
+def recalculate_and_remove(p,positions_in_stack):
+    new_pos = []
+    for r in positions_in_stack:
+        if r < p:
+            new_pos.append(r)
+        elif r > p:
+            new_pos.append(r-1)
+    return new_pos
+
 class SMSremove:
 
     def __init__(self, json_format):
@@ -73,11 +82,34 @@ class SMSremove:
             op = instr.pop(0)
             o, p = get_op_position(op)
             if o == 'SWAP':
-                assert(p not in cpositions)
                 np = trans_pos(p,cpositions)
-                no = 'SWAP' + str(np)
-                cstack = [cstack[p]] + cstack[1:p] + [cstack[0]] + cstack[p+1:]
-                cnstack = [cnstack[np]] + cnstack[1:np] + [cnstack[0]] + cnstack[np+1:]
+                if p not in cpositions:
+                    no = 'SWAP' + str(np)
+                    cstack = [cstack[p]] + cstack[1:p] + [cstack[0]] + cstack[p+1:]
+                    cnstack = [cnstack[np]] + cnstack[1:np] + [cnstack[0]] + cnstack[np+1:]
+                else:
+                    assert(0 not in cpositions)
+                    assert(np >= 0)
+                    if np > 0 and len(instr) > 0:
+                        assert(np - 1 <= 16)                    
+                        swaps = []
+                        for i in reversed(range(1, np)):
+                            if cstack[0] != cstack[i]:
+                                swaps += ['SWAP' + str(i)]
+                                cnstack = [cnstack[i]] + cnstack[1:i] + [cnstack[0]] + cnstack[i + 1:]
+                                if verbose: print('SWAP' + str(i), cnstack, cpositions)
+                        if instr[0] != 'POP':
+                            v = cstack[p]
+                            ninstr += swaps
+                            no = 'VGET(' + v + ')'
+                            cstack = [cstack[p]] + cstack[1:p] + [cstack[0]] + cstack[p+1:]
+                            cnstack = [v] + cnstack[1:np] + [cnstack[0]] + cnstack[np+1:]
+                            cpositions.remove(p)
+                        else:
+                            instr.pop(0)
+                            cstack = cstack[1:p] + [cstack[0]] + cstack[p+1:]
+                            cpositions = recalculate_and_remove(p,cpositions)
+                            continue
             elif o == 'DUP':
                 if p-1 in cpositions:
                     v = cstack[p-1]
@@ -94,8 +126,9 @@ class SMSremove:
             elif o == 'POP':
                 cstack.pop(0)
                 cnstack.pop(0)
-                if cpositions[0] == 0: cpositions.pop(0)
+                if len(cpositions) > 0 and cpositions[0] == 0: cpositions.pop(0)
                 cpositions = recalculate(-1,cpositions)
+                no = o
             else:
                 no = o
                 inpt = self._opid_instr_map[o]['inpt_sk']
@@ -135,7 +168,7 @@ def remove_from_json(json_data: Dict[str, Any], verb=True) -> Tuple[
     # print(encoding._mem_order)
     # print(encoding._sto_order)
     global verbose
-    verbose = True # False # 
+    verbose = False # True # 
     encoding = SMSremove(json_data)
     try:
         ins, ini, fin = encoding.remove_element()
