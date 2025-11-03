@@ -38,14 +38,14 @@ def repair_unreachable_blocklist(cfg_blocklist: CFGBlockList,
         vget_annotated.mkdir(exist_ok=True, parents=True)
         _debug_reparation(cfg_blocklist, vget_annotated)
 
-    phi_webs = repair_unreachable(cfg_blocklist, set(elements_to_fix.keys()))
+    phi_webs, num_vals = repair_unreachable(cfg_blocklist, set(elements_to_fix.keys()))
 
     if path_to_files is not None:
         repaired = path_to_files.joinpath("repaired_vget")
         repaired.mkdir(exist_ok=True, parents=True)
         _debug_reparation(cfg_blocklist, repaired)
 
-    TreeScan(cfg_blocklist, phi_webs).executable_from_code()
+    TreeScan(cfg_blocklist, phi_webs, num_vals).executable_from_code()
 
 
 def prepass_fixing_constants(cfg_blocklist: CFGBlockList,
