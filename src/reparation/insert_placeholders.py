@@ -23,7 +23,7 @@ from reparation.phi_webs import PhiWebs
 from reparation.utils import extract_value_from_pseudo_instr
 
 
-def repair_unreachable(block_list: CFGBlockList, elements_to_fix: Set[var_id_T]) -> PhiWebs:
+def repair_unreachable(block_list: CFGBlockList, elements_to_fix: Set[var_id_T]) -> Tuple[PhiWebs, int]:
     """
     Repairs unreachable elements in two steps. First, it determines at which
     block_list already contains the instructions generated
@@ -40,8 +40,8 @@ def repair_unreachable(block_list: CFGBlockList, elements_to_fix: Set[var_id_T])
     phi_web = fix_inaccessible_phi_values(block_list, phi_elements_to_fix, phi_def2block)
 
     var2header = variable2block_header(block_list, block_list.loop_nesting_forest)
-    store_stack_elements_tree(block_list, var2header)
-    return phi_web
+    num_vals = store_stack_elements_tree(block_list, var2header)
+    return phi_web, num_vals
 
 
 # Phi value to block in which it is defined
@@ -202,17 +202,23 @@ def substract_zero(left_counter: Counter, right_counter: Counter) -> Set:
 
 
 def store_stack_elements_tree(block_list: CFGBlockList,
-                              var2header: Dict[var_id_T, block_id_T]) -> None:
+                              var2header: Dict[var_id_T, block_id_T]) -> int:
     # TODO: more efficient
     # Compute the global get_count, considering the information from
     # the new introduced placeholders
-    get_count = sum((block.greedy_info.get_count for block in block_list.blocks.values()),
-                    Counter())
+    get_count = Counter()
+    num_vgets_dominated = 0
+    for block in block_list.blocks.values():
+        get_count += block.greedy_info.get_count
+        num_vgets_dominated = max(num_vgets_dominated, block.greedy_info.num_dominated_gets)
 
     # Just invoke the recursive function with the stack block
     store_stack_elements_block(block_list.start_block, block_list,
                                get_count, var2header)
 
+    # The max number of different possible registers is the
+    # number of gets that we have to handle + VSETs that dominated VGETs
+    return len(get_count) + num_vgets_dominated
 
 def store_stack_elements_block(current_block_id: block_id_T, block_list: CFGBlockList,
                                initial_get_counter: Counter[var_id_T],

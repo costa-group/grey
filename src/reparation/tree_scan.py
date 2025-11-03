@@ -19,7 +19,7 @@ class TreeScan:
     """
 
     def __init__(self, block_list: CFGBlockList,
-                 phi_webs: PhiWebs):
+                 phi_webs: PhiWebs, num_colors_max: int):
 
         # Parameters that are passed to colour the graph
         self._block_list = block_list
@@ -29,6 +29,9 @@ class TreeScan:
 
         # We aim to coalesce all
         self._phi_class2colors = {phi_class: [] for phi_class in phi_webs.classes_with_elements}
+
+        # Number of possible colors
+        self._num_colors_max = num_colors_max
 
     def _assign_color(self, block_name: block_id_T, color_assignment: ColourAssignment, available: List[bool]):
         block = self._block_list.get_block(block_name)
@@ -42,7 +45,8 @@ class TreeScan:
                 for in_arg in phi_instr.in_args:
 
                     # Case -1: it corresponds to a phi argument
-                    if (-1, in_arg) in greedy_info.last_use:
+                    # and it has a previous color (might not be if just initialized in the previous branch)
+                    if (-1, in_arg) in greedy_info.last_use and color_assignment.is_coloured(in_arg):
                         color_assignment.release_colour(in_arg, available)
 
                 # Then we assign the generated value
@@ -55,6 +59,7 @@ class TreeScan:
                 # Just release the colour if it is the last use
                 if i in greedy_info.last_use:
                     var = extract_value_from_pseudo_instr(instr_id)
+                    print(var, block_name, greedy_info.last_use)
                     color_assignment.release_colour(var, available)
 
             # Both VSET and DUP-VSET are handled accordingly
@@ -99,7 +104,7 @@ class TreeScan:
         """
         color_assignment = ColourAssignment()
         # Initial call with the start block and an empty list of available blocks
-        self._assign_color(self._block_list.start_block, color_assignment, [])
+        self._assign_color(self._block_list.start_block, color_assignment, [False] * self._num_colors_max)
         return color_assignment
 
     # Last step: replacing the corresponding values by colour
