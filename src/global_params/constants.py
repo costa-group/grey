@@ -1,2 +1,0 @@
-MAX_STACK_DEPTH = 4
-
