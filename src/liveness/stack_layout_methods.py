@@ -204,7 +204,7 @@ def remove_till_accessible(input_stack: List[var_id_T], live_vars: Set[var_id_T]
         i -= 1
 
     # We try to remove an extra one just in case we want to dup something
-    to_remove = MAX_STACK_DEPTH + 2 - i
+    to_remove = i + 1 - MAX_STACK_DEPTH
     if to_remove > 0:
         prunned_input = input_stack.copy()
         while to_remove > 0:
