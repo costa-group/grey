@@ -7,11 +7,10 @@ import networkx as nx
 from typing import List, Dict, Tuple, Set, Optional, Iterable
 from analysis.symbolic_execution import execute_instr_id
 from global_params.types import var_id_T, instr_id_T, instr_JSON_T, block_id_T
+from global_params.constants import MAX_STACK_DEPTH
 from parser.cfg_block_list import CFGBlockList
 from parser.cfg_instruction import CFGInstruction
 from reparation.utils import extract_value_from_pseudo_instr
-
-MAX_STACK_SIZE = 16
 
 # TODO: efficient way to compute reachability
 #  depending on the concrete instruction
@@ -20,7 +19,7 @@ MAX_STACK_SIZE = 16
 def update_reachable(stack: List[var_id_T], instr_idx: int,
                      reachability_dict: Dict[var_id_T, Tuple[int, int, bool]],
                      is_last: bool, forbidden_elements: Set[var_id_T]) -> Dict[var_id_T, Tuple[int, int, bool]]:
-    for i, elem in enumerate(stack[:MAX_STACK_SIZE]):
+    for i, elem in enumerate(stack[:MAX_STACK_DEPTH]):
         if elem not in forbidden_elements:
             reachability_dict[elem] = (i, instr_idx, is_last)
     return reachability_dict
