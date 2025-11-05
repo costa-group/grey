@@ -7,10 +7,12 @@ import networkx as nx
 from itertools import zip_longest
 
 from global_params.types import var_id_T, block_id_T
+from global_params.constants import MAX_STACK_DEPTH
 from parser.cfg_block_list import CFGBlockList
 from parser.cfg_instruction import CFGInstruction
 from liveness.liveness_analysis import LivenessAnalysisInfoSSA
 from liveness.utils import trim_none, combine_lists_with_order, combine_lists_with_junk
+
 
 def compute_variable_depth(liveness_info: Dict[str, LivenessAnalysisInfoSSA], topological_order: List) -> Dict[
     str, Dict[str, Tuple[int, int, int]]]:
@@ -165,12 +167,16 @@ def max_tail_head_overlap(lst1, lst2, live):
 
 
 def propagate_output_stack(input_stack: List[str], final_stack_elements: List[str],
-                           live_vars: Set[str], variable_depth_info: Dict[str, int],
+                           in_live_vars: Set[str], live_vars: Set[str], variable_depth_info: Dict[str, int],
                            split_instruction_in_args: List[str]) -> List[str]:
     """
     Similar to output_stack_layout, but the heuristics is to preserve the stack as is and just add the new information
     """
-    bottom_output_stack = input_stack
+    if len(input_stack) >= MAX_STACK_DEPTH:
+        bottom_output_stack = remove_till_accessible(input_stack, in_live_vars)
+    else:
+        bottom_output_stack = input_stack
+
     vars_to_place = live_vars.difference(set(final_stack_elements + bottom_output_stack))
 
     # Sort the vars to place according to the variable depth info order in reversed order
@@ -186,6 +192,42 @@ def propagate_output_stack(input_stack: List[str], final_stack_elements: List[st
         overlap = 0
     # The final stack elements must appear in the top of the stack
     return final_stack_elements + bottom_output_stack[overlap:]
+
+
+def remove_till_accessible(input_stack: List[var_id_T], live_vars: Set[var_id_T]) -> List[var_id_T]:
+    """
+    Removes elements
+    """
+    i = len(input_stack) - 1
+    # Search for elements that are live too deep
+    while i >= MAX_STACK_DEPTH and input_stack[i] not in live_vars:
+        i -= 1
+
+    # We try to remove an extra one just in case we want to dup something
+    to_remove = MAX_STACK_DEPTH + 2 - i
+    if to_remove > 0:
+        prunned_input = input_stack.copy()
+        while to_remove > 0:
+            while prunned_input[0] not in live_vars:
+                prunned_input.pop(0)
+                to_remove -= 1
+
+                if to_remove == 0:
+                    return prunned_input
+
+            # Swap with some of the topmost elements
+            j = min(MAX_STACK_DEPTH-1, len(prunned_input))
+            while j > 0 and prunned_input[j] in live_vars:
+                j -= 1
+            if j == 0:
+                return prunned_input
+            else:
+                prunned_input[j], prunned_input[0] = prunned_input[0], prunned_input[j]
+
+        return prunned_input
+
+    else:
+        return input_stack
 
 
 def generate_phi_func(target_block_id: block_id_T, predecessor_blocks: List[block_id_T],
