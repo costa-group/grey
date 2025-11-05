@@ -183,7 +183,7 @@ class LayoutGeneration:
                 if len(elements_to_unify) == 2 and ((
                         path := self._preserve_junk_dominance(elements_to_unify[0], elements_to_unify[1])) is not None)\
                         and all(self._loop_nesting_forest.successors(element) == 0
-                                for element in path if element in self._loop_nesting_forest):
+                                for element in path[1:] if element in self._loop_nesting_forest):
                     (combined_output_stack,
                      output_stacks_unified,
                      values_to_propagate) = unify_stacks_dominant(next_block_id,
