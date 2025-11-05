@@ -113,6 +113,8 @@ class CFGBlock:
 
         self.liveness = {}
 
+        self.liveness_info = None
+
     @property
     def final_stack_elements(self) -> List[str]:
         """
