@@ -11,7 +11,8 @@ from parser.cfg_block_list import CFGBlockList
 from parser.cfg_instruction import CFGInstruction
 from liveness.liveness_analysis import LivenessAnalysisInfoSSA
 
-def compute_variable_depth(liveness_info: Dict[str, LivenessAnalysisInfoSSA], topological_order: List) -> Dict[
+
+def compute_variable_depth(cfg_block_list: CFGBlockList, topological_order: List) -> Dict[
     str, Dict[str, Tuple[int, int, int]]]:
     """
     For each variable at every point in the CFG, returns the corresponding depth of the last time a variable was used
@@ -25,17 +26,18 @@ def compute_variable_depth(liveness_info: Dict[str, LivenessAnalysisInfoSSA], to
     max_instr_idx = 100
 
     for node in reversed(topological_order):
-        block_info = liveness_info[node].block_info
-        instructions = block_info.instructions
+        block = cfg_block_list.get_block(node)
+        instructions = block.get_instructions()
 
         current_variable_depth_out = dict()
 
         # Initialize variables in the live_in set to len(topological_order) + 1
-        for input_variable in liveness_info[node].out_state.live_vars:
+        print(block.block_id)
+        for input_variable in block.liveness_info.out_state.live_vars:
             current_variable_depth_out[input_variable] = max_depth, max_instr_idx, max_instr_idx
 
         # For each successor, compute the variable depth information and update the corresponding map
-        for succ_node in block_info.successors:
+        for succ_node in block.successors:
 
             # The succesor node might not be analyzed yet if there is a cycle. We just ignore it,
             # as we will visit it later

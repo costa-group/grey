@@ -15,6 +15,7 @@ from execution.sol_compilation import SolidityCompilation
 from solution_generation.reconstruct_bytecode import asm_from_cfg, store_asm_output, store_binary_output, \
     store_asm_standard_json_output
 from greedy.ids_from_spec import cfg_spec_ids
+from liveness.liveness_analysis import construct_liveness
 from liveness.layout_generation import layout_generation
 from cfg_methods.preprocessing_methods import preprocess_cfg
 from solution_generation.bytecode2asm import asm_from_opcodes
@@ -88,19 +89,21 @@ def analyze_single_cfg(cfg: CFG, final_dir: Path, args: argparse.Namespace, time
 
     x_preprocess = dtimer()
     tags_dict = preprocess_cfg(cfg, dot_file_dir, args.visualize)
+    construct_liveness(cfg)
     y_preprocess = dtimer()
 
+    preprocess_time = y_preprocess - x_preprocess
+    print("Preprocessing CFG: " + str(preprocess_time) + "s")
+    times[2] += preprocess_time
+
     x = dtimer()
-    init_time_liveness, end_time_liveness = layout_generation(cfg, final_dir.joinpath("stack_layouts"), args.visualize)
+    layout_generation(cfg, final_dir.joinpath("stack_layouts"), args.visualize)
     y = dtimer()
 
-    preprocess_time = (y_preprocess-x_preprocess)+(end_time_liveness-init_time_liveness)
-    print("Preprocessing CFG: " + str(preprocess_time) + "s")
-    times[2] += (preprocess_time)
+    layout_time = (y-x)
 
-    layout_time = (y-x)-(end_time_liveness-init_time_liveness)
     print("Layout generation: " + str(layout_time) + "s")
-    times[3] += (layout_time)
+    times[3] += layout_time
 
     x = dtimer()
     cfg_spec_ids(cfg, final_dir.joinpath("statistics.csv"), args.visualize)

@@ -40,6 +40,7 @@ def substitute_duplicates(input_stack: List[var_id_T]):
 
     return substituted[::-1]
 
+
 def var_order_repr(block_name: str, var_info: Dict[str, int]):
     """
     Str representation of a block name and the information on variables
@@ -61,25 +62,19 @@ def print_stacks(block_name: str, json_dict: Dict[str, Any]) -> str:
 
 class LayoutGeneration:
 
-    def __init__(self, object_id: str, block_list: CFGBlockList, liveness_info: Dict[str, LivenessAnalysisInfoSSA],
-                 function_inputs: Dict[component_name_T, List[var_id_T]], name: Path, is_main_component: bool,
-                 cfg_graph: Optional[nx.Graph] = None, visualize:bool = False):
+    def __init__(self, object_id: str, block_list: CFGBlockList,
+                 function_inputs: Dict[component_name_T, List[var_id_T]],
+                 name: Path, is_main_component: bool, visualize: bool = False):
         self._component_id = object_id
         self._block_list = block_list
-        self._liveness_info = liveness_info
         self._function_inputs = function_inputs
         # We store if it is the main component in order to preserve the stack elements
         self._is_main_component = is_main_component
 
-        if cfg_graph is None:
-            self._cfg_graph = digraph_from_block_info(liveness_analysis_state.block_info
-                                                      for liveness_analysis_state in liveness_info.values())
-        else:
-            self._cfg_graph = cfg_graph
-
+        self._cfg_graph = block_list.to_graph()
         self._start = block_list.start_block
 
-        self._dominance_tree = compute_dominance_tree(self._cfg_graph, self._start)
+        self._dominance_tree = block_list.dominant_tree
 
         if visualize:
             _tree_dir = name.joinpath("tree")
@@ -89,7 +84,11 @@ class LayoutGeneration:
 
         self._block_order = list(nx.topological_sort(self._dominance_tree))
 
-        self._variable_order = compute_variable_depth(liveness_info, self._block_order)
+        self._liveness_info = {block_id: block.liveness_info
+                               for block_id, block in block_list.blocks.items()}
+
+        self._variable_order = compute_variable_depth(block_list,
+                                                      self._block_order)
 
         renamed_graph = information_on_graph(self._cfg_graph, {name: var_order_repr(name, assignments)
                                                                for name, assignments in self._variable_order.items()})
@@ -105,7 +104,7 @@ class LayoutGeneration:
             self._sfs_dir = name.joinpath("sfs")
             self._sfs_dir.mkdir(exist_ok=True, parents=True)
 
-        self._loop_nesting_forest = compute_loop_nesting_forest_graph(self._cfg_graph)
+        self._loop_nesting_forest = block_list.loop_nesting_forest
 
         # Guess: we need to traverse the code following the dominance tree in topological order
         # This is because in the dominance tree together with the SSA, all the nodes
@@ -264,30 +263,28 @@ class LayoutGeneration:
                     json.dump(specification, f)
 
 
+def layout_generation_cfg_block_list(cfg_block_list: CFGBlockList,
+                                     object_id: str,
+                                     main_component: bool,
+                                     function_input,
+                                     final_dir: Path = Path("."),
+                                     visualize: bool = False):
+    layout = LayoutGeneration(object_id, cfg_block_list, function_input, final_dir, main_component, visualize)
+    layout.build_layout(visualize)
+
+
 def layout_generation_cfg(cfg: CFG, final_dir: Path = Path("."), visualize: bool = False) -> None:
     """
     Generates the layout for all the blocks in the objects inside the CFG level, excluding sub-objects
     """
-    x = dtimer()
-    cfg_info = construct_analysis_info(cfg)
-    component2inputs = functions_inputs_from_components(cfg)
-    results = perform_liveness_analysis_from_cfg_info(cfg_info)
-    y = dtimer()
+    function2inputs = functions_inputs_from_components(cfg)
+    for object_id, cfg_object in cfg.objectCFG.items():
+        layout_generation_cfg_block_list(cfg_object.blocks, object_id, True, function2inputs, final_dir, visualize)
 
-    component2block_list = cfg.generate_id2block_list()
-    
-    for object_name, object_liveness in results.items():
-        for component_name, component_liveness in object_liveness.items():
-            cfg_info_suboject = cfg_info[object_name][component_name]["block_info"]
-            digraph = digraph_from_block_info(cfg_info_suboject.values())
+        # We also consider the information per function
+        for function_name, cfg_function in cfg_object.functions.items():
+            layout_generation_cfg_block_list(cfg_function.blocks, function_name, True, function2inputs, final_dir, visualize)
 
-            layout = LayoutGeneration(component_name, component2block_list[object_name][component_name],
-                                      component_liveness, component2inputs, final_dir, component_name == object_name,
-                                      digraph, visualize)
-
-            layout.build_layout(visualize)
-
-    return x, y
 
 def layout_generation(cfg: CFG, final_dir: Path = Path("."), visualize: bool = False, positions: List[str] = None) -> None:
     """
@@ -296,21 +293,14 @@ def layout_generation(cfg: CFG, final_dir: Path = Path("."), visualize: bool = F
     """
     if positions is None:
         positions = ["0"]
-        
 
     layout_dir = final_dir.joinpath('_'.join([str(position) for position in positions]))
     layout_dir.mkdir(parents=True, exist_ok=True)
         
-    init_time, end_time = layout_generation_cfg(cfg, layout_dir, visualize)
+    layout_generation_cfg(cfg, layout_dir, visualize)
 
-    total_x = init_time
-    total_y = end_time
     for i, (cfg_name, cfg_object) in enumerate(cfg.get_objects().items()):
 
         sub_object = cfg_object.get_subobject()
         if sub_object is not None:
-            x, y = layout_generation(sub_object, final_dir, visualize, positions + [str(i)])
-            total_x+=x
-            total_y+=y
-
-    return total_x, total_y
+            layout_generation(sub_object, final_dir, visualize, positions + [str(i)])

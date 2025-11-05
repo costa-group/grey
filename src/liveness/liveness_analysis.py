@@ -181,3 +181,29 @@ def dot_from_analysis(cfg: CFG, final_dir: Path = Path("."), positions: List[str
         if cfg_object.subObject is not None:
             analysis_cfg.update(dot_from_analysis(cfg_object.subObject, final_dir, positions + [str(i)]))
     return analysis_cfg
+
+
+def store_liveness(block_list: CFGBlockList) -> None:
+    info_dict = construct_analysis_info_from_cfgblocklist(block_list)
+    block_info, terminal_blocks = info_dict["block_info"], info_dict["terminal_blocks"]
+    block_id2liveness = liveness_analysis_from_vertices(block_info, terminal_blocks).get_analysis_results()
+
+    for block_name, liveness in block_id2liveness.items():
+        block_list.blocks[block_name].liveness_info = liveness
+
+
+def construct_liveness(cfg: CFG) -> None:
+    """
+    Constructs the info needed for the liveness analysis for all the code in a CFG: the main blocks and the functions
+    inside (excludes the CFG stored in the subObject field). The dictionary contains an item for each structure
+    """
+    # Construct the cfg information for the blocks in the objects
+    for object_id, cfg_object in cfg.objectCFG.items():
+        store_liveness(cfg_object.blocks)
+
+        # We also consider the information per function
+        for function_name, cfg_function in cfg_object.functions.items():
+            store_liveness(cfg_function.blocks)
+
+        if cfg_object.subObject is not None:
+            construct_liveness(cfg_object.subObject)
