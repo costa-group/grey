@@ -37,6 +37,10 @@ class PhiWebs:
         return self._num_sets
 
     @property
+    def num_elements(self):
+        return len(self._var2class)
+
+    @property
     def classes_with_elements(self) -> Set[int]:
         """
         Returns for which classes there are elements that belong to that class
