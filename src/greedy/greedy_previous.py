@@ -1681,7 +1681,7 @@ def check_dup_swap(resids):
             assert(n>=1)
             assert(n<=16)
 
-def greedy_from_json(json_data: Dict[str, Any], verb=True, garbage=False, push_dup=2) -> Tuple[
+def greedy_from_json(json_data: Dict[str, Any], verb=True, garbage=False, push_dup=1) -> Tuple[
     Dict[str, Any], SMSgreedy, List[str], List[str], int]:
     # print(encoding._var_instr_map)
     # print()
