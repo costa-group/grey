@@ -59,7 +59,6 @@ class TreeScan:
                 # Just release the colour if it is the last use
                 if i in greedy_info.last_use:
                     var = extract_value_from_pseudo_instr(instr_id)
-                    print(var, block_name, greedy_info.last_use)
                     color_assignment.release_colour(var, available)
 
             # Both VSET and DUP-VSET are handled accordingly
@@ -104,7 +103,7 @@ class TreeScan:
         """
         color_assignment = ColourAssignment()
         # Initial call with the start block and an empty list of available blocks
-        self._assign_color(self._block_list.start_block, color_assignment, [False] * self._num_colors_max)
+        self._assign_color(self._block_list.start_block, color_assignment, [True] * self._num_colors_max)
         return color_assignment
 
     # Last step: replacing the corresponding values by colour

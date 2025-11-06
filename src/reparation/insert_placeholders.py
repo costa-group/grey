@@ -41,7 +41,7 @@ def repair_unreachable(block_list: CFGBlockList, elements_to_fix: Set[var_id_T])
 
     var2header = variable2block_header(block_list, block_list.loop_nesting_forest)
     num_vals = store_stack_elements_tree(block_list, var2header)
-    return phi_web, num_vals
+    return phi_web, num_vals + len(phi_web._var2class)
 
 
 # Phi value to block in which it is defined
@@ -210,7 +210,7 @@ def store_stack_elements_tree(block_list: CFGBlockList,
     num_vgets_dominated = 0
     for block in block_list.blocks.values():
         get_count += block.greedy_info.get_count
-        num_vgets_dominated = max(num_vgets_dominated, block.greedy_info.num_dominated_gets)
+        num_vgets_dominated += block.greedy_info.num_dominated_gets
 
     # Just invoke the recursive function with the stack block
     store_stack_elements_block(block_list.start_block, block_list,
@@ -218,6 +218,7 @@ def store_stack_elements_tree(block_list: CFGBlockList,
 
     # The max number of different possible registers is the
     # number of gets that we have to handle + VSETs that dominated VGETs
+    # + phi-functions we have to handle as well
     return len(get_count) + num_vgets_dominated
 
 def store_stack_elements_block(current_block_id: block_id_T, block_list: CFGBlockList,
