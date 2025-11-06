@@ -119,7 +119,7 @@ class TreeScan:
         Given the final colour assignment, we perform the SSA destruction
         by generating the copy assignments to solve phi-interferences.
         """
-        color_to_constant = self._assign_colours_to_constants(color_assignment)
+        color_to_constant = self._assign_colours_to_constants(self._num_colors_max)
 
         # Here we don't care about the order in which the block lists are traversed
         for block_name, block in self._block_list.blocks.items():
@@ -206,9 +206,9 @@ class TreeScan:
     def _emit_dup_vset(self, constant: constant_T, dup_pos: int) -> List[instr_id_T]:
         return [f"DUP{dup_pos + 1}"] + self._emit_vset(constant)
 
-    def _assign_colours_to_constants(self, color_assignment: ColourAssignment) -> List[constant_T]:
+    def _assign_colours_to_constants(self, num_colors: int) -> List[constant_T]:
         # TODO: implement HACK2 (not very difficult)
-        return [hex(128 + 32*i)[2:] for i in range(color_assignment.num_colors)]
+        return [hex(128 + 32*i)[2:] for i in range(num_colors)]
 
     def _emit_copies(self, copies_to_manage_regs: Dict[var_id_T, Tuple[int, int]],
                      copies_to_manage_dup: Dict[var_id_T, Tuple[int, int]],
