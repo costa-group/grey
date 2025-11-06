@@ -4,6 +4,7 @@ In this case, we build different heuristics to choose the best layout transforma
 As there are heuristics that can be based on the results of preceeding blocks with the greedy algorithm,
 in this module the greedy algorithm itself is invoked
 """
+import argparse
 import collections
 import heapq
 import itertools
@@ -63,13 +64,14 @@ class LayoutGeneration:
 
     def __init__(self, object_id: str, block_list: CFGBlockList, liveness_info: Dict[str, LivenessAnalysisInfoSSA],
                  function_inputs: Dict[component_name_T, List[var_id_T]], name: Path, is_main_component: bool,
-                 cfg_graph: Optional[nx.Graph] = None, visualize:bool = False):
+                 cfg_graph: Optional[nx.Graph] = None, visualize:bool = False, junk: bool = True):
         self._component_id = object_id
         self._block_list = block_list
         self._liveness_info = liveness_info
         self._function_inputs = function_inputs
         # We store if it is the main component in order to preserve the stack elements
         self._is_main_component = is_main_component
+        self._junk = junk
 
         if cfg_graph is None:
             self._cfg_graph = digraph_from_block_info(liveness_analysis_state.block_info
@@ -118,7 +120,7 @@ class LayoutGeneration:
         self._unification_dict = unification_block_dict(block_list)
 
     def _can_have_junk(self, block_id):
-        return self._is_main_component and block_id not in self._loop_nesting_forest
+        return self._is_main_component and block_id not in self._loop_nesting_forest and self._junk
 
     def _construct_code_from_block(self, block: CFGBlock, input_stacks: Dict[str, List[str]],
                                    output_stacks: Dict[str, List[str]]):
@@ -272,7 +274,8 @@ class LayoutGeneration:
                     json.dump(specification, f)
 
 
-def layout_generation_cfg(cfg: CFG, final_dir: Path = Path("."), visualize: bool = False) -> None:
+
+def layout_generation_cfg(cfg: CFG, args: argparse.Namespace, final_dir: Path = Path(".")) -> None:
     """
     Generates the layout for all the blocks in the objects inside the CFG level, excluding sub-objects
     """
@@ -286,18 +289,17 @@ def layout_generation_cfg(cfg: CFG, final_dir: Path = Path("."), visualize: bool
     
     for object_name, object_liveness in results.items():
         for component_name, component_liveness in object_liveness.items():
-            cfg_info_suboject = cfg_info[object_name][component_name]["block_info"]
-            digraph = digraph_from_block_info(cfg_info_suboject.values())
-
             layout = LayoutGeneration(component_name, component2block_list[object_name][component_name],
                                       component_liveness, component2inputs, final_dir, component_name == object_name,
-                                      digraph, visualize)
+                                      visualize=args.visualize, junk=args.junk)
 
-            layout.build_layout(visualize)
+            layout.build_layout(args.visualize)
 
     return x, y
 
-def layout_generation(cfg: CFG, final_dir: Path = Path("."), visualize: bool = False, positions: List[str] = None) -> None:
+
+def layout_generation(cfg: CFG, args: argparse.Namespace,
+                      final_dir: Path = Path("."), positions: List[str] = None) -> None:
     """
     Returns the information from the liveness analysis and also stores a dot file for each analyzed structure
     in "final_dir"
@@ -309,7 +311,7 @@ def layout_generation(cfg: CFG, final_dir: Path = Path("."), visualize: bool = F
     layout_dir = final_dir.joinpath('_'.join([str(position) for position in positions]))
     layout_dir.mkdir(parents=True, exist_ok=True)
         
-    init_time, end_time = layout_generation_cfg(cfg, layout_dir, visualize)
+    init_time, end_time = layout_generation_cfg(cfg, args, layout_dir)
 
     total_x = init_time
     total_y = end_time
@@ -317,7 +319,7 @@ def layout_generation(cfg: CFG, final_dir: Path = Path("."), visualize: bool = F
 
         sub_object = cfg_object.get_subobject()
         if sub_object is not None:
-            x, y = layout_generation(sub_object, final_dir, visualize, positions + [str(i)])
+            x, y = layout_generation(sub_object, args, final_dir, positions + [str(i)])
             total_x+=x
             total_y+=y
 

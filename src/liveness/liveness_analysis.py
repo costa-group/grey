@@ -181,34 +181,3 @@ def dot_from_analysis(cfg: CFG, final_dir: Path = Path("."), positions: List[str
         if cfg_object.subObject is not None:
             analysis_cfg.update(dot_from_analysis(cfg_object.subObject, final_dir, positions + [str(i)]))
     return analysis_cfg
-
-
-def liveness2json(liveness: LivenessAnalysisInfoSSA) -> Dict[str, Any]:
-    return {"in": list(liveness.in_state.live_vars), "out": list(liveness.out_state.live_vars)}
-
-
-def cfg_dict2json_dict(cfg_dict: Dict[str, Dict[str, Dict[str, LivenessAnalysisInfoSSA]]]) -> Dict[str, Dict[str, Dict[str, Any]]]:
-    solution = dict()
-    for cfg_name, block_list_dict in cfg_dict.items():
-        current_cfg = dict()
-        for block_list_name, liveness_info_dict in block_list_dict.items():
-            print(block_list_name)
-            current_block_list = dict()
-            for block, liveness_info in liveness_info_dict.items():
-                current_block_list[block] = liveness2json(liveness_info)
-            current_cfg[block_list_name] = dict(sorted(current_block_list.items()))
-        solution[cfg_name] = dict(sorted(current_cfg.items()))
-    return solution
-
-
-def liveness_from_block_id(cfg: CFG) -> Dict[str, Dict[str, LivenessAnalysisInfoSSA]]:
-    """
-    Returns the information from the liveness analysis and also stores a dot file for each analyzed structure
-    in "final_dir"
-    """
-    # It only analyzes the code from one CFG level
-    analysis_cfg = perform_liveness_analysis(cfg)
-    for idx, cfg_object in enumerate(cfg.objectCFG.values()):
-        if cfg_object.subObject is not None:
-            analysis_cfg.update(perform_liveness_analysis(cfg_object.subObject))
-    return cfg_dict2json_dict(analysis_cfg)
