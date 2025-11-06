@@ -251,13 +251,22 @@ def merge(morder, sorder, final_no_mstore, final_no_sstore, opid_instr_map, var_
 
 
 def needed_list(v, lops, needed_set, opid_instr_map, var_instr_map):
+    mneeded = {}
+    return needed_list_map(v, lops, needed_set, opid_instr_map, var_instr_map, mneeded)
+
+def needed_list_map(v, lops, needed_set, opid_instr_map, var_instr_map, mneeded):
     n = 0
     for od in lops:
-        n += needed_one(v, od, needed_set, opid_instr_map, var_instr_map)
+        n += needed_one_map(v, od, needed_set, opid_instr_map, var_instr_map,mneeded)
     return n
 
-
 def needed_one(v, od, needed_set, opid_instr_map, var_instr_map):
+    mneeded = {}
+    return needed_one_map(v, od, needed_set, opid_instr_map, var_instr_map, mneeded)
+
+def needed_one_map(v, od, needed_set, opid_instr_map, var_instr_map, mneeded):
+    if od in mneeded:
+        return mneeded[od]
     if isinstance(od, int):
         return 0
     inpts = []
@@ -270,8 +279,23 @@ def needed_one(v, od, needed_set, opid_instr_map, var_instr_map):
             if od not in var_instr_map or od in needed_set:
                 return 0
             inpts += var_instr_map[od]['inpt_sk']
-    return needed_list(v, inpts, needed_set, opid_instr_map, var_instr_map)
+    n = needed_list_map(v, inpts, needed_set, opid_instr_map, var_instr_map, mneeded)
+    mneeded[od] = n
+    return n
 
+def all_needed(o, opid_instr_map, var_instr_map,needed):
+    if o in needed:
+        return
+    if o in opid_instr_map:
+        inpts = opid_instr_map[o]['inpt_sk']
+    else:
+        needed.add(o)
+        if o in var_instr_map:
+            inpts = var_instr_map[o]['inpt_sk']
+        else:
+            inpts = []
+    for io in inpts:
+        all_needed(io, opid_instr_map, var_instr_map,needed)
 
 def computed(v, od, opid_instr_map, var_instr_map):
     # checks if od needs v
@@ -293,6 +317,7 @@ def computed(v, od, opid_instr_map, var_instr_map):
 
 
 def remove_nostores_and_rename(torder, opid_instr_map, var_instr_map):
+    need_ops = {}
     final_ops = []
     while len(torder) > 0:
         op = torder.pop(0)
@@ -328,7 +353,12 @@ def remove_nostores_and_rename(torder, opid_instr_map, var_instr_map):
                         break
             vop = opid_instr_map[op]['outpt_sk'][0]
             for od in lchk:
-                if computed(vop, od, opid_instr_map, var_instr_map):
+                if od not in need_ops:
+                    sn = set([])
+                    all_needed(od,opid_instr_map, var_instr_map,sn)
+                    need_ops[od] = sn.copy()
+                if vop in need_ops[od]:
+                # if computed(vop, od, opid_instr_map, var_instr_map):
                     break
             else:
                 final_ops += [vop]
@@ -336,6 +366,7 @@ def remove_nostores_and_rename(torder, opid_instr_map, var_instr_map):
 
 
 def needed_nostores(msops, final_stack, opid_instr_map, var_instr_map):
+    need_ops = {}
     result = []
     aux = msops.copy()
     # print(aux)
@@ -364,11 +395,21 @@ def needed_nostores(msops, final_stack, opid_instr_map, var_instr_map):
             for op2 in lops:
                 if not is_write(op2):
                     op2 = opid_instr_map[op2]['outpt_sk'][0]
-                if computed(op, op2, opid_instr_map, var_instr_map):
+                if op2 not in need_ops:
+                    sn = set([])
+                    all_needed(op2,opid_instr_map, var_instr_map,sn)
+                    need_ops[op2] = sn.copy()
+                # if computed(op, op2, opid_instr_map, var_instr_map):
+                if op in need_ops[op2]:
                     result += [op]
                     break
             for v in final_stack:
-                if computed(op, v, opid_instr_map, var_instr_map):
+                if v not in need_ops:
+                    sn = set([])
+                    all_needed(v,opid_instr_map, var_instr_map,sn)
+                    need_ops[v] = sn.copy()
+                # if computed(op, v, opid_instr_map, var_instr_map):
+                if op in need_ops[v]:
                     result += [op]
                     break
     #        elif is_mwrite_output(op):
@@ -451,7 +492,7 @@ class SMSgreedy:
         self.extend_dependencies(self._mem_order, MWRITE_OPERATIONS)
         self.extend_dependencies(self._sto_order, SWRITE_OPERATIONS)
         self.extend_dependencies(self._tsto_order, TWRITE_OPERATIONS)
-
+        
         self._opid_times_used = {}
         for o in self._opid_instr_map:
             if len(self._opid_instr_map[o]['outpt_sk']) == 0:
@@ -497,9 +538,17 @@ class SMSgreedy:
             if p[1] in self._opid_instr_map and len(self._opid_instr_map[p[1]]['outpt_sk']) == 1:
                 depop_res.add(p[1])
         depop = get_ops_id(self._user_instr, ops)
+        need_ops = {}
+        for o in depop:
+            sn = set([])
+            all_needed(o,self._opid_instr_map, self._var_instr_map,sn)
+            need_ops[o] = sn.copy()
+            # print(o,sn)
         for o in depop_res:
                 for o1 in depop:
-                     if o != o1 and computed(self._opid_instr_map[o]['outpt_sk'][0], o1, self._opid_instr_map, self._var_instr_map):
+                    # if o != o1 and computed(self._opid_instr_map[o]['outpt_sk'][0], o1, self._opid_instr_map, self._var_instr_map):
+                    if o != o1 and self._opid_instr_map[o]['outpt_sk'][0] in need_ops[o1]:
+                        assert(self._opid_instr_map[o]['outpt_sk'][0] in need_ops[o1])
                         if [o,o1] not in deps:
                             deps += [[o,o1]]
 
@@ -931,6 +980,8 @@ class SMSgreedy:
         for o in mem:
             if not is_write(o):
                 num_no_store += 1
+        if num_no_store >= 15:
+            return False
         while (i + num_no_store >= 15):
             num_no_store_aux = num_no_store
             j = len(mem) - 1
@@ -1430,6 +1481,7 @@ class SMSgreedy:
             assert(pos[p[0]] < pos[p[1]])
             
     def target(self):
+        # print("target")
         # mloadmap = get_ops_map(self._user_instr,'MLOAD')
         # print(mloadmap)
         # sloadmap = get_ops_map(self._user_instr,'SLOAD')
@@ -1531,7 +1583,6 @@ class SMSgreedy:
                                                         self._var_instr_map)
         #     print('needed in stack:',v, self._needed_in_stack_map[v])
         self.count_uses()
-        # print("target")
         # print(self._needed_in_stack_map)
         # print(self.uses)
         to_remove = set([])
@@ -1693,7 +1744,7 @@ def greedy_from_json(json_data: Dict[str, Any], verb=True, garbage=False, push_d
     global extend_tgt
     extend_tgt = garbage # True # 
     global push_dup_add
-    push_dup_add = push_dup # 1 # 
+    push_dup_add = push_dup # 1 #
     encoding = SMSgreedy(json_data.copy())
     try:
         (instr, final_no_store) = encoding.target()
