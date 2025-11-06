@@ -53,7 +53,7 @@ def parse_args() -> argparse.Namespace:
     synthesis_options.add_argument("-g", "--greedy", action="store_true", help="Enables the greedy algorithm")
     synthesis_options.add_argument("-bt", "--builtin-ops", action="store_true", dest="builtin",
                                    help="Keeps the original builtin opcodes")
-
+    synthesis_options.add_argument("-j", "--junk", action="store_false", help="Disables garbage generation")
     args = parser.parse_args()
     return args
 
@@ -91,7 +91,7 @@ def analyze_single_cfg(cfg: CFG, final_dir: Path, args: argparse.Namespace, time
     y_preprocess = dtimer()
 
     x = dtimer()
-    init_time_liveness, end_time_liveness = layout_generation(cfg, final_dir.joinpath("stack_layouts"), args.visualize)
+    init_time_liveness, end_time_liveness = layout_generation(cfg, args, final_dir.joinpath("stack_layouts"))
     y = dtimer()
 
     preprocess_time = (y_preprocess-x_preprocess)+(end_time_liveness-init_time_liveness)
