@@ -502,8 +502,8 @@ class CFGBlock:
 
                 candidate_instructions = filter(lambda x: out_var in x["inpt_sk"],uninter_functions)
                 for uninter in candidate_instructions:
-                    pos = uninter["inpt_sk"].index(out_var)
-                    uninter["inpt_sk"][pos] = new_out_var
+                    uninter["inpt_sk"] = [var if var != out_var else new_out_var for var in uninter["inpt_sk"]]
+                aliasing_dict[out_var] = new_out_var
 
             #ins_spec != None. We have to rename the aliasing information
             else:
