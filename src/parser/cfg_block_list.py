@@ -157,7 +157,7 @@ class CFGBlockList:
                 for successor in [block.get_jump_to(), block.get_falls_to()]:
                     if successor is not None:
                         graph.add_edge(block_id, successor)
-            return graph
+            self.graph = graph
         return self.graph
 
     @property
