@@ -1741,7 +1741,7 @@ def greedy_from_json(json_data: Dict[str, Any], verb=True, garbage=False, push_d
     # print(encoding._mem_order)
     # print(encoding._sto_order)
     global reach;
-    reach = 4 # reachable # 
+    reach = reachable # 4 # 
     global verbose
     verbose = False # True # 
     global extend_tgt
