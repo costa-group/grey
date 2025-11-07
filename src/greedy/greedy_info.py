@@ -29,7 +29,7 @@ class GreedyInfo:
         self.var2push = compute_out_var2push(original_instrs)
 
         # Elements that are accessed through get instructions and are not dominated by a vset
-        self.get_count, self.num_dominated_gets = self._initial_get_count()
+        self.get_count, self.num_dominated_gets, self.has_vget = self._initial_get_count()
 
         # Elements that might need to be copied in order to propagate
         # the information on the phi-function. We also store whether it
@@ -57,8 +57,10 @@ class GreedyInfo:
         get_count = Counter()
         dominated_vgets_n = 0
         already_accessed = set()
+        has_vget = False
         for id_instr in self.greedy_ids:
             if id_instr.startswith("VGET"):
+                has_vget = True
                 value = extract_value_from_pseudo_instr(id_instr)
                 if value not in already_accessed:
                     get_count[value] += 1
@@ -67,11 +69,11 @@ class GreedyInfo:
             elif id_instr.startswith("VSET"):
                 value = extract_value_from_pseudo_instr(id_instr)
                 already_accessed.add(value)
-        return get_count, dominated_vgets_n
+        return get_count, dominated_vgets_n, has_vget
 
     def set_greedy_ids(self, new_greedy_ids: List[instr_id_T]) -> None:
         self.greedy_ids = new_greedy_ids
-        self.get_count, self.num_dominated_gets = self._initial_get_count()
+        self.get_count, self.num_dominated_gets, self.has_vget = self._initial_get_count()
 
     @property
     def elements_to_fix(self) -> Counter:
