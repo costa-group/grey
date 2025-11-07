@@ -58,13 +58,15 @@ def cfg_block_list_spec_ids(cfg_blocklist: CFGBlockList, path_to_files: Optional
     """
     csv_dicts = []
     to_fix = Counter()
+    has_vget = False
     for block_name, block in cfg_blocklist.blocks.items():
         outcome, time, greedy_ids, to_fix_block = cfg_block_spec_ids(block)
         to_fix += to_fix_block
+        has_vget = has_vget or block.greedy_info.has_vget
         csv_dicts.append(generate_statistics_info(block_name, greedy_ids, time, block.spec))
 
     # If there are elements to fix
-    if len(to_fix) > 0:
+    if has_vget:
         repair_unreachable_blocklist(cfg_blocklist, to_fix, path_to_files)
     return csv_dicts
 
