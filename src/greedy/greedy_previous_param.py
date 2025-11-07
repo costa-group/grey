@@ -669,7 +669,7 @@ class SMSgreedy:
                     break
                 pos_in_stack = len(stack) + pos  # position in stack
                 assert (pos_in_stack >= 0)
-                if pos_in_stack > 16:
+                if pos_in_stack > reach:
                     break
                 if pos_in_stack == 0:
                     break
@@ -701,7 +701,7 @@ class SMSgreedy:
             return True
         if not self._var_instr_map[o]['commutative']:
             return True
-        if self.needs_in_stack_too_far(inpts[0], stack, needed_stack) >= 16:
+        if self.needs_in_stack_too_far(inpts[0], stack, needed_stack) >= reach:
             return False
         if inpts[0] in self._var_instr_map and self.small_zeroary(inpts[0]):
             return True
@@ -761,10 +761,10 @@ class SMSgreedy:
                     needed_stack[o] -= 1
                 if verbose: print(opcodeid, [o] + stack, len([o] + stack))
                 return ([opcode], [opcodeid], [o] + stack)
-        if not (o not in needed_stack or o in stack[:16]):
+        if not (o not in needed_stack or o in stack[:reach]):
             if self._dup_stack_ini == 0:
                 self.clean_stack(o, stack, needed_stack, solved)
-        if o in needed_stack and o not in stack[:16]:
+        if o in needed_stack and o not in stack[:reach]:
             assert (1 <= needed_stack[o])
             needed_stack[o] -= 1
             self._dup_stack_ini += 1
@@ -772,8 +772,8 @@ class SMSgreedy:
             vget = ['VGET(' + o +')']
             if verbose: print('VGET(' + o +')', [o] + stack, len([o] + stack))
             return (vget, vget.copy(), tstack)
-        #assert (o not in needed_stack or o in stack[:16])
-        if o in stack and stack.index(o) < 16:
+        #assert (o not in needed_stack or o in stack[:reach])
+        if o in stack and stack.index(o) < reach:
             pos = stack.index(o)
             if o in needed_stack and needed_stack[o] == 1:
                 if pos < self._dup_stack_ini:
@@ -798,8 +798,8 @@ class SMSgreedy:
                         if i in solved:
                             solved_before = True
                     if not solved_before:
-                        assert (max_to_swap <= 16)
-                        if pos < max_to_swap: #or len(stack) >= 16:
+                        assert (max_to_swap <= reach)
+                        if pos < max_to_swap: #or len(stack) >= reach:
                             # if pos == max_to_swap-1:
                             #     print("SWAPTHREE")
                             needed_stack.pop(o, None)
@@ -937,7 +937,7 @@ class SMSgreedy:
                 if pos not in solved:
                     if self._final_stack[pos] == cstack[0]:
                         # print("case 0",posc)
-                        if len(cstack) + posc <= 16: 
+                        if len(cstack) + posc <= reach: 
                             return (0, posc)  # position in cstack (negative) SWAP if different
                 pos -= 1
                 posc -= 1
@@ -957,7 +957,7 @@ class SMSgreedy:
                             self._final_stack[pos1]):
                         # it is a candidate
                         ns1 = self.needs_in_stack_too_far(self._final_stack[pos1], cstack, needed_stack)
-                        if ns <= ns1 and 15 <= ns1 and ns1 <= 16:
+                        if ns <= ns1 and reach-1 <= ns1 and ns1 <= reach:
                             pos = pos1
                             break
                     pos1 -= 1
@@ -980,9 +980,9 @@ class SMSgreedy:
         for o in mem:
             if not is_write(o):
                 num_no_store += 1
-        if num_no_store >= 15:
+        if num_no_store >= reach-1:
             return False
-        while (i + num_no_store >= 15):
+        while (i + num_no_store >= reach-1):
             num_no_store_aux = num_no_store
             j = len(mem) - 1
             while j > 0:
@@ -990,7 +990,7 @@ class SMSgreedy:
                     num_no_store_aux -= 1
                 if stack[i] not in stack[:i]:
                     if needed_one(stack[i], mem[j], needed_stack, self._opid_instr_map, self._var_instr_map):
-                        if i + num_no_store_aux >= 15:
+                        if i + num_no_store_aux >= reach-1:
                             # print("too long",stack[i],mem[j],stack,mem,needed_stack)
                             return True
                 j -= 1
@@ -1009,14 +1009,14 @@ class SMSgreedy:
     def clean_stack(self, o, stack, needed_stack, solved):
         ops = []
         i = 0
-        if self.needs_in_stack_too_far(o, stack, needed_stack) <= 14:
+        if self.needs_in_stack_too_far(o, stack, needed_stack) <= reach - 2:
             return ([], stack, needed_stack)
-        while i < len(stack) and len(stack) >= 10 and i <= 16:
-            while i < len(stack) and i <= 16 and (len(self._final_stack) + i - len(stack)) not in solved:
+        while i < len(stack) and len(stack) >= reach - 6 and i <= reach:
+            while i < len(stack) and i <= reach and (len(self._final_stack) + i - len(stack)) not in solved:
                 if stack[i] in needed_stack and needed_stack[stack[i]] == 0:
                     break
                 i += 1
-            if i > 0 and i < len(stack) and i <= 16 and (len(self._final_stack) + i - len(stack)) not in solved:
+            if i > 0 and i < len(stack) and i <= reach and (len(self._final_stack) + i - len(stack)) not in solved:
                 opr = stack[i]
                 ops += ['SWAP' + str(i)]
                 stack = [stack[i]] + stack[1:i] + [stack[0]] + stack[i + 1:]
@@ -1181,7 +1181,7 @@ class SMSgreedy:
                     solved += [len(self._final_stack) + pos]
                 else:
                     pos_in_stack = len(cstack) + pos
-                    assert (pos_in_stack > 0 and pos_in_stack <= 16) #when case 0 should not happen
+                    assert (pos_in_stack > 0 and pos_in_stack <= reach) #when case 0 should not happen
                     topcodes += ['SWAP' + str(pos_in_stack)]
                     topcodeids += ['SWAP' + str(pos_in_stack)]
                     lens = len(cstack)
@@ -1254,12 +1254,12 @@ class SMSgreedy:
                 pos_in_stack = len(cstack) + pos - len(self._final_stack)
                 # print(pos,pos_in_stack,cstack,self._final_stack)
                 # assert (pos_in_stack >= 0)
-                # assert (pos_in_stack <= 16)
-                # added only to avoid being removed when cannot be place in its position because is beyond 16 ****
-                if (pos_in_stack < 0 or pos_in_stack > 16) and (o not in cneeded_in_stack_map or cneeded_in_stack_map[o] == 0):
+                # assert (pos_in_stack <= reach)
+                # added only to avoid being removed when cannot be place in its position because is beyond "reach" ****
+                if (pos_in_stack < 0 or pos_in_stack > reach) and (o not in cneeded_in_stack_map or cneeded_in_stack_map[o] == 0):
                     cneeded_in_stack_map[cstack[0]] = 1
                 # end of added code
-                if pos_in_stack > 0  and  pos_in_stack <= 16: #othewise leave it on top
+                if pos_in_stack > 0  and  pos_in_stack <= reach: #othewise leave it on top
                     topcodes += ['SWAP' + str(pos_in_stack)]
                     topcodeids += ['SWAP' + str(pos_in_stack)]
                     lens = len(cstack)
@@ -1320,7 +1320,7 @@ class SMSgreedy:
     def first_unsolved_position(self,n,cstack,solved):
         i = n
         k = 1
-        while k <= 16 and k < len(cstack) and i not in sloved:
+        while k <= reach and k < len(cstack) and i not in sloved:
             k += 1
             i += 1
         return k
@@ -1372,9 +1372,9 @@ class SMSgreedy:
             elif len(self._final_stack)-len(cstack) not in solved:
                 #the first position in cstack is not solved
                 i = max(1,len(cstack)-len(self._final_stack))
-                while i < len(cstack) and i <=16 and (len(self._final_stack)-len(cstack)+i in solved or self._final_stack[len(self._final_stack)-len(cstack)+i] != cstack[0]):
+                while i < len(cstack) and i <=reach and (len(self._final_stack)-len(cstack)+i in solved or self._final_stack[len(self._final_stack)-len(cstack)+i] != cstack[0]):
                     i += 1
-                if i <= 16 and i < len(cstack): # can be swaped to its position
+                if i <= reach and i < len(cstack): # can be swaped to its position
                     popcodes += ['SWAP' + str(i)]
                     popcodeids += ['SWAP' + str(i)]
                     cstack = [cstack[i]] + cstack[1:i] + [cstack[0]] + cstack[i + 1:]
@@ -1382,16 +1382,16 @@ class SMSgreedy:
                     if verbose: print('SWAP' + str(i),cstack,len(cstack))
                     continue
                 j = 1
-                while j < len(cstack) and j <=16 and allelems.count(cstack[j]) == self._final_stack.count(cstack[j]):
+                while j < len(cstack) and j <= reach and allelems.count(cstack[j]) == self._final_stack.count(cstack[j]):
                     j += 1
-                if j <= 16 and j < len(cstack): # can be swaped with garbage 
+                if j <= reach and j < len(cstack): # can be swaped with garbage 
                     popcodes += ['SWAP' + str(j)]
                     popcodeids += ['SWAP' + str(j)]
                     if (len(self._final_stack)-len(cstack) in solved): solved.remove(len(self._final_stack)-len(cstack))
                     cstack = [cstack[j]] + cstack[1:j] + [cstack[0]] + cstack[j + 1:]
                     if verbose: print('SWAP' + str(j),cstack,len(cstack))
                 else: # must be swaped to an unreachable position (or its position its position is before the current stack because of registers) and there is no garbage to swap
-                    if len(cstack)+lpos >= 16:
+                    if len(cstack)+lpos >= reach:
                         u = len(allelems) - len(self._final_stack) #useless elems are before lpos (maybe including it)
                         if i != len(cstack) + lpos - u: # or we cannot swap any elem 
                             # it is the element in the last not solved unreachable position 
@@ -1400,7 +1400,7 @@ class SMSgreedy:
                             reg.append(cstack.pop(0))
                             if verbose: print('VSET(' + reg[-1] +')',cstack,len(cstack))
                         else:                            
-                            k = min(16,len(cstack)+lpos - 16 - u)
+                            k = min(reach,len(cstack)+lpos - reach - u)
                             popcodes += ['SWAP' + str(k)]
                             popcodeids += ['SWAP' + str(k)]
                             cstack = [cstack[k]] + cstack[1:k] + [cstack[0]] + cstack[k + 1:]
@@ -1412,7 +1412,7 @@ class SMSgreedy:
                             if verbose: print('VSET(' + reg[-1] +')',cstack,len(cstack))
                     else:
                         # print('0:',reg,cstack,self._final_stack,lpos,sorted(solved))
-                        assert(len(cstack)+lpos < 16)
+                        assert(len(cstack)+lpos < reach)
                         r = self.get_register(reg,cstack,solved)
                         popcodes += ['VGET(' + r +')']
                         popcodeids += ['VGET(' + r +')']
@@ -1424,16 +1424,16 @@ class SMSgreedy:
             else: # len(reg) in solved --> current top of the stack is solved
                 # Search for a usless
                 j = 1
-                while j < len(cstack) and j <=16 and allelems.count(cstack[j]) ==  self._final_stack.count(cstack[j]):
+                while j < len(cstack) and j <= reach and allelems.count(cstack[j]) ==  self._final_stack.count(cstack[j]):
                     j += 1
-                if j <= 16 and j < len(cstack): # can be swaped with garbage 
+                if j <= reach and j < len(cstack): # can be swaped with garbage 
                     popcodes += ['SWAP' + str(j)]
                     popcodeids += ['SWAP' + str(j)]
                     if (len(self._final_stack)-len(cstack) in solved): solved.remove(len(self._final_stack)-len(cstack))
                     cstack = [cstack[j]] + cstack[1:j] + [cstack[0]] + cstack[j + 1:]
                     if verbose: print('SWAP' + str(j),cstack,len(cstack))
                 else: # search for an unsolved
-                    if len(cstack)+lpos >= 16:
+                    if len(cstack)+lpos >= reach:
                         # it is the element in the last not solved unreachable position 
                         popcodes += ['VSET(' + cstack[0] +')']
                         popcodeids += ['VSET(' + cstack[0] +')']
@@ -1451,9 +1451,9 @@ class SMSgreedy:
                         if verbose: print('SWAP' + str(spos),cstack,len(cstack))
                     else:
                         i = max(1,len(cstack)-len(self._final_stack))
-                        while  i < len(cstack) and i <= 16 and (len(self._final_stack)-len(cstack)+i in solved or cstack[0] == cstack[i]):
+                        while  i < len(cstack) and i <= reach and (len(self._final_stack)-len(cstack)+i in solved or cstack[0] == cstack[i]):
                             i += 1
-                        if i <= 16 and i < len(cstack):
+                        if i <= reach and i < len(cstack):
                             popcodes += ['SWAP' + str(i)]
                             popcodeids += ['SWAP' + str(i)]
                             # print(reg,cstack,self._final_stack)
@@ -1462,7 +1462,7 @@ class SMSgreedy:
                             if verbose: print('SWAP' + str(i),cstack,len(cstack))
                         else:
                             # print('1:',reg,cstack,self._final_stack,lpos,sorted(solved))
-                            assert(len(cstack)+lpos < 16)
+                            assert(len(cstack)+lpos < reach)
                             r = self.get_register(reg,cstack,solved)
                             popcodes += ['VGET(' + r +')']
                             popcodeids += ['VGET(' + r +')']
@@ -1727,19 +1727,21 @@ def check_dup_swap(resids):
             n = int(o[4:])
             if n<1: print(o)
             assert(n>=1)
-            assert(n<=16)
+            assert(n<=reach)
         elif 'DUP' in o:
             n = int(o[3:])
             assert(n>=1)
-            assert(n<=16)
+            assert(n<=reach)
 
-def greedy_from_json(json_data: Dict[str, Any], verb=True, garbage=False, push_dup=1) -> Tuple[
+def greedy_from_json(json_data: Dict[str, Any], verb=True, garbage=False, push_dup=2, reachable = 16) -> Tuple[
     Dict[str, Any], SMSgreedy, List[str], List[str], int]:
     # print(encoding._var_instr_map)
     # print()
     # print(encoding._opid_instr_map)
     # print(encoding._mem_order)
     # print(encoding._sto_order)
+    global reach;
+    reach = 4 # reachable # 
     global verbose
     verbose = False # True # 
     global extend_tgt
@@ -1820,13 +1822,12 @@ def greedy_from_json(json_data: Dict[str, Any], verb=True, garbage=False, push_d
     except AssertionError:
         _, _, tb = sys.exc_info()
         traceback.print_tb(tb)
-        print(f"Error in {json_data['name']}. Junk: {json_data['admits_junk']}")
+        print("Error")
         res = None
         resids = None
         # print(name,encoding._b0,0 )
         error = 1
     return json_data, encoding, res, resids, error
-
 
 def remove_useless(r: List[str], rid:List[str]) -> Tuple[List[str], List[str]]:
     if len(r) <= 1:
@@ -1853,7 +1854,6 @@ def remove_useless(r: List[str], rid:List[str]) -> Tuple[List[str], List[str]]:
             j += 1
         i += 1
     return fr, frid
-
 
 def minsize_from_json(json_data: Dict[str, Any]) -> int:
     encoding = SMSgreedy(json_data.copy())
@@ -1912,7 +1912,7 @@ if __name__ == "__main__":
         name = name[p + 1:]
 
     json_info, encod, rs, rsids, error = greedy_from_json(json_read)  # ,True) if verbose
-    print(rsids)
+
     # if error == 0:
     #    print(name, "m:", minst, "g:", len(rs), "e:", error)
     # else:
