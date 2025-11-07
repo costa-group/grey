@@ -1441,13 +1441,14 @@ class SMSgreedy:
                         reg.append(cstack.pop(0))
                         if verbose: print('VSET(' + reg[-1] +')',cstack,len(cstack))
                     elif self._final_stack[lpos] == cstack[0]:
-                        popcodes += ['SWAP' + str(len(cstack)+lpos)]
-                        popcodeids += ['SWAP' + str(len(cstack)+lpos)]
+                        spos = len(cstack)+lpos
+                        popcodes += ['SWAP' + str(spos)]
+                        popcodeids += ['SWAP' + str(spos)]
                         # print(reg,cstack,self._final_stack)
-                        cstack = [cstack[lpos]] + cstack[1:lpos] + [cstack[0]] + cstack[lpos + 1:]
+                        cstack = [cstack[spos]] + cstack[1:spos] + [cstack[0]] + cstack[spos + 1:]
                         solved.remove(len(self._final_stack)-len(cstack))
-                        solved.append(len(self._final_stack)-lpos)
-                        if verbose: print('SWAP' + str(i),cstack,len(cstack))
+                        solved.append(spos)
+                        if verbose: print('SWAP' + str(spos),cstack,len(cstack))
                     else:
                         i = max(1,len(cstack)-len(self._final_stack))
                         while  i < len(cstack) and i <= 16 and (len(self._final_stack)-len(cstack)+i in solved or cstack[0] == cstack[i]):
