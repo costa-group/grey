@@ -800,7 +800,7 @@ class SMSgreedy:
                             solved_before = True
                     if not solved_before:
                         assert (max_to_swap <= reach)
-                        if pos < max_to_swap: #or len(stack) >= reach:
+                        if pos <= max_to_swap: #or len(stack) >= reach:
                             # if pos == max_to_swap-1:
                             #     print("SWAPTHREE")
                             needed_stack.pop(o, None)
@@ -1764,10 +1764,11 @@ def greedy_from_json(json_data: Dict[str, Any], verb=True, garbage=False, push_d
         opcodeids_ini_aux = opcodeids_ini.copy()
         instr_aux = instr.copy()
         final_no_store_aux = final_no_store.copy()
-        (res, resids) = encoding.compute(instr, final_no_store, opcodes_ini, opcodeids_ini, solved, initial, 3)
+        max_to_swap = min(2,reach)
+        (res, resids) = encoding.compute(instr, final_no_store, opcodes_ini, opcodeids_ini, solved, initial, max_to_swap)
         encoding.check_dependencies(resids)
         # encoding._needed_in_stack_map = needed_in_stack_aux
-        # (res1, resids1) = encoding.compute(instr_aux, final_no_store_aux, opcodes_ini_aux, opcodeids_ini_aux, solved_aux, initial, 2)
+        # (res1, resids1) = encoding.compute(instr_aux, final_no_store_aux, opcodes_ini_aux, opcodeids_ini_aux, solved_aux, initial, max_to_swap-1)
         # if len(res) > len(res1):
         #    res = res1
         #    resids = resids1
