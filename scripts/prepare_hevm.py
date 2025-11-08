@@ -89,12 +89,12 @@ def build_files(dir_file, contract_name, opt_regions, solc_regions):
            
         for i in range(len(opt_regions)):
             f_opt = open(dir_file+"/"+contract_name+str(i)+".grey","w")
-            f.write(opt_regions[i])
+            f_opt.write(opt_regions[i])
             f_opt.close()
 
             f_solc = open(dir_file+"/"+contract_name+str(i)+".solc","w")
-            f.write(solc_regions[i])
-            f_opt.close()
+            f_solc.write(solc_regions[i])
+            f_solc.close()
             
     elif len(opt_regions) == len(solc_regions)-1:
         opt_regions.pop(0) #constructor
@@ -105,12 +105,12 @@ def build_files(dir_file, contract_name, opt_regions, solc_regions):
 
         for i in range(len(opt_regions)):
             f_opt = open(dir_file+"/"+contract_name+str(i)+".grey","w")
-            f.write(opt_regions[i])
+            f_opt.write(opt_regions[i])
             f_opt.close()
 
             f_solc = open(dir_file+"/"+contract_name+str(i)+".solc","w")
-            f.write(solc_regions[i])
-            f_opt.close()
+            f_solc.write(solc_regions[i])
+            f_solc.close()
 
         
 def execute_script():
@@ -145,7 +145,7 @@ def execute_script():
                 bytecode = json[c.strip()]["evm"]["bytecode"]["object"]
                 bytecode_regions = prepare_evm(bytecode.strip()) 
 
-
+                build_files(new_path, c, opt_regions, bytecode_regions)
     print("****************************")
     
 
