@@ -775,7 +775,8 @@ class SMSgreedy:
         #assert (o not in needed_stack or o in stack[:reach])
         if o in stack and stack.index(o) < reach:
             pos = stack.index(o)
-            if o in needed_stack and needed_stack[o] == 1:
+            if o in needed_stack and needed_stack[o] == 1 \
+               and (o not in self._initial_stack or stack.count(o) > self._final_stack.count(o)):
                 if pos < self._dup_stack_ini:
                     # it is just computed on top. Need to take the next one
                     # print(o,stack,self._dup_stack_ini,needed_stack)
@@ -799,7 +800,7 @@ class SMSgreedy:
                             solved_before = True
                     if not solved_before:
                         assert (max_to_swap <= reach)
-                        if pos < max_to_swap: #or len(stack) >= reach:
+                        if pos <= max_to_swap: #or len(stack) >= reach:
                             # if pos == max_to_swap-1:
                             #     print("SWAPTHREE")
                             needed_stack.pop(o, None)
@@ -1160,7 +1161,8 @@ class SMSgreedy:
             # print("enter while:", sorted(solved))
             # print('current stack:',cstack)
             # print('final_stack:', self._final_stack)
-            while len(cstack) > 0 and (cstack[0] not in cneeded_in_stack_map or cneeded_in_stack_map[cstack[0]] == 0):
+            while len(cstack) > 0 and (cstack[0] not in cneeded_in_stack_map or cneeded_in_stack_map[cstack[0]] == 0) \
+                  and (cstack[0] not in self._initial_stack or cstack.count(cstack[0]) > self._final_stack.count(cstack[0])):
                 if (len(self._final_stack) - len(cstack)) in solved:
                     break
                 topcodes += ['POP']
@@ -1447,7 +1449,7 @@ class SMSgreedy:
                         # print(reg,cstack,self._final_stack)
                         cstack = [cstack[spos]] + cstack[1:spos] + [cstack[0]] + cstack[spos + 1:]
                         solved.remove(len(self._final_stack)-len(cstack))
-                        solved.append(spos)
+                        solved.append(len(self._final_stack)+lpos)
                         if verbose: print('SWAP' + str(spos),cstack,len(cstack))
                     else:
                         i = max(1,len(cstack)-len(self._final_stack))
@@ -1741,7 +1743,7 @@ def greedy_from_json(json_data: Dict[str, Any], verb=True, garbage=False, push_d
     # print(encoding._mem_order)
     # print(encoding._sto_order)
     global reach;
-    reach = reachable # 4 # 
+    reach = reachable # 3 # 
     global verbose
     verbose = False # True # 
     global extend_tgt
@@ -1762,10 +1764,11 @@ def greedy_from_json(json_data: Dict[str, Any], verb=True, garbage=False, push_d
         opcodeids_ini_aux = opcodeids_ini.copy()
         instr_aux = instr.copy()
         final_no_store_aux = final_no_store.copy()
-        (res, resids) = encoding.compute(instr, final_no_store, opcodes_ini, opcodeids_ini, solved, initial, 3)
+        max_to_swap = min(2,reach)
+        (res, resids) = encoding.compute(instr, final_no_store, opcodes_ini, opcodeids_ini, solved, initial, max_to_swap)
         encoding.check_dependencies(resids)
         # encoding._needed_in_stack_map = needed_in_stack_aux
-        # (res1, resids1) = encoding.compute(instr_aux, final_no_store_aux, opcodes_ini_aux, opcodeids_ini_aux, solved_aux, initial, 2)
+        # (res1, resids1) = encoding.compute(instr_aux, final_no_store_aux, opcodes_ini_aux, opcodeids_ini_aux, solved_aux, initial, max_to_swap-1)
         # if len(res) > len(res1):
         #    res = res1
         #    resids = resids1
