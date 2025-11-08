@@ -1874,14 +1874,14 @@ def minsize_from_json(json_data: Dict[str, Any]) -> int:
     return s
 
 
-def greedy_standalone(sms: Dict, garb=False) -> Tuple[str, float, List[str]]:
+def greedy_standalone(sms: Dict, garb=False, reachable=16) -> Tuple[str, float, List[str]]:
     """
     Executes the greedy algorithm as a standalone configuration. Returns whether the execution has been
     sucessful or not ("non_optimal" or "error"), the total time and the sequence of ids returned.
     """
     usage_start = resource.getrusage(resource.RUSAGE_SELF)
     try:
-        json_info, _, _, seq_ids, error = greedy_from_json(sms,garbage = garb)
+        json_info, _, _, seq_ids, error = greedy_from_json(sms, garbage=garb, reachable=reachable)
         usage_stop = resource.getrusage(resource.RUSAGE_SELF)
     except Exception as e:
         print(str(e))
