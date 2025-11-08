@@ -145,7 +145,7 @@ def execute_script():
                 bytecode = json[c.strip()]["evm"]["bytecode"]["object"]
                 bytecode_regions = prepare_evm(bytecode.strip()) 
 
-                build_files(new_path, c, opt_regions, bytecode_regions)
+                build_files(new_path, c.strip(), opt_regions, bytecode_regions)
     print("****************************")
     
 
