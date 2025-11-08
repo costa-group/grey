@@ -29,10 +29,10 @@ find "$DIRECTORIO_BASE" -type f -name "*.solc" | while read -r yul_file; do
     if [ $RES -eq 0 ]; then
         echo "HEVM passed"
         
-    elif [ $RES -eq 1]; then
+    elif [ $RES -eq 1 ]; then
         echo "HEVM failed"
 
-    elif [ $RES -eq 124]; then
+    elif [ $RES -eq 124 ]; then
         echo "HEVM timeout"
 
     else
