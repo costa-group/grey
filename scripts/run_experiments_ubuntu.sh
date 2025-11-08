@@ -62,7 +62,7 @@ find "$DIRECTORIO_BASE" -type f -name "*standard_input.json" | while read -r yul
     
 
     start=$(date +%s.%N)
-    python3 $GREY_PATH -s "$yul_file" -g -j -if standard-json -solc $SOLC_PATH -o "/tmp/$yul_base" &> "$yul_dir/$yul_base.log"
+    python3 $GREY_PATH -s "$yul_file" -g -if standard-json -solc $SOLC_PATH -o "/tmp/$yul_base" &> "$yul_dir/$yul_base.log"
     end=$(date +%s.%N)
     popd
     elapsed=$(echo "$end - $start" | bc)
