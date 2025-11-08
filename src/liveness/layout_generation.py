@@ -262,9 +262,13 @@ class LayoutGeneration:
         if visualize:
             nx.nx_agraph.write_dot(renamed_graph, self._layout_dir.joinpath(f"{self._component_id}.dot"))
             for block_name, specification in json_info.items():
-                with open(self._sfs_dir.joinpath(block_name + ".json"), 'w') as f:
-                    json.dump(specification, f)
-
+                try:
+                    with open(self._sfs_dir.joinpath(block_name + ".json"), 'w') as f:
+                        json.dump(specification, f, indent=4)
+                except:
+                    # For block names that are too long (yeah... it happens)
+                    with open(self._sfs_dir.joinpath(block_name.split("_")[-7:].join("_") + ".json"), 'w') as f:
+                        json.dump(specification, f, indent=4)
 
 
 def layout_generation_cfg(cfg: CFG, args: argparse.Namespace, final_dir: Path = Path(".")) -> None:
