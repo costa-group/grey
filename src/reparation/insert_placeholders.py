@@ -140,6 +140,10 @@ def variable2block_header(cfg_block_list: CFGBlockList, forest_graph: nx.DiGraph
                 # We link the variable with the block
                 var2header[variable] = block_id
 
+    # Finally, we need to consider the variables passed through the initial stack
+    for variable in cfg_block_list.get_block(cfg_block_list.start_block).spec["src_ws"]:
+        var2header[variable] = cfg_block_list.start_block
+
     return var2header
 
 
