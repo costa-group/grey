@@ -1735,7 +1735,7 @@ def check_dup_swap(resids):
             assert(n>=1)
             assert(n<=16)
 
-def greedy_from_json(json_data: Dict[str, Any], verb=True, garbage=False, push_dup=2) -> Tuple[
+def greedy_from_json(json_data: Dict[str, Any], verb=True, garbage=False, push_dup=1) -> Tuple[
     Dict[str, Any], SMSgreedy, List[str], List[str], int]:
     # print(encoding._var_instr_map)
     # print()
@@ -1823,12 +1823,13 @@ def greedy_from_json(json_data: Dict[str, Any], verb=True, garbage=False, push_d
     except AssertionError:
         _, _, tb = sys.exc_info()
         traceback.print_tb(tb)
-        print("Error")
+        print(f"Error in {json_data['name']}. Junk: {json_data['admits_junk']}")
         res = None
         resids = None
         # print(name,encoding._b0,0 )
         error = 1
     return json_data, encoding, res, resids, error
+
 
 def remove_useless(r: List[str], rid:List[str]) -> Tuple[List[str], List[str]]:
     if len(r) <= 1:
@@ -1855,6 +1856,7 @@ def remove_useless(r: List[str], rid:List[str]) -> Tuple[List[str], List[str]]:
             j += 1
         i += 1
     return fr, frid
+
 
 def minsize_from_json(json_data: Dict[str, Any]) -> int:
     encoding = SMSgreedy(json_data.copy())
@@ -1913,7 +1915,7 @@ if __name__ == "__main__":
         name = name[p + 1:]
 
     json_info, encod, rs, rsids, error = greedy_from_json(json_read)  # ,True) if verbose
-
+    print(rsids)
     # if error == 0:
     #    print(name, "m:", minst, "g:", len(rs), "e:", error)
     # else:

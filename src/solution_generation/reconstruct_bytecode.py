@@ -58,8 +58,12 @@ def id_to_asm_bytecode(uf_instrs: Dict[str, Dict[str, Any]], instr_id: str) -> A
             return asm_from_op_info(associated_instr['disasm'],
                                     None if 'value' not in associated_instr else associated_instr['value'][0])
 
+    elif "PUSH" in instr_id:
+        value = instr_id.split(' ')[1]
+        return asm_from_op_info("PUSH", value)
     else:
         # The id is the instruction itself (SWAPx, DUPx, ...)
+        # a PUSH instruction or a MSTORE
         return asm_from_op_info(instr_id)
 
 

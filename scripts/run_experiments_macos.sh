@@ -4,7 +4,7 @@
 DIRECTORIO_BASE=/Users/pablo/Repositorios/ethereum/grey/scripts/test
 
 GREY_PATH=/Users/pablo/Repositorios/ethereum/grey/src/grey_main.py
-SOLC_PATH=/Users/pablo/Repositorios/ethereum/grey/examples/solc
+SOLC_PATH=/Users/pablo/Repositorios/ethereum/grey/examples/solc-moritz
 SOLX_PATH=/Users/pablo/Repositorios/ethereum/solx/solx-macosx-profiling
 TEST_SOLX_PATH=/Users/pablo/Repositorios/ethereum/grey/scripts/test_solx
 TESTRUNNER_PATH=/Users/pablo/Repositorios/ethereum/solidity/build/test/tools/testrunner
@@ -100,6 +100,10 @@ find "$DIRECTORIO_BASE" -type f -name "*standard_input.json" | while read -r yul
             echo "[RES]: Test passed."
             echo "python3 count_num_ins.py $yul_dir/$yul_base.output $yul_dir/$yul_base.log"
             python3 count_num_ins.py "$yul_dir/$yul_base.output" "$yul_dir/$yul_base.log" "$yul_dir/$yul_base.solx_output"
+
+
+            echo "python3 prepare_hevm.py $yul_dir/$yul_base.output $yul_dir/$yul_base.log"
+            python3 prepare_hevm.py "$yul_dir/$yul_base.output" "$yul_dir/$yul_base.log"
 
             echo "python3 compare_solx.py $yul_dir/$yul_base.log $yul_dir/$yul_base.solx_output $yul_dir/intermediate.json"
             python3 compare_solx.py "$yul_dir/$yul_base.log" "$yul_dir/$yul_base.solx_output" "$yul_dir/intermediate.json"

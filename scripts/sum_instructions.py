@@ -1,5 +1,5 @@
 import compare_blocks
-
+import sys
 
 
 def get_stats(file_name):
@@ -41,7 +41,7 @@ def cuartiles(original, optimizado, res):
 
 
 
-f = "num_instructions.txt"
+f = sys.argv[1]#"num_instructions.txt"
 
 ff = open(f, "r")
 lines = ff.readlines()

@@ -88,7 +88,7 @@ def decide_if_propagated(constant: constant_T, total_uses: Counter[constant_T]):
     size = (len(constant) - 2) // 2
 
     uses = total_uses[constant]
-    return uses * size >= uses + size + 2
+    return False # uses * size >= uses + size + 2
 
 
 def insert_constants_block_dominant_preorder(block_name: block_id_T, cfg_block_list: CFGBlockList,

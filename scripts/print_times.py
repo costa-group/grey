@@ -1,7 +1,7 @@
 import seaborn as sns
 import pandas as pd
 import matplotlib.pyplot as plt
-
+import sys
 def get_stats(file_name):
     f = open(file_name, "r")
     lines = f.readlines()
@@ -26,7 +26,7 @@ def get_stats(file_name):
     return float(time_grey), float(time_solc), int(blocks_cfg), int(ins_cfg), all_times
 
 
-f = "num_instructions.txt"
+f = sys.argv[1]
 
 ff = open(f, "r")
 lines = ff.readlines()
@@ -329,7 +329,7 @@ plt.legend()
 plt.grid(True, axis='y', linestyle='--', alpha=0.5)
 
 plt.savefig("figs/times-per-phase-bars.png")
-plt.show()
+#plt.show()
 
 
 

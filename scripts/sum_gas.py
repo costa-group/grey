@@ -1,3 +1,4 @@
+import sys
 
 def cuartiles(original, optimizado, res):
     original25 = original+original*0.25
@@ -18,7 +19,7 @@ def cuartiles(original, optimizado, res):
 
 
 
-f = "num_gas.txt"
+f = sys.argv[1]#"num_gas.txt"
 
 ff = open(f, "r")
 lines = ff.readlines()
