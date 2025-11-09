@@ -39,9 +39,9 @@ find "$DIRECTORIO_BASE" -type f -name "*standard_input.json" | while read -r yul
     echo "Procesando archivo: $yul_file"
 
     pushd $yul_dir
-    start_solc=$(gdate +%s.%N)
+    start_solc=$(date +%s.%N)
     $SOLC_PATH "${yul_file}_solc" --standard-json &> "$yul_dir/$yul_base.output"
-    end_solc=$(gdate +%s.%N)
+    end_solc=$(date +%s.%N)
     echo "$start_solc"
     echo "$end_solc"
     elapsed_solc=$(echo "$end_solc - $start_solc" | bc)
@@ -50,9 +50,9 @@ find "$DIRECTORIO_BASE" -type f -name "*standard_input.json" | while read -r yul
     echo "$SOLC_PATH ${yul_file}_solc --standard-json &> $yul_dir/$yul_base.output"
 
     #SOLX EXECUTION
-    start_solx=$(gdate +%s.%N)
+    start_solx=$(date +%s.%N)
     $SOLX_PATH --standard-json "$TEST_SOLX_PATH/$solx_test_file" &> "$yul_dir/$yul_base.solx_output"
-    end_solx=$(gdate +%s.%N)
+    end_solx=$(date +%s.%N)
     echo "$start_solx"
     echo "$end_solx"
     elapsed_solx=$(echo "$end_solx - $start_solx" | bc)
@@ -61,9 +61,9 @@ find "$DIRECTORIO_BASE" -type f -name "*standard_input.json" | while read -r yul
     echo "$SOLX_PATH --standard-json $TEST_SOLX_PATH/$solx_test_file   &> $yul_dir/$yul_base.solx_output"
     
 
-    start=$(gdate +%s.%N)
+    start=$(date +%s.%N)
     python3 $GREY_PATH -s "$yul_file" -g -if standard-json -solc $SOLC_PATH -o "/tmp/$yul_base" &> "$yul_dir/$yul_base.log"
-    end=$(gdate +%s.%N)
+    end=$(date +%s.%N)
     popd
     elapsed=$(echo "$end - $start" | bc)
     echo "TIME GREY $yul_file : $elapsed"
