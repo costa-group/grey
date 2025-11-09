@@ -6,7 +6,7 @@ from pathlib import Path
 import networkx as nx
 from collections import Counter
 
-from parser.parser import CFGBlockList, CFGBlock
+from parser.parser import CFGBlockList, CFGBlock, CFGObject, CFG
 from greedy.greedy_info import GreedyInfo
 from global_params.types import var_id_T, block_id_T, constant_T
 from reparation.reachability import construct_reachability
@@ -14,6 +14,31 @@ from reparation.insert_placeholders import repair_unreachable
 from reparation.tree_scan import TreeScan
 from reparation.utils import extract_value_from_pseudo_instr
 from graphs.algorithms import information_on_graph
+
+
+def repair_cfg(cfg: CFG, path_to_files: Optional[Path]):
+    """
+    Repairs all the block lists in a CFG
+    """
+    csv_dicts = []
+    for cfg_object in cfg.get_objects().values():
+        repair_cfg_objects(cfg_object, path_to_files)
+        sub_object = cfg_object.subObject
+        if sub_object is not None:
+            repair_cfg(sub_object, path_to_files)
+    return csv_dicts
+
+
+def repair_cfg_objects(cfg: CFGObject, path_to_files: Path):
+    """
+    Repairs all block list in an object
+    """
+    if cfg.blocks.needs_repair:
+        repair_unreachable_blocklist(cfg.blocks, cfg.blocks.to_fix, path_to_files.joinpath(cfg.name))
+
+    for cfg_function in cfg.functions.values():
+        if cfg_function.blocks.needs_repair:
+            repair_unreachable_blocklist(cfg_function.blocks, cfg.blocks.to_fix, path_to_files.joinpath(cfg.name))
 
 
 def repair_unreachable_blocklist(cfg_blocklist: CFGBlockList,
@@ -33,7 +58,6 @@ def repair_unreachable_blocklist(cfg_blocklist: CFGBlockList,
         reachability_path.mkdir(exist_ok=True, parents=True)
         _debug_cfg_reachability(cfg_blocklist, reachability_path)
 
-    if path_to_files is not None:
         vget_annotated = path_to_files.joinpath("annotated_vget")
         vget_annotated.mkdir(exist_ok=True, parents=True)
         _debug_reparation(cfg_blocklist, vget_annotated)
