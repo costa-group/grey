@@ -115,7 +115,7 @@ sns.scatterplot(data=df, x="x", y="y")
 
 plt.xlabel("Contracts ordered by number of instructions")
 plt.ylabel("Time (s)")
-plt.title("(a) Execution time of grey")
+plt.title("(a) Execution time of SATE")
 
 
 plt.savefig("figs/scatter-plot-grey.png")
@@ -144,7 +144,7 @@ sns.scatterplot(data=df, x="x", y="y")
 
 plt.xlabel("Num Instructions")
 plt.ylabel("Time (s)")
-plt.title("(a) Executio time of grey")
+plt.title("(a) Executio time of SATE")
 
 
 plt.savefig("figs/scatter-plot-grey-ins.png")
@@ -189,7 +189,7 @@ sns.scatterplot(data=df, x="x", y="y")
 
 plt.xlabel("Contracts ordered by number of blocks")
 plt.ylabel("Time (s)")
-plt.title("(a) Execution time of grey")
+plt.title("(a) Execution time of SATE")
 
 
 plt.savefig("figs/scatter-plot-grey-blocks-relative.png")
@@ -219,7 +219,7 @@ sns.scatterplot(data=df, x="x", y="y")
 
 plt.xlabel("Num Blocks")
 plt.ylabel("Time (s)")
-plt.title("(a) Execution time of grey")
+plt.title("(a) Execution time of SATE")
 
 plt.savefig("figs/scatter-plot-grey-blocks.png")
 #plt.show()
