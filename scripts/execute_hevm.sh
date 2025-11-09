@@ -21,7 +21,7 @@ find "$DIRECTORIO_BASE" -type f -name "*.solc" | while read -r yul_file; do
     echo "$HEVM_PATH equivalence --code-a \"\$(<${yul_file})\" --code-b \"\$(<${yul_dir}/${yul_base}.grey)\""
 
 
-    timeout 900s $HEVM_PATH equivalence --code-a "$(<$yul_file)" --code-b "$(<$yul_dir/$yul_base.grey)"
+    timeout 180s $HEVM_PATH equivalence --code-a "$(<$yul_file)" --code-b "$(<$yul_dir/$yul_base.grey)"
 
     RES=$?
     echo "$RES"
