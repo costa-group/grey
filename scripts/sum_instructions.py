@@ -1,5 +1,5 @@
 import compare_blocks
-
+import sys
 
 
 def get_stats(file_name):
@@ -41,7 +41,7 @@ def cuartiles(original, optimizado, res):
 
 
 
-f = "num_instructions.txt"
+f = sys.argv[1]#"num_instructions.txt"
 
 ff = open(f, "r")
 lines = ff.readlines()
@@ -110,6 +110,8 @@ list_times_solc = []
 list_ins_cfg = []
 list_blocks_cfg = []
 
+visited = {}
+
 for i in range(len(origin_number)):
     original = origin_number[i]
     optimizado = opt_number[i]
@@ -118,28 +120,90 @@ for i in range(len(origin_number)):
     fname_without_ext = fname.rstrip("log")
 
     print("CHECK: " + str((fname_without_ext+"output", fname_without_ext+"log")))
-   
+
+    if(fname_without_ext not in visited):
         
-    tsol, pops_sol, allpops, torigin, pops_origin , allpops_orig, inst_opt, inst_sol, blocks_solc, blocks_opt, total_ins_solc, total_ins_grey = compare_blocks.execute_function(fname_without_ext+"output", fname_without_ext+"log")
+        tsol, pops_sol, allpops, torigin, pops_origin , allpops_orig, inst_opt, inst_sol, blocks_solc, blocks_opt, total_ins_solc, total_ins_grey = compare_blocks.execute_function(fname_without_ext+"output", fname_without_ext+"log")
+
+        values = {}
+        values["tsol"] = tsol
+        values["pops_sol"] = pops_sol
+        values["allpops"] = allpops
+        values["torigin"] = torigin
+        values["pops_origin"] = pops_origin
+        values["allpops_orig"] = allpops_orig
+        values["inst_opt"] = inst_opt
+        values["inst_sol"] = inst_sol
+        values["blocks_solc"] = blocks_solc
+        values["blocks_opt"] = blocks_opt
+        values["total_ins_solc"] = total_ins_solc
+        values["total_ins_grey"] = total_ins_grey
+
+            
+        visited[fname_without_ext] = values
+        
+        try:
+            time_grey, time_solc, blocks_cfg, ins_cfg = get_stats(fname_without_ext+"log")
+
+            values = visited[fname_without_ext]
+            values["time_grey"] = time_grey
+            values["time_solc"] = time_solc
+            values["blocks_cfg"] = blocks_cfg
+            values["ins_cfg"] = ins_cfg
+
+            visited[fname_without_ext] = values
+            
+            list_times_grey.append(time_grey)
+            list_times_solc.append(time_solc)
+            list_ins_cfg.append(ins_cfg)
+            list_blocks_cfg.append(blocks_cfg)
     
-    try:
-        time_grey, time_solc, blocks_cfg, ins_cfg = get_stats(fname_without_ext+"log")
+            print([fname_without_ext,time_solc,blocks_solc,time_grey,blocks_opt])
+            f_scal.write(",".join([fname_without_ext[:-1],str(time_solc),str(blocks_solc),str(time_grey),str(blocks_opt)])+"\n")
 
-        list_times_grey.append(time_grey)
-        list_times_solc.append(time_solc)
-        list_ins_cfg.append(ins_cfg)
-        list_blocks_cfg.append(blocks_cfg)
+            f_scal_ins.write(",".join([fname_without_ext[:-1],str(time_solc),str(total_ins_solc),str(time_grey),str(total_ins_grey)])+"\n")
+
+            f_scal_cfg.write(",".join([fname_without_ext[:-1],str(blocks_cfg), str(ins_cfg),str(time_grey),str(time_solc)])+"\n")            
+            
+        except:
+            print("Error in get stats")
+
+    else:
+        values = visited[fname_without_ext]
+        tsol = values["tsol"]
+        pops_sol = values["pops_sol"]
+        allpops = values["allpops"]
+        torigin = values["torigin"]
+        pops_origin = values["pops_origin"]
+        allpops_orig = values["allpops_orig"]
+        inst_opt = values["inst_opt"]
+        inst_sol = values["inst_sol"]
+        blocks_solc = values["blocks_solc"]
+        blocks_opt = values["blocks_opt"]
+        total_ins_solc = values["total_ins_solc"]
+        total_ins_grey = values["total_ins_grey"]
+
+        try:
+            values = visited[fname_without_ext]
+            time_grey = values["time_grey"]
+            time_solc = values["time_solc"]
+            blocks_cfg = values["blocks_cfg"]
+            ins_cfg = values["ins_cfg"]
+            
+            list_times_grey.append(time_grey)
+            list_times_solc.append(time_solc)
+            list_ins_cfg.append(ins_cfg)
+            list_blocks_cfg.append(blocks_cfg)
     
-        print([fname_without_ext,time_solc,blocks_solc,time_grey,blocks_opt])
-        f_scal.write(",".join([fname_without_ext[:-1],str(time_solc),str(blocks_solc),str(time_grey),str(blocks_opt)])+"\n")
+            print([fname_without_ext,time_solc,blocks_solc,time_grey,blocks_opt])
+            f_scal.write(",".join([fname_without_ext[:-1],str(time_solc),str(blocks_solc),str(time_grey),str(blocks_opt)])+"\n")
 
-        f_scal_ins.write(",".join([fname_without_ext[:-1],str(time_solc),str(total_ins_solc),str(time_grey),str(total_ins_grey)])+"\n")
+            f_scal_ins.write(",".join([fname_without_ext[:-1],str(time_solc),str(total_ins_solc),str(time_grey),str(total_ins_grey)])+"\n")
 
-        f_scal_cfg.write(",".join([fname_without_ext[:-1],str(blocks_cfg), str(ins_cfg),str(time_grey),str(time_solc)])+"\n")
-
-    except:
-        print("Error in get stats")
-
+            f_scal_cfg.write(",".join([fname_without_ext[:-1],str(blocks_cfg), str(ins_cfg),str(time_grey),str(time_solc)])+"\n")           
+        except:
+            print("Error in get stats")
+        
     ########################
     if original > optimizado:
         menor+=1
@@ -150,13 +214,13 @@ for i in range(len(origin_number)):
         igual+=1
     else:
 
-        fname = f_names[i]
+        # fname = f_names[i]
 
-        fname_without_ext = fname.rstrip("log")
+        # fname_without_ext = fname.rstrip("log")
 
-        print("CHECK: " + str((fname_without_ext+"output", fname_without_ext+"log")))
+        # print("CHECK: " + str((fname_without_ext+"output", fname_without_ext+"log")))
         
-        tsol, pops_sol, allpops, torigin, pops_origin , allpops_orig, inst_opt, inst_sol, blocks_solc, blocks_opt, total_ins_solc, total_ins_grey = compare_blocks.execute_function(fname_without_ext+"output", fname_without_ext+"log")
+        # tsol, pops_sol, allpops, torigin, pops_origin , allpops_orig, inst_opt, inst_sol, blocks_solc, blocks_opt, total_ins_solc, total_ins_grey = compare_blocks.execute_function(fname_without_ext+"output", fname_without_ext+"log")
 
 
         # time_grey, time_solc = get_times(fname_without_ext+"log")
@@ -217,10 +281,10 @@ sns.scatterplot(data=df, x="x", y="y")
 
 plt.xlabel("Contracts ordered by number of instructions")
 plt.ylabel("Time (s)")
-plt.title("Grey")
+plt.title("SATE")
 
 
-plt.savefig("figs/scatter_plot_grey.png")
+plt.savefig("figs/scatter-plot-grey.png")
 #plt.show()
 
 plt.figure()
@@ -235,7 +299,7 @@ plt.ylabel("Time (s)")
 plt.title("Solc")
 
 
-plt.savefig("figs/scatter_plot_solc.png")
+plt.savefig("figs/scatter-plot-solc.png")
 #plt.show()
 
 plt.figure()
@@ -247,10 +311,10 @@ sns.scatterplot(data=df, x="x", y="y")
 
 plt.xlabel("Num Instructions")
 plt.ylabel("Time (s)")
-plt.title("Grey")
+plt.title("SATE")
 
 
-plt.savefig("figs/scatter_plot_grey_ins.png")
+plt.savefig("figs/scatter-plot-grey-ins.png")
 #plt.show()
 
 plt.figure()
@@ -265,7 +329,7 @@ plt.ylabel("Time (s)")
 plt.title("Solc")
 
 
-plt.savefig("figs/scatter_plot_solc_ins.png")
+plt.savefig("figs/scatter-plot-solc-ins.png")
 #plt.show()
 
 
@@ -292,10 +356,10 @@ sns.scatterplot(data=df, x="x", y="y")
 
 plt.xlabel("Contracts ordered by number of blocks")
 plt.ylabel("Time (s)")
-plt.title("Grey")
+plt.title("SATE")
 
 
-plt.savefig("figs/scatter_plot_grey_blocks_relative.png")
+plt.savefig("figs/scatter-plot-grey-blocks-relative.png")
 #plt.show()
 
 plt.figure()
@@ -310,7 +374,7 @@ plt.ylabel("Time (s)")
 plt.title("Solc")
 
 
-plt.savefig("figs/scatter_plot_solc_blocks_relative.png")
+plt.savefig("figs/scatter-plot-solc-blocks-relative.png")
 #plt.show()
 
 plt.figure()
@@ -322,10 +386,10 @@ sns.scatterplot(data=df, x="x", y="y")
 
 plt.xlabel("Num Blocks")
 plt.ylabel("Time (s)")
-plt.title("Grey")
+plt.title("SATE")
 
 
-plt.savefig("figs/scatter_plot_grey_blocks.png")
+plt.savefig("figs/scatter-plot-grey-blocks.png")
 #plt.show()
 
 plt.figure()
@@ -340,7 +404,7 @@ plt.ylabel("Time (s)")
 plt.title("Solc")
 
 
-plt.savefig("figs/scatter_plot_solc_blocks.png")
+plt.savefig("figs/scatter-plot-solc-blocks.png")
 #plt.show()
 
 

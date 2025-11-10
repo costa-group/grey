@@ -74,8 +74,6 @@ def get_evm_code(log_file):
         evm_code = elems[-1].split(":")[-1]
 
         res[c_name] = evm_code
-
-    print(res)
         
     return res
 
@@ -194,7 +192,6 @@ def count_num_ins(evm: str):
     Assumes the evm bytecode has no CBOR metadata appended
     """
     code_regions, gas = split_evm_instructions(evm)
-    print(gas)
     return sum(count_evm_instructions(remove_auxdata(region)) for region in code_regions), gas
 
 def count_num_bytes(evm: str):
@@ -269,6 +266,7 @@ def execute_script_solx():
 
         
         evm_dict = js.loads(evm_origin)
+
         contracts = evm_dict["contracts"]
 
         try:

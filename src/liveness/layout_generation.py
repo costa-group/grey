@@ -15,7 +15,7 @@ from pathlib import Path
 from itertools import zip_longest
 from collections import defaultdict
 
-from global_params.types import SMS_T, component_name_T, var_id_T
+from global_params.types import SMS_T, component_name_T, var_id_T, block_id_T
 from parser.cfg import CFG
 from parser.cfg_block_list import CFGBlockList
 from parser.cfg_block import CFGBlock
@@ -25,8 +25,10 @@ from graphs.cfg import compute_loop_nesting_forest_graph
 from liveness.liveness_analysis import LivenessAnalysisInfoSSA, construct_analysis_info, \
     perform_liveness_analysis_from_cfg_info
 from liveness.utils import functions_inputs_from_components
-from liveness.stack_layout_methods import compute_variable_depth, output_stack_layout, unify_stacks_brothers, \
-    compute_block_level, unification_block_dict, propagate_output_stack, forget_values
+from liveness.stack_layout_methods import (compute_variable_depth, output_stack_layout, unify_stacks_brothers,
+                                           compute_block_level, unification_block_dict, propagate_output_stack,
+                                           forget_values, unify_stacks_dominant)
+
 from timeit import default_timer as dtimer
 
 def substitute_duplicates(input_stack: List[var_id_T]):
@@ -40,6 +42,7 @@ def substitute_duplicates(input_stack: List[var_id_T]):
             added.add(var_)
 
     return substituted[::-1]
+
 
 def var_order_repr(block_name: str, var_info: Dict[str, int]):
     """
@@ -64,7 +67,7 @@ class LayoutGeneration:
 
     def __init__(self, object_id: str, block_list: CFGBlockList, liveness_info: Dict[str, LivenessAnalysisInfoSSA],
                  function_inputs: Dict[component_name_T, List[var_id_T]], name: Path, is_main_component: bool,
-                 cfg_graph: Optional[nx.Graph] = None, visualize:bool = False, junk: bool = True):
+                 cfg_graph: Optional[nx.DiGraph] = None, visualize:bool = False, junk: bool = True):
         self._component_id = object_id
         self._block_list = block_list
         self._liveness_info = liveness_info
@@ -109,6 +112,10 @@ class LayoutGeneration:
 
         self._loop_nesting_forest = compute_loop_nesting_forest_graph(self._cfg_graph)
 
+        _loop_nesting_dir = name.joinpath("loop-nesting")
+        _loop_nesting_dir.mkdir(exist_ok=True, parents=True)
+        nx.nx_agraph.write_dot(self._loop_nesting_forest, _loop_nesting_dir.joinpath(f"{object_id}.dot"))
+
         # Guess: we need to traverse the code following the dominance tree in topological order
         # This is because in the dominance tree together with the SSA, all the nodes
 
@@ -125,6 +132,10 @@ class LayoutGeneration:
         """
         block_id = block.block_id
         liveness_info = self._liveness_info[block_id]
+
+        block.set_liveness({"in": liveness_info.in_state.live_vars,
+                            "out": liveness_info.out_state.live_vars})
+
         comes_from = block.get_comes_from()
 
         # Computing input stack...
@@ -146,7 +157,7 @@ class LayoutGeneration:
 
         # We forget the deepest elements in the main component
         if self._can_have_junk(block_id):
-            input_stack = forget_values(input_stack, self._liveness_info[block_id].in_state.live_vars)
+            input_stack = forget_values(input_stack, self._liveness_info[block_id].in_state.vars_to_introduce)
 
         input_stacks[block.block_id] = input_stack
 
@@ -166,18 +177,38 @@ class LayoutGeneration:
             # We need to determine a stack that is the combination of the previous ones
             else:
                 # We unify the stacks according the first reached block
-                combined_liveness_info = {element_to_unify: self._liveness_info[element_to_unify].out_state.live_vars
+                combined_liveness_info = {element_to_unify: self._liveness_info[element_to_unify].out_state.vars_to_introduce
                                           for element_to_unify in elements_to_unify}
-                combined_liveness_info[next_block_id] = self._liveness_info[next_block_id].in_state.live_vars
+                combined_liveness_info[next_block_id] = self._liveness_info[next_block_id].in_state.vars_to_introduce
 
-                # If it is the main component, we do not care about the state of the stack afterwards
-                combined_output_stack, output_stacks_unified = unify_stacks_brothers(next_block_id,
-                                                                                     elements_to_unify,
-                                                                                     combined_liveness_info,
-                                                                                     phi_instructions,
-                                                                                     self._variable_order[
-                                                                                         next_block_id],
-                                                                                     block_id, input_stack.copy())
+                # We avoid going through loop headers because it can confuse the algorithm
+                if len(elements_to_unify) == 2 and ((
+                        path := self._preserve_junk_dominance(elements_to_unify[0], elements_to_unify[1])) is not None):
+                        # and all(self._loop_nesting_forest.successors(element) == 0
+                        #         for element in path[1:] if element in self._loop_nesting_forest):
+                    (combined_output_stack,
+                     output_stacks_unified,
+                     values_to_propagate) = unify_stacks_dominant(next_block_id,
+                                                                  elements_to_unify,
+                                                                  combined_liveness_info,
+                                                                  phi_instructions,
+                                                                  self._variable_order[
+                                                                      next_block_id],
+                                                                  block_id, input_stack.copy(),
+                                                                  self._can_have_junk(block_id))
+                    # We take the last output stack
+                    self.preserve_stack_dominant_path(path, output_stacks_unified[path[-1]], values_to_propagate)
+
+                else:
+                    # If it is the main component, we do not care about the state of the stack afterwards
+                    combined_output_stack, output_stacks_unified = unify_stacks_brothers(next_block_id,
+                                                                                         elements_to_unify,
+                                                                                         combined_liveness_info,
+                                                                                         phi_instructions,
+                                                                                         self._variable_order[
+                                                                                             next_block_id],
+                                                                                         block_id, input_stack.copy(),
+                                                                                         self._can_have_junk(block_id))
 
                 # Update the output stacks with the ones generated from the unification
                 output_stacks.update(output_stacks_unified)
@@ -189,23 +220,117 @@ class LayoutGeneration:
         if output_stack is None:
             if block.get_jump_type() in ["terminal", "mainExit"] or block.previous_type in ["terminal", "mainExit"]:
                 # We just need to place the corresponding elements in the top of the stack
-                output_stack = propagate_output_stack(input_stack, block.final_stack_elements,
-                                                      liveness_info.out_state.live_vars, self._variable_order[block_id],
+                output_stack = propagate_output_stack(input_stack, block.final_stack_elements, liveness_info.in_state.vars_to_introduce,
+                                                      liveness_info.out_state.vars_to_introduce, self._variable_order[block_id],
                                                       block.split_instruction.in_args if block.split_instruction else [])
 
+                junk_idx = len(output_stack)
+
             else:
-                output_stack = output_stack_layout(input_stack, block.final_stack_elements,
-                                                   liveness_info.out_state.live_vars, self._variable_order[block_id])
+                output_stack, junk_idx = output_stack_layout(input_stack, block.final_stack_elements,
+                                                             liveness_info.out_state.vars_to_introduce,
+                                                             self._variable_order[block_id],
+                                                             self._can_have_junk(block_id)
+                                                             )
 
             # We store the output stack in the dict, as we have built a new element
-            output_stacks[block_id] = output_stack
+            # We forget about the junk, because we propagate it assuming there is no garbage
+            output_stacks[block_id] = output_stack[:junk_idx]
 
         # We build the corresponding specification and store it in the block
-        block_json = block.build_spec(input_stack, output_stack)
+        block_json = block.build_spec(substitute_duplicates(input_stack), output_stack)
         block_json["admits_junk"] = self._can_have_junk(block_id)
         block.spec = block_json
 
         return block_json
+
+    def _preserve_junk_dominance(self, block1: block_id_T, block2: block_id_T) -> Optional[List[block_id_T]]:
+        """
+        Returns the path that connects u and v iff u dom v and we want to preserve the path that connects u to v.
+        Otherwise, returns None.
+        """
+        if nx.has_path(self._dominance_tree, block1, block2):
+            shortest_path = nx.shortest_path(self._dominance_tree, block1, block2)
+        else:
+            return None
+
+        # The path must have at least 6 nodes (3 intermediate + block1 and block2)
+        if len(shortest_path) < 6:
+            return shortest_path
+
+        # Otherwise, we check how many of those blocks admit junk. If > 3 do not admit junk,
+        # then we prefer to combine the phis.
+        num_without_junk = 0
+
+        # TODO: count successors with junks that are not in the path
+        for block_id in shortest_path[1:-1]:
+            for succ in self._cfg_graph.successors(block_id):
+                num_without_junk += int(not self._can_have_junk(succ))
+
+        if num_without_junk > 3:
+            return None
+        else:
+            return shortest_path
+
+    def preserve_junk_header(self, block_id: block_id_T, input_stack: List[var_id_T]):
+        """
+        Given the input stack of the header of a block, preserves the information as is
+        by marking that the junk elements must not be erased
+        """
+        # Mark the garbage as live to preserve it as is
+        if block_id in self._loop_nesting_forest and len(
+                list(self._loop_nesting_forest.successors(block_id))) > 0:
+            next_block_liveness = self._liveness_info[block_id].in_state.vars_to_introduce
+            junk = [value for value in input_stack
+                    if value not in next_block_liveness]
+
+            if len(junk) > 0:
+
+                # We also mark the out state of the current block
+                self._liveness_info.out_state.extra_values.update(junk)
+
+                for succ in self._loop_nesting_forest.successors(block_id):
+                    self._liveness_info[succ].in_state.extra_values.update(junk)
+                    self._liveness_info[succ].out_state.extra_values.update(junk)
+
+    def preserve_stack_dominant_path(self, path: List[block_id_T],
+                                     out_stack_last: List[var_id_T],
+                                     values_to_propagate: Set[var_id_T]):
+        """
+        Preserves the values of the stack when two stacks are unified s.t
+        the original one dominates the other one. A path is passed
+        that connects those two values
+        """
+        # We want to propagate the liveness backwards
+        next_block_liveness = self._liveness_info[path[-1]].out_state.vars_to_introduce
+
+        # Consider only the deepest elements, without the split instruction
+        # We choose the junk for the last block instead of the first one due to the trick of
+        # "forgetting" values that are very deep within the stack
+        junk = set(value for value in out_stack_last
+                   if value not in next_block_liveness)
+
+        # Combined values: values_to_propagate from phi functions + junk
+        combined_propagation = values_to_propagate.union(junk)
+
+        # TRICK: We have to preserve the values in between that are lost otherwise
+        if len(combined_propagation) > 0:
+
+            # We start with the last element upwards
+            elements_to_traverse = [path[-1]]
+            already_traversed = set()
+            while elements_to_traverse:
+                next_block = elements_to_traverse.pop()
+
+                # We stop when reaching the first element
+                if next_block in already_traversed or next_block == path[0]:
+                    continue
+                already_traversed.add(next_block)
+                self._liveness_info[next_block].in_state.extra_values.update(combined_propagation)
+                self._liveness_info[next_block].out_state.extra_values.update(combined_propagation)
+
+                # Extend backwards
+                elements_to_traverse.extend(self._cfg_graph.predecessors(next_block))
 
     def _construct_code_from_block_list(self):
         """
@@ -262,9 +387,13 @@ class LayoutGeneration:
         if visualize:
             nx.nx_agraph.write_dot(renamed_graph, self._layout_dir.joinpath(f"{self._component_id}.dot"))
             for block_name, specification in json_info.items():
-                with open(self._sfs_dir.joinpath(block_name + ".json"), 'w') as f:
-                    json.dump(specification, f)
-
+                try:
+                    with open(self._sfs_dir.joinpath(block_name + ".json"), 'w') as f:
+                        json.dump(specification, f, indent=4)
+                except:
+                    # For block names that are too long (yeah... it happens)
+                    with open(self._sfs_dir.joinpath(block_name.split("_")[-7:].join("_") + ".json"), 'w') as f:
+                        json.dump(specification, f, indent=4)
 
 
 def layout_generation_cfg(cfg: CFG, args: argparse.Namespace, final_dir: Path = Path(".")) -> None:

@@ -77,6 +77,7 @@ def split_basic_blocks(opcodes):
         leaders.add(0)
 
     # 2. Detectar líderes
+    print(opcodes)
     for i, op in enumerate(opcodes):
         if op.startswith("JUMPDEST"):
             leaders.add(i)
@@ -143,6 +144,36 @@ def split_evm_instructions(bytecode: str) -> List[str]:
     return partitions
 
 
+
+import re
+
+def split_evm_opcodes(code: str):
+    """
+    Separa un string de instrucciones EVM en una lista,
+    manteniendo unidos los PUSHn con su argumento.
+    """
+    tokens = code.split()
+    instructions = []
+    i = 0
+
+    while i < len(tokens):
+        tok = tokens[i]
+        # Detectar PUSHn
+        if re.match(r'^PUSH\d+$', tok):
+            if i + 1 < len(tokens) and tokens[i + 1].startswith("0x"):
+                # Unir PUSHn con su argumento
+                instructions.append(f"{tok} {tokens[i + 1]}")
+                i += 2
+                continue
+            else:
+                # PUSH sin argumento (caso raro o error)
+                instructions.append(tok)
+        else:
+            instructions.append(tok)
+        i += 1
+
+    return instructions
+
 def count_evm_instructions(bytecode: str) -> int:
     """
     Cuenta las instrucciones en el bytecode de un archivo EVM.
@@ -169,6 +200,9 @@ def count_evm_instructions(bytecode: str) -> int:
             break
 
     return count
+
+
+
 
 
 
@@ -205,11 +239,15 @@ def disasm_code(bytecode):
             # Leer un byte (dos caracteres hexadecimales)
             opcode = int(bytecode[i:i+2], 16)
             count += 1  # Contar la instrucción
-
+            
+            print(bytecode[i:i+2])
             
             op_name = instructions.get(opcode, None)
             if op_name == None:
-                raise Exception("Error in name of opcode")
+                print("[WARNING]: Error in name of opcode")
+                op_list.append("INVALID")
+                i+=2
+                # raise Exception("Error in name of opcode")
 
             
             # Manejar instrucciones PUSH (PUSH0 no requiere datos adicionales)
@@ -260,21 +298,25 @@ def execute_script():
     for c in contracts_solx:
         json_solx = contracts_solx.get(c, [])
         for cc in json_solx.keys():
-            bytecode = json_solx[cc.strip()]["evm"]["bytecode"]["object"]
-            print(bytecode)
-            result = generate_disasm(bytecode)
+            # bytecode = json_solx[cc.strip()]["evm"]["bytecode"]["object"]
+            bytecode = json_solx[cc.strip()]["evm"]["bytecode"]["opcodes"]
+            opcodes = split_evm_opcodes(bytecode)
+            print(opcodes)
+            blocks = split_basic_blocks(opcodes)
+            # print(bytecode)
+            # result = generate_disasm(bytecode)
+            # idx = 0
+            # for r in result:
+            #     for sequence in r:
+            #         blocks = split_basic_blocks(sequence)
             idx = 0
-            for r in result:
-                for sequence in r:
-                    blocks = split_basic_blocks(sequence)
-
-                    for i, block in enumerate(blocks):
-                        print(f"Block {i}: {block}")
-                        block_as_str = " ".join(block)
-                        f = open(dir_blocks+"/"+name+"_block_"+str(idx),"w")
-                        f.write(block_as_str)
-                        f.close()
-                        idx+=1
+            for i, block in enumerate(blocks):
+                print(f"Block {i}: {block}")
+                block_as_str = " ".join(block)
+                f = open(dir_blocks+"/"+name+"_block_"+str(idx),"w")
+                f.write(block_as_str)
+                f.close()
+                idx+=1
                     
 
 if __name__ == '__main__':

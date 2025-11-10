@@ -1,12 +1,12 @@
 import seaborn as sns
 import pandas as pd
 import matplotlib.pyplot as plt
-
+import sys
 def get_stats(file_name):
     f = open(file_name, "r")
     lines = f.readlines()
 
-    all_times_grey_line = list(filter(lambda x: x.find("Times") != -1 and x.find("Total") == -1, lines))[0]
+    all_times_grey_line = list(filter(lambda x: x.find("Times /User") != -1 and x.find("Total") == -1, lines))[0]
 
     all_times_aux = all_times_grey_line.split(":")[-1]
     all_times = list(map(lambda x: float(x.strip()), all_times_aux.split(",")))
@@ -26,7 +26,7 @@ def get_stats(file_name):
     return float(time_grey), float(time_solc), int(blocks_cfg), int(ins_cfg), all_times
 
 
-f = "num_instructions.txt"
+f = sys.argv[1]
 
 ff = open(f, "r")
 lines = ff.readlines()
@@ -115,7 +115,7 @@ sns.scatterplot(data=df, x="x", y="y")
 
 plt.xlabel("Contracts ordered by number of instructions")
 plt.ylabel("Time (s)")
-plt.title("(a) Execution time of grey")
+plt.title("(a) Execution time of SATE")
 
 
 plt.savefig("figs/scatter-plot-grey.png")
@@ -144,7 +144,7 @@ sns.scatterplot(data=df, x="x", y="y")
 
 plt.xlabel("Num Instructions")
 plt.ylabel("Time (s)")
-plt.title("(a) Executio time of grey")
+plt.title("(a) Executio time of SATE")
 
 
 plt.savefig("figs/scatter-plot-grey-ins.png")
@@ -189,7 +189,7 @@ sns.scatterplot(data=df, x="x", y="y")
 
 plt.xlabel("Contracts ordered by number of blocks")
 plt.ylabel("Time (s)")
-plt.title("(a) Execution time of grey")
+plt.title("(a) Execution time of SATE")
 
 
 plt.savefig("figs/scatter-plot-grey-blocks-relative.png")
@@ -219,7 +219,7 @@ sns.scatterplot(data=df, x="x", y="y")
 
 plt.xlabel("Num Blocks")
 plt.ylabel("Time (s)")
-plt.title("(a) Execution time of grey")
+plt.title("(a) Execution time of SATE")
 
 plt.savefig("figs/scatter-plot-grey-blocks.png")
 #plt.show()
@@ -329,7 +329,7 @@ plt.legend()
 plt.grid(True, axis='y', linestyle='--', alpha=0.5)
 
 plt.savefig("figs/times-per-phase-bars.png")
-plt.show()
+#plt.show()
 
 
 
