@@ -40,14 +40,14 @@ find "$DIRECTORIO_BASE" -type f -name "*standard_input.json" | while read -r yul
 
     pushd $yul_dir
     start_solc=$(gdate +%s.%N)
-    $SOLC_PATH "${yul_file}_solc" --standard-json &> "$yul_dir/$yul_base.output"
+    $SOLC_PATH "${yul_file}" --standard-json &> "$yul_dir/$yul_base.output"
     end_solc=$(gdate +%s.%N)
     echo "$start_solc"
     echo "$end_solc"
     elapsed_solc=$(echo "$end_solc - $start_solc" | bc)
     echo "TIME SOLC $yul_file : $elapsed_solc"
     
-    echo "$SOLC_PATH ${yul_file}_solc --standard-json &> $yul_dir/$yul_base.output"
+    echo "$SOLC_PATH ${yul_file} --standard-json &> $yul_dir/$yul_base.output"
 
     #SOLX EXECUTION
     start_solx=$(gdate +%s.%N)
