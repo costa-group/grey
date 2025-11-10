@@ -34,11 +34,11 @@ def repair_cfg_objects(cfg: CFGObject, path_to_files: Path):
     Repairs all block list in an object
     """
     if cfg.blocks.needs_repair:
-        repair_unreachable_blocklist(cfg.blocks, cfg.blocks.to_fix, path_to_files.joinpath(cfg.name))
+        repair_unreachable_blocklist(cfg.blocks, cfg.blocks.to_fix, path_to_files.joinpath(cfg.name) if path_to_files is not None else None)
 
     for cfg_function in cfg.functions.values():
         if cfg_function.blocks.needs_repair:
-            repair_unreachable_blocklist(cfg_function.blocks, cfg.blocks.to_fix, path_to_files.joinpath(cfg.name))
+            repair_unreachable_blocklist(cfg_function.blocks, cfg.blocks.to_fix, path_to_files.joinpath(cfg.name) if path_to_files is not None else None)
 
 
 def repair_unreachable_blocklist(cfg_blocklist: CFGBlockList,
