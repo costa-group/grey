@@ -141,6 +141,9 @@ for i in range(len(origin_number)):
 
             
         visited[fname_without_ext] = values
+
+        total_blocks_solc+=blocks_solc
+        total_blocks_opt+=blocks_opt
         
         try:
             time_grey, time_solc, blocks_cfg, ins_cfg = get_stats(fname_without_ext+"log")
@@ -243,8 +246,6 @@ for i in range(len(origin_number)):
         all_pops_origin+=allpops_orig
         total_ins_terminal_sol+=inst_sol
         total_ins_terminal_opt+=inst_opt
-        total_blocks_solc+=blocks_solc
-        total_blocks_opt+=blocks_opt
         
         worse_files[fname] = (original, optimizado)
         # print("PAREJA: ("+str(original)+","+str(optimizado)+")")
