@@ -1391,7 +1391,7 @@ class SMSgreedy:
                       (len(self._final_stack)-len(cstack)+i in solved or self._final_stack[len(self._final_stack)-len(cstack)+i] != cstack[0]):
                     i -= 1
                 if i >= 1 and len(self._final_stack)-len(cstack)+i >= 0: # can be swaped to its position
-                   popcodes += ['SWAP' + str(i)]
+                    popcodes += ['SWAP' + str(i)]
                     popcodeids += ['SWAP' + str(i)]
                     cstack = [cstack[i]] + cstack[1:i] + [cstack[0]] + cstack[i + 1:]
                     solved += [len(self._final_stack)-len(cstack)+i]
@@ -1431,8 +1431,8 @@ class SMSgreedy:
                                 popcodeids += ['POP']
                                 if verbose: print('POP',cstack,len(cstack))
                             else:
-                            popcodes += ['VSET(' + cstack[0] +')']
-                            popcodeids += ['VSET(' + cstack[0] +')']
+                                popcodes += ['VSET(' + cstack[0] +')']
+                                popcodeids += ['VSET(' + cstack[0] +')']
                                 if verbose: print('VSET(' + cstack[0] +')',cstack,len(cstack))
                             if (len(self._final_stack)-len(cstack) in solved): solved.remove(len(self._final_stack)-len(cstack))
                             reg.append(cstack.pop(0))
@@ -1456,8 +1456,8 @@ class SMSgreedy:
                                 popcodeids += ['POP']
                                 if verbose: print('POP',cstack,len(cstack))
                             else:
-                            popcodes += ['VSET(' + cstack[0] +')']
-                            popcodeids += ['VSET(' + cstack[0] +')']
+                                popcodes += ['VSET(' + cstack[0] +')']
+                                popcodeids += ['VSET(' + cstack[0] +')']
                                 if verbose: print('VSET(' + cstack[0] +')',cstack,len(cstack))
                             reg.append(cstack.pop(0))
                     else:
@@ -1491,8 +1491,8 @@ class SMSgreedy:
                             popcodeids += ['POP']
                             if verbose: print('POP',cstack,len(cstack))
                         else:
-                        popcodes += ['VSET(' + cstack[0] +')']
-                        popcodeids += ['VSET(' + cstack[0] +')']
+                            popcodes += ['VSET(' + cstack[0] +')']
+                            popcodeids += ['VSET(' + cstack[0] +')']
                             if verbose: print('VSET(' + cstack[0]  +')',cstack,len(cstack))
                         if (len(self._final_stack)-len(cstack) in solved): solved.remove(len(self._final_stack)-len(cstack))
                         reg.append(cstack.pop(0)) # we add it anyway to account for uses
