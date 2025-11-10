@@ -6,7 +6,7 @@ def get_stats(file_name):
     f = open(file_name, "r")
     lines = f.readlines()
 
-    all_times_grey_line = list(filter(lambda x: x.find("Times") != -1 and x.find("Total") == -1, lines))[0]
+    all_times_grey_line = list(filter(lambda x: x.find("Times /User") != -1 and x.find("Total") == -1, lines))[0]
 
     all_times_aux = all_times_grey_line.split(":")[-1]
     all_times = list(map(lambda x: float(x.strip()), all_times_aux.split(",")))
