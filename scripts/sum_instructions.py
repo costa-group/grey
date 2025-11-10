@@ -448,9 +448,6 @@ print()
 
 assert(len(origin_number) == len(opt_number))
 
-print(origin_number)
-print(opt_number)
-
 print("TOTAL")
 print("TOTAL INS ORIGINAL: "+str(total_origin))
 print("TOTAL INS OPT: "+str(total_opt))
