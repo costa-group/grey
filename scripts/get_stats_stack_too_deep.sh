@@ -8,7 +8,8 @@ grep -F "OWN COSTAG:" $RES_FILE &> num_own_gas_deep.txt
 grep "NUM INS" $RES_FILE &> all_num_instructions.txt
 
 
-grep Times test/*/*.log | cut -d':' -f3- &> salida.csv
+grep "Times /User" test_stack_too_deep/*/*.log | cut -d':' -f3- &> salida.csv
+ grep "Times /User" test_stack_too_deep/*/*.log | cut -d':' -f1 &> salida-ficheros.txt
 grep TIME $RES_FILE &> salida-times.txt
 
 grep "SOLXRES" $RES_FILE &> solx_res.txt

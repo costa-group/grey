@@ -11,6 +11,7 @@ grep "NUM INS" $RES_FILE &> all_num_instructions.txt
 
 
 grep Times test/*/*.log | cut -d':' -f3- &> salida.csv
+grep Times test/*/*.log | cut -d':' -f1 &> salida-ficheros.txt
 grep TIME $RES_FILE &> salida-times.txt
 
 
