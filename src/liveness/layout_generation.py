@@ -31,6 +31,9 @@ from liveness.stack_layout_methods import (compute_variable_depth, output_stack_
 
 from timeit import default_timer as dtimer
 
+global too_long_index
+too_long_index = 0
+
 def substitute_duplicates(input_stack: List[var_id_T]):
     substituted = []
     added = set()
@@ -391,8 +394,9 @@ class LayoutGeneration:
                     with open(self._sfs_dir.joinpath(block_name + ".json"), 'w') as f:
                         json.dump(specification, f, indent=4)
                 except:
+                    global too_long_index
                     # For block names that are too long (yeah... it happens)
-                    with open(self._sfs_dir.joinpath(block_name.split("_")[-7:].join("_") + ".json"), 'w') as f:
+                    with open(self._sfs_dir.joinpath(f"too_long_{too_long_index}.json"), 'w') as f:
                         json.dump(specification, f, indent=4)
 
 

@@ -82,8 +82,7 @@ def extract_info(output_dict):
                     size = len(evm) // 2
 
                     if contract_name in added:
-                        assert (added[contract_name] == size,
-                                f"Expect same name in {contract_name} for file {file_name}")
+                        assert added[contract_name] == size, f"Expect same name in {contract_name} for file {file_name}"
                     else:
                         added[contract_name] = size
                         contract_info.append({"contract": f"{contract_name}",
@@ -94,14 +93,17 @@ def extract_info(output_dict):
 
 def compile_files(initial_folder: Path, final_folder: Path):
     final_folder.mkdir(exist_ok=True, parents=True)
-    print(list(initial_folder.glob("*.json")))
+    # print(list(initial_folder.glob("*.json")))
     for json_file in initial_folder.glob("*.json"):
+        path_file = Path(Path(json_file).name).stem
         with open(json_file, 'r') as f:
             contract_dict = json.load(f)
-        output, total_time = compile_json_input(contract_dict)
-        contract_info = extract_info(output)
-        pd.DataFrame(contract_info).to_csv(final_folder.joinpath(str(Path(json_file).stem) + ".csv"))
-
+        try:
+            output, total_time = compile_json_input(contract_dict)
+            contract_info = extract_info(output)
+            pd.DataFrame(contract_info).to_csv(final_folder.joinpath(str(path_file) + ".csv"))
+        except Exception as e:
+            print(f"Error in {path_file}: {e}")
 
 if __name__ == "__main__":
     etherscan_output_folder, target_folder = Path(sys.argv[1]), Path(sys.argv[2])
