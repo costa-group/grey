@@ -175,7 +175,7 @@ def main(args):
         asm_contracts[cfg_name]["asm"] = asm_contract
 
         # Store the call info in a csv
-        call_freq.extend(function_frequency(cfg))
+        call_freq.extend(function_frequency(cfg, cfg_name))
 
         if args.visualize:
             assembly_path = store_asm_output(asm_contract, cfg_name, cfg_dir)
@@ -221,7 +221,7 @@ def main(args):
     
     asm_combined_output = {"contracts": asm_contracts, "version": "grey"}
 
-    pd.DataFrame(call_freq).to_csv(final_dir.joinpath("call_info.csv"))
+    pd.DataFrame(call_freq).to_csv(final_dir.joinpath(f"call_info_{Path(args.source).stem}.csv"))
 
     with open(str(final_dir.joinpath(Path(args.source).stem)) + "_bef_importer.json_solc", 'w') as f:
         json.dump(asm_combined_output, f, indent=4)
