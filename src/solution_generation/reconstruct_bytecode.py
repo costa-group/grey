@@ -441,11 +441,14 @@ def build_standard_json_settings(output_json, settings_opt):
     
     output = build_output_selection()
     output_json["settings"]["outputSelection"] = output
-    
+    output_json["settings"]["metadata"] = {}
+    output_json["settings"]["metadata"]["appendCBOR"] = False
+
+
 def build_output_selection():
     output_selection = {}
     output_selection["*"] = {}
-    output_selection["*"][""] = ["*"]
+    output_selection["*"][""] = ["evm.bytecode.object"]
 
     return output_selection
 
