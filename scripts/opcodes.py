@@ -157,11 +157,11 @@ Wzero = ("STOP", "RETURN", "REVERT", "ASSERTFAIL")
 Wbase = ("ADDRESS", "ORIGIN", "CALLER", "CALLVALUE", "CALLDATASIZE",
          "CODESIZE", "GASPRICE", "COINBASE", "TIMESTAMP", "NUMBER",
          "DIFFICULTY","PREVRANDAO","BASEFEE", "GASLIMIT", "POP", "PC",
-         "MSIZE", "GAS", "RETURNDATASIZE","CHAINID", "PUSH0")
+         "MSIZE", "GAS", "RETURNDATASIZE","CHAINID", "PUSH0","BLOBBASEFEE")
 
 Wverylow = ("ADD", "SUB", "NOT", "LT", "GT", "SLT", "SGT", "EQ",
             "ISZERO", "AND", "OR", "XOR", "BYTE", "CALLDATALOAD",
-            "MLOAD", "MSTORE", "MSTORE8", "PUSH", "DUP", "SWAP","SHL","SHR","SAR")
+            "MLOAD", "MSTORE", "MSTORE8", "PUSH", "DUP", "SWAP","SHL","SHR","SAR","MCOPY","BLOBHASH")
 
 Wlow = ("MUL", "DIV", "SDIV", "MOD", "SMOD", "SIGNEXTEND","SELFBALANCE")
 
@@ -265,5 +265,6 @@ def get_ins_cost(opcode, params=None, already=False, store_changed_original_valu
         return 100
     elif opcode == "TSTORE":
         return 100
+    print("WARN: "+str(opcode))
     return 0
 
