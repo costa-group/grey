@@ -13,13 +13,14 @@ from parser.cfg_block import CFGBlock
 from parser.cfg_block_list import CFGBlockList
 from parser.cfg_object import CFGObject
 from parser.cfg import CFG
-import greedy.greedy_previous as previous
+import greedy.greedy_previous_param as previous
 from solution_generation.statistics import generate_statistics_info
 from greedy.greedy_info import GreedyInfo
 import greedy.greedy_new_version as alternative
 import numpy as np
 from reparation.repair_unreachable import repair_unreachable_blocklist
 from analysis.greedy_validation import check_execution_from_ids
+from global_params.constants import MAX_STACK_DEPTH
 
 def _length_or_zero(l, outcome):
     return len(l) if l is not None and outcome != "error" else 10000
@@ -29,7 +30,7 @@ def cfg_block_spec_ids(cfg_block: CFGBlock) -> Tuple[str, float, List[instr_id_T
     # Retrieve the information from each of the executions
     sfs = copy.deepcopy(cfg_block._spec)
     admits_junk = sfs["admits_junk"]
-    outcome1, time1, greedy_ids1 = previous.greedy_standalone(sfs, admits_junk)
+    outcome1, time1, greedy_ids1 = previous.greedy_standalone(sfs, admits_junk, MAX_STACK_DEPTH)
     greedy_info = GreedyInfo.from_old_version(greedy_ids1, outcome1, time1, cfg_block.spec["user_instrs"])
 
     # greedy_info3 = alternative.greedy_standalone(cfg_block.spec)
