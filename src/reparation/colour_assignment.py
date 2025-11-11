@@ -21,6 +21,14 @@ class ColourAssignment:
     def num_colors(self) -> int:
         return self._total_colors
 
+    @property
+    def num_regs(self) -> int:
+        return len(set(self._var2color.values()))
+
+    @property
+    def num_assigned(self):
+        return len(self._var2color)
+
     def pick_available_colour(self, v: var_id_T, available: List[bool]) -> int:
         """
         Chooses an available colour, adding a new one if there are not enough

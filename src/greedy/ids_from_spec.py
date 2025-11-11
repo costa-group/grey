@@ -63,11 +63,11 @@ def cfg_block_list_spec_ids(cfg_blocklist: CFGBlockList, path_to_files: Optional
         outcome, time, greedy_ids, to_fix_block = cfg_block_spec_ids(block)
         to_fix += to_fix_block
         has_vget = has_vget or block.greedy_info.has_vget
-        csv_dicts.append(generate_statistics_info(block_name, greedy_ids, time, block.spec))
+        # generate_statistics_info(block_name, greedy_ids, time, block.spec)
 
     # If there are elements to fix
     if has_vget:
-        repair_unreachable_blocklist(cfg_blocklist, to_fix, path_to_files)
+        csv_dicts.append(repair_unreachable_blocklist(cfg_blocklist, to_fix, path_to_files))
     return csv_dicts
 
 
@@ -95,11 +95,10 @@ def recursive_cfg_spec_ids(cfg: CFG, path_to_files: Optional[Path]):
 
 
 def cfg_spec_ids(cfg: CFG, path_to_files: Optional[Path],
-                 csv_file: Optional[Path], visualize: bool) -> None:
+                 csv_file: Optional[Path], visualize: bool) -> List[Dict]:
     """
     Generates the greedy ids from the specification inside the cfg and stores in the field "greedy_ids" inside
     each block. Stores the information from the greedy generation in a csv file
     """
     csv_dicts = recursive_cfg_spec_ids(cfg, path_to_files)
-    if visualize:
-        pd.DataFrame(csv_dicts).to_csv(csv_file)
+    return csv_dicts if visualize else []

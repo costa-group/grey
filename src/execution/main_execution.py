@@ -105,7 +105,7 @@ def analyze_single_cfg(cfg: CFG, final_dir: Path, args: argparse.Namespace, time
     times[3] += (layout_time)
 
     x = dtimer()
-    cfg_spec_ids(cfg, final_dir.joinpath("repair"), final_dir.joinpath("statistics.csv"), args.visualize)
+    info_colouring = cfg_spec_ids(cfg, final_dir.joinpath("repair"), final_dir.joinpath("statistics.csv"), args.visualize)
     y = dtimer()
 
     print("Greedy algorithm: " + str(y - x) + "s")
@@ -124,7 +124,7 @@ def analyze_single_cfg(cfg: CFG, final_dir: Path, args: argparse.Namespace, time
     print("ASM generation: " + str(y - x) + "s")
     times[5] += (y - x)
 
-    return json_asm_contract
+    return json_asm_contract, info_colouring
 
 
 def main(args):
@@ -162,6 +162,7 @@ def main(args):
 
     contract_info = []
     call_freq = []
+    info_repair = []
     for cfg_name, cfg in cfgs.items():
 
         blocks, ins = cfg.get_stats()
@@ -171,7 +172,10 @@ def main(args):
         
         #      print("Synthesizing...", cfg_name)
         cfg_dir = final_dir.joinpath(cfg_name)
-        asm_contract = analyze_single_cfg(cfg, cfg_dir, args, times)
+        asm_contract, info_repair_cfg = analyze_single_cfg(cfg, cfg_dir, args, times)
+        for row in info_repair_cfg:
+            row["contract"] = cfg_name
+        info_repair.extend(info_repair_cfg)
         asm_contracts[cfg_name]["asm"] = asm_contract
 
         # Store the call info in a csv
@@ -222,6 +226,7 @@ def main(args):
     asm_combined_output = {"contracts": asm_contracts, "version": "grey"}
 
     pd.DataFrame(call_freq).to_csv(final_dir.joinpath(f"call_info_{Path(args.source).stem}.csv"))
+    pd.DataFrame(info_repair).to_csv(final_dir.joinpath(f"repair_{Path(args.source).stem}.csv"))
 
     with open(str(final_dir.joinpath(Path(args.source).stem)) + "_bef_importer.json_solc", 'w') as f:
         json.dump(asm_combined_output, f, indent=4)

@@ -244,3 +244,4 @@ class TreeScan:
     def executable_from_code(self):
         color_assignment = self._tree_scan_with_last_uses()
         self._emit_valid_bytecode(color_assignment)
+        return color_assignment

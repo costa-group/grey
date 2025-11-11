@@ -180,7 +180,7 @@ def propagate_output_stack(input_stack: List[str], final_stack_elements: List[st
     vars_to_place = live_vars.difference(set(final_stack_elements + bottom_output_stack))
 
     # Sort the vars to place according to the variable depth info order in reversed order
-    vars_to_place_sorted = sorted(vars_to_place, key=lambda x: (variable_depth_info[x], x), reverse=True)
+    vars_to_place_sorted = sorted(vars_to_place, key=lambda x: (variable_depth_info.get(x, (-1, )), x), reverse=True)
 
     # We add the variables to be placed in order
     bottom_output_stack = list(reversed(vars_to_place_sorted)) + bottom_output_stack
