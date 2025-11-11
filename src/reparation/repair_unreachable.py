@@ -52,9 +52,9 @@ def repair_cfg_objects(cfg: CFGObject, path_to_files: Path):
 
         csvs_dicts.append(csv_dicts_block_list)
 
-    print(max_constant)
-    # Finally, change the first instruction
-    set_first_constant(cfg.blocks, max_constant)
+    if original_max != max_constant:
+        # Finally, change the first instruction
+        set_first_constant(cfg.blocks, max_constant)
 
     return csvs_dicts
 
@@ -95,7 +95,7 @@ def get_first_constant(cfg_blocklist: CFGBlockList):
     first_block = cfg_blocklist.get_block(cfg_blocklist.start_block)
     first_instruction = first_block.instructions_to_synthesize[0]
 
-    print(first_instruction)
+    # print(first_instruction)
     if first_instruction.op == "memoryguard":
         # print("GUARD", first_instruction)
         return hex(int(first_instruction.literal_args[0]))[2:]
@@ -109,16 +109,24 @@ def get_first_constant(cfg_blocklist: CFGBlockList):
 def set_first_constant(cfg_blocklist: CFGBlockList, new_constant: constant_T):
     first_block = cfg_blocklist.get_block(cfg_blocklist.start_block)
     first_instruction = first_block.instructions_to_synthesize[0]
+    constant_with_preffix = "0x" + new_constant
 
     if first_instruction.op == "memoryguard":
         # print("GUARD", first_instruction)
-        first_instruction.literal_args[0] = "0x" + new_constant
+        first_instruction.literal_args[0] = constant_with_preffix
     elif first_instruction.op == "push":
         # print("PUSH", first_instruction)
-        first_instruction.literal_args[0] = new_constant
+        first_instruction.literal_args[0] = constant_with_preffix
     elif first_instruction.op == "mstore":
-        first_instruction.in_args[1] = "0x" + new_constant
+        first_instruction.in_args[1] = constant_with_preffix
 
+    greedy_ids = cfg_blocklist.blocks[cfg_blocklist.start_block].greedy_ids
+    first_push = greedy_ids[0]
+    assert "PUSH" in first_push, "First instruction is not a PUSH"
+
+    cfg_blocklist.blocks[cfg_blocklist.start_block].greedy_ids = [f"PUSH {new_constant}"
+                                                                  if element == first_push else element
+                                                                  for element in greedy_ids]
 
 def prepass_fixing_constants(cfg_blocklist: CFGBlockList,
                              elements_to_fix: Counter[var_id_T]):
