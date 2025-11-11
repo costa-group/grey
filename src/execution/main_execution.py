@@ -119,7 +119,7 @@ def analyze_single_cfg(cfg: CFG, final_dir: Path, args: argparse.Namespace, time
         info_colouring = repair_cfg(cfg, final_dir.joinpath("repair") if args.visualize else None)
         y = dtimer()
         repair_time = (y - x)
-        times[5] += repair_time
+        times[4] += repair_time
 
     print("Repair algorithm: " + str(repair_time) + "s")
 
@@ -134,7 +134,7 @@ def analyze_single_cfg(cfg: CFG, final_dir: Path, args: argparse.Namespace, time
     y = dtimer()
 
     print("ASM generation: " + str(y - x) + "s")
-    times[6] += (y - x)
+    times[5] += (y - x)
 
     return json_asm_contract, info_colouring
 
@@ -142,7 +142,7 @@ def analyze_single_cfg(cfg: CFG, final_dir: Path, args: argparse.Namespace, time
 def main(args):
     print("Grey Main")
     
-    times = [0, 0, 0, 0, 0, 0, 0, 0]
+    times = [0, 0, 0, 0, 0, 0, 0]
 
     x = dtimer()
     json_dict, settings = yul_cfg_dict_from_format(args.input_format, args.source,
@@ -226,7 +226,7 @@ def main(args):
         y = dtimer()
 
         print("solc importer: " + str(y - x) + "s")
-        times[7] += (y - x)
+        times[6] += (y - x)
 
     times_str = map(lambda x: str(x), times)
     print("Times " + args.source + ": " + ",".join(times_str))
