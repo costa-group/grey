@@ -73,7 +73,6 @@ class ColourAssignment:
         return v in self._var2color
 
     def release_colour(self, v: var_id_T, available: List[bool]):
-        print("RELEASING", v)
         available[self._var2color[v]] = True
 
     def uncolour_var(self, var_: var_id_T):

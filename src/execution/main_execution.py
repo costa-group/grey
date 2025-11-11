@@ -18,8 +18,8 @@ from greedy.ids_from_spec import cfg_spec_ids
 from liveness.layout_generation import layout_generation
 from cfg_methods.preprocessing_methods import preprocess_cfg
 from solution_generation.bytecode2asm import asm_from_opcodes
+from reparation.repair_unreachable import repair_cfg
 from analysis.solution_analysis import function_frequency
-
 
 global times
 times = []
@@ -105,11 +105,23 @@ def analyze_single_cfg(cfg: CFG, final_dir: Path, args: argparse.Namespace, time
     times[3] += (layout_time)
 
     x = dtimer()
-    info_colouring = cfg_spec_ids(cfg, final_dir.joinpath("repair"), final_dir.joinpath("statistics.csv"), args.visualize)
+    needs_repair, info_greedy = cfg_spec_ids(cfg, final_dir.joinpath("statistics.csv"), args.visualize)
     y = dtimer()
 
     print("Greedy algorithm: " + str(y - x) + "s")
     times[4] += (y - x)
+
+    repair_time = 0
+    # Only count time if repair is needed
+    info_colouring = []
+    if needs_repair:
+        x = dtimer()
+        info_colouring = repair_cfg(cfg, final_dir.joinpath("repair") if args.visualize else None)
+        y = dtimer()
+        repair_time = (y - x)
+        times[5] += repair_time
+
+    print("Repair algorithm: " + str(repair_time) + "s")
 
     if args.visualize:
         asm_code = final_dir.joinpath("asm")
@@ -122,7 +134,7 @@ def analyze_single_cfg(cfg: CFG, final_dir: Path, args: argparse.Namespace, time
     y = dtimer()
 
     print("ASM generation: " + str(y - x) + "s")
-    times[5] += (y - x)
+    times[6] += (y - x)
 
     return json_asm_contract, info_colouring
 
@@ -130,7 +142,7 @@ def analyze_single_cfg(cfg: CFG, final_dir: Path, args: argparse.Namespace, time
 def main(args):
     print("Grey Main")
     
-    times = [0, 0, 0, 0, 0, 0, 0]
+    times = [0, 0, 0, 0, 0, 0, 0, 0]
 
     x = dtimer()
     json_dict, settings = yul_cfg_dict_from_format(args.input_format, args.source,
@@ -214,7 +226,7 @@ def main(args):
         y = dtimer()
 
         print("solc importer: " + str(y - x) + "s")
-        times[6] += (y - x)
+        times[7] += (y - x)
 
     times_str = map(lambda x: str(x), times)
     print("Times " + args.source + ": " + ",".join(times_str))
