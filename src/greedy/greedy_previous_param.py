@@ -1802,9 +1802,9 @@ def greedy_from_json(json_data: Dict[str, Any], verb=True, garbage=False, push_d
     global verbose
     verbose = False # True # 
     global extend_tgt
-    extend_tgt = True # garbage # 
+    extend_tgt = garbage # True # 
     global push_dup_add
-    push_dup_add = push_dup # 1 #
+    push_dup_add = 1 # push_dup # 
     encoding = SMSgreedy(json_data.copy())
     try:
         (instr, final_no_store) = encoding.target()
