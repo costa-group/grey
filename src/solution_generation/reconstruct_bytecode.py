@@ -443,6 +443,8 @@ def build_standard_json_settings(output_json, settings_opt):
     output_json["settings"]["outputSelection"] = output
     output_json["settings"]["metadata"] = {}
     output_json["settings"]["metadata"]["appendCBOR"] = False
+    output_json["settings"]["metadata"]["useLiteralContent"] = False
+    output_json["settings"]["metadata"]["bytecodeHash"] = "none"
 
 
 def build_output_selection():

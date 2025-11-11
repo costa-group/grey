@@ -391,6 +391,10 @@ class SolidityCompilation:
         else:
             json_input["settings"]["outputSelection"] = {'*': {'*': ['yulCFGJson']}}
 
+        json_input["settings"]["metadata"]["appendCBOR"] = False
+        json_input["settings"]["metadata"]["useLiteralContent"] = False
+        json_input["settings"]["metadata"]["bytecodeHash"] = "none"
+
         # If the folder is not None, then we first change the path
         if json_folder is not None:
             self._change_path_for_compilation(json_folder)
