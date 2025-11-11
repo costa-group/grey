@@ -19,7 +19,8 @@ class TreeScan:
     """
 
     def __init__(self, block_list: CFGBlockList,
-                 phi_webs: PhiWebs, num_colors_max: int):
+                 phi_webs: PhiWebs, num_colors_max: int,
+                 forbidden_constants: List[constant_T]):
 
         # Parameters that are passed to colour the graph
         self._block_list = block_list
@@ -32,6 +33,9 @@ class TreeScan:
 
         # Number of possible colors
         self._num_colors_max = num_colors_max
+
+        # Constants that cannot be used due to collisions
+        self._forbidden_constants = forbidden_constants
 
     def _assign_color(self, block_name: block_id_T, color_assignment: ColourAssignment, available: List[bool]):
         block = self._block_list.get_block(block_name)
@@ -114,12 +118,12 @@ class TreeScan:
     # HACK: assign to PUSH2 0x80 to the color that is repeated the most
     # (both by accessing VGET + VGET-VSET + VSET).
     # For the other colours, we don't care
-    def _emit_valid_bytecode(self, color_assignment: ColourAssignment):
+    def _emit_valid_bytecode(self, color_assignment: ColourAssignment, forbidden_constants: List[constant_T]):
         """
         Given the final colour assignment, we perform the SSA destruction
         by generating the copy assignments to solve phi-interferences.
         """
-        color_to_constant = self._assign_colours_to_constants(self._num_colors_max)
+        color_to_constant = self._assign_colours_to_constants(self._num_colors_max, forbidden_constants)
 
         # Here we don't care about the order in which the block lists are traversed
         for block_name, block in self._block_list.blocks.items():
@@ -196,6 +200,7 @@ class TreeScan:
 
             # FINALLY we assign the greedy ids corrected to the corresponding field
             block.greedy_ids = new_greedy_ids
+        return color_to_constant
 
     def _emit_vget(self, constant: constant_T) -> List[instr_id_T]:
         return [f"PUSH {constant}", "MLOAD"]
@@ -206,9 +211,19 @@ class TreeScan:
     def _emit_dup_vset(self, constant: constant_T, dup_pos: int) -> List[instr_id_T]:
         return [f"DUP{dup_pos + 1}"] + self._emit_vset(constant)
 
-    def _assign_colours_to_constants(self, num_colors: int) -> List[constant_T]:
+    def _assign_colours_to_constants(self, num_colors: int,
+                                     forbidden_constants: List[var_id_T]) -> List[constant_T]:
         # TODO: implement HACK2 (not very difficult)
-        return [hex(128 + 32*i)[2:] for i in range(num_colors)]
+        i, j = 0, 0
+        constants = []
+        while i < num_colors and j < len(forbidden_constants):
+            constant = hex(128 + 32 * i)[2:]
+            if constant == forbidden_constants[j]:
+                j += 1
+            else:
+                constants.append(constant)
+                i += 1
+        return constants
 
     def _emit_copies(self, copies_to_manage_regs: Dict[var_id_T, Tuple[int, int]],
                      copies_to_manage_dup: Dict[var_id_T, Tuple[int, int]],
@@ -243,5 +258,5 @@ class TreeScan:
 
     def executable_from_code(self):
         color_assignment = self._tree_scan_with_last_uses()
-        self._emit_valid_bytecode(color_assignment)
-        return color_assignment
+        color2constant = self._emit_valid_bytecode(color_assignment, self._forbidden_constants)
+        return color_assignment, color_assignment.used_constants(color2constant)

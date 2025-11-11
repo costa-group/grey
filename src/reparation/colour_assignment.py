@@ -29,6 +29,9 @@ class ColourAssignment:
     def num_assigned(self):
         return len(self._var2color)
 
+    def used_constants(self, constants: List[str]) -> List[str]:
+        return [constants[color] for color in sorted(set(self._var2color.values()))]
+
     def pick_available_colour(self, v: var_id_T, available: List[bool]) -> int:
         """
         Chooses an available colour, adding a new one if there are not enough

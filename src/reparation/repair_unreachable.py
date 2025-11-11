@@ -18,7 +18,8 @@ from graphs.algorithms import information_on_graph
 
 def repair_unreachable_blocklist(cfg_blocklist: CFGBlockList,
                                  elements_to_fix: Counter[var_id_T],
-                                 path_to_files: Optional[Path]):
+                                 path_to_files: Optional[Path],
+                                 forbidden_constants: List[str]):
     """
     Assumes the blocks in the cfg contain the information of the
     greedy algorithm according to greedy algorithm
@@ -45,8 +46,9 @@ def repair_unreachable_blocklist(cfg_blocklist: CFGBlockList,
         repaired.mkdir(exist_ok=True, parents=True)
         _debug_reparation(cfg_blocklist, repaired)
 
-    color_assignment = TreeScan(cfg_blocklist, phi_webs, num_vals).executable_from_code()
-    return extract_statistics(cfg_blocklist.name, phi_webs, color_assignment)
+    color_assignment, used_constants = TreeScan(cfg_blocklist, phi_webs, num_vals, forbidden_constants).executable_from_code()
+    return extract_statistics(cfg_blocklist.name, phi_webs, color_assignment), used_constants
+
 
 def prepass_fixing_constants(cfg_blocklist: CFGBlockList,
                              elements_to_fix: Counter[var_id_T]):
