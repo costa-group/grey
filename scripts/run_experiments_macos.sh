@@ -92,8 +92,8 @@ find "$DIRECTORIO_BASE" -type f -name "*standard_input.json" | while read -r yul
         $TESTRUNNER_PATH  $EVMONE_LIB $yul_dir/test_grey $yul_dir/resultGrey.json
 
         # python3 compare_outputs.py $yul_dir/resultOriginal.json $yul_dir/resultGrey.json $yul_file
-        python3 compare_outputs.py $yul_dir/resultOriginal.json $yul_dir/test $yul_dir/resultGrey.json $yul_dir/test_grey $yul_file
         echo "python3 compare_outputs.py $yul_dir/resultOriginal.json $yul_dir/test $yul_dir/resultGrey.json $yul_dir/test_grey $yul_file"
+        python3 compare_outputs.py $yul_dir/resultOriginal.json $yul_dir/test $yul_dir/resultGrey.json $yul_dir/test_grey $yul_file
         RES=$?
         # if diff $yul_dir/resultOriginal.json $yul_dir/resultGrey.json > /dev/null; then
         if [ $RES -eq 0 ]; then
