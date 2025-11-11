@@ -22,10 +22,10 @@ def repair_cfg(cfg: CFG, path_to_files: Optional[Path]):
     """
     csv_dicts = []
     for cfg_object in cfg.get_objects().values():
-        repair_cfg_objects(cfg_object, path_to_files)
+        csv_dicts.extend(repair_cfg_objects(cfg_object, path_to_files))
         sub_object = cfg_object.subObject
         if sub_object is not None:
-            repair_cfg(sub_object, path_to_files)
+            csv_dicts.extend(repair_cfg(sub_object, path_to_files))
     return csv_dicts
 
 
@@ -33,13 +33,30 @@ def repair_cfg_objects(cfg: CFGObject, path_to_files: Path):
     """
     Repairs all block list in an object
     """
-    if cfg.blocks.needs_repair:
-        repair_unreachable_blocklist(cfg.blocks, cfg.blocks.to_fix, path_to_files.joinpath(cfg.name) if path_to_files is not None else None)
+    csvs_dicts, original_max = [], get_first_constant(cfg.blocks)
+    max_constant = original_max
 
     for cfg_function in cfg.functions.values():
         if cfg_function.blocks.needs_repair:
-            repair_unreachable_blocklist(cfg_function.blocks, cfg.blocks.to_fix, path_to_files.joinpath(cfg.name) if path_to_files is not None else None)
+            csv_dicts_block_list, max_constant = repair_unreachable_blocklist(cfg_function.blocks, cfg.blocks.to_fix,
+                                                                              path_to_files.joinpath(cfg.name) if path_to_files is not None else None,
+                                                                              max_constant)
+            max_constant = hex(int(max_constant, 16) + 32)[2:]
+            csvs_dicts.append(csv_dicts_block_list)
 
+    if cfg.blocks.needs_repair:
+        csv_dicts_block_list, constants_assigned = repair_unreachable_blocklist(cfg.blocks, cfg.blocks.to_fix,
+                                                                                path_to_files.joinpath(cfg.name) if path_to_files is not None else None,
+                                                                                max_constant)
+        max_constant = hex(int(max_constant, 16) + 32)[2:]
+
+        csvs_dicts.append(csv_dicts_block_list)
+
+    print(max_constant)
+    # Finally, change the first instruction
+    set_first_constant(cfg.blocks, max_constant)
+
+    return csvs_dicts
 
 def repair_unreachable_blocklist(cfg_blocklist: CFGBlockList,
                                  elements_to_fix: Counter[var_id_T],
@@ -72,6 +89,35 @@ def repair_unreachable_blocklist(cfg_blocklist: CFGBlockList,
 
     color_assignment, used_constants = TreeScan(cfg_blocklist, phi_webs, num_vals, forbidden_constants).executable_from_code()
     return extract_statistics(cfg_blocklist.name, phi_webs, color_assignment), used_constants
+
+
+def get_first_constant(cfg_blocklist: CFGBlockList):
+    first_block = cfg_blocklist.get_block(cfg_blocklist.start_block)
+    first_instruction = first_block.instructions_to_synthesize[0]
+
+    print(first_instruction)
+    if first_instruction.op == "memoryguard":
+        # print("GUARD", first_instruction)
+        return hex(int(first_instruction.literal_args[0]))[2:]
+    elif first_instruction.op == "push":
+        # print("PUSH", first_instruction)
+        return first_instruction.literal_args[0][2:]
+    elif first_instruction.op == "mstore":
+        return first_instruction.in_args[1]
+
+
+def set_first_constant(cfg_blocklist: CFGBlockList, new_constant: constant_T):
+    first_block = cfg_blocklist.get_block(cfg_blocklist.start_block)
+    first_instruction = first_block.instructions_to_synthesize[0]
+
+    if first_instruction.op == "memoryguard":
+        # print("GUARD", first_instruction)
+        first_instruction.literal_args[0] = "0x" + new_constant
+    elif first_instruction.op == "push":
+        # print("PUSH", first_instruction)
+        first_instruction.literal_args[0] = new_constant
+    elif first_instruction.op == "mstore":
+        first_instruction.in_args[1] = "0x" + new_constant
 
 
 def prepass_fixing_constants(cfg_blocklist: CFGBlockList,
