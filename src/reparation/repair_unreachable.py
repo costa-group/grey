@@ -50,7 +50,7 @@ def repair_cfg_objects(cfg: CFGObject, path_to_files: Path):
                 max_constant = get_first_constant(cfg.blocks)
                 original_max = max_constant
 
-            csv_dicts_block_list, max_constant = repair_unreachable_blocklist(cfg_function.blocks, cfg.blocks.to_fix,
+            csv_dicts_block_list, max_constant = repair_unreachable_blocklist(cfg_function.blocks, cfg_function.blocks.to_fix,
                                                                               path_to_files.joinpath(cfg.name) if path_to_files is not None else None,
                                                                               max_constant)
             # max_constant = hex(int(max_constant, 16) + 32)[2:]
