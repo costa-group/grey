@@ -145,16 +145,6 @@ def prepass_fixing_constants(cfg_blocklist: CFGBlockList,
     correspond to constants, in which case we can just
     compute them directly in the code without the previous process.
     """
-    first_block = cfg_blocklist.get_block(cfg_blocklist.start_block)
-    first_instruction = first_block.instructions_to_synthesize[0]
-
-    if first_instruction.op == "memoryguard":
-        # print("GUARD", first_instruction)
-        cfg_blocklist.assigment_dict[first_instruction.get_out_args()[0]] = hex(int(first_instruction.literal_args[0]))
-    elif first_instruction.op == "push":
-        # print("PUSH", first_instruction)
-        cfg_blocklist.assigment_dict[first_instruction.get_out_args()[0]] = first_instruction.literal_args[0]        
-        
     get_with_constants = _detect_replace_constants(elements_to_fix,
                                                    cfg_blocklist.assigment_dict)
 
