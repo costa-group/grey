@@ -33,24 +33,28 @@ def repair_cfg_objects(cfg: CFGObject, path_to_files: Path):
     """
     Repairs all block list in an object
     """
-    csvs_dicts, original_max = [], get_first_constant(cfg.blocks)
-    max_constant = original_max
-
-    for cfg_function in cfg.functions.values():
-        if cfg_function.blocks.needs_repair:
-            csv_dicts_block_list, max_constant = repair_unreachable_blocklist(cfg_function.blocks, cfg.blocks.to_fix,
-                                                                              path_to_files.joinpath(cfg.name) if path_to_files is not None else None,
-                                                                              max_constant)
-            max_constant = hex(int(max_constant, 16) + 32)[2:]
-            csvs_dicts.append(csv_dicts_block_list)
-
+    csvs_dicts, max_constant, original_max = [], None, None
     if cfg.blocks.needs_repair:
+        max_constant = get_first_constant(cfg.blocks)
+        original_max = max_constant
         csv_dicts_block_list, max_constant = repair_unreachable_blocklist(cfg.blocks, cfg.blocks.to_fix,
                                                                           path_to_files.joinpath(cfg.name) if path_to_files is not None else None,
                                                                           max_constant)
-        max_constant = hex(int(max_constant, 16) + 32)[2:]
 
         csvs_dicts.append(csv_dicts_block_list)
+
+    for cfg_name, cfg_function in cfg.functions.items():
+        if cfg_function.blocks.needs_repair:
+            # Maybe the stack too deep is in some of the functions but no the main one
+            if original_max is None:
+                max_constant = get_first_constant(cfg.blocks)
+                original_max = max_constant
+
+            csv_dicts_block_list, max_constant = repair_unreachable_blocklist(cfg_function.blocks, cfg.blocks.to_fix,
+                                                                              path_to_files.joinpath(cfg.name) if path_to_files is not None else None,
+                                                                              max_constant)
+            # max_constant = hex(int(max_constant, 16) + 32)[2:]
+            csvs_dicts.append(csv_dicts_block_list)
 
     if original_max != max_constant:
         # Finally, change the first instruction
@@ -58,17 +62,18 @@ def repair_cfg_objects(cfg: CFGObject, path_to_files: Path):
 
     return csvs_dicts
 
+
 def repair_unreachable_blocklist(cfg_blocklist: CFGBlockList,
                                  elements_to_fix: Counter[var_id_T],
                                  path_to_files: Optional[Path],
-                                 forbidden_constants: List[str]):
+                                 forbidden_constants: constant_T):
     """
     Assumes the blocks in the cfg contain the information of the
     greedy algorithm according to greedy algorithm
     """
-    # TODO: store the dominant tree somewhere it makes sense
     construct_reachability(cfg_blocklist, cfg_blocklist.dominant_tree)
-    prepass_fixing_constants(cfg_blocklist, elements_to_fix)
+    initial_fix = len(elements_to_fix)
+    # prepass_fixing_constants(cfg_blocklist, elements_to_fix)
 
     # Visual debugging information
     if path_to_files is not None:
@@ -87,8 +92,13 @@ def repair_unreachable_blocklist(cfg_blocklist: CFGBlockList,
         repaired.mkdir(exist_ok=True, parents=True)
         _debug_reparation(cfg_blocklist, repaired)
 
-    color_assignment, used_constants = TreeScan(cfg_blocklist, phi_webs, num_vals, forbidden_constants).executable_from_code()
-    return extract_statistics(cfg_blocklist.name, phi_webs, color_assignment), used_constants
+    if num_vals > 0:
+        color_assignment, used_constants = TreeScan(cfg_blocklist, phi_webs, num_vals, forbidden_constants).executable_from_code()
+        max_constant = hex(int(used_constants, 16) + 32)[2:]
+        return extract_statistics(cfg_blocklist.name, phi_webs, color_assignment, initial_fix), max_constant
+    else:
+        return {"name": cfg_blocklist.name, "num_phi": 0, "num_assigned": 0, "num_colors": 0,
+                "before_constants": initial_fix}, forbidden_constants
 
 
 def get_first_constant(cfg_blocklist: CFGBlockList):
@@ -246,7 +256,8 @@ def _represent_greedy_info(block_name: block_id_T, greedy_info: GreedyInfo) -> s
     return block_name + '\n' + '\n'.join(greedy_info.greedy_ids)
 
 
-def extract_statistics(name: str, phi_web: PhiWebs, color_assignment: ColourAssignment):
+def extract_statistics(name: str, phi_web: PhiWebs, color_assignment: ColourAssignment, initial_fix: int):
     return {"name": name, "num_phi": phi_web.num_elements,
             "num_assigned": color_assignment.num_assigned,
-            "num_colors": color_assignment.num_regs}
+            "num_colors": color_assignment.num_regs,
+            "before_constants": initial_fix}
