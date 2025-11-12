@@ -45,9 +45,9 @@ def repair_cfg_objects(cfg: CFGObject, path_to_files: Path):
             csvs_dicts.append(csv_dicts_block_list)
 
     if cfg.blocks.needs_repair:
-        csv_dicts_block_list, constants_assigned = repair_unreachable_blocklist(cfg.blocks, cfg.blocks.to_fix,
-                                                                                path_to_files.joinpath(cfg.name) if path_to_files is not None else None,
-                                                                                max_constant)
+        csv_dicts_block_list, max_constant = repair_unreachable_blocklist(cfg.blocks, cfg.blocks.to_fix,
+                                                                          path_to_files.joinpath(cfg.name) if path_to_files is not None else None,
+                                                                          max_constant)
         max_constant = hex(int(max_constant, 16) + 32)[2:]
 
         csvs_dicts.append(csv_dicts_block_list)
