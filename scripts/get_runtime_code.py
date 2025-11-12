@@ -13,7 +13,17 @@ import sys
 import requests
 import time
 import os
+import json
 
+
+def get_name(address, api_key):
+    url = "https://api.etherscan.io/v2/api"
+
+    querystring = {"apikey":"F6U318DB3IXFN8I3TZDXFYT2I16RESA546","chainid":"1","module":"contract","action":"getsourcecode","address":address,"tag":"latest"}
+
+    response = requests.get(url, params=querystring)
+    return response.json()["result"][0]["ContractName"], response.json()["result"][0]["Runs"]
+    
 
 def get_bytecode(address, api_key):
     url = (
@@ -46,12 +56,17 @@ def main():
 
     results = {}
     for addr in addresses:
+        results = {}
         try:
             code = get_bytecode(addr, api_key)
+            name, runs = get_name(addr,api_key)
+
+            print("RUNS:"+addr+", "+str(runs))
+            
             if code:
                 print(code)
                 print(f"✅ {addr}: {len(code)//2} bytes")
-                results[addr] = code
+                results[name] = code
             else:
                 print(f"⚠️ {addr}: sin código (EOA o selfdestruct)")
         except Exception as e:
@@ -63,7 +78,7 @@ def main():
         os.makedirs(os.path.dirname(output_path), exist_ok=True)
         with open(output_path, "w") as f:
             if code:
-                f.write(code.lstrip("0x"))
+                json.dump(results, f, indent=4)
 
     print("\n✅ Bytecodes guardados.")
 
