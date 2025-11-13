@@ -132,6 +132,26 @@ def get_max_pos_noSTORE(o, tmax, deps, pos):
             maxpos = min(maxpos, pos[p[1]] - 1)
     return maxpos
 
+def join_positions(poslops,possops):
+    i = 0    
+    nposlops = {}
+    npossops = {}
+    j = 0
+    while (i in poslops or i in possops):
+        if i in possops:
+            npossops[j] = possops[i]
+        if i in poslops:
+            lops = poslops[i].copy()
+            i += 1
+            while i in poslops and i not in possops:
+                lops += poslops[i]
+                i += 1
+            nposlops[j] = lops
+        else:
+            i += 1
+        j += 1
+    return nposlops, npossops
+
 def sort_with_deps(elems, deps, opid_instr_map, var_instr_map):
     ops = sorted(list(set([e for p in deps for e in p] + elems)))
     mindeps = get_min_deps_map(deps)
@@ -166,16 +186,19 @@ def sort_with_deps(elems, deps, opid_instr_map, var_instr_map):
                 possops[p[1]] = [p[0]]
             else:
                 possops[p[1]] = [p[0]] + possops[p[1]]
+    # print("1.",poslops)
+    # print("2.",possops)
+    poslops, possops = join_positions(poslops,possops)
+    # print("3.",poslops)
+    # print("4.",possops)    
     poslops = list(poslops.items())
     poslops.sort(key=lambda x: x[0])
     possops = list(possops.items())
     possops.sort(key=lambda x: x[0])
-    # print("1.",poslops)
-    # print("2.",possops)
     opsord = []
     cur = 0
     for sop in possops:
-        # print(cur,sop)
+        # print(cur,sop,poslops)
         if sop[0] == cur:
             opsord += sop[1]
             if len(poslops) == 0 or poslops[0][0] != cur:
@@ -562,13 +585,18 @@ class SMSgreedy:
         self.add_dup_pushes()
         
     def extend_dependencies(self, deps, ops, alldeps):
+        depop = set(get_ops_id(self._user_instr, ops))
+        for p in deps:
+            depop.add(p[0])
+            depop.add(p[1])
+        # print("depop",depop)
         depop_res = set([])
         for p in alldeps:
-            if p[0] in self._opid_instr_map and len(self._opid_instr_map[p[0]]['outpt_sk']) == 1:
+            if p[0] not in depop and p[0] in self._opid_instr_map and len(self._opid_instr_map[p[0]]['outpt_sk']) == 1:
                 depop_res.add(p[0])
-            if p[1] in self._opid_instr_map and len(self._opid_instr_map[p[1]]['outpt_sk']) == 1:
+            if p[1] not in depop and p[1] in self._opid_instr_map and len(self._opid_instr_map[p[1]]['outpt_sk']) == 1:
                 depop_res.add(p[1])
-        depop = get_ops_id(self._user_instr, ops)
+        # print("depop_res",depop_res)
         need_ops = {}
         for o in depop:
             sn = set([])
@@ -583,7 +611,7 @@ class SMSgreedy:
                         if [o,o1] not in deps:
                             # print([o,o1])
                             deps += [[o,o1]]
-        #print(deps)
+        # print(deps)
 
     def count_pushes(self):
         self._pushes = {}
