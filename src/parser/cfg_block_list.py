@@ -31,7 +31,11 @@ class CFGBlockList:
         # Graph forms for the following data structures
         self._dominant_tree = None
         self._loop_nesting_forest = None
-        
+
+        # For repair purporses
+        self.needs_repair = False
+        self.to_fix = None
+
     @property
     def terminal_blocks(self) -> List[block_id_T]:
         return self._terminal_blocks

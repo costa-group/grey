@@ -391,6 +391,7 @@ class SolidityCompilation:
         else:
             json_input["settings"]["outputSelection"] = {'*': {'*': ['yulCFGJson']}}
 
+        json_input["settings"]["metadata"] = {}
         json_input["settings"]["metadata"]["appendCBOR"] = False
         json_input["settings"]["metadata"]["useLiteralContent"] = False
         json_input["settings"]["metadata"]["bytecodeHash"] = "none"

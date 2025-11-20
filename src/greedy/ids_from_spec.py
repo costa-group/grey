@@ -13,13 +13,14 @@ from parser.cfg_block import CFGBlock
 from parser.cfg_block_list import CFGBlockList
 from parser.cfg_object import CFGObject
 from parser.cfg import CFG
-import greedy.greedy_previous as previous
+import greedy.greedy_previous_param as previous
 from solution_generation.statistics import generate_statistics_info
 from greedy.greedy_info import GreedyInfo
 import greedy.greedy_new_version as alternative
 import numpy as np
 from reparation.repair_unreachable import repair_unreachable_blocklist
 from analysis.greedy_validation import check_execution_from_ids
+from global_params.constants import MAX_STACK_DEPTH
 
 def _length_or_zero(l, outcome):
     return len(l) if l is not None and outcome != "error" else 10000
@@ -29,7 +30,7 @@ def cfg_block_spec_ids(cfg_block: CFGBlock) -> Tuple[str, float, List[instr_id_T
     # Retrieve the information from each of the executions
     sfs = copy.deepcopy(cfg_block._spec)
     admits_junk = sfs["admits_junk"]
-    outcome1, time1, greedy_ids1 = previous.greedy_standalone(sfs, admits_junk)
+    outcome1, time1, greedy_ids1 = previous.greedy_standalone(sfs, admits_junk, MAX_STACK_DEPTH)
     greedy_info = GreedyInfo.from_old_version(greedy_ids1, outcome1, time1, cfg_block.spec["user_instrs"])
 
     # greedy_info3 = alternative.greedy_standalone(cfg_block.spec)
@@ -52,7 +53,7 @@ def cfg_block_spec_ids(cfg_block: CFGBlock) -> Tuple[str, float, List[instr_id_T
     return outcome, time, greedy_ids, greedy_info.elements_to_fix
 
 
-def cfg_block_list_spec_ids(cfg_blocklist: CFGBlockList, path_to_files: Optional[Path] = None) -> List[Dict]:
+def cfg_block_list_spec_ids(cfg_blocklist: CFGBlockList, visualize: bool) -> Tuple[bool, List[Dict]]:
     """
     Generates the assembly code of all the blocks in a block list and returns the statistics
     """
@@ -63,42 +64,51 @@ def cfg_block_list_spec_ids(cfg_blocklist: CFGBlockList, path_to_files: Optional
         outcome, time, greedy_ids, to_fix_block = cfg_block_spec_ids(block)
         to_fix += to_fix_block
         has_vget = has_vget or block.greedy_info.has_vget
-        # generate_statistics_info(block_name, greedy_ids, time, block.spec)
 
-    # If there are elements to fix
-    if has_vget:
-        csv_dicts.append(repair_unreachable_blocklist(cfg_blocklist, to_fix, path_to_files))
-    return csv_dicts
+        if visualize:
+            csv_dicts.append(generate_statistics_info(block_name, greedy_ids, time, block.spec))
+
+    cfg_blocklist.needs_repair = has_vget
+    cfg_blocklist.to_fix = to_fix
+    return has_vget, csv_dicts
 
 
-def cfg_object_spec_ids(cfg: CFGObject, path_to_files: Path):
+def cfg_object_spec_ids(cfg: CFGObject, visualize: bool) -> Tuple[bool, List[Dict]]:
     """
     Generates the assembly code for a
     """
-    csv_dicts = cfg_block_list_spec_ids(cfg.blocks, path_to_files.joinpath(cfg.name))
+    needs_repair, csv_dicts = cfg_block_list_spec_ids(cfg.blocks, visualize)
     for cfg_function in cfg.functions.values():
-        csv_dicts.extend(cfg_block_list_spec_ids(cfg_function.blocks, path_to_files.joinpath(cfg.name)))
-    return csv_dicts
+        repair_func, csv_rows = cfg_block_list_spec_ids(cfg_function.blocks, visualize)
+        csv_dicts.extend(csv_rows)
+        needs_repair = needs_repair or repair_func
+    return needs_repair, csv_dicts
 
 
-def recursive_cfg_spec_ids(cfg: CFG, path_to_files: Optional[Path]):
+def recursive_cfg_spec_ids(cfg: CFG, visualize: bool) -> Tuple[bool, List[Dict]]:
     """
     Generates the assembly for all the blocks inside the CFG, excluding the sub objects.
     """
     csv_dicts = []
+    needs_repair = False
     for cfg_object in cfg.get_objects().values():
-        csv_dicts.extend(cfg_object_spec_ids(cfg_object, path_to_files))
+        repair_obj, csv_rows = cfg_object_spec_ids(cfg_object, visualize)
+        csv_dicts.extend(csv_rows)
+        needs_repair = needs_repair or repair_obj
         sub_object = cfg_object.subObject
         if sub_object is not None:
-            csv_dicts.extend(recursive_cfg_spec_ids(sub_object, path_to_files))
-    return csv_dicts
+            repair_obj, csv_rows = recursive_cfg_spec_ids(sub_object, visualize)
+            needs_repair = needs_repair or repair_obj
+            csv_dicts.extend(csv_rows)
+    return needs_repair, csv_dicts
 
 
-def cfg_spec_ids(cfg: CFG, path_to_files: Optional[Path],
-                 csv_file: Optional[Path], visualize: bool) -> List[Dict]:
+def cfg_spec_ids(cfg: CFG, csv_file: Optional[Path], visualize: bool) -> bool:
     """
     Generates the greedy ids from the specification inside the cfg and stores in the field "greedy_ids" inside
     each block. Stores the information from the greedy generation in a csv file
     """
-    csv_dicts = recursive_cfg_spec_ids(cfg, path_to_files)
-    return csv_dicts if visualize else []
+    needs_repair, csv_dicts = recursive_cfg_spec_ids(cfg, visualize)
+    if visualize:
+        pd.DataFrame(csv_dicts).to_csv(csv_file)
+    return needs_repair, csv_dicts if visualize else []

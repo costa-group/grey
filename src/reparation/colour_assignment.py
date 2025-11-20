@@ -29,6 +29,9 @@ class ColourAssignment:
     def num_assigned(self):
         return len(self._var2color)
 
+    def next_constant(self, constants: List[str]) -> str:
+        return constants[max(self._var2color.values())]
+
     def pick_available_colour(self, v: var_id_T, available: List[bool]) -> int:
         """
         Chooses an available colour, adding a new one if there are not enough
@@ -70,7 +73,6 @@ class ColourAssignment:
         return v in self._var2color
 
     def release_colour(self, v: var_id_T, available: List[bool]):
-        print("RELEASING", v)
         available[self._var2color[v]] = True
 
     def uncolour_var(self, var_: var_id_T):
