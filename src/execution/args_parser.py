@@ -2,6 +2,7 @@
 Methods for parsing the options to execute grey
 """
 import argparse
+import global_params.constants as constants
 
 
 def generate_parser() -> argparse.ArgumentParser:
@@ -44,5 +45,7 @@ def parse_args() -> argparse.Namespace:
     parser = generate_parser()
     parsed_args = parser.parse_args()
     if parsed_args.depth <= 0:
-        raise argparse.ArgumentError(f"Depth argument must be > 0: {parsed_args.depth}")
+        raise ValueError(f"Depth argument must be > 0: {parsed_args.depth}")
+    else:
+        constants.MAX_STACK_DEPTH = parsed_args.depth
     return parsed_args
