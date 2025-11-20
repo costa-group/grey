@@ -25,41 +25,6 @@ global times
 times = []
 
 
-def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="GREEN Project")
-
-    input_options = parser.add_argument_group("Input Options")
-
-    input_options.add_argument("-s", "--source", type=str, help="Local source file name. By default, it assumes the"
-                                                                "Yul CFG JSON format", required=True)
-    input_options.add_argument("-if", "--input-format", dest="input_format", type=str,
-                               help="Sets the input format: a sol file, the standard-json input or a Yul CFG JSON."
-                                    "By default, it assumes the Yul CFG.", choices=["sol", "standard-json", "yul-cfg"],
-                               default="yul-cfg")
-    input_options.add_argument("-c", "--contract", type=str, dest="contract",
-                               help="Specify which contract must be synthesized. "
-                                    "If no contract is specified, all contracts synthesized.")
-    input_options.add_argument("-solc", "--solc", type=str, dest="solc_executable", default="solc",
-                               help="Solc executable. By default, it assumes it can invoke 'solc'")
-
-    output_options = parser.add_argument_group("Output Options")
-    output_options.add_argument("-o", "--folder", type=str, help="Dir to store the results.", default="/tmp/grey/")
-    output_options.add_argument("-v", "--visualize", action="store_true", dest="visualize",
-                                help="Generates a dot file for each object in the JSON, "
-                                     "showcasing the results from the liveness analysis")
-    output_options.add_argument("-json-solc", "--json-solc", action="store_true", dest="json_solc",
-                                help="Stores the result in combined-json format")
-    output_options.add_argument("-auxdata", "--auxdata", action="store_true", dest="auxdata", help="Enabled the generation of auxdata as part of the evm code")
-
-    synthesis_options = parser.add_argument_group("Synthesis Options")
-    synthesis_options.add_argument("-g", "--greedy", action="store_true", help="Enables the greedy algorithm")
-    synthesis_options.add_argument("-bt", "--builtin-ops", action="store_true", dest="builtin",
-                                   help="Keeps the original builtin opcodes")
-    synthesis_options.add_argument("-j", "--junk", action="store_false", help="Disables garbage generation")
-    args = parser.parse_args()
-    return args
-
-
 def yul_cfg_dict_from_format(input_format: str, filename: str, contract: Optional[str],
                              solc_executable: str = "solc") -> Dict[str, Yul_CFG_T]:
     """
