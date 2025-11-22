@@ -251,8 +251,6 @@ def store_stack_elements_block(current_block_id: block_id_T, block_list: CFGBloc
 
     current_greedy_info = current_block.greedy_info
 
-    updated_already_used = mark_last_uses(current_greedy_info, already_used_combined, current_block)
-
     # Consumed so far
     get_counter_combined += current_greedy_info.get_count
 
@@ -273,6 +271,7 @@ def store_stack_elements_block(current_block_id: block_id_T, block_list: CFGBloc
             current_greedy_info.insert_dup_vset(var)
             vars_stored.add(var)
 
+    updated_already_used = mark_last_uses(current_greedy_info, already_used_combined, current_block)
     return vars_to_introduce.difference(vars_stored), get_counter_combined, updated_already_used
 
 
@@ -287,7 +286,7 @@ def mark_last_uses(current_greedy_info: GreedyInfo,
 
     # First, we check the phi-uses
     for phi_use_var, _ in current_greedy_info.virtual_copies.items():
-        if phi_use_var not in already_used:
+        if phi_use_var not in new_already_used:
             current_greedy_info.last_use.add((-2, phi_use_var))
             new_already_used.add(phi_use_var)
 
@@ -296,7 +295,7 @@ def mark_last_uses(current_greedy_info: GreedyInfo,
     for position, instr in reversed(list(enumerate(current_greedy_info.greedy_ids))):
         if instr.startswith("VGET"):
             variable = extract_value_from_pseudo_instr(instr)
-            if variable not in already_used:
+            if variable not in new_already_used:
                 current_greedy_info.last_use.add(position)
                 new_already_used.add(variable)
 
@@ -304,7 +303,7 @@ def mark_last_uses(current_greedy_info: GreedyInfo,
     for phi_instr in block.phi_instructions():
         if phi_instr.out_args[0] in current_greedy_info.phi_defs_to_solve:
             for arg_ in phi_instr.in_args:
-                if arg_ not in already_used:
+                if arg_ not in new_already_used:
                     current_greedy_info.last_use.add((-1, arg_))
                     new_already_used.add(arg_)
 

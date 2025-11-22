@@ -18,46 +18,11 @@ from greedy.ids_from_spec import cfg_spec_ids
 from liveness.layout_generation import layout_generation
 from cfg_methods.preprocessing_methods import preprocess_cfg
 from solution_generation.bytecode2asm import asm_from_opcodes
+from reparation.repair_unreachable import repair_cfg
 from analysis.solution_analysis import function_frequency
-
 
 global times
 times = []
-
-
-def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="GREEN Project")
-
-    input_options = parser.add_argument_group("Input Options")
-
-    input_options.add_argument("-s", "--source", type=str, help="Local source file name. By default, it assumes the"
-                                                                "Yul CFG JSON format", required=True)
-    input_options.add_argument("-if", "--input-format", dest="input_format", type=str,
-                               help="Sets the input format: a sol file, the standard-json input or a Yul CFG JSON."
-                                    "By default, it assumes the Yul CFG.", choices=["sol", "standard-json", "yul-cfg"],
-                               default="yul-cfg")
-    input_options.add_argument("-c", "--contract", type=str, dest="contract",
-                               help="Specify which contract must be synthesized. "
-                                    "If no contract is specified, all contracts synthesized.")
-    input_options.add_argument("-solc", "--solc", type=str, dest="solc_executable", default="solc",
-                               help="Solc executable. By default, it assumes it can invoke 'solc'")
-
-    output_options = parser.add_argument_group("Output Options")
-    output_options.add_argument("-o", "--folder", type=str, help="Dir to store the results.", default="/tmp/grey/")
-    output_options.add_argument("-v", "--visualize", action="store_true", dest="visualize",
-                                help="Generates a dot file for each object in the JSON, "
-                                     "showcasing the results from the liveness analysis")
-    output_options.add_argument("-json-solc", "--json-solc", action="store_true", dest="json_solc",
-                                help="Stores the result in combined-json format")
-    output_options.add_argument("-auxdata", "--auxdata", action="store_true", dest="auxdata", help="Enabled the generation of auxdata as part of the evm code")
-
-    synthesis_options = parser.add_argument_group("Synthesis Options")
-    synthesis_options.add_argument("-g", "--greedy", action="store_true", help="Enables the greedy algorithm")
-    synthesis_options.add_argument("-bt", "--builtin-ops", action="store_true", dest="builtin",
-                                   help="Keeps the original builtin opcodes")
-    synthesis_options.add_argument("-j", "--junk", action="store_false", help="Disables garbage generation")
-    args = parser.parse_args()
-    return args
 
 
 def yul_cfg_dict_from_format(input_format: str, filename: str, contract: Optional[str],
@@ -105,11 +70,23 @@ def analyze_single_cfg(cfg: CFG, final_dir: Path, args: argparse.Namespace, time
     times[3] += (layout_time)
 
     x = dtimer()
-    info_colouring = cfg_spec_ids(cfg, final_dir.joinpath("repair"), final_dir.joinpath("statistics.csv"), args.visualize)
+    needs_repair, info_greedy = cfg_spec_ids(cfg, final_dir.joinpath("statistics.csv"), args.visualize)
     y = dtimer()
 
     print("Greedy algorithm: " + str(y - x) + "s")
     times[4] += (y - x)
+
+    repair_time = 0
+    # Only count time if repair is needed
+    info_colouring = []
+    if needs_repair:
+        x = dtimer()
+        info_colouring = repair_cfg(cfg, final_dir.joinpath("repair") if args.visualize else None)
+        y = dtimer()
+        repair_time = (y - x)
+        times[4] += repair_time
+
+    print("Repair algorithm: " + str(repair_time) + "s")
 
     if args.visualize:
         asm_code = final_dir.joinpath("asm")

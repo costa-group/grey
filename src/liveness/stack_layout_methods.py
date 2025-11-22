@@ -7,7 +7,7 @@ import networkx as nx
 from itertools import zip_longest
 
 from global_params.types import var_id_T, block_id_T
-from global_params.constants import MAX_STACK_DEPTH
+import global_params.constants as constants
 from parser.cfg_block_list import CFGBlockList
 from parser.cfg_instruction import CFGInstruction
 from liveness.liveness_analysis import LivenessAnalysisInfoSSA
@@ -172,7 +172,7 @@ def propagate_output_stack(input_stack: List[str], final_stack_elements: List[st
     """
     Similar to output_stack_layout, but the heuristics is to preserve the stack as is and just add the new information
     """
-    if len(input_stack) >= MAX_STACK_DEPTH:
+    if len(input_stack) >= constants.MAX_STACK_DEPTH:
         bottom_output_stack = remove_till_accessible(input_stack, in_live_vars)
     else:
         bottom_output_stack = input_stack
@@ -200,11 +200,11 @@ def remove_till_accessible(input_stack: List[var_id_T], live_vars: Set[var_id_T]
     """
     i = len(input_stack) - 1
     # Search for elements that are live too deep
-    while i >= MAX_STACK_DEPTH and input_stack[i] not in live_vars:
+    while i >= constants.MAX_STACK_DEPTH and input_stack[i] not in live_vars:
         i -= 1
 
     # We try to remove an extra one just in case we want to dup something
-    to_remove = i + 1 - MAX_STACK_DEPTH
+    to_remove = i + 1 - constants.MAX_STACK_DEPTH
     if to_remove > 0:
         prunned_input = input_stack.copy()
         while to_remove > 0:
@@ -216,7 +216,7 @@ def remove_till_accessible(input_stack: List[var_id_T], live_vars: Set[var_id_T]
                     return prunned_input
 
             # Swap with some of the topmost elements
-            j = min(MAX_STACK_DEPTH-1, len(prunned_input))
+            j = min(constants.MAX_STACK_DEPTH-1, len(prunned_input))
             while j > 0 and prunned_input[j] in live_vars:
                 j -= 1
             if j == 0:
