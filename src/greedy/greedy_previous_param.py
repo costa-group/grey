@@ -592,9 +592,9 @@ class SMSgreedy:
         # print("depop",depop)
         depop_res = set([])
         for p in alldeps:
-            if p[0] not in depop and p[0] in self._opid_instr_map and len(self._opid_instr_map[p[0]]['outpt_sk']) == 1:
+            if p[0] in self._opid_instr_map and len(self._opid_instr_map[p[0]]['outpt_sk']) == 1:
                 depop_res.add(p[0])
-            if p[1] not in depop and p[1] in self._opid_instr_map and len(self._opid_instr_map[p[1]]['outpt_sk']) == 1:
+            if p[1] in self._opid_instr_map and len(self._opid_instr_map[p[1]]['outpt_sk']) == 1:
                 depop_res.add(p[1])
         # print("depop_res",depop_res)
         need_ops = {}
