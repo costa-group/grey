@@ -54,7 +54,7 @@ def analyze_single_cfg(cfg: CFG, final_dir: Path, args: argparse.Namespace, time
         dot_file_dir = None
 
     x_preprocess = dtimer()
-    tags_dict = preprocess_cfg(cfg, dot_file_dir, args.visualize)
+    tags_dict = preprocess_cfg(cfg, dot_file_dir, args)
     y_preprocess = dtimer()
 
     x = dtimer()
