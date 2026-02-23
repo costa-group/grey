@@ -104,6 +104,9 @@ def parse_block(object_name: str, block_json: Dict[str,Any], built_in_op: bool,
     block.set_jump_info(block_exit)
     block.entries = entries
 
+    # block.set_in_layout_solc(block_json.get("in_layput", []))
+    # block.set_out_layout_solc(block_json.get("in_layput", []))
+    
     block.check_validity_arguments()
     
     if block_type == "FunctionCall":

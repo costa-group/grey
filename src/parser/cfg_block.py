@@ -110,6 +110,9 @@ class CFGBlock:
 
         self.liveness = {}
 
+        self.in_layout_solc = []
+        self.out_layout_solc = []
+
     @property
     def final_stack_elements(self) -> List[str]:
         """
@@ -188,6 +191,18 @@ class CFGBlock:
 
     def set_liveness(self, liveness_set: Dict[str,List[str]]):
         self.liveness = liveness_set
+
+    def set_in_layout_solc(self, in_layout):
+        self.in_layout_solc = in_layout
+
+    def set_out_layout_solc(self, out_layout):
+        self.out_layout_solc = out_layout
+
+    def get_in_layout_solc(self):
+        return self.in_layout_solc 
+
+    def get_out_layout_solc(self, out_layout):
+        return self.out_layout_solc
         
     def get_instructions_to_compute(self) -> List[CFGInstruction]:
         return [instruction for instruction in self._instructions if instruction.must_be_computed()]
