@@ -38,6 +38,10 @@ def generate_parser() -> argparse.ArgumentParser:
     synthesis_options.add_argument("-j", "--junk", action="store_false", help="Disables garbage generation")
     synthesis_options.add_argument("-d", "--depth", type=int, default=16, dest="depth",
                                    help="Set the maximum depth to access the stack (TESTING STACK-TOO-DEEP ONLY)")
+    synthesis_options.add_argument("--no-inline", action="store_false",
+                                   help="Disables the default inlining", dest="inline")
+    synthesis_options.add_argument("--constants", action="store_false",
+                                   help="Disables constant propagation", dest="constants")
     return parser
 
 

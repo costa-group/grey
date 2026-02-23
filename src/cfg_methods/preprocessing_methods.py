@@ -4,6 +4,7 @@ Preprocess the graph by performing inlining and splitting of blocks
 import json
 from typing import Dict
 from pathlib import Path
+from argparse import Namespace
 from liveness.liveness_analysis import dot_from_analysis
 from analysis.validate_liveness import validate_liveness
 from parser.cfg import CFG
@@ -15,44 +16,46 @@ from cfg_methods.constants_insertion import insert_variables_for_constants
 from cfg_methods.minimizing_constants_insertion import insert_variables_for_constants_propagated
 
 
-def preprocess_cfg(cfg: CFG, dot_file_dir: Path, visualization: bool) -> Dict[str, Dict[str, int]]:
-    if visualization:
-        liveness_info = dot_from_analysis(cfg, dot_file_dir.joinpath("initial"))
+def preprocess_cfg(cfg: CFG, dot_file_dir: Path, args: Namespace) -> Dict[str, Dict[str, int]]:
+    if args.visualize:
+        dot_from_analysis(cfg, dot_file_dir.joinpath("initial"))
 
     # Assign distinct names for all the variables in the CFG among different functions and blocks
     # TODO: in the future, we could do the renaming just in the inliner when two block lists are merged
     rename_variables_cfg(cfg)
 
-    if visualization:
-        liveness_info = dot_from_analysis(cfg, dot_file_dir.joinpath("renamed"))
+    if args.visualize:
+        dot_from_analysis(cfg, dot_file_dir.joinpath("renamed"))
 
-    # We inline the functions
-    inline_functions(cfg)
-    if visualization:
-        liveness_info = dot_from_analysis(cfg, dot_file_dir.joinpath("inlined"))
+    if args.inline:
+        # We inline the functions
+        inline_functions(cfg)
+        if args.visualize:
+            dot_from_analysis(cfg, dot_file_dir.joinpath("inlined"))
 
     # We combine and remove the blocks from the CFG
     # Must be the latest step because we might have split blocks after insert jumps and tags
     combine_remove_blocks_cfg(cfg)
-    if visualization:
-        liveness_info = dot_from_analysis(cfg, dot_file_dir.joinpath("combined"))
+    if args.visualize:
+        dot_from_analysis(cfg, dot_file_dir.joinpath("combined"))
 
     # We introduce the jumps, tags and the stack requirements for each block
     tag_dict = insert_jumps_tags_cfg(cfg)
-    if visualization:
-        liveness_info = dot_from_analysis(cfg, dot_file_dir.joinpath("jumps"))
+    if args.visualize:
+        dot_from_analysis(cfg, dot_file_dir.joinpath("jumps"))
         # To validate liveness for Moritz cases
         # validate_liveness(cfg)
 
     # Then we split by sub blocks
     split_blocks_cfg(cfg, tag_dict)
-    if visualization:
-        liveness_info = dot_from_analysis(cfg, dot_file_dir.joinpath("split"))
+    if args.visualize:
+        dot_from_analysis(cfg, dot_file_dir.joinpath("split"))
 
-    # We replace variables for constants
-    # insert_variables_for_constants(cfg)
-    insert_variables_for_constants_propagated(cfg)
-    if visualization:
-        liveness_info = dot_from_analysis(cfg, dot_file_dir.joinpath("constants"))
+    if args.constants:
+        # We replace variables for constants
+        # insert_variables_for_constants(cfg)
+        insert_variables_for_constants_propagated(cfg)
+        if args.visualize:
+            dot_from_analysis(cfg, dot_file_dir.joinpath("constants"))
 
     return tag_dict
