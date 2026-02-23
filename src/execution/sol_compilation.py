@@ -454,6 +454,8 @@ class SolidityCompilation:
             self._old_solc_command = self._solc_command
             # The new solc command is invoked from the old path
             self._solc_command = Path(self._old_path).joinpath(self._solc_command).resolve()
+        else:
+            self._old_solc_command = None
 
         # Finally, we change the new path
         os.chdir(new_path)
@@ -465,7 +467,8 @@ class SolidityCompilation:
         """
         # We restore the path and the solc command
         os.chdir(self._old_path)
-        self._solc_command = self._old_solc_command
+        if self._old_solc_command is not None:
+            self._solc_command = self._old_solc_command
 
     def compile_single_sol_file(self, sol_file: str,
                                 deployed_contract: Optional[str] = None,
