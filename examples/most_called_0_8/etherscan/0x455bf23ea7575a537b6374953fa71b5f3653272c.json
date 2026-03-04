@@ -1,0 +1,18 @@
+{
+    "SourceCode": "pragma solidity 0.8.26;\r\n\r\ninterface IERC20 {\r\n    function transfer(address to, uint256 value) external;\r\n    function balanceOf(address account) external view returns (uint256);\r\n}\r\n\r\ncontract Poisoner {\r\n\r\n    /* \r\n        This contract is used by bad guys to fund addresses for the address poisoning scam to trick inattentive users to send USDT/USDC to wrong adddresses\r\n        Recreated and exposed by Wintermute\r\n\r\n        DESCRIPTION OF HOW THIS SCAM WORKS:\r\n        https://www.blockaid.io/blog/a-deep-dive-into-address-poisoning\r\n    */\r\n\r\n    address public owner;\r\n\r\n    constructor() {\r\n        owner = msg.sender;\r\n    }\r\n\r\n    receive() external payable {}\r\n\r\n    function withdrawAll(address[] memory tokens) external {\r\n        require(msg.sender == owner, \"You are not the owner\");\r\n        uint256 balance = address(this).balance;\r\n        if (balance > 0) {\r\n            (bool success, ) = owner.call{value: balance}(\"\");\r\n            require(success, \"ETH withdrawal failed\");\r\n        }\r\n\r\n        for (uint256 i = 0; i < tokens.length;) {\r\n            address token = tokens[i];\r\n            uint256 balance2 = IERC20(token).balanceOf(address(this));\r\n            if (balance2 > 0) {\r\n                IERC20(token).transfer(owner, balance2);\r\n            }\r\n            unchecked {\r\n                i++;\r\n            }\r\n        }\r\n        return;\r\n    }\r\n\r\n    function fundPoisoners_4218214916(address[] memory poisonedAddresses, uint256[] memory poisonedAmounts, address[] memory tokens, uint256[] memory gasStipends) external payable {\r\n        require(msg.sender == owner, \"You are not the owner\");\r\n        for (uint256 i = 0; i < poisonedAddresses.length; i++) {\r\n            if (gasStipends[i] > 0) {\r\n                payable(poisonedAddresses[i]).transfer(gasStipends[i]);\r\n            }\r\n            if (poisonedAmounts[i] > 0) {\r\n                address token = tokens[i];\r\n                IERC20(token).transfer(poisonedAddresses[i], poisonedAmounts[i]);\r\n            }\r\n        }\r\n    }\r\n}",
+    "ABI": "[{\"inputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"inputs\":[{\"internalType\":\"address[]\",\"name\":\"poisonedAddresses\",\"type\":\"address[]\"},{\"internalType\":\"uint256[]\",\"name\":\"poisonedAmounts\",\"type\":\"uint256[]\"},{\"internalType\":\"address[]\",\"name\":\"tokens\",\"type\":\"address[]\"},{\"internalType\":\"uint256[]\",\"name\":\"gasStipends\",\"type\":\"uint256[]\"}],\"name\":\"fundPoisoners_4218214916\",\"outputs\":[],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"owner\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address[]\",\"name\":\"tokens\",\"type\":\"address[]\"}],\"name\":\"withdrawAll\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"stateMutability\":\"payable\",\"type\":\"receive\"}]",
+    "ContractName": "Poisoner",
+    "CompilerVersion": "v0.8.26+commit.8a97fa7a",
+    "CompilerType": "solc",
+    "OptimizationUsed": "0",
+    "Runs": "200",
+    "ConstructorArguments": "",
+    "EVMVersion": "Default",
+    "Library": "",
+    "ContractFileName": "",
+    "LicenseType": "None",
+    "Proxy": "0",
+    "Implementation": "",
+    "SwarmSource": "ipfs://0c0e6356e9a71f94b36c0e88834bb64794ae7ecbd79d6fa2c54d1efdaefd6086",
+    "SimilarMatch": ""
+}

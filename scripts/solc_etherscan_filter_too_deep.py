@@ -67,8 +67,8 @@ def compile_source_code(source_code_plain: str, contract_address: str, optimizat
             print(error)
             print("")
 
-        # Erase the contract
-        os.unlink(source_file)
+        # Erase the folder in which the contract is stored
+        shutil.rmtree(file_path)
 
 
 def compile_json_input(source_code_dict: Dict[str, Any], contract_address: str, version: str, file_path: Path):
@@ -79,10 +79,7 @@ def compile_json_input(source_code_dict: Dict[str, Any], contract_address: str, 
 
     source_code_dict["settings"]["optimizer"] = optimization_settings
     source_code_dict["settings"]["outputSelection"] = output_selection
-    if VIA_IR_ENABLED:
-        source_code_dict["settings"]["viaIR"] = True
-    else:
-        source_code_dict["settings"]["viaIR"] = False
+    source_code_dict["settings"]["viaIR"] = True
 
     source_file = file_path.joinpath(f"{address}.json")
     with open(source_file, 'w') as f:
@@ -109,8 +106,8 @@ def compile_json_input(source_code_dict: Dict[str, Any], contract_address: str, 
             print(error)
             print("")
 
-        # Erase the contract
-        os.unlink(source_file)
+        # Erase the folder in which the contract is stored
+        shutil.rmtree(file_path)
 
 def compile_multiple_sources(source_code_dict: Dict[str, Dict[str, str]], contract_address: str, optimization_used: bool,
                              runs: int, deployed_contract: str, file_path: Path):
@@ -179,22 +176,21 @@ if __name__ == "__main__":
             etherscan_info = json.load(f)
 
         # Skip if version <= 0.8.*
-        compiler_version = etherscan_info[0]["CompilerVersion"]
+        compiler_version = etherscan_info["CompilerVersion"]
         if "v0.8" not in compiler_version:
             print(f"Skipped {address}. Compiler version: {compiler_version}")
             continue
 
         version_output, _ = run_command("solc --version")
         version_to_optimize = extract_version_from_output(version_output)
-        print(version_output)
 
-        source_code = change_pragma(etherscan_info[0]["SourceCode"], version_to_optimize)
+        source_code = change_pragma(etherscan_info["SourceCode"], version_to_optimize)
         executable = get_executable(compiler_version)
-        main_contract = etherscan_info[0]["ContractName"]
-        is_optimized = True if int(etherscan_info[0]["OptimizationUsed"]) == 1 else False
-        n_runs = int(etherscan_info[0]["Runs"])
+        main_contract = etherscan_info["ContractName"]
+        is_optimized = True if int(etherscan_info["OptimizationUsed"]) == 1 else False
+        n_runs = int(etherscan_info["Runs"])
 
-        address_path = final_folder_path # final_folder_path.joinpath(address)
+        address_path = final_folder_path.joinpath(address)
         address_path.mkdir(exist_ok=True, parents=True)
         try:
             code_dict = json.loads(source_code[1:-1])
