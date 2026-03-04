@@ -21,6 +21,9 @@ def generate_parser() -> argparse.ArgumentParser:
                                     "If no contract is specified, all contracts synthesized.")
     input_options.add_argument("-solc", "--solc", type=str, dest="solc_executable", default="solc",
                                help="Solc executable. By default, it assumes it can invoke 'solc'")
+    
+    input_options.add_argument("-solc-layouts", "--solc-layouts", action="store_true", dest="solc_layouts",
+                               help="Solc executable. By default, it assumes it can invoke 'solc'")
 
     output_options = parser.add_argument_group("Output Options")
     output_options.add_argument("-o", "--folder", type=str, help="Dir to store the results.", default="/tmp/grey/")
