@@ -1,0 +1,121 @@
+,file,component_0,errorCode_0,formattedMessage_0,message_0,secondarySourceLocations_0,severity_0,sourceLocation_0,type_0,component_1,errorCode_1,formattedMessage_1,message_1,severity_1,sourceLocation_1,type_1,secondarySourceLocations_1,component_2,errorCode_2,formattedMessage_2,message_2,severity_2,sourceLocation_2,type_2,component_3,errorCode_3,formattedMessage_3,message_3,severity_3,sourceLocation_3,type_3
+0,0x8355dbe8b0e275abad27eb843f3eaf3fc855e525,general,4327,"TypeError: Function needs to specify overridden contracts ""ERC721"" and ""IERC721"".
+   --> Woolf.sol:171:20:
+    |
+171 |   ) public virtual override {
+    |                    ^^^^^^^^
+Note: This contract: 
+  --> ERC721.sol:18:1:
+   |
+18 | contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
+   | ^ (Relevant source part starts here and spans across multiple lines).
+Note: This contract: 
+  --> IERC721.sol:10:1:
+   |
+10 | interface IERC721 is IERC165 {
+   | ^ (Relevant source part starts here and spans across multiple lines).
+
+","Function needs to specify overridden contracts ""ERC721"" and ""IERC721"".","[{'end': 13191, 'file': 'ERC721.sol', 'message': 'This contract: ', 'start': 490}, {'end': 4652, 'file': 'IERC721.sol', 'message': 'This contract: ', 'start': 152}]",error,"{'end': 6188, 'file': 'Woolf.sol', 'start': 6180}",TypeError,general,9207,"Warning: 'transfer' is deprecated and scheduled for removal. Use 'call{value: <amount>}("""")' instead.
+   --> Woolf.sol:310:5:
+    |
+310 |     payable(owner()).transfer(address(this).balance);
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+","'transfer' is deprecated and scheduled for removal. Use 'call{value: <amount>}("""")' instead.",warning,"{'end': 10949, 'file': 'Woolf.sol', 'start': 10924}",Warning,,,,,,,,,,,,,,,
+1,0x8ee5dd62a654a60f6f17a99d544102f37b58da26,general,2519,"Warning: This declaration shadows an existing declaration.
+    --> 0x8ee5dd62a654a60f6f17a99d544102f37b58da26.sol:1693:21:
+     |
+1693 |     function verify(bytes32 leaf, bytes32[] memory proof) internal view returns (bool) {
+     |                     ^^^^^^^^^^^^
+Note: The shadowed declaration is here:
+    --> 0x8ee5dd62a654a60f6f17a99d544102f37b58da26.sol:1686:5:
+     |
+1686 |     function leaf(string memory payload) internal pure returns (bytes32) {
+     |     ^ (Relevant source part starts here and spans across multiple lines).
+
+",This declaration shadows an existing declaration.,"[{'end': 62777, 'file': '0x8ee5dd62a654a60f6f17a99d544102f37b58da26.sol', 'message': 'The shadowed declaration is here:', 'start': 62646}]",warning,"{'end': 62902, 'file': '0x8ee5dd62a654a60f6f17a99d544102f37b58da26.sol', 'start': 62890}",Warning,general,4327,"TypeError: Function needs to specify overridden contracts ""ERC721"" and ""IERC721"".
+    --> 0x8ee5dd62a654a60f6f17a99d544102f37b58da26.sol:2307:77:
+     |
+2307 |     function isApprovedForAll(address _owner, address operator) public view override returns (bool) {
+     |                                                                             ^^^^^^^^
+Note: This contract: 
+  --> 0x8ee5dd62a654a60f6f17a99d544102f37b58da26.sol:28:1:
+   |
+28 | interface IERC721 is IERC165 {
+   | ^ (Relevant source part starts here and spans across multiple lines).
+Note: This contract: 
+   --> 0x8ee5dd62a654a60f6f17a99d544102f37b58da26.sol:548:1:
+    |
+548 | abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
+    | ^ (Relevant source part starts here and spans across multiple lines).
+
+","Function needs to specify overridden contracts ""ERC721"" and ""IERC721"".",error,"{'end': 85235, 'file': '0x8ee5dd62a654a60f6f17a99d544102f37b58da26.sol', 'start': 85227}",TypeError,"[{'end': 5514, 'file': '0x8ee5dd62a654a60f6f17a99d544102f37b58da26.sol', 'message': 'This contract: ', 'start': 882}, {'end': 31508, 'file': '0x8ee5dd62a654a60f6f17a99d544102f37b58da26.sol', 'message': 'This contract: ', 'start': 19497}]",,,,,,,,,,,,,,
+2,0xa80f2c8f61c56546001f5fc2eb8d6e4e72c45d4c,general,3132,"TypeError: Event invocations have to be prefixed by ""emit"".
+   --> 0xa80f2c8f61c56546001f5fc2eb8d6e4e72c45d4c.sol:149:9:
+    |
+149 |         Transfer(msg.sender, to, tokens);
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+","Event invocations have to be prefixed by ""emit"".",,error,"{'end': 5361, 'file': '0xa80f2c8f61c56546001f5fc2eb8d6e4e72c45d4c.sol', 'start': 5329}",TypeError,general,3132,"TypeError: Event invocations have to be prefixed by ""emit"".
+   --> 0xa80f2c8f61c56546001f5fc2eb8d6e4e72c45d4c.sol:164:9:
+    |
+164 |         Approval(msg.sender, spender, tokens);
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+","Event invocations have to be prefixed by ""emit"".",error,"{'end': 6094, 'file': '0xa80f2c8f61c56546001f5fc2eb8d6e4e72c45d4c.sol', 'start': 6057}",TypeError,,general,3132,"TypeError: Event invocations have to be prefixed by ""emit"".
+   --> 0xa80f2c8f61c56546001f5fc2eb8d6e4e72c45d4c.sol:181:9:
+    |
+181 |         Transfer(from, to, tokens);
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+","Event invocations have to be prefixed by ""emit"".",error,"{'end': 6998, 'file': '0xa80f2c8f61c56546001f5fc2eb8d6e4e72c45d4c.sol', 'start': 6972}",TypeError,general,3132,"TypeError: Event invocations have to be prefixed by ""emit"".
+   --> 0xa80f2c8f61c56546001f5fc2eb8d6e4e72c45d4c.sol:202:9:
+    |
+202 |         Approval(msg.sender, spender, tokens);
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+","Event invocations have to be prefixed by ""emit"".",error,"{'end': 8040, 'file': '0xa80f2c8f61c56546001f5fc2eb8d6e4e72c45d4c.sol', 'start': 8003}",TypeError
+3,0x0c2e57efddba8c768147d1fdf9176a0a6ebd5d83,general,4327,"TypeError: Function needs to specify overridden contracts ""ERC721"" and ""IERC721"".
+   --> contracts/KaijuKingz.sol:110:77:
+    |
+110 |     function transferFrom(address from, address to, uint256 tokenId) public override {
+    |                                                                             ^^^^^^^^
+Note: This contract: 
+  --> @openzeppelin/contracts/token/ERC721/ERC721.sol:18:1:
+   |
+18 | contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
+   | ^ (Relevant source part starts here and spans across multiple lines).
+Note: This contract: 
+  --> @openzeppelin/contracts/token/ERC721/IERC721.sol:10:1:
+   |
+10 | interface IERC721 is IERC165 {
+   | ^ (Relevant source part starts here and spans across multiple lines).
+
+","Function needs to specify overridden contracts ""ERC721"" and ""IERC721"".","[{'end': 12978, 'file': '@openzeppelin/contracts/token/ERC721/ERC721.sol', 'message': 'This contract: ', 'start': 555}, {'end': 4590, 'file': '@openzeppelin/contracts/token/ERC721/IERC721.sol', 'message': 'This contract: ', 'start': 176}]",error,"{'end': 5108, 'file': 'contracts/KaijuKingz.sol', 'start': 5100}",TypeError,general,4327,"TypeError: Function needs to specify overridden contracts ""ERC721"" and ""IERC721"".
+   --> contracts/KaijuKingz.sol:119:100:
+    |
+119 |     function safeTransferFrom(address from, address to, uint256 tokenId, bytes memory data) public override {
+    |                                                                                                    ^^^^^^^^
+Note: This contract: 
+  --> @openzeppelin/contracts/token/ERC721/ERC721.sol:18:1:
+   |
+18 | contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
+   | ^ (Relevant source part starts here and spans across multiple lines).
+Note: This contract: 
+  --> @openzeppelin/contracts/token/ERC721/IERC721.sol:10:1:
+   |
+10 | interface IERC721 is IERC165 {
+   | ^ (Relevant source part starts here and spans across multiple lines).
+
+","Function needs to specify overridden contracts ""ERC721"" and ""IERC721"".",error,"{'end': 5442, 'file': 'contracts/KaijuKingz.sol', 'start': 5434}",TypeError,"[{'end': 12978, 'file': '@openzeppelin/contracts/token/ERC721/ERC721.sol', 'message': 'This contract: ', 'start': 555}, {'end': 4590, 'file': '@openzeppelin/contracts/token/ERC721/IERC721.sol', 'message': 'This contract: ', 'start': 176}]",general,9207,"Warning: 'transfer' is deprecated and scheduled for removal. Use 'call{value: <amount>}("""")' instead.
+   --> contracts/KaijuKingzERC721.sol:120:9:
+    |
+120 |         payable(msg.sender).transfer(balance);
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+","'transfer' is deprecated and scheduled for removal. Use 'call{value: <amount>}("""")' instead.",warning,"{'end': 5629, 'file': 'contracts/KaijuKingzERC721.sol', 'start': 5601}",Warning,,,,,,,
+4,0x3caca7b48d0573d793d3b0279b5f0029180e83b6,general,1114,"ParserError: Invalid SPDX license identifier.
+--> contracts/lib/GelatoBytes.sol
+
+",Invalid SPDX license identifier.,,error,"{'end': -1, 'file': 'contracts/lib/GelatoBytes.sol', 'start': -1}",ParserError,,,,,,,,,,,,,,,,,,,,,,
+5,0x15b543e986b8c34074dfc9901136d9355a537e7e,general,,"Mismatch between content and supplied hash for ""/home/gorbak25/stc_erc20/contracts/STCERC20.sol""","Mismatch between content and supplied hash for ""/home/gorbak25/stc_erc20/contracts/STCERC20.sol""",,error,,IOError,general,,"Mismatch between content and supplied hash for ""@openzeppelin/contracts/token/ERC20/ERC20.sol""","Mismatch between content and supplied hash for ""@openzeppelin/contracts/token/ERC20/ERC20.sol""",error,,IOError,,general,,"Mismatch between content and supplied hash for ""@openzeppelin/contracts/token/ERC20/IERC20.sol""","Mismatch between content and supplied hash for ""@openzeppelin/contracts/token/ERC20/IERC20.sol""",error,,IOError,general,,"Mismatch between content and supplied hash for ""@openzeppelin/contracts/utils/Context.sol""","Mismatch between content and supplied hash for ""@openzeppelin/contracts/utils/Context.sol""",error,,IOError
