@@ -1,0 +1,35 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "@axelar-network/axelar-gmp-sdk-solidity/contracts/interfaces/IContractIdentifier.sol": {
+            "content": "// SPDX-License-Identifier: MIT\n\npragma solidity ^0.8.34;\n\n// General interface for upgradable contracts\ninterface IContractIdentifier {\n    /**\n     * @notice Returns the contract ID. It can be used as a check during upgrades.\n     * @dev Meant to be overridden in derived contracts.\n     * @return bytes32 The contract ID\n     */\n    function contractId() external pure returns (bytes32);\n}\n"
+        },
+        "@axelar-network/axelar-gmp-sdk-solidity/contracts/interfaces/IProxy.sol": {
+            "content": "// SPDX-License-Identifier: MIT\n\npragma solidity ^0.8.34;\n\n// General interface for upgradable contracts\ninterface IProxy {\n    error InvalidOwner();\n    error InvalidImplementation();\n    error SetupFailed();\n    error NotOwner();\n    error AlreadyInitialized();\n\n    function implementation() external view returns (address);\n\n    function setup(bytes calldata setupParams) external;\n}\n"
+        },
+        "@axelar-network/axelar-gmp-sdk-solidity/contracts/upgradable/BaseProxy.sol": {
+            "content": "// SPDX-License-Identifier: MIT\n\npragma solidity ^0.8.34;\n\nimport { IProxy } from '../interfaces/IProxy.sol';\n\n/**\n * @title BaseProxy Contract\n * @dev This abstract contract implements a basic proxy that stores an implementation address. Fallback function\n * calls are delegated to the implementation. This contract is meant to be inherited by other proxy contracts.\n */\nabstract contract BaseProxy is IProxy {\n    // bytes32(uint256(keccak256('eip1967.proxy.implementation')) - 1)\n    bytes32 internal constant _IMPLEMENTATION_SLOT = 0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc;\n    // keccak256('owner')\n    bytes32 internal constant _OWNER_SLOT = 0x02016836a56b71f0d02689e69e326f4f4c1b9057164ef592671cf0d37c8040c0;\n\n    /**\n     * @dev Returns the current implementation address.\n     * @return implementation_ The address of the current implementation contract\n     */\n    function implementation() public view virtual returns (address implementation_) {\n        assembly {\n            implementation_ := sload(_IMPLEMENTATION_SLOT)\n        }\n    }\n\n    /**\n     * @dev Shadows the setup function of the implementation contract so it can't be called directly via the proxy.\n     * @param params The setup parameters for the implementation contract.\n     */\n    function setup(bytes calldata params) external {}\n\n    /**\n     * @dev Returns the contract ID. It can be used as a check during upgrades. Meant to be implemented in derived contracts.\n     * @return bytes32 The contract ID\n     */\n    function contractId() internal pure virtual returns (bytes32);\n\n    /**\n     * @dev Fallback function. Delegates the call to the current implementation contract.\n     */\n    fallback() external payable virtual {\n        address implementation_ = implementation();\n        assembly {\n            calldatacopy(0, 0, calldatasize())\n\n            let result := delegatecall(gas(), implementation_, 0, calldatasize(), 0, 0)\n            returndatacopy(0, 0, returndatasize())\n\n            switch result\n            case 0 {\n                revert(0, returndatasize())\n            }\n            default {\n                return(0, returndatasize())\n            }\n        }\n    }\n\n    /**\n     * @dev Payable fallback function. Can be overridden in derived contracts.\n     */\n    receive() external payable virtual {}\n}\n"
+        },
+        "@axelar-network/axelar-gmp-sdk-solidity/contracts/upgradable/Proxy.sol": {
+            "content": "// SPDX-License-Identifier: MIT\n\npragma solidity ^0.8.34;\n\nimport { IProxy } from '../interfaces/IProxy.sol';\nimport { IContractIdentifier } from '../interfaces/IContractIdentifier.sol';\nimport { BaseProxy } from './BaseProxy.sol';\n\n/**\n * @title Proxy Contract\n * @notice A proxy contract that delegates calls to a designated implementation contract. Inherits from BaseProxy.\n * @dev The constructor takes in the address of the implementation contract, the owner address, and any optional setup\n * parameters for the implementation contract.\n */\ncontract Proxy is BaseProxy {\n    /**\n     * @notice Constructs the proxy contract with the implementation address, owner address, and optional setup parameters.\n     * @param implementationAddress The address of the implementation contract\n     * @param owner The owner address\n     * @param setupParams Optional parameters to setup the implementation contract\n     * @dev The constructor verifies that the owner address is not the zero address and that the contract ID of the implementation is valid.\n     * It then stores the implementation address and owner address in their designated storage slots and calls the setup function on the\n     * implementation (if setup params exist).\n     */\n    constructor(\n        address implementationAddress,\n        address owner,\n        bytes memory setupParams\n    ) {\n        if (owner == address(0)) revert InvalidOwner();\n\n        bytes32 id = contractId();\n        // Skipping the check if contractId() is not set by an inheriting proxy contract\n        if (id != bytes32(0) && IContractIdentifier(implementationAddress).contractId() != id)\n            revert InvalidImplementation();\n\n        assembly {\n            sstore(_IMPLEMENTATION_SLOT, implementationAddress)\n            sstore(_OWNER_SLOT, owner)\n        }\n\n        if (setupParams.length != 0) {\n            (bool success, ) = implementationAddress.delegatecall(\n                abi.encodeWithSelector(BaseProxy.setup.selector, setupParams)\n            );\n            if (!success) revert SetupFailed();\n        }\n    }\n\n    function contractId() internal pure virtual override returns (bytes32) {\n        return bytes32(0);\n    }\n}\n"
+        },
+        "contracts/proxies/InterchainProxy.sol": {
+            "content": "// SPDX-License-Identifier: MIT\n\npragma solidity ^0.8.34;\n\nimport { Proxy } from '@axelar-network/axelar-gmp-sdk-solidity/contracts/upgradable/Proxy.sol';\n\n/**\n * @title InterchainProxy\n * @notice This contract is a proxy for interchainTokenService and interchainTokenFactory.\n * @dev This contract implements Proxy.\n */\ncontract InterchainProxy is Proxy {\n    constructor(address implementationAddress, address owner, bytes memory setupParams) Proxy(implementationAddress, owner, setupParams) {}\n}\n"
+        }
+    },
+    "settings": {
+        "evmVersion": "london",
+        "optimizer": {
+            "enabled": true
+        },
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "yulCFGJson"
+                ]
+            }
+        },
+        "libraries": {},
+        "viaIR": true
+    }
+}
