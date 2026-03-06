@@ -30,6 +30,9 @@ def generate_parser() -> argparse.ArgumentParser:
     output_options.add_argument("-v", "--visualize", action="store_true", dest="visualize",
                                 help="Generates a dot file for each object in the JSON, "
                                      "showcasing the results from the liveness analysis")
+    output_options.add_argument("-sfs", "--sfs", action="store_false", dest="sfs", help="Stores the SFS information "
+                                                                                     "according to the format used by GASOL. "
+                                                                                     "It uses information from the greedy algorithm")
     output_options.add_argument("-json-solc", "--json-solc", action="store_true", dest="json_solc",
                                 help="Stores the result in combined-json format")
     output_options.add_argument("-auxdata", "--auxdata", action="store_true", dest="auxdata", help="Enabled the generation of auxdata as part of the evm code")
