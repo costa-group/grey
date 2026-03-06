@@ -193,8 +193,16 @@ class CFGBlock:
         self.liveness = liveness_set
 
     def set_in_layout_solc(self, in_layout):
-        self.in_layout_solc = in_layout
 
+        self.in_layout_solc = []
+        junk_cont = 0
+        for e in in_layout:
+            if e == "JUNK":
+                self.in_layout_solc.append("junk"+str(junk_cont))
+                junk_cont+=1
+            else:
+                self.in_layout_solc.append(e)
+                
     def set_out_layout_solc(self, out_layout):
         self.out_layout_solc = out_layout
 
