@@ -20,6 +20,7 @@ from cfg_methods.preprocessing_methods import preprocess_cfg
 from solution_generation.bytecode2asm import asm_from_opcodes
 from reparation.repair_unreachable import repair_cfg
 from analysis.solution_analysis import function_frequency
+from solution_generation.store_sfs import sfs_from_cfg
 
 global times
 times = []
@@ -70,11 +71,14 @@ def analyze_single_cfg(cfg: CFG, final_dir: Path, args: argparse.Namespace, time
     times[3] += (layout_time)
 
     x = dtimer()
-    needs_repair, info_greedy = cfg_spec_ids(cfg, final_dir.joinpath("statistics.csv"), args.visualize)
+    needs_repair, _ = cfg_spec_ids(cfg, final_dir.joinpath("statistics.csv"), args.visualize)
     y = dtimer()
 
     print("Greedy algorithm: " + str(y - x) + "s")
     times[4] += (y - x)
+
+    if args.sfs:
+        sfs_from_cfg(cfg, final_dir)
 
     repair_time = 0
     # Only count time if repair is needed

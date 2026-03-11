@@ -94,6 +94,26 @@ def check_execution_from_ids(sfs: Dict, instr_ids: List[instr_id_T], allows_junk
     return True
 
 
+def store_sfs_params_from_greedy(sfs: Dict, instr_ids: List[instr_id_T], is_revert: bool) -> bool:
+    """
+    Stores the information in SFS that can be passed to GASOL
+    """
+    user_instr: List[instr_JSON_T] = sfs['user_instrs']
+
+    cstack, fstack = sfs['src_ws'].copy(), sfs['tgt_ws']
+    max_stack_size = len(cstack)
+    for instr_id in instr_ids:
+        if DEBUG_MODE:
+            print_state(instr_id, cstack)
+        execute_instr_id(instr_id, cstack, user_instr)
+        max_stack_size = max(max_stack_size, len(cstack))
+
+    # We allow an extra element for DUP + POP combinations
+    sfs["max_sk_sz"] = max_stack_size + 1
+    sfs["is_revert"] = is_revert
+    sfs["max_progr_len"] = len(instr_ids)
+    sfs["init_progr_len"] = len(instr_ids)
+
 if __name__ == "__main__":
     with open(sys.argv[1], 'r') as f:
         loaded_sfs = json.load(f)

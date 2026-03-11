@@ -9,7 +9,7 @@ from parser.cfg_function import CFGFunction
 from parser.cfg_block import CFGBlock
 from parser.cfg_instruction import CFGInstruction
 from parser.utils_parser import check_instruction_validity, check_block_validity, check_assignment_validity, split_json
-
+from analysis.solc_layouts import compute_out_layouts
 
 def generate_block_name(object_name: component_name_T, block_id: block_id_T) -> block_id_T:
     """
@@ -136,9 +136,14 @@ def parser_block_list(object_name: str, blocks: List[Dict[str, Any]], built_in_o
     exit_blocks = []
     comes_from = collections.defaultdict(lambda: [])
     assignment_dict = {}
-    
+
+    # Bool to indicate whether the layouts from the
+    # solc compiler have been retrieved or not
+    has_solc_layouts = False
+
     for b in blocks:
         block_id, new_block, block_exit = parse_block(object_name, b, built_in_op, objects_keys, assignment_dict)
+        has_solc_layouts = has_solc_layouts or len(new_block.get_in_layout_solc()) > 0
 
         # Annotate comes from
         for succ_block in block_exit["targets"]:
@@ -157,7 +162,11 @@ def parser_block_list(object_name: str, blocks: List[Dict[str, Any]], built_in_o
     update_comes_from(block_list, comes_from)
 
     block_list.set_assigment(assignment_dict)
-    
+
+    # Finally, if we have input layouts, we assign them
+    if has_solc_layouts:
+        compute_out_layouts(block_list)
+
     return block_list, exit_blocks
 
 
