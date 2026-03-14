@@ -218,6 +218,7 @@ def traverse_cfg_block_list(block_list: CFGBlockList, function_name2entry: Dict[
         if next_block.get_jump_type() in ["sub_block"]:
             next_block, asm_block = generate_asm_split_blocks(block_id, blocks, tags_dict, function_name2entry)
         else:
+            print(next_block.get_jump_type())
             asm_block = asm_from_ids(next_block.spec, next_block.greedy_ids)
             
             if next_block.split_instruction is not None:
@@ -229,8 +230,11 @@ def traverse_cfg_block_list(block_list: CFGBlockList, function_name2entry: Dict[
 
             if asm_block == [] and next_block.get_jump_type() == "terminal":
 
-                assert len(next_block.get_instructions()) == 1, f"Falla { next_block.get_instructions()}"
-                ins = next_block.get_instructions()[0]
+                if len(next_block.get_instructions()) == 2 and next_block.get_instructions()[0].get_op_name() == "PhiFunction":
+                    ins = next_block.get_instructions()[1]
+                else:
+                    assert len(next_block.get_instructions()) == 1, f"Falla { next_block.get_instructions()}"
+                    ins = next_block.get_instructions()[0]
 
                 # Terminal blocks might contain calls to terminal functions (i.e. not so terminal...)
                 asm_block = asm_for_split_instruction(ins, function_name2entry)
