@@ -7,26 +7,34 @@ from global_params.types import var_id_T, instr_id_T, instr_JSON_T
 from reparation.utils import extract_value_from_pseudo_instr
 
 
-def compute_out_var2push(json_instrs: List[instr_JSON_T]) -> Dict[var_id_T, instr_JSON_T]:
+def compute_out_var2push_id(json_instrs: List[instr_JSON_T]) -> Dict[var_id_T, instr_id_T]:
     out_var2push = dict()
     for instr in json_instrs:
         if instr["disasm"] == "PUSH":
-            out_var2push[instr["outpt_sk"][0]] = instr
+            out_var2push[instr["outpt_sk"][0]] = instr["id"]
     return out_var2push
+
+
+def remove_constant_vgets(greedy_ids: List[var_id_T], var2push_id: Dict[var_id_T, instr_id_T]):
+    """
+    Removes VGETs that correspond to constants. This is needed because otherwise the uniqueness
+    of variable names is not guaranteed (and it does not make sense to store in memory just to retrieve)
+    """
+    return [vget_push if "VGET" in greedy_id and (vget_push := var2push_id.get(greedy_id[5:-1])) is not None else greedy_id for greedy_id in greedy_ids]
 
 
 class GreedyInfo:
 
     def __init__(self, greedy_ids: List[str], outcome: str, execution_time: float,
                  original_instrs: List[instr_JSON_T]):
-        self.greedy_ids = greedy_ids if greedy_ids else []
+        var2push_id = compute_out_var2push_id(original_instrs)
+        self.greedy_ids = remove_constant_vgets(greedy_ids, var2push_id) if greedy_ids else []
         self.outcome = outcome
         self.execution_time = execution_time
         # Three args: dup position / last instruction accessible / is last instruction in the block
         self.reachable: Dict[var_id_T, Tuple[int, int, bool]] = dict()
         self.unreachable: Set[var_id_T] = set()
         self.user_instrs = original_instrs
-        self.var2push = compute_out_var2push(original_instrs)
 
         # Elements that are accessed through get instructions and are not dominated by a vset
         self.get_count, self.num_dominated_gets, self.has_vget = self._initial_get_count()
