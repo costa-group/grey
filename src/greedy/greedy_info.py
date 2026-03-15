@@ -20,7 +20,21 @@ def remove_constant_vgets(greedy_ids: List[var_id_T], var2push_id: Dict[var_id_T
     Removes VGETs that correspond to constants. This is needed because otherwise the uniqueness
     of variable names is not guaranteed (and it does not make sense to store in memory just to retrieve)
     """
-    return [vget_push if "VGET" in greedy_id and (vget_push := var2push_id.get(greedy_id[5:-1])) is not None else greedy_id for greedy_id in greedy_ids]
+    ids_without_vget_vset_constants = []
+    for greedy_id in greedy_ids:
+        if "VGET" in greedy_id or "VSET" in greedy_id:
+            var = greedy_id[5:-1]
+            push_id = var2push_id.get(var)
+            if push_id is not None:
+                if "VGET" in greedy_id:
+                    ids_without_vget_vset_constants.append(push_id)
+                else:
+                    # Remove an element because we can retrieve it using a PUSH instruction instead
+                    ids_without_vget_vset_constants.append("POP")
+                continue
+        ids_without_vget_vset_constants.append(greedy_id)
+
+    return ids_without_vget_vset_constants
 
 
 class GreedyInfo:
