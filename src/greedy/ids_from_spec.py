@@ -45,6 +45,7 @@ def cfg_block_spec_ids(cfg_block: CFGBlock, elements_to_move: int = 0) -> Tuple[
     greedy_ids1 = extra_operands + greedy_ids1
 
     greedy_info = GreedyInfo.from_old_version(greedy_ids1, outcome1, time1, cfg_block.spec["user_instrs"])
+    greedy_ids1 = greedy_info.greedy_ids
 
     # greedy_info3 = alternative.greedy_standalone(cfg_block.spec)
     # outcome3, time3, greedy_ids3 = greedy_info3.outcome, greedy_info3.execution_time, greedy_info3.greedy_ids
