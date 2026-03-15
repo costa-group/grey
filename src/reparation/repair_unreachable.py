@@ -22,7 +22,7 @@ def repair_cfg(cfg: CFG, path_to_files: Optional[Path]):
     """
     csv_dicts = []
     for cfg_object in cfg.get_objects().values():
-        print(cfg_object.name)
+        # print(cfg_object.name)
         csv_dicts.extend(repair_cfg_objects(cfg_object, path_to_files))
         sub_object = cfg_object.subObject
         if sub_object is not None:
