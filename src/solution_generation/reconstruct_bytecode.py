@@ -218,7 +218,6 @@ def traverse_cfg_block_list(block_list: CFGBlockList, function_name2entry: Dict[
         if next_block.get_jump_type() in ["sub_block"]:
             next_block, asm_block = generate_asm_split_blocks(block_id, blocks, tags_dict, function_name2entry)
         else:
-            print(next_block.get_jump_type())
             asm_block = asm_from_ids(next_block.spec, next_block.greedy_ids)
             
             if next_block.split_instruction is not None:
