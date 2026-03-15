@@ -3,7 +3,7 @@ Module that handles the generation of the ids from the greedy algorithm.
 """
 import copy
 from pathlib import Path
-from typing import Tuple, List, Dict, Optional, Set, Iterable
+from typing import Tuple, List, Dict, Optional, Set, Iterable, Any
 from collections import Counter
 
 import pandas as pd
@@ -14,6 +14,7 @@ from parser.cfg_block_list import CFGBlockList
 from parser.cfg_object import CFGObject
 from parser.cfg import CFG
 import greedy.greedy_previous_param as previous
+from greedy.utils import detect_blocks_with_multiple_insertion, move_elements_to_make_reachable
 from solution_generation.statistics import generate_statistics_info
 from greedy.greedy_info import GreedyInfo
 import greedy.greedy_new_version as alternative
@@ -26,11 +27,23 @@ def _length_or_zero(l, outcome):
     return len(l) if l is not None and outcome != "error" else 10000
 
 
-def cfg_block_spec_ids(cfg_block: CFGBlock) -> Tuple[str, float, List[instr_id_T], Counter[var_id_T]]:
+def cfg_block_spec_ids(cfg_block: CFGBlock, elements_to_move: int = 0) -> Tuple[str, float, List[instr_id_T], Counter[var_id_T]]:
+    cfg_block.get_liveness()
     # Retrieve the information from each of the executions
     sfs = copy.deepcopy(cfg_block._spec)
     admits_junk = sfs["admits_junk"]
+
+    # TODO: better integration
+    if elements_to_move > 0:
+        extra_operands = move_elements_to_make_reachable(sfs, elements_to_move)
+    else:
+        extra_operands = []
+
     outcome1, time1, greedy_ids1 = previous.greedy_standalone(sfs, admits_junk, constants.MAX_STACK_DEPTH)
+
+    # Append the preprocessing variables
+    greedy_ids1 = extra_operands + greedy_ids1
+
     greedy_info = GreedyInfo.from_old_version(greedy_ids1, outcome1, time1, cfg_block.spec["user_instrs"])
 
     # greedy_info3 = alternative.greedy_standalone(cfg_block.spec)
@@ -60,8 +73,10 @@ def cfg_block_list_spec_ids(cfg_blocklist: CFGBlockList, visualize: bool) -> Tup
     csv_dicts = []
     to_fix = Counter()
     has_vget = False
+
+    blocks_to_move_elements = detect_blocks_with_multiple_insertion(cfg_blocklist)
     for block_name, block in cfg_blocklist.blocks.items():
-        outcome, time, greedy_ids, to_fix_block = cfg_block_spec_ids(block)
+        outcome, time, greedy_ids, to_fix_block = cfg_block_spec_ids(block, blocks_to_move_elements.get(block_name, 0))
         to_fix += to_fix_block
         has_vget = has_vget or block.greedy_info.has_vget
 
