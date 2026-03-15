@@ -22,6 +22,7 @@ def repair_cfg(cfg: CFG, path_to_files: Optional[Path]):
     """
     csv_dicts = []
     for cfg_object in cfg.get_objects().values():
+        print(cfg_object.name)
         csv_dicts.extend(repair_cfg_objects(cfg_object, path_to_files))
         sub_object = cfg_object.subObject
         if sub_object is not None:
@@ -103,18 +104,20 @@ def repair_unreachable_blocklist(cfg_blocklist: CFGBlockList,
 
 def get_first_constant(cfg_blocklist: CFGBlockList):
     first_block = cfg_blocklist.get_block(cfg_blocklist.start_block)
-    first_instruction = first_block.instructions_to_synthesize[0]
+    for instruction in first_block.instructions_to_synthesize:
 
-    # print(first_instruction)
-    if first_instruction.op == "memoryguard":
-        # print("GUARD", first_instruction)
-        return hex(int(first_instruction.literal_args[0]))[2:]
-    elif first_instruction.op == "push":
-        # print("PUSH", first_instruction)
-        return first_instruction.literal_args[0][2:]
-    elif first_instruction.op == "mstore":
-        return first_instruction.in_args[1]
+        # print(first_instruction)
+        if instruction.op == "memoryguard":
+            # print("GUARD", instruction.literal_args[0][2:])
+            return instruction.literal_args[0][2:]
+        elif instruction.op == "push":
+            # print("PUSH", instruction)
+            return instruction.literal_args[0][2:]
+        elif instruction.op == "mstore":
+            return instruction.in_args[1]
 
+    # If there is no instruction with memory annotated, return 0x80
+    return "80"
 
 def set_first_constant(cfg_blocklist: CFGBlockList, new_constant: constant_T):
     first_block = cfg_blocklist.get_block(cfg_blocklist.start_block)
