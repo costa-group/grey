@@ -1,0 +1,1 @@
+find . -name "*.csv" -exec awk -F, 'BEGIN {sa=0; sc=0; p=0} NR>1 {sa+=$4; sc+=$5; if($3!=0) p=1} END {print sa, sc, p}' {} \; | awk '{sa+=$1; sc+=$2; p+=$3} END {print "Total num_assigned: "sa; print "Total num_colors: "sc; print "Files with num_phi != 0: "p}'
