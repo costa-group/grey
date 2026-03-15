@@ -264,8 +264,6 @@ def store_stack_elements_block(current_block_id: block_id_T, block_list: CFGBloc
     vars_stored = set()
     reachable_info = current_greedy_info.reachable
     for var in vars_to_introduce.intersection(reachable_info.keys()):
-        if var == "v3287":
-            print("HOLA")
         if within_loop(var, current_block_id,
                        block_list.loop_nesting_forest, var2header):
             current_greedy_info.insert_dup_vset(var)

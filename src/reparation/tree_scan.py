@@ -213,7 +213,6 @@ class TreeScan:
 
     def _assign_colours_to_constants(self, num_colors: int, max_constant: str) -> List[constant_T]:
         # TODO: implement HACK2 (not very difficult)
-        print(max_constant)
         return [hex(int(max_constant, 16) + 32 * i)[2:] for i in range(num_colors)]
 
     def _emit_copies(self, copies_to_manage_regs: Dict[var_id_T, Tuple[int, int]],
