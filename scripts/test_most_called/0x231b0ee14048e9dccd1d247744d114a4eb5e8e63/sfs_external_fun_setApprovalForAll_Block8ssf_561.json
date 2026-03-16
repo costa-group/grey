@@ -1,0 +1,65 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "474 = PUSH [tag]\n610 = PUSH [tag]\nupdate_storage_value_offset_bool_to_bool(474,v960,v952,610)",
+    "src_ws": [
+        "v960",
+        "v952",
+        "v955"
+    ],
+    "tgt_ws": [
+        "474",
+        "v960",
+        "v952",
+        "610",
+        "v952",
+        "v955"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "474"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "PUSH [TAG]_1",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "610"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "610",
+        "474"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 5,
+    "max_progr_len": 5,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "external_fun_setApprovalForAll_Block8ssf",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 7,
+    "is_revert": false
+}

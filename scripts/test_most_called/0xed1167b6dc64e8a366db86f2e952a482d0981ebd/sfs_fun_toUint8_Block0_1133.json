@@ -1,0 +1,101 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v2187 = LiteralAssignment(0x00)\nv2188 = mload(v2186)\nv2189 = LiteralAssignment(0x00)\nv2190 = lt(v2188,0x01)\n482 = PUSH [tag]\nJUMPI(482,v2190)",
+    "src_ws": [
+        "v2186",
+        "out_fun_toUint8"
+    ],
+    "tgt_ws": [
+        "482",
+        "v2190",
+        "v2186",
+        "out_fun_toUint8"
+    ],
+    "user_instrs": [
+        {
+            "id": "MLOAD_0",
+            "opcode": "51",
+            "disasm": "MLOAD",
+            "inpt_sk": [
+                "v2186"
+            ],
+            "outpt_sk": [
+                "v2188"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH_0",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                1
+            ],
+            "outpt_sk": [
+                "s0"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "LT_0",
+            "opcode": "10",
+            "disasm": "LT",
+            "inpt_sk": [
+                "v2188",
+                "s0"
+            ],
+            "outpt_sk": [
+                "v2190"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "482"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "v2188",
+        "s0",
+        "v2186",
+        "482",
+        "v2190"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 5,
+    "max_progr_len": 5,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_toUint8_Block0",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 5,
+    "is_revert": false
+}

@@ -1,0 +1,89 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v312 = add(v230,v287)\nv313 = mload(v312)\n72 = PUSH [tag]\nJUMP(72)",
+    "src_ws": [
+        "v291",
+        "v287",
+        "v232",
+        "v230",
+        "out_fun_toShortStringWithFallback"
+    ],
+    "tgt_ws": [
+        "72",
+        "v313",
+        "v287",
+        "v232",
+        "v230",
+        "out_fun_toShortStringWithFallback"
+    ],
+    "user_instrs": [
+        {
+            "id": "ADD_0",
+            "opcode": "01",
+            "disasm": "ADD",
+            "inpt_sk": [
+                "v230",
+                "v287"
+            ],
+            "outpt_sk": [
+                "v312"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "MLOAD_0",
+            "opcode": "51",
+            "disasm": "MLOAD",
+            "inpt_sk": [
+                "v312"
+            ],
+            "outpt_sk": [
+                "v313"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "72"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "72",
+        "v313",
+        "v230",
+        "v312",
+        "v287"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 6,
+    "max_progr_len": 6,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_toShortStringWithFallback_Block29",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 7,
+    "is_revert": false
+}

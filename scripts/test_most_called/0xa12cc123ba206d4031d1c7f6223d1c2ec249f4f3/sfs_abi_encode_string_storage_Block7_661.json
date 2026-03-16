@@ -1,0 +1,89 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v774 = add(v765,0x20)\n180 = PUSH [tag]\nJUMP(180)",
+    "src_ws": [
+        "v747",
+        "v765",
+        "v750",
+        "v773",
+        "out_abi_encode_string_storage"
+    ],
+    "tgt_ws": [
+        "180",
+        "v747",
+        "v774",
+        "v750",
+        "v773",
+        "out_abi_encode_string_storage"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH_0",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                32
+            ],
+            "outpt_sk": [
+                "s0"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "ADD_0",
+            "opcode": "01",
+            "disasm": "ADD",
+            "inpt_sk": [
+                "v765",
+                "s0"
+            ],
+            "outpt_sk": [
+                "v774"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "180"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "s0",
+        "180",
+        "v774",
+        "v765"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 6,
+    "max_progr_len": 6,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "abi_encode_string_storage_Block7",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 8,
+    "is_revert": false
+}

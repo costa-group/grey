@@ -1,0 +1,85 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v207 = PhiFunction(v202,v225)\nv208 = PhiFunction(v201,v222)\nv209 = PhiFunction(v198,v224)\nv210 = PhiFunction(v195,v223)\nv211 = lt(v207,v194)\n75 = PUSH [tag]\nJUMPI(75,v211)",
+    "src_ws": [
+        "v207",
+        "v209",
+        "v210",
+        "v206",
+        "v208",
+        "v196",
+        "v195",
+        "v194",
+        "v193",
+        "v192",
+        "out_abi_encode_array_struct_UserOperation_calldata_dyn_calldata_bytes_calldata"
+    ],
+    "tgt_ws": [
+        "75",
+        "v211",
+        "v207",
+        "v209",
+        "v210",
+        "v206",
+        "v208",
+        "v196",
+        "v195",
+        "v194",
+        "v193",
+        "v192",
+        "out_abi_encode_array_struct_UserOperation_calldata_dyn_calldata_bytes_calldata"
+    ],
+    "user_instrs": [
+        {
+            "id": "LT_0",
+            "opcode": "10",
+            "disasm": "LT",
+            "inpt_sk": [
+                "v207",
+                "v194"
+            ],
+            "outpt_sk": [
+                "v211"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "75"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "v211",
+        "v207",
+        "75",
+        "v194"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 4,
+    "max_progr_len": 4,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "abi_encode_array_struct_UserOperation_calldata_dyn_calldata_bytes_calldata_Block1",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 14,
+    "is_revert": false
+}

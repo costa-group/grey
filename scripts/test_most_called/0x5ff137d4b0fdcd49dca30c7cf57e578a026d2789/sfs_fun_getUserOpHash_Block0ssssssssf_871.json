@@ -1,0 +1,206 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "78 = PUSH [tag]\n873 = PUSH [tag]\nv2119 = mload(v2109)\nv2120 = keccak256(v2110,v2119)\nv2121 = mload(0x40)\nv2122 = add(v2121,0x20)\nv2123 = chainid\nv2124 = address\nv2125 = abi_encode_bytes32_address_uint256(78,v2122,v2120,v2124,v2123,873)",
+    "src_ws": [
+        "v2109",
+        "v2110",
+        "out_fun_getUserOpHash"
+    ],
+    "tgt_ws": [
+        "78",
+        "v2122",
+        "v2120",
+        "v2124",
+        "v2123",
+        "873",
+        "v2121",
+        "v2122",
+        "out_fun_getUserOpHash"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "78"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "PUSH [TAG]_1",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "873"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "MLOAD_0",
+            "opcode": "51",
+            "disasm": "MLOAD",
+            "inpt_sk": [
+                "v2109"
+            ],
+            "outpt_sk": [
+                "v2119"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "KECCAK256_0",
+            "opcode": "20",
+            "disasm": "KECCAK256",
+            "inpt_sk": [
+                "v2110",
+                "v2119"
+            ],
+            "outpt_sk": [
+                "v2120"
+            ],
+            "gas": 30,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH_0",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                64
+            ],
+            "outpt_sk": [
+                "s0"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "MLOAD_1",
+            "opcode": "51",
+            "disasm": "MLOAD",
+            "inpt_sk": [
+                "s0"
+            ],
+            "outpt_sk": [
+                "v2121"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH_1",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                32
+            ],
+            "outpt_sk": [
+                "s1"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "ADD_0",
+            "opcode": "01",
+            "disasm": "ADD",
+            "inpt_sk": [
+                "v2121",
+                "s1"
+            ],
+            "outpt_sk": [
+                "v2122"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "CHAINID_0",
+            "opcode": "46",
+            "disasm": "CHAINID",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "v2123"
+            ],
+            "gas": 2,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "ADDRESS_0",
+            "opcode": "30",
+            "disasm": "ADDRESS",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "v2124"
+            ],
+            "gas": 2,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        }
+    ],
+    "variables": [
+        "s1",
+        "v2122",
+        "v2121",
+        "v2123",
+        "v2119",
+        "v2120",
+        "v2124",
+        "v2110",
+        "s0",
+        "78",
+        "873",
+        "v2109"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 21,
+    "max_progr_len": 21,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_getUserOpHash_Block0ssssssssf",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 11,
+    "is_revert": false
+}

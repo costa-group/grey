@@ -1,0 +1,50 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "45 = PUSH [tag]\nfun_doProxyCall(45)",
+    "src_ws": [
+        "v173",
+        "v172",
+        "v171",
+        "out_modifier_proxyCallIfNotAdmin"
+    ],
+    "tgt_ws": [
+        "45",
+        "v173",
+        "v172",
+        "v171",
+        "out_modifier_proxyCallIfNotAdmin"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "45"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "45"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 1,
+    "max_progr_len": 1,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "modifier_proxyCallIfNotAdmin_Block4",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 6,
+    "is_revert": false
+}

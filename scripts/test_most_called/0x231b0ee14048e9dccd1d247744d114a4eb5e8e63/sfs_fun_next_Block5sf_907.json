@@ -1,0 +1,106 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "478 = PUSH [tag]\n738 = PUSH [tag]\nv1679 = add(v1665,0x40)\nwrite_to_memory_uint16(478,v1679,v1678,738)",
+    "src_ws": [
+        "v1678",
+        "v1666",
+        "v1675",
+        "v1665",
+        "out_fun_next"
+    ],
+    "tgt_ws": [
+        "478",
+        "v1679",
+        "v1678",
+        "738",
+        "v1666",
+        "v1675",
+        "v1665",
+        "out_fun_next"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "478"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "PUSH [TAG]_1",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "738"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "PUSH_0",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                64
+            ],
+            "outpt_sk": [
+                "s0"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "ADD_0",
+            "opcode": "01",
+            "disasm": "ADD",
+            "inpt_sk": [
+                "v1665",
+                "s0"
+            ],
+            "outpt_sk": [
+                "v1679"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        }
+    ],
+    "variables": [
+        "478",
+        "738",
+        "v1679",
+        "s0",
+        "v1665"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 6,
+    "max_progr_len": 6,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_next_Block5sf",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 9,
+    "is_revert": false
+}

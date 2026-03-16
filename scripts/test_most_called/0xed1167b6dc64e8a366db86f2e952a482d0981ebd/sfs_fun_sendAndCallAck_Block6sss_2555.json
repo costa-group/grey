@@ -1,0 +1,93 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v2108 = eq(v2106,0x00)\n478 = PUSH [tag]\nJUMPI(478,v2108)",
+    "src_ws": [
+        "v2106",
+        "v2107",
+        "v2067",
+        "v2066",
+        "v2065",
+        "v2064",
+        "out_fun_sendAndCallAck"
+    ],
+    "tgt_ws": [
+        "478",
+        "v2108",
+        "v2107",
+        "v2067",
+        "v2066",
+        "v2065",
+        "v2064",
+        "out_fun_sendAndCallAck"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH0_0",
+            "opcode": "5f",
+            "disasm": "PUSH0",
+            "inpt_sk": [],
+            "value": [
+                0
+            ],
+            "outpt_sk": [
+                "s0"
+            ],
+            "gas": 2,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "EQ_0",
+            "opcode": "14",
+            "disasm": "EQ",
+            "inpt_sk": [
+                "v2106",
+                "s0"
+            ],
+            "outpt_sk": [
+                "v2108"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "478"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "v2108",
+        "478",
+        "s0",
+        "v2106"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 3,
+    "max_progr_len": 3,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_sendAndCallAck_Block6sss",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 9,
+    "is_revert": false
+}

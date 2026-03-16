@@ -1,0 +1,86 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v826 = eq(v751,v825)\nv827 = iszero(v826)\n173 = PUSH [tag]\nJUMPI(173,v827)",
+    "src_ws": [
+        "v825",
+        "v823",
+        "v751",
+        "v750"
+    ],
+    "tgt_ws": [
+        "173",
+        "v827",
+        "v823",
+        "v750"
+    ],
+    "user_instrs": [
+        {
+            "id": "EQ_0",
+            "opcode": "14",
+            "disasm": "EQ",
+            "inpt_sk": [
+                "v751",
+                "v825"
+            ],
+            "outpt_sk": [
+                "v826"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "ISZERO_0",
+            "opcode": "15",
+            "disasm": "ISZERO",
+            "inpt_sk": [
+                "v826"
+            ],
+            "outpt_sk": [
+                "v827"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "173"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "173",
+        "v751",
+        "v826",
+        "v827",
+        "v825"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 5,
+    "max_progr_len": 5,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "BeamToken_4159_deployed_Block411sssss",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": true,
+    "max_sk_sz": 5,
+    "is_revert": false
+}

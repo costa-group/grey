@@ -1,0 +1,122 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v283 = add(v282,0x1f)\nv284 = slt(v283,v281)\nv285 = iszero(v284)\n69 = PUSH [tag]\nJUMPI(69,v285)",
+    "src_ws": [
+        "v282",
+        "v281",
+        "out_abi_decode_string_fromMemory"
+    ],
+    "tgt_ws": [
+        "69",
+        "v285",
+        "v282",
+        "v281",
+        "out_abi_decode_string_fromMemory"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH_0",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                31
+            ],
+            "outpt_sk": [
+                "s0"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "ADD_0",
+            "opcode": "01",
+            "disasm": "ADD",
+            "inpt_sk": [
+                "v282",
+                "s0"
+            ],
+            "outpt_sk": [
+                "v283"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "SLT_0",
+            "opcode": "12",
+            "disasm": "SLT",
+            "inpt_sk": [
+                "v283",
+                "v281"
+            ],
+            "outpt_sk": [
+                "v284"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "ISZERO_0",
+            "opcode": "15",
+            "disasm": "ISZERO",
+            "inpt_sk": [
+                "v284"
+            ],
+            "outpt_sk": [
+                "v285"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "69"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "v282",
+        "v284",
+        "v283",
+        "s0",
+        "v281",
+        "v285",
+        "69"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 7,
+    "max_progr_len": 7,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "abi_decode_string_fromMemory_Block0",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 7,
+    "is_revert": false
+}

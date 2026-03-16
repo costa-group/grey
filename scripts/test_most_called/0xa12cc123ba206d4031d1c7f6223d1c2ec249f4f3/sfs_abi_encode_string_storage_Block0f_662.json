@@ -1,0 +1,84 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "185 = PUSH [tag]\n344 = PUSH [tag]\nv749 = sload(v748)\nv750 = extract_byte_array_length(185,v749,344)",
+    "src_ws": [
+        "v748",
+        "v747",
+        "out_abi_encode_string_storage"
+    ],
+    "tgt_ws": [
+        "185",
+        "v749",
+        "344",
+        "v749",
+        "v748",
+        "v747",
+        "out_abi_encode_string_storage"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "185"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "PUSH [TAG]_1",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "344"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "SLOAD_0",
+            "opcode": "54",
+            "disasm": "SLOAD",
+            "inpt_sk": [
+                "v748"
+            ],
+            "outpt_sk": [
+                "v749"
+            ],
+            "gas": 2100,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        }
+    ],
+    "variables": [
+        "v748",
+        "344",
+        "185",
+        "v749"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 5,
+    "max_progr_len": 5,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "abi_encode_string_storage_Block0f",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 8,
+    "is_revert": false
+}

@@ -1,0 +1,50 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v396 = PhiFunction(v312,v280)\nv397 = PhiFunction(v281,v356)\n65 = PUSH [tag]\nJUMP(65)",
+    "src_ws": [
+        "v397",
+        "v396",
+        "v248",
+        "v254"
+    ],
+    "tgt_ws": [
+        "65",
+        "v397",
+        "v396",
+        "v248",
+        "v254"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "65"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "65"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 1,
+    "max_progr_len": 1,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "BeamToken_4159_deployed_Block152",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 6,
+    "is_revert": false
+}

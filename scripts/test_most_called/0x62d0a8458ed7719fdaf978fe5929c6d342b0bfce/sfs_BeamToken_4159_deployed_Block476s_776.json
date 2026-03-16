@@ -1,0 +1,152 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v956 = calldataload(0x24)\nv957 = and(v956,0xffffffff)\nv958 = eq(v956,v957)\nv959 = iszero(v958)\n188 = PUSH [tag]\nJUMPI(188,v959)",
+    "src_ws": [
+        "v955"
+    ],
+    "tgt_ws": [
+        "188",
+        "v959",
+        "v956",
+        "v955"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH_0",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                36
+            ],
+            "outpt_sk": [
+                "s0"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "CALLDATALOAD_0",
+            "opcode": "35",
+            "disasm": "CALLDATALOAD",
+            "inpt_sk": [
+                "s0"
+            ],
+            "outpt_sk": [
+                "v956"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH_1",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                4294967295
+            ],
+            "outpt_sk": [
+                "s1"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 5
+        },
+        {
+            "id": "AND_0",
+            "opcode": "16",
+            "disasm": "AND",
+            "inpt_sk": [
+                "v956",
+                "s1"
+            ],
+            "outpt_sk": [
+                "v957"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "EQ_0",
+            "opcode": "14",
+            "disasm": "EQ",
+            "inpt_sk": [
+                "v956",
+                "v957"
+            ],
+            "outpt_sk": [
+                "v958"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "ISZERO_0",
+            "opcode": "15",
+            "disasm": "ISZERO",
+            "inpt_sk": [
+                "v958"
+            ],
+            "outpt_sk": [
+                "v959"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "188"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "v959",
+        "s1",
+        "v957",
+        "v956",
+        "v958",
+        "s0",
+        "188"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 9,
+    "max_progr_len": 9,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "BeamToken_4159_deployed_Block476s",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": true,
+    "max_sk_sz": 5,
+    "is_revert": false
+}

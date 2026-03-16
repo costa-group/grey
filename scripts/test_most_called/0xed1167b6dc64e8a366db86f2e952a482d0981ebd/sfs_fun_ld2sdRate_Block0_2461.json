@@ -1,0 +1,47 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v1901 = pushimmutable[2304]\nfunctionReturn(out_fun_ld2sdRate,v1901)",
+    "src_ws": [
+        "out_fun_ld2sdRate"
+    ],
+    "tgt_ws": [
+        "out_fun_ld2sdRate",
+        "v1901"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSHIMMUTABLE_0",
+            "opcode": "00",
+            "disasm": "PUSHIMMUTABLE",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "v1901"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 33,
+            "value": [
+                "2304"
+            ]
+        }
+    ],
+    "variables": [
+        "v1901"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 2,
+    "max_progr_len": 2,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_ld2sdRate_Block0",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 3,
+    "is_revert": false
+}

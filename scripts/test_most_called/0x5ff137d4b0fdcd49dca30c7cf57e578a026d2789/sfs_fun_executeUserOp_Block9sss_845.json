@@ -1,0 +1,46 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "357 = PUSH [tag]\nJUMP(357)",
+    "src_ws": [
+        "v2011",
+        "out_fun_executeUserOp"
+    ],
+    "tgt_ws": [
+        "357",
+        "v2011",
+        "out_fun_executeUserOp"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "357"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "357"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 1,
+    "max_progr_len": 1,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_executeUserOp_Block9sss",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 4,
+    "is_revert": false
+}

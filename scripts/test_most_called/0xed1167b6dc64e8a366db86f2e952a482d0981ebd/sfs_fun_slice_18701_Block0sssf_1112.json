@@ -1,0 +1,104 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "518 = PUSH [tag]\n826 = PUSH [tag]\nv2086 = lt(v2084,v2085)\nv2087 = iszero(v2086)\nrequire_helper_stringliteral_cca2(518,v2087,826)",
+    "src_ws": [
+        "v2085",
+        "v2084",
+        "v2080",
+        "v2079",
+        "out_fun_slice_18701"
+    ],
+    "tgt_ws": [
+        "518",
+        "v2087",
+        "826",
+        "v2080",
+        "v2079",
+        "out_fun_slice_18701"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "518"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "PUSH [TAG]_1",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "826"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "LT_0",
+            "opcode": "10",
+            "disasm": "LT",
+            "inpt_sk": [
+                "v2084",
+                "v2085"
+            ],
+            "outpt_sk": [
+                "v2086"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "ISZERO_0",
+            "opcode": "15",
+            "disasm": "ISZERO",
+            "inpt_sk": [
+                "v2086"
+            ],
+            "outpt_sk": [
+                "v2087"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        }
+    ],
+    "variables": [
+        "826",
+        "518",
+        "v2086",
+        "v2084",
+        "v2087",
+        "v2085"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 5,
+    "max_progr_len": 5,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_slice_18701_Block0sssf",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 7,
+    "is_revert": false
+}

@@ -1,0 +1,133 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v1360 = not(0x00)\nv1361 = add(v1289,v1360)\nv1362 = gt(v1361,v1289)\n253 = PUSH [tag]\nJUMPI(253,v1362)",
+    "src_ws": [
+        "v1359",
+        "v1317",
+        "v1285",
+        "v1289",
+        "v1320",
+        "v1267",
+        "v1264",
+        "v1259",
+        "out_fun_moveVotingPower"
+    ],
+    "tgt_ws": [
+        "253",
+        "v1362",
+        "v1359",
+        "v1317",
+        "v1285",
+        "v1361",
+        "v1320",
+        "v1267",
+        "v1264",
+        "v1259",
+        "out_fun_moveVotingPower"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH0_0",
+            "opcode": "5f",
+            "disasm": "PUSH0",
+            "inpt_sk": [],
+            "value": [
+                0
+            ],
+            "outpt_sk": [
+                "s0"
+            ],
+            "gas": 2,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "NOT_0",
+            "opcode": "19",
+            "disasm": "NOT",
+            "inpt_sk": [
+                "s0"
+            ],
+            "outpt_sk": [
+                "v1360"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "ADD_0",
+            "opcode": "01",
+            "disasm": "ADD",
+            "inpt_sk": [
+                "v1289",
+                "v1360"
+            ],
+            "outpt_sk": [
+                "v1361"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "GT_0",
+            "opcode": "11",
+            "disasm": "GT",
+            "inpt_sk": [
+                "v1361",
+                "v1289"
+            ],
+            "outpt_sk": [
+                "v1362"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "253"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "253",
+        "v1362",
+        "s0",
+        "v1360",
+        "v1289",
+        "v1361"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 8,
+    "max_progr_len": 8,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_moveVotingPower_Block45s",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 12,
+    "is_revert": false
+}

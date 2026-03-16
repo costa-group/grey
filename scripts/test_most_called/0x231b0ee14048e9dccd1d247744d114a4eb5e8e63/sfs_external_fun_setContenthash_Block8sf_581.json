@@ -1,0 +1,70 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "116 = PUSH [tag]\n615 = PUSH [tag]\nclean_up_bytearray_end_slots_string_storage(116,v982,v985,v975,615)",
+    "src_ws": [
+        "v985",
+        "v982",
+        "v973",
+        "v974",
+        "v975"
+    ],
+    "tgt_ws": [
+        "116",
+        "v982",
+        "v985",
+        "v975",
+        "615",
+        "v982",
+        "v973",
+        "v974",
+        "v975"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "116"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "PUSH [TAG]_1",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "615"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "116",
+        "615"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 6,
+    "max_progr_len": 6,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "external_fun_setContenthash_Block8sf",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 10,
+    "is_revert": false
+}

@@ -1,0 +1,149 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "65 = PUSH [tag]\n629 = PUSH [tag]\nv1049 = mload(0x40)\nv1050 = add(v1049,0x20)\nv1051 = abi_encode_bytes(65,v1048,v1050,629)",
+    "src_ws": [
+        "v1048",
+        "v1047",
+        "v1030",
+        "v1033",
+        "v1036",
+        "v1022",
+        "v1023",
+        "v1024"
+    ],
+    "tgt_ws": [
+        "65",
+        "v1048",
+        "v1050",
+        "629",
+        "v1049",
+        "v1050",
+        "v1048",
+        "v1047",
+        "v1030",
+        "v1033",
+        "v1036",
+        "v1022",
+        "v1023",
+        "v1024"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "65"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "PUSH [TAG]_1",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "629"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "PUSH_0",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                64
+            ],
+            "outpt_sk": [
+                "s0"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "MLOAD_0",
+            "opcode": "51",
+            "disasm": "MLOAD",
+            "inpt_sk": [
+                "s0"
+            ],
+            "outpt_sk": [
+                "v1049"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH_1",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                32
+            ],
+            "outpt_sk": [
+                "s1"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "ADD_0",
+            "opcode": "01",
+            "disasm": "ADD",
+            "inpt_sk": [
+                "v1049",
+                "s1"
+            ],
+            "outpt_sk": [
+                "v1050"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        }
+    ],
+    "variables": [
+        "v1050",
+        "629",
+        "65",
+        "s0",
+        "s1",
+        "v1049"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 10,
+    "max_progr_len": 10,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "external_fun_setDNSRecords_Block16ssf",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 15,
+    "is_revert": false
+}

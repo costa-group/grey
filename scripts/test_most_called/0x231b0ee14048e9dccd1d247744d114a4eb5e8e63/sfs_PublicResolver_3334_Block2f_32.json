@@ -1,0 +1,112 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "19 = PUSH [tag]\n21 = PUSH [tag]\nv2 = pushsize[PublicResolver_3334]\nv3 = codesize\nv4 = sub(v3,v2)\nfinalize_allocation(19,v0,v4,21)",
+    "src_ws": [
+        "v0"
+    ],
+    "tgt_ws": [
+        "19",
+        "v0",
+        "v4",
+        "21",
+        "v2",
+        "v4",
+        "v0"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "19"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "PUSH [TAG]_1",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "21"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "PUSHSIZE_0",
+            "opcode": "00",
+            "disasm": "PUSHSIZE",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "v2"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 5
+        },
+        {
+            "id": "CODESIZE_0",
+            "opcode": "38",
+            "disasm": "CODESIZE",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "v3"
+            ],
+            "gas": 2,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "SUB_0",
+            "opcode": "03",
+            "disasm": "SUB",
+            "inpt_sk": [
+                "v3",
+                "v2"
+            ],
+            "outpt_sk": [
+                "v4"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        }
+    ],
+    "variables": [
+        "v4",
+        "v3",
+        "v2",
+        "21",
+        "19"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 9,
+    "max_progr_len": 9,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "PublicResolver_3334_Block2f",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": true,
+    "max_sk_sz": 8,
+    "is_revert": false
+}

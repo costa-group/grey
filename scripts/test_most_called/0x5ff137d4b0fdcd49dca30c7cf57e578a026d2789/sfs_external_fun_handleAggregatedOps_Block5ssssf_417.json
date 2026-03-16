@@ -1,0 +1,204 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "505 = PUSH [tag]\n642 = PUSH [tag]\nv1087 = shl(0xa0,0x01)\nv1088 = sub(v1087,0x01)\nv1089 = and(v1086,v1088)\nv1090 = eq(v1089,0x01)\nv1091 = iszero(v1090)\nrequire_helper_stringliteral_c7b8(505,v1091,642)",
+    "src_ws": [
+        "v1086",
+        "v1082",
+        "v1083",
+        "v1081",
+        "v1075",
+        "v1076",
+        "v1070",
+        "v1071",
+        "v1072"
+    ],
+    "tgt_ws": [
+        "505",
+        "v1091",
+        "642",
+        "v1089",
+        "v1086",
+        "v1082",
+        "v1083",
+        "v1081",
+        "v1075",
+        "v1076",
+        "v1070",
+        "v1071",
+        "v1072"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "505"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "PUSH [TAG]_1",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "642"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "PUSH_0",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                160
+            ],
+            "outpt_sk": [
+                "s0"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "PUSH_1",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                1
+            ],
+            "outpt_sk": [
+                "s1"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "SHL_0",
+            "opcode": "1b",
+            "disasm": "SHL",
+            "inpt_sk": [
+                "s0",
+                "s1"
+            ],
+            "outpt_sk": [
+                "v1087"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "SUB_0",
+            "opcode": "03",
+            "disasm": "SUB",
+            "inpt_sk": [
+                "v1087",
+                "s1"
+            ],
+            "outpt_sk": [
+                "v1088"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "AND_0",
+            "opcode": "16",
+            "disasm": "AND",
+            "inpt_sk": [
+                "v1086",
+                "v1088"
+            ],
+            "outpt_sk": [
+                "v1089"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "EQ_0",
+            "opcode": "14",
+            "disasm": "EQ",
+            "inpt_sk": [
+                "v1089",
+                "s1"
+            ],
+            "outpt_sk": [
+                "v1090"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "ISZERO_0",
+            "opcode": "15",
+            "disasm": "ISZERO",
+            "inpt_sk": [
+                "v1090"
+            ],
+            "outpt_sk": [
+                "v1091"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        }
+    ],
+    "variables": [
+        "s1",
+        "v1086",
+        "642",
+        "505",
+        "v1089",
+        "v1090",
+        "s0",
+        "v1088",
+        "v1087",
+        "v1091"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 13,
+    "max_progr_len": 13,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "external_fun_handleAggregatedOps_Block5ssssf",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 14,
+    "is_revert": false
+}

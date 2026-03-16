@@ -1,0 +1,145 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "249 = PUSH [tag]\n528 = PUSH [tag]\nv1578 = sload(0x0e)\nv1579 = sload(0x0d)\nv1580 = checked_add_uint256(249,v1578,v1579,528)",
+    "src_ws": [
+        "v1556",
+        "v1442",
+        "v1447",
+        "v1439",
+        "v1438",
+        "v1437",
+        "v1436",
+        "out_fun_transfer"
+    ],
+    "tgt_ws": [
+        "249",
+        "v1578",
+        "v1579",
+        "528",
+        "v1442",
+        "v1447",
+        "v1439",
+        "v1438",
+        "v1437",
+        "v1436",
+        "out_fun_transfer"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "249"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "PUSH [TAG]_1",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "528"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "PUSH_0",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                14
+            ],
+            "outpt_sk": [
+                "s0"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "SLOAD_0",
+            "opcode": "54",
+            "disasm": "SLOAD",
+            "inpt_sk": [
+                "s0"
+            ],
+            "outpt_sk": [
+                "v1578"
+            ],
+            "gas": 2100,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH_1",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                13
+            ],
+            "outpt_sk": [
+                "s1"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "SLOAD_1",
+            "opcode": "54",
+            "disasm": "SLOAD",
+            "inpt_sk": [
+                "s1"
+            ],
+            "outpt_sk": [
+                "v1579"
+            ],
+            "gas": 2100,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        }
+    ],
+    "variables": [
+        "s1",
+        "v1579",
+        "s0",
+        "v1578",
+        "528",
+        "249"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 7,
+    "max_progr_len": 7,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_transfer_Block68f",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 12,
+    "is_revert": false
+}

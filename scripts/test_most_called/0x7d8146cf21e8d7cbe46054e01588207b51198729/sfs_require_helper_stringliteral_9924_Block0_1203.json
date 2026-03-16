@@ -1,0 +1,64 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v60 = iszero(v59)\n15 = PUSH [tag]\nJUMPI(15,v60)",
+    "src_ws": [
+        "v59",
+        "out_require_helper_stringliteral_9924"
+    ],
+    "tgt_ws": [
+        "15",
+        "v60",
+        "out_require_helper_stringliteral_9924"
+    ],
+    "user_instrs": [
+        {
+            "id": "ISZERO_0",
+            "opcode": "15",
+            "disasm": "ISZERO",
+            "inpt_sk": [
+                "v59"
+            ],
+            "outpt_sk": [
+                "v60"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "15"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "v59",
+        "v60",
+        "15"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 2,
+    "max_progr_len": 2,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "require_helper_stringliteral_9924_Block0",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 4,
+    "is_revert": false
+}

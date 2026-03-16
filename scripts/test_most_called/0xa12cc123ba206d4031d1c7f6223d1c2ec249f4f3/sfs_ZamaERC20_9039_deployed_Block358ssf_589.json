@@ -1,0 +1,66 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "194 = PUSH [tag]\n328 = PUSH [tag]\nfun__checkRole(194,v533,328)",
+    "src_ws": [
+        "v533",
+        "v532",
+        "v531",
+        "v4"
+    ],
+    "tgt_ws": [
+        "194",
+        "v533",
+        "328",
+        "v532",
+        "v531",
+        "v4"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "194"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "PUSH [TAG]_1",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "328"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "328",
+        "194"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 3,
+    "max_progr_len": 3,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "ZamaERC20_9039_deployed_Block358ssf",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": true,
+    "max_sk_sz": 7,
+    "is_revert": false
+}

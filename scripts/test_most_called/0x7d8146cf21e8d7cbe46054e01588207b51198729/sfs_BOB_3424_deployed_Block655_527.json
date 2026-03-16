@@ -1,0 +1,262 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v1060 = mload(0x40)\nv1061 = shl(0xe0,0xfff6cae9)\nmstore(v1060,v1061)\nv1062 = gas\nv1063 = call(v1062,v1022,0x00,v1060,0x04,v1060,0x00)\nv1064 = iszero(v1063)\n236 = PUSH [tag]\nJUMPI(236,v1064)",
+    "src_ws": [
+        "v6",
+        "v1022"
+    ],
+    "tgt_ws": [
+        "236",
+        "v1064",
+        "v1060",
+        "v6",
+        "v1063"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH_0",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                64
+            ],
+            "outpt_sk": [
+                "s0"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "MLOAD_0",
+            "opcode": "51",
+            "disasm": "MLOAD",
+            "inpt_sk": [
+                "s0"
+            ],
+            "outpt_sk": [
+                "v1060"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH_1",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                224
+            ],
+            "outpt_sk": [
+                "s1"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "PUSH_2",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                4294363881
+            ],
+            "outpt_sk": [
+                "s2"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 5
+        },
+        {
+            "id": "SHL_0",
+            "opcode": "1b",
+            "disasm": "SHL",
+            "inpt_sk": [
+                "s1",
+                "s2"
+            ],
+            "outpt_sk": [
+                "v1061"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "MSTORE_0",
+            "opcode": "52",
+            "disasm": "MSTORE",
+            "inpt_sk": [
+                "v1060",
+                "v1061"
+            ],
+            "outpt_sk": [],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": true,
+            "size": 1
+        },
+        {
+            "id": "GAS_0",
+            "opcode": "5a",
+            "disasm": "GAS",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "v1062"
+            ],
+            "gas": 2,
+            "commutative": false,
+            "push": false,
+            "storage": true,
+            "size": 1
+        },
+        {
+            "id": "PUSH0_0",
+            "opcode": "5f",
+            "disasm": "PUSH0",
+            "inpt_sk": [],
+            "value": [
+                0
+            ],
+            "outpt_sk": [
+                "s3"
+            ],
+            "gas": 2,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH_3",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                4
+            ],
+            "outpt_sk": [
+                "s4"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "CALL_0",
+            "opcode": "f1",
+            "disasm": "CALL",
+            "inpt_sk": [
+                "v1062",
+                "v1022",
+                "s3",
+                "v1060",
+                "s4",
+                "v1060",
+                "s3"
+            ],
+            "outpt_sk": [
+                "v1063"
+            ],
+            "gas": 100,
+            "commutative": false,
+            "push": false,
+            "storage": true,
+            "size": 1
+        },
+        {
+            "id": "ISZERO_0",
+            "opcode": "15",
+            "disasm": "ISZERO",
+            "inpt_sk": [
+                "v1063"
+            ],
+            "outpt_sk": [
+                "v1064"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "236"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "v1060",
+        "v1022",
+        "s1",
+        "s2",
+        "s4",
+        "v1062",
+        "v1063",
+        "v1061",
+        "s0",
+        "236",
+        "s3",
+        "v1064"
+    ],
+    "memory_dependences": [
+        [
+            "MLOAD_0",
+            "MSTORE_0"
+        ],
+        [
+            "MSTORE_0",
+            "CALL_0"
+        ]
+    ],
+    "storage_dependences": [],
+    "init_progr_len": 20,
+    "max_progr_len": 20,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "BOB_3424_deployed_Block655",
+    "transient_dependences": [],
+    "dependencies": [
+        [
+            "MLOAD_0",
+            "MSTORE_0"
+        ],
+        [
+            "MSTORE_0",
+            "CALL_0"
+        ]
+    ],
+    "admits_junk": true,
+    "max_sk_sz": 11,
+    "is_revert": false
+}

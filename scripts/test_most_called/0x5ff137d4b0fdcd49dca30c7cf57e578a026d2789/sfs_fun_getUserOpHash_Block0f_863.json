@@ -1,0 +1,155 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "126 = PUSH [tag]\n865 = PUSH [tag]\nv2079 = LiteralAssignment(0x00)\nv2080 = add(v2078,0x20)\nv2081 = calldataload(v2080)\nv2082 = add(v2078,0x40)\nv2083,v2084 = access_calldata_tail_bytes_calldata(126,v2078,v2082,865)",
+    "src_ws": [
+        "v2078",
+        "out_fun_getUserOpHash"
+    ],
+    "tgt_ws": [
+        "126",
+        "v2078",
+        "v2082",
+        "865",
+        "v2081",
+        "v2078",
+        "out_fun_getUserOpHash"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "126"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "PUSH [TAG]_1",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "865"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "PUSH_0",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                32
+            ],
+            "outpt_sk": [
+                "s0"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "ADD_0",
+            "opcode": "01",
+            "disasm": "ADD",
+            "inpt_sk": [
+                "v2078",
+                "s0"
+            ],
+            "outpt_sk": [
+                "v2080"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "CALLDATALOAD_0",
+            "opcode": "35",
+            "disasm": "CALLDATALOAD",
+            "inpt_sk": [
+                "v2080"
+            ],
+            "outpt_sk": [
+                "v2081"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH_1",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                64
+            ],
+            "outpt_sk": [
+                "s1"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "ADD_1",
+            "opcode": "01",
+            "disasm": "ADD",
+            "inpt_sk": [
+                "v2078",
+                "s1"
+            ],
+            "outpt_sk": [
+                "v2082"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        }
+    ],
+    "variables": [
+        "v2081",
+        "s1",
+        "126",
+        "865",
+        "v2082",
+        "s0",
+        "v2078",
+        "v2080"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 10,
+    "max_progr_len": 10,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_getUserOpHash_Block0f",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 8,
+    "is_revert": false
+}

@@ -1,0 +1,88 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v364 = gt(v362,0x1f)\n117 = PUSH [tag]\nJUMPI(117,v364)",
+    "src_ws": [
+        "v363",
+        "v362",
+        "v361",
+        "out_clean_up_bytearray_end_slots_string_storage"
+    ],
+    "tgt_ws": [
+        "117",
+        "v364",
+        "v363",
+        "v362",
+        "v361",
+        "out_clean_up_bytearray_end_slots_string_storage"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH_0",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                31
+            ],
+            "outpt_sk": [
+                "s0"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "GT_0",
+            "opcode": "11",
+            "disasm": "GT",
+            "inpt_sk": [
+                "v362",
+                "s0"
+            ],
+            "outpt_sk": [
+                "v364"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "117"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "v362",
+        "117",
+        "v364",
+        "s0"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 4,
+    "max_progr_len": 4,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "clean_up_bytearray_end_slots_string_storage_Block0",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 7,
+    "is_revert": false
+}

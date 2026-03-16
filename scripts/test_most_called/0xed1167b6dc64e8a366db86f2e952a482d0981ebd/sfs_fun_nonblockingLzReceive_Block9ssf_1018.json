@@ -1,0 +1,66 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "479 = PUSH [tag]\n775 = PUSH [tag]\nv1887 = fun_toUint64(479,v1872,775)",
+    "src_ws": [
+        "v1886",
+        "v1875",
+        "v1872",
+        "out_fun_nonblockingLzReceive"
+    ],
+    "tgt_ws": [
+        "479",
+        "v1872",
+        "775",
+        "v1875",
+        "v1886",
+        "out_fun_nonblockingLzReceive"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "479"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "PUSH [TAG]_1",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "775"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "479",
+        "775"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 4,
+    "max_progr_len": 4,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_nonblockingLzReceive_Block9ssf",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 7,
+    "is_revert": false
+}

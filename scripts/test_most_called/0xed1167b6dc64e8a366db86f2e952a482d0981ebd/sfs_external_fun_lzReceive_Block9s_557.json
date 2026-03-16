@@ -1,0 +1,202 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v853 = mload(v852)\nv854 = add(v852,0x20)\nv855 = keccak256(v854,v853)\nv856 = mload(v835)\nv857 = add(v835,0x20)\nv858 = keccak256(v857,v856)\nv859 = eq(v855,v858)\n233 = PUSH [tag]\nJUMP(233)",
+    "src_ws": [
+        "v852",
+        "v835",
+        "v821",
+        "v822",
+        "v823",
+        "v824",
+        "v825",
+        "v826"
+    ],
+    "tgt_ws": [
+        "233",
+        "v859",
+        "v835",
+        "v821",
+        "v822",
+        "v823",
+        "v824",
+        "v825",
+        "v826"
+    ],
+    "user_instrs": [
+        {
+            "id": "MLOAD_0",
+            "opcode": "51",
+            "disasm": "MLOAD",
+            "inpt_sk": [
+                "v852"
+            ],
+            "outpt_sk": [
+                "v853"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH_0",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                32
+            ],
+            "outpt_sk": [
+                "s0"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "ADD_0",
+            "opcode": "01",
+            "disasm": "ADD",
+            "inpt_sk": [
+                "v852",
+                "s0"
+            ],
+            "outpt_sk": [
+                "v854"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "KECCAK256_0",
+            "opcode": "20",
+            "disasm": "KECCAK256",
+            "inpt_sk": [
+                "v854",
+                "v853"
+            ],
+            "outpt_sk": [
+                "v855"
+            ],
+            "gas": 30,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "MLOAD_1",
+            "opcode": "51",
+            "disasm": "MLOAD",
+            "inpt_sk": [
+                "v835"
+            ],
+            "outpt_sk": [
+                "v856"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "ADD_1",
+            "opcode": "01",
+            "disasm": "ADD",
+            "inpt_sk": [
+                "v835",
+                "s0"
+            ],
+            "outpt_sk": [
+                "v857"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "KECCAK256_1",
+            "opcode": "20",
+            "disasm": "KECCAK256",
+            "inpt_sk": [
+                "v857",
+                "v856"
+            ],
+            "outpt_sk": [
+                "v858"
+            ],
+            "gas": 30,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "EQ_0",
+            "opcode": "14",
+            "disasm": "EQ",
+            "inpt_sk": [
+                "v855",
+                "v858"
+            ],
+            "outpt_sk": [
+                "v859"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "233"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "s0",
+        "v854",
+        "v857",
+        "v859",
+        "v856",
+        "v852",
+        "v855",
+        "v858",
+        "v853",
+        "233",
+        "v835"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 15,
+    "max_progr_len": 15,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "external_fun_lzReceive_Block9s",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 12,
+    "is_revert": false
+}

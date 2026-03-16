@@ -1,0 +1,129 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v1111 = calldataload(0xc4)\nv1112 = gt(v1111,0xffffffffffffffff)\n287 = PUSH [tag]\nJUMPI(287,v1112)",
+    "src_ws": [
+        "v1107",
+        "v1104",
+        "v1105",
+        "v1097",
+        "v1099",
+        "v1095",
+        "v1094"
+    ],
+    "tgt_ws": [
+        "287",
+        "v1112",
+        "v1111",
+        "v1107",
+        "v1104",
+        "v1105",
+        "v1097",
+        "v1099",
+        "v1095",
+        "v1094"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH_0",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                196
+            ],
+            "outpt_sk": [
+                "s0"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "CALLDATALOAD_0",
+            "opcode": "35",
+            "disasm": "CALLDATALOAD",
+            "inpt_sk": [
+                "s0"
+            ],
+            "outpt_sk": [
+                "v1111"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH_1",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                18446744073709551615
+            ],
+            "outpt_sk": [
+                "s1"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 9
+        },
+        {
+            "id": "GT_0",
+            "opcode": "11",
+            "disasm": "GT",
+            "inpt_sk": [
+                "v1111",
+                "s1"
+            ],
+            "outpt_sk": [
+                "v1112"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "287"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "v1111",
+        "s0",
+        "287",
+        "s1",
+        "v1112"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 6,
+    "max_progr_len": 6,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "external_fun_sendAndCall_Block8",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 11,
+    "is_revert": false
+}

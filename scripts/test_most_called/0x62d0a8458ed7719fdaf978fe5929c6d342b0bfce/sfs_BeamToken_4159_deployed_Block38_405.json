@@ -1,0 +1,175 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v161 = sload(v138)\nv162 = add(v32,v137)\nv163 = add(v162,0x20)\nmstore(v163,v161)\nv164 = add(v138,0x01)\n47 = PUSH [tag]\nJUMP(47)",
+    "src_ws": [
+        "v137",
+        "v138",
+        "v52",
+        "v32"
+    ],
+    "tgt_ws": [
+        "47",
+        "v137",
+        "v164",
+        "v52",
+        "v32"
+    ],
+    "user_instrs": [
+        {
+            "id": "SLOAD_0",
+            "opcode": "54",
+            "disasm": "SLOAD",
+            "inpt_sk": [
+                "v138"
+            ],
+            "outpt_sk": [
+                "v161"
+            ],
+            "gas": 2100,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "ADD_0",
+            "opcode": "01",
+            "disasm": "ADD",
+            "inpt_sk": [
+                "v32",
+                "v137"
+            ],
+            "outpt_sk": [
+                "v162"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH_0",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                32
+            ],
+            "outpt_sk": [
+                "s0"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "ADD_1",
+            "opcode": "01",
+            "disasm": "ADD",
+            "inpt_sk": [
+                "v162",
+                "s0"
+            ],
+            "outpt_sk": [
+                "v163"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "MSTORE_0",
+            "opcode": "52",
+            "disasm": "MSTORE",
+            "inpt_sk": [
+                "v163",
+                "v161"
+            ],
+            "outpt_sk": [],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": true,
+            "size": 1
+        },
+        {
+            "id": "PUSH_1",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                1
+            ],
+            "outpt_sk": [
+                "s1"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "ADD_2",
+            "opcode": "01",
+            "disasm": "ADD",
+            "inpt_sk": [
+                "v138",
+                "s1"
+            ],
+            "outpt_sk": [
+                "v164"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "47"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "v32",
+        "v138",
+        "v163",
+        "v161",
+        "47",
+        "s1",
+        "v137",
+        "s0",
+        "v164",
+        "v162"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 14,
+    "max_progr_len": 14,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "BeamToken_4159_deployed_Block38",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 8,
+    "is_revert": false
+}

@@ -1,0 +1,124 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v52 = mload(0x40)\nv53 = push #[$][ERC1967Proxy_180_deployed]\nv54 = push [$][ERC1967Proxy_180_deployed]\ncodecopy(v52,v54,v53)\nreturn(v52,v53)",
+    "src_ws": [],
+    "tgt_ws": [
+        "v52",
+        "v53"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH_0",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                64
+            ],
+            "outpt_sk": [
+                "s0"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "MLOAD_0",
+            "opcode": "51",
+            "disasm": "MLOAD",
+            "inpt_sk": [
+                "s0"
+            ],
+            "outpt_sk": [
+                "v52"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH #[$]_0",
+            "opcode": "00",
+            "disasm": "PUSH #[$]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "v53"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 5,
+            "value": [
+                "0000000000000000000000000000000000000000000000000000000000000000"
+            ]
+        },
+        {
+            "id": "PUSH [$]_0",
+            "opcode": "00",
+            "disasm": "PUSH [$]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "v54"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3,
+            "value": [
+                "0000000000000000000000000000000000000000000000000000000000000000"
+            ]
+        },
+        {
+            "id": "CODECOPY_0",
+            "opcode": "39",
+            "disasm": "CODECOPY",
+            "inpt_sk": [
+                "v52",
+                "v54",
+                "v53"
+            ],
+            "outpt_sk": [],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": true,
+            "size": 1
+        }
+    ],
+    "variables": [
+        "s0",
+        "v54",
+        "v53",
+        "v52"
+    ],
+    "memory_dependences": [
+        [
+            "MLOAD_0",
+            "CODECOPY_0"
+        ]
+    ],
+    "storage_dependences": [],
+    "init_progr_len": 7,
+    "max_progr_len": 7,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "ERC1967Proxy_180_Block22",
+    "transient_dependences": [],
+    "dependencies": [
+        [
+            "MLOAD_0",
+            "CODECOPY_0"
+        ]
+    ],
+    "admits_junk": true,
+    "max_sk_sz": 6,
+    "is_revert": false
+}

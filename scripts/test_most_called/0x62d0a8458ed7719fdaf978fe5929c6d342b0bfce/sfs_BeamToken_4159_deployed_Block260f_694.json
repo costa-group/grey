@@ -1,0 +1,140 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "196 = PUSH [tag]\n353 = PUSH [tag]\nv524 = xor(v478,v477)\nv525 = shr(0x01,v524)\nv526 = and(v478,v477)\nv527 = checked_add_uint256(196,v526,v525,353)",
+    "src_ws": [
+        "v478",
+        "v477",
+        "v448"
+    ],
+    "tgt_ws": [
+        "196",
+        "v526",
+        "v525",
+        "353",
+        "v478",
+        "v477",
+        "v448"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "196"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "PUSH [TAG]_1",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "353"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "XOR_0",
+            "opcode": "18",
+            "disasm": "XOR",
+            "inpt_sk": [
+                "v478",
+                "v477"
+            ],
+            "outpt_sk": [
+                "v524"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH_0",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                1
+            ],
+            "outpt_sk": [
+                "s0"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "SHR_0",
+            "opcode": "1c",
+            "disasm": "SHR",
+            "inpt_sk": [
+                "s0",
+                "v524"
+            ],
+            "outpt_sk": [
+                "v525"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "AND_0",
+            "opcode": "16",
+            "disasm": "AND",
+            "inpt_sk": [
+                "v478",
+                "v477"
+            ],
+            "outpt_sk": [
+                "v526"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        }
+    ],
+    "variables": [
+        "353",
+        "196",
+        "v524",
+        "v478",
+        "v526",
+        "v525",
+        "v477",
+        "s0"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 10,
+    "max_progr_len": 10,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "BeamToken_4159_deployed_Block260f",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 8,
+    "is_revert": false
+}

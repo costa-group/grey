@@ -1,0 +1,136 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v497 = sload(v495)\nv498 = and(v497,0xffffffff)\nv499 = number\nv500 = eq(v498,v499)\n110 = PUSH [tag]\nJUMP(110)",
+    "src_ws": [
+        "v495",
+        "v496",
+        "v435",
+        "v376"
+    ],
+    "tgt_ws": [
+        "110",
+        "v435",
+        "v376",
+        "v500"
+    ],
+    "user_instrs": [
+        {
+            "id": "SLOAD_0",
+            "opcode": "54",
+            "disasm": "SLOAD",
+            "inpt_sk": [
+                "v495"
+            ],
+            "outpt_sk": [
+                "v497"
+            ],
+            "gas": 2100,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH_0",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                4294967295
+            ],
+            "outpt_sk": [
+                "s0"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 5
+        },
+        {
+            "id": "AND_0",
+            "opcode": "16",
+            "disasm": "AND",
+            "inpt_sk": [
+                "v497",
+                "s0"
+            ],
+            "outpt_sk": [
+                "v498"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "NUMBER_0",
+            "opcode": "43",
+            "disasm": "NUMBER",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "v499"
+            ],
+            "gas": 2,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "EQ_0",
+            "opcode": "14",
+            "disasm": "EQ",
+            "inpt_sk": [
+                "v498",
+                "v499"
+            ],
+            "outpt_sk": [
+                "v500"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "110"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "v499",
+        "v500",
+        "v497",
+        "110",
+        "v495",
+        "v498",
+        "s0"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 9,
+    "max_progr_len": 9,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "BeamToken_4159_deployed_Block191s",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": true,
+    "max_sk_sz": 9,
+    "is_revert": false
+}

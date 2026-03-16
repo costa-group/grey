@@ -1,0 +1,28 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "functionReturn(out_fun_transferFrom,v2228)",
+    "src_ws": [
+        "v2228",
+        "out_fun_transferFrom"
+    ],
+    "tgt_ws": [
+        "out_fun_transferFrom",
+        "v2228"
+    ],
+    "user_instrs": [],
+    "variables": [],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 1,
+    "max_progr_len": 1,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_transferFrom_Block4s",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 3,
+    "is_revert": false
+}

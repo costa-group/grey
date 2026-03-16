@@ -1,0 +1,196 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v119 = PhiFunction(v103,v125)\nv120 = add(v101,v119)\nv121 = add(v85,0x1f)\nv122 = shr(0x05,v121)\nv123 = sub(v122,v119)\nv124 = LiteralAssignment(0x00)\n31 = PUSH [tag]\nJUMP(31)",
+    "src_ws": [
+        "v101",
+        "v119",
+        "v85",
+        "v71",
+        "v72",
+        "v70",
+        "v69",
+        "v67",
+        "v32",
+        "v56",
+        "v20",
+        "v13"
+    ],
+    "tgt_ws": [
+        "31",
+        "v124",
+        "v123",
+        "v120",
+        "v85",
+        "v71",
+        "v72",
+        "v70",
+        "v69",
+        "v67",
+        "v32",
+        "v56",
+        "v20",
+        "v13"
+    ],
+    "user_instrs": [
+        {
+            "id": "ADD_0",
+            "opcode": "01",
+            "disasm": "ADD",
+            "inpt_sk": [
+                "v101",
+                "v119"
+            ],
+            "outpt_sk": [
+                "v120"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH_0",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                31
+            ],
+            "outpt_sk": [
+                "s0"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "ADD_1",
+            "opcode": "01",
+            "disasm": "ADD",
+            "inpt_sk": [
+                "v85",
+                "s0"
+            ],
+            "outpt_sk": [
+                "v121"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH_1",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                5
+            ],
+            "outpt_sk": [
+                "s1"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "SHR_0",
+            "opcode": "1c",
+            "disasm": "SHR",
+            "inpt_sk": [
+                "s1",
+                "v121"
+            ],
+            "outpt_sk": [
+                "v122"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "SUB_0",
+            "opcode": "03",
+            "disasm": "SUB",
+            "inpt_sk": [
+                "v122",
+                "v119"
+            ],
+            "outpt_sk": [
+                "v123"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH0_0",
+            "opcode": "5f",
+            "disasm": "PUSH0",
+            "inpt_sk": [],
+            "value": [
+                0
+            ],
+            "outpt_sk": [
+                "v124"
+            ],
+            "gas": 2,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "31"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "v101",
+        "v122",
+        "v119",
+        "v124",
+        "31",
+        "s0",
+        "v85",
+        "v121",
+        "s1",
+        "v120",
+        "v123"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 11,
+    "max_progr_len": 11,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "ZamaERC20_9039_Block52",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": true,
+    "max_sk_sz": 15,
+    "is_revert": false
+}

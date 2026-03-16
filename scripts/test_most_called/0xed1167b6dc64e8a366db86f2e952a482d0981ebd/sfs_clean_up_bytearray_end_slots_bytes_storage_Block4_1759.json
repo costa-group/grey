@@ -1,0 +1,50 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "137 = PUSH [tag]\nJUMP(137)",
+    "src_ws": [
+        "v422",
+        "v421",
+        "v420",
+        "out_clean_up_bytearray_end_slots_bytes_storage"
+    ],
+    "tgt_ws": [
+        "137",
+        "v422",
+        "v421",
+        "v420",
+        "out_clean_up_bytearray_end_slots_bytes_storage"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "137"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "137"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 1,
+    "max_progr_len": 1,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "clean_up_bytearray_end_slots_bytes_storage_Block4",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 6,
+    "is_revert": false
+}

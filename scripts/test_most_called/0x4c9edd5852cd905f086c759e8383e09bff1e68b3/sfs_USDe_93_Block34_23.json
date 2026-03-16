@@ -1,0 +1,87 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v90 = lt(v58,v35)\n21 = PUSH [tag]\nJUMPI(21,v90)",
+    "src_ws": [
+        "v75",
+        "v58",
+        "v77",
+        "v76",
+        "v35",
+        "v33",
+        "v32",
+        "v27",
+        "v18",
+        "v22",
+        "v17",
+        "v8",
+        "v11"
+    ],
+    "tgt_ws": [
+        "21",
+        "v90",
+        "v77",
+        "v76",
+        "v35",
+        "v33",
+        "v32",
+        "v27",
+        "v18",
+        "v22",
+        "v17",
+        "v8",
+        "v11"
+    ],
+    "user_instrs": [
+        {
+            "id": "LT_0",
+            "opcode": "10",
+            "disasm": "LT",
+            "inpt_sk": [
+                "v58",
+                "v35"
+            ],
+            "outpt_sk": [
+                "v90"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "21"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "v90",
+        "v35",
+        "21",
+        "v58"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 5,
+    "max_progr_len": 5,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "USDe_93_Block34",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": true,
+    "max_sk_sz": 14,
+    "is_revert": false
+}

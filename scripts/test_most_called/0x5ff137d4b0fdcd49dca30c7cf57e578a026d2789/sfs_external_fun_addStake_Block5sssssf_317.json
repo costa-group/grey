@@ -1,0 +1,81 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "286 = PUSH [tag]\n600 = PUSH [tag]\nv910 = sload(v901)\nv911 = extract_from_storage_value_offset_uint112(286,v910,600)",
+    "src_ws": [
+        "v896",
+        "v901"
+    ],
+    "tgt_ws": [
+        "286",
+        "v910",
+        "600",
+        "v896",
+        "v910"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "286"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "PUSH [TAG]_1",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "600"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "SLOAD_0",
+            "opcode": "54",
+            "disasm": "SLOAD",
+            "inpt_sk": [
+                "v901"
+            ],
+            "outpt_sk": [
+                "v910"
+            ],
+            "gas": 2100,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        }
+    ],
+    "variables": [
+        "v901",
+        "286",
+        "600",
+        "v910"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 7,
+    "max_progr_len": 7,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "external_fun_addStake_Block5sssssf",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 6,
+    "is_revert": false
+}

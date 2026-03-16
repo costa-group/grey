@@ -1,0 +1,60 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "330 = PUSH [tag]\nJUMP(330)",
+    "src_ws": [
+        "v1800",
+        "v1801",
+        "v1767",
+        "v1769",
+        "v1768",
+        "v1745",
+        "v1743",
+        "v1742",
+        "out_fun__validatePrepayment"
+    ],
+    "tgt_ws": [
+        "330",
+        "v1768",
+        "v1769",
+        "v1767",
+        "v1800",
+        "v1801",
+        "v1745",
+        "v1743",
+        "v1742",
+        "out_fun__validatePrepayment"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "330"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "330"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 4,
+    "max_progr_len": 4,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun__validatePrepayment_Block4s",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 11,
+    "is_revert": false
+}

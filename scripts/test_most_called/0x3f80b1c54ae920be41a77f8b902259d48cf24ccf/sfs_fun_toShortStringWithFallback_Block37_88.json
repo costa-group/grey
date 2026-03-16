@@ -1,0 +1,250 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v270 = add(v245,v248)\nv271 = add(v270,0x44)\nmstore(v271,0x00)\nv272 = not(0x1f)\nv273 = add(v248,0x1f)\nv274 = and(v273,v272)\nv275 = add(v245,v274)\nv276 = sub(v275,v245)\nv277 = add(v276,0x44)\nrevert(v245,v277)",
+    "src_ws": [
+        "v264",
+        "v248",
+        "v230",
+        "v245"
+    ],
+    "tgt_ws": [
+        "v245",
+        "v277",
+        "v264",
+        "v248",
+        "v230",
+        "v245"
+    ],
+    "user_instrs": [
+        {
+            "id": "ADD_0",
+            "opcode": "01",
+            "disasm": "ADD",
+            "inpt_sk": [
+                "v245",
+                "v248"
+            ],
+            "outpt_sk": [
+                "v270"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH_0",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                68
+            ],
+            "outpt_sk": [
+                "s0"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "ADD_1",
+            "opcode": "01",
+            "disasm": "ADD",
+            "inpt_sk": [
+                "v270",
+                "s0"
+            ],
+            "outpt_sk": [
+                "v271"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH0_0",
+            "opcode": "5f",
+            "disasm": "PUSH0",
+            "inpt_sk": [],
+            "value": [
+                0
+            ],
+            "outpt_sk": [
+                "s1"
+            ],
+            "gas": 2,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "MSTORE_0",
+            "opcode": "52",
+            "disasm": "MSTORE",
+            "inpt_sk": [
+                "v271",
+                "s1"
+            ],
+            "outpt_sk": [],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": true,
+            "size": 1
+        },
+        {
+            "id": "PUSH_1",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                31
+            ],
+            "outpt_sk": [
+                "s2"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "NOT_0",
+            "opcode": "19",
+            "disasm": "NOT",
+            "inpt_sk": [
+                "s2"
+            ],
+            "outpt_sk": [
+                "v272"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "ADD_2",
+            "opcode": "01",
+            "disasm": "ADD",
+            "inpt_sk": [
+                "v248",
+                "s2"
+            ],
+            "outpt_sk": [
+                "v273"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "AND_0",
+            "opcode": "16",
+            "disasm": "AND",
+            "inpt_sk": [
+                "v273",
+                "v272"
+            ],
+            "outpt_sk": [
+                "v274"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "ADD_3",
+            "opcode": "01",
+            "disasm": "ADD",
+            "inpt_sk": [
+                "v245",
+                "v274"
+            ],
+            "outpt_sk": [
+                "v275"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "SUB_0",
+            "opcode": "03",
+            "disasm": "SUB",
+            "inpt_sk": [
+                "v275",
+                "v245"
+            ],
+            "outpt_sk": [
+                "v276"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "ADD_4",
+            "opcode": "01",
+            "disasm": "ADD",
+            "inpt_sk": [
+                "v276",
+                "s0"
+            ],
+            "outpt_sk": [
+                "v277"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        }
+    ],
+    "variables": [
+        "v248",
+        "v275",
+        "v277",
+        "s1",
+        "v270",
+        "v273",
+        "v274",
+        "s0",
+        "v272",
+        "v276",
+        "s2",
+        "v271",
+        "v245"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 20,
+    "max_progr_len": 20,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_toShortStringWithFallback_Block37",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 9,
+    "is_revert": true
+}

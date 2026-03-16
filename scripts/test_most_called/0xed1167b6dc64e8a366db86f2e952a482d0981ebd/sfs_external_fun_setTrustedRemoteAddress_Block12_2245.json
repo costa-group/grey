@@ -1,0 +1,99 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v1374 = add(v1352,0x20)\n340 = PUSH [tag]\nJUMP(340)",
+    "src_ws": [
+        "v1352",
+        "v1362",
+        "v1345",
+        "v1363",
+        "v1335",
+        "v1334",
+        "v1322",
+        "v1319",
+        "v1320",
+        "v1321"
+    ],
+    "tgt_ws": [
+        "340",
+        "v1374",
+        "v1362",
+        "v1345",
+        "v1363",
+        "v1335",
+        "v1334",
+        "v1322",
+        "v1319",
+        "v1320",
+        "v1321"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH_0",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                32
+            ],
+            "outpt_sk": [
+                "s0"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "ADD_0",
+            "opcode": "01",
+            "disasm": "ADD",
+            "inpt_sk": [
+                "v1352",
+                "s0"
+            ],
+            "outpt_sk": [
+                "v1374"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "340"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "v1352",
+        "340",
+        "s0",
+        "v1374"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 3,
+    "max_progr_len": 3,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "external_fun_setTrustedRemoteAddress_Block12",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 12,
+    "is_revert": false
+}

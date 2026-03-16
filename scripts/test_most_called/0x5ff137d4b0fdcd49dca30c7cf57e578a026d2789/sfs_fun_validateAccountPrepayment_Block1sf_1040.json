@@ -1,0 +1,78 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "478 = PUSH [tag]\n944 = PUSH [tag]\nv2491 = read_from_storage_split_offset_uint112(478,v2490,944)",
+    "src_ws": [
+        "v2490",
+        "v2474",
+        "v2463",
+        "v2461",
+        "v2460",
+        "v2458",
+        "v2457",
+        "v2456",
+        "v2455",
+        "out_fun_validateAccountPrepayment"
+    ],
+    "tgt_ws": [
+        "478",
+        "v2490",
+        "944",
+        "v2474",
+        "v2463",
+        "v2461",
+        "v2460",
+        "v2458",
+        "v2457",
+        "v2456",
+        "v2455",
+        "out_fun_validateAccountPrepayment"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "478"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "PUSH [TAG]_1",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "944"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "478",
+        "944"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 3,
+    "max_progr_len": 3,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_validateAccountPrepayment_Block1sf",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 13,
+    "is_revert": false
+}

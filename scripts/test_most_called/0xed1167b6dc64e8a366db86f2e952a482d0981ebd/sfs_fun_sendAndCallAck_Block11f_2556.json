@@ -1,0 +1,215 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "107 = PUSH [tag]\n861 = PUSH [tag]\nv2109 = mload(v2064)\nv2110 = add(v2064,0x20)\nv2111 = keccak256(v2110,v2109)\nv2112 = mload(0x40)\nv2113 = and(v2067,0xffff)\nv2114 = abi_encode_bytes_uint64_bytes32(107,v2112,v2066,v2065,v2111,861)",
+    "src_ws": [
+        "v2107",
+        "v2067",
+        "v2066",
+        "v2065",
+        "v2064",
+        "out_fun_sendAndCallAck"
+    ],
+    "tgt_ws": [
+        "107",
+        "v2112",
+        "v2066",
+        "v2065",
+        "v2111",
+        "861",
+        "v2112",
+        "v2113",
+        "out_fun_sendAndCallAck"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "107"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "PUSH [TAG]_1",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "861"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "MLOAD_0",
+            "opcode": "51",
+            "disasm": "MLOAD",
+            "inpt_sk": [
+                "v2064"
+            ],
+            "outpt_sk": [
+                "v2109"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH_0",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                32
+            ],
+            "outpt_sk": [
+                "s0"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "ADD_0",
+            "opcode": "01",
+            "disasm": "ADD",
+            "inpt_sk": [
+                "v2064",
+                "s0"
+            ],
+            "outpt_sk": [
+                "v2110"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "KECCAK256_0",
+            "opcode": "20",
+            "disasm": "KECCAK256",
+            "inpt_sk": [
+                "v2110",
+                "v2109"
+            ],
+            "outpt_sk": [
+                "v2111"
+            ],
+            "gas": 30,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH_1",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                64
+            ],
+            "outpt_sk": [
+                "s1"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "MLOAD_1",
+            "opcode": "51",
+            "disasm": "MLOAD",
+            "inpt_sk": [
+                "s1"
+            ],
+            "outpt_sk": [
+                "v2112"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH_2",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                65535
+            ],
+            "outpt_sk": [
+                "s2"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "AND_0",
+            "opcode": "16",
+            "disasm": "AND",
+            "inpt_sk": [
+                "v2067",
+                "s2"
+            ],
+            "outpt_sk": [
+                "v2113"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        }
+    ],
+    "variables": [
+        "v2113",
+        "107",
+        "s0",
+        "861",
+        "v2110",
+        "v2111",
+        "s2",
+        "v2067",
+        "v2064",
+        "v2112",
+        "s1",
+        "v2109"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 19,
+    "max_progr_len": 19,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_sendAndCallAck_Block11f",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 11,
+    "is_revert": false
+}

@@ -1,0 +1,66 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "166 = PUSH [tag]\n780 = PUSH [tag]\nv1519 = cleanup_uint112(166,v1518,780)",
+    "src_ws": [
+        "v1518",
+        "v1512",
+        "v1510",
+        "v1509"
+    ],
+    "tgt_ws": [
+        "166",
+        "v1518",
+        "780",
+        "v1512",
+        "v1510",
+        "v1509"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "166"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "PUSH [TAG]_1",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "780"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "780",
+        "166"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 3,
+    "max_progr_len": 3,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "external_fun_withdrawTo_Block8sssf",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 7,
+    "is_revert": false
+}

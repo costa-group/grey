@@ -1,0 +1,164 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "514 = PUSH [tag]\n633 = PUSH [tag]\nmstore(v728,v726)\nv729 = sub(v728,v727)\nv730 = add(v729,0x20)\nv731 = keccak256(v727,v730)\nv732 = mapping_index_access_mapping_uint64_bytes32_of_uint64(514,v731,v724,633)",
+    "src_ws": [
+        "v728",
+        "v727",
+        "v726",
+        "v724"
+    ],
+    "tgt_ws": [
+        "514",
+        "v731",
+        "v724",
+        "633"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "514"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "PUSH [TAG]_1",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "633"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "MSTORE_0",
+            "opcode": "52",
+            "disasm": "MSTORE",
+            "inpt_sk": [
+                "v728",
+                "v726"
+            ],
+            "outpt_sk": [],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": true,
+            "size": 1
+        },
+        {
+            "id": "SUB_0",
+            "opcode": "03",
+            "disasm": "SUB",
+            "inpt_sk": [
+                "v728",
+                "v727"
+            ],
+            "outpt_sk": [
+                "v729"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH_0",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                32
+            ],
+            "outpt_sk": [
+                "s0"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "ADD_0",
+            "opcode": "01",
+            "disasm": "ADD",
+            "inpt_sk": [
+                "v729",
+                "s0"
+            ],
+            "outpt_sk": [
+                "v730"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "KECCAK256_0",
+            "opcode": "20",
+            "disasm": "KECCAK256",
+            "inpt_sk": [
+                "v727",
+                "v730"
+            ],
+            "outpt_sk": [
+                "v731"
+            ],
+            "gas": 30,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        }
+    ],
+    "variables": [
+        "v727",
+        "s0",
+        "v726",
+        "v731",
+        "v728",
+        "633",
+        "v729",
+        "v730",
+        "514"
+    ],
+    "memory_dependences": [
+        [
+            "MSTORE_0",
+            "KECCAK256_0"
+        ]
+    ],
+    "storage_dependences": [],
+    "init_progr_len": 14,
+    "max_progr_len": 14,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "external_fun_failedMessages_Block2ssf",
+    "transient_dependences": [],
+    "dependencies": [
+        [
+            "MSTORE_0",
+            "KECCAK256_0"
+        ]
+    ],
+    "admits_junk": false,
+    "max_sk_sz": 6,
+    "is_revert": false
+}

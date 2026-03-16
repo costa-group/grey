@@ -1,0 +1,83 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "494 = PUSH [tag]\n811 = PUSH [tag]\nv2017 = mapping_index_access_mapping_uint64_bytes32_of_uint64(494,v2016,v1995,811)",
+    "src_ws": [
+        "v2016",
+        "v2009",
+        "v1998",
+        "v1999",
+        "v2006",
+        "v2001",
+        "v2002",
+        "v1997",
+        "v1996",
+        "v1995",
+        "v1994",
+        "out_fun_sendAndCallAck"
+    ],
+    "tgt_ws": [
+        "494",
+        "v2016",
+        "v1995",
+        "811",
+        "v2009",
+        "v1998",
+        "v1999",
+        "v2006",
+        "v2001",
+        "v2002",
+        "v1997",
+        "v1996",
+        "v1995",
+        "v1994",
+        "out_fun_sendAndCallAck"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "494"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "PUSH [TAG]_1",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "811"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "811",
+        "494"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 5,
+    "max_progr_len": 5,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_sendAndCallAck_Block1sssf",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 16,
+    "is_revert": false
+}

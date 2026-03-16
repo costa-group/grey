@@ -1,0 +1,178 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v912 = shl(0xa0,0x01)\nv913 = sub(v912,0x01)\nv914 = and(v910,v913)\nv915 = eq(v914,v896)\nv916 = iszero(v915)\n186 = PUSH [tag]\nJUMPI(186,v916)",
+    "src_ws": [
+        "v910",
+        "v896",
+        "v803",
+        "v802",
+        "v801"
+    ],
+    "tgt_ws": [
+        "186",
+        "v916",
+        "v803",
+        "v802",
+        "v801"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH_0",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                160
+            ],
+            "outpt_sk": [
+                "s0"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "PUSH_1",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                1
+            ],
+            "outpt_sk": [
+                "s1"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "SHL_0",
+            "opcode": "1b",
+            "disasm": "SHL",
+            "inpt_sk": [
+                "s0",
+                "s1"
+            ],
+            "outpt_sk": [
+                "v912"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "SUB_0",
+            "opcode": "03",
+            "disasm": "SUB",
+            "inpt_sk": [
+                "v912",
+                "s1"
+            ],
+            "outpt_sk": [
+                "v913"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "AND_0",
+            "opcode": "16",
+            "disasm": "AND",
+            "inpt_sk": [
+                "v910",
+                "v913"
+            ],
+            "outpt_sk": [
+                "v914"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "EQ_0",
+            "opcode": "14",
+            "disasm": "EQ",
+            "inpt_sk": [
+                "v914",
+                "v896"
+            ],
+            "outpt_sk": [
+                "v915"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "ISZERO_0",
+            "opcode": "15",
+            "disasm": "ISZERO",
+            "inpt_sk": [
+                "v915"
+            ],
+            "outpt_sk": [
+                "v916"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "186"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "v916",
+        "186",
+        "v914",
+        "v915",
+        "s1",
+        "v896",
+        "v913",
+        "s0",
+        "v910",
+        "v912"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 12,
+    "max_progr_len": 12,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "BeamToken_4159_deployed_Block438sssss",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": true,
+    "max_sk_sz": 9,
+    "is_revert": false
+}

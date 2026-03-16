@@ -1,0 +1,144 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "345 = PUSH [tag]\n559 = PUSH [tag]\nv747 = sub(v746,v745)\nv748 = address\nv749 = gas\nv750 = delegatecall(v749,v748,v745,v747,v725,v725)\nv751 = extract_returndata(345,559)",
+    "src_ws": [
+        "v746",
+        "v745",
+        "v737",
+        "v727",
+        "v725",
+        "v723",
+        "v724"
+    ],
+    "tgt_ws": [
+        "345",
+        "559",
+        "v750",
+        "v737",
+        "v727",
+        "v725",
+        "v723",
+        "v724"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "345"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "PUSH [TAG]_1",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "559"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "SUB_0",
+            "opcode": "03",
+            "disasm": "SUB",
+            "inpt_sk": [
+                "v746",
+                "v745"
+            ],
+            "outpt_sk": [
+                "v747"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "ADDRESS_0",
+            "opcode": "30",
+            "disasm": "ADDRESS",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "v748"
+            ],
+            "gas": 2,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "GAS_0",
+            "opcode": "5a",
+            "disasm": "GAS",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "v749"
+            ],
+            "gas": 2,
+            "commutative": false,
+            "push": false,
+            "storage": true,
+            "size": 1
+        },
+        {
+            "id": "DELEGATECALL_0",
+            "opcode": "f4",
+            "disasm": "DELEGATECALL",
+            "inpt_sk": [
+                "v749",
+                "v748",
+                "v745",
+                "v747",
+                "v725",
+                "v725"
+            ],
+            "outpt_sk": [
+                "v750"
+            ],
+            "gas": 100,
+            "commutative": false,
+            "push": false,
+            "storage": true,
+            "size": 1
+        }
+    ],
+    "variables": [
+        "v746",
+        "v749",
+        "v745",
+        "v750",
+        "559",
+        "v725",
+        "v748",
+        "345",
+        "v747"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 14,
+    "max_progr_len": 14,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "external_fun_multicall_Block15ssf",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 14,
+    "is_revert": false
+}

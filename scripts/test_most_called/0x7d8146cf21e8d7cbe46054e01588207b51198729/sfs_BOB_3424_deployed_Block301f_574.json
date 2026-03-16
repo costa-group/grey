@@ -1,0 +1,73 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "246 = PUSH [tag]\n437 = PUSH [tag]\nv446 = calldatasize\nv447,v448,v449 = abi_decode_uint256t_uint256t_uint256(246,v446,437)",
+    "src_ws": [],
+    "tgt_ws": [
+        "246",
+        "v446",
+        "437"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "246"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "PUSH [TAG]_1",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "437"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "CALLDATASIZE_0",
+            "opcode": "36",
+            "disasm": "CALLDATASIZE",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "v446"
+            ],
+            "gas": 2,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        }
+    ],
+    "variables": [
+        "437",
+        "246",
+        "v446"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 3,
+    "max_progr_len": 3,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "BOB_3424_deployed_Block301f",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": true,
+    "max_sk_sz": 4,
+    "is_revert": false
+}

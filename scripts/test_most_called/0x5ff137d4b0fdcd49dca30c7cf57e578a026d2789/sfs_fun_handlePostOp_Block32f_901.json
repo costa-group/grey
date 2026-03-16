@@ -1,0 +1,113 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "395 = PUSH [tag]\n880 = PUSH [tag]\nv2185 = mload(v2178)\nv2186 = sub(v2185,v2177)\nfun_incrementDeposit(395,v2173,v2186,880)",
+    "src_ws": [
+        "v2173",
+        "v2176",
+        "v2158",
+        "v2178",
+        "v2155",
+        "v2154",
+        "v2160",
+        "v2177",
+        "out_fun_handlePostOp"
+    ],
+    "tgt_ws": [
+        "395",
+        "v2173",
+        "v2186",
+        "880",
+        "v2158",
+        "v2176",
+        "v2155",
+        "v2154",
+        "v2160",
+        "v2177",
+        "out_fun_handlePostOp"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "395"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "PUSH [TAG]_1",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "880"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "MLOAD_0",
+            "opcode": "51",
+            "disasm": "MLOAD",
+            "inpt_sk": [
+                "v2178"
+            ],
+            "outpt_sk": [
+                "v2185"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "SUB_0",
+            "opcode": "03",
+            "disasm": "SUB",
+            "inpt_sk": [
+                "v2185",
+                "v2177"
+            ],
+            "outpt_sk": [
+                "v2186"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        }
+    ],
+    "variables": [
+        "880",
+        "v2177",
+        "v2185",
+        "v2178",
+        "v2186",
+        "395"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 10,
+    "max_progr_len": 10,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_handlePostOp_Block32f",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 12,
+    "is_revert": false
+}

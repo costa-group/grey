@@ -1,0 +1,72 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "170 = PUSH [tag]\n728 = PUSH [tag]\nv1353 = convert_bytes_to_fixedbytes_from_bytes_calldata_to_bytes20(170,v1351,v1352,728)",
+    "src_ws": [
+        "v1351",
+        "v1352",
+        "v1339",
+        "v1333",
+        "v1334",
+        "v1332",
+        "v1342"
+    ],
+    "tgt_ws": [
+        "170",
+        "v1351",
+        "v1352",
+        "728",
+        "v1339",
+        "v1333",
+        "v1334",
+        "v1332",
+        "v1342"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "170"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "PUSH [TAG]_1",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "728"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "170",
+        "728"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 4,
+    "max_progr_len": 4,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "external_fun_simulateValidation_Block6sf",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 10,
+    "is_revert": false
+}

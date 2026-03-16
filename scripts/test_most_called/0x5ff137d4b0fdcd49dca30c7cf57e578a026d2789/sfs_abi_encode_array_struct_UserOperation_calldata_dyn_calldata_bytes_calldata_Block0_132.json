@@ -1,0 +1,350 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v197 = add(v196,0x40)\nmstore(v196,0x40)\nmstore(v197,v194)\nv198 = add(v196,0x60)\nv199 = shl(0x05,v194)\nv200 = add(v196,v199)\nv201 = add(v200,0x60)\nv202 = LiteralAssignment(0x00)\nv203 = not(0x015e)\nv204 = calldatasize\nv205 = sub(v204,v195)\nv206 = add(v205,v203)\n74 = PUSH [tag]\nJUMP(74)",
+    "src_ws": [
+        "v196",
+        "v195",
+        "v194",
+        "v193",
+        "v192",
+        "out_abi_encode_array_struct_UserOperation_calldata_dyn_calldata_bytes_calldata"
+    ],
+    "tgt_ws": [
+        "74",
+        "v202",
+        "v198",
+        "v195",
+        "v206",
+        "v201",
+        "v196",
+        "v195",
+        "v194",
+        "v193",
+        "v192",
+        "out_abi_encode_array_struct_UserOperation_calldata_dyn_calldata_bytes_calldata"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH_0",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                64
+            ],
+            "outpt_sk": [
+                "s0"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "ADD_0",
+            "opcode": "01",
+            "disasm": "ADD",
+            "inpt_sk": [
+                "v196",
+                "s0"
+            ],
+            "outpt_sk": [
+                "v197"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "MSTORE_0",
+            "opcode": "52",
+            "disasm": "MSTORE",
+            "inpt_sk": [
+                "v196",
+                "s0"
+            ],
+            "outpt_sk": [],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": true,
+            "size": 1
+        },
+        {
+            "id": "MSTORE_1",
+            "opcode": "52",
+            "disasm": "MSTORE",
+            "inpt_sk": [
+                "v197",
+                "v194"
+            ],
+            "outpt_sk": [],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": true,
+            "size": 1
+        },
+        {
+            "id": "PUSH_1",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                96
+            ],
+            "outpt_sk": [
+                "s1"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "ADD_1",
+            "opcode": "01",
+            "disasm": "ADD",
+            "inpt_sk": [
+                "v196",
+                "s1"
+            ],
+            "outpt_sk": [
+                "v198"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH_2",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                5
+            ],
+            "outpt_sk": [
+                "s2"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "SHL_0",
+            "opcode": "1b",
+            "disasm": "SHL",
+            "inpt_sk": [
+                "s2",
+                "v194"
+            ],
+            "outpt_sk": [
+                "v199"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "ADD_2",
+            "opcode": "01",
+            "disasm": "ADD",
+            "inpt_sk": [
+                "v196",
+                "v199"
+            ],
+            "outpt_sk": [
+                "v200"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "ADD_3",
+            "opcode": "01",
+            "disasm": "ADD",
+            "inpt_sk": [
+                "v200",
+                "s1"
+            ],
+            "outpt_sk": [
+                "v201"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH0_0",
+            "opcode": "5f",
+            "disasm": "PUSH0",
+            "inpt_sk": [],
+            "value": [
+                0
+            ],
+            "outpt_sk": [
+                "v202"
+            ],
+            "gas": 2,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH_3",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                350
+            ],
+            "outpt_sk": [
+                "s3"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "NOT_0",
+            "opcode": "19",
+            "disasm": "NOT",
+            "inpt_sk": [
+                "s3"
+            ],
+            "outpt_sk": [
+                "v203"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "CALLDATASIZE_0",
+            "opcode": "36",
+            "disasm": "CALLDATASIZE",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "v204"
+            ],
+            "gas": 2,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "SUB_0",
+            "opcode": "03",
+            "disasm": "SUB",
+            "inpt_sk": [
+                "v204",
+                "v195"
+            ],
+            "outpt_sk": [
+                "v205"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "ADD_4",
+            "opcode": "01",
+            "disasm": "ADD",
+            "inpt_sk": [
+                "v205",
+                "v203"
+            ],
+            "outpt_sk": [
+                "v206"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "74"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "s1",
+        "v194",
+        "v199",
+        "v200",
+        "v201",
+        "v198",
+        "v203",
+        "s2",
+        "v196",
+        "v205",
+        "74",
+        "s0",
+        "v195",
+        "v204",
+        "s3",
+        "v197",
+        "v202",
+        "v206"
+    ],
+    "memory_dependences": [
+        [
+            "MSTORE_0",
+            "MSTORE_1"
+        ]
+    ],
+    "storage_dependences": [],
+    "init_progr_len": 27,
+    "max_progr_len": 27,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "abi_encode_array_struct_UserOperation_calldata_dyn_calldata_bytes_calldata_Block0",
+    "transient_dependences": [],
+    "dependencies": [
+        [
+            "MSTORE_0",
+            "MSTORE_1"
+        ]
+    ],
+    "admits_junk": false,
+    "max_sk_sz": 13,
+    "is_revert": false
+}

@@ -1,0 +1,146 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v158 = not(0x03)\nv159 = calldatasize\nv160 = add(v159,v158)\nv161 = slt(v160,0x40)\n45 = PUSH [tag]\nJUMPI(45,v161)",
+    "src_ws": [],
+    "tgt_ws": [
+        "45",
+        "v161"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH_0",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                3
+            ],
+            "outpt_sk": [
+                "s0"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "NOT_0",
+            "opcode": "19",
+            "disasm": "NOT",
+            "inpt_sk": [
+                "s0"
+            ],
+            "outpt_sk": [
+                "v158"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "CALLDATASIZE_0",
+            "opcode": "36",
+            "disasm": "CALLDATASIZE",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "v159"
+            ],
+            "gas": 2,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "ADD_0",
+            "opcode": "01",
+            "disasm": "ADD",
+            "inpt_sk": [
+                "v159",
+                "v158"
+            ],
+            "outpt_sk": [
+                "v160"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH_1",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                64
+            ],
+            "outpt_sk": [
+                "s1"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "SLT_0",
+            "opcode": "12",
+            "disasm": "SLT",
+            "inpt_sk": [
+                "v160",
+                "s1"
+            ],
+            "outpt_sk": [
+                "v161"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "45"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "s1",
+        "s0",
+        "45",
+        "v160",
+        "v159",
+        "v161",
+        "v158"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 7,
+    "max_progr_len": 7,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "ERC20_646_deployed_Block119",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": true,
+    "max_sk_sz": 4,
+    "is_revert": false
+}

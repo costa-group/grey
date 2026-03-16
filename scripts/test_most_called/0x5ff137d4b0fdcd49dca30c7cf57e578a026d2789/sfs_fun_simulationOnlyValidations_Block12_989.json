@@ -1,0 +1,47 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v2404 = PhiFunction(v2399,v2405)\n429 = PUSH [tag]\nJUMP(429)",
+    "src_ws": [
+        "b0",
+        "v2404",
+        "out_fun_simulationOnlyValidations"
+    ],
+    "tgt_ws": [
+        "429",
+        "v2404",
+        "out_fun_simulationOnlyValidations"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "429"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "429"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 2,
+    "max_progr_len": 2,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_simulationOnlyValidations_Block12",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 4,
+    "is_revert": false
+}

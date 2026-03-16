@@ -1,0 +1,104 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v1526 = mload(v1520)\nv1527 = lt(v1526,0x20)\n377 = PUSH [tag]\nJUMP(377)",
+    "src_ws": [
+        "v1520",
+        "v1479",
+        "v1521",
+        "out_fun_interfaceImplementer"
+    ],
+    "tgt_ws": [
+        "377",
+        "v1520",
+        "v1479",
+        "v1527",
+        "out_fun_interfaceImplementer"
+    ],
+    "user_instrs": [
+        {
+            "id": "MLOAD_0",
+            "opcode": "51",
+            "disasm": "MLOAD",
+            "inpt_sk": [
+                "v1520"
+            ],
+            "outpt_sk": [
+                "v1526"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH_0",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                32
+            ],
+            "outpt_sk": [
+                "s0"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "LT_0",
+            "opcode": "10",
+            "disasm": "LT",
+            "inpt_sk": [
+                "v1526",
+                "s0"
+            ],
+            "outpt_sk": [
+                "v1527"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "377"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "377",
+        "v1527",
+        "v1526",
+        "s0",
+        "v1520"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 7,
+    "max_progr_len": 7,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_interfaceImplementer_Block14",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 7,
+    "is_revert": false
+}

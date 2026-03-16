@@ -1,0 +1,195 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v272 = LiteralAssignment(0x00)\nv273 = calldataload(v227)\nv274 = shl(0xa0,0x01)\nv275 = sub(v274,0x01)\nv276 = and(v273,v275)\nv277 = eq(v273,v276)\nv278 = iszero(v277)\n68 = PUSH [tag]\nJUMPI(68,v278)",
+    "src_ws": [
+        "v194",
+        "v191",
+        "v228",
+        "v227"
+    ],
+    "tgt_ws": [
+        "68",
+        "v278",
+        "v273",
+        "v194",
+        "v191",
+        "v228",
+        "v227"
+    ],
+    "user_instrs": [
+        {
+            "id": "CALLDATALOAD_0",
+            "opcode": "35",
+            "disasm": "CALLDATALOAD",
+            "inpt_sk": [
+                "v227"
+            ],
+            "outpt_sk": [
+                "v273"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH_0",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                160
+            ],
+            "outpt_sk": [
+                "s0"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "PUSH_1",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                1
+            ],
+            "outpt_sk": [
+                "s1"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "SHL_0",
+            "opcode": "1b",
+            "disasm": "SHL",
+            "inpt_sk": [
+                "s0",
+                "s1"
+            ],
+            "outpt_sk": [
+                "v274"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "SUB_0",
+            "opcode": "03",
+            "disasm": "SUB",
+            "inpt_sk": [
+                "v274",
+                "s1"
+            ],
+            "outpt_sk": [
+                "v275"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "AND_0",
+            "opcode": "16",
+            "disasm": "AND",
+            "inpt_sk": [
+                "v273",
+                "v275"
+            ],
+            "outpt_sk": [
+                "v276"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "EQ_0",
+            "opcode": "14",
+            "disasm": "EQ",
+            "inpt_sk": [
+                "v273",
+                "v276"
+            ],
+            "outpt_sk": [
+                "v277"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "ISZERO_0",
+            "opcode": "15",
+            "disasm": "ISZERO",
+            "inpt_sk": [
+                "v277"
+            ],
+            "outpt_sk": [
+                "v278"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "68"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "v278",
+        "v276",
+        "v274",
+        "s1",
+        "68",
+        "s0",
+        "v275",
+        "v227",
+        "v277",
+        "v273"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 13,
+    "max_progr_len": 13,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "SUPERTRUMP_1224_deployed_Block118",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 9,
+    "is_revert": false
+}

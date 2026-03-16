@@ -1,0 +1,68 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v1257 = mload(v1252)\nv1258 = keccak256(v1253,v1257)\nfunctionReturn(out_fun_hashTypedDataV4,v1258)",
+    "src_ws": [
+        "v1253",
+        "v1252",
+        "out_fun_hashTypedDataV4"
+    ],
+    "tgt_ws": [
+        "out_fun_hashTypedDataV4",
+        "v1258"
+    ],
+    "user_instrs": [
+        {
+            "id": "MLOAD_0",
+            "opcode": "51",
+            "disasm": "MLOAD",
+            "inpt_sk": [
+                "v1252"
+            ],
+            "outpt_sk": [
+                "v1257"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "KECCAK256_0",
+            "opcode": "20",
+            "disasm": "KECCAK256",
+            "inpt_sk": [
+                "v1253",
+                "v1257"
+            ],
+            "outpt_sk": [
+                "v1258"
+            ],
+            "gas": 30,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        }
+    ],
+    "variables": [
+        "v1258",
+        "v1257",
+        "v1253",
+        "v1252"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 5,
+    "max_progr_len": 5,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_hashTypedDataV4_Block0ss",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 4,
+    "is_revert": false
+}

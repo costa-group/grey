@@ -1,0 +1,104 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v786 = PhiFunction(v783,v789)\nv787 = lt(v786,0x20)\nv788 = eq(v784,v787)\n187 = PUSH [tag]\nJUMPI(187,v788)",
+    "src_ws": [
+        "v786",
+        "v784",
+        "out_extract_byte_array_length"
+    ],
+    "tgt_ws": [
+        "187",
+        "v788",
+        "v786",
+        "out_extract_byte_array_length"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH_0",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                32
+            ],
+            "outpt_sk": [
+                "s0"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "LT_0",
+            "opcode": "10",
+            "disasm": "LT",
+            "inpt_sk": [
+                "v786",
+                "s0"
+            ],
+            "outpt_sk": [
+                "v787"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "EQ_0",
+            "opcode": "14",
+            "disasm": "EQ",
+            "inpt_sk": [
+                "v784",
+                "v787"
+            ],
+            "outpt_sk": [
+                "v788"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "187"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "187",
+        "v787",
+        "s0",
+        "v784",
+        "v786",
+        "v788"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 6,
+    "max_progr_len": 6,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "extract_byte_array_length_Block2",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 6,
+    "is_revert": false
+}

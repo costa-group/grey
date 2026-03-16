@@ -1,0 +1,83 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v1275 = PhiFunction(v1270,v1297)\nv1276 = PhiFunction(v1263,v1286)\nv1277 = PhiFunction(v1269,v1285)\nv1278 = lt(v1275,v1268)\n323 = PUSH [tag]\nJUMPI(323,v1278)",
+    "src_ws": [
+        "v1275",
+        "v1277",
+        "v1268",
+        "v1276",
+        "v1258",
+        "v1257",
+        "v1245",
+        "v1242",
+        "v1243",
+        "v1244"
+    ],
+    "tgt_ws": [
+        "323",
+        "v1278",
+        "v1275",
+        "v1277",
+        "v1268",
+        "v1276",
+        "v1258",
+        "v1257",
+        "v1245",
+        "v1242",
+        "v1243",
+        "v1244"
+    ],
+    "user_instrs": [
+        {
+            "id": "LT_0",
+            "opcode": "10",
+            "disasm": "LT",
+            "inpt_sk": [
+                "v1275",
+                "v1268"
+            ],
+            "outpt_sk": [
+                "v1278"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "323"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "v1268",
+        "v1278",
+        "323",
+        "v1275"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 4,
+    "max_progr_len": 4,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "external_fun_setTrustedRemoteAddress_Block10",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 13,
+    "is_revert": false
+}

@@ -1,0 +1,67 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "122 = PUSH [tag]\n531 = PUSH [tag]\nv63 = array_allocation_size_bytes(122,v61,531)",
+    "src_ws": [
+        "v62",
+        "v61",
+        "v60",
+        "out_abi_decode_available_length_bytes"
+    ],
+    "tgt_ws": [
+        "122",
+        "v61",
+        "531",
+        "v62",
+        "v61",
+        "v60",
+        "out_abi_decode_available_length_bytes"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "122"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "PUSH [TAG]_1",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "531"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "122",
+        "531"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 3,
+    "max_progr_len": 3,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "abi_decode_available_length_bytes_Block0f",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 8,
+    "is_revert": false
+}

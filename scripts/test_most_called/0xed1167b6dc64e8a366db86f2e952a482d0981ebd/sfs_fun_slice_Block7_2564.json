@@ -1,0 +1,182 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "mstore(v2130,v2116)\nv2143 = not(0x1f)\nv2144 = add(v2140,0x1f)\nv2145 = and(v2144,v2143)\nmstore(0x40,v2145)\n482 = PUSH [tag]\nJUMP(482)",
+    "src_ws": [
+        "v2140",
+        "v2136",
+        "v2130",
+        "v2141",
+        "v2116",
+        "out_fun_slice"
+    ],
+    "tgt_ws": [
+        "482",
+        "v2130",
+        "out_fun_slice"
+    ],
+    "user_instrs": [
+        {
+            "id": "MSTORE_0",
+            "opcode": "52",
+            "disasm": "MSTORE",
+            "inpt_sk": [
+                "v2130",
+                "v2116"
+            ],
+            "outpt_sk": [],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": true,
+            "size": 1
+        },
+        {
+            "id": "PUSH_0",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                31
+            ],
+            "outpt_sk": [
+                "s0"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "NOT_0",
+            "opcode": "19",
+            "disasm": "NOT",
+            "inpt_sk": [
+                "s0"
+            ],
+            "outpt_sk": [
+                "v2143"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "ADD_0",
+            "opcode": "01",
+            "disasm": "ADD",
+            "inpt_sk": [
+                "v2140",
+                "s0"
+            ],
+            "outpt_sk": [
+                "v2144"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "AND_0",
+            "opcode": "16",
+            "disasm": "AND",
+            "inpt_sk": [
+                "v2144",
+                "v2143"
+            ],
+            "outpt_sk": [
+                "v2145"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH_1",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                64
+            ],
+            "outpt_sk": [
+                "s1"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "MSTORE_1",
+            "opcode": "52",
+            "disasm": "MSTORE",
+            "inpt_sk": [
+                "s1",
+                "v2145"
+            ],
+            "outpt_sk": [],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": true,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "482"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "v2130",
+        "v2143",
+        "s0",
+        "482",
+        "v2116",
+        "v2145",
+        "s1",
+        "v2144",
+        "v2140"
+    ],
+    "memory_dependences": [
+        [
+            "MSTORE_0",
+            "MSTORE_1"
+        ]
+    ],
+    "storage_dependences": [],
+    "init_progr_len": 16,
+    "max_progr_len": 16,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_slice_Block7",
+    "transient_dependences": [],
+    "dependencies": [
+        [
+            "MSTORE_0",
+            "MSTORE_1"
+        ]
+    ],
+    "admits_junk": false,
+    "max_sk_sz": 8,
+    "is_revert": false
+}

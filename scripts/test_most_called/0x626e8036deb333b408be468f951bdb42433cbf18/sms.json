@@ -1,0 +1,21 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "functionReturn(out_require_helper_stringliteral_771f)",
+    "src_ws": [
+        "out_require_helper_stringliteral_771f"
+    ],
+    "tgt_ws": [
+        "out_require_helper_stringliteral_771f"
+    ],
+    "user_instrs": [],
+    "variables": [],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 0,
+    "max_progr_len": 0,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "require_helper_stringliteral_771f_Block2"
+}

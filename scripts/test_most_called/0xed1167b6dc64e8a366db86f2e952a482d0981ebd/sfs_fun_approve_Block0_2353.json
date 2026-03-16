@@ -1,0 +1,160 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v1568 = shl(0xa0,0x01)\nv1569 = sub(v1568,0x01)\nv1570 = and(v1567,v1569)\nv1571 = iszero(v1570)\n398 = PUSH [tag]\nJUMPI(398,v1571)",
+    "src_ws": [
+        "v1567",
+        "v1566",
+        "v1565",
+        "out_fun_approve"
+    ],
+    "tgt_ws": [
+        "398",
+        "v1571",
+        "v1570",
+        "v1567",
+        "v1566",
+        "v1565",
+        "out_fun_approve"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH_0",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                160
+            ],
+            "outpt_sk": [
+                "s0"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "PUSH_1",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                1
+            ],
+            "outpt_sk": [
+                "s1"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "SHL_0",
+            "opcode": "1b",
+            "disasm": "SHL",
+            "inpt_sk": [
+                "s0",
+                "s1"
+            ],
+            "outpt_sk": [
+                "v1568"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "SUB_0",
+            "opcode": "03",
+            "disasm": "SUB",
+            "inpt_sk": [
+                "v1568",
+                "s1"
+            ],
+            "outpt_sk": [
+                "v1569"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "AND_0",
+            "opcode": "16",
+            "disasm": "AND",
+            "inpt_sk": [
+                "v1567",
+                "v1569"
+            ],
+            "outpt_sk": [
+                "v1570"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "ISZERO_0",
+            "opcode": "15",
+            "disasm": "ISZERO",
+            "inpt_sk": [
+                "v1570"
+            ],
+            "outpt_sk": [
+                "v1571"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "398"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "v1571",
+        "s0",
+        "v1569",
+        "v1568",
+        "v1570",
+        "v1567",
+        "398",
+        "s1"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 10,
+    "max_progr_len": 10,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_approve_Block0",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 8,
+    "is_revert": false
+}

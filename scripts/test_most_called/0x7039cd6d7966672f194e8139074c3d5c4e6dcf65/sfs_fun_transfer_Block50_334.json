@@ -1,0 +1,133 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v756 = shr(0xb0,v689)\nv757 = and(v756,0xff)\n161 = PUSH [tag]\nJUMP(161)",
+    "src_ws": [
+        "v726",
+        "v748",
+        "v723",
+        "v689",
+        "v597",
+        "v594",
+        "v601",
+        "v591",
+        "out_fun_transfer"
+    ],
+    "tgt_ws": [
+        "161",
+        "v726",
+        "v757",
+        "v723",
+        "v689",
+        "v597",
+        "v594",
+        "v601",
+        "v591",
+        "out_fun_transfer"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH_0",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                176
+            ],
+            "outpt_sk": [
+                "s0"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "SHR_0",
+            "opcode": "1c",
+            "disasm": "SHR",
+            "inpt_sk": [
+                "s0",
+                "v689"
+            ],
+            "outpt_sk": [
+                "v756"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH_1",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                255
+            ],
+            "outpt_sk": [
+                "s1"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "AND_0",
+            "opcode": "16",
+            "disasm": "AND",
+            "inpt_sk": [
+                "v756",
+                "s1"
+            ],
+            "outpt_sk": [
+                "v757"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "161"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "v756",
+        "v689",
+        "s1",
+        "v757",
+        "s0",
+        "161"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 8,
+    "max_progr_len": 8,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_transfer_Block50",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 12,
+    "is_revert": false
+}

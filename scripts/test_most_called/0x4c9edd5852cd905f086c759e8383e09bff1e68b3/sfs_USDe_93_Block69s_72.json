@@ -1,0 +1,607 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v183 = mload(0x40)\nv184 = push #[$][USDe_93_deployed]\nv185 = push [$][USDe_93_deployed]\ncodecopy(v183,v185,v184)\nv186 = mload(0x80)\nassignimmutable(v183,v186)[2309]\nv187 = mload(0xa0)\nassignimmutable(v183,v187)[2311]\nv188 = mload(0xc0)\nassignimmutable(v183,v188)[2313]\nv189 = mload(0xe0)\nassignimmutable(v183,v189)[2315]\nv190 = mload(0x0100)\nassignimmutable(v183,v190)[2317]\nv191 = mload(0x0120)\nassignimmutable(v183,v191)[2320]\nv192 = mload(0x0140)\nassignimmutable(v183,v192)[2323]\nreturn(v183,v184)",
+    "src_ws": [],
+    "tgt_ws": [
+        "v183",
+        "v184"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH_0",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                64
+            ],
+            "outpt_sk": [
+                "s0"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "MLOAD_0",
+            "opcode": "51",
+            "disasm": "MLOAD",
+            "inpt_sk": [
+                "s0"
+            ],
+            "outpt_sk": [
+                "v183"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH #[$]_0",
+            "opcode": "00",
+            "disasm": "PUSH #[$]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "v184"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 5,
+            "value": [
+                "0000000000000000000000000000000000000000000000000000000000000000"
+            ]
+        },
+        {
+            "id": "PUSH [$]_0",
+            "opcode": "00",
+            "disasm": "PUSH [$]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "v185"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3,
+            "value": [
+                "0000000000000000000000000000000000000000000000000000000000000000"
+            ]
+        },
+        {
+            "id": "CODECOPY_0",
+            "opcode": "39",
+            "disasm": "CODECOPY",
+            "inpt_sk": [
+                "v183",
+                "v185",
+                "v184"
+            ],
+            "outpt_sk": [],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": true,
+            "size": 1
+        },
+        {
+            "id": "PUSH_1",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                128
+            ],
+            "outpt_sk": [
+                "s1"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "MLOAD_1",
+            "opcode": "51",
+            "disasm": "MLOAD",
+            "inpt_sk": [
+                "s1"
+            ],
+            "outpt_sk": [
+                "v186"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "ASSIGNIMMUTABLE_0",
+            "opcode": "00",
+            "disasm": "ASSIGNIMMUTABLE",
+            "inpt_sk": [
+                "v183",
+                "v186"
+            ],
+            "outpt_sk": [],
+            "gas": 0,
+            "commutative": false,
+            "push": false,
+            "storage": true,
+            "size": 35,
+            "value": [
+                "2309"
+            ]
+        },
+        {
+            "id": "PUSH_2",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                160
+            ],
+            "outpt_sk": [
+                "s2"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "MLOAD_2",
+            "opcode": "51",
+            "disasm": "MLOAD",
+            "inpt_sk": [
+                "s2"
+            ],
+            "outpt_sk": [
+                "v187"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "ASSIGNIMMUTABLE_1",
+            "opcode": "00",
+            "disasm": "ASSIGNIMMUTABLE",
+            "inpt_sk": [
+                "v183",
+                "v187"
+            ],
+            "outpt_sk": [],
+            "gas": 0,
+            "commutative": false,
+            "push": false,
+            "storage": true,
+            "size": 35,
+            "value": [
+                "2311"
+            ]
+        },
+        {
+            "id": "PUSH_3",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                192
+            ],
+            "outpt_sk": [
+                "s3"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "MLOAD_3",
+            "opcode": "51",
+            "disasm": "MLOAD",
+            "inpt_sk": [
+                "s3"
+            ],
+            "outpt_sk": [
+                "v188"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "ASSIGNIMMUTABLE_2",
+            "opcode": "00",
+            "disasm": "ASSIGNIMMUTABLE",
+            "inpt_sk": [
+                "v183",
+                "v188"
+            ],
+            "outpt_sk": [],
+            "gas": 0,
+            "commutative": false,
+            "push": false,
+            "storage": true,
+            "size": 35,
+            "value": [
+                "2313"
+            ]
+        },
+        {
+            "id": "PUSH_4",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                224
+            ],
+            "outpt_sk": [
+                "s4"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "MLOAD_4",
+            "opcode": "51",
+            "disasm": "MLOAD",
+            "inpt_sk": [
+                "s4"
+            ],
+            "outpt_sk": [
+                "v189"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "ASSIGNIMMUTABLE_3",
+            "opcode": "00",
+            "disasm": "ASSIGNIMMUTABLE",
+            "inpt_sk": [
+                "v183",
+                "v189"
+            ],
+            "outpt_sk": [],
+            "gas": 0,
+            "commutative": false,
+            "push": false,
+            "storage": true,
+            "size": 35,
+            "value": [
+                "2315"
+            ]
+        },
+        {
+            "id": "PUSH_5",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                256
+            ],
+            "outpt_sk": [
+                "s5"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "MLOAD_5",
+            "opcode": "51",
+            "disasm": "MLOAD",
+            "inpt_sk": [
+                "s5"
+            ],
+            "outpt_sk": [
+                "v190"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "ASSIGNIMMUTABLE_4",
+            "opcode": "00",
+            "disasm": "ASSIGNIMMUTABLE",
+            "inpt_sk": [
+                "v183",
+                "v190"
+            ],
+            "outpt_sk": [],
+            "gas": 0,
+            "commutative": false,
+            "push": false,
+            "storage": true,
+            "size": 35,
+            "value": [
+                "2317"
+            ]
+        },
+        {
+            "id": "PUSH_6",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                288
+            ],
+            "outpt_sk": [
+                "s6"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "MLOAD_6",
+            "opcode": "51",
+            "disasm": "MLOAD",
+            "inpt_sk": [
+                "s6"
+            ],
+            "outpt_sk": [
+                "v191"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "ASSIGNIMMUTABLE_5",
+            "opcode": "00",
+            "disasm": "ASSIGNIMMUTABLE",
+            "inpt_sk": [
+                "v183",
+                "v191"
+            ],
+            "outpt_sk": [],
+            "gas": 0,
+            "commutative": false,
+            "push": false,
+            "storage": true,
+            "size": 35,
+            "value": [
+                "2320"
+            ]
+        },
+        {
+            "id": "PUSH_7",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                320
+            ],
+            "outpt_sk": [
+                "s7"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "MLOAD_7",
+            "opcode": "51",
+            "disasm": "MLOAD",
+            "inpt_sk": [
+                "s7"
+            ],
+            "outpt_sk": [
+                "v192"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "ASSIGNIMMUTABLE_6",
+            "opcode": "00",
+            "disasm": "ASSIGNIMMUTABLE",
+            "inpt_sk": [
+                "v183",
+                "v192"
+            ],
+            "outpt_sk": [],
+            "gas": 0,
+            "commutative": false,
+            "push": false,
+            "storage": true,
+            "size": 35,
+            "value": [
+                "2323"
+            ]
+        }
+    ],
+    "variables": [
+        "v185",
+        "s1",
+        "v187",
+        "s0",
+        "v183",
+        "s6",
+        "v190",
+        "s5",
+        "s7",
+        "v189",
+        "v191",
+        "v192",
+        "s2",
+        "s3",
+        "v188",
+        "v184",
+        "s4",
+        "v186"
+    ],
+    "memory_dependences": [
+        [
+            "MLOAD_0",
+            "CODECOPY_0"
+        ],
+        [
+            "CODECOPY_0",
+            "MLOAD_1"
+        ],
+        [
+            "ASSIGNIMMUTABLE_0",
+            "MLOAD_2"
+        ],
+        [
+            "ASSIGNIMMUTABLE_1",
+            "MLOAD_3"
+        ],
+        [
+            "ASSIGNIMMUTABLE_2",
+            "MLOAD_4"
+        ],
+        [
+            "ASSIGNIMMUTABLE_3",
+            "MLOAD_5"
+        ],
+        [
+            "ASSIGNIMMUTABLE_4",
+            "MLOAD_6"
+        ],
+        [
+            "ASSIGNIMMUTABLE_5",
+            "MLOAD_7"
+        ],
+        [
+            "MLOAD_1",
+            "ASSIGNIMMUTABLE_0"
+        ],
+        [
+            "MLOAD_2",
+            "ASSIGNIMMUTABLE_1"
+        ],
+        [
+            "MLOAD_3",
+            "ASSIGNIMMUTABLE_2"
+        ],
+        [
+            "MLOAD_4",
+            "ASSIGNIMMUTABLE_3"
+        ],
+        [
+            "MLOAD_5",
+            "ASSIGNIMMUTABLE_4"
+        ],
+        [
+            "MLOAD_6",
+            "ASSIGNIMMUTABLE_5"
+        ],
+        [
+            "MLOAD_7",
+            "ASSIGNIMMUTABLE_6"
+        ]
+    ],
+    "storage_dependences": [],
+    "init_progr_len": 35,
+    "max_progr_len": 35,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "USDe_93_Block69s",
+    "transient_dependences": [],
+    "dependencies": [
+        [
+            "MLOAD_0",
+            "CODECOPY_0"
+        ],
+        [
+            "CODECOPY_0",
+            "MLOAD_1"
+        ],
+        [
+            "ASSIGNIMMUTABLE_0",
+            "MLOAD_2"
+        ],
+        [
+            "ASSIGNIMMUTABLE_1",
+            "MLOAD_3"
+        ],
+        [
+            "ASSIGNIMMUTABLE_2",
+            "MLOAD_4"
+        ],
+        [
+            "ASSIGNIMMUTABLE_3",
+            "MLOAD_5"
+        ],
+        [
+            "ASSIGNIMMUTABLE_4",
+            "MLOAD_6"
+        ],
+        [
+            "ASSIGNIMMUTABLE_5",
+            "MLOAD_7"
+        ],
+        [
+            "MLOAD_1",
+            "ASSIGNIMMUTABLE_0"
+        ],
+        [
+            "MLOAD_2",
+            "ASSIGNIMMUTABLE_1"
+        ],
+        [
+            "MLOAD_3",
+            "ASSIGNIMMUTABLE_2"
+        ],
+        [
+            "MLOAD_4",
+            "ASSIGNIMMUTABLE_3"
+        ],
+        [
+            "MLOAD_5",
+            "ASSIGNIMMUTABLE_4"
+        ],
+        [
+            "MLOAD_6",
+            "ASSIGNIMMUTABLE_5"
+        ],
+        [
+            "MLOAD_7",
+            "ASSIGNIMMUTABLE_6"
+        ]
+    ],
+    "admits_junk": true,
+    "max_sk_sz": 6,
+    "is_revert": false
+}

@@ -1,0 +1,196 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v1164 = shl(0xa0,0x01)\nv1165 = sub(v1164,0x01)\nv1166 = pushimmutable[211]\nv1167 = and(v1166,v1165)\nv1168 = extcodesize(v1167)\nv1169 = iszero(v1168)\n295 = PUSH [tag]\nJUMPI(295,v1169)",
+    "src_ws": [
+        "v1162",
+        "v1163",
+        "v1157",
+        "v1156",
+        "v1155"
+    ],
+    "tgt_ws": [
+        "295",
+        "v1169",
+        "v1167",
+        "v1162",
+        "v1163",
+        "v1157",
+        "v1156",
+        "v1155"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH_0",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                160
+            ],
+            "outpt_sk": [
+                "s0"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "PUSH_1",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                1
+            ],
+            "outpt_sk": [
+                "s1"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "SHL_0",
+            "opcode": "1b",
+            "disasm": "SHL",
+            "inpt_sk": [
+                "s0",
+                "s1"
+            ],
+            "outpt_sk": [
+                "v1164"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "SUB_0",
+            "opcode": "03",
+            "disasm": "SUB",
+            "inpt_sk": [
+                "v1164",
+                "s1"
+            ],
+            "outpt_sk": [
+                "v1165"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSHIMMUTABLE_0",
+            "opcode": "00",
+            "disasm": "PUSHIMMUTABLE",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "v1166"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 33,
+            "value": [
+                "211"
+            ]
+        },
+        {
+            "id": "AND_0",
+            "opcode": "16",
+            "disasm": "AND",
+            "inpt_sk": [
+                "v1166",
+                "v1165"
+            ],
+            "outpt_sk": [
+                "v1167"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "EXTCODESIZE_0",
+            "opcode": "3b",
+            "disasm": "EXTCODESIZE",
+            "inpt_sk": [
+                "v1167"
+            ],
+            "outpt_sk": [
+                "v1168"
+            ],
+            "gas": 2600,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "ISZERO_0",
+            "opcode": "15",
+            "disasm": "ISZERO",
+            "inpt_sk": [
+                "v1168"
+            ],
+            "outpt_sk": [
+                "v1169"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "295"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "s0",
+        "v1169",
+        "295",
+        "v1167",
+        "v1165",
+        "v1164",
+        "v1168",
+        "s1",
+        "v1166"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 11,
+    "max_progr_len": 11,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "external_fun_setConfig_Block8ss",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 9,
+    "is_revert": false
+}

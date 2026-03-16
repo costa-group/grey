@@ -1,0 +1,124 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "99 = PUSH [tag]\n656 = PUSH [tag]\nv1146 = not(0x1f)\nv1147 = and(v1131,v1146)\nv1148 = array_dataslot_string_storage(99,v1138,656)",
+    "src_ws": [
+        "v1142",
+        "v1138",
+        "v1129",
+        "v1130",
+        "v1131"
+    ],
+    "tgt_ws": [
+        "99",
+        "v1138",
+        "656",
+        "v1147",
+        "v1142",
+        "v1138",
+        "v1129",
+        "v1130",
+        "v1131"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "99"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "PUSH [TAG]_1",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "656"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "PUSH_0",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                31
+            ],
+            "outpt_sk": [
+                "s0"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "NOT_0",
+            "opcode": "19",
+            "disasm": "NOT",
+            "inpt_sk": [
+                "s0"
+            ],
+            "outpt_sk": [
+                "v1146"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "AND_0",
+            "opcode": "16",
+            "disasm": "AND",
+            "inpt_sk": [
+                "v1131",
+                "v1146"
+            ],
+            "outpt_sk": [
+                "v1147"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        }
+    ],
+    "variables": [
+        "v1146",
+        "656",
+        "99",
+        "s0",
+        "v1131",
+        "v1147"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 7,
+    "max_progr_len": 7,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "external_fun_setName_Block11f",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 10,
+    "is_revert": false
+}

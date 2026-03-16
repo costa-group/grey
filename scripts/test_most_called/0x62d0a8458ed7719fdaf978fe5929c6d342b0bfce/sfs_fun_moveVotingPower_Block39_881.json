@@ -1,0 +1,97 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v1332 = PhiFunction(v1321,v1379)\nv1333 = eq(v1332,0x00)\n248 = PUSH [tag]\nJUMPI(248,v1333)",
+    "src_ws": [
+        "v1320",
+        "v1317",
+        "v1285",
+        "v1289",
+        "v1332",
+        "v1267",
+        "v1264",
+        "v1259",
+        "out_fun_moveVotingPower"
+    ],
+    "tgt_ws": [
+        "248",
+        "v1333",
+        "v1317",
+        "v1285",
+        "v1289",
+        "v1320",
+        "v1267",
+        "v1264",
+        "v1259",
+        "out_fun_moveVotingPower"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH0_0",
+            "opcode": "5f",
+            "disasm": "PUSH0",
+            "inpt_sk": [],
+            "value": [
+                0
+            ],
+            "outpt_sk": [
+                "s0"
+            ],
+            "gas": 2,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "EQ_0",
+            "opcode": "14",
+            "disasm": "EQ",
+            "inpt_sk": [
+                "v1332",
+                "s0"
+            ],
+            "outpt_sk": [
+                "v1333"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "248"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "248",
+        "s0",
+        "v1333",
+        "v1332"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 4,
+    "max_progr_len": 4,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_moveVotingPower_Block39",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 11,
+    "is_revert": false
+}

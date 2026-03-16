@@ -1,0 +1,85 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "341 = PUSH [tag]\n508 = PUSH [tag]\nv410 = sload(v407)\nv411 = extract_byte_array_length(341,v410,508)",
+    "src_ws": [
+        "v408",
+        "v407",
+        "v406",
+        "out_copy_byte_array_to_storage_from_bytes_to_bytes"
+    ],
+    "tgt_ws": [
+        "341",
+        "v410",
+        "508",
+        "v408",
+        "v407",
+        "v406",
+        "out_copy_byte_array_to_storage_from_bytes_to_bytes"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "341"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "PUSH [TAG]_1",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "508"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "SLOAD_0",
+            "opcode": "54",
+            "disasm": "SLOAD",
+            "inpt_sk": [
+                "v407"
+            ],
+            "outpt_sk": [
+                "v410"
+            ],
+            "gas": 2100,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        }
+    ],
+    "variables": [
+        "v410",
+        "508",
+        "v407",
+        "341"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 4,
+    "max_progr_len": 4,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "copy_byte_array_to_storage_from_bytes_to_bytes_Block2f",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 8,
+    "is_revert": false
+}

@@ -1,0 +1,105 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v2308 = caller\nv2309 = eq(v2303,v2308)\nv2310 = iszero(v2309)\n508 = PUSH [tag]\nJUMP(508)",
+    "src_ws": [
+        "v2303",
+        "v2306",
+        "v2300",
+        "v2299",
+        "v2298",
+        "out_fun_transferFrom"
+    ],
+    "tgt_ws": [
+        "508",
+        "v2303",
+        "v2310",
+        "v2300",
+        "v2299",
+        "v2298",
+        "out_fun_transferFrom"
+    ],
+    "user_instrs": [
+        {
+            "id": "CALLER_0",
+            "opcode": "33",
+            "disasm": "CALLER",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "v2308"
+            ],
+            "gas": 2,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "EQ_0",
+            "opcode": "14",
+            "disasm": "EQ",
+            "inpt_sk": [
+                "v2303",
+                "v2308"
+            ],
+            "outpt_sk": [
+                "v2309"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "ISZERO_0",
+            "opcode": "15",
+            "disasm": "ISZERO",
+            "inpt_sk": [
+                "v2309"
+            ],
+            "outpt_sk": [
+                "v2310"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "508"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "508",
+        "v2303",
+        "v2310",
+        "v2309",
+        "v2308"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 7,
+    "max_progr_len": 7,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_transferFrom_Block1",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 9,
+    "is_revert": false
+}

@@ -1,0 +1,76 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v70 = caller\nv71 = iszero(v70)\n26 = PUSH [tag]\nJUMP(26)",
+    "src_ws": [
+        "v66"
+    ],
+    "tgt_ws": [
+        "26",
+        "v71"
+    ],
+    "user_instrs": [
+        {
+            "id": "CALLER_0",
+            "opcode": "33",
+            "disasm": "CALLER",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "v70"
+            ],
+            "gas": 2,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "ISZERO_0",
+            "opcode": "15",
+            "disasm": "ISZERO",
+            "inpt_sk": [
+                "v70"
+            ],
+            "outpt_sk": [
+                "v71"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "26"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "v70",
+        "26",
+        "v71"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 4,
+    "max_progr_len": 4,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "external_fun_admin_Block7",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 3,
+    "is_revert": false
+}

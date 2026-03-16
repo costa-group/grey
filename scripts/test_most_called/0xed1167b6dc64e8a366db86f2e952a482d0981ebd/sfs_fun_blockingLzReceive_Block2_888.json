@@ -1,0 +1,31 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "functionReturn(out_fun_blockingLzReceive)",
+    "src_ws": [
+        "b0",
+        "b4",
+        "b2",
+        "b1",
+        "b3",
+        "out_fun_blockingLzReceive"
+    ],
+    "tgt_ws": [
+        "out_fun_blockingLzReceive"
+    ],
+    "user_instrs": [],
+    "variables": [],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 5,
+    "max_progr_len": 5,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_blockingLzReceive_Block2",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 7,
+    "is_revert": false
+}

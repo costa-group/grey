@@ -1,0 +1,90 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v59 = gt(v55,0x1f)\n11 = PUSH [tag]\nJUMPI(11,v59)",
+    "src_ws": [
+        "v55",
+        "v24",
+        "v21",
+        "v14",
+        "v45"
+    ],
+    "tgt_ws": [
+        "11",
+        "v59",
+        "v55",
+        "v24",
+        "v21",
+        "v14",
+        "v45"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH_0",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                31
+            ],
+            "outpt_sk": [
+                "s0"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "GT_0",
+            "opcode": "11",
+            "disasm": "GT",
+            "inpt_sk": [
+                "v55",
+                "s0"
+            ],
+            "outpt_sk": [
+                "v59"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "11"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "v55",
+        "s0",
+        "v59",
+        "11"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 4,
+    "max_progr_len": 4,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "OFTV2_2477_Block25",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": true,
+    "max_sk_sz": 8,
+    "is_revert": false
+}

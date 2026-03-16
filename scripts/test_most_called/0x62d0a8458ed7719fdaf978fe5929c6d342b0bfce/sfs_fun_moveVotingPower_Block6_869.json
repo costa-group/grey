@@ -1,0 +1,86 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v1275 = iszero(v1264)\nv1276 = iszero(v1275)\n236 = PUSH [tag]\nJUMPI(236,v1276)",
+    "src_ws": [
+        "v1267",
+        "v1264",
+        "v1259",
+        "out_fun_moveVotingPower"
+    ],
+    "tgt_ws": [
+        "236",
+        "v1276",
+        "v1267",
+        "v1264",
+        "v1259",
+        "out_fun_moveVotingPower"
+    ],
+    "user_instrs": [
+        {
+            "id": "ISZERO_0",
+            "opcode": "15",
+            "disasm": "ISZERO",
+            "inpt_sk": [
+                "v1264"
+            ],
+            "outpt_sk": [
+                "v1275"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "ISZERO_1",
+            "opcode": "15",
+            "disasm": "ISZERO",
+            "inpt_sk": [
+                "v1275"
+            ],
+            "outpt_sk": [
+                "v1276"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "236"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "v1275",
+        "236",
+        "v1276",
+        "v1264"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 4,
+    "max_progr_len": 4,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_moveVotingPower_Block6",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 7,
+    "is_revert": false
+}

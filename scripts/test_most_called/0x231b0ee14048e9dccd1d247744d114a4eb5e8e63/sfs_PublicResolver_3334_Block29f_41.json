@@ -1,0 +1,72 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v68 = PhiFunction(v64,v72)\n19 = PUSH [tag]\n26 = PUSH [tag]\nfinalize_allocation(19,v36,v68,26)",
+    "src_ws": [
+        "v68",
+        "v36",
+        "v24",
+        "v22",
+        "v15",
+        "v8"
+    ],
+    "tgt_ws": [
+        "19",
+        "v36",
+        "v68",
+        "26",
+        "v68",
+        "v36",
+        "v24",
+        "v22",
+        "v15",
+        "v8"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "19"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "PUSH [TAG]_1",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "26"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "19",
+        "26"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 4,
+    "max_progr_len": 4,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "PublicResolver_3334_Block29f",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": true,
+    "max_sk_sz": 11,
+    "is_revert": false
+}

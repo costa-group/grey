@@ -1,0 +1,76 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "431 = PUSH [tag]\n617 = PUSH [tag]\nv668,v669 = fun_estimateSendAndCallFee(431,v650,v652,v653,v658,v659,v660,v661,v666,v667,617)",
+    "src_ws": [
+        "v666",
+        "v667",
+        "v661",
+        "v660",
+        "v658",
+        "v659",
+        "v653",
+        "v652",
+        "v650"
+    ],
+    "tgt_ws": [
+        "431",
+        "v650",
+        "v652",
+        "v653",
+        "v658",
+        "v659",
+        "v660",
+        "v661",
+        "v666",
+        "v667",
+        "617"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "431"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "PUSH [TAG]_1",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "617"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "431",
+        "617"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 20,
+    "max_progr_len": 20,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "external_fun_estimateSendAndCallFee_Block11sf",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 12,
+    "is_revert": false
+}

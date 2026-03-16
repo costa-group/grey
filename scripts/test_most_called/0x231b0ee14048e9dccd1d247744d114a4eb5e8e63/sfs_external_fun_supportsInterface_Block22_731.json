@@ -1,0 +1,65 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v1295 = PhiFunction(v1293,v1298)\nv1296 = iszero(v1295)\n326 = PUSH [tag]\nJUMPI(326,v1296)",
+    "src_ws": [
+        "v1260",
+        "v1295"
+    ],
+    "tgt_ws": [
+        "326",
+        "v1296",
+        "v1260",
+        "v1295"
+    ],
+    "user_instrs": [
+        {
+            "id": "ISZERO_0",
+            "opcode": "15",
+            "disasm": "ISZERO",
+            "inpt_sk": [
+                "v1295"
+            ],
+            "outpt_sk": [
+                "v1296"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "326"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "v1295",
+        "326",
+        "v1296"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 3,
+    "max_progr_len": 3,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "external_fun_supportsInterface_Block22",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 5,
+    "is_revert": false
+}

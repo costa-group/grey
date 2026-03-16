@@ -1,0 +1,49 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "406 = PUSH [tag]\nJUMP(406)",
+    "src_ws": [
+        "v1644",
+        "v1643",
+        "out_fun_nameLength"
+    ],
+    "tgt_ws": [
+        "406",
+        "v1643",
+        "v1644",
+        "v1643",
+        "out_fun_nameLength"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "406"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "406"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 2,
+    "max_progr_len": 2,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_nameLength_Block0",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 6,
+    "is_revert": false
+}

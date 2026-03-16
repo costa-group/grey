@@ -1,0 +1,69 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v72 = returndatasize\n15 = PUSH [tag]\nJUMP(15)",
+    "src_ws": [
+        "v64",
+        "v36",
+        "v24",
+        "v22",
+        "v15",
+        "v8"
+    ],
+    "tgt_ws": [
+        "15",
+        "v72",
+        "v36",
+        "v24",
+        "v22",
+        "v15",
+        "v8"
+    ],
+    "user_instrs": [
+        {
+            "id": "RETURNDATASIZE_0",
+            "opcode": "3c",
+            "disasm": "RETURNDATASIZE",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "v72"
+            ],
+            "gas": 2,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "15"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "15",
+        "v72"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 3,
+    "max_progr_len": 3,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "PublicResolver_3334_Block28",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": true,
+    "max_sk_sz": 8,
+    "is_revert": false
+}

@@ -1,0 +1,218 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v1021 = sload(v1020)\nv1022 = mload(0x40)\nv1023 = not(0xffffffffffffffff)\nv1024 = shl(0x40,v1015)\nv1025 = and(v1024,v1023)\nv1026 = or(v1021,v1025)\nmstore(v1022,v1026)\nreturn(v1022,0x20)",
+    "src_ws": [
+        "v1020",
+        "v1015"
+    ],
+    "tgt_ws": [
+        "v1022",
+        "0x20",
+        "v1020",
+        "v1015"
+    ],
+    "user_instrs": [
+        {
+            "id": "SLOAD_0",
+            "opcode": "54",
+            "disasm": "SLOAD",
+            "inpt_sk": [
+                "v1020"
+            ],
+            "outpt_sk": [
+                "v1021"
+            ],
+            "gas": 2100,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH_0",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                64
+            ],
+            "outpt_sk": [
+                "s0"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "MLOAD_0",
+            "opcode": "51",
+            "disasm": "MLOAD",
+            "inpt_sk": [
+                "s0"
+            ],
+            "outpt_sk": [
+                "v1022"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH_1",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                18446744073709551615
+            ],
+            "outpt_sk": [
+                "s1"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 9
+        },
+        {
+            "id": "NOT_0",
+            "opcode": "19",
+            "disasm": "NOT",
+            "inpt_sk": [
+                "s1"
+            ],
+            "outpt_sk": [
+                "v1023"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "SHL_0",
+            "opcode": "1b",
+            "disasm": "SHL",
+            "inpt_sk": [
+                "s0",
+                "v1015"
+            ],
+            "outpt_sk": [
+                "v1024"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "AND_0",
+            "opcode": "16",
+            "disasm": "AND",
+            "inpt_sk": [
+                "v1024",
+                "v1023"
+            ],
+            "outpt_sk": [
+                "v1025"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "OR_0",
+            "opcode": "17",
+            "disasm": "OR",
+            "inpt_sk": [
+                "v1021",
+                "v1025"
+            ],
+            "outpt_sk": [
+                "v1026"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "MSTORE_0",
+            "opcode": "52",
+            "disasm": "MSTORE",
+            "inpt_sk": [
+                "v1022",
+                "v1026"
+            ],
+            "outpt_sk": [],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": true,
+            "size": 1
+        },
+        {
+            "id": "PUSH_2",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                32
+            ],
+            "outpt_sk": [
+                "0x20"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        }
+    ],
+    "variables": [
+        "v1021",
+        "v1025",
+        "s1",
+        "v1026",
+        "v1020",
+        "0x20",
+        "v1022",
+        "v1015",
+        "s0",
+        "v1024",
+        "v1023"
+    ],
+    "memory_dependences": [
+        [
+            "MLOAD_0",
+            "MSTORE_0"
+        ]
+    ],
+    "storage_dependences": [],
+    "init_progr_len": 14,
+    "max_progr_len": 14,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "external_fun_getNonce_Block5sss",
+    "transient_dependences": [],
+    "dependencies": [
+        [
+            "MLOAD_0",
+            "MSTORE_0"
+        ]
+    ],
+    "admits_junk": false,
+    "max_sk_sz": 8,
+    "is_revert": false
+}

@@ -1,0 +1,77 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v1034 = PhiFunction(v1027,v1068)\nv1035 = PhiFunction(v1028,v1069)\nv1036 = PhiFunction(v1027,v1070)\nv1037 = PhiFunction(v1028,v1071)\n363 = PUSH [tag]\n625 = PUSH [tag]\nv1038 = fun_done(363,v1033,625)",
+    "src_ws": [
+        "v1036",
+        "v1037",
+        "v1033",
+        "v1030",
+        "v1034",
+        "v1035",
+        "v1022",
+        "v1023",
+        "v1024"
+    ],
+    "tgt_ws": [
+        "363",
+        "v1033",
+        "625",
+        "v1036",
+        "v1037",
+        "v1033",
+        "v1030",
+        "v1034",
+        "v1035",
+        "v1022",
+        "v1023",
+        "v1024"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "363"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "PUSH [TAG]_1",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "625"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "363",
+        "625"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 3,
+    "max_progr_len": 3,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "external_fun_setDNSRecords_Block8f",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 13,
+    "is_revert": false
+}

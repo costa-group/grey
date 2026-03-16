@@ -1,0 +1,65 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v934 = PhiFunction(v933,v947)\n540 = PUSH [tag]\n670 = PUSH [tag]\nrequire_helper_stringliteral_c818(540,v934,670)",
+    "src_ws": [
+        "v934",
+        "b0",
+        "v917",
+        "v916"
+    ],
+    "tgt_ws": [
+        "540",
+        "v934",
+        "670",
+        "v917",
+        "v916"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "540"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "PUSH [TAG]_1",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "670"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "540",
+        "670"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 4,
+    "max_progr_len": 4,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "external_fun_mint_Block11f",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 6,
+    "is_revert": false
+}

@@ -1,0 +1,107 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "189 = PUSH [tag]\n290 = PUSH [tag]\nv250 = gas\nv251 = call(v250,v230,v229,v4,v4,v4,v4)\nv252 = extract_returndata(189,290)",
+    "src_ws": [
+        "v233",
+        "v230",
+        "v229",
+        "v4"
+    ],
+    "tgt_ws": [
+        "189",
+        "290",
+        "v233",
+        "v251",
+        "v229",
+        "v4"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "189"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "PUSH [TAG]_1",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "290"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "GAS_0",
+            "opcode": "5a",
+            "disasm": "GAS",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "v250"
+            ],
+            "gas": 2,
+            "commutative": false,
+            "push": false,
+            "storage": true,
+            "size": 1
+        },
+        {
+            "id": "CALL_0",
+            "opcode": "f1",
+            "disasm": "CALL",
+            "inpt_sk": [
+                "v250",
+                "v230",
+                "v229",
+                "v4",
+                "v4",
+                "v4",
+                "v4"
+            ],
+            "outpt_sk": [
+                "v251"
+            ],
+            "gas": 100,
+            "commutative": false,
+            "push": false,
+            "storage": true,
+            "size": 1
+        }
+    ],
+    "variables": [
+        "v250",
+        "189",
+        "v251",
+        "v230",
+        "290",
+        "v229",
+        "v4"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 12,
+    "max_progr_len": 12,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "ZamaERC20_9039_deployed_Block169f",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": true,
+    "max_sk_sz": 12,
+    "is_revert": false
+}

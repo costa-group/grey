@@ -1,0 +1,56 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "429 = PUSH [tag]\nJUMP(429)",
+    "src_ws": [
+        "v1729",
+        "v1730",
+        "v1731",
+        "v1734",
+        "v1735",
+        "v1724",
+        "out_fun_setDNSRRSet"
+    ],
+    "tgt_ws": [
+        "429",
+        "v1729",
+        "v1730",
+        "v1731",
+        "v1734",
+        "v1735",
+        "v1724",
+        "out_fun_setDNSRRSet"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "429"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "429"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 1,
+    "max_progr_len": 1,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_setDNSRRSet_Block4ssssss",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 9,
+    "is_revert": false
+}

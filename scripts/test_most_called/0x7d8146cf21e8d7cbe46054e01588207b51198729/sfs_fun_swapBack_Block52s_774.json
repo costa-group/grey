@@ -1,0 +1,117 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v1432 = add(v1409,v1431)\nv1433 = sub(v1432,v1409)\nv1434 = slt(v1433,v1286)\n304 = PUSH [tag]\nJUMPI(304,v1434)",
+    "src_ws": [
+        "v1431",
+        "v1409",
+        "v1286",
+        "v1300",
+        "v1281",
+        "v1386",
+        "v1277",
+        "v1369",
+        "out_fun_swapBack"
+    ],
+    "tgt_ws": [
+        "304",
+        "v1434",
+        "v1409",
+        "v1286",
+        "v1300",
+        "v1281",
+        "v1386",
+        "v1277",
+        "v1369",
+        "out_fun_swapBack"
+    ],
+    "user_instrs": [
+        {
+            "id": "ADD_0",
+            "opcode": "01",
+            "disasm": "ADD",
+            "inpt_sk": [
+                "v1409",
+                "v1431"
+            ],
+            "outpt_sk": [
+                "v1432"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "SUB_0",
+            "opcode": "03",
+            "disasm": "SUB",
+            "inpt_sk": [
+                "v1432",
+                "v1409"
+            ],
+            "outpt_sk": [
+                "v1433"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "SLT_0",
+            "opcode": "12",
+            "disasm": "SLT",
+            "inpt_sk": [
+                "v1433",
+                "v1286"
+            ],
+            "outpt_sk": [
+                "v1434"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "304"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "v1431",
+        "304",
+        "v1409",
+        "v1434",
+        "v1286",
+        "v1432",
+        "v1433"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 9,
+    "max_progr_len": 9,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_swapBack_Block52s",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 13,
+    "is_revert": false
+}

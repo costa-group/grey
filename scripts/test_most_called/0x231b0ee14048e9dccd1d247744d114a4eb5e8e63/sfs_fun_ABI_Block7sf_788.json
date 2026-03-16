@@ -1,0 +1,64 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "133 = PUSH [tag]\n694 = PUSH [tag]\nv1423 = copy_array_from_storage_to_memory_bytes(133,v1422,694)",
+    "src_ws": [
+        "v1422",
+        "v1409",
+        "out_fun_ABI"
+    ],
+    "tgt_ws": [
+        "133",
+        "v1422",
+        "694",
+        "v1409",
+        "out_fun_ABI"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "133"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "PUSH [TAG]_1",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "694"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "694",
+        "133"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 3,
+    "max_progr_len": 3,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_ABI_Block7sf",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 6,
+    "is_revert": false
+}

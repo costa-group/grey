@@ -1,0 +1,29 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v396 = PhiFunction(v394,v401)\nfunctionReturn(out_convert_bytes_to_fixedbytes_from_bytes_calldata_to_bytes32,v396)",
+    "src_ws": [
+        "v396",
+        "b0",
+        "out_convert_bytes_to_fixedbytes_from_bytes_calldata_to_bytes32"
+    ],
+    "tgt_ws": [
+        "out_convert_bytes_to_fixedbytes_from_bytes_calldata_to_bytes32",
+        "v396"
+    ],
+    "user_instrs": [],
+    "variables": [],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 3,
+    "max_progr_len": 3,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "convert_bytes_to_fixedbytes_from_bytes_calldata_to_bytes32_Block2",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 4,
+    "is_revert": false
+}

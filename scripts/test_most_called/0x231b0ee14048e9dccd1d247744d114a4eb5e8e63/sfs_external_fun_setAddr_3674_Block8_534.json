@@ -1,0 +1,136 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v920 = calldatasize\nv921 = add(v918,0x23)\nv922 = slt(v921,v920)\nv923 = iszero(v922)\n245 = PUSH [tag]\nJUMPI(245,v923)",
+    "src_ws": [
+        "v918",
+        "v917",
+        "v916"
+    ],
+    "tgt_ws": [
+        "245",
+        "v923",
+        "v918",
+        "v917",
+        "v916"
+    ],
+    "user_instrs": [
+        {
+            "id": "CALLDATASIZE_0",
+            "opcode": "36",
+            "disasm": "CALLDATASIZE",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "v920"
+            ],
+            "gas": 2,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH_0",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                35
+            ],
+            "outpt_sk": [
+                "s0"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "ADD_0",
+            "opcode": "01",
+            "disasm": "ADD",
+            "inpt_sk": [
+                "v918",
+                "s0"
+            ],
+            "outpt_sk": [
+                "v921"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "SLT_0",
+            "opcode": "12",
+            "disasm": "SLT",
+            "inpt_sk": [
+                "v921",
+                "v920"
+            ],
+            "outpt_sk": [
+                "v922"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "ISZERO_0",
+            "opcode": "15",
+            "disasm": "ISZERO",
+            "inpt_sk": [
+                "v922"
+            ],
+            "outpt_sk": [
+                "v923"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "245"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "v918",
+        "245",
+        "v922",
+        "v920",
+        "s0",
+        "v923",
+        "v921"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 7,
+    "max_progr_len": 7,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "external_fun_setAddr_3674_Block8",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 7,
+    "is_revert": false
+}

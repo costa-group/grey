@@ -1,0 +1,27 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "revert(v4,v4)",
+    "src_ws": [
+        "v4"
+    ],
+    "tgt_ws": [
+        "v4",
+        "v4"
+    ],
+    "user_instrs": [],
+    "variables": [],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 1,
+    "max_progr_len": 1,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "ZamaERC20_9039_deployed_Block129",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": true,
+    "max_sk_sz": 3,
+    "is_revert": true
+}

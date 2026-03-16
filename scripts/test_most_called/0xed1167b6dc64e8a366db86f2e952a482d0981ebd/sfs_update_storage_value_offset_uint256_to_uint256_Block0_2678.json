@@ -1,0 +1,63 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "sstore(0x0a,v2470)\nfunctionReturn(out_update_storage_value_offset_uint256_to_uint256)",
+    "src_ws": [
+        "v2470",
+        "out_update_storage_value_offset_uint256_to_uint256"
+    ],
+    "tgt_ws": [
+        "out_update_storage_value_offset_uint256_to_uint256"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH_0",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                10
+            ],
+            "outpt_sk": [
+                "s0"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "SSTORE_0",
+            "opcode": "55",
+            "disasm": "SSTORE",
+            "inpt_sk": [
+                "s0",
+                "v2470"
+            ],
+            "outpt_sk": [],
+            "gas": 5000,
+            "commutative": false,
+            "push": false,
+            "storage": true,
+            "size": 1
+        }
+    ],
+    "variables": [
+        "v2470",
+        "s0"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 2,
+    "max_progr_len": 2,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "update_storage_value_offset_uint256_to_uint256_Block0",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 4,
+    "is_revert": false
+}

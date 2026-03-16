@@ -1,0 +1,137 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v349 = LiteralAssignment(0x00)\nv350 = mload(v339)\nv351 = add(v339,0x20)\nv352 = mload(v351)\nv353 = lt(v350,0x20)\n84 = PUSH [tag]\nJUMPI(84,v353)",
+    "src_ws": [
+        "v339",
+        "out_fun_toShortStringWithFallback_6031"
+    ],
+    "tgt_ws": [
+        "84",
+        "v353",
+        "v352",
+        "v350",
+        "out_fun_toShortStringWithFallback_6031"
+    ],
+    "user_instrs": [
+        {
+            "id": "MLOAD_0",
+            "opcode": "51",
+            "disasm": "MLOAD",
+            "inpt_sk": [
+                "v339"
+            ],
+            "outpt_sk": [
+                "v350"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH_0",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                32
+            ],
+            "outpt_sk": [
+                "s0"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "ADD_0",
+            "opcode": "01",
+            "disasm": "ADD",
+            "inpt_sk": [
+                "v339",
+                "s0"
+            ],
+            "outpt_sk": [
+                "v351"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "MLOAD_1",
+            "opcode": "51",
+            "disasm": "MLOAD",
+            "inpt_sk": [
+                "v351"
+            ],
+            "outpt_sk": [
+                "v352"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "LT_0",
+            "opcode": "10",
+            "disasm": "LT",
+            "inpt_sk": [
+                "v350",
+                "s0"
+            ],
+            "outpt_sk": [
+                "v353"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "84"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "v350",
+        "s0",
+        "v353",
+        "84",
+        "v352",
+        "v351",
+        "v339"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 10,
+    "max_progr_len": 10,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_toShortStringWithFallback_6031_Block33",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 6,
+    "is_revert": false
+}

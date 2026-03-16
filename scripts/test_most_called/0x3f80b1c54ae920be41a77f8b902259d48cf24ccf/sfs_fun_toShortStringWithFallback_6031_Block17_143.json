@@ -1,0 +1,109 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v435 = add(v408,v427)\nsstore(v435,0x00)\n106 = PUSH [tag]\nJUMP(106)",
+    "src_ws": [
+        "v427",
+        "v411",
+        "v408",
+        "v375",
+        "v341",
+        "v339",
+        "out_fun_toShortStringWithFallback_6031"
+    ],
+    "tgt_ws": [
+        "106",
+        "v427",
+        "v411",
+        "v408",
+        "v375",
+        "v341",
+        "v339",
+        "out_fun_toShortStringWithFallback_6031"
+    ],
+    "user_instrs": [
+        {
+            "id": "ADD_0",
+            "opcode": "01",
+            "disasm": "ADD",
+            "inpt_sk": [
+                "v408",
+                "v427"
+            ],
+            "outpt_sk": [
+                "v435"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH0_0",
+            "opcode": "5f",
+            "disasm": "PUSH0",
+            "inpt_sk": [],
+            "value": [
+                0
+            ],
+            "outpt_sk": [
+                "s0"
+            ],
+            "gas": 2,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "SSTORE_0",
+            "opcode": "55",
+            "disasm": "SSTORE",
+            "inpt_sk": [
+                "v435",
+                "s0"
+            ],
+            "outpt_sk": [],
+            "gas": 5000,
+            "commutative": false,
+            "push": false,
+            "storage": true,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "106"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "v427",
+        "106",
+        "v435",
+        "s0",
+        "v408"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 6,
+    "max_progr_len": 6,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_toShortStringWithFallback_6031_Block17",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 11,
+    "is_revert": false
+}

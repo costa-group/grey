@@ -1,0 +1,213 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v1265 = sload(0x09)\nv1266 = mul(v1265,0x14)\nv1267 = div(v1266,v1265)\nv1268 = eq(0x14,v1267)\nv1269 = iszero(v1265)\nv1270 = or(v1269,v1268)\nv1271 = iszero(v1270)\n278 = PUSH [tag]\nJUMPI(278,v1271)",
+    "src_ws": [
+        "v1260",
+        "v1256",
+        "v1255",
+        "v1252",
+        "out_fun_swapBack"
+    ],
+    "tgt_ws": [
+        "278",
+        "v1271",
+        "v1266",
+        "v1260",
+        "v1256",
+        "v1255",
+        "v1252",
+        "out_fun_swapBack"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH_0",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                9
+            ],
+            "outpt_sk": [
+                "s0"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "SLOAD_0",
+            "opcode": "54",
+            "disasm": "SLOAD",
+            "inpt_sk": [
+                "s0"
+            ],
+            "outpt_sk": [
+                "v1265"
+            ],
+            "gas": 2100,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH_1",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                20
+            ],
+            "outpt_sk": [
+                "s1"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "MUL_0",
+            "opcode": "02",
+            "disasm": "MUL",
+            "inpt_sk": [
+                "v1265",
+                "s1"
+            ],
+            "outpt_sk": [
+                "v1266"
+            ],
+            "gas": 5,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "DIV_0",
+            "opcode": "04",
+            "disasm": "DIV",
+            "inpt_sk": [
+                "v1266",
+                "v1265"
+            ],
+            "outpt_sk": [
+                "v1267"
+            ],
+            "gas": 5,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "EQ_0",
+            "opcode": "14",
+            "disasm": "EQ",
+            "inpt_sk": [
+                "s1",
+                "v1267"
+            ],
+            "outpt_sk": [
+                "v1268"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "ISZERO_0",
+            "opcode": "15",
+            "disasm": "ISZERO",
+            "inpt_sk": [
+                "v1265"
+            ],
+            "outpt_sk": [
+                "v1269"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "OR_0",
+            "opcode": "17",
+            "disasm": "OR",
+            "inpt_sk": [
+                "v1269",
+                "v1268"
+            ],
+            "outpt_sk": [
+                "v1270"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "ISZERO_1",
+            "opcode": "15",
+            "disasm": "ISZERO",
+            "inpt_sk": [
+                "v1270"
+            ],
+            "outpt_sk": [
+                "v1271"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "278"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "v1266",
+        "278",
+        "s1",
+        "v1269",
+        "v1267",
+        "s0",
+        "v1271",
+        "v1270",
+        "v1268",
+        "v1265"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 16,
+    "max_progr_len": 16,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_swapBack_Block4",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 10,
+    "is_revert": false
+}

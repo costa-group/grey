@@ -1,0 +1,62 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "222 = PUSH [tag]\nJUMP(222)",
+    "src_ws": [
+        "v1145",
+        "v1114",
+        "v1108",
+        "v1107",
+        "v1094",
+        "v1127",
+        "v1078",
+        "v1070",
+        "v1071",
+        "v1072"
+    ],
+    "tgt_ws": [
+        "222",
+        "v1145",
+        "v1114",
+        "v1108",
+        "v1107",
+        "v1094",
+        "v1127",
+        "v1078",
+        "v1070",
+        "v1071",
+        "v1072"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "222"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "222"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 1,
+    "max_progr_len": 1,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "external_fun_handleAggregatedOps_Block24sssss",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 12,
+    "is_revert": false
+}

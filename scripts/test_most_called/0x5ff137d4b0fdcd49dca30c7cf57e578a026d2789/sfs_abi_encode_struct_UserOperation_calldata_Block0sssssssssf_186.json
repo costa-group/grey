@@ -1,0 +1,138 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "79 = PUSH [tag]\n577 = PUSH [tag]\nv496 = sub(v492,v448)\nv497 = add(v448,0x0140)\nmstore(v497,v496)\nv498 = abi_encode_bytes_calldata(79,v494,v495,v492,577)",
+    "src_ws": [
+        "v494",
+        "v495",
+        "v492",
+        "v448",
+        "out_abi_encode_struct_UserOperation_calldata"
+    ],
+    "tgt_ws": [
+        "79",
+        "v494",
+        "v495",
+        "v492",
+        "577",
+        "out_abi_encode_struct_UserOperation_calldata"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "79"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "PUSH [TAG]_1",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "577"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "SUB_0",
+            "opcode": "03",
+            "disasm": "SUB",
+            "inpt_sk": [
+                "v492",
+                "v448"
+            ],
+            "outpt_sk": [
+                "v496"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH_0",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                320
+            ],
+            "outpt_sk": [
+                "s0"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "ADD_0",
+            "opcode": "01",
+            "disasm": "ADD",
+            "inpt_sk": [
+                "v448",
+                "s0"
+            ],
+            "outpt_sk": [
+                "v497"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "MSTORE_0",
+            "opcode": "52",
+            "disasm": "MSTORE",
+            "inpt_sk": [
+                "v497",
+                "v496"
+            ],
+            "outpt_sk": [],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": true,
+            "size": 1
+        }
+    ],
+    "variables": [
+        "v448",
+        "577",
+        "v497",
+        "v492",
+        "79",
+        "s0",
+        "v496"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 11,
+    "max_progr_len": 11,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "abi_encode_struct_UserOperation_calldata_Block0sssssssssf",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 9,
+    "is_revert": false
+}

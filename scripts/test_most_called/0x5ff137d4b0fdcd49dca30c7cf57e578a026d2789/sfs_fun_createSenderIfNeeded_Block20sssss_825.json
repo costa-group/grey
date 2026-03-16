@@ -1,0 +1,128 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v1959 = sub(v1958,v1957)\nlog3(v1957,v1959,0xd51a9c61267aa6196961883ecf5ff2da6619c37dac0fa92122513fb32c032d2d,v1952,v1928)\n350 = PUSH [tag]\nJUMP(350)",
+    "src_ws": [
+        "v1958",
+        "v1957",
+        "v1952",
+        "v1928",
+        "out_fun_createSenderIfNeeded"
+    ],
+    "tgt_ws": [
+        "350",
+        "bottom",
+        "bottom",
+        "bottom",
+        "bottom",
+        "out_fun_createSenderIfNeeded"
+    ],
+    "user_instrs": [
+        {
+            "id": "SUB_0",
+            "opcode": "03",
+            "disasm": "SUB",
+            "inpt_sk": [
+                "v1958",
+                "v1957"
+            ],
+            "outpt_sk": [
+                "v1959"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH_0",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                96389654063517226641280406254312726419299517343720212386199935695797503601965
+            ],
+            "outpt_sk": [
+                "s0"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 33
+        },
+        {
+            "id": "LOG3_0",
+            "opcode": "a3",
+            "disasm": "LOG3",
+            "inpt_sk": [
+                "v1957",
+                "v1959",
+                "s0",
+                "v1952",
+                "v1928"
+            ],
+            "outpt_sk": [],
+            "gas": 1500,
+            "commutative": false,
+            "push": false,
+            "storage": true,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "350"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "PUSH0_0",
+            "opcode": "5f",
+            "disasm": "PUSH0",
+            "inpt_sk": [],
+            "value": [
+                0
+            ],
+            "outpt_sk": [
+                "bottom"
+            ],
+            "gas": 2,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 1
+        }
+    ],
+    "variables": [
+        "v1952",
+        "v1958",
+        "v1959",
+        "v1928",
+        "bottom",
+        "s0",
+        "v1957",
+        "350"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 16,
+    "max_progr_len": 16,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_createSenderIfNeeded_Block20sssss",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 9,
+    "is_revert": false
+}

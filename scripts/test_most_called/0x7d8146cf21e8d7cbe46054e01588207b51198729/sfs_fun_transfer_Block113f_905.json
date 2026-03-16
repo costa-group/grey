@@ -1,0 +1,68 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "255 = PUSH [tag]\n550 = PUSH [tag]\nv1746 = checked_sub_uint256(255,v1436,v1739,550)",
+    "src_ws": [
+        "v1739",
+        "v1438",
+        "v1437",
+        "v1436",
+        "out_fun_transfer"
+    ],
+    "tgt_ws": [
+        "255",
+        "v1436",
+        "v1739",
+        "550",
+        "v1437",
+        "v1438",
+        "out_fun_transfer"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "255"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "PUSH [TAG]_1",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "550"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "550",
+        "255"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 4,
+    "max_progr_len": 4,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_transfer_Block113f",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 8,
+    "is_revert": false
+}

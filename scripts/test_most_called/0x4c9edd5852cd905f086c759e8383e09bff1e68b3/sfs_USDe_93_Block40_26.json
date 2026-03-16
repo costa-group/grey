@@ -1,0 +1,167 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v97 = sload(0x06)\nv98 = LiteralAssignment(0x00)\nv99 = shr(0x01,v97)\nv100 = and(v97,0x01)\nv101 = iszero(v100)\n24 = PUSH [tag]\nJUMPI(24,v101)",
+    "src_ws": [
+        "v86",
+        "v32",
+        "v27",
+        "v18",
+        "v33",
+        "v17",
+        "v8",
+        "v11"
+    ],
+    "tgt_ws": [
+        "24",
+        "v101",
+        "v99",
+        "v100",
+        "v86",
+        "v32",
+        "v27",
+        "v18",
+        "v33",
+        "v17",
+        "v8",
+        "v11"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH_0",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                6
+            ],
+            "outpt_sk": [
+                "s0"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "SLOAD_0",
+            "opcode": "54",
+            "disasm": "SLOAD",
+            "inpt_sk": [
+                "s0"
+            ],
+            "outpt_sk": [
+                "v97"
+            ],
+            "gas": 2100,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH_1",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                1
+            ],
+            "outpt_sk": [
+                "s1"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "SHR_0",
+            "opcode": "1c",
+            "disasm": "SHR",
+            "inpt_sk": [
+                "s1",
+                "v97"
+            ],
+            "outpt_sk": [
+                "v99"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "AND_0",
+            "opcode": "16",
+            "disasm": "AND",
+            "inpt_sk": [
+                "v97",
+                "s1"
+            ],
+            "outpt_sk": [
+                "v100"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "ISZERO_0",
+            "opcode": "15",
+            "disasm": "ISZERO",
+            "inpt_sk": [
+                "v100"
+            ],
+            "outpt_sk": [
+                "v101"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "24"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "v100",
+        "s1",
+        "s0",
+        "v97",
+        "v99",
+        "24",
+        "v101"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 11,
+    "max_progr_len": 11,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "USDe_93_Block40",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": true,
+    "max_sk_sz": 13,
+    "is_revert": false
+}

@@ -1,0 +1,118 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "528 = PUSH [tag]\n834 = PUSH [tag]\nv2035 = iszero(v2034)\nv2036 = iszero(v2035)\nrequire_helper_stringliteral_1c12(528,v2036,834)",
+    "src_ws": [
+        "v2034",
+        "v2028",
+        "v2018",
+        "v2008",
+        "v2007",
+        "v2006",
+        "v2005",
+        "v2009",
+        "v2016",
+        "v2002",
+        "v2011",
+        "out_fun_sendAndCall"
+    ],
+    "tgt_ws": [
+        "528",
+        "v2036",
+        "834",
+        "v2034",
+        "v2028",
+        "v2018",
+        "v2008",
+        "v2007",
+        "v2006",
+        "v2005",
+        "v2009",
+        "v2016",
+        "v2002",
+        "v2011",
+        "out_fun_sendAndCall"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "528"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "PUSH [TAG]_1",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "834"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "ISZERO_0",
+            "opcode": "15",
+            "disasm": "ISZERO",
+            "inpt_sk": [
+                "v2034"
+            ],
+            "outpt_sk": [
+                "v2035"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "ISZERO_1",
+            "opcode": "15",
+            "disasm": "ISZERO",
+            "inpt_sk": [
+                "v2035"
+            ],
+            "outpt_sk": [
+                "v2036"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        }
+    ],
+    "variables": [
+        "v2034",
+        "v2036",
+        "528",
+        "834",
+        "v2035"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 5,
+    "max_progr_len": 5,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_sendAndCall_Block8ssf",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 16,
+    "is_revert": false
+}

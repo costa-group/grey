@@ -1,0 +1,105 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v1063 = eq(v1042,v1062)\nv1064 = iszero(v1063)\n273 = PUSH [tag]\nJUMPI(273,v1063)",
+    "src_ws": [
+        "v1062",
+        "v1059",
+        "v1058",
+        "v1042",
+        "v1036",
+        "v1037",
+        "v1033",
+        "v1030",
+        "v1034",
+        "v1035",
+        "v1022",
+        "v1023",
+        "v1024"
+    ],
+    "tgt_ws": [
+        "273",
+        "v1063",
+        "v1059",
+        "v1058",
+        "v1064",
+        "v1036",
+        "v1037",
+        "v1033",
+        "v1030",
+        "v1034",
+        "v1035",
+        "v1022",
+        "v1023",
+        "v1024"
+    ],
+    "user_instrs": [
+        {
+            "id": "EQ_0",
+            "opcode": "14",
+            "disasm": "EQ",
+            "inpt_sk": [
+                "v1042",
+                "v1062"
+            ],
+            "outpt_sk": [
+                "v1063"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "ISZERO_0",
+            "opcode": "15",
+            "disasm": "ISZERO",
+            "inpt_sk": [
+                "v1063"
+            ],
+            "outpt_sk": [
+                "v1064"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "273"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "v1062",
+        "v1063",
+        "v1042",
+        "273",
+        "v1064"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 7,
+    "max_progr_len": 7,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "external_fun_setDNSRecords_Block15sss",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 15,
+    "is_revert": false
+}

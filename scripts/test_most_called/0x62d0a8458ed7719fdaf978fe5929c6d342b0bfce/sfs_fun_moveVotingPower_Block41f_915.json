@@ -1,0 +1,77 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "302 = PUSH [tag]\n438 = PUSH [tag]\nv1374,v1375 = storage_array_index_access_struct_Checkpoint_storage_dyn(302,v1285,v1335,438)",
+    "src_ws": [
+        "v1320",
+        "v1317",
+        "v1285",
+        "v1289",
+        "v1335",
+        "v1267",
+        "v1264",
+        "v1259",
+        "out_fun_moveVotingPower"
+    ],
+    "tgt_ws": [
+        "302",
+        "v1285",
+        "v1335",
+        "438",
+        "v1317",
+        "v1285",
+        "v1289",
+        "v1320",
+        "v1267",
+        "v1264",
+        "v1259",
+        "out_fun_moveVotingPower"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "302"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "PUSH [TAG]_1",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "438"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "302",
+        "438"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 5,
+    "max_progr_len": 5,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_moveVotingPower_Block41f",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 13,
+    "is_revert": false
+}

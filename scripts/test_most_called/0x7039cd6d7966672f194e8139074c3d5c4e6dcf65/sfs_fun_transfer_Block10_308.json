@@ -1,0 +1,95 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v630 = eq(v601,v620)\nv631 = iszero(v630)\n134 = PUSH [tag]\nJUMP(134)",
+    "src_ws": [
+        "v620",
+        "v622",
+        "v616",
+        "v597",
+        "v594",
+        "v601",
+        "v591",
+        "out_fun_transfer"
+    ],
+    "tgt_ws": [
+        "134",
+        "v620",
+        "v631",
+        "v616",
+        "v597",
+        "v594",
+        "v601",
+        "v591",
+        "out_fun_transfer"
+    ],
+    "user_instrs": [
+        {
+            "id": "EQ_0",
+            "opcode": "14",
+            "disasm": "EQ",
+            "inpt_sk": [
+                "v601",
+                "v620"
+            ],
+            "outpt_sk": [
+                "v630"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "ISZERO_0",
+            "opcode": "15",
+            "disasm": "ISZERO",
+            "inpt_sk": [
+                "v630"
+            ],
+            "outpt_sk": [
+                "v631"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "134"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "v620",
+        "v631",
+        "v601",
+        "v630",
+        "134"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 7,
+    "max_progr_len": 7,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_transfer_Block10",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 11,
+    "is_revert": false
+}

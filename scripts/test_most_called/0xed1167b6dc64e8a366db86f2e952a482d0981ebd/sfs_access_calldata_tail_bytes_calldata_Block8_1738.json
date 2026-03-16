@@ -1,0 +1,30 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "functionReturn(out_access_calldata_tail_bytes_calldata,v389,v387)",
+    "src_ws": [
+        "v389",
+        "v387",
+        "out_access_calldata_tail_bytes_calldata"
+    ],
+    "tgt_ws": [
+        "out_access_calldata_tail_bytes_calldata",
+        "v389",
+        "v387"
+    ],
+    "user_instrs": [],
+    "variables": [],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 2,
+    "max_progr_len": 2,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "access_calldata_tail_bytes_calldata_Block8",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 4,
+    "is_revert": false
+}

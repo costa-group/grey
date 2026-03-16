@@ -1,0 +1,73 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v885 = PhiFunction(v882,v898)\n548 = PUSH [tag]\n658 = PUSH [tag]\nrequire_helper_stringliteral_f2c5(548,v885,658)",
+    "src_ws": [
+        "v885",
+        "b0",
+        "v860",
+        "v861",
+        "v862",
+        "v863",
+        "v864",
+        "v865"
+    ],
+    "tgt_ws": [
+        "548",
+        "v885",
+        "658",
+        "v860",
+        "v861",
+        "v862",
+        "v863",
+        "v864",
+        "v865"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "548"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "PUSH [TAG]_1",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "658"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "548",
+        "658"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 4,
+    "max_progr_len": 4,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "external_fun_lzReceive_Block10f",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 10,
+    "is_revert": false
+}

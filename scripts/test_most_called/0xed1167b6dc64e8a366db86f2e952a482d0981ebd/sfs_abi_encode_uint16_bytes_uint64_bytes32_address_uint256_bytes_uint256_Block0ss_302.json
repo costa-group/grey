@@ -1,0 +1,85 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v361 = add(v345,0xe0)\nmstore(v361,v337)\nfunctionReturn(out_abi_encode_uint16_bytes_uint64_bytes32_address_uint256_bytes_uint256,v360)",
+    "src_ws": [
+        "v360",
+        "v345",
+        "v337",
+        "out_abi_encode_uint16_bytes_uint64_bytes32_address_uint256_bytes_uint256"
+    ],
+    "tgt_ws": [
+        "out_abi_encode_uint16_bytes_uint64_bytes32_address_uint256_bytes_uint256",
+        "v360"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH_0",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                224
+            ],
+            "outpt_sk": [
+                "s0"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "ADD_0",
+            "opcode": "01",
+            "disasm": "ADD",
+            "inpt_sk": [
+                "v345",
+                "s0"
+            ],
+            "outpt_sk": [
+                "v361"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "MSTORE_0",
+            "opcode": "52",
+            "disasm": "MSTORE",
+            "inpt_sk": [
+                "v361",
+                "v337"
+            ],
+            "outpt_sk": [],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": true,
+            "size": 1
+        }
+    ],
+    "variables": [
+        "v337",
+        "v361",
+        "s0",
+        "v345"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 6,
+    "max_progr_len": 6,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "abi_encode_uint16_bytes_uint64_bytes32_address_uint256_bytes_uint256_Block0ss",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 6,
+    "is_revert": false
+}

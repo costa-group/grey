@@ -1,0 +1,121 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v214 = and(v209,0xffff)\nv215 = add(v211,0x20)\nmstore(v215,v214)\nfunctionReturn(out_abi_encode_bytes_uint16,v213)",
+    "src_ws": [
+        "v213",
+        "v211",
+        "v209",
+        "out_abi_encode_bytes_uint16"
+    ],
+    "tgt_ws": [
+        "out_abi_encode_bytes_uint16",
+        "v213"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH_0",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                65535
+            ],
+            "outpt_sk": [
+                "s0"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "AND_0",
+            "opcode": "16",
+            "disasm": "AND",
+            "inpt_sk": [
+                "v209",
+                "s0"
+            ],
+            "outpt_sk": [
+                "v214"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH_1",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                32
+            ],
+            "outpt_sk": [
+                "s1"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "ADD_0",
+            "opcode": "01",
+            "disasm": "ADD",
+            "inpt_sk": [
+                "v211",
+                "s1"
+            ],
+            "outpt_sk": [
+                "v215"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "MSTORE_0",
+            "opcode": "52",
+            "disasm": "MSTORE",
+            "inpt_sk": [
+                "v215",
+                "v214"
+            ],
+            "outpt_sk": [],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": true,
+            "size": 1
+        }
+    ],
+    "variables": [
+        "v209",
+        "v214",
+        "v215",
+        "s0",
+        "s1",
+        "v211"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 8,
+    "max_progr_len": 8,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "abi_encode_bytes_uint16_Block0s",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 6,
+    "is_revert": false
+}

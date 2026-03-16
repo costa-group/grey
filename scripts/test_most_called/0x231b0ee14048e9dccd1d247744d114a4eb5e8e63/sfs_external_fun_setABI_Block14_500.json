@@ -1,0 +1,106 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v874 = and(v872,v862)\nv875 = iszero(v874)\nv876 = iszero(v875)\n235 = PUSH [tag]\nJUMPI(235,v876)",
+    "src_ws": [
+        "v872",
+        "v867",
+        "v868",
+        "v862",
+        "v861"
+    ],
+    "tgt_ws": [
+        "235",
+        "v876",
+        "v867",
+        "v868",
+        "v862",
+        "v861"
+    ],
+    "user_instrs": [
+        {
+            "id": "AND_0",
+            "opcode": "16",
+            "disasm": "AND",
+            "inpt_sk": [
+                "v872",
+                "v862"
+            ],
+            "outpt_sk": [
+                "v874"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "ISZERO_0",
+            "opcode": "15",
+            "disasm": "ISZERO",
+            "inpt_sk": [
+                "v874"
+            ],
+            "outpt_sk": [
+                "v875"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "ISZERO_1",
+            "opcode": "15",
+            "disasm": "ISZERO",
+            "inpt_sk": [
+                "v875"
+            ],
+            "outpt_sk": [
+                "v876"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "235"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "v872",
+        "v875",
+        "v862",
+        "v876",
+        "v874",
+        "235"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 5,
+    "max_progr_len": 5,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "external_fun_setABI_Block14",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 7,
+    "is_revert": false
+}

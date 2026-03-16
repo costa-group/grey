@@ -1,0 +1,124 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v1629 = sload(v1628)\nv1630 = lt(v1629,v1622)\nv1631 = iszero(v1630)\nv1632 = iszero(v1631)\n405 = PUSH [tag]\nJUMPI(405,v1632)",
+    "src_ws": [
+        "v1628",
+        "v1626",
+        "v1623",
+        "v1622",
+        "out_fun_burn"
+    ],
+    "tgt_ws": [
+        "405",
+        "v1632",
+        "v1629",
+        "v1626",
+        "v1623",
+        "v1622",
+        "out_fun_burn"
+    ],
+    "user_instrs": [
+        {
+            "id": "SLOAD_0",
+            "opcode": "54",
+            "disasm": "SLOAD",
+            "inpt_sk": [
+                "v1628"
+            ],
+            "outpt_sk": [
+                "v1629"
+            ],
+            "gas": 2100,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "LT_0",
+            "opcode": "10",
+            "disasm": "LT",
+            "inpt_sk": [
+                "v1629",
+                "v1622"
+            ],
+            "outpt_sk": [
+                "v1630"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "ISZERO_0",
+            "opcode": "15",
+            "disasm": "ISZERO",
+            "inpt_sk": [
+                "v1630"
+            ],
+            "outpt_sk": [
+                "v1631"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "ISZERO_1",
+            "opcode": "15",
+            "disasm": "ISZERO",
+            "inpt_sk": [
+                "v1631"
+            ],
+            "outpt_sk": [
+                "v1632"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "405"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "v1629",
+        "v1632",
+        "v1622",
+        "v1630",
+        "405",
+        "v1631",
+        "v1628"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 7,
+    "max_progr_len": 7,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_burn_Block2s",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 8,
+    "is_revert": false
+}

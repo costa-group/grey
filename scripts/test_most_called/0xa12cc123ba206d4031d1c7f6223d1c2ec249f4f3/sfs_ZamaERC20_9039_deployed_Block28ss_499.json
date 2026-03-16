@@ -1,0 +1,52 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v86 = sub(v85,v83)\nreturn(v83,v86)",
+    "src_ws": [
+        "v85",
+        "v83"
+    ],
+    "tgt_ws": [
+        "v83",
+        "v86",
+        "v85",
+        "v83"
+    ],
+    "user_instrs": [
+        {
+            "id": "SUB_0",
+            "opcode": "03",
+            "disasm": "SUB",
+            "inpt_sk": [
+                "v85",
+                "v83"
+            ],
+            "outpt_sk": [
+                "v86"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        }
+    ],
+    "variables": [
+        "v85",
+        "v83",
+        "v86"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 4,
+    "max_progr_len": 4,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "ZamaERC20_9039_deployed_Block28ss",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": true,
+    "max_sk_sz": 5,
+    "is_revert": false
+}

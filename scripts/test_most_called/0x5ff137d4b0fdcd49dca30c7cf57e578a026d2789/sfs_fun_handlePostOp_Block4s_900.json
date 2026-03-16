@@ -1,0 +1,157 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v2182 = eq(v2155,0x02)\nv2183 = iszero(v2182)\nv2184 = eq(v2183,0x00)\n381 = PUSH [tag]\nJUMPI(381,v2184)",
+    "src_ws": [
+        "v2181",
+        "v2165",
+        "v2162",
+        "v2160",
+        "v2159",
+        "v2158",
+        "v2156",
+        "v2155",
+        "v2154",
+        "v2153",
+        "v2152",
+        "out_fun_handlePostOp"
+    ],
+    "tgt_ws": [
+        "381",
+        "v2184",
+        "v2181",
+        "v2165",
+        "v2162",
+        "v2160",
+        "v2159",
+        "v2158",
+        "v2156",
+        "v2155",
+        "v2154",
+        "v2153",
+        "v2152",
+        "out_fun_handlePostOp"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH_0",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                2
+            ],
+            "outpt_sk": [
+                "s0"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "EQ_0",
+            "opcode": "14",
+            "disasm": "EQ",
+            "inpt_sk": [
+                "v2155",
+                "s0"
+            ],
+            "outpt_sk": [
+                "v2182"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "ISZERO_0",
+            "opcode": "15",
+            "disasm": "ISZERO",
+            "inpt_sk": [
+                "v2182"
+            ],
+            "outpt_sk": [
+                "v2183"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH0_0",
+            "opcode": "5f",
+            "disasm": "PUSH0",
+            "inpt_sk": [],
+            "value": [
+                0
+            ],
+            "outpt_sk": [
+                "s1"
+            ],
+            "gas": 2,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "EQ_1",
+            "opcode": "14",
+            "disasm": "EQ",
+            "inpt_sk": [
+                "v2183",
+                "s1"
+            ],
+            "outpt_sk": [
+                "v2184"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "381"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "381",
+        "s1",
+        "v2182",
+        "v2183",
+        "s0",
+        "v2155",
+        "v2184"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 7,
+    "max_progr_len": 7,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_handlePostOp_Block4s",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 15,
+    "is_revert": false
+}

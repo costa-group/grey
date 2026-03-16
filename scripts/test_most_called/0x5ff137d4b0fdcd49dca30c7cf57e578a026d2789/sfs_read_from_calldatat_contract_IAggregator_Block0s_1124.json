@@ -1,0 +1,28 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "functionReturn(out_read_from_calldatat_contract_IAggregator,v2713)",
+    "src_ws": [
+        "v2713",
+        "out_read_from_calldatat_contract_IAggregator"
+    ],
+    "tgt_ws": [
+        "out_read_from_calldatat_contract_IAggregator",
+        "v2713"
+    ],
+    "user_instrs": [],
+    "variables": [],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 1,
+    "max_progr_len": 1,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "read_from_calldatat_contract_IAggregator_Block0s",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 3,
+    "is_revert": false
+}

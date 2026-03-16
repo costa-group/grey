@@ -1,0 +1,131 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "302 = PUSH [tag]\n441 = PUSH [tag]\nv1384 = add(v1281,0x01)\nsstore(v1277,v1384)\nv1385,v1386 = storage_array_index_access_struct_Checkpoint_storage_dyn(302,v1277,v1281,441)",
+    "src_ws": [
+        "v1344",
+        "v1346",
+        "v1304",
+        "v1277",
+        "v1281",
+        "v1307",
+        "v1267",
+        "v1264",
+        "v1259",
+        "out_fun_moveVotingPower"
+    ],
+    "tgt_ws": [
+        "302",
+        "v1277",
+        "v1281",
+        "441",
+        "v1304",
+        "v1346",
+        "v1344",
+        "v1307",
+        "v1267",
+        "v1264",
+        "v1259",
+        "out_fun_moveVotingPower"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "302"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "PUSH [TAG]_1",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "441"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "PUSH_0",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                1
+            ],
+            "outpt_sk": [
+                "s0"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "ADD_0",
+            "opcode": "01",
+            "disasm": "ADD",
+            "inpt_sk": [
+                "v1281",
+                "s0"
+            ],
+            "outpt_sk": [
+                "v1384"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "SSTORE_0",
+            "opcode": "55",
+            "disasm": "SSTORE",
+            "inpt_sk": [
+                "v1277",
+                "v1384"
+            ],
+            "outpt_sk": [],
+            "gas": 5000,
+            "commutative": false,
+            "push": false,
+            "storage": true,
+            "size": 1
+        }
+    ],
+    "variables": [
+        "v1384",
+        "302",
+        "441",
+        "v1281",
+        "v1277",
+        "s0"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 10,
+    "max_progr_len": 10,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_moveVotingPower_Block22f",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 13,
+    "is_revert": false
+}

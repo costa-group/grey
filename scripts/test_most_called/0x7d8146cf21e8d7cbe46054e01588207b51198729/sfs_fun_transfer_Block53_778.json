@@ -1,0 +1,59 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v1484 = PhiFunction(v1477,v1487)\n312 = PUSH [tag]\nJUMPI(312,v1484)",
+    "src_ws": [
+        "v1447",
+        "v1442",
+        "v1484",
+        "v1439",
+        "v1438",
+        "v1437",
+        "v1436",
+        "out_fun_transfer"
+    ],
+    "tgt_ws": [
+        "312",
+        "v1484",
+        "v1447",
+        "v1442",
+        "v1484",
+        "v1439",
+        "v1438",
+        "v1437",
+        "v1436",
+        "out_fun_transfer"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "312"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "312"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 2,
+    "max_progr_len": 2,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_transfer_Block53",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 11,
+    "is_revert": false
+}

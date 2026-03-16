@@ -1,0 +1,118 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v115 = PhiFunction(v99,v118)\nv116 = lt(v115,0x20)\nv117 = eq(v100,v116)\n28 = PUSH [tag]\nJUMPI(28,v117)",
+    "src_ws": [
+        "v115",
+        "v100",
+        "v86",
+        "v32",
+        "v27",
+        "v18",
+        "v33",
+        "v17",
+        "v8",
+        "v11"
+    ],
+    "tgt_ws": [
+        "28",
+        "v117",
+        "v115",
+        "v86",
+        "v32",
+        "v27",
+        "v18",
+        "v33",
+        "v17",
+        "v8",
+        "v11"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH_0",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                32
+            ],
+            "outpt_sk": [
+                "s0"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "LT_0",
+            "opcode": "10",
+            "disasm": "LT",
+            "inpt_sk": [
+                "v115",
+                "s0"
+            ],
+            "outpt_sk": [
+                "v116"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "EQ_0",
+            "opcode": "14",
+            "disasm": "EQ",
+            "inpt_sk": [
+                "v100",
+                "v116"
+            ],
+            "outpt_sk": [
+                "v117"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "28"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "v100",
+        "s0",
+        "v117",
+        "v115",
+        "v116",
+        "28"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 6,
+    "max_progr_len": 6,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "USDe_93_Block43",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": true,
+    "max_sk_sz": 13,
+    "is_revert": false
+}

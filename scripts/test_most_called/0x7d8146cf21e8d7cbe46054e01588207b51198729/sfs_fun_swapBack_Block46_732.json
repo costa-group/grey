@@ -1,0 +1,138 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v1422 = mload(0x40)\nv1423 = returndatasize\nreturndatacopy(v1422,v1369,v1423)\nv1424 = returndatasize\nrevert(v1422,v1424)",
+    "src_ws": [
+        "v1409",
+        "v1420",
+        "v1286",
+        "v1300",
+        "v1281",
+        "v1386",
+        "v1277",
+        "v1369",
+        "out_fun_swapBack"
+    ],
+    "tgt_ws": [
+        "v1422",
+        "v1424",
+        "v1409",
+        "v1420",
+        "v1286",
+        "v1300",
+        "v1281",
+        "v1386",
+        "v1277",
+        "v1369",
+        "out_fun_swapBack"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH_0",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                64
+            ],
+            "outpt_sk": [
+                "s0"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "MLOAD_0",
+            "opcode": "51",
+            "disasm": "MLOAD",
+            "inpt_sk": [
+                "s0"
+            ],
+            "outpt_sk": [
+                "v1422"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "RETURNDATASIZE_0",
+            "opcode": "3c",
+            "disasm": "RETURNDATASIZE",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "v1423"
+            ],
+            "gas": 2,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "RETURNDATACOPY_0",
+            "opcode": "3e",
+            "disasm": "RETURNDATACOPY",
+            "inpt_sk": [
+                "v1422",
+                "v1369",
+                "v1423"
+            ],
+            "outpt_sk": [],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": true,
+            "size": 1
+        },
+        {
+            "id": "RETURNDATASIZE_1",
+            "opcode": "3c",
+            "disasm": "RETURNDATASIZE",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "v1424"
+            ],
+            "gas": 2,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        }
+    ],
+    "variables": [
+        "v1424",
+        "v1422",
+        "v1369",
+        "s0",
+        "v1423"
+    ],
+    "memory_dependences": [
+        [
+            "MLOAD_0",
+            "RETURNDATACOPY_0"
+        ]
+    ],
+    "storage_dependences": [],
+    "init_progr_len": 8,
+    "max_progr_len": 8,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_swapBack_Block46",
+    "transient_dependences": [],
+    "dependencies": [
+        [
+            "MLOAD_0",
+            "RETURNDATACOPY_0"
+        ]
+    ],
+    "admits_junk": false,
+    "max_sk_sz": 14,
+    "is_revert": true
+}

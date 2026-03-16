@@ -1,0 +1,163 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v2907 = and(v2905,0xffffffffffffffffffffffffffff)\nv2908 = not(0xffffffffffffffffffffffffffff)\nv2909 = sload(v2906)\nv2910 = and(v2909,v2908)\nv2911 = or(v2910,v2907)\nsstore(v2906,v2911)\nfunctionReturn(out_update_storage_value_offset_uint112_to_uint112)",
+    "src_ws": [
+        "v2906",
+        "v2905",
+        "out_update_storage_value_offset_uint112_to_uint112"
+    ],
+    "tgt_ws": [
+        "out_update_storage_value_offset_uint112_to_uint112"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH_0",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                5192296858534827628530496329220095
+            ],
+            "outpt_sk": [
+                "s0"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 15
+        },
+        {
+            "id": "AND_0",
+            "opcode": "16",
+            "disasm": "AND",
+            "inpt_sk": [
+                "v2905",
+                "s0"
+            ],
+            "outpt_sk": [
+                "v2907"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "NOT_0",
+            "opcode": "19",
+            "disasm": "NOT",
+            "inpt_sk": [
+                "s0"
+            ],
+            "outpt_sk": [
+                "v2908"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "SLOAD_0",
+            "opcode": "54",
+            "disasm": "SLOAD",
+            "inpt_sk": [
+                "v2906"
+            ],
+            "outpt_sk": [
+                "v2909"
+            ],
+            "gas": 2100,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "AND_1",
+            "opcode": "16",
+            "disasm": "AND",
+            "inpt_sk": [
+                "v2909",
+                "v2908"
+            ],
+            "outpt_sk": [
+                "v2910"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "OR_0",
+            "opcode": "17",
+            "disasm": "OR",
+            "inpt_sk": [
+                "v2910",
+                "v2907"
+            ],
+            "outpt_sk": [
+                "v2911"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "SSTORE_0",
+            "opcode": "55",
+            "disasm": "SSTORE",
+            "inpt_sk": [
+                "v2906",
+                "v2911"
+            ],
+            "outpt_sk": [],
+            "gas": 5000,
+            "commutative": false,
+            "push": false,
+            "storage": true,
+            "size": 1
+        }
+    ],
+    "variables": [
+        "v2910",
+        "v2909",
+        "v2908",
+        "s0",
+        "v2905",
+        "v2906",
+        "v2907",
+        "v2911"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [
+        [
+            "SLOAD_0",
+            "SSTORE_0"
+        ]
+    ],
+    "init_progr_len": 13,
+    "max_progr_len": 13,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "update_storage_value_offset_uint112_to_uint112_Block0",
+    "transient_dependences": [],
+    "dependencies": [
+        [
+            "SLOAD_0",
+            "SSTORE_0"
+        ]
+    ],
+    "admits_junk": false,
+    "max_sk_sz": 7,
+    "is_revert": false
+}

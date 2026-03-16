@@ -1,0 +1,82 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v1801 = extcodesize(v1800)\nv1802 = iszero(v1801)\nv1803 = iszero(v1802)\nfunctionReturn(out_fun_isContract,v1803)",
+    "src_ws": [
+        "v1800",
+        "out_fun_isContract"
+    ],
+    "tgt_ws": [
+        "out_fun_isContract",
+        "v1803"
+    ],
+    "user_instrs": [
+        {
+            "id": "EXTCODESIZE_0",
+            "opcode": "3b",
+            "disasm": "EXTCODESIZE",
+            "inpt_sk": [
+                "v1800"
+            ],
+            "outpt_sk": [
+                "v1801"
+            ],
+            "gas": 2600,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "ISZERO_0",
+            "opcode": "15",
+            "disasm": "ISZERO",
+            "inpt_sk": [
+                "v1801"
+            ],
+            "outpt_sk": [
+                "v1802"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "ISZERO_1",
+            "opcode": "15",
+            "disasm": "ISZERO",
+            "inpt_sk": [
+                "v1802"
+            ],
+            "outpt_sk": [
+                "v1803"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        }
+    ],
+    "variables": [
+        "v1803",
+        "v1801",
+        "v1800",
+        "v1802"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 4,
+    "max_progr_len": 4,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_isContract_Block0",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 3,
+    "is_revert": false
+}

@@ -1,0 +1,66 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v1637 = LiteralAssignment(0x2710)\n400 = PUSH [tag]\nJUMP(400)",
+    "src_ws": [
+        "v1633",
+        "v1629",
+        "out_fun_checkPayloadSize"
+    ],
+    "tgt_ws": [
+        "400",
+        "v1637",
+        "v1629",
+        "out_fun_checkPayloadSize"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH_0",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                10000
+            ],
+            "outpt_sk": [
+                "v1637"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "400"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "400",
+        "v1637"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 3,
+    "max_progr_len": 3,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_checkPayloadSize_Block1",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 5,
+    "is_revert": false
+}

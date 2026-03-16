@@ -1,0 +1,97 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v640 = pushimmutable[2311]\nv641 = chainid\nv642 = eq(v641,v640)\n134 = PUSH [tag]\nJUMP(134)",
+    "src_ws": [
+        "v637",
+        "out_fun_domainSeparatorV4"
+    ],
+    "tgt_ws": [
+        "134",
+        "v642",
+        "out_fun_domainSeparatorV4"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSHIMMUTABLE_0",
+            "opcode": "00",
+            "disasm": "PUSHIMMUTABLE",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "v640"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 33,
+            "value": [
+                "2311"
+            ]
+        },
+        {
+            "id": "CHAINID_0",
+            "opcode": "46",
+            "disasm": "CHAINID",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "v641"
+            ],
+            "gas": 2,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "EQ_0",
+            "opcode": "14",
+            "disasm": "EQ",
+            "inpt_sk": [
+                "v641",
+                "v640"
+            ],
+            "outpt_sk": [
+                "v642"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "134"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "v640",
+        "v641",
+        "134",
+        "v642"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 5,
+    "max_progr_len": 5,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_domainSeparatorV4_Block1",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 4,
+    "is_revert": false
+}

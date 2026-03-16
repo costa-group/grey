@@ -1,0 +1,279 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v84 = mload(0x40)\nmstore(v84,v83)\nv85 = caller\nlog3(v84,0x20,0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef,0x00,v85)\nv86 = mload(0x40)\nv87 = push #[$][SUPERTRUMP_1224_deployed]\nv88 = push [$][SUPERTRUMP_1224_deployed]\ncodecopy(v86,v88,v87)\nreturn(v86,v87)",
+    "src_ws": [
+        "v83"
+    ],
+    "tgt_ws": [
+        "v86",
+        "v87",
+        "v83"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH_0",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                64
+            ],
+            "outpt_sk": [
+                "s0"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "MLOAD_0",
+            "opcode": "51",
+            "disasm": "MLOAD",
+            "inpt_sk": [
+                "s0"
+            ],
+            "outpt_sk": [
+                "v84"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "MSTORE_0",
+            "opcode": "52",
+            "disasm": "MSTORE",
+            "inpt_sk": [
+                "v84",
+                "v83"
+            ],
+            "outpt_sk": [],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": true,
+            "size": 1
+        },
+        {
+            "id": "CALLER_0",
+            "opcode": "33",
+            "disasm": "CALLER",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "v85"
+            ],
+            "gas": 2,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH_1",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                32
+            ],
+            "outpt_sk": [
+                "s1"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "PUSH_2",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                100389287136786176327247604509743168900146139575972864366142685224231313322991
+            ],
+            "outpt_sk": [
+                "s2"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 33
+        },
+        {
+            "id": "PUSH0_0",
+            "opcode": "5f",
+            "disasm": "PUSH0",
+            "inpt_sk": [],
+            "value": [
+                0
+            ],
+            "outpt_sk": [
+                "s3"
+            ],
+            "gas": 2,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "LOG3_0",
+            "opcode": "a3",
+            "disasm": "LOG3",
+            "inpt_sk": [
+                "v84",
+                "s1",
+                "s2",
+                "s3",
+                "v85"
+            ],
+            "outpt_sk": [],
+            "gas": 1500,
+            "commutative": false,
+            "push": false,
+            "storage": true,
+            "size": 1
+        },
+        {
+            "id": "MLOAD_1",
+            "opcode": "51",
+            "disasm": "MLOAD",
+            "inpt_sk": [
+                "s0"
+            ],
+            "outpt_sk": [
+                "v86"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH #[$]_0",
+            "opcode": "00",
+            "disasm": "PUSH #[$]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "v87"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 5,
+            "value": [
+                "0000000000000000000000000000000000000000000000000000000000000000"
+            ]
+        },
+        {
+            "id": "PUSH [$]_0",
+            "opcode": "00",
+            "disasm": "PUSH [$]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "v88"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3,
+            "value": [
+                "0000000000000000000000000000000000000000000000000000000000000000"
+            ]
+        },
+        {
+            "id": "CODECOPY_0",
+            "opcode": "39",
+            "disasm": "CODECOPY",
+            "inpt_sk": [
+                "v86",
+                "v88",
+                "v87"
+            ],
+            "outpt_sk": [],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": true,
+            "size": 1
+        }
+    ],
+    "variables": [
+        "v83",
+        "v84",
+        "s2",
+        "s1",
+        "v85",
+        "v88",
+        "s3",
+        "s0",
+        "v87",
+        "v86"
+    ],
+    "memory_dependences": [
+        [
+            "MLOAD_0",
+            "MSTORE_0"
+        ],
+        [
+            "MSTORE_0",
+            "LOG3_0"
+        ],
+        [
+            "MSTORE_0",
+            "MLOAD_1"
+        ],
+        [
+            "LOG3_0",
+            "CODECOPY_0"
+        ],
+        [
+            "MLOAD_1",
+            "CODECOPY_0"
+        ]
+    ],
+    "storage_dependences": [],
+    "init_progr_len": 20,
+    "max_progr_len": 20,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "SUPERTRUMP_1224_Block17ss",
+    "transient_dependences": [],
+    "dependencies": [
+        [
+            "MLOAD_0",
+            "MSTORE_0"
+        ],
+        [
+            "MSTORE_0",
+            "LOG3_0"
+        ],
+        [
+            "MSTORE_0",
+            "MLOAD_1"
+        ],
+        [
+            "LOG3_0",
+            "CODECOPY_0"
+        ],
+        [
+            "MLOAD_1",
+            "CODECOPY_0"
+        ]
+    ],
+    "admits_junk": true,
+    "max_sk_sz": 9,
+    "is_revert": false
+}

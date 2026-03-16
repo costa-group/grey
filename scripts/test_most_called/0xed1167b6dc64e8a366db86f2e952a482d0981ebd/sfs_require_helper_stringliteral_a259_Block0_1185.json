@@ -1,0 +1,64 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v2342 = iszero(v2341)\n517 = PUSH [tag]\nJUMPI(517,v2342)",
+    "src_ws": [
+        "v2341",
+        "out_require_helper_stringliteral_a259"
+    ],
+    "tgt_ws": [
+        "517",
+        "v2342",
+        "out_require_helper_stringliteral_a259"
+    ],
+    "user_instrs": [
+        {
+            "id": "ISZERO_0",
+            "opcode": "15",
+            "disasm": "ISZERO",
+            "inpt_sk": [
+                "v2341"
+            ],
+            "outpt_sk": [
+                "v2342"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "517"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "v2341",
+        "517",
+        "v2342"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 2,
+    "max_progr_len": 2,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "require_helper_stringliteral_a259_Block0",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 4,
+    "is_revert": false
+}

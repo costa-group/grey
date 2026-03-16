@@ -1,0 +1,116 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "160 = PUSH [tag]\n748 = PUSH [tag]\nv1415 = timestamp\nv1416 = and(v1415,0xffffffffffff)\nv1417 = checked_add_uint48(160,v1416,v1414,748)",
+    "src_ws": [
+        "v1414",
+        "v1407",
+        "v1406"
+    ],
+    "tgt_ws": [
+        "160",
+        "v1416",
+        "v1414",
+        "748",
+        "v1407",
+        "v1406"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "160"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "PUSH [TAG]_1",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "748"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "TIMESTAMP_0",
+            "opcode": "42",
+            "disasm": "TIMESTAMP",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "v1415"
+            ],
+            "gas": 2,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH_0",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                281474976710655
+            ],
+            "outpt_sk": [
+                "s0"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 7
+        },
+        {
+            "id": "AND_0",
+            "opcode": "16",
+            "disasm": "AND",
+            "inpt_sk": [
+                "v1415",
+                "s0"
+            ],
+            "outpt_sk": [
+                "v1416"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        }
+    ],
+    "variables": [
+        "v1415",
+        "s0",
+        "748",
+        "v1416",
+        "160"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 6,
+    "max_progr_len": 6,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "external_fun_unlockStake_Block8ssssf",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 7,
+    "is_revert": false
+}

@@ -1,0 +1,65 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "128 = PUSH [tag]\n867 = PUSH [tag]\nv2151 = checked_add_uint256_18912(128,v2149,867)",
+    "src_ws": [
+        "v2150",
+        "v2149",
+        "out_fun_slice_18928"
+    ],
+    "tgt_ws": [
+        "128",
+        "v2149",
+        "867",
+        "v2150",
+        "v2149",
+        "out_fun_slice_18928"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "128"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "PUSH [TAG]_1",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "867"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "867",
+        "128"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 3,
+    "max_progr_len": 3,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_slice_18928_Block0f",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 7,
+    "is_revert": false
+}

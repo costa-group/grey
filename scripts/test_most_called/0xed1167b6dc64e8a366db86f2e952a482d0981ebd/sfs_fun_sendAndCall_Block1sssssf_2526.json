@@ -1,0 +1,93 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "447 = PUSH [tag]\n841 = PUSH [tag]\nv2058 = callvalue\nfun_lzSend(447,v2007,v2057,v2009,v2011,v2018,v2058,841)",
+    "src_ws": [
+        "v2057",
+        "v2007",
+        "v2006",
+        "v2018",
+        "v2009",
+        "v2008",
+        "v2052",
+        "v2011",
+        "out_fun_sendAndCall"
+    ],
+    "tgt_ws": [
+        "447",
+        "v2007",
+        "v2057",
+        "v2009",
+        "v2011",
+        "v2018",
+        "v2058",
+        "841",
+        "v2006",
+        "v2008",
+        "v2052",
+        "v2007",
+        "out_fun_sendAndCall"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "447"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "PUSH [TAG]_1",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "841"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "CALLVALUE_0",
+            "opcode": "34",
+            "disasm": "CALLVALUE",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "v2058"
+            ],
+            "gas": 2,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        }
+    ],
+    "variables": [
+        "v2058",
+        "447",
+        "841"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 12,
+    "max_progr_len": 12,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_sendAndCall_Block1sssssf",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 14,
+    "is_revert": false
+}

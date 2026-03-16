@@ -1,0 +1,91 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "426 = PUSH [tag]\n670 = PUSH [tag]\nv1067 = callvalue\nfun_lzSend(426,v1044,v1066,v1052,v1054,v1059,v1067,670)",
+    "src_ws": [
+        "v1066",
+        "v1062",
+        "v1052",
+        "v1054",
+        "v1059",
+        "v1045",
+        "v1044",
+        "v1043"
+    ],
+    "tgt_ws": [
+        "426",
+        "v1044",
+        "v1066",
+        "v1052",
+        "v1054",
+        "v1059",
+        "v1067",
+        "670",
+        "v1062",
+        "v1045",
+        "v1044",
+        "v1043"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "426"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "PUSH [TAG]_1",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "670"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "CALLVALUE_0",
+            "opcode": "34",
+            "disasm": "CALLVALUE",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "v1067"
+            ],
+            "gas": 2,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        }
+    ],
+    "variables": [
+        "v1067",
+        "426",
+        "670"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 13,
+    "max_progr_len": 13,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "external_fun_sendFrom_Block5sssssssssssf",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 13,
+    "is_revert": false
+}

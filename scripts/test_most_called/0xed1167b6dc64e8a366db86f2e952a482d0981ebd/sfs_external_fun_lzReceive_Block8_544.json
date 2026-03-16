@@ -1,0 +1,60 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v843 = PhiFunction(v837,v845)\n231 = PUSH [tag]\nJUMPI(231,v843)",
+    "src_ws": [
+        "b0",
+        "v843",
+        "v835",
+        "v821",
+        "v822",
+        "v823",
+        "v824",
+        "v825",
+        "v826"
+    ],
+    "tgt_ws": [
+        "231",
+        "v843",
+        "v843",
+        "v835",
+        "v821",
+        "v822",
+        "v823",
+        "v824",
+        "v825",
+        "v826"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "231"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "231"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 3,
+    "max_progr_len": 3,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "external_fun_lzReceive_Block8",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 11,
+    "is_revert": false
+}

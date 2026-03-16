@@ -1,0 +1,92 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v1660 = LiteralAssignment(0x00)\nv1661 = add(v1645,v1658)\nv1662 = gt(v1645,v1661)\n410 = PUSH [tag]\nJUMPI(410,v1662)",
+    "src_ws": [
+        "v1657",
+        "v1658",
+        "v1645",
+        "v1644",
+        "v1643",
+        "out_fun_nameLength"
+    ],
+    "tgt_ws": [
+        "410",
+        "v1662",
+        "v1657",
+        "v1661",
+        "v1644",
+        "v1643",
+        "out_fun_nameLength"
+    ],
+    "user_instrs": [
+        {
+            "id": "ADD_0",
+            "opcode": "01",
+            "disasm": "ADD",
+            "inpt_sk": [
+                "v1645",
+                "v1658"
+            ],
+            "outpt_sk": [
+                "v1661"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "GT_0",
+            "opcode": "11",
+            "disasm": "GT",
+            "inpt_sk": [
+                "v1645",
+                "v1661"
+            ],
+            "outpt_sk": [
+                "v1662"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "410"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "v1661",
+        "410",
+        "v1658",
+        "v1645",
+        "v1662"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 8,
+    "max_progr_len": 8,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_nameLength_Block12",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 8,
+    "is_revert": false
+}

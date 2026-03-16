@@ -1,0 +1,49 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v1245 = LiteralAssignment(0x00)\nfunctionReturn(out_fun_mul,v1245)",
+    "src_ws": [
+        "v1238",
+        "v1237",
+        "out_fun_mul"
+    ],
+    "tgt_ws": [
+        "out_fun_mul",
+        "v1245"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH0_0",
+            "opcode": "5f",
+            "disasm": "PUSH0",
+            "inpt_sk": [],
+            "value": [
+                0
+            ],
+            "outpt_sk": [
+                "v1245"
+            ],
+            "gas": 2,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 1
+        }
+    ],
+    "variables": [
+        "v1245"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 4,
+    "max_progr_len": 4,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_mul_Block1",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 4,
+    "is_revert": false
+}

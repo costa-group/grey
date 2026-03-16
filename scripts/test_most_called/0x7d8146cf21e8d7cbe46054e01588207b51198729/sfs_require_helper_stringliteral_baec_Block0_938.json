@@ -1,0 +1,64 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v1817 = iszero(v1816)\n406 = PUSH [tag]\nJUMPI(406,v1817)",
+    "src_ws": [
+        "v1816",
+        "out_require_helper_stringliteral_baec"
+    ],
+    "tgt_ws": [
+        "406",
+        "v1817",
+        "out_require_helper_stringliteral_baec"
+    ],
+    "user_instrs": [
+        {
+            "id": "ISZERO_0",
+            "opcode": "15",
+            "disasm": "ISZERO",
+            "inpt_sk": [
+                "v1816"
+            ],
+            "outpt_sk": [
+                "v1817"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "406"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "v1816",
+        "v1817",
+        "406"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 2,
+    "max_progr_len": 2,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "require_helper_stringliteral_baec_Block0",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 4,
+    "is_revert": false
+}

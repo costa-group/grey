@@ -1,0 +1,75 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v420 = LiteralAssignment(0x00)\n138 = PUSH [tag]\nJUMP(138)",
+    "src_ws": [
+        "v419",
+        "v418",
+        "v413",
+        "v408",
+        "v407",
+        "v406",
+        "out_copy_byte_array_to_storage_from_bytes_to_bytes"
+    ],
+    "tgt_ws": [
+        "138",
+        "v420",
+        "v419",
+        "v418",
+        "v413",
+        "v408",
+        "v407",
+        "v406",
+        "out_copy_byte_array_to_storage_from_bytes_to_bytes"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH0_0",
+            "opcode": "5f",
+            "disasm": "PUSH0",
+            "inpt_sk": [],
+            "value": [
+                0
+            ],
+            "outpt_sk": [
+                "v420"
+            ],
+            "gas": 2,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "138"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "138",
+        "v420"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 2,
+    "max_progr_len": 2,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "copy_byte_array_to_storage_from_bytes_to_bytes_Block5s",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 10,
+    "is_revert": false
+}

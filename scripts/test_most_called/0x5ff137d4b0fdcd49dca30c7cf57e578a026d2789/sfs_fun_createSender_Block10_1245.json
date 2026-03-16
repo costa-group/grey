@@ -1,0 +1,60 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "revert(0x00,0x00)",
+    "src_ws": [
+        "v48",
+        "v59",
+        "v45",
+        "v43",
+        "v36",
+        "v35",
+        "out_fun_createSender"
+    ],
+    "tgt_ws": [
+        "0x00",
+        "0x00",
+        "v48",
+        "v59",
+        "v45",
+        "v43",
+        "v36",
+        "v35",
+        "out_fun_createSender"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH0_0",
+            "opcode": "5f",
+            "disasm": "PUSH0",
+            "inpt_sk": [],
+            "value": [
+                0
+            ],
+            "outpt_sk": [
+                "0x00"
+            ],
+            "gas": 2,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 1
+        }
+    ],
+    "variables": [
+        "0x00"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 2,
+    "max_progr_len": 2,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_createSender_Block10",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 10,
+    "is_revert": true
+}

@@ -1,0 +1,95 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "164 = PUSH [tag]\n901 = PUSH [tag]\nv2295 = mload(v2272)\nv2296 = cleanup_address(164,v2295,901)",
+    "src_ws": [
+        "v2281",
+        "v2272",
+        "v2274",
+        "v2268",
+        "v2267",
+        "v2266",
+        "v2265",
+        "v2264",
+        "out_fun_innerHandleOp"
+    ],
+    "tgt_ws": [
+        "164",
+        "v2295",
+        "901",
+        "v2281",
+        "v2272",
+        "v2274",
+        "v2268",
+        "v2267",
+        "v2266",
+        "v2265",
+        "v2264",
+        "out_fun_innerHandleOp"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "164"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "PUSH [TAG]_1",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "901"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "MLOAD_0",
+            "opcode": "51",
+            "disasm": "MLOAD",
+            "inpt_sk": [
+                "v2272"
+            ],
+            "outpt_sk": [
+                "v2295"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        }
+    ],
+    "variables": [
+        "v2295",
+        "164",
+        "v2272",
+        "901"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 4,
+    "max_progr_len": 4,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_innerHandleOp_Block4f",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 13,
+    "is_revert": false
+}

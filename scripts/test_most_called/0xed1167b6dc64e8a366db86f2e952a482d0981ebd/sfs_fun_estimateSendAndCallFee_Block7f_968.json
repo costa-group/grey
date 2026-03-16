@@ -1,0 +1,66 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v1771 = PhiFunction(v1768,v1775)\n376 = PUSH [tag]\n762 = PUSH [tag]\nfinalize_allocation(376,v1751,v1771,762)",
+    "src_ws": [
+        "v1771",
+        "v1751",
+        "out_fun_estimateSendAndCallFee"
+    ],
+    "tgt_ws": [
+        "376",
+        "v1751",
+        "v1771",
+        "762",
+        "v1771",
+        "v1751",
+        "out_fun_estimateSendAndCallFee"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "376"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "PUSH [TAG]_1",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "762"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "762",
+        "376"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 4,
+    "max_progr_len": 4,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_estimateSendAndCallFee_Block7f",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 8,
+    "is_revert": false
+}

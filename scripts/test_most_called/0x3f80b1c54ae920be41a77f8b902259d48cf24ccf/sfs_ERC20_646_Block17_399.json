@@ -1,0 +1,108 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v32 = PhiFunction(v28,v35)\nv33 = lt(v32,0x20)\nv34 = eq(v29,v33)\n7 = PUSH [tag]\nJUMPI(7,v34)",
+    "src_ws": [
+        "v32",
+        "v29",
+        "v22",
+        "v21",
+        "v14"
+    ],
+    "tgt_ws": [
+        "7",
+        "v34",
+        "v32",
+        "v22",
+        "v21",
+        "v14"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH_0",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                32
+            ],
+            "outpt_sk": [
+                "s0"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "LT_0",
+            "opcode": "10",
+            "disasm": "LT",
+            "inpt_sk": [
+                "v32",
+                "s0"
+            ],
+            "outpt_sk": [
+                "v33"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "EQ_0",
+            "opcode": "14",
+            "disasm": "EQ",
+            "inpt_sk": [
+                "v29",
+                "v33"
+            ],
+            "outpt_sk": [
+                "v34"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "7"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "v33",
+        "7",
+        "s0",
+        "v32",
+        "v34",
+        "v29"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 6,
+    "max_progr_len": 6,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "ERC20_646_Block17",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": true,
+    "max_sk_sz": 8,
+    "is_revert": false
+}

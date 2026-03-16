@@ -1,0 +1,73 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v465 = PhiFunction(v464,v474)\nv466 = PhiFunction(v463,v473)\nv467 = lt(v465,v449)\n151 = PUSH [tag]\nJUMPI(151,v467)",
+    "src_ws": [
+        "v449",
+        "v446",
+        "v465",
+        "v466",
+        "out_copy_array_from_storage_to_memory_bytes"
+    ],
+    "tgt_ws": [
+        "151",
+        "v467",
+        "v449",
+        "v446",
+        "v465",
+        "v466",
+        "out_copy_array_from_storage_to_memory_bytes"
+    ],
+    "user_instrs": [
+        {
+            "id": "LT_0",
+            "opcode": "10",
+            "disasm": "LT",
+            "inpt_sk": [
+                "v465",
+                "v449"
+            ],
+            "outpt_sk": [
+                "v467"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "151"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "v465",
+        "151",
+        "v449",
+        "v467"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 4,
+    "max_progr_len": 4,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "copy_array_from_storage_to_memory_bytes_Block5",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 8,
+    "is_revert": false
+}

@@ -1,0 +1,123 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "92 = PUSH [tag]\n559 = PUSH [tag]\nmstore(v417,0xe0)\nv418 = add(v417,0xe0)\nv419 = abi_encode_struct_ReturnInfo(92,v416,v418,559)",
+    "src_ws": [
+        "v417",
+        "v416",
+        "v415",
+        "v414",
+        "v413",
+        "out_abi_encode_struct_ReturnInfo_struct_StakeInfo_struct_StakeInfo_struct_StakeInfo"
+    ],
+    "tgt_ws": [
+        "92",
+        "v416",
+        "v418",
+        "559",
+        "v417",
+        "v415",
+        "v414",
+        "v413",
+        "out_abi_encode_struct_ReturnInfo_struct_StakeInfo_struct_StakeInfo_struct_StakeInfo"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "92"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "PUSH [TAG]_1",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "559"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "PUSH_0",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                224
+            ],
+            "outpt_sk": [
+                "s0"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "MSTORE_0",
+            "opcode": "52",
+            "disasm": "MSTORE",
+            "inpt_sk": [
+                "v417",
+                "s0"
+            ],
+            "outpt_sk": [],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": true,
+            "size": 1
+        },
+        {
+            "id": "ADD_0",
+            "opcode": "01",
+            "disasm": "ADD",
+            "inpt_sk": [
+                "v417",
+                "s0"
+            ],
+            "outpt_sk": [
+                "v418"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        }
+    ],
+    "variables": [
+        "559",
+        "92",
+        "s0",
+        "v417",
+        "v418"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 11,
+    "max_progr_len": 11,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "abi_encode_struct_ReturnInfo_struct_StakeInfo_struct_StakeInfo_struct_StakeInfo_Block0f",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 10,
+    "is_revert": false
+}

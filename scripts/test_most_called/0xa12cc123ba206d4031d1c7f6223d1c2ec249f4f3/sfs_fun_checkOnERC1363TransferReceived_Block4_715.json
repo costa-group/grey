@@ -1,0 +1,122 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v940 = LiteralAssignment(0x20)\nv941 = returndatasize\nv942 = gt(0x20,v941)\n215 = PUSH [tag]\nJUMPI(215,v942)",
+    "src_ws": [
+        "v931",
+        "v932",
+        "v915",
+        "v914",
+        "out_fun_checkOnERC1363TransferReceived"
+    ],
+    "tgt_ws": [
+        "215",
+        "v942",
+        "v931",
+        "v940",
+        "v915",
+        "v914",
+        "out_fun_checkOnERC1363TransferReceived"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH_0",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                32
+            ],
+            "outpt_sk": [
+                "v940"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "RETURNDATASIZE_0",
+            "opcode": "3c",
+            "disasm": "RETURNDATASIZE",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "v941"
+            ],
+            "gas": 2,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH_1",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                32
+            ],
+            "outpt_sk": [
+                "s0"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "GT_0",
+            "opcode": "11",
+            "disasm": "GT",
+            "inpt_sk": [
+                "s0",
+                "v941"
+            ],
+            "outpt_sk": [
+                "v942"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "215"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "v940",
+        "v941",
+        "s0",
+        "215",
+        "v942"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 7,
+    "max_progr_len": 7,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_checkOnERC1363TransferReceived_Block4",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 8,
+    "is_revert": false
+}

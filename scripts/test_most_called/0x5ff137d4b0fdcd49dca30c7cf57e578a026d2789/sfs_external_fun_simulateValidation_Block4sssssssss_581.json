@@ -1,0 +1,146 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v1382 = add(v1377,0xa0)\nmstore(v1382,v1376)\nv1383 = iszero(v1363)\nv1384 = iszero(v1383)\n260 = PUSH [tag]\nJUMPI(260,v1384)",
+    "src_ws": [
+        "v1377",
+        "v1364",
+        "v1360",
+        "v1363",
+        "v1339",
+        "v1357",
+        "v1376",
+        "v1342"
+    ],
+    "tgt_ws": [
+        "260",
+        "v1384",
+        "v1364",
+        "v1360",
+        "v1377",
+        "v1339",
+        "v1357",
+        "v1384",
+        "v1342"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH_0",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                160
+            ],
+            "outpt_sk": [
+                "s0"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "ADD_0",
+            "opcode": "01",
+            "disasm": "ADD",
+            "inpt_sk": [
+                "v1377",
+                "s0"
+            ],
+            "outpt_sk": [
+                "v1382"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "MSTORE_0",
+            "opcode": "52",
+            "disasm": "MSTORE",
+            "inpt_sk": [
+                "v1382",
+                "v1376"
+            ],
+            "outpt_sk": [],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": true,
+            "size": 1
+        },
+        {
+            "id": "ISZERO_0",
+            "opcode": "15",
+            "disasm": "ISZERO",
+            "inpt_sk": [
+                "v1363"
+            ],
+            "outpt_sk": [
+                "v1383"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "ISZERO_1",
+            "opcode": "15",
+            "disasm": "ISZERO",
+            "inpt_sk": [
+                "v1383"
+            ],
+            "outpt_sk": [
+                "v1384"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "260"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "v1382",
+        "v1363",
+        "v1376",
+        "s0",
+        "v1383",
+        "v1377",
+        "260",
+        "v1384"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 13,
+    "max_progr_len": 13,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "external_fun_simulateValidation_Block4sssssssss",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 11,
+    "is_revert": false
+}

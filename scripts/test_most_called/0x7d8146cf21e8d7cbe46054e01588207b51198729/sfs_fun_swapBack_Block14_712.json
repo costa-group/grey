@@ -1,0 +1,161 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v1308 = mload(0x40)\nv1309 = returndatasize\nreturndatacopy(v1308,0x00,v1309)\nv1310 = returndatasize\nrevert(v1308,v1310)",
+    "src_ws": [
+        "v1300",
+        "v1301",
+        "v1304",
+        "v1288",
+        "v1287",
+        "v1286",
+        "v1282",
+        "v1281",
+        "v1260",
+        "v1277",
+        "v1252",
+        "out_fun_swapBack"
+    ],
+    "tgt_ws": [
+        "v1308",
+        "v1310",
+        "v1300",
+        "v1301",
+        "v1304",
+        "v1288",
+        "v1287",
+        "v1286",
+        "v1282",
+        "v1281",
+        "v1260",
+        "v1277",
+        "v1252",
+        "out_fun_swapBack"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH_0",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                64
+            ],
+            "outpt_sk": [
+                "s0"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "MLOAD_0",
+            "opcode": "51",
+            "disasm": "MLOAD",
+            "inpt_sk": [
+                "s0"
+            ],
+            "outpt_sk": [
+                "v1308"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "RETURNDATASIZE_0",
+            "opcode": "3c",
+            "disasm": "RETURNDATASIZE",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "v1309"
+            ],
+            "gas": 2,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH0_0",
+            "opcode": "5f",
+            "disasm": "PUSH0",
+            "inpt_sk": [],
+            "value": [
+                0
+            ],
+            "outpt_sk": [
+                "s1"
+            ],
+            "gas": 2,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "RETURNDATACOPY_0",
+            "opcode": "3e",
+            "disasm": "RETURNDATACOPY",
+            "inpt_sk": [
+                "v1308",
+                "s1",
+                "v1309"
+            ],
+            "outpt_sk": [],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": true,
+            "size": 1
+        },
+        {
+            "id": "RETURNDATASIZE_1",
+            "opcode": "3c",
+            "disasm": "RETURNDATASIZE",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "v1310"
+            ],
+            "gas": 2,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        }
+    ],
+    "variables": [
+        "v1308",
+        "s1",
+        "v1309",
+        "v1310",
+        "s0"
+    ],
+    "memory_dependences": [
+        [
+            "MLOAD_0",
+            "RETURNDATACOPY_0"
+        ]
+    ],
+    "storage_dependences": [],
+    "init_progr_len": 7,
+    "max_progr_len": 7,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_swapBack_Block14",
+    "transient_dependences": [],
+    "dependencies": [
+        [
+            "MLOAD_0",
+            "RETURNDATACOPY_0"
+        ]
+    ],
+    "admits_junk": false,
+    "max_sk_sz": 18,
+    "is_revert": true
+}

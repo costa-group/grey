@@ -1,0 +1,193 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "mstore(v191,v172)\nv192 = add(v191,0x20)\nv193 = add(v153,v189)\nv194 = add(v193,0x24)\nv195 = calldatasize\nv196 = gt(v194,v195)\n53 = PUSH [tag]\nJUMPI(53,v196)",
+    "src_ws": [
+        "v189",
+        "v191",
+        "v172",
+        "v153"
+    ],
+    "tgt_ws": [
+        "53",
+        "v196",
+        "v194",
+        "v191",
+        "v192",
+        "v153"
+    ],
+    "user_instrs": [
+        {
+            "id": "MSTORE_0",
+            "opcode": "52",
+            "disasm": "MSTORE",
+            "inpt_sk": [
+                "v191",
+                "v172"
+            ],
+            "outpt_sk": [],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": true,
+            "size": 1
+        },
+        {
+            "id": "PUSH_0",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                32
+            ],
+            "outpt_sk": [
+                "s0"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "ADD_0",
+            "opcode": "01",
+            "disasm": "ADD",
+            "inpt_sk": [
+                "v191",
+                "s0"
+            ],
+            "outpt_sk": [
+                "v192"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "ADD_1",
+            "opcode": "01",
+            "disasm": "ADD",
+            "inpt_sk": [
+                "v153",
+                "v189"
+            ],
+            "outpt_sk": [
+                "v193"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH_1",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                36
+            ],
+            "outpt_sk": [
+                "s1"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "ADD_2",
+            "opcode": "01",
+            "disasm": "ADD",
+            "inpt_sk": [
+                "v193",
+                "s1"
+            ],
+            "outpt_sk": [
+                "v194"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "CALLDATASIZE_0",
+            "opcode": "36",
+            "disasm": "CALLDATASIZE",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "v195"
+            ],
+            "gas": 2,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "GT_0",
+            "opcode": "11",
+            "disasm": "GT",
+            "inpt_sk": [
+                "v194",
+                "v195"
+            ],
+            "outpt_sk": [
+                "v196"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "53"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "v192",
+        "v189",
+        "v194",
+        "s1",
+        "v153",
+        "v193",
+        "v172",
+        "s0",
+        "v191",
+        "v195",
+        "53",
+        "v196"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 15,
+    "max_progr_len": 15,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "SUPERTRUMP_1224_deployed_Block112s",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": true,
+    "max_sk_sz": 7,
+    "is_revert": false
+}

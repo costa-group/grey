@@ -1,0 +1,90 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v632 = PhiFunction(v616,v723)\nv633 = PhiFunction(v594,v780)\nv634 = iszero(v632)\nv635 = iszero(v634)\n135 = PUSH [tag]\nJUMPI(135,v635)",
+    "src_ws": [
+        "v632",
+        "v597",
+        "v633",
+        "v601",
+        "v591",
+        "out_fun_transfer"
+    ],
+    "tgt_ws": [
+        "135",
+        "v635",
+        "v632",
+        "v597",
+        "v633",
+        "v601",
+        "v591",
+        "out_fun_transfer"
+    ],
+    "user_instrs": [
+        {
+            "id": "ISZERO_0",
+            "opcode": "15",
+            "disasm": "ISZERO",
+            "inpt_sk": [
+                "v632"
+            ],
+            "outpt_sk": [
+                "v634"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "ISZERO_1",
+            "opcode": "15",
+            "disasm": "ISZERO",
+            "inpt_sk": [
+                "v634"
+            ],
+            "outpt_sk": [
+                "v635"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "135"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "v634",
+        "v632",
+        "v635",
+        "135"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 4,
+    "max_progr_len": 4,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_transfer_Block13",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 9,
+    "is_revert": false
+}

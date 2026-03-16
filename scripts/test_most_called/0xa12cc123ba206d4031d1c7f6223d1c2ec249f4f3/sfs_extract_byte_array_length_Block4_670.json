@@ -1,0 +1,28 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "functionReturn(out_extract_byte_array_length,v786)",
+    "src_ws": [
+        "v786",
+        "out_extract_byte_array_length"
+    ],
+    "tgt_ws": [
+        "out_extract_byte_array_length",
+        "v786"
+    ],
+    "user_instrs": [],
+    "variables": [],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 1,
+    "max_progr_len": 1,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "extract_byte_array_length_Block4",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 3,
+    "is_revert": false
+}

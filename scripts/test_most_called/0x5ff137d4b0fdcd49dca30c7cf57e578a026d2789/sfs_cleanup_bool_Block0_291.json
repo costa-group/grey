@@ -1,0 +1,65 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v828 = iszero(v827)\nv829 = iszero(v828)\nfunctionReturn(out_cleanup_bool,v829)",
+    "src_ws": [
+        "v827",
+        "out_cleanup_bool"
+    ],
+    "tgt_ws": [
+        "out_cleanup_bool",
+        "v829"
+    ],
+    "user_instrs": [
+        {
+            "id": "ISZERO_0",
+            "opcode": "15",
+            "disasm": "ISZERO",
+            "inpt_sk": [
+                "v827"
+            ],
+            "outpt_sk": [
+                "v828"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "ISZERO_1",
+            "opcode": "15",
+            "disasm": "ISZERO",
+            "inpt_sk": [
+                "v828"
+            ],
+            "outpt_sk": [
+                "v829"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        }
+    ],
+    "variables": [
+        "v827",
+        "v828",
+        "v829"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 3,
+    "max_progr_len": 3,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "cleanup_bool_Block0",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 3,
+    "is_revert": false
+}

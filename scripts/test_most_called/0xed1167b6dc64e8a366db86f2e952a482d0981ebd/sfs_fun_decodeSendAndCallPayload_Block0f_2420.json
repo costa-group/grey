@@ -1,0 +1,63 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "501 = PUSH [tag]\n796 = PUSH [tag]\nv1757 = fun_toUint8(501,v1756,796)",
+    "src_ws": [
+        "v1756",
+        "out_fun_decodeSendAndCallPayload"
+    ],
+    "tgt_ws": [
+        "501",
+        "v1756",
+        "796",
+        "v1756",
+        "out_fun_decodeSendAndCallPayload"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "501"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "PUSH [TAG]_1",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "796"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "796",
+        "501"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 3,
+    "max_progr_len": 3,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_decodeSendAndCallPayload_Block0f",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 6,
+    "is_revert": false
+}

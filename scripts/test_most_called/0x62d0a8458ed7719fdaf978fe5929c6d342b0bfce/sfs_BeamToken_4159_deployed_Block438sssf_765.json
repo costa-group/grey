@@ -1,0 +1,74 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "288 = PUSH [tag]\n399 = PUSH [tag]\nv910,v911 = fun_tryRecover(288,v909,v806,v906,v905,399)",
+    "src_ws": [
+        "v909",
+        "v906",
+        "v896",
+        "v806",
+        "v905",
+        "v803",
+        "v802",
+        "v801"
+    ],
+    "tgt_ws": [
+        "288",
+        "v909",
+        "v806",
+        "v906",
+        "v905",
+        "399",
+        "v896",
+        "v803",
+        "v802",
+        "v801"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "288"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "PUSH [TAG]_1",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "399"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "399",
+        "288"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 7,
+    "max_progr_len": 7,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "BeamToken_4159_deployed_Block438sssf",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": true,
+    "max_sk_sz": 11,
+    "is_revert": false
+}

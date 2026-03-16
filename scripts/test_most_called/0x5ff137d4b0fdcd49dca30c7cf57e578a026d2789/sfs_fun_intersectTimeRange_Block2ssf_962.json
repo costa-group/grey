@@ -1,0 +1,123 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "168 = PUSH [tag]\n913 = PUSH [tag]\nv2336 = add(v2322,0x20)\nv2337 = mload(v2336)\nv2338 = cleanup_uint48(168,v2337,913)",
+    "src_ws": [
+        "v2335",
+        "v2329",
+        "v2322",
+        "v2332",
+        "out_fun_intersectTimeRange"
+    ],
+    "tgt_ws": [
+        "168",
+        "v2337",
+        "913",
+        "v2335",
+        "v2329",
+        "v2322",
+        "v2332",
+        "out_fun_intersectTimeRange"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "168"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "PUSH [TAG]_1",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "913"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "PUSH_0",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                32
+            ],
+            "outpt_sk": [
+                "s0"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "ADD_0",
+            "opcode": "01",
+            "disasm": "ADD",
+            "inpt_sk": [
+                "v2322",
+                "s0"
+            ],
+            "outpt_sk": [
+                "v2336"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "MLOAD_0",
+            "opcode": "51",
+            "disasm": "MLOAD",
+            "inpt_sk": [
+                "v2336"
+            ],
+            "outpt_sk": [
+                "v2337"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        }
+    ],
+    "variables": [
+        "v2337",
+        "168",
+        "s0",
+        "v2322",
+        "913",
+        "v2336"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 6,
+    "max_progr_len": 6,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_intersectTimeRange_Block2ssf",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 9,
+    "is_revert": false
+}

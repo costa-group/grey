@@ -1,0 +1,66 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "173 = PUSH [tag]\n611 = PUSH [tag]\ncopy_struct_to_storage_from_struct_DepositInfo_to_struct_DepositInfo(173,v927,v920,611)",
+    "src_ws": [
+        "v927",
+        "v920",
+        "v896",
+        "v914"
+    ],
+    "tgt_ws": [
+        "173",
+        "v927",
+        "v920",
+        "611",
+        "v896",
+        "v914"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "173"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "PUSH [TAG]_1",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "611"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "173",
+        "611"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 4,
+    "max_progr_len": 4,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "external_fun_addStake_Block5ssssssssssssssssf",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 7,
+    "is_revert": false
+}

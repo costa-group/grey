@@ -1,0 +1,105 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v88 = sub(v86,v87)\nv89 = slt(v88,0x20)\n65 = PUSH [tag]\nJUMPI(65,v89)",
+    "src_ws": [
+        "v87",
+        "v86",
+        "out_abi_decode_bytes_fromMemory"
+    ],
+    "tgt_ws": [
+        "65",
+        "v89",
+        "v87",
+        "v86",
+        "out_abi_decode_bytes_fromMemory"
+    ],
+    "user_instrs": [
+        {
+            "id": "SUB_0",
+            "opcode": "03",
+            "disasm": "SUB",
+            "inpt_sk": [
+                "v86",
+                "v87"
+            ],
+            "outpt_sk": [
+                "v88"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH_0",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                32
+            ],
+            "outpt_sk": [
+                "s0"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "SLT_0",
+            "opcode": "12",
+            "disasm": "SLT",
+            "inpt_sk": [
+                "v88",
+                "s0"
+            ],
+            "outpt_sk": [
+                "v89"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "65"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "v89",
+        "s0",
+        "65",
+        "v88",
+        "v87",
+        "v86"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 6,
+    "max_progr_len": 6,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "abi_decode_bytes_fromMemory_Block0",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 7,
+    "is_revert": false
+}

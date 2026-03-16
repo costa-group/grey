@@ -1,0 +1,78 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v2506 = PhiFunction(v2499,v2509)\n291 = PUSH [tag]\n947 = PUSH [tag]\nfinalize_allocation(291,v2480,v2506,947)",
+    "src_ws": [
+        "v2488",
+        "v2463",
+        "v2474",
+        "v2460",
+        "v2458",
+        "v2480",
+        "v2506",
+        "v2455",
+        "out_fun_validateAccountPrepayment"
+    ],
+    "tgt_ws": [
+        "291",
+        "v2480",
+        "v2506",
+        "947",
+        "v2488",
+        "v2463",
+        "v2474",
+        "v2460",
+        "v2458",
+        "v2480",
+        "v2506",
+        "v2455",
+        "out_fun_validateAccountPrepayment"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "291"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "PUSH [TAG]_1",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "947"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "947",
+        "291"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 4,
+    "max_progr_len": 4,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_validateAccountPrepayment_Block9f",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 14,
+    "is_revert": false
+}

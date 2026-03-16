@@ -1,0 +1,189 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v677 = calldataload(v675)\nv678 = not(0x1e)\nv679 = calldatasize\nv680 = sub(v679,v676)\nv681 = add(v680,v678)\nv682 = slt(v677,v681)\nv683 = iszero(v682)\n123 = PUSH [tag]\nJUMPI(123,v683)",
+    "src_ws": [
+        "v676",
+        "v675",
+        "out_access_calldata_tail_array_struct_UserOperation_calldata_dyn_calldata"
+    ],
+    "tgt_ws": [
+        "123",
+        "v683",
+        "v676",
+        "v677",
+        "out_access_calldata_tail_array_struct_UserOperation_calldata_dyn_calldata"
+    ],
+    "user_instrs": [
+        {
+            "id": "CALLDATALOAD_0",
+            "opcode": "35",
+            "disasm": "CALLDATALOAD",
+            "inpt_sk": [
+                "v675"
+            ],
+            "outpt_sk": [
+                "v677"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH_0",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                30
+            ],
+            "outpt_sk": [
+                "s0"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "NOT_0",
+            "opcode": "19",
+            "disasm": "NOT",
+            "inpt_sk": [
+                "s0"
+            ],
+            "outpt_sk": [
+                "v678"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "CALLDATASIZE_0",
+            "opcode": "36",
+            "disasm": "CALLDATASIZE",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "v679"
+            ],
+            "gas": 2,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "SUB_0",
+            "opcode": "03",
+            "disasm": "SUB",
+            "inpt_sk": [
+                "v679",
+                "v676"
+            ],
+            "outpt_sk": [
+                "v680"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "ADD_0",
+            "opcode": "01",
+            "disasm": "ADD",
+            "inpt_sk": [
+                "v680",
+                "v678"
+            ],
+            "outpt_sk": [
+                "v681"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "SLT_0",
+            "opcode": "12",
+            "disasm": "SLT",
+            "inpt_sk": [
+                "v677",
+                "v681"
+            ],
+            "outpt_sk": [
+                "v682"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "ISZERO_0",
+            "opcode": "15",
+            "disasm": "ISZERO",
+            "inpt_sk": [
+                "v682"
+            ],
+            "outpt_sk": [
+                "v683"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "123"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "v683",
+        "v681",
+        "v677",
+        "v678",
+        "v679",
+        "v682",
+        "v675",
+        "123",
+        "s0",
+        "v676",
+        "v680"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 14,
+    "max_progr_len": 14,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "access_calldata_tail_array_struct_UserOperation_calldata_dyn_calldata_Block0",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 7,
+    "is_revert": false
+}

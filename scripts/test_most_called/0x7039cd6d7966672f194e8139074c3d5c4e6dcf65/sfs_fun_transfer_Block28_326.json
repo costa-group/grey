@@ -1,0 +1,64 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "153 = PUSH [tag]\nJUMP(153)",
+    "src_ws": [
+        "v721",
+        "v692",
+        "v689",
+        "v650",
+        "v648",
+        "v649",
+        "v597",
+        "v594",
+        "v601",
+        "v591",
+        "out_fun_transfer"
+    ],
+    "tgt_ws": [
+        "153",
+        "v650",
+        "v692",
+        "v689",
+        "v650",
+        "v648",
+        "v649",
+        "v597",
+        "v594",
+        "v601",
+        "v591",
+        "out_fun_transfer"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "153"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "153"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 3,
+    "max_progr_len": 3,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_transfer_Block28",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 13,
+    "is_revert": false
+}

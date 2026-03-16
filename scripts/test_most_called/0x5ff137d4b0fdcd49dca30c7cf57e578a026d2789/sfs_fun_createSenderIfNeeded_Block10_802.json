@@ -1,0 +1,167 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v1918 = PhiFunction(v1917,v1938)\nv1919 = shl(0xa0,0x01)\nv1920 = sub(v1919,0x01)\nv1921 = and(v1918,v1920)\nv1922 = iszero(v1921)\n344 = PUSH [tag]\nJUMPI(344,v1922)",
+    "src_ws": [
+        "b0",
+        "v1918",
+        "v1894",
+        "v1890",
+        "v1889",
+        "v1888",
+        "v1887",
+        "out_fun_createSenderIfNeeded"
+    ],
+    "tgt_ws": [
+        "344",
+        "v1922",
+        "v1921",
+        "v1918",
+        "v1894",
+        "v1890",
+        "v1889",
+        "v1888",
+        "v1887",
+        "out_fun_createSenderIfNeeded"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH_0",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                160
+            ],
+            "outpt_sk": [
+                "s0"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "PUSH_1",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                1
+            ],
+            "outpt_sk": [
+                "s1"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "SHL_0",
+            "opcode": "1b",
+            "disasm": "SHL",
+            "inpt_sk": [
+                "s0",
+                "s1"
+            ],
+            "outpt_sk": [
+                "v1919"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "SUB_0",
+            "opcode": "03",
+            "disasm": "SUB",
+            "inpt_sk": [
+                "v1919",
+                "s1"
+            ],
+            "outpt_sk": [
+                "v1920"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "AND_0",
+            "opcode": "16",
+            "disasm": "AND",
+            "inpt_sk": [
+                "v1918",
+                "v1920"
+            ],
+            "outpt_sk": [
+                "v1921"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "ISZERO_0",
+            "opcode": "15",
+            "disasm": "ISZERO",
+            "inpt_sk": [
+                "v1921"
+            ],
+            "outpt_sk": [
+                "v1922"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "344"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "v1919",
+        "s1",
+        "344",
+        "v1922",
+        "v1918",
+        "s0",
+        "v1921",
+        "v1920"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 11,
+    "max_progr_len": 11,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_createSenderIfNeeded_Block10",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 11,
+    "is_revert": false
+}

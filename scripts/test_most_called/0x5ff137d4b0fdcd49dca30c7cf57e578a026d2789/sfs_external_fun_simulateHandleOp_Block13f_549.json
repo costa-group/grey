@@ -1,0 +1,111 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "83 = PUSH [tag]\n715 = PUSH [tag]\nv1323 = mload(0x40)\nv1324 = abi_encode_bytes_calldata_to_bytes_nonPadded_inplace(83,v1290,v1291,v1323,715)",
+    "src_ws": [
+        "v1300",
+        "v1302",
+        "v1297",
+        "v1292",
+        "v1290",
+        "v1291",
+        "v1285",
+        "v1295"
+    ],
+    "tgt_ws": [
+        "83",
+        "v1290",
+        "v1291",
+        "v1323",
+        "715",
+        "v1323",
+        "v1297",
+        "v1292",
+        "v1290",
+        "v1291",
+        "v1285",
+        "v1295"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "83"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "PUSH [TAG]_1",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "715"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "PUSH_0",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                64
+            ],
+            "outpt_sk": [
+                "s0"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "MLOAD_0",
+            "opcode": "51",
+            "disasm": "MLOAD",
+            "inpt_sk": [
+                "s0"
+            ],
+            "outpt_sk": [
+                "v1323"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        }
+    ],
+    "variables": [
+        "v1323",
+        "s0",
+        "83",
+        "715"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 9,
+    "max_progr_len": 9,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "external_fun_simulateHandleOp_Block13f",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 13,
+    "is_revert": false
+}

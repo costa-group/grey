@@ -1,0 +1,705 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "mstore(v25,0x03)\nv26 = add(v25,0x20)\nmstore(v26,0x4c42520000000000000000000000000000000000000000000000000000000000)\nv27 = sload(0x00)\nv28 = caller\nv29 = shl(0xa0,0x01)\nv30 = sub(v29,0x01)\nv31 = not(v30)\nv32 = and(v27,v31)\nv33 = or(v32,v28)\nsstore(0x00,v33)\nv34 = caller\nv35 = shl(0xa0,0x01)\nv36 = sub(v35,0x01)\nv37 = and(v27,v36)\nlog3(0x00,0x00,0x8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0,v37,v34)\nv38 = shl(0xa0,0x01)\nv39 = sub(v38,0x01)\nv40 = and(v16,v39)\nmstore(0x80,v40)\nmstore(0xa0,v11)\nv41 = mload(v20)\nv42 = shl(0x40,0x01)\nv43 = sub(v42,0x01)\nv44 = gt(v41,v43)\n4 = PUSH [tag]\nJUMPI(4,v44)",
+    "src_ws": [
+        "v25",
+        "v20",
+        "v16",
+        "v11",
+        "v12",
+        "v9"
+    ],
+    "tgt_ws": [
+        "4",
+        "v44",
+        "v20",
+        "v25",
+        "v41",
+        "v12",
+        "v9"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH_0",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                3
+            ],
+            "outpt_sk": [
+                "s0"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "MSTORE_0",
+            "opcode": "52",
+            "disasm": "MSTORE",
+            "inpt_sk": [
+                "v25",
+                "s0"
+            ],
+            "outpt_sk": [],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": true,
+            "size": 1
+        },
+        {
+            "id": "PUSH_1",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                32
+            ],
+            "outpt_sk": [
+                "s1"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "ADD_0",
+            "opcode": "01",
+            "disasm": "ADD",
+            "inpt_sk": [
+                "v25",
+                "s1"
+            ],
+            "outpt_sk": [
+                "v26"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH_2",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                34492954341804055708355703459483961982071241625741551272147519588620874809344
+            ],
+            "outpt_sk": [
+                "s2"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 33
+        },
+        {
+            "id": "MSTORE_1",
+            "opcode": "52",
+            "disasm": "MSTORE",
+            "inpt_sk": [
+                "v26",
+                "s2"
+            ],
+            "outpt_sk": [],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": true,
+            "size": 1
+        },
+        {
+            "id": "PUSH0_0",
+            "opcode": "5f",
+            "disasm": "PUSH0",
+            "inpt_sk": [],
+            "value": [
+                0
+            ],
+            "outpt_sk": [
+                "s3"
+            ],
+            "gas": 2,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "SLOAD_0",
+            "opcode": "54",
+            "disasm": "SLOAD",
+            "inpt_sk": [
+                "s3"
+            ],
+            "outpt_sk": [
+                "v27"
+            ],
+            "gas": 2100,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "CALLER_0",
+            "opcode": "33",
+            "disasm": "CALLER",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "v28"
+            ],
+            "gas": 2,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH_3",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                160
+            ],
+            "outpt_sk": [
+                "s4"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "PUSH_4",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                1
+            ],
+            "outpt_sk": [
+                "s5"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "SHL_0",
+            "opcode": "1b",
+            "disasm": "SHL",
+            "inpt_sk": [
+                "s4",
+                "s5"
+            ],
+            "outpt_sk": [
+                "v29"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "SUB_0",
+            "opcode": "03",
+            "disasm": "SUB",
+            "inpt_sk": [
+                "v29",
+                "s5"
+            ],
+            "outpt_sk": [
+                "v30"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "NOT_0",
+            "opcode": "19",
+            "disasm": "NOT",
+            "inpt_sk": [
+                "v30"
+            ],
+            "outpt_sk": [
+                "v31"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "AND_0",
+            "opcode": "16",
+            "disasm": "AND",
+            "inpt_sk": [
+                "v27",
+                "v31"
+            ],
+            "outpt_sk": [
+                "v32"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "OR_0",
+            "opcode": "17",
+            "disasm": "OR",
+            "inpt_sk": [
+                "v32",
+                "v28"
+            ],
+            "outpt_sk": [
+                "v33"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "SSTORE_0",
+            "opcode": "55",
+            "disasm": "SSTORE",
+            "inpt_sk": [
+                "s3",
+                "v33"
+            ],
+            "outpt_sk": [],
+            "gas": 5000,
+            "commutative": false,
+            "push": false,
+            "storage": true,
+            "size": 1
+        },
+        {
+            "id": "CALLER_1",
+            "opcode": "33",
+            "disasm": "CALLER",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "v34"
+            ],
+            "gas": 2,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "SHL_1",
+            "opcode": "1b",
+            "disasm": "SHL",
+            "inpt_sk": [
+                "s4",
+                "s5"
+            ],
+            "outpt_sk": [
+                "v35"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "SUB_1",
+            "opcode": "03",
+            "disasm": "SUB",
+            "inpt_sk": [
+                "v35",
+                "s5"
+            ],
+            "outpt_sk": [
+                "v36"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "AND_1",
+            "opcode": "16",
+            "disasm": "AND",
+            "inpt_sk": [
+                "v27",
+                "v36"
+            ],
+            "outpt_sk": [
+                "v37"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH_5",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                63267312222310607310220992301550539520881909915348243260808268974908359596000
+            ],
+            "outpt_sk": [
+                "s6"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 33
+        },
+        {
+            "id": "LOG3_0",
+            "opcode": "a3",
+            "disasm": "LOG3",
+            "inpt_sk": [
+                "s3",
+                "s3",
+                "s6",
+                "v37",
+                "v34"
+            ],
+            "outpt_sk": [],
+            "gas": 1500,
+            "commutative": false,
+            "push": false,
+            "storage": true,
+            "size": 1
+        },
+        {
+            "id": "SHL_2",
+            "opcode": "1b",
+            "disasm": "SHL",
+            "inpt_sk": [
+                "s4",
+                "s5"
+            ],
+            "outpt_sk": [
+                "v38"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "SUB_2",
+            "opcode": "03",
+            "disasm": "SUB",
+            "inpt_sk": [
+                "v38",
+                "s5"
+            ],
+            "outpt_sk": [
+                "v39"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "AND_2",
+            "opcode": "16",
+            "disasm": "AND",
+            "inpt_sk": [
+                "v16",
+                "v39"
+            ],
+            "outpt_sk": [
+                "v40"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH_6",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                128
+            ],
+            "outpt_sk": [
+                "s7"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "MSTORE_2",
+            "opcode": "52",
+            "disasm": "MSTORE",
+            "inpt_sk": [
+                "s7",
+                "v40"
+            ],
+            "outpt_sk": [],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": true,
+            "size": 1
+        },
+        {
+            "id": "MSTORE_3",
+            "opcode": "52",
+            "disasm": "MSTORE",
+            "inpt_sk": [
+                "s4",
+                "v11"
+            ],
+            "outpt_sk": [],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": true,
+            "size": 1
+        },
+        {
+            "id": "MLOAD_0",
+            "opcode": "51",
+            "disasm": "MLOAD",
+            "inpt_sk": [
+                "v20"
+            ],
+            "outpt_sk": [
+                "v41"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH_7",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                64
+            ],
+            "outpt_sk": [
+                "s8"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "SHL_3",
+            "opcode": "1b",
+            "disasm": "SHL",
+            "inpt_sk": [
+                "s8",
+                "s5"
+            ],
+            "outpt_sk": [
+                "v42"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "SUB_3",
+            "opcode": "03",
+            "disasm": "SUB",
+            "inpt_sk": [
+                "v42",
+                "s5"
+            ],
+            "outpt_sk": [
+                "v43"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "GT_0",
+            "opcode": "11",
+            "disasm": "GT",
+            "inpt_sk": [
+                "v41",
+                "v43"
+            ],
+            "outpt_sk": [
+                "v44"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "4"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "s4",
+        "s0",
+        "v32",
+        "v41",
+        "s7",
+        "v29",
+        "v37",
+        "s3",
+        "v11",
+        "v40",
+        "v43",
+        "v25",
+        "s8",
+        "v20",
+        "v33",
+        "v38",
+        "s1",
+        "v16",
+        "v35",
+        "v30",
+        "4",
+        "v34",
+        "v39",
+        "v42",
+        "s2",
+        "s5",
+        "v31",
+        "v27",
+        "v44",
+        "s6",
+        "v26",
+        "v28",
+        "v36"
+    ],
+    "memory_dependences": [
+        [
+            "MSTORE_0",
+            "MSTORE_1"
+        ],
+        [
+            "MSTORE_1",
+            "MSTORE_2"
+        ],
+        [
+            "MSTORE_1",
+            "MSTORE_3"
+        ],
+        [
+            "MSTORE_1",
+            "LOG3_0"
+        ],
+        [
+            "MSTORE_2",
+            "MLOAD_0"
+        ],
+        [
+            "MSTORE_3",
+            "MLOAD_0"
+        ]
+    ],
+    "storage_dependences": [
+        [
+            "SLOAD_0",
+            "SSTORE_0"
+        ]
+    ],
+    "init_progr_len": 65,
+    "max_progr_len": 65,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "LBR_4023_Block8sss",
+    "transient_dependences": [],
+    "dependencies": [
+        [
+            "SLOAD_0",
+            "SSTORE_0"
+        ],
+        [
+            "MSTORE_0",
+            "MSTORE_1"
+        ],
+        [
+            "MSTORE_1",
+            "MSTORE_2"
+        ],
+        [
+            "MSTORE_1",
+            "MSTORE_3"
+        ],
+        [
+            "MSTORE_1",
+            "LOG3_0"
+        ],
+        [
+            "MSTORE_2",
+            "MLOAD_0"
+        ],
+        [
+            "MSTORE_3",
+            "MLOAD_0"
+        ]
+    ],
+    "admits_junk": true,
+    "max_sk_sz": 14,
+    "is_revert": false
+}

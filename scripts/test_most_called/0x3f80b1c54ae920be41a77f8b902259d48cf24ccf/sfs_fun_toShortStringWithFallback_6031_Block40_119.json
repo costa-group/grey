@@ -1,0 +1,51 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v366 = PhiFunction(v352,v372)\nv367 = or(v366,v350)\nfunctionReturn(out_fun_toShortStringWithFallback_6031,v367)",
+    "src_ws": [
+        "v366",
+        "v350",
+        "out_fun_toShortStringWithFallback_6031"
+    ],
+    "tgt_ws": [
+        "out_fun_toShortStringWithFallback_6031",
+        "v367"
+    ],
+    "user_instrs": [
+        {
+            "id": "OR_0",
+            "opcode": "17",
+            "disasm": "OR",
+            "inpt_sk": [
+                "v366",
+                "v350"
+            ],
+            "outpt_sk": [
+                "v367"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        }
+    ],
+    "variables": [
+        "v350",
+        "v366",
+        "v367"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 2,
+    "max_progr_len": 2,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_toShortStringWithFallback_6031_Block40",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 4,
+    "is_revert": false
+}

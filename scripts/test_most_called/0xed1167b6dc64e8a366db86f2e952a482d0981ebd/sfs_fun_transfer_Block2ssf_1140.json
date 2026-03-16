@@ -1,0 +1,127 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "512 = PUSH [tag]\n836 = PUSH [tag]\nv2211 = sload(v2210)\nv2212 = lt(v2211,v2198)\nv2213 = iszero(v2212)\nrequire_helper_stringliteral_4107(512,v2213,836)",
+    "src_ws": [
+        "v2210",
+        "v2207",
+        "v2203",
+        "v2200",
+        "v2199",
+        "v2198",
+        "out_fun_transfer"
+    ],
+    "tgt_ws": [
+        "512",
+        "v2213",
+        "836",
+        "v2211",
+        "v2207",
+        "v2203",
+        "v2200",
+        "v2199",
+        "v2198",
+        "out_fun_transfer"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "512"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "PUSH [TAG]_1",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "836"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "SLOAD_0",
+            "opcode": "54",
+            "disasm": "SLOAD",
+            "inpt_sk": [
+                "v2210"
+            ],
+            "outpt_sk": [
+                "v2211"
+            ],
+            "gas": 2100,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "LT_0",
+            "opcode": "10",
+            "disasm": "LT",
+            "inpt_sk": [
+                "v2211",
+                "v2198"
+            ],
+            "outpt_sk": [
+                "v2212"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "ISZERO_0",
+            "opcode": "15",
+            "disasm": "ISZERO",
+            "inpt_sk": [
+                "v2212"
+            ],
+            "outpt_sk": [
+                "v2213"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        }
+    ],
+    "variables": [
+        "v2211",
+        "v2210",
+        "512",
+        "v2212",
+        "v2198",
+        "836",
+        "v2213"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 7,
+    "max_progr_len": 7,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_transfer_Block2ssf",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 11,
+    "is_revert": false
+}

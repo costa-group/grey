@@ -1,0 +1,105 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v865 = PhiFunction(v860,v882)\nv866 = iszero(v859)\nv867 = eq(v866,0x00)\n202 = PUSH [tag]\nJUMPI(202,v867)",
+    "src_ws": [
+        "v859",
+        "v865",
+        "b0",
+        "v848",
+        "out_fun_approveAndCall"
+    ],
+    "tgt_ws": [
+        "202",
+        "v867",
+        "v865",
+        "v848",
+        "out_fun_approveAndCall"
+    ],
+    "user_instrs": [
+        {
+            "id": "ISZERO_0",
+            "opcode": "15",
+            "disasm": "ISZERO",
+            "inpt_sk": [
+                "v859"
+            ],
+            "outpt_sk": [
+                "v866"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH0_0",
+            "opcode": "5f",
+            "disasm": "PUSH0",
+            "inpt_sk": [],
+            "value": [
+                0
+            ],
+            "outpt_sk": [
+                "s0"
+            ],
+            "gas": 2,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "EQ_0",
+            "opcode": "14",
+            "disasm": "EQ",
+            "inpt_sk": [
+                "v866",
+                "s0"
+            ],
+            "outpt_sk": [
+                "v867"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "202"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "v867",
+        "s0",
+        "202",
+        "v859",
+        "v866"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 7,
+    "max_progr_len": 7,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_approveAndCall_Block5",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 7,
+    "is_revert": false
+}

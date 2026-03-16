@@ -1,0 +1,79 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v1294 = PhiFunction(v1289,v1316)\nv1295 = PhiFunction(v1282,v1305)\nv1296 = PhiFunction(v1288,v1304)\nv1297 = lt(v1294,v1287)\n331 = PUSH [tag]\nJUMPI(331,v1297)",
+    "src_ws": [
+        "v1294",
+        "v1296",
+        "v1287",
+        "v1295",
+        "v1278",
+        "v1274",
+        "v1275",
+        "v1276"
+    ],
+    "tgt_ws": [
+        "331",
+        "v1297",
+        "v1294",
+        "v1296",
+        "v1287",
+        "v1295",
+        "v1278",
+        "v1274",
+        "v1275",
+        "v1276"
+    ],
+    "user_instrs": [
+        {
+            "id": "LT_0",
+            "opcode": "10",
+            "disasm": "LT",
+            "inpt_sk": [
+                "v1294",
+                "v1287"
+            ],
+            "outpt_sk": [
+                "v1297"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "331"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "331",
+        "v1287",
+        "v1294",
+        "v1297"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 4,
+    "max_progr_len": 4,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "external_fun_setTrustedRemote_Block10",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 11,
+    "is_revert": false
+}

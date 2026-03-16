@@ -1,0 +1,81 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "442 = PUSH [tag]\n850 = PUSH [tag]\nv2081 = fun_isContract(442,v2069,850)",
+    "src_ws": [
+        "v2079",
+        "v2068",
+        "v2069",
+        "v2076",
+        "v2071",
+        "v2072",
+        "v2067",
+        "v2066",
+        "v2065",
+        "v2064",
+        "out_fun_sendAndCallAck"
+    ],
+    "tgt_ws": [
+        "442",
+        "v2069",
+        "850",
+        "v2079",
+        "v2068",
+        "v2069",
+        "v2076",
+        "v2071",
+        "v2072",
+        "v2067",
+        "v2066",
+        "v2065",
+        "v2064",
+        "out_fun_sendAndCallAck"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "442"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "PUSH [TAG]_1",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "850"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "850",
+        "442"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 3,
+    "max_progr_len": 3,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_sendAndCallAck_Block2f",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 15,
+    "is_revert": false
+}

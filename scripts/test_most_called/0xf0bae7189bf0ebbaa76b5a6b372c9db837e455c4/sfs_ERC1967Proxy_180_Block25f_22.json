@@ -1,0 +1,85 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "15 = PUSH [tag]\n27 = PUSH [tag]\nv68 = returndatasize\nv69 = array_allocation_size_bytes(15,v68,27)",
+    "src_ws": [
+        "v64",
+        "v59",
+        "v8",
+        "v25",
+        "v26"
+    ],
+    "tgt_ws": [
+        "15",
+        "v68",
+        "27",
+        "v68",
+        "v64",
+        "v59",
+        "v8",
+        "v25",
+        "v26"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "15"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "PUSH [TAG]_1",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "27"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "RETURNDATASIZE_0",
+            "opcode": "3c",
+            "disasm": "RETURNDATASIZE",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "v68"
+            ],
+            "gas": 2,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        }
+    ],
+    "variables": [
+        "v68",
+        "27",
+        "15"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 4,
+    "max_progr_len": 4,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "ERC1967Proxy_180_Block25f",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": true,
+    "max_sk_sz": 10,
+    "is_revert": false
+}

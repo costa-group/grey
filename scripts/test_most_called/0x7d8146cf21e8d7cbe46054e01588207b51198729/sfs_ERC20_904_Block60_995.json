@@ -1,0 +1,124 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v144 = mload(0x40)\nv145 = push #[$][ERC20_904_deployed]\nv146 = push [$][ERC20_904_deployed]\ncodecopy(v144,v146,v145)\nreturn(v144,v145)",
+    "src_ws": [],
+    "tgt_ws": [
+        "v144",
+        "v145"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH_0",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                64
+            ],
+            "outpt_sk": [
+                "s0"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "MLOAD_0",
+            "opcode": "51",
+            "disasm": "MLOAD",
+            "inpt_sk": [
+                "s0"
+            ],
+            "outpt_sk": [
+                "v144"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH #[$]_0",
+            "opcode": "00",
+            "disasm": "PUSH #[$]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "v145"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 5,
+            "value": [
+                "0000000000000000000000000000000000000000000000000000000000000000"
+            ]
+        },
+        {
+            "id": "PUSH [$]_0",
+            "opcode": "00",
+            "disasm": "PUSH [$]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "v146"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3,
+            "value": [
+                "0000000000000000000000000000000000000000000000000000000000000000"
+            ]
+        },
+        {
+            "id": "CODECOPY_0",
+            "opcode": "39",
+            "disasm": "CODECOPY",
+            "inpt_sk": [
+                "v144",
+                "v146",
+                "v145"
+            ],
+            "outpt_sk": [],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": true,
+            "size": 1
+        }
+    ],
+    "variables": [
+        "v146",
+        "s0",
+        "v145",
+        "v144"
+    ],
+    "memory_dependences": [
+        [
+            "MLOAD_0",
+            "CODECOPY_0"
+        ]
+    ],
+    "storage_dependences": [],
+    "init_progr_len": 7,
+    "max_progr_len": 7,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "ERC20_904_Block60",
+    "transient_dependences": [],
+    "dependencies": [
+        [
+            "MLOAD_0",
+            "CODECOPY_0"
+        ]
+    ],
+    "admits_junk": true,
+    "max_sk_sz": 6,
+    "is_revert": false
+}

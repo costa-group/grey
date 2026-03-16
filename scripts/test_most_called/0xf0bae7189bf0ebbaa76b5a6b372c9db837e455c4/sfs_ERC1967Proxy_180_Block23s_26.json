@@ -1,0 +1,49 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "pop(v75)\n12 = PUSH [tag]\nJUMP(12)",
+    "src_ws": [
+        "v75",
+        "v8",
+        "v25",
+        "v26"
+    ],
+    "tgt_ws": [
+        "12",
+        "v8",
+        "v25",
+        "v26"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "12"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "12"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 2,
+    "max_progr_len": 2,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "ERC1967Proxy_180_Block23s",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": true,
+    "max_sk_sz": 5,
+    "is_revert": false
+}

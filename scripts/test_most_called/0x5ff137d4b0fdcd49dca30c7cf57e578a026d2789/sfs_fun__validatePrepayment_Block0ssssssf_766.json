@@ -1,0 +1,133 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "453 = PUSH [tag]\n826 = PUSH [tag]\nv1772 = add(v1746,0x20)\nv1773 = mload(v1772)\nv1774 = fun_validateAndUpdateNonce(453,v1771,v1773,826)",
+    "src_ws": [
+        "v1771",
+        "v1768",
+        "v1769",
+        "v1767",
+        "v1746",
+        "v1744",
+        "v1745",
+        "v1743",
+        "v1742",
+        "out_fun__validatePrepayment"
+    ],
+    "tgt_ws": [
+        "453",
+        "v1771",
+        "v1773",
+        "826",
+        "v1768",
+        "v1769",
+        "v1767",
+        "v1746",
+        "v1744",
+        "v1745",
+        "v1743",
+        "v1742",
+        "out_fun__validatePrepayment"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "453"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "PUSH [TAG]_1",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "826"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "PUSH_0",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                32
+            ],
+            "outpt_sk": [
+                "s0"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "ADD_0",
+            "opcode": "01",
+            "disasm": "ADD",
+            "inpt_sk": [
+                "v1746",
+                "s0"
+            ],
+            "outpt_sk": [
+                "v1772"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "MLOAD_0",
+            "opcode": "51",
+            "disasm": "MLOAD",
+            "inpt_sk": [
+                "v1772"
+            ],
+            "outpt_sk": [
+                "v1773"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        }
+    ],
+    "variables": [
+        "v1773",
+        "453",
+        "826",
+        "v1772",
+        "s0",
+        "v1746"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 8,
+    "max_progr_len": 8,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun__validatePrepayment_Block0ssssssf",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 14,
+    "is_revert": false
+}

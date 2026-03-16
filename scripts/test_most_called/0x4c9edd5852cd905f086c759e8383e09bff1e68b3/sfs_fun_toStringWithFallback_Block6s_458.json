@@ -1,0 +1,228 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "mstore(v721,0x20)\nv722 = add(v721,0x20)\nv723 = not(0x1f)\nv724 = add(v720,v723)\nv725 = calldatasize\ncalldatacopy(v722,v725,v724)\nmstore(v721,v714)\nmstore(v722,v709)\nfunctionReturn(out_fun_toStringWithFallback,v721)",
+    "src_ws": [
+        "v721",
+        "v720",
+        "v714",
+        "v709",
+        "out_fun_toStringWithFallback"
+    ],
+    "tgt_ws": [
+        "out_fun_toStringWithFallback",
+        "v721"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH_0",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                32
+            ],
+            "outpt_sk": [
+                "s0"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "MSTORE_0",
+            "opcode": "52",
+            "disasm": "MSTORE",
+            "inpt_sk": [
+                "v721",
+                "s0"
+            ],
+            "outpt_sk": [],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": true,
+            "size": 1
+        },
+        {
+            "id": "ADD_0",
+            "opcode": "01",
+            "disasm": "ADD",
+            "inpt_sk": [
+                "v721",
+                "s0"
+            ],
+            "outpt_sk": [
+                "v722"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH_1",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                31
+            ],
+            "outpt_sk": [
+                "s1"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "NOT_0",
+            "opcode": "19",
+            "disasm": "NOT",
+            "inpt_sk": [
+                "s1"
+            ],
+            "outpt_sk": [
+                "v723"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "ADD_1",
+            "opcode": "01",
+            "disasm": "ADD",
+            "inpt_sk": [
+                "v720",
+                "v723"
+            ],
+            "outpt_sk": [
+                "v724"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "CALLDATASIZE_0",
+            "opcode": "36",
+            "disasm": "CALLDATASIZE",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "v725"
+            ],
+            "gas": 2,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "CALLDATACOPY_0",
+            "opcode": "37",
+            "disasm": "CALLDATACOPY",
+            "inpt_sk": [
+                "v722",
+                "v725",
+                "v724"
+            ],
+            "outpt_sk": [],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": true,
+            "size": 1
+        },
+        {
+            "id": "MSTORE_1",
+            "opcode": "52",
+            "disasm": "MSTORE",
+            "inpt_sk": [
+                "v721",
+                "v714"
+            ],
+            "outpt_sk": [],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": true,
+            "size": 1
+        },
+        {
+            "id": "MSTORE_2",
+            "opcode": "52",
+            "disasm": "MSTORE",
+            "inpt_sk": [
+                "v722",
+                "v709"
+            ],
+            "outpt_sk": [],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": true,
+            "size": 1
+        }
+    ],
+    "variables": [
+        "v725",
+        "s1",
+        "s0",
+        "v721",
+        "v723",
+        "v724",
+        "v722",
+        "v714",
+        "v709",
+        "v720"
+    ],
+    "memory_dependences": [
+        [
+            "MSTORE_0",
+            "CALLDATACOPY_0"
+        ],
+        [
+            "CALLDATACOPY_0",
+            "MSTORE_1"
+        ],
+        [
+            "MSTORE_1",
+            "MSTORE_2"
+        ]
+    ],
+    "storage_dependences": [],
+    "init_progr_len": 22,
+    "max_progr_len": 22,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_toStringWithFallback_Block6s",
+    "transient_dependences": [],
+    "dependencies": [
+        [
+            "MSTORE_0",
+            "CALLDATACOPY_0"
+        ],
+        [
+            "CALLDATACOPY_0",
+            "MSTORE_1"
+        ],
+        [
+            "MSTORE_1",
+            "MSTORE_2"
+        ]
+    ],
+    "admits_junk": false,
+    "max_sk_sz": 10,
+    "is_revert": false
+}

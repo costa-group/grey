@@ -1,0 +1,71 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v101 = PhiFunction(v4,v125)\nv102 = PhiFunction(v87,v115)\nv103 = lt(v101,v35)\n31 = PUSH [tag]\nJUMPI(31,v103)",
+    "src_ws": [
+        "v102",
+        "v35",
+        "v101",
+        "v33"
+    ],
+    "tgt_ws": [
+        "31",
+        "v103",
+        "v102",
+        "v35",
+        "v101",
+        "v33"
+    ],
+    "user_instrs": [
+        {
+            "id": "LT_0",
+            "opcode": "10",
+            "disasm": "LT",
+            "inpt_sk": [
+                "v101",
+                "v35"
+            ],
+            "outpt_sk": [
+                "v103"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "31"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "v101",
+        "31",
+        "v103",
+        "v35"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 4,
+    "max_progr_len": 4,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "ZamaERC20_9039_deployed_Block32",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 7,
+    "is_revert": false
+}

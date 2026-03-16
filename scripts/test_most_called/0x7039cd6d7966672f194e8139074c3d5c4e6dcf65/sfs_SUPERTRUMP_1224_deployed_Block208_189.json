@@ -1,0 +1,47 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v438 = LiteralAssignment(0x00)\n93 = PUSH [tag]\nJUMPI(93,v433)",
+    "src_ws": [
+        "v427",
+        "v433"
+    ],
+    "tgt_ws": [
+        "93",
+        "v433",
+        "v427",
+        "v433"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "93"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "93"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 2,
+    "max_progr_len": 2,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "SUPERTRUMP_1224_deployed_Block208",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": true,
+    "max_sk_sz": 5,
+    "is_revert": false
+}

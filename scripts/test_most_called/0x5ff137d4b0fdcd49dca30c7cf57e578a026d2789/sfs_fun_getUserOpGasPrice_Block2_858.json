@@ -1,0 +1,138 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v2072 = basefee\nv2073 = add(v2070,v2072)\nv2074 = LiteralAssignment(0x00)\nv2075 = lt(v2068,v2073)\nv2076 = eq(v2075,0x00)\n369 = PUSH [tag]\nJUMPI(369,v2076)",
+    "src_ws": [
+        "v2068",
+        "v2070",
+        "out_fun_getUserOpGasPrice"
+    ],
+    "tgt_ws": [
+        "369",
+        "v2076",
+        "v2068",
+        "v2073",
+        "out_fun_getUserOpGasPrice"
+    ],
+    "user_instrs": [
+        {
+            "id": "BASEFEE_0",
+            "opcode": "48",
+            "disasm": "BASEFEE",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "v2072"
+            ],
+            "gas": 2,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "ADD_0",
+            "opcode": "01",
+            "disasm": "ADD",
+            "inpt_sk": [
+                "v2070",
+                "v2072"
+            ],
+            "outpt_sk": [
+                "v2073"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "LT_0",
+            "opcode": "10",
+            "disasm": "LT",
+            "inpt_sk": [
+                "v2068",
+                "v2073"
+            ],
+            "outpt_sk": [
+                "v2075"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH0_1",
+            "opcode": "5f",
+            "disasm": "PUSH0",
+            "inpt_sk": [],
+            "value": [
+                0
+            ],
+            "outpt_sk": [
+                "s0"
+            ],
+            "gas": 2,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "EQ_0",
+            "opcode": "14",
+            "disasm": "EQ",
+            "inpt_sk": [
+                "v2075",
+                "s0"
+            ],
+            "outpt_sk": [
+                "v2076"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "369"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "v2075",
+        "v2073",
+        "v2076",
+        "s0",
+        "369",
+        "v2072",
+        "v2070",
+        "v2068"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 11,
+    "max_progr_len": 11,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_getUserOpGasPrice_Block2",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 6,
+    "is_revert": false
+}

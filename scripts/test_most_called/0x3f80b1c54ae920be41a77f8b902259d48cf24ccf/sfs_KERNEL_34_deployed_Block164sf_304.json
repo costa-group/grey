@@ -1,0 +1,108 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "95 = PUSH [tag]\n150 = PUSH [tag]\nv328 = mload(v318)\nv329 = keccak256(v319,v328)\nv330 = fun_domainSeparatorV4(95,150)",
+    "src_ws": [
+        "v319",
+        "v314",
+        "v284",
+        "v318",
+        "v282",
+        "v281",
+        "v280"
+    ],
+    "tgt_ws": [
+        "95",
+        "150",
+        "v314",
+        "v284",
+        "v329",
+        "v282",
+        "v281",
+        "v280"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "95"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "PUSH [TAG]_1",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "150"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "MLOAD_0",
+            "opcode": "51",
+            "disasm": "MLOAD",
+            "inpt_sk": [
+                "v318"
+            ],
+            "outpt_sk": [
+                "v328"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "KECCAK256_0",
+            "opcode": "20",
+            "disasm": "KECCAK256",
+            "inpt_sk": [
+                "v319",
+                "v328"
+            ],
+            "outpt_sk": [
+                "v329"
+            ],
+            "gas": 30,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        }
+    ],
+    "variables": [
+        "v328",
+        "95",
+        "150",
+        "v329",
+        "v318",
+        "v319"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 8,
+    "max_progr_len": 8,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "KERNEL_34_deployed_Block164sf",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": true,
+    "max_sk_sz": 9,
+    "is_revert": false
+}

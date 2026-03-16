@@ -1,0 +1,121 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "164 = PUSH [tag]\n937 = PUSH [tag]\nv2459 = LiteralAssignment(0x00)\nv2460 = gas\nv2461 = mload(v2456)\nv2462 = mload(v2461)\nv2463 = cleanup_address(164,v2462,937)",
+    "src_ws": [
+        "v2458",
+        "v2457",
+        "v2456",
+        "v2455",
+        "out_fun_validateAccountPrepayment"
+    ],
+    "tgt_ws": [
+        "164",
+        "v2462",
+        "937",
+        "v2461",
+        "v2460",
+        "v2458",
+        "v2457",
+        "v2456",
+        "v2455",
+        "out_fun_validateAccountPrepayment"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "164"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "PUSH [TAG]_1",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "937"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "GAS_0",
+            "opcode": "5a",
+            "disasm": "GAS",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "v2460"
+            ],
+            "gas": 2,
+            "commutative": false,
+            "push": false,
+            "storage": true,
+            "size": 1
+        },
+        {
+            "id": "MLOAD_0",
+            "opcode": "51",
+            "disasm": "MLOAD",
+            "inpt_sk": [
+                "v2456"
+            ],
+            "outpt_sk": [
+                "v2461"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "MLOAD_1",
+            "opcode": "51",
+            "disasm": "MLOAD",
+            "inpt_sk": [
+                "v2461"
+            ],
+            "outpt_sk": [
+                "v2462"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        }
+    ],
+    "variables": [
+        "v2462",
+        "164",
+        "v2461",
+        "937",
+        "v2460",
+        "v2456"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 7,
+    "max_progr_len": 7,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_validateAccountPrepayment_Block0f",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 11,
+    "is_revert": false
+}

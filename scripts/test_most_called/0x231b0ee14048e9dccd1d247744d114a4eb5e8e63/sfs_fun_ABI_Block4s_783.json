@@ -1,0 +1,49 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v1413 = LiteralAssignment(0x00)\nfunctionReturn(out_fun_ABI,v1413,v1412)",
+    "src_ws": [
+        "v1412",
+        "out_fun_ABI"
+    ],
+    "tgt_ws": [
+        "out_fun_ABI",
+        "v1413",
+        "v1412"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH0_0",
+            "opcode": "5f",
+            "disasm": "PUSH0",
+            "inpt_sk": [],
+            "value": [
+                0
+            ],
+            "outpt_sk": [
+                "v1413"
+            ],
+            "gas": 2,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 1
+        }
+    ],
+    "variables": [
+        "v1413"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 3,
+    "max_progr_len": 3,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_ABI_Block4s",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 4,
+    "is_revert": false
+}

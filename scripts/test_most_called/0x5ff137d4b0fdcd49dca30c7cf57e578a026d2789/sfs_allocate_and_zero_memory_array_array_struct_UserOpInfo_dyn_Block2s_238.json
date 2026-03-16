@@ -1,0 +1,123 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v718 = add(v710,v715)\nv719 = add(v718,0x20)\nmstore(v719,v717)\n133 = PUSH [tag]\nJUMP(133)",
+    "src_ws": [
+        "v717",
+        "v715",
+        "v710",
+        "v713",
+        "out_allocate_and_zero_memory_array_array_struct_UserOpInfo_dyn"
+    ],
+    "tgt_ws": [
+        "133",
+        "v715",
+        "v710",
+        "v713",
+        "out_allocate_and_zero_memory_array_array_struct_UserOpInfo_dyn"
+    ],
+    "user_instrs": [
+        {
+            "id": "ADD_0",
+            "opcode": "01",
+            "disasm": "ADD",
+            "inpt_sk": [
+                "v710",
+                "v715"
+            ],
+            "outpt_sk": [
+                "v718"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH_0",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                32
+            ],
+            "outpt_sk": [
+                "s0"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "ADD_1",
+            "opcode": "01",
+            "disasm": "ADD",
+            "inpt_sk": [
+                "v718",
+                "s0"
+            ],
+            "outpt_sk": [
+                "v719"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "MSTORE_0",
+            "opcode": "52",
+            "disasm": "MSTORE",
+            "inpt_sk": [
+                "v719",
+                "v717"
+            ],
+            "outpt_sk": [],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": true,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "133"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "v715",
+        "v717",
+        "v710",
+        "v718",
+        "s0",
+        "133",
+        "v719"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 7,
+    "max_progr_len": 7,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "allocate_and_zero_memory_array_array_struct_UserOpInfo_dyn_Block2s",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 8,
+    "is_revert": false
+}

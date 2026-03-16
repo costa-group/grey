@@ -1,0 +1,68 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v1907 = LiteralAssignment(0xdead)\n442 = PUSH [tag]\nJUMP(442)",
+    "src_ws": [
+        "v1887",
+        "v1875",
+        "v1886",
+        "out_fun_nonblockingLzReceive"
+    ],
+    "tgt_ws": [
+        "442",
+        "v1887",
+        "v1875",
+        "v1907",
+        "out_fun_nonblockingLzReceive"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH_0",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                57005
+            ],
+            "outpt_sk": [
+                "v1907"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "442"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "v1907",
+        "442"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 4,
+    "max_progr_len": 4,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_nonblockingLzReceive_Block10",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 6,
+    "is_revert": false
+}

@@ -1,0 +1,205 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "returndatacopy(0x00,0x00,0x20)\nv1999 = shl(0xe0,0xdeaddead)\nv2000 = mload(0x00)\nv2001 = eq(v2000,v1999)\n356 = PUSH [tag]\nJUMPI(356,v2001)",
+    "src_ws": [
+        "v1993",
+        "v1980",
+        "v1976",
+        "v1978",
+        "v1974",
+        "out_fun_executeUserOp"
+    ],
+    "tgt_ws": [
+        "356",
+        "v2001",
+        "v1980",
+        "v1976",
+        "v1978",
+        "v1974",
+        "out_fun_executeUserOp"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH0_0",
+            "opcode": "5f",
+            "disasm": "PUSH0",
+            "inpt_sk": [],
+            "value": [
+                0
+            ],
+            "outpt_sk": [
+                "s0"
+            ],
+            "gas": 2,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH_0",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                32
+            ],
+            "outpt_sk": [
+                "s1"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "RETURNDATACOPY_0",
+            "opcode": "3e",
+            "disasm": "RETURNDATACOPY",
+            "inpt_sk": [
+                "s0",
+                "s0",
+                "s1"
+            ],
+            "outpt_sk": [],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": true,
+            "size": 1
+        },
+        {
+            "id": "PUSH_1",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                224
+            ],
+            "outpt_sk": [
+                "s2"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "PUSH_2",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                3735936685
+            ],
+            "outpt_sk": [
+                "s3"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 5
+        },
+        {
+            "id": "SHL_0",
+            "opcode": "1b",
+            "disasm": "SHL",
+            "inpt_sk": [
+                "s2",
+                "s3"
+            ],
+            "outpt_sk": [
+                "v1999"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "MLOAD_0",
+            "opcode": "51",
+            "disasm": "MLOAD",
+            "inpt_sk": [
+                "s0"
+            ],
+            "outpt_sk": [
+                "v2000"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "EQ_0",
+            "opcode": "14",
+            "disasm": "EQ",
+            "inpt_sk": [
+                "v2000",
+                "v1999"
+            ],
+            "outpt_sk": [
+                "v2001"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "356"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "s1",
+        "v2000",
+        "s2",
+        "356",
+        "s0",
+        "s3",
+        "v1999",
+        "v2001"
+    ],
+    "memory_dependences": [
+        [
+            "RETURNDATACOPY_0",
+            "MLOAD_0"
+        ]
+    ],
+    "storage_dependences": [],
+    "init_progr_len": 12,
+    "max_progr_len": 12,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_executeUserOp_Block7",
+    "transient_dependences": [],
+    "dependencies": [
+        [
+            "RETURNDATACOPY_0",
+            "MLOAD_0"
+        ]
+    ],
+    "admits_junk": false,
+    "max_sk_sz": 9,
+    "is_revert": false
+}

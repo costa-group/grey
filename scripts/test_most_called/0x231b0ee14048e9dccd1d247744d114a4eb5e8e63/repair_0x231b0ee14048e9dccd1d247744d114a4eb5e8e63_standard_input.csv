@@ -1,0 +1,6 @@
+,name,num_phi,num_assigned,num_colors,before_constants,contract
+0,PublicResolver_3334,0,2,1,2,PublicResolver
+1,external_fun_multicallWithNodeCheck,0,1,1,1,PublicResolver
+2,external_fun_setDNSRecords,0,12,8,6,PublicResolver
+3,fun_setDNSRRSet,0,1,1,0,PublicResolver
+4,ReverseClaimer_5114,0,1,1,1,ReverseClaimer

@@ -1,0 +1,74 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "443 = PUSH [tag]\n807 = PUSH [tag]\nv1834 = fun_ld2sd(443,v1827,807)",
+    "src_ws": [
+        "v1833",
+        "v1828",
+        "v1829",
+        "v1824",
+        "v1823",
+        "v1827",
+        "v1831",
+        "out_fun_estimateSendAndCallFee"
+    ],
+    "tgt_ws": [
+        "443",
+        "v1827",
+        "807",
+        "v1828",
+        "v1829",
+        "v1824",
+        "v1823",
+        "v1833",
+        "v1831",
+        "out_fun_estimateSendAndCallFee"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "443"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "PUSH [TAG]_1",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "807"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "807",
+        "443"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 4,
+    "max_progr_len": 4,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_estimateSendAndCallFee_Block0ssf",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 11,
+    "is_revert": false
+}

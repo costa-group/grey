@@ -1,0 +1,123 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "74 = PUSH [tag]\n151 = PUSH [tag]\nv300 = add(v295,0x20)\nv301 = add(v282,0x20)\ncopy_memory_to_memory_with_cleanup(74,v301,v300,v286,151)",
+    "src_ws": [
+        "v286",
+        "v282",
+        "v295",
+        "out_abi_decode_string_fromMemory"
+    ],
+    "tgt_ws": [
+        "74",
+        "v301",
+        "v300",
+        "v286",
+        "151",
+        "v295",
+        "out_abi_decode_string_fromMemory"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "74"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "PUSH [TAG]_1",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "151"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "PUSH_0",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                32
+            ],
+            "outpt_sk": [
+                "s0"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "ADD_0",
+            "opcode": "01",
+            "disasm": "ADD",
+            "inpt_sk": [
+                "v295",
+                "s0"
+            ],
+            "outpt_sk": [
+                "v300"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "ADD_1",
+            "opcode": "01",
+            "disasm": "ADD",
+            "inpt_sk": [
+                "v282",
+                "s0"
+            ],
+            "outpt_sk": [
+                "v301"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        }
+    ],
+    "variables": [
+        "v301",
+        "v282",
+        "74",
+        "s0",
+        "151",
+        "v300",
+        "v295"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 9,
+    "max_progr_len": 9,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "abi_decode_string_fromMemory_Block8f",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 8,
+    "is_revert": false
+}

@@ -1,0 +1,66 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "253 = PUSH [tag]\n491 = PUSH [tag]\nv1241 = checked_mul_uint256(253,v1238,v1237,491)",
+    "src_ws": [
+        "v1238",
+        "v1237",
+        "out_fun_mul"
+    ],
+    "tgt_ws": [
+        "253",
+        "v1238",
+        "v1237",
+        "491",
+        "v1238",
+        "v1237",
+        "out_fun_mul"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "253"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "PUSH [TAG]_1",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "491"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "253",
+        "491"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 4,
+    "max_progr_len": 4,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_mul_Block2f",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 8,
+    "is_revert": false
+}

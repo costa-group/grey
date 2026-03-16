@@ -1,0 +1,85 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "349 = PUSH [tag]\n697 = PUSH [tag]\nv1436 = sub(v1435,v1434)\nfinalize_allocation(349,v1434,v1436,697)",
+    "src_ws": [
+        "v1435",
+        "v1434",
+        "out_fun_addr"
+    ],
+    "tgt_ws": [
+        "349",
+        "v1434",
+        "v1436",
+        "697",
+        "v1434",
+        "out_fun_addr"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "349"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "PUSH [TAG]_1",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "697"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "SUB_0",
+            "opcode": "03",
+            "disasm": "SUB",
+            "inpt_sk": [
+                "v1435",
+                "v1434"
+            ],
+            "outpt_sk": [
+                "v1436"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        }
+    ],
+    "variables": [
+        "v1435",
+        "697",
+        "349",
+        "v1436",
+        "v1434"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 7,
+    "max_progr_len": 7,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_addr_Block0sf",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 7,
+    "is_revert": false
+}

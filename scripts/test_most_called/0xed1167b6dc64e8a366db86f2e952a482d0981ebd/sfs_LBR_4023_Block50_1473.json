@@ -1,0 +1,52 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "35 = PUSH [tag]\nJUMP(35)",
+    "src_ws": [
+        "v121",
+        "v92",
+        "v25",
+        "v12",
+        "v9"
+    ],
+    "tgt_ws": [
+        "35",
+        "v121",
+        "v92",
+        "v25",
+        "v12",
+        "v9"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "35"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "35"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 1,
+    "max_progr_len": 1,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "LBR_4023_Block50",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": true,
+    "max_sk_sz": 7,
+    "is_revert": false
+}

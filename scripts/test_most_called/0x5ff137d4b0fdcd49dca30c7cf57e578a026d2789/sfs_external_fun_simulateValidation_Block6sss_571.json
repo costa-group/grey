@@ -1,0 +1,54 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "259 = PUSH [tag]\nJUMP(259)",
+    "src_ws": [
+        "v1354",
+        "v1339",
+        "v1333",
+        "v1334",
+        "v1332",
+        "v1342"
+    ],
+    "tgt_ws": [
+        "259",
+        "v1354",
+        "v1339",
+        "v1333",
+        "v1334",
+        "v1332",
+        "v1342"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "259"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "259"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 1,
+    "max_progr_len": 1,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "external_fun_simulateValidation_Block6sss",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 8,
+    "is_revert": false
+}

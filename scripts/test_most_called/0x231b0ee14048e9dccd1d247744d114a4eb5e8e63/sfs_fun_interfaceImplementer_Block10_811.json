@@ -1,0 +1,51 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v1503 = PhiFunction(v1499,v1508)\n373 = PUSH [tag]\nJUMPI(373,v1503)",
+    "src_ws": [
+        "b0",
+        "v1503",
+        "v1479",
+        "v1464",
+        "out_fun_interfaceImplementer"
+    ],
+    "tgt_ws": [
+        "373",
+        "v1503",
+        "v1479",
+        "v1464",
+        "out_fun_interfaceImplementer"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "373"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "373"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 2,
+    "max_progr_len": 2,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_interfaceImplementer_Block10",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 6,
+    "is_revert": false
+}

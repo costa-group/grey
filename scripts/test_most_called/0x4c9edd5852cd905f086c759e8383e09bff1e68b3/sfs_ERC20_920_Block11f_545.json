@@ -1,0 +1,87 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "49 = PUSH [tag]\n60 = PUSH [tag]\nv20 = add(v5,v16)\nv21 = abi_decode_string_fromMemory(49,v20,v6,60)",
+    "src_ws": [
+        "v16",
+        "v14",
+        "v6",
+        "v5"
+    ],
+    "tgt_ws": [
+        "49",
+        "v20",
+        "v6",
+        "60",
+        "v14",
+        "v6",
+        "v5"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "49"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "PUSH [TAG]_1",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "60"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "ADD_0",
+            "opcode": "01",
+            "disasm": "ADD",
+            "inpt_sk": [
+                "v5",
+                "v16"
+            ],
+            "outpt_sk": [
+                "v20"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        }
+    ],
+    "variables": [
+        "49",
+        "60",
+        "v16",
+        "v20",
+        "v5"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 7,
+    "max_progr_len": 7,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "ERC20_920_Block11f",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": true,
+    "max_sk_sz": 8,
+    "is_revert": false
+}

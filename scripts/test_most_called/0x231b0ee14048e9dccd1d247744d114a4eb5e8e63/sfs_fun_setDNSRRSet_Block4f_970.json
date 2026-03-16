@@ -1,0 +1,73 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "447 = PUSH [tag]\n780 = PUSH [tag]\nv1770 = mapping_index_access_mapping_uint64_mapping_bytes32_mapping_string_memory_ptr_string_storage__of_uint64(447,v1724,780)",
+    "src_ws": [
+        "v1729",
+        "v1730",
+        "v1731",
+        "v1734",
+        "v1735",
+        "v1724",
+        "out_fun_setDNSRRSet"
+    ],
+    "tgt_ws": [
+        "447",
+        "v1724",
+        "780",
+        "v1729",
+        "v1730",
+        "v1731",
+        "v1734",
+        "v1735",
+        "v1724",
+        "out_fun_setDNSRRSet"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "447"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "PUSH [TAG]_1",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "780"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "780",
+        "447"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 3,
+    "max_progr_len": 3,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_setDNSRRSet_Block4f",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 11,
+    "is_revert": false
+}

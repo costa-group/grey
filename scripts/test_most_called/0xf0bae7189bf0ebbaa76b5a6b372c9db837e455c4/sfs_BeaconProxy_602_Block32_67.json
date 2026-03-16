@@ -1,0 +1,124 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v77 = mload(0x40)\nv78 = push #[$][BeaconProxy_602_deployed]\nv79 = push [$][BeaconProxy_602_deployed]\ncodecopy(v77,v79,v78)\nreturn(v77,v78)",
+    "src_ws": [],
+    "tgt_ws": [
+        "v77",
+        "v78"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH_0",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                64
+            ],
+            "outpt_sk": [
+                "s0"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "MLOAD_0",
+            "opcode": "51",
+            "disasm": "MLOAD",
+            "inpt_sk": [
+                "s0"
+            ],
+            "outpt_sk": [
+                "v77"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH #[$]_0",
+            "opcode": "00",
+            "disasm": "PUSH #[$]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "v78"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 5,
+            "value": [
+                "0000000000000000000000000000000000000000000000000000000000000000"
+            ]
+        },
+        {
+            "id": "PUSH [$]_0",
+            "opcode": "00",
+            "disasm": "PUSH [$]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "v79"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3,
+            "value": [
+                "0000000000000000000000000000000000000000000000000000000000000000"
+            ]
+        },
+        {
+            "id": "CODECOPY_0",
+            "opcode": "39",
+            "disasm": "CODECOPY",
+            "inpt_sk": [
+                "v77",
+                "v79",
+                "v78"
+            ],
+            "outpt_sk": [],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": true,
+            "size": 1
+        }
+    ],
+    "variables": [
+        "s0",
+        "v78",
+        "v77",
+        "v79"
+    ],
+    "memory_dependences": [
+        [
+            "MLOAD_0",
+            "CODECOPY_0"
+        ]
+    ],
+    "storage_dependences": [],
+    "init_progr_len": 7,
+    "max_progr_len": 7,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "BeaconProxy_602_Block32",
+    "transient_dependences": [],
+    "dependencies": [
+        [
+            "MLOAD_0",
+            "CODECOPY_0"
+        ]
+    ],
+    "admits_junk": true,
+    "max_sk_sz": 6,
+    "is_revert": false
+}

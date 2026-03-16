@@ -1,0 +1,125 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v2920 = not(0xffffffffffff00000000)\nv2921 = sload(v2919)\nv2922 = and(v2921,v2920)\nsstore(v2919,v2922)\nfunctionReturn(out_update_storage_value_offset_uint48_to_uint48)",
+    "src_ws": [
+        "v2919",
+        "out_update_storage_value_offset_uint48_to_uint48"
+    ],
+    "tgt_ws": [
+        "out_update_storage_value_offset_uint48_to_uint48"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH_0",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                1208925819614624879738880
+            ],
+            "outpt_sk": [
+                "s0"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 11
+        },
+        {
+            "id": "NOT_0",
+            "opcode": "19",
+            "disasm": "NOT",
+            "inpt_sk": [
+                "s0"
+            ],
+            "outpt_sk": [
+                "v2920"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "SLOAD_0",
+            "opcode": "54",
+            "disasm": "SLOAD",
+            "inpt_sk": [
+                "v2919"
+            ],
+            "outpt_sk": [
+                "v2921"
+            ],
+            "gas": 2100,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "AND_0",
+            "opcode": "16",
+            "disasm": "AND",
+            "inpt_sk": [
+                "v2921",
+                "v2920"
+            ],
+            "outpt_sk": [
+                "v2922"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "SSTORE_0",
+            "opcode": "55",
+            "disasm": "SSTORE",
+            "inpt_sk": [
+                "v2919",
+                "v2922"
+            ],
+            "outpt_sk": [],
+            "gas": 5000,
+            "commutative": false,
+            "push": false,
+            "storage": true,
+            "size": 1
+        }
+    ],
+    "variables": [
+        "v2922",
+        "v2919",
+        "s0",
+        "v2921",
+        "v2920"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [
+        [
+            "SLOAD_0",
+            "SSTORE_0"
+        ]
+    ],
+    "init_progr_len": 7,
+    "max_progr_len": 7,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "update_storage_value_offset_uint48_to_uint48_Block0",
+    "transient_dependences": [],
+    "dependencies": [
+        [
+            "SLOAD_0",
+            "SSTORE_0"
+        ]
+    ],
+    "admits_junk": false,
+    "max_sk_sz": 5,
+    "is_revert": false
+}

@@ -1,0 +1,134 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "140 = PUSH [tag]\n735 = PUSH [tag]\nv1375 = add(v1332,0x60)\nv1376 = mload(v1375)\nv1377 = allocate_memory_15385(140,735)",
+    "src_ws": [
+        "v1374",
+        "v1363",
+        "v1366",
+        "v1368",
+        "v1364",
+        "v1360",
+        "v1371",
+        "v1339",
+        "v1357",
+        "v1332",
+        "v1342"
+    ],
+    "tgt_ws": [
+        "140",
+        "735",
+        "v1374",
+        "v1363",
+        "v1366",
+        "v1368",
+        "v1364",
+        "v1360",
+        "v1371",
+        "v1339",
+        "v1357",
+        "v1376",
+        "v1342"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "140"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "PUSH [TAG]_1",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "735"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "PUSH_0",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                96
+            ],
+            "outpt_sk": [
+                "s0"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "ADD_0",
+            "opcode": "01",
+            "disasm": "ADD",
+            "inpt_sk": [
+                "v1332",
+                "s0"
+            ],
+            "outpt_sk": [
+                "v1375"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "MLOAD_0",
+            "opcode": "51",
+            "disasm": "MLOAD",
+            "inpt_sk": [
+                "v1375"
+            ],
+            "outpt_sk": [
+                "v1376"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        }
+    ],
+    "variables": [
+        "v1332",
+        "735",
+        "v1375",
+        "s0",
+        "v1376",
+        "140"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 21,
+    "max_progr_len": 21,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "external_fun_simulateValidation_Block4sssssf",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 15,
+    "is_revert": false
+}

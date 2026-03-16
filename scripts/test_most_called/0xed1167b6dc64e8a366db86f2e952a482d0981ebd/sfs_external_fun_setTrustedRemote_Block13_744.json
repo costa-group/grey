@@ -1,0 +1,77 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v1224 = lt(v1210,v1199)\n312 = PUSH [tag]\nJUMPI(312,v1224)",
+    "src_ws": [
+        "v1217",
+        "v1219",
+        "v1210",
+        "v1218",
+        "v1201",
+        "v1197",
+        "v1198",
+        "v1199"
+    ],
+    "tgt_ws": [
+        "312",
+        "v1224",
+        "v1219",
+        "v1218",
+        "v1201",
+        "v1197",
+        "v1198",
+        "v1199"
+    ],
+    "user_instrs": [
+        {
+            "id": "LT_0",
+            "opcode": "10",
+            "disasm": "LT",
+            "inpt_sk": [
+                "v1210",
+                "v1199"
+            ],
+            "outpt_sk": [
+                "v1224"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "312"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "v1199",
+        "v1224",
+        "v1210",
+        "312"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 6,
+    "max_progr_len": 6,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "external_fun_setTrustedRemote_Block13",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 9,
+    "is_revert": false
+}

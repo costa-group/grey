@@ -1,0 +1,92 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "164 = PUSH [tag]\n883 = PUSH [tag]\nv2191 = mload(v2160)\nv2192 = cleanup_address(164,v2191,883)",
+    "src_ws": [
+        "v2190",
+        "v2158",
+        "v2176",
+        "v2155",
+        "v2188",
+        "v2160",
+        "v2177",
+        "out_fun_handlePostOp"
+    ],
+    "tgt_ws": [
+        "164",
+        "v2191",
+        "883",
+        "v2158",
+        "v2176",
+        "v2155",
+        "v2188",
+        "v2190",
+        "v2177",
+        "out_fun_handlePostOp"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "164"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "PUSH [TAG]_1",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "883"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "MLOAD_0",
+            "opcode": "51",
+            "disasm": "MLOAD",
+            "inpt_sk": [
+                "v2160"
+            ],
+            "outpt_sk": [
+                "v2191"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        }
+    ],
+    "variables": [
+        "164",
+        "v2160",
+        "v2191",
+        "883"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 5,
+    "max_progr_len": 5,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_handlePostOp_Block32sssf",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 11,
+    "is_revert": false
+}

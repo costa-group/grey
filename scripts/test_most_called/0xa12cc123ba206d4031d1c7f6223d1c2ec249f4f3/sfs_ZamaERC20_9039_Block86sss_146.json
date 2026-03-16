@@ -1,0 +1,311 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v213 = mload(v205)\nv214 = keccak256(v206,v213)\nmstore(0x80,v214)\nv215 = address\nmstore(0xc0,v215)\nv216 = mload(v32)\nv217 = mload(v56)\nv218 = eq(v217,v216)\nv219 = iszero(v218)\n55 = PUSH [tag]\nJUMPI(55,v219)",
+    "src_ws": [
+        "v69",
+        "v67",
+        "v32",
+        "v56",
+        "v206",
+        "v205"
+    ],
+    "tgt_ws": [
+        "55",
+        "v219",
+        "v216",
+        "v69",
+        "v67",
+        "v32",
+        "v56",
+        "v206",
+        "v205"
+    ],
+    "user_instrs": [
+        {
+            "id": "MLOAD_0",
+            "opcode": "51",
+            "disasm": "MLOAD",
+            "inpt_sk": [
+                "v205"
+            ],
+            "outpt_sk": [
+                "v213"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "KECCAK256_0",
+            "opcode": "20",
+            "disasm": "KECCAK256",
+            "inpt_sk": [
+                "v206",
+                "v213"
+            ],
+            "outpt_sk": [
+                "v214"
+            ],
+            "gas": 30,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH_0",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                128
+            ],
+            "outpt_sk": [
+                "s0"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "MSTORE_0",
+            "opcode": "52",
+            "disasm": "MSTORE",
+            "inpt_sk": [
+                "s0",
+                "v214"
+            ],
+            "outpt_sk": [],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": true,
+            "size": 1
+        },
+        {
+            "id": "ADDRESS_0",
+            "opcode": "30",
+            "disasm": "ADDRESS",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "v215"
+            ],
+            "gas": 2,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH_1",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                192
+            ],
+            "outpt_sk": [
+                "s1"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "MSTORE_1",
+            "opcode": "52",
+            "disasm": "MSTORE",
+            "inpt_sk": [
+                "s1",
+                "v215"
+            ],
+            "outpt_sk": [],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": true,
+            "size": 1
+        },
+        {
+            "id": "MLOAD_1",
+            "opcode": "51",
+            "disasm": "MLOAD",
+            "inpt_sk": [
+                "v32"
+            ],
+            "outpt_sk": [
+                "v216"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "MLOAD_2",
+            "opcode": "51",
+            "disasm": "MLOAD",
+            "inpt_sk": [
+                "v56"
+            ],
+            "outpt_sk": [
+                "v217"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "EQ_0",
+            "opcode": "14",
+            "disasm": "EQ",
+            "inpt_sk": [
+                "v217",
+                "v216"
+            ],
+            "outpt_sk": [
+                "v218"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "ISZERO_0",
+            "opcode": "15",
+            "disasm": "ISZERO",
+            "inpt_sk": [
+                "v218"
+            ],
+            "outpt_sk": [
+                "v219"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "55"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "v205",
+        "v217",
+        "v216",
+        "v56",
+        "v213",
+        "v215",
+        "s0",
+        "v218",
+        "v206",
+        "v214",
+        "v32",
+        "v219",
+        "55",
+        "s1"
+    ],
+    "memory_dependences": [
+        [
+            "MLOAD_0",
+            "MSTORE_0"
+        ],
+        [
+            "MLOAD_0",
+            "MSTORE_1"
+        ],
+        [
+            "MSTORE_0",
+            "MLOAD_1"
+        ],
+        [
+            "MSTORE_0",
+            "MLOAD_2"
+        ],
+        [
+            "MSTORE_1",
+            "MLOAD_1"
+        ],
+        [
+            "MSTORE_1",
+            "MLOAD_2"
+        ],
+        [
+            "KECCAK256_0",
+            "MSTORE_0"
+        ],
+        [
+            "KECCAK256_0",
+            "MSTORE_1"
+        ]
+    ],
+    "storage_dependences": [],
+    "init_progr_len": 17,
+    "max_progr_len": 17,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "ZamaERC20_9039_Block86sss",
+    "transient_dependences": [],
+    "dependencies": [
+        [
+            "MLOAD_0",
+            "MSTORE_0"
+        ],
+        [
+            "MLOAD_0",
+            "MSTORE_1"
+        ],
+        [
+            "MSTORE_0",
+            "MLOAD_1"
+        ],
+        [
+            "MSTORE_0",
+            "MLOAD_2"
+        ],
+        [
+            "MSTORE_1",
+            "MLOAD_1"
+        ],
+        [
+            "MSTORE_1",
+            "MLOAD_2"
+        ],
+        [
+            "KECCAK256_0",
+            "MSTORE_0"
+        ],
+        [
+            "KECCAK256_0",
+            "MSTORE_1"
+        ]
+    ],
+    "admits_junk": true,
+    "max_sk_sz": 10,
+    "is_revert": false
+}

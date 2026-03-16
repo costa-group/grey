@@ -1,0 +1,98 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v1324 = extcodesize(v1300)\nv1325 = iszero(v1324)\n286 = PUSH [tag]\nJUMPI(286,v1325)",
+    "src_ws": [
+        "v1300",
+        "v1288",
+        "v1287",
+        "v1286",
+        "v1282",
+        "v1281",
+        "v1260",
+        "v1277",
+        "v1252",
+        "out_fun_swapBack"
+    ],
+    "tgt_ws": [
+        "286",
+        "v1325",
+        "v1300",
+        "v1288",
+        "v1287",
+        "v1286",
+        "v1282",
+        "v1281",
+        "v1260",
+        "v1277",
+        "v1252",
+        "out_fun_swapBack"
+    ],
+    "user_instrs": [
+        {
+            "id": "EXTCODESIZE_0",
+            "opcode": "3b",
+            "disasm": "EXTCODESIZE",
+            "inpt_sk": [
+                "v1300"
+            ],
+            "outpt_sk": [
+                "v1324"
+            ],
+            "gas": 2600,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "ISZERO_0",
+            "opcode": "15",
+            "disasm": "ISZERO",
+            "inpt_sk": [
+                "v1324"
+            ],
+            "outpt_sk": [
+                "v1325"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "286"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "v1300",
+        "v1324",
+        "v1325",
+        "286"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 4,
+    "max_progr_len": 4,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_swapBack_Block28s",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 13,
+    "is_revert": false
+}

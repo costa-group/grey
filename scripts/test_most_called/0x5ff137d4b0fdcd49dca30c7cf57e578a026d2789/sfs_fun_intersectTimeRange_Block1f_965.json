@@ -1,0 +1,84 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "164 = PUSH [tag]\n915 = PUSH [tag]\nv2345 = mload(v2322)\nv2346 = cleanup_address(164,v2345,915)",
+    "src_ws": [
+        "v2324",
+        "v2322",
+        "v2321",
+        "out_fun_intersectTimeRange"
+    ],
+    "tgt_ws": [
+        "164",
+        "v2345",
+        "915",
+        "v2322",
+        "v2321",
+        "out_fun_intersectTimeRange"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "164"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "PUSH [TAG]_1",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "915"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "MLOAD_0",
+            "opcode": "51",
+            "disasm": "MLOAD",
+            "inpt_sk": [
+                "v2322"
+            ],
+            "outpt_sk": [
+                "v2345"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        }
+    ],
+    "variables": [
+        "164",
+        "v2345",
+        "915",
+        "v2322"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 5,
+    "max_progr_len": 5,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_intersectTimeRange_Block1f",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 7,
+    "is_revert": false
+}

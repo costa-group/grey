@@ -1,0 +1,114 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "395 = PUSH [tag]\n800 = PUSH [tag]\nv1658 = mload(v1649)\nv1659 = sub(v1658,v1648)\nfun_incrementDeposit(395,v1643,v1659,800)",
+    "src_ws": [
+        "v1643",
+        "v1647",
+        "v1628",
+        "v1644",
+        "v1649",
+        "v1624",
+        "v1623",
+        "v1630",
+        "v1648",
+        "out_fun__handlePostOp"
+    ],
+    "tgt_ws": [
+        "395",
+        "v1643",
+        "v1659",
+        "800",
+        "v1644",
+        "v1628",
+        "v1647",
+        "v1623",
+        "v1630",
+        "v1648",
+        "out_fun__handlePostOp"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "395"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "PUSH [TAG]_1",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "800"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "MLOAD_0",
+            "opcode": "51",
+            "disasm": "MLOAD",
+            "inpt_sk": [
+                "v1649"
+            ],
+            "outpt_sk": [
+                "v1658"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "SUB_0",
+            "opcode": "03",
+            "disasm": "SUB",
+            "inpt_sk": [
+                "v1658",
+                "v1648"
+            ],
+            "outpt_sk": [
+                "v1659"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        }
+    ],
+    "variables": [
+        "v1658",
+        "800",
+        "v1659",
+        "v1649",
+        "395",
+        "v1648"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 11,
+    "max_progr_len": 11,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun__handlePostOp_Block21f",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 13,
+    "is_revert": false
+}

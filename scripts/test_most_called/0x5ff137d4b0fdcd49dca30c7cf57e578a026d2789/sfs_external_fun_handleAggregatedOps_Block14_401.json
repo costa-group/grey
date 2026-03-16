@@ -1,0 +1,113 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v1130 = iszero(v1122)\nv1131 = eq(v1130,0x00)\n219 = PUSH [tag]\nJUMPI(219,v1131)",
+    "src_ws": [
+        "v1122",
+        "b0",
+        "v1083",
+        "v1086",
+        "v1075",
+        "v1076",
+        "v1070",
+        "v1071",
+        "v1072"
+    ],
+    "tgt_ws": [
+        "219",
+        "v1131",
+        "v1083",
+        "v1086",
+        "v1075",
+        "v1076",
+        "v1070",
+        "v1071",
+        "v1072"
+    ],
+    "user_instrs": [
+        {
+            "id": "ISZERO_0",
+            "opcode": "15",
+            "disasm": "ISZERO",
+            "inpt_sk": [
+                "v1122"
+            ],
+            "outpt_sk": [
+                "v1130"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH0_0",
+            "opcode": "5f",
+            "disasm": "PUSH0",
+            "inpt_sk": [],
+            "value": [
+                0
+            ],
+            "outpt_sk": [
+                "s0"
+            ],
+            "gas": 2,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "EQ_0",
+            "opcode": "14",
+            "disasm": "EQ",
+            "inpt_sk": [
+                "v1130",
+                "s0"
+            ],
+            "outpt_sk": [
+                "v1131"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "219"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "v1130",
+        "v1131",
+        "v1122",
+        "219",
+        "s0"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 6,
+    "max_progr_len": 6,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "external_fun_handleAggregatedOps_Block14",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 11,
+    "is_revert": false
+}

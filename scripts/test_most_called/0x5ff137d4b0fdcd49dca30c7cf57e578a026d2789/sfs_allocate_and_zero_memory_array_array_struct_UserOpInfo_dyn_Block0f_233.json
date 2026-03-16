@@ -1,0 +1,63 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "142 = PUSH [tag]\n581 = PUSH [tag]\nv709 = array_allocation_size_array_struct_UserOpInfo_dyn(142,v708,581)",
+    "src_ws": [
+        "v708",
+        "out_allocate_and_zero_memory_array_array_struct_UserOpInfo_dyn"
+    ],
+    "tgt_ws": [
+        "142",
+        "v708",
+        "581",
+        "v708",
+        "out_allocate_and_zero_memory_array_array_struct_UserOpInfo_dyn"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "142"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "PUSH [TAG]_1",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "581"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "142",
+        "581"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 3,
+    "max_progr_len": 3,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "allocate_and_zero_memory_array_array_struct_UserOpInfo_dyn_Block0f",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 6,
+    "is_revert": false
+}

@@ -1,0 +1,50 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "509 = PUSH [tag]\nJUMP(509)",
+    "src_ws": [
+        "v2300",
+        "v2299",
+        "v2298",
+        "out_fun_transferFrom"
+    ],
+    "tgt_ws": [
+        "509",
+        "v2300",
+        "v2299",
+        "v2298",
+        "out_fun_transferFrom"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "509"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "509"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 1,
+    "max_progr_len": 1,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_transferFrom_Block3s",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 6,
+    "is_revert": false
+}

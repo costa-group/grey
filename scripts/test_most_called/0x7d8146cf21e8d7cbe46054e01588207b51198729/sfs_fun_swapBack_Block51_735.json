@@ -1,0 +1,75 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v1435 = returndatasize\n305 = PUSH [tag]\nJUMP(305)",
+    "src_ws": [
+        "a8",
+        "v1409",
+        "v1286",
+        "v1300",
+        "v1281",
+        "v1386",
+        "v1277",
+        "v1369",
+        "out_fun_swapBack"
+    ],
+    "tgt_ws": [
+        "305",
+        "v1435",
+        "v1409",
+        "v1286",
+        "v1300",
+        "v1281",
+        "v1386",
+        "v1277",
+        "v1369",
+        "out_fun_swapBack"
+    ],
+    "user_instrs": [
+        {
+            "id": "RETURNDATASIZE_0",
+            "opcode": "3c",
+            "disasm": "RETURNDATASIZE",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "v1435"
+            ],
+            "gas": 2,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "305"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "305",
+        "v1435"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 3,
+    "max_progr_len": 3,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_swapBack_Block51",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 11,
+    "is_revert": false
+}

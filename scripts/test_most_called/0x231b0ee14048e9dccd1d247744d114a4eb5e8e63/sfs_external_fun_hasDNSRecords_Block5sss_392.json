@@ -1,0 +1,52 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v660 = sub(v659,v658)\nreturn(v658,v660)",
+    "src_ws": [
+        "v659",
+        "v658"
+    ],
+    "tgt_ws": [
+        "v658",
+        "v660",
+        "v659",
+        "v658"
+    ],
+    "user_instrs": [
+        {
+            "id": "SUB_0",
+            "opcode": "03",
+            "disasm": "SUB",
+            "inpt_sk": [
+                "v659",
+                "v658"
+            ],
+            "outpt_sk": [
+                "v660"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        }
+    ],
+    "variables": [
+        "v660",
+        "v658",
+        "v659"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 4,
+    "max_progr_len": 4,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "external_fun_hasDNSRecords_Block5sss",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 5,
+    "is_revert": false
+}

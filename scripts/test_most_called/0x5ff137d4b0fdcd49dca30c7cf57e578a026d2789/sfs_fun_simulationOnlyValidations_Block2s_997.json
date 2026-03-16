@@ -1,0 +1,139 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v2393 = sub(v2392,v2389)\nv2394 = address\nv2395 = gas\nv2396 = staticcall(v2395,v2394,v2389,v2393,v2389,0x00)\n422 = PUSH [tag]\nJUMPI(422,v2396)",
+    "src_ws": [
+        "v2392",
+        "v2389",
+        "out_fun_simulationOnlyValidations"
+    ],
+    "tgt_ws": [
+        "422",
+        "v2396",
+        "v2396",
+        "v2389",
+        "out_fun_simulationOnlyValidations"
+    ],
+    "user_instrs": [
+        {
+            "id": "SUB_0",
+            "opcode": "03",
+            "disasm": "SUB",
+            "inpt_sk": [
+                "v2392",
+                "v2389"
+            ],
+            "outpt_sk": [
+                "v2393"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "ADDRESS_0",
+            "opcode": "30",
+            "disasm": "ADDRESS",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "v2394"
+            ],
+            "gas": 2,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "GAS_0",
+            "opcode": "5a",
+            "disasm": "GAS",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "v2395"
+            ],
+            "gas": 2,
+            "commutative": false,
+            "push": false,
+            "storage": true,
+            "size": 1
+        },
+        {
+            "id": "PUSH0_0",
+            "opcode": "5f",
+            "disasm": "PUSH0",
+            "inpt_sk": [],
+            "value": [
+                0
+            ],
+            "outpt_sk": [
+                "s0"
+            ],
+            "gas": 2,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "STATICCALL_0",
+            "opcode": "fa",
+            "disasm": "STATICCALL",
+            "inpt_sk": [
+                "v2395",
+                "v2394",
+                "v2389",
+                "v2393",
+                "v2389",
+                "s0"
+            ],
+            "outpt_sk": [
+                "v2396"
+            ],
+            "gas": 100,
+            "commutative": false,
+            "push": false,
+            "storage": true,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "422"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "v2395",
+        "v2396",
+        "v2392",
+        "v2394",
+        "s0",
+        "422",
+        "v2393",
+        "v2389"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 13,
+    "max_progr_len": 13,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_simulationOnlyValidations_Block2s",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 10,
+    "is_revert": false
+}

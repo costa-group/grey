@@ -1,0 +1,30 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "functionReturn(out_fun_spendAllowance)",
+    "src_ws": [
+        "b1",
+        "b2",
+        "b0",
+        "b3",
+        "out_fun_spendAllowance"
+    ],
+    "tgt_ws": [
+        "out_fun_spendAllowance"
+    ],
+    "user_instrs": [],
+    "variables": [],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 4,
+    "max_progr_len": 4,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_spendAllowance_Block2",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 6,
+    "is_revert": false
+}

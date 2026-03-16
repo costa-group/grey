@@ -1,0 +1,108 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v125 = PhiFunction(v109,v128)\nv126 = lt(v125,0x20)\nv127 = eq(v110,v126)\n31 = PUSH [tag]\nJUMPI(31,v127)",
+    "src_ws": [
+        "v125",
+        "v110",
+        "v96",
+        "v24",
+        "v21"
+    ],
+    "tgt_ws": [
+        "31",
+        "v127",
+        "v125",
+        "v96",
+        "v24",
+        "v21"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH_0",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                32
+            ],
+            "outpt_sk": [
+                "s0"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "LT_0",
+            "opcode": "10",
+            "disasm": "LT",
+            "inpt_sk": [
+                "v125",
+                "s0"
+            ],
+            "outpt_sk": [
+                "v126"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "EQ_0",
+            "opcode": "14",
+            "disasm": "EQ",
+            "inpt_sk": [
+                "v110",
+                "v126"
+            ],
+            "outpt_sk": [
+                "v127"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "31"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "s0",
+        "v110",
+        "v126",
+        "31",
+        "v125",
+        "v127"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 6,
+    "max_progr_len": 6,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "OFTV2_2477_Block52",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": true,
+    "max_sk_sz": 8,
+    "is_revert": false
+}

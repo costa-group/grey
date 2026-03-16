@@ -1,0 +1,213 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v51 = calldatasize\ncalldatacopy(0x00,0x00,v51)\nv52 = calldatasize\nv53 = gas\nv54 = delegatecall(v53,v50,0x00,v52,0x00,0x00)\nv55 = returndatasize\nreturndatacopy(0x00,0x00,v55)\nv56 = eq(v54,0x00)\n15 = PUSH [tag]\nJUMPI(15,v56)",
+    "src_ws": [
+        "v50"
+    ],
+    "tgt_ws": [
+        "15",
+        "v56"
+    ],
+    "user_instrs": [
+        {
+            "id": "CALLDATASIZE_0",
+            "opcode": "36",
+            "disasm": "CALLDATASIZE",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "v51"
+            ],
+            "gas": 2,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH0_0",
+            "opcode": "5f",
+            "disasm": "PUSH0",
+            "inpt_sk": [],
+            "value": [
+                0
+            ],
+            "outpt_sk": [
+                "s0"
+            ],
+            "gas": 2,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "CALLDATACOPY_0",
+            "opcode": "37",
+            "disasm": "CALLDATACOPY",
+            "inpt_sk": [
+                "s0",
+                "s0",
+                "v51"
+            ],
+            "outpt_sk": [],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": true,
+            "size": 1
+        },
+        {
+            "id": "CALLDATASIZE_1",
+            "opcode": "36",
+            "disasm": "CALLDATASIZE",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "v52"
+            ],
+            "gas": 2,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "GAS_0",
+            "opcode": "5a",
+            "disasm": "GAS",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "v53"
+            ],
+            "gas": 2,
+            "commutative": false,
+            "push": false,
+            "storage": true,
+            "size": 1
+        },
+        {
+            "id": "DELEGATECALL_0",
+            "opcode": "f4",
+            "disasm": "DELEGATECALL",
+            "inpt_sk": [
+                "v53",
+                "v50",
+                "s0",
+                "v52",
+                "s0",
+                "s0"
+            ],
+            "outpt_sk": [
+                "v54"
+            ],
+            "gas": 100,
+            "commutative": false,
+            "push": false,
+            "storage": true,
+            "size": 1
+        },
+        {
+            "id": "RETURNDATASIZE_0",
+            "opcode": "3c",
+            "disasm": "RETURNDATASIZE",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "v55"
+            ],
+            "gas": 2,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "RETURNDATACOPY_0",
+            "opcode": "3e",
+            "disasm": "RETURNDATACOPY",
+            "inpt_sk": [
+                "s0",
+                "s0",
+                "v55"
+            ],
+            "outpt_sk": [],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": true,
+            "size": 1
+        },
+        {
+            "id": "EQ_0",
+            "opcode": "14",
+            "disasm": "EQ",
+            "inpt_sk": [
+                "v54",
+                "s0"
+            ],
+            "outpt_sk": [
+                "v56"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "15"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "v51",
+        "v53",
+        "v52",
+        "s0",
+        "v56",
+        "v54",
+        "v50",
+        "v55",
+        "15"
+    ],
+    "memory_dependences": [
+        [
+            "CALLDATACOPY_0",
+            "DELEGATECALL_0"
+        ],
+        [
+            "DELEGATECALL_0",
+            "RETURNDATACOPY_0"
+        ]
+    ],
+    "storage_dependences": [],
+    "init_progr_len": 20,
+    "max_progr_len": 20,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_delegate_Block0",
+    "transient_dependences": [],
+    "dependencies": [
+        [
+            "CALLDATACOPY_0",
+            "DELEGATECALL_0"
+        ],
+        [
+            "DELEGATECALL_0",
+            "RETURNDATACOPY_0"
+        ]
+    ],
+    "admits_junk": false,
+    "max_sk_sz": 8,
+    "is_revert": false
+}

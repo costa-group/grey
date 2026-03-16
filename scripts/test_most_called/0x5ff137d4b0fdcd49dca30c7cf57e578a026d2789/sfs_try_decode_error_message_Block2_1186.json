@@ -1,0 +1,342 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v2861 = mload(0x40)\nv2862 = not(0x03)\nv2863 = returndatasize\nv2864 = add(v2863,v2862)\nreturndatacopy(v2861,0x04,v2864)\nv2865 = mload(v2861)\nv2866 = returndatasize\nv2867 = add(v2865,0x24)\nv2868 = gt(v2867,v2866)\nv2869 = gt(v2865,0xffffffffffffffff)\nv2870 = or(v2869,v2868)\n518 = PUSH [tag]\nJUMPI(518,v2870)",
+    "src_ws": [
+        "out_try_decode_error_message"
+    ],
+    "tgt_ws": [
+        "518",
+        "v2870",
+        "v2861",
+        "v2865",
+        "out_try_decode_error_message"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH_0",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                64
+            ],
+            "outpt_sk": [
+                "s0"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "MLOAD_0",
+            "opcode": "51",
+            "disasm": "MLOAD",
+            "inpt_sk": [
+                "s0"
+            ],
+            "outpt_sk": [
+                "v2861"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH_1",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                3
+            ],
+            "outpt_sk": [
+                "s1"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "NOT_0",
+            "opcode": "19",
+            "disasm": "NOT",
+            "inpt_sk": [
+                "s1"
+            ],
+            "outpt_sk": [
+                "v2862"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "RETURNDATASIZE_0",
+            "opcode": "3c",
+            "disasm": "RETURNDATASIZE",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "v2863"
+            ],
+            "gas": 2,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "ADD_0",
+            "opcode": "01",
+            "disasm": "ADD",
+            "inpt_sk": [
+                "v2863",
+                "v2862"
+            ],
+            "outpt_sk": [
+                "v2864"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH_2",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                4
+            ],
+            "outpt_sk": [
+                "s2"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "RETURNDATACOPY_0",
+            "opcode": "3e",
+            "disasm": "RETURNDATACOPY",
+            "inpt_sk": [
+                "v2861",
+                "s2",
+                "v2864"
+            ],
+            "outpt_sk": [],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": true,
+            "size": 1
+        },
+        {
+            "id": "MLOAD_1",
+            "opcode": "51",
+            "disasm": "MLOAD",
+            "inpt_sk": [
+                "v2861"
+            ],
+            "outpt_sk": [
+                "v2865"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "RETURNDATASIZE_1",
+            "opcode": "3c",
+            "disasm": "RETURNDATASIZE",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "v2866"
+            ],
+            "gas": 2,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH_3",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                36
+            ],
+            "outpt_sk": [
+                "s3"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "ADD_1",
+            "opcode": "01",
+            "disasm": "ADD",
+            "inpt_sk": [
+                "v2865",
+                "s3"
+            ],
+            "outpt_sk": [
+                "v2867"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "GT_0",
+            "opcode": "11",
+            "disasm": "GT",
+            "inpt_sk": [
+                "v2867",
+                "v2866"
+            ],
+            "outpt_sk": [
+                "v2868"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH_4",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                18446744073709551615
+            ],
+            "outpt_sk": [
+                "s4"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 9
+        },
+        {
+            "id": "GT_1",
+            "opcode": "11",
+            "disasm": "GT",
+            "inpt_sk": [
+                "v2865",
+                "s4"
+            ],
+            "outpt_sk": [
+                "v2869"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "OR_0",
+            "opcode": "17",
+            "disasm": "OR",
+            "inpt_sk": [
+                "v2869",
+                "v2868"
+            ],
+            "outpt_sk": [
+                "v2870"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "518"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "s4",
+        "s1",
+        "v2867",
+        "v2865",
+        "v2870",
+        "v2861",
+        "s2",
+        "v2866",
+        "v2862",
+        "v2869",
+        "v2864",
+        "v2868",
+        "s0",
+        "v2863",
+        "s3",
+        "518"
+    ],
+    "memory_dependences": [
+        [
+            "MLOAD_0",
+            "RETURNDATACOPY_0"
+        ],
+        [
+            "RETURNDATACOPY_0",
+            "MLOAD_1"
+        ]
+    ],
+    "storage_dependences": [],
+    "init_progr_len": 22,
+    "max_progr_len": 22,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "try_decode_error_message_Block2",
+    "transient_dependences": [],
+    "dependencies": [
+        [
+            "MLOAD_0",
+            "RETURNDATACOPY_0"
+        ],
+        [
+            "RETURNDATACOPY_0",
+            "MLOAD_1"
+        ]
+    ],
+    "admits_junk": false,
+    "max_sk_sz": 7,
+    "is_revert": false
+}

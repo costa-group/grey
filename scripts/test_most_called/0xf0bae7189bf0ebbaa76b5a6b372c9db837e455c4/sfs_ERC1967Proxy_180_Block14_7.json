@@ -1,0 +1,224 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v30 = add(v19,0x20)\nmcopy(v26,v30,v23)\nv31 = add(v25,v23)\nv32 = add(v31,0x20)\nmstore(v32,0x00)\nv33 = extcodesize(v8)\nv34 = iszero(v33)\n6 = PUSH [tag]\nJUMPI(6,v34)",
+    "src_ws": [
+        "v25",
+        "v23",
+        "v8",
+        "v11",
+        "v26",
+        "v19"
+    ],
+    "tgt_ws": [
+        "6",
+        "v34",
+        "v25",
+        "v8",
+        "v11",
+        "v26",
+        "v19"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH_0",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                32
+            ],
+            "outpt_sk": [
+                "s0"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "ADD_0",
+            "opcode": "01",
+            "disasm": "ADD",
+            "inpt_sk": [
+                "v19",
+                "s0"
+            ],
+            "outpt_sk": [
+                "v30"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "MCOPY_0",
+            "opcode": "5e",
+            "disasm": "MCOPY",
+            "inpt_sk": [
+                "v26",
+                "v30",
+                "v23"
+            ],
+            "outpt_sk": [],
+            "gas": 0,
+            "commutative": false,
+            "push": false,
+            "storage": true,
+            "size": 1
+        },
+        {
+            "id": "ADD_1",
+            "opcode": "01",
+            "disasm": "ADD",
+            "inpt_sk": [
+                "v25",
+                "v23"
+            ],
+            "outpt_sk": [
+                "v31"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "ADD_2",
+            "opcode": "01",
+            "disasm": "ADD",
+            "inpt_sk": [
+                "v31",
+                "s0"
+            ],
+            "outpt_sk": [
+                "v32"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH0_0",
+            "opcode": "5f",
+            "disasm": "PUSH0",
+            "inpt_sk": [],
+            "value": [
+                0
+            ],
+            "outpt_sk": [
+                "s1"
+            ],
+            "gas": 2,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "MSTORE_0",
+            "opcode": "52",
+            "disasm": "MSTORE",
+            "inpt_sk": [
+                "v32",
+                "s1"
+            ],
+            "outpt_sk": [],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": true,
+            "size": 1
+        },
+        {
+            "id": "EXTCODESIZE_0",
+            "opcode": "3b",
+            "disasm": "EXTCODESIZE",
+            "inpt_sk": [
+                "v8"
+            ],
+            "outpt_sk": [
+                "v33"
+            ],
+            "gas": 2600,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "ISZERO_0",
+            "opcode": "15",
+            "disasm": "ISZERO",
+            "inpt_sk": [
+                "v33"
+            ],
+            "outpt_sk": [
+                "v34"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "6"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "s1",
+        "v26",
+        "v33",
+        "v30",
+        "6",
+        "s0",
+        "v8",
+        "v25",
+        "v19",
+        "v34",
+        "v23",
+        "v32",
+        "v31"
+    ],
+    "memory_dependences": [
+        [
+            "MCOPY_0",
+            "MSTORE_0"
+        ]
+    ],
+    "storage_dependences": [],
+    "init_progr_len": 18,
+    "max_progr_len": 18,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "ERC1967Proxy_180_Block14",
+    "transient_dependences": [],
+    "dependencies": [
+        [
+            "MCOPY_0",
+            "MSTORE_0"
+        ]
+    ],
+    "admits_junk": true,
+    "max_sk_sz": 10,
+    "is_revert": false
+}

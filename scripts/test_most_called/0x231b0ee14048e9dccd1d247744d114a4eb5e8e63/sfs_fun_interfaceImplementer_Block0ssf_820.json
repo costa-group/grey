@@ -1,0 +1,66 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "446 = PUSH [tag]\n703 = PUSH [tag]\nv1469 = mapping_index_access_mapping_uint64__mapping_bytes32__mapping_string__string_storage____of_uint64(446,v1468,703)",
+    "src_ws": [
+        "v1468",
+        "v1465",
+        "v1464",
+        "out_fun_interfaceImplementer"
+    ],
+    "tgt_ws": [
+        "446",
+        "v1468",
+        "703",
+        "v1465",
+        "v1464",
+        "out_fun_interfaceImplementer"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "446"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "PUSH [TAG]_1",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "703"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "703",
+        "446"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 3,
+    "max_progr_len": 3,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_interfaceImplementer_Block0ssf",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 7,
+    "is_revert": false
+}

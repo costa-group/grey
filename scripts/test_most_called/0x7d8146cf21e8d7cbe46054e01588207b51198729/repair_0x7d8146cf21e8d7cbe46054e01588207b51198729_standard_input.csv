@@ -1,0 +1,4 @@
+,name,num_phi,num_assigned,num_colors,before_constants,contract
+0,BOB_3424,0,1,1,1,BOB
+1,fun_swapBack,0,2,1,2,BOB
+2,fun_transfer,0,1,1,1,BOB

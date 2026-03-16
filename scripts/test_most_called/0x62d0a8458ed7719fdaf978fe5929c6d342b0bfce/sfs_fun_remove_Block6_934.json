@@ -1,0 +1,145 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v1434 = sload(v1422)\nv1435 = not(0x00)\nv1436 = add(v1434,v1435)\nv1437 = gt(v1436,v1434)\n265 = PUSH [tag]\nJUMPI(265,v1437)",
+    "src_ws": [
+        "v1431",
+        "v1424",
+        "v1426",
+        "v1422",
+        "v1421",
+        "out_fun_remove"
+    ],
+    "tgt_ws": [
+        "265",
+        "v1437",
+        "v1436",
+        "v1431",
+        "v1424",
+        "v1426",
+        "v1422",
+        "v1421",
+        "out_fun_remove"
+    ],
+    "user_instrs": [
+        {
+            "id": "SLOAD_0",
+            "opcode": "54",
+            "disasm": "SLOAD",
+            "inpt_sk": [
+                "v1422"
+            ],
+            "outpt_sk": [
+                "v1434"
+            ],
+            "gas": 2100,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH0_0",
+            "opcode": "5f",
+            "disasm": "PUSH0",
+            "inpt_sk": [],
+            "value": [
+                0
+            ],
+            "outpt_sk": [
+                "s0"
+            ],
+            "gas": 2,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "NOT_0",
+            "opcode": "19",
+            "disasm": "NOT",
+            "inpt_sk": [
+                "s0"
+            ],
+            "outpt_sk": [
+                "v1435"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "ADD_0",
+            "opcode": "01",
+            "disasm": "ADD",
+            "inpt_sk": [
+                "v1434",
+                "v1435"
+            ],
+            "outpt_sk": [
+                "v1436"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "GT_0",
+            "opcode": "11",
+            "disasm": "GT",
+            "inpt_sk": [
+                "v1436",
+                "v1434"
+            ],
+            "outpt_sk": [
+                "v1437"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "265"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "265",
+        "v1435",
+        "v1422",
+        "v1437",
+        "v1436",
+        "s0",
+        "v1434"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 10,
+    "max_progr_len": 10,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_remove_Block6",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 10,
+    "is_revert": false
+}

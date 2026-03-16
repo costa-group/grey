@@ -1,0 +1,50 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "68 = PUSH [tag]\nJUMP(68)",
+    "src_ws": [
+        "v255",
+        "v221",
+        "v219",
+        "out_fun_toShortStringWithFallback"
+    ],
+    "tgt_ws": [
+        "68",
+        "v255",
+        "v221",
+        "v219",
+        "out_fun_toShortStringWithFallback"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "68"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "68"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 1,
+    "max_progr_len": 1,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_toShortStringWithFallback_Block15",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 6,
+    "is_revert": false
+}

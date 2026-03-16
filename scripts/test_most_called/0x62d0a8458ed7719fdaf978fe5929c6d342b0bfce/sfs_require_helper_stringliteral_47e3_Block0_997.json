@@ -1,0 +1,64 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v1666 = iszero(v1665)\n301 = PUSH [tag]\nJUMPI(301,v1666)",
+    "src_ws": [
+        "v1665",
+        "out_require_helper_stringliteral_47e3"
+    ],
+    "tgt_ws": [
+        "301",
+        "v1666",
+        "out_require_helper_stringliteral_47e3"
+    ],
+    "user_instrs": [
+        {
+            "id": "ISZERO_0",
+            "opcode": "15",
+            "disasm": "ISZERO",
+            "inpt_sk": [
+                "v1665"
+            ],
+            "outpt_sk": [
+                "v1666"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "301"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "v1666",
+        "v1665",
+        "301"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 2,
+    "max_progr_len": 2,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "require_helper_stringliteral_47e3_Block0",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 4,
+    "is_revert": false
+}

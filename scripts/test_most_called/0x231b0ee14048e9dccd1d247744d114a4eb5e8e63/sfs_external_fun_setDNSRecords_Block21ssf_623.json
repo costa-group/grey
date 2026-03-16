@@ -1,0 +1,85 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "423 = PUSH [tag]\n639 = PUSH [tag]\nfun_setDNSRRSet(423,v1022,v1035,v1034,v1080,v1036,v1076,v1078,v1030,639)",
+    "src_ws": [
+        "v1080",
+        "v1078",
+        "v1076",
+        "v1037",
+        "v1036",
+        "v1030",
+        "v1034",
+        "v1035",
+        "v1022",
+        "v1023",
+        "v1024"
+    ],
+    "tgt_ws": [
+        "423",
+        "v1022",
+        "v1035",
+        "v1034",
+        "v1080",
+        "v1036",
+        "v1076",
+        "v1078",
+        "v1030",
+        "639",
+        "v1037",
+        "v1036",
+        "v1030",
+        "v1034",
+        "v1035",
+        "v1022",
+        "v1023",
+        "v1024"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "423"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "PUSH [TAG]_1",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "639"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "423",
+        "639"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 11,
+    "max_progr_len": 11,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "external_fun_setDNSRecords_Block21ssf",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 19,
+    "is_revert": false
+}

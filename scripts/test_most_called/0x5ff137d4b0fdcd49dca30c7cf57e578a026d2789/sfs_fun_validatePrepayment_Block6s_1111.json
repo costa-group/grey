@@ -1,0 +1,52 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v2685 = sub(v2684,v2681)\nrevert(v2681,v2685)",
+    "src_ws": [
+        "v2684",
+        "v2681"
+    ],
+    "tgt_ws": [
+        "v2681",
+        "v2685",
+        "v2684",
+        "v2681"
+    ],
+    "user_instrs": [
+        {
+            "id": "SUB_0",
+            "opcode": "03",
+            "disasm": "SUB",
+            "inpt_sk": [
+                "v2684",
+                "v2681"
+            ],
+            "outpt_sk": [
+                "v2685"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        }
+    ],
+    "variables": [
+        "v2681",
+        "v2685",
+        "v2684"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 4,
+    "max_progr_len": 4,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_validatePrepayment_Block6s",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 5,
+    "is_revert": true
+}

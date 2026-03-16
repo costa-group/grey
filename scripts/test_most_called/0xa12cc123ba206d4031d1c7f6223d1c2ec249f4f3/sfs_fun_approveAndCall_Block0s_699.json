@@ -1,0 +1,86 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v844 = extcodesize(v842)\nv845 = iszero(v844)\n200 = PUSH [tag]\nJUMPI(200,v845)",
+    "src_ws": [
+        "v842",
+        "v841",
+        "v840",
+        "out_fun_approveAndCall"
+    ],
+    "tgt_ws": [
+        "200",
+        "v845",
+        "v842",
+        "v841",
+        "v840",
+        "out_fun_approveAndCall"
+    ],
+    "user_instrs": [
+        {
+            "id": "EXTCODESIZE_0",
+            "opcode": "3b",
+            "disasm": "EXTCODESIZE",
+            "inpt_sk": [
+                "v842"
+            ],
+            "outpt_sk": [
+                "v844"
+            ],
+            "gas": 2600,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "ISZERO_0",
+            "opcode": "15",
+            "disasm": "ISZERO",
+            "inpt_sk": [
+                "v844"
+            ],
+            "outpt_sk": [
+                "v845"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "200"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "v845",
+        "200",
+        "v844",
+        "v842"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 4,
+    "max_progr_len": 4,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_approveAndCall_Block0s",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 7,
+    "is_revert": false
+}

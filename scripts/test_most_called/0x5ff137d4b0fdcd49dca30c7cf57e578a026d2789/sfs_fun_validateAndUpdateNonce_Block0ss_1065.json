@@ -1,0 +1,106 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "sstore(v2544,v2546)\nv2547 = and(v2537,0xffffffffffffffff)\nv2548 = eq(v2545,v2547)\nfunctionReturn(out_fun_validateAndUpdateNonce,v2548)",
+    "src_ws": [
+        "v2546",
+        "v2545",
+        "v2544",
+        "v2537",
+        "out_fun_validateAndUpdateNonce"
+    ],
+    "tgt_ws": [
+        "out_fun_validateAndUpdateNonce",
+        "v2548"
+    ],
+    "user_instrs": [
+        {
+            "id": "SSTORE_0",
+            "opcode": "55",
+            "disasm": "SSTORE",
+            "inpt_sk": [
+                "v2544",
+                "v2546"
+            ],
+            "outpt_sk": [],
+            "gas": 5000,
+            "commutative": false,
+            "push": false,
+            "storage": true,
+            "size": 1
+        },
+        {
+            "id": "PUSH_0",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                18446744073709551615
+            ],
+            "outpt_sk": [
+                "s0"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 9
+        },
+        {
+            "id": "AND_0",
+            "opcode": "16",
+            "disasm": "AND",
+            "inpt_sk": [
+                "v2537",
+                "s0"
+            ],
+            "outpt_sk": [
+                "v2547"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "EQ_0",
+            "opcode": "14",
+            "disasm": "EQ",
+            "inpt_sk": [
+                "v2545",
+                "v2547"
+            ],
+            "outpt_sk": [
+                "v2548"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        }
+    ],
+    "variables": [
+        "v2544",
+        "v2547",
+        "v2537",
+        "v2545",
+        "v2546",
+        "s0",
+        "v2548"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 8,
+    "max_progr_len": 8,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_validateAndUpdateNonce_Block0ss",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 6,
+    "is_revert": false
+}

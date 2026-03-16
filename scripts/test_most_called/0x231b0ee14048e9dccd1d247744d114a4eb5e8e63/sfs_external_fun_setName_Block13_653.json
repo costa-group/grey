@@ -1,0 +1,79 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v1153 = PhiFunction(v1142,v1175)\nv1154 = PhiFunction(v1142,v1164)\nv1155 = PhiFunction(v1148,v1163)\nv1156 = lt(v1153,v1147)\n292 = PUSH [tag]\nJUMPI(292,v1156)",
+    "src_ws": [
+        "v1154",
+        "v1155",
+        "v1147",
+        "v1153",
+        "v1138",
+        "v1129",
+        "v1130",
+        "v1131"
+    ],
+    "tgt_ws": [
+        "292",
+        "v1156",
+        "v1154",
+        "v1155",
+        "v1147",
+        "v1153",
+        "v1138",
+        "v1129",
+        "v1130",
+        "v1131"
+    ],
+    "user_instrs": [
+        {
+            "id": "LT_0",
+            "opcode": "10",
+            "disasm": "LT",
+            "inpt_sk": [
+                "v1153",
+                "v1147"
+            ],
+            "outpt_sk": [
+                "v1156"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "292"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "v1147",
+        "292",
+        "v1156",
+        "v1153"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 4,
+    "max_progr_len": 4,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "external_fun_setName_Block13",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 11,
+    "is_revert": false
+}

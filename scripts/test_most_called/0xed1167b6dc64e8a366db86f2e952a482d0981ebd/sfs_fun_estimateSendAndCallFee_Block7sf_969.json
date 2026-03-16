@@ -1,0 +1,85 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "98 = PUSH [tag]\n763 = PUSH [tag]\nv1772 = add(v1751,v1771)\nv1773,v1774 = abi_decode_uint256t_uint256_fromMemory(98,v1751,v1772,763)",
+    "src_ws": [
+        "v1771",
+        "v1751",
+        "out_fun_estimateSendAndCallFee"
+    ],
+    "tgt_ws": [
+        "98",
+        "v1751",
+        "v1772",
+        "763",
+        "v1751",
+        "out_fun_estimateSendAndCallFee"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "98"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "PUSH [TAG]_1",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "763"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "ADD_0",
+            "opcode": "01",
+            "disasm": "ADD",
+            "inpt_sk": [
+                "v1751",
+                "v1771"
+            ],
+            "outpt_sk": [
+                "v1772"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        }
+    ],
+    "variables": [
+        "v1771",
+        "98",
+        "v1772",
+        "763",
+        "v1751"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 6,
+    "max_progr_len": 6,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_estimateSendAndCallFee_Block7sf",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 7,
+    "is_revert": false
+}

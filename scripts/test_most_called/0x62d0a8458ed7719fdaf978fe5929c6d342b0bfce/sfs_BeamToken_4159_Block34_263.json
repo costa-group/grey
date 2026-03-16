@@ -1,0 +1,83 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v67 = PhiFunction(v52,v105)\nv68 = PhiFunction(v44,v86)\nv69 = PhiFunction(v51,v85)\nv70 = lt(v67,v50)\n18 = PUSH [tag]\nJUMPI(18,v70)",
+    "src_ws": [
+        "v67",
+        "v50",
+        "v69",
+        "v68",
+        "v26",
+        "v27",
+        "v25",
+        "v24",
+        "v20",
+        "v13"
+    ],
+    "tgt_ws": [
+        "18",
+        "v70",
+        "v67",
+        "v50",
+        "v69",
+        "v68",
+        "v26",
+        "v27",
+        "v25",
+        "v24",
+        "v20",
+        "v13"
+    ],
+    "user_instrs": [
+        {
+            "id": "LT_0",
+            "opcode": "10",
+            "disasm": "LT",
+            "inpt_sk": [
+                "v67",
+                "v50"
+            ],
+            "outpt_sk": [
+                "v70"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "18"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "v67",
+        "18",
+        "v70",
+        "v50"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 4,
+    "max_progr_len": 4,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "BeamToken_4159_Block34",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 13,
+    "is_revert": false
+}

@@ -1,0 +1,30 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "functionReturn(out_fun_createSenderIfNeeded)",
+    "src_ws": [
+        "b2",
+        "b3",
+        "b1",
+        "b0",
+        "out_fun_createSenderIfNeeded"
+    ],
+    "tgt_ws": [
+        "out_fun_createSenderIfNeeded"
+    ],
+    "user_instrs": [],
+    "variables": [],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 4,
+    "max_progr_len": 4,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_createSenderIfNeeded_Block2",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 6,
+    "is_revert": false
+}

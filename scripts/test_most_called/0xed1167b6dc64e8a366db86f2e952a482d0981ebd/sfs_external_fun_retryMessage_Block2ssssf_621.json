@@ -1,0 +1,75 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "494 = PUSH [tag]\n645 = PUSH [tag]\nv999 = mapping_index_access_mapping_uint64_bytes32_of_uint64(494,v998,v976,645)",
+    "src_ws": [
+        "v998",
+        "v987",
+        "v973",
+        "v974",
+        "v975",
+        "v976",
+        "v977",
+        "v978"
+    ],
+    "tgt_ws": [
+        "494",
+        "v998",
+        "v976",
+        "645",
+        "v987",
+        "v973",
+        "v974",
+        "v975",
+        "v976",
+        "v977",
+        "v978"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "494"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "PUSH [TAG]_1",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "645"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "645",
+        "494"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 5,
+    "max_progr_len": 5,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "external_fun_retryMessage_Block2ssssf",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 12,
+    "is_revert": false
+}

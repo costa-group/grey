@@ -1,0 +1,22 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "stop",
+    "src_ws": [],
+    "tgt_ws": [],
+    "user_instrs": [],
+    "variables": [],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 0,
+    "max_progr_len": 0,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "EntryPoint_2277_deployed_Block63s",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": true,
+    "max_sk_sz": 1,
+    "is_revert": false
+}

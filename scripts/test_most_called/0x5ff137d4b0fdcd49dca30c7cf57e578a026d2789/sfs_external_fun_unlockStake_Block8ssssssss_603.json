@@ -1,0 +1,108 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v1421 = sub(v1420,v1418)\nlog2(v1418,v1421,0xfa9b3c14cc825c412c9ed81b3ba365a5b459439403f18829e572ed53a4180f0a,v1419)\nreturn(0x00,0x00)",
+    "src_ws": [
+        "v1420",
+        "v1418",
+        "v1419"
+    ],
+    "tgt_ws": [
+        "0x00",
+        "0x00",
+        "v1420",
+        "v1418",
+        "v1419"
+    ],
+    "user_instrs": [
+        {
+            "id": "SUB_0",
+            "opcode": "03",
+            "disasm": "SUB",
+            "inpt_sk": [
+                "v1420",
+                "v1418"
+            ],
+            "outpt_sk": [
+                "v1421"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH_0",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                113352488106374322087160874158070082198548549887275477724411901228743086575370
+            ],
+            "outpt_sk": [
+                "s0"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 33
+        },
+        {
+            "id": "LOG2_0",
+            "opcode": "a2",
+            "disasm": "LOG2",
+            "inpt_sk": [
+                "v1418",
+                "v1421",
+                "s0",
+                "v1419"
+            ],
+            "outpt_sk": [],
+            "gas": 1125,
+            "commutative": false,
+            "push": false,
+            "storage": true,
+            "size": 1
+        },
+        {
+            "id": "PUSH0_0",
+            "opcode": "5f",
+            "disasm": "PUSH0",
+            "inpt_sk": [],
+            "value": [
+                0
+            ],
+            "outpt_sk": [
+                "0x00"
+            ],
+            "gas": 2,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 1
+        }
+    ],
+    "variables": [
+        "v1421",
+        "v1418",
+        "v1419",
+        "s0",
+        "0x00",
+        "v1420"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 9,
+    "max_progr_len": 9,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "external_fun_unlockStake_Block8ssssssss",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 8,
+    "is_revert": false
+}

@@ -1,0 +1,54 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "148 = PUSH [tag]\nJUMPI(148,v632)",
+    "src_ws": [
+        "v624",
+        "v632",
+        "v620",
+        "v592",
+        "v596",
+        "v4"
+    ],
+    "tgt_ws": [
+        "148",
+        "v632",
+        "v624",
+        "v620",
+        "v592",
+        "v596",
+        "v4"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "148"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "148"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 2,
+    "max_progr_len": 2,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "ZamaERC20_9039_deployed_Block399",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": true,
+    "max_sk_sz": 8,
+    "is_revert": false
+}

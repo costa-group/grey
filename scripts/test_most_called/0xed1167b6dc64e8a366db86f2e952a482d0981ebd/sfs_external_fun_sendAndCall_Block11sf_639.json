@@ -1,0 +1,74 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "447 = PUSH [tag]\n654 = PUSH [tag]\nfun_sendAndCall(447,v1017,v1018,v1020,v1022,v1027,v1028,v1030,v1038,654)",
+    "src_ws": [
+        "v1038",
+        "v1030",
+        "v1027",
+        "v1028",
+        "v1020",
+        "v1022",
+        "v1018",
+        "v1017"
+    ],
+    "tgt_ws": [
+        "447",
+        "v1017",
+        "v1018",
+        "v1020",
+        "v1022",
+        "v1027",
+        "v1028",
+        "v1030",
+        "v1038",
+        "654"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "447"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "PUSH [TAG]_1",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "654"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "447",
+        "654"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 10,
+    "max_progr_len": 10,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "external_fun_sendAndCall_Block11sf",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 11,
+    "is_revert": false
+}

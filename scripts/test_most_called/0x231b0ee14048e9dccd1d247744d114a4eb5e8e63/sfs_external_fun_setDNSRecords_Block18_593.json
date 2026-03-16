@@ -1,0 +1,66 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v1072 = PhiFunction(v1064,v1075)\n274 = PUSH [tag]\nJUMPI(274,v1072)",
+    "src_ws": [
+        "v1059",
+        "v1058",
+        "v1072",
+        "v1036",
+        "v1037",
+        "v1033",
+        "v1030",
+        "v1034",
+        "v1035",
+        "v1022",
+        "v1023",
+        "v1024"
+    ],
+    "tgt_ws": [
+        "274",
+        "v1072",
+        "v1058",
+        "v1059",
+        "v1036",
+        "v1037",
+        "v1033",
+        "v1030",
+        "v1034",
+        "v1035",
+        "v1022",
+        "v1023",
+        "v1024"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "274"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "274"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 2,
+    "max_progr_len": 2,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "external_fun_setDNSRecords_Block18",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 14,
+    "is_revert": false
+}

@@ -1,0 +1,229 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v231 = PhiFunction(v230,v163,v249)\nv232 = not(0x1f)\nv233 = sub(v231,v162)\nv234 = add(v233,0x1f)\nv235 = and(v234,v232)\nv236 = add(v162,v235)\nv237 = lt(v236,v162)\nv238 = gt(v236,0xffffffffffffffff)\nv239 = or(v238,v237)\n57 = PUSH [tag]\nJUMPI(57,v239)",
+    "src_ws": [
+        "b0",
+        "v162",
+        "v231"
+    ],
+    "tgt_ws": [
+        "57",
+        "v239",
+        "v162",
+        "v236"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH_0",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                31
+            ],
+            "outpt_sk": [
+                "s0"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "NOT_0",
+            "opcode": "19",
+            "disasm": "NOT",
+            "inpt_sk": [
+                "s0"
+            ],
+            "outpt_sk": [
+                "v232"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "SUB_0",
+            "opcode": "03",
+            "disasm": "SUB",
+            "inpt_sk": [
+                "v231",
+                "v162"
+            ],
+            "outpt_sk": [
+                "v233"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "ADD_0",
+            "opcode": "01",
+            "disasm": "ADD",
+            "inpt_sk": [
+                "v233",
+                "s0"
+            ],
+            "outpt_sk": [
+                "v234"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "AND_0",
+            "opcode": "16",
+            "disasm": "AND",
+            "inpt_sk": [
+                "v234",
+                "v232"
+            ],
+            "outpt_sk": [
+                "v235"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "ADD_1",
+            "opcode": "01",
+            "disasm": "ADD",
+            "inpt_sk": [
+                "v162",
+                "v235"
+            ],
+            "outpt_sk": [
+                "v236"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "LT_0",
+            "opcode": "10",
+            "disasm": "LT",
+            "inpt_sk": [
+                "v236",
+                "v162"
+            ],
+            "outpt_sk": [
+                "v237"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH_1",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                18446744073709551615
+            ],
+            "outpt_sk": [
+                "s1"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 9
+        },
+        {
+            "id": "GT_0",
+            "opcode": "11",
+            "disasm": "GT",
+            "inpt_sk": [
+                "v236",
+                "s1"
+            ],
+            "outpt_sk": [
+                "v238"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "OR_0",
+            "opcode": "17",
+            "disasm": "OR",
+            "inpt_sk": [
+                "v238",
+                "v237"
+            ],
+            "outpt_sk": [
+                "v239"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "57"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "v234",
+        "s0",
+        "v232",
+        "v231",
+        "v237",
+        "v235",
+        "57",
+        "v233",
+        "v162",
+        "v239",
+        "s1",
+        "v238",
+        "v236"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 19,
+    "max_progr_len": 19,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "ERC20_3607_deployed_Block104",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": true,
+    "max_sk_sz": 9,
+    "is_revert": false
+}

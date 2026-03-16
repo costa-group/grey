@@ -1,0 +1,130 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v2499 = LiteralAssignment(0x20)\nv2500 = returndatasize\nv2501 = gt(0x20,v2500)\n442 = PUSH [tag]\nJUMPI(442,v2501)",
+    "src_ws": [
+        "v2488",
+        "v2463",
+        "v2474",
+        "v2460",
+        "v2458",
+        "v2480",
+        "v2489",
+        "v2455",
+        "out_fun_validateAccountPrepayment"
+    ],
+    "tgt_ws": [
+        "442",
+        "v2501",
+        "v2488",
+        "v2463",
+        "v2474",
+        "v2460",
+        "v2458",
+        "v2480",
+        "v2499",
+        "v2455",
+        "out_fun_validateAccountPrepayment"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH_0",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                32
+            ],
+            "outpt_sk": [
+                "v2499"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "RETURNDATASIZE_0",
+            "opcode": "3c",
+            "disasm": "RETURNDATASIZE",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "v2500"
+            ],
+            "gas": 2,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH_1",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                32
+            ],
+            "outpt_sk": [
+                "s0"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "GT_0",
+            "opcode": "11",
+            "disasm": "GT",
+            "inpt_sk": [
+                "s0",
+                "v2500"
+            ],
+            "outpt_sk": [
+                "v2501"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "442"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "v2501",
+        "442",
+        "v2499",
+        "s0",
+        "v2500"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 7,
+    "max_progr_len": 7,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_validateAccountPrepayment_Block6",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 12,
+    "is_revert": false
+}

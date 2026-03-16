@@ -1,0 +1,96 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "164 = PUSH [tag]\n878 = PUSH [tag]\nv2168 = mload(v2158)\nv2169 = cleanup_address(164,v2168,878)",
+    "src_ws": [
+        "v2165",
+        "v2162",
+        "v2160",
+        "v2159",
+        "v2158",
+        "v2156",
+        "v2155",
+        "v2154",
+        "v2153",
+        "v2152",
+        "out_fun_handlePostOp"
+    ],
+    "tgt_ws": [
+        "164",
+        "v2168",
+        "878",
+        "v2159",
+        "v2158",
+        "v2156",
+        "v2155",
+        "v2154",
+        "v2160",
+        "v2152",
+        "out_fun_handlePostOp"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "164"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "PUSH [TAG]_1",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "878"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "MLOAD_0",
+            "opcode": "51",
+            "disasm": "MLOAD",
+            "inpt_sk": [
+                "v2158"
+            ],
+            "outpt_sk": [
+                "v2168"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        }
+    ],
+    "variables": [
+        "v2158",
+        "164",
+        "878",
+        "v2168"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 8,
+    "max_progr_len": 8,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_handlePostOp_Block3f",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 12,
+    "is_revert": false
+}

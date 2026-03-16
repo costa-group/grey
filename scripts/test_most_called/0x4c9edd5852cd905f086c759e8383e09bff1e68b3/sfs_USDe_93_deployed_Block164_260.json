@@ -1,0 +1,75 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v285 = PhiFunction(v273,v331)\nv286 = PhiFunction(v272,v304)\nv287 = PhiFunction(v271,v303)\nv288 = lt(v285,v270)\n69 = PUSH [tag]\nJUMPI(69,v288)",
+    "src_ws": [
+        "v285",
+        "v270",
+        "v287",
+        "v249",
+        "v286",
+        "v255"
+    ],
+    "tgt_ws": [
+        "69",
+        "v288",
+        "v285",
+        "v270",
+        "v287",
+        "v249",
+        "v286",
+        "v255"
+    ],
+    "user_instrs": [
+        {
+            "id": "LT_0",
+            "opcode": "10",
+            "disasm": "LT",
+            "inpt_sk": [
+                "v285",
+                "v270"
+            ],
+            "outpt_sk": [
+                "v288"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "69"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "v270",
+        "v285",
+        "69",
+        "v288"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 4,
+    "max_progr_len": 4,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "USDe_93_deployed_Block164",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 9,
+    "is_revert": false
+}

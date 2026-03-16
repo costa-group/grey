@@ -1,0 +1,86 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v345 = add(v341,0x04)\nv346 = LiteralAssignment(0x20)\nfunctionReturn(out_calldata_array_index_range_access_bytes_calldata,v345,v346)",
+    "src_ws": [
+        "v341",
+        "out_calldata_array_index_range_access_bytes_calldata"
+    ],
+    "tgt_ws": [
+        "out_calldata_array_index_range_access_bytes_calldata",
+        "v345",
+        "v346"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH_0",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                4
+            ],
+            "outpt_sk": [
+                "s0"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "ADD_0",
+            "opcode": "01",
+            "disasm": "ADD",
+            "inpt_sk": [
+                "v341",
+                "s0"
+            ],
+            "outpt_sk": [
+                "v345"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH_1",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                32
+            ],
+            "outpt_sk": [
+                "v346"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        }
+    ],
+    "variables": [
+        "v341",
+        "v346",
+        "v345",
+        "s0"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 7,
+    "max_progr_len": 7,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "calldata_array_index_range_access_bytes_calldata_Block2",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 6,
+    "is_revert": false
+}

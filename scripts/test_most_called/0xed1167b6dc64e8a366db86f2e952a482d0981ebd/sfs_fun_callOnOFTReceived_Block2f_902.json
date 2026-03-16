@@ -1,0 +1,97 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "485 = PUSH [tag]\n733 = PUSH [tag]\nv1562 = address\nv1563 = fun_transferFrom(485,v1562,v1552,v1551,733)",
+    "src_ws": [
+        "v1557",
+        "v1556",
+        "v1555",
+        "v1554",
+        "v1553",
+        "v1552",
+        "v1551",
+        "v1550",
+        "v1549",
+        "v1548",
+        "out_fun_callOnOFTReceived"
+    ],
+    "tgt_ws": [
+        "485",
+        "v1562",
+        "v1552",
+        "v1551",
+        "733",
+        "v1556",
+        "v1555",
+        "v1554",
+        "v1553",
+        "v1552",
+        "v1557",
+        "v1550",
+        "v1549",
+        "v1548",
+        "out_fun_callOnOFTReceived"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "485"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "PUSH [TAG]_1",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "733"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "ADDRESS_0",
+            "opcode": "30",
+            "disasm": "ADDRESS",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "v1562"
+            ],
+            "gas": 2,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        }
+    ],
+    "variables": [
+        "v1562",
+        "485",
+        "733"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 6,
+    "max_progr_len": 6,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_callOnOFTReceived_Block2f",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 16,
+    "is_revert": false
+}

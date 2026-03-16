@@ -1,0 +1,28 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v75 = PhiFunction(v73,v76)\nfunctionReturn(out_fun_createSender,v75)",
+    "src_ws": [
+        "v75",
+        "out_fun_createSender"
+    ],
+    "tgt_ws": [
+        "out_fun_createSender",
+        "v75"
+    ],
+    "user_instrs": [],
+    "variables": [],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 1,
+    "max_progr_len": 1,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_createSender_Block14",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 3,
+    "is_revert": false
+}

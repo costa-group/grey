@@ -1,0 +1,92 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "56 = PUSH [tag]\n758 = PUSH [tag]\nv1746 = calldatasize\nv1747 = abi_decode_available_length_bytes(56,v1736,v1735,v1746,758)",
+    "src_ws": [
+        "v1745",
+        "v1741",
+        "v1742",
+        "v1743",
+        "v1738",
+        "v1737",
+        "v1736",
+        "v1735",
+        "out_fun_estimateSendAndCallFee"
+    ],
+    "tgt_ws": [
+        "56",
+        "v1736",
+        "v1735",
+        "v1746",
+        "758",
+        "v1742",
+        "v1743",
+        "v1738",
+        "v1737",
+        "v1741",
+        "v1745",
+        "out_fun_estimateSendAndCallFee"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "56"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "PUSH [TAG]_1",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "758"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "CALLDATASIZE_0",
+            "opcode": "36",
+            "disasm": "CALLDATASIZE",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "v1746"
+            ],
+            "gas": 2,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        }
+    ],
+    "variables": [
+        "758",
+        "v1746",
+        "56"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 8,
+    "max_progr_len": 8,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_estimateSendAndCallFee_Block0sf",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 13,
+    "is_revert": false
+}

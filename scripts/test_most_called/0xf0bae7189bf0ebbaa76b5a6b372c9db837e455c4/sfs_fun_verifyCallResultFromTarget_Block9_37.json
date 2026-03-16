@@ -1,0 +1,84 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v108 = extcodesize(v100)\nv109 = iszero(v108)\n21 = PUSH [tag]\nJUMPI(21,v109)",
+    "src_ws": [
+        "v98",
+        "v100",
+        "out_fun_verifyCallResultFromTarget"
+    ],
+    "tgt_ws": [
+        "21",
+        "v109",
+        "v98",
+        "v100",
+        "out_fun_verifyCallResultFromTarget"
+    ],
+    "user_instrs": [
+        {
+            "id": "EXTCODESIZE_0",
+            "opcode": "3b",
+            "disasm": "EXTCODESIZE",
+            "inpt_sk": [
+                "v100"
+            ],
+            "outpt_sk": [
+                "v108"
+            ],
+            "gas": 2600,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "ISZERO_0",
+            "opcode": "15",
+            "disasm": "ISZERO",
+            "inpt_sk": [
+                "v108"
+            ],
+            "outpt_sk": [
+                "v109"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "21"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "v109",
+        "v100",
+        "21",
+        "v108"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 4,
+    "max_progr_len": 4,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_verifyCallResultFromTarget_Block9",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 6,
+    "is_revert": false
+}

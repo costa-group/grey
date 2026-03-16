@@ -1,0 +1,99 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v1592 = mload(v1585)\nv1593 = iszero(v1592)\nv1594 = iszero(v1593)\n393 = PUSH [tag]\nJUMPI(393,v1594)",
+    "src_ws": [
+        "v1586",
+        "v1585",
+        "out_fun_checkAdapterParams"
+    ],
+    "tgt_ws": [
+        "393",
+        "v1594",
+        "out_fun_checkAdapterParams"
+    ],
+    "user_instrs": [
+        {
+            "id": "MLOAD_0",
+            "opcode": "51",
+            "disasm": "MLOAD",
+            "inpt_sk": [
+                "v1585"
+            ],
+            "outpt_sk": [
+                "v1592"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "ISZERO_0",
+            "opcode": "15",
+            "disasm": "ISZERO",
+            "inpt_sk": [
+                "v1592"
+            ],
+            "outpt_sk": [
+                "v1593"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "ISZERO_1",
+            "opcode": "15",
+            "disasm": "ISZERO",
+            "inpt_sk": [
+                "v1593"
+            ],
+            "outpt_sk": [
+                "v1594"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "393"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "v1593",
+        "393",
+        "v1592",
+        "v1594",
+        "v1585"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 5,
+    "max_progr_len": 5,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_checkAdapterParams_Block2",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 4,
+    "is_revert": false
+}

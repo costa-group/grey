@@ -1,0 +1,146 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v1846 = sub(v1845,v1842)\nv1847 = gas\nv1848 = call(v1847,v1833,v1816,v1842,v1846,v1842,0x00)\nv1849 = iszero(v1848)\n429 = PUSH [tag]\nJUMPI(429,v1849)",
+    "src_ws": [
+        "v1845",
+        "v1833",
+        "v1842",
+        "v1816",
+        "out_fun_lzSend"
+    ],
+    "tgt_ws": [
+        "429",
+        "v1849",
+        "v1842",
+        "v1848",
+        "out_fun_lzSend"
+    ],
+    "user_instrs": [
+        {
+            "id": "SUB_0",
+            "opcode": "03",
+            "disasm": "SUB",
+            "inpt_sk": [
+                "v1845",
+                "v1842"
+            ],
+            "outpt_sk": [
+                "v1846"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "GAS_0",
+            "opcode": "5a",
+            "disasm": "GAS",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "v1847"
+            ],
+            "gas": 2,
+            "commutative": false,
+            "push": false,
+            "storage": true,
+            "size": 1
+        },
+        {
+            "id": "PUSH0_0",
+            "opcode": "5f",
+            "disasm": "PUSH0",
+            "inpt_sk": [],
+            "value": [
+                0
+            ],
+            "outpt_sk": [
+                "s0"
+            ],
+            "gas": 2,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "CALL_0",
+            "opcode": "f1",
+            "disasm": "CALL",
+            "inpt_sk": [
+                "v1847",
+                "v1833",
+                "v1816",
+                "v1842",
+                "v1846",
+                "v1842",
+                "s0"
+            ],
+            "outpt_sk": [
+                "v1848"
+            ],
+            "gas": 100,
+            "commutative": false,
+            "push": false,
+            "storage": true,
+            "size": 1
+        },
+        {
+            "id": "ISZERO_0",
+            "opcode": "15",
+            "disasm": "ISZERO",
+            "inpt_sk": [
+                "v1848"
+            ],
+            "outpt_sk": [
+                "v1849"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "429"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "v1842",
+        "v1846",
+        "s0",
+        "v1816",
+        "v1848",
+        "v1845",
+        "429",
+        "v1833",
+        "v1847",
+        "v1849"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 17,
+    "max_progr_len": 17,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_lzSend_Block5s",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 13,
+    "is_revert": false
+}

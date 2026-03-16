@@ -1,0 +1,91 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v83 = add(v14,v62)\nv84 = mload(v83)\n19 = PUSH [tag]\nJUMP(19)",
+    "src_ws": [
+        "v66",
+        "v62",
+        "v24",
+        "v21",
+        "v14",
+        "v45"
+    ],
+    "tgt_ws": [
+        "19",
+        "v84",
+        "v62",
+        "v24",
+        "v21",
+        "v14",
+        "v45"
+    ],
+    "user_instrs": [
+        {
+            "id": "ADD_0",
+            "opcode": "01",
+            "disasm": "ADD",
+            "inpt_sk": [
+                "v14",
+                "v62"
+            ],
+            "outpt_sk": [
+                "v83"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "MLOAD_0",
+            "opcode": "51",
+            "disasm": "MLOAD",
+            "inpt_sk": [
+                "v83"
+            ],
+            "outpt_sk": [
+                "v84"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "19"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "v84",
+        "19",
+        "v62",
+        "v83",
+        "v14"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 6,
+    "max_progr_len": 6,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "OFTV2_2477_Block46",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": true,
+    "max_sk_sz": 8,
+    "is_revert": false
+}

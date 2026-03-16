@@ -1,0 +1,52 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v1455 = sub(v1454,v1451)\nrevert(v1451,v1455)",
+    "src_ws": [
+        "v1454",
+        "v1451"
+    ],
+    "tgt_ws": [
+        "v1451",
+        "v1455",
+        "v1454",
+        "v1451"
+    ],
+    "user_instrs": [
+        {
+            "id": "SUB_0",
+            "opcode": "03",
+            "disasm": "SUB",
+            "inpt_sk": [
+                "v1454",
+                "v1451"
+            ],
+            "outpt_sk": [
+                "v1455"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        }
+    ],
+    "variables": [
+        "v1454",
+        "v1455",
+        "v1451"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 4,
+    "max_progr_len": 4,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "external_fun_validateSenderAndPaymaster_Block15s",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 5,
+    "is_revert": true
+}

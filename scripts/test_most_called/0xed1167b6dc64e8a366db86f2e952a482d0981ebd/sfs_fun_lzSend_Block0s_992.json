@@ -1,0 +1,128 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v1825 = mload(v1824)\nv1826 = iszero(v1825)\nv1827 = iszero(v1826)\nv1828 = iszero(v1827)\n427 = PUSH [tag]\nJUMPI(427,v1828)",
+    "src_ws": [
+        "v1824",
+        "v1821",
+        "v1820",
+        "v1819",
+        "v1818",
+        "v1817",
+        "v1816",
+        "out_fun_lzSend"
+    ],
+    "tgt_ws": [
+        "427",
+        "v1828",
+        "v1824",
+        "v1821",
+        "v1820",
+        "v1819",
+        "v1818",
+        "v1817",
+        "v1816",
+        "out_fun_lzSend"
+    ],
+    "user_instrs": [
+        {
+            "id": "MLOAD_0",
+            "opcode": "51",
+            "disasm": "MLOAD",
+            "inpt_sk": [
+                "v1824"
+            ],
+            "outpt_sk": [
+                "v1825"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "ISZERO_0",
+            "opcode": "15",
+            "disasm": "ISZERO",
+            "inpt_sk": [
+                "v1825"
+            ],
+            "outpt_sk": [
+                "v1826"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "ISZERO_1",
+            "opcode": "15",
+            "disasm": "ISZERO",
+            "inpt_sk": [
+                "v1826"
+            ],
+            "outpt_sk": [
+                "v1827"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "ISZERO_2",
+            "opcode": "15",
+            "disasm": "ISZERO",
+            "inpt_sk": [
+                "v1827"
+            ],
+            "outpt_sk": [
+                "v1828"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "427"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "v1824",
+        "v1825",
+        "v1826",
+        "v1828",
+        "427",
+        "v1827"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 6,
+    "max_progr_len": 6,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_lzSend_Block0s",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 11,
+    "is_revert": false
+}

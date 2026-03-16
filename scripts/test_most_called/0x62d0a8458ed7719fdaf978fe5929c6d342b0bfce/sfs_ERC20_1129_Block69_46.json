@@ -1,0 +1,87 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v131 = add(v21,v110)\nv132 = mload(v131)\n39 = PUSH [tag]\nJUMP(39)",
+    "src_ws": [
+        "v114",
+        "v110",
+        "v73",
+        "v21"
+    ],
+    "tgt_ws": [
+        "39",
+        "v132",
+        "v110",
+        "v73",
+        "v21"
+    ],
+    "user_instrs": [
+        {
+            "id": "ADD_0",
+            "opcode": "01",
+            "disasm": "ADD",
+            "inpt_sk": [
+                "v21",
+                "v110"
+            ],
+            "outpt_sk": [
+                "v131"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "MLOAD_0",
+            "opcode": "51",
+            "disasm": "MLOAD",
+            "inpt_sk": [
+                "v131"
+            ],
+            "outpt_sk": [
+                "v132"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "39"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "v131",
+        "v110",
+        "v21",
+        "39",
+        "v132"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 6,
+    "max_progr_len": 6,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "ERC20_1129_Block69",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": true,
+    "max_sk_sz": 6,
+    "is_revert": false
+}

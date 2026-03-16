@@ -1,0 +1,66 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "24 = PUSH [tag]\n927 = PUSH [tag]\nabi_decode(24,v2389,v2389,927)",
+    "src_ws": [
+        "v2396",
+        "v2389",
+        "out_fun_simulationOnlyValidations"
+    ],
+    "tgt_ws": [
+        "24",
+        "v2389",
+        "v2389",
+        "927",
+        "v2396",
+        "v2389",
+        "out_fun_simulationOnlyValidations"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "24"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "PUSH [TAG]_1",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "927"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "927",
+        "24"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 4,
+    "max_progr_len": 4,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_simulationOnlyValidations_Block4sf",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 8,
+    "is_revert": false
+}

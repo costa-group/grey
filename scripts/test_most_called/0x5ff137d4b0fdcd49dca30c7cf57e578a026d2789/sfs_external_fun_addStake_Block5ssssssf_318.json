@@ -1,0 +1,117 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "158 = PUSH [tag]\n601 = PUSH [tag]\nv912 = callvalue\nv913 = and(v911,0xffffffffffffffffffffffffffff)\nv914 = checked_add_uint256(158,v913,v912,601)",
+    "src_ws": [
+        "v911",
+        "v896",
+        "v910"
+    ],
+    "tgt_ws": [
+        "158",
+        "v913",
+        "v912",
+        "601",
+        "v896",
+        "v910"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "158"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "PUSH [TAG]_1",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "601"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "CALLVALUE_0",
+            "opcode": "34",
+            "disasm": "CALLVALUE",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "v912"
+            ],
+            "gas": 2,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH_0",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                5192296858534827628530496329220095
+            ],
+            "outpt_sk": [
+                "s0"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 15
+        },
+        {
+            "id": "AND_0",
+            "opcode": "16",
+            "disasm": "AND",
+            "inpt_sk": [
+                "v911",
+                "s0"
+            ],
+            "outpt_sk": [
+                "v913"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        }
+    ],
+    "variables": [
+        "601",
+        "v911",
+        "158",
+        "v912",
+        "v913",
+        "s0"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 7,
+    "max_progr_len": 7,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "external_fun_addStake_Block5ssssssf",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 7,
+    "is_revert": false
+}

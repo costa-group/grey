@@ -1,0 +1,73 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v156 = lt(v98,v55)\n41 = PUSH [tag]\nJUMPI(41,v156)",
+    "src_ws": [
+        "v115",
+        "v98",
+        "v117",
+        "v116",
+        "v55",
+        "v3"
+    ],
+    "tgt_ws": [
+        "41",
+        "v156",
+        "v117",
+        "v116",
+        "v55",
+        "v3"
+    ],
+    "user_instrs": [
+        {
+            "id": "LT_0",
+            "opcode": "10",
+            "disasm": "LT",
+            "inpt_sk": [
+                "v98",
+                "v55"
+            ],
+            "outpt_sk": [
+                "v156"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "41"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "v156",
+        "41",
+        "v55",
+        "v98"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 5,
+    "max_progr_len": 5,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "BOB_3424_Block57",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": true,
+    "max_sk_sz": 7,
+    "is_revert": false
+}

@@ -1,0 +1,79 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v1139 = LiteralAssignment(0x00)\n221 = PUSH [tag]\nJUMP(221)",
+    "src_ws": [
+        "v1137",
+        "v1138",
+        "v1123",
+        "v1125",
+        "v1124",
+        "v1078",
+        "v1070",
+        "v1071",
+        "v1072"
+    ],
+    "tgt_ws": [
+        "221",
+        "v1139",
+        "v1137",
+        "v1138",
+        "v1123",
+        "v1125",
+        "v1124",
+        "v1078",
+        "v1070",
+        "v1071",
+        "v1072"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH0_0",
+            "opcode": "5f",
+            "disasm": "PUSH0",
+            "inpt_sk": [],
+            "value": [
+                0
+            ],
+            "outpt_sk": [
+                "v1139"
+            ],
+            "gas": 2,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "221"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "221",
+        "v1139"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 2,
+    "max_progr_len": 2,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "external_fun_handleAggregatedOps_Block28sssss",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 12,
+    "is_revert": false
+}

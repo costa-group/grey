@@ -1,0 +1,128 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v1923 = LiteralAssignment(0x20)\nv1924 = returndatasize\nv1925 = gt(0x20,v1924)\n345 = PUSH [tag]\nJUMPI(345,v1925)",
+    "src_ws": [
+        "v1901",
+        "v1917",
+        "v1894",
+        "v1890",
+        "v1889",
+        "v1888",
+        "v1887",
+        "out_fun_createSenderIfNeeded"
+    ],
+    "tgt_ws": [
+        "345",
+        "v1925",
+        "v1901",
+        "v1923",
+        "v1894",
+        "v1890",
+        "v1889",
+        "v1888",
+        "v1887",
+        "out_fun_createSenderIfNeeded"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH_0",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                32
+            ],
+            "outpt_sk": [
+                "v1923"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "RETURNDATASIZE_0",
+            "opcode": "3c",
+            "disasm": "RETURNDATASIZE",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "v1924"
+            ],
+            "gas": 2,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH_1",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                32
+            ],
+            "outpt_sk": [
+                "s0"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "GT_0",
+            "opcode": "11",
+            "disasm": "GT",
+            "inpt_sk": [
+                "s0",
+                "v1924"
+            ],
+            "outpt_sk": [
+                "v1925"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "345"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "v1925",
+        "v1923",
+        "s0",
+        "v1924",
+        "345"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 7,
+    "max_progr_len": 7,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_createSenderIfNeeded_Block9",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 11,
+    "is_revert": false
+}

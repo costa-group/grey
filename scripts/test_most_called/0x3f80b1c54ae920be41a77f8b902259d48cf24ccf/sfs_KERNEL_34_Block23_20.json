@@ -1,0 +1,194 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v78 = PhiFunction(v62,v84)\nv79 = add(v60,v78)\nv80 = add(v44,0x1f)\nv81 = shr(0x05,v80)\nv82 = sub(v81,v78)\nv83 = LiteralAssignment(0x00)\n18 = PUSH [tag]\nJUMP(18)",
+    "src_ws": [
+        "v60",
+        "v78",
+        "v44",
+        "v33",
+        "v34",
+        "v32",
+        "v27",
+        "v18",
+        "v22",
+        "v17",
+        "v11"
+    ],
+    "tgt_ws": [
+        "18",
+        "v83",
+        "v82",
+        "v79",
+        "v44",
+        "v33",
+        "v34",
+        "v32",
+        "v27",
+        "v18",
+        "v22",
+        "v17",
+        "v11"
+    ],
+    "user_instrs": [
+        {
+            "id": "ADD_0",
+            "opcode": "01",
+            "disasm": "ADD",
+            "inpt_sk": [
+                "v60",
+                "v78"
+            ],
+            "outpt_sk": [
+                "v79"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH_0",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                31
+            ],
+            "outpt_sk": [
+                "s0"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "ADD_1",
+            "opcode": "01",
+            "disasm": "ADD",
+            "inpt_sk": [
+                "v44",
+                "s0"
+            ],
+            "outpt_sk": [
+                "v80"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH_1",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                5
+            ],
+            "outpt_sk": [
+                "s1"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "SHR_0",
+            "opcode": "1c",
+            "disasm": "SHR",
+            "inpt_sk": [
+                "s1",
+                "v80"
+            ],
+            "outpt_sk": [
+                "v81"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "SUB_0",
+            "opcode": "03",
+            "disasm": "SUB",
+            "inpt_sk": [
+                "v81",
+                "v78"
+            ],
+            "outpt_sk": [
+                "v82"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH0_0",
+            "opcode": "5f",
+            "disasm": "PUSH0",
+            "inpt_sk": [],
+            "value": [
+                0
+            ],
+            "outpt_sk": [
+                "v83"
+            ],
+            "gas": 2,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "18"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "v79",
+        "v80",
+        "s1",
+        "v44",
+        "v83",
+        "v82",
+        "s0",
+        "v81",
+        "v78",
+        "v60",
+        "18"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 11,
+    "max_progr_len": 11,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "KERNEL_34_Block23",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": true,
+    "max_sk_sz": 14,
+    "is_revert": false
+}

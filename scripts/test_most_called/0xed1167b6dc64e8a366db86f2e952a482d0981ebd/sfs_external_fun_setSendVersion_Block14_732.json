@@ -1,0 +1,30 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v1193 = PhiFunction(v1174,v1194)\nreturn(v1193,v1193)",
+    "src_ws": [
+        "b0",
+        "v1193"
+    ],
+    "tgt_ws": [
+        "v1193",
+        "v1193",
+        "b0",
+        "v1193"
+    ],
+    "user_instrs": [],
+    "variables": [],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 2,
+    "max_progr_len": 2,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "external_fun_setSendVersion_Block14",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 5,
+    "is_revert": false
+}

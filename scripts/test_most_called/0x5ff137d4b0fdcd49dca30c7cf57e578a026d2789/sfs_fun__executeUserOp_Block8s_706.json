@@ -1,0 +1,52 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v1619 = sub(v1618,v1615)\nrevert(v1615,v1619)",
+    "src_ws": [
+        "v1618",
+        "v1615"
+    ],
+    "tgt_ws": [
+        "v1615",
+        "v1619",
+        "v1618",
+        "v1615"
+    ],
+    "user_instrs": [
+        {
+            "id": "SUB_0",
+            "opcode": "03",
+            "disasm": "SUB",
+            "inpt_sk": [
+                "v1618",
+                "v1615"
+            ],
+            "outpt_sk": [
+                "v1619"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        }
+    ],
+    "variables": [
+        "v1619",
+        "v1618",
+        "v1615"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 4,
+    "max_progr_len": 4,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun__executeUserOp_Block8s",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 5,
+    "is_revert": true
+}

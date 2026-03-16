@@ -1,0 +1,104 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "542 = PUSH [tag]\n866 = PUSH [tag]\nv2123 = lt(v2121,v2122)\nv2124 = iszero(v2123)\nrequire_helper_stringliteral_cca2(542,v2124,866)",
+    "src_ws": [
+        "v2122",
+        "v2121",
+        "v2117",
+        "v2116",
+        "out_fun_slice"
+    ],
+    "tgt_ws": [
+        "542",
+        "v2124",
+        "866",
+        "v2117",
+        "v2116",
+        "out_fun_slice"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "542"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "PUSH [TAG]_1",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "866"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "LT_0",
+            "opcode": "10",
+            "disasm": "LT",
+            "inpt_sk": [
+                "v2121",
+                "v2122"
+            ],
+            "outpt_sk": [
+                "v2123"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "ISZERO_0",
+            "opcode": "15",
+            "disasm": "ISZERO",
+            "inpt_sk": [
+                "v2123"
+            ],
+            "outpt_sk": [
+                "v2124"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        }
+    ],
+    "variables": [
+        "v2122",
+        "v2124",
+        "v2121",
+        "866",
+        "542",
+        "v2123"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 5,
+    "max_progr_len": 5,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_slice_Block0sssf",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 7,
+    "is_revert": false
+}

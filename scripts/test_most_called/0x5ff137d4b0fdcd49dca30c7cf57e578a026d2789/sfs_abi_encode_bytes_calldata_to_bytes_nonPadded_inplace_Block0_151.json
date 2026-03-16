@@ -1,0 +1,112 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "calldatacopy(v331,v333,v332)\nv334 = add(v331,v332)\nmstore(v334,0x00)\nfunctionReturn(out_abi_encode_bytes_calldata_to_bytes_nonPadded_inplace,v334)",
+    "src_ws": [
+        "v333",
+        "v332",
+        "v331",
+        "out_abi_encode_bytes_calldata_to_bytes_nonPadded_inplace"
+    ],
+    "tgt_ws": [
+        "out_abi_encode_bytes_calldata_to_bytes_nonPadded_inplace",
+        "v334"
+    ],
+    "user_instrs": [
+        {
+            "id": "CALLDATACOPY_0",
+            "opcode": "37",
+            "disasm": "CALLDATACOPY",
+            "inpt_sk": [
+                "v331",
+                "v333",
+                "v332"
+            ],
+            "outpt_sk": [],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": true,
+            "size": 1
+        },
+        {
+            "id": "ADD_0",
+            "opcode": "01",
+            "disasm": "ADD",
+            "inpt_sk": [
+                "v331",
+                "v332"
+            ],
+            "outpt_sk": [
+                "v334"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH0_0",
+            "opcode": "5f",
+            "disasm": "PUSH0",
+            "inpt_sk": [],
+            "value": [
+                0
+            ],
+            "outpt_sk": [
+                "s0"
+            ],
+            "gas": 2,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "MSTORE_0",
+            "opcode": "52",
+            "disasm": "MSTORE",
+            "inpt_sk": [
+                "v334",
+                "s0"
+            ],
+            "outpt_sk": [],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": true,
+            "size": 1
+        }
+    ],
+    "variables": [
+        "v331",
+        "v332",
+        "s0",
+        "v334",
+        "v333"
+    ],
+    "memory_dependences": [
+        [
+            "CALLDATACOPY_0",
+            "MSTORE_0"
+        ]
+    ],
+    "storage_dependences": [],
+    "init_progr_len": 10,
+    "max_progr_len": 10,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "abi_encode_bytes_calldata_to_bytes_nonPadded_inplace_Block0",
+    "transient_dependences": [],
+    "dependencies": [
+        [
+            "CALLDATACOPY_0",
+            "MSTORE_0"
+        ]
+    ],
+    "admits_junk": false,
+    "max_sk_sz": 7,
+    "is_revert": false
+}

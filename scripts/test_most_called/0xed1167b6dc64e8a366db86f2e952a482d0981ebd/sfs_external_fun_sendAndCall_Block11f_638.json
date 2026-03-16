@@ -1,0 +1,127 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "69 = PUSH [tag]\n653 = PUSH [tag]\nv1036 = calldatasize\nv1037 = add(0x04,v1034)\nv1038 = abi_decode_struct_LzCallParams_calldata(69,v1037,v1036,653)",
+    "src_ws": [
+        "v1034",
+        "v1030",
+        "v1027",
+        "v1028",
+        "v1020",
+        "v1022",
+        "v1018",
+        "v1017"
+    ],
+    "tgt_ws": [
+        "69",
+        "v1037",
+        "v1036",
+        "653",
+        "v1030",
+        "v1027",
+        "v1028",
+        "v1020",
+        "v1022",
+        "v1018",
+        "v1017"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "69"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "PUSH [TAG]_1",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "653"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "CALLDATASIZE_0",
+            "opcode": "36",
+            "disasm": "CALLDATASIZE",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "v1036"
+            ],
+            "gas": 2,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH_0",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                4
+            ],
+            "outpt_sk": [
+                "s0"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "ADD_0",
+            "opcode": "01",
+            "disasm": "ADD",
+            "inpt_sk": [
+                "s0",
+                "v1034"
+            ],
+            "outpt_sk": [
+                "v1037"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        }
+    ],
+    "variables": [
+        "s0",
+        "v1036",
+        "69",
+        "v1037",
+        "v1034",
+        "653"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 7,
+    "max_progr_len": 7,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "external_fun_sendAndCall_Block11f",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 12,
+    "is_revert": false
+}

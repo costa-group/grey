@@ -1,0 +1,75 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v241 = PhiFunction(v227,v273)\nv242 = lt(v241,v216)\n63 = PUSH [tag]\nJUMPI(63,v242)",
+    "src_ws": [
+        "v241",
+        "v216",
+        "v69",
+        "v67",
+        "v32",
+        "v56"
+    ],
+    "tgt_ws": [
+        "63",
+        "v242",
+        "v241",
+        "v216",
+        "v69",
+        "v67",
+        "v32",
+        "v56"
+    ],
+    "user_instrs": [
+        {
+            "id": "LT_0",
+            "opcode": "10",
+            "disasm": "LT",
+            "inpt_sk": [
+                "v241",
+                "v216"
+            ],
+            "outpt_sk": [
+                "v242"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "63"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "v242",
+        "63",
+        "v216",
+        "v241"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 4,
+    "max_progr_len": 4,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "ZamaERC20_9039_Block100",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 9,
+    "is_revert": false
+}

@@ -1,0 +1,75 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "66 = PUSH [tag]\n139 = PUSH [tag]\nv47 = abi_decode_address_fromMemory(66,v39,139)",
+    "src_ws": [
+        "v36",
+        "v32",
+        "v40",
+        "v39",
+        "v20",
+        "v13",
+        "v5",
+        "v0"
+    ],
+    "tgt_ws": [
+        "66",
+        "v39",
+        "139",
+        "v36",
+        "v32",
+        "v40",
+        "v39",
+        "v20",
+        "v13",
+        "v5",
+        "v0"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "66"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "PUSH [TAG]_1",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "139"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "139",
+        "66"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 3,
+    "max_progr_len": 3,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "ZamaERC20_9039_Block23f",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 12,
+    "is_revert": false
+}

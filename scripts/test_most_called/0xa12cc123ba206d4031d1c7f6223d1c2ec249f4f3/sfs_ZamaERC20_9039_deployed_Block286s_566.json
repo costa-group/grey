@@ -1,0 +1,157 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v430 = mload(v424)\nv431 = gas\nv432 = call(v431,v423,v4,v425,v430,v4,0x20)\nv433 = iszero(v432)\n113 = PUSH [tag]\nJUMPI(113,v433)",
+    "src_ws": [
+        "v425",
+        "v424",
+        "v423",
+        "v403",
+        "v407",
+        "v4"
+    ],
+    "tgt_ws": [
+        "113",
+        "v433",
+        "v423",
+        "v403",
+        "v407",
+        "v4"
+    ],
+    "user_instrs": [
+        {
+            "id": "MLOAD_0",
+            "opcode": "51",
+            "disasm": "MLOAD",
+            "inpt_sk": [
+                "v424"
+            ],
+            "outpt_sk": [
+                "v430"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "GAS_0",
+            "opcode": "5a",
+            "disasm": "GAS",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "v431"
+            ],
+            "gas": 2,
+            "commutative": false,
+            "push": false,
+            "storage": true,
+            "size": 1
+        },
+        {
+            "id": "PUSH_0",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                32
+            ],
+            "outpt_sk": [
+                "s0"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "CALL_0",
+            "opcode": "f1",
+            "disasm": "CALL",
+            "inpt_sk": [
+                "v431",
+                "v423",
+                "v4",
+                "v425",
+                "v430",
+                "v4",
+                "s0"
+            ],
+            "outpt_sk": [
+                "v432"
+            ],
+            "gas": 100,
+            "commutative": false,
+            "push": false,
+            "storage": true,
+            "size": 1
+        },
+        {
+            "id": "ISZERO_0",
+            "opcode": "15",
+            "disasm": "ISZERO",
+            "inpt_sk": [
+                "v432"
+            ],
+            "outpt_sk": [
+                "v433"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "113"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "v431",
+        "v425",
+        "v423",
+        "v430",
+        "s0",
+        "113",
+        "v4",
+        "v432",
+        "v424",
+        "v433"
+    ],
+    "memory_dependences": [
+        [
+            "MLOAD_0",
+            "CALL_0"
+        ]
+    ],
+    "storage_dependences": [],
+    "init_progr_len": 15,
+    "max_progr_len": 15,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "ZamaERC20_9039_deployed_Block286s",
+    "transient_dependences": [],
+    "dependencies": [
+        [
+            "MLOAD_0",
+            "CALL_0"
+        ]
+    ],
+    "admits_junk": true,
+    "max_sk_sz": 13,
+    "is_revert": false
+}

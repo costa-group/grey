@@ -1,0 +1,84 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "162 = PUSH [tag]\n860 = PUSH [tag]\nv2006 = gas\nv2007 = checked_sub_uint256(162,v1978,v2006,860)",
+    "src_ws": [
+        "v1980",
+        "v1976",
+        "v1978",
+        "v1974",
+        "out_fun_executeUserOp"
+    ],
+    "tgt_ws": [
+        "162",
+        "v1978",
+        "v2006",
+        "860",
+        "v1976",
+        "v1980",
+        "v1974",
+        "out_fun_executeUserOp"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "162"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "PUSH [TAG]_1",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "860"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "GAS_0",
+            "opcode": "5a",
+            "disasm": "GAS",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "v2006"
+            ],
+            "gas": 2,
+            "commutative": false,
+            "push": false,
+            "storage": true,
+            "size": 1
+        }
+    ],
+    "variables": [
+        "162",
+        "860",
+        "v2006"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 6,
+    "max_progr_len": 6,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_executeUserOp_Block9f",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 9,
+    "is_revert": false
+}

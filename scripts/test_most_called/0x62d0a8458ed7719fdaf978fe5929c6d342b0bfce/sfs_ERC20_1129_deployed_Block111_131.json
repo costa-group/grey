@@ -1,0 +1,57 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v134 = callvalue\n37 = PUSH [tag]\nJUMPI(37,v134)",
+    "src_ws": [],
+    "tgt_ws": [
+        "37",
+        "v134"
+    ],
+    "user_instrs": [
+        {
+            "id": "CALLVALUE_0",
+            "opcode": "34",
+            "disasm": "CALLVALUE",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "v134"
+            ],
+            "gas": 2,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "37"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "37",
+        "v134"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 2,
+    "max_progr_len": 2,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "ERC20_1129_deployed_Block111",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": true,
+    "max_sk_sz": 3,
+    "is_revert": false
+}

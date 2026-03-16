@@ -1,0 +1,52 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v2610 = sub(v2609,v2606)\nrevert(v2606,v2610)",
+    "src_ws": [
+        "v2609",
+        "v2606"
+    ],
+    "tgt_ws": [
+        "v2606",
+        "v2610",
+        "v2609",
+        "v2606"
+    ],
+    "user_instrs": [
+        {
+            "id": "SUB_0",
+            "opcode": "03",
+            "disasm": "SUB",
+            "inpt_sk": [
+                "v2609",
+                "v2606"
+            ],
+            "outpt_sk": [
+                "v2610"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        }
+    ],
+    "variables": [
+        "v2610",
+        "v2606",
+        "v2609"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 4,
+    "max_progr_len": 4,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_validatePaymasterPrepayment_Block11ss",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 5,
+    "is_revert": true
+}

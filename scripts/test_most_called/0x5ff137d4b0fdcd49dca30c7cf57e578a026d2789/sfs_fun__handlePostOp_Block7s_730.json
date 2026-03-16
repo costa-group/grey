@@ -1,0 +1,132 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v1687 = sub(v1686,v1682)\nv1688 = call(v1655,v1635,0x00,v1682,v1687,v1682,0x00)\n314 = PUSH [tag]\nJUMPI(314,v1688)",
+    "src_ws": [
+        "v1686",
+        "v1655",
+        "v1653",
+        "v1632",
+        "v1630",
+        "v1629",
+        "v1628",
+        "v1635",
+        "v1625",
+        "v1624",
+        "v1623",
+        "v1682",
+        "v1621",
+        "out_fun__handlePostOp"
+    ],
+    "tgt_ws": [
+        "314",
+        "v1688",
+        "v1653",
+        "v1632",
+        "v1630",
+        "v1629",
+        "v1628",
+        "v1688",
+        "v1625",
+        "v1624",
+        "v1623",
+        "v1682",
+        "v1621",
+        "out_fun__handlePostOp"
+    ],
+    "user_instrs": [
+        {
+            "id": "SUB_0",
+            "opcode": "03",
+            "disasm": "SUB",
+            "inpt_sk": [
+                "v1686",
+                "v1682"
+            ],
+            "outpt_sk": [
+                "v1687"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH0_0",
+            "opcode": "5f",
+            "disasm": "PUSH0",
+            "inpt_sk": [],
+            "value": [
+                0
+            ],
+            "outpt_sk": [
+                "s0"
+            ],
+            "gas": 2,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "CALL_0",
+            "opcode": "f1",
+            "disasm": "CALL",
+            "inpt_sk": [
+                "v1655",
+                "v1635",
+                "s0",
+                "v1682",
+                "v1687",
+                "v1682",
+                "s0"
+            ],
+            "outpt_sk": [
+                "v1688"
+            ],
+            "gas": 100,
+            "commutative": false,
+            "push": false,
+            "storage": true,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "314"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "v1655",
+        "314",
+        "v1635",
+        "v1688",
+        "s0",
+        "v1687",
+        "v1686",
+        "v1682"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 16,
+    "max_progr_len": 16,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun__handlePostOp_Block7s",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 22,
+    "is_revert": false
+}

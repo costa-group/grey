@@ -1,0 +1,104 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "146 = PUSH [tag]\n576 = PUSH [tag]\nv493 = add(v449,0x0140)\nv494,v495 = calldata_access_bytes_calldata(146,v449,v493,576)",
+    "src_ws": [
+        "v492",
+        "v449",
+        "v448",
+        "out_abi_encode_struct_UserOperation_calldata"
+    ],
+    "tgt_ws": [
+        "146",
+        "v449",
+        "v493",
+        "576",
+        "v492",
+        "v448",
+        "out_abi_encode_struct_UserOperation_calldata"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "146"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "PUSH [TAG]_1",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "576"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "PUSH_0",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                320
+            ],
+            "outpt_sk": [
+                "s0"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "ADD_0",
+            "opcode": "01",
+            "disasm": "ADD",
+            "inpt_sk": [
+                "v449",
+                "s0"
+            ],
+            "outpt_sk": [
+                "v493"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        }
+    ],
+    "variables": [
+        "576",
+        "v493",
+        "v449",
+        "s0",
+        "146"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 8,
+    "max_progr_len": 8,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "abi_encode_struct_UserOperation_calldata_Block0ssssssssf",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 8,
+    "is_revert": false
+}

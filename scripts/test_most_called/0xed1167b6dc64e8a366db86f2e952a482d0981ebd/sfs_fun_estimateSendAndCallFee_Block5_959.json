@@ -1,0 +1,31 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v1766 = PhiFunction(v1764,v1773)\nv1767 = PhiFunction(v1765,v1774)\nfunctionReturn(out_fun_estimateSendAndCallFee,v1766,v1767)",
+    "src_ws": [
+        "v1766",
+        "v1767",
+        "b0",
+        "out_fun_estimateSendAndCallFee"
+    ],
+    "tgt_ws": [
+        "out_fun_estimateSendAndCallFee",
+        "v1766",
+        "v1767"
+    ],
+    "user_instrs": [],
+    "variables": [],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 3,
+    "max_progr_len": 3,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_estimateSendAndCallFee_Block5",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 5,
+    "is_revert": false
+}

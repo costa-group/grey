@@ -1,0 +1,70 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v1213 = PhiFunction(v1208,v1216)\n375 = PUSH [tag]\n700 = PUSH [tag]\nv1214 = extract_used_part_and_set_length_of_short_byte_array(375,v1213,v1199,700)",
+    "src_ws": [
+        "v1213",
+        "b0",
+        "v1201",
+        "v1197",
+        "v1198",
+        "v1199"
+    ],
+    "tgt_ws": [
+        "375",
+        "v1213",
+        "v1199",
+        "700",
+        "v1201",
+        "v1197",
+        "v1198",
+        "v1199"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "375"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "PUSH [TAG]_1",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "700"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "375",
+        "700"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 6,
+    "max_progr_len": 6,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "external_fun_setTrustedRemote_Block17f",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 9,
+    "is_revert": false
+}

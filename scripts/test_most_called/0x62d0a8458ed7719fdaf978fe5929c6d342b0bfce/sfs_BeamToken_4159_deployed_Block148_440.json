@@ -1,0 +1,71 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v280 = PhiFunction(v256,v396)\nv281 = PhiFunction(v257,v397)\nv282 = lt(v281,v280)\n70 = PUSH [tag]\nJUMPI(70,v282)",
+    "src_ws": [
+        "v281",
+        "v280",
+        "v248",
+        "v254"
+    ],
+    "tgt_ws": [
+        "70",
+        "v282",
+        "v281",
+        "v280",
+        "v248",
+        "v254"
+    ],
+    "user_instrs": [
+        {
+            "id": "LT_0",
+            "opcode": "10",
+            "disasm": "LT",
+            "inpt_sk": [
+                "v281",
+                "v280"
+            ],
+            "outpt_sk": [
+                "v282"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "70"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "v282",
+        "v281",
+        "70",
+        "v280"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 4,
+    "max_progr_len": 4,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "BeamToken_4159_deployed_Block148",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 7,
+    "is_revert": false
+}

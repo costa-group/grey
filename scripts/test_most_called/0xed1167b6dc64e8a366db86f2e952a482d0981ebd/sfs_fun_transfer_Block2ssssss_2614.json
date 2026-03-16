@@ -1,0 +1,90 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v2291 = sub(v2290,v2289)\nlog3(v2289,v2291,0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef,v2273,v2277)\nfunctionReturn(out_fun_transfer)",
+    "src_ws": [
+        "v2290",
+        "v2273",
+        "v2277",
+        "v2289",
+        "out_fun_transfer"
+    ],
+    "tgt_ws": [
+        "out_fun_transfer"
+    ],
+    "user_instrs": [
+        {
+            "id": "SUB_0",
+            "opcode": "03",
+            "disasm": "SUB",
+            "inpt_sk": [
+                "v2290",
+                "v2289"
+            ],
+            "outpt_sk": [
+                "v2291"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH_0",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                100389287136786176327247604509743168900146139575972864366142685224231313322991
+            ],
+            "outpt_sk": [
+                "s0"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 33
+        },
+        {
+            "id": "LOG3_0",
+            "opcode": "a3",
+            "disasm": "LOG3",
+            "inpt_sk": [
+                "v2289",
+                "v2291",
+                "s0",
+                "v2273",
+                "v2277"
+            ],
+            "outpt_sk": [],
+            "gas": 1500,
+            "commutative": false,
+            "push": false,
+            "storage": true,
+            "size": 1
+        }
+    ],
+    "variables": [
+        "v2289",
+        "v2291",
+        "s0",
+        "v2290",
+        "v2273",
+        "v2277"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 10,
+    "max_progr_len": 10,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_transfer_Block2ssssss",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 9,
+    "is_revert": false
+}

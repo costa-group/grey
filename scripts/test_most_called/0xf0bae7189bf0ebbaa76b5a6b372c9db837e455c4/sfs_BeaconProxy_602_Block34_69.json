@@ -1,0 +1,71 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v84 = LiteralAssignment(0x00)\n17 = PUSH [tag]\nJUMPI(17,v82)",
+    "src_ws": [
+        "v82",
+        "v59",
+        "v31",
+        "v19",
+        "v20"
+    ],
+    "tgt_ws": [
+        "17",
+        "v82",
+        "v84",
+        "v59",
+        "v31",
+        "v19",
+        "v20"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH0_0",
+            "opcode": "5f",
+            "disasm": "PUSH0",
+            "inpt_sk": [],
+            "value": [
+                0
+            ],
+            "outpt_sk": [
+                "v84"
+            ],
+            "gas": 2,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "17"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "17",
+        "v84"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 3,
+    "max_progr_len": 3,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "BeaconProxy_602_Block34",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": true,
+    "max_sk_sz": 8,
+    "is_revert": false
+}

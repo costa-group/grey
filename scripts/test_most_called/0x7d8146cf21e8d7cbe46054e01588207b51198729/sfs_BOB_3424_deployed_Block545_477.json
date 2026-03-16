@@ -1,0 +1,157 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v905 = mul(v868,0x0a)\nv906 = div(v905,v868)\nv907 = eq(0x0a,v906)\nv908 = or(v869,v907)\nv909 = iszero(v908)\n207 = PUSH [tag]\nJUMPI(207,v909)",
+    "src_ws": [
+        "v868",
+        "v869",
+        "v861"
+    ],
+    "tgt_ws": [
+        "207",
+        "v909",
+        "v905",
+        "v861"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH_0",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                10
+            ],
+            "outpt_sk": [
+                "s0"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "MUL_0",
+            "opcode": "02",
+            "disasm": "MUL",
+            "inpt_sk": [
+                "v868",
+                "s0"
+            ],
+            "outpt_sk": [
+                "v905"
+            ],
+            "gas": 5,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "DIV_0",
+            "opcode": "04",
+            "disasm": "DIV",
+            "inpt_sk": [
+                "v905",
+                "v868"
+            ],
+            "outpt_sk": [
+                "v906"
+            ],
+            "gas": 5,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "EQ_0",
+            "opcode": "14",
+            "disasm": "EQ",
+            "inpt_sk": [
+                "s0",
+                "v906"
+            ],
+            "outpt_sk": [
+                "v907"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "OR_0",
+            "opcode": "17",
+            "disasm": "OR",
+            "inpt_sk": [
+                "v869",
+                "v907"
+            ],
+            "outpt_sk": [
+                "v908"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "ISZERO_0",
+            "opcode": "15",
+            "disasm": "ISZERO",
+            "inpt_sk": [
+                "v908"
+            ],
+            "outpt_sk": [
+                "v909"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "207"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "207",
+        "v905",
+        "v909",
+        "v868",
+        "v869",
+        "v908",
+        "s0",
+        "v906",
+        "v907"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 12,
+    "max_progr_len": 12,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "BOB_3424_deployed_Block545",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": true,
+    "max_sk_sz": 6,
+    "is_revert": false
+}

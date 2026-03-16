@@ -1,0 +1,52 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v2413 = sub(v2412,v2409)\nrevert(v2409,v2413)",
+    "src_ws": [
+        "v2412",
+        "v2409"
+    ],
+    "tgt_ws": [
+        "v2409",
+        "v2413",
+        "v2412",
+        "v2409"
+    ],
+    "user_instrs": [
+        {
+            "id": "SUB_0",
+            "opcode": "03",
+            "disasm": "SUB",
+            "inpt_sk": [
+                "v2412",
+                "v2409"
+            ],
+            "outpt_sk": [
+                "v2413"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        }
+    ],
+    "variables": [
+        "v2413",
+        "v2412",
+        "v2409"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 4,
+    "max_progr_len": 4,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_simulationOnlyValidations_Block13s",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 5,
+    "is_revert": true
+}

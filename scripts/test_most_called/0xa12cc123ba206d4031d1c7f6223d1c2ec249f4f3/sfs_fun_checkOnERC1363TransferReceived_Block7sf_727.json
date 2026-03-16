@@ -1,0 +1,89 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "167 = PUSH [tag]\n355 = PUSH [tag]\nv953 = add(v915,v952)\nv954 = abi_decode_bytes4_fromMemory(167,v915,v953,355)",
+    "src_ws": [
+        "v931",
+        "v952",
+        "v915",
+        "v914",
+        "out_fun_checkOnERC1363TransferReceived"
+    ],
+    "tgt_ws": [
+        "167",
+        "v915",
+        "v953",
+        "355",
+        "v931",
+        "v915",
+        "v914",
+        "out_fun_checkOnERC1363TransferReceived"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "167"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "PUSH [TAG]_1",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "355"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "ADD_0",
+            "opcode": "01",
+            "disasm": "ADD",
+            "inpt_sk": [
+                "v915",
+                "v952"
+            ],
+            "outpt_sk": [
+                "v953"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        }
+    ],
+    "variables": [
+        "v953",
+        "v915",
+        "v952",
+        "167",
+        "355"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 7,
+    "max_progr_len": 7,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_checkOnERC1363TransferReceived_Block7sf",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 9,
+    "is_revert": false
+}

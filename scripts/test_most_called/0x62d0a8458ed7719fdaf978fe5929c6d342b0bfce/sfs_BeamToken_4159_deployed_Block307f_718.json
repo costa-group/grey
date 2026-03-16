@@ -1,0 +1,85 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v711 = PhiFunction(v665,v548,v772)\n200 = PUSH [tag]\n367 = PUSH [tag]\nv712 = sub(v711,v547)\nfinalize_allocation(200,v547,v712,367)",
+    "src_ws": [
+        "b0",
+        "v547",
+        "v711"
+    ],
+    "tgt_ws": [
+        "200",
+        "v547",
+        "v712",
+        "367",
+        "v547",
+        "v711"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "200"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "PUSH [TAG]_1",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "367"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "SUB_0",
+            "opcode": "03",
+            "disasm": "SUB",
+            "inpt_sk": [
+                "v711",
+                "v547"
+            ],
+            "outpt_sk": [
+                "v712"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        }
+    ],
+    "variables": [
+        "367",
+        "v712",
+        "v547",
+        "v711",
+        "200"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 7,
+    "max_progr_len": 7,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "BeamToken_4159_deployed_Block307f",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": true,
+    "max_sk_sz": 7,
+    "is_revert": false
+}

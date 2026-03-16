@@ -1,0 +1,68 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "449 = PUSH [tag]\n526 = PUSH [tag]\nv562 = mapping_index_access_t_mapping_t_address_t_mapping_t_address_t_bool__of_t_address(449,v561,v552,526)",
+    "src_ws": [
+        "v561",
+        "v556",
+        "v553",
+        "v552",
+        "v551"
+    ],
+    "tgt_ws": [
+        "449",
+        "v561",
+        "v552",
+        "526",
+        "v553",
+        "v556",
+        "v551"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "449"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "PUSH [TAG]_1",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "526"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "526",
+        "449"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 5,
+    "max_progr_len": 5,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "external_fun_approve_Block8sf",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 8,
+    "is_revert": false
+}

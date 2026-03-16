@@ -1,0 +1,112 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v964 = sub(v963,v961)\nlog3(v961,v964,0x17307eab39ab6107e8899845ad3d59bd9653f200f220920489ca2b5937696c31,v962,v955)\nreturn(0x00,0x00)",
+    "src_ws": [
+        "v963",
+        "v961",
+        "v962",
+        "v955"
+    ],
+    "tgt_ws": [
+        "0x00",
+        "0x00",
+        "v963",
+        "v961",
+        "v962",
+        "v955"
+    ],
+    "user_instrs": [
+        {
+            "id": "SUB_0",
+            "opcode": "03",
+            "disasm": "SUB",
+            "inpt_sk": [
+                "v963",
+                "v961"
+            ],
+            "outpt_sk": [
+                "v964"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH_0",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                10488878412788366941768124514102328501031624832915735463117339209566108871729
+            ],
+            "outpt_sk": [
+                "s0"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 33
+        },
+        {
+            "id": "LOG3_0",
+            "opcode": "a3",
+            "disasm": "LOG3",
+            "inpt_sk": [
+                "v961",
+                "v964",
+                "s0",
+                "v962",
+                "v955"
+            ],
+            "outpt_sk": [],
+            "gas": 1500,
+            "commutative": false,
+            "push": false,
+            "storage": true,
+            "size": 1
+        },
+        {
+            "id": "PUSH0_0",
+            "opcode": "5f",
+            "disasm": "PUSH0",
+            "inpt_sk": [],
+            "value": [
+                0
+            ],
+            "outpt_sk": [
+                "0x00"
+            ],
+            "gas": 2,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 1
+        }
+    ],
+    "variables": [
+        "v955",
+        "v961",
+        "v964",
+        "v963",
+        "v962",
+        "0x00",
+        "s0"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 10,
+    "max_progr_len": 10,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "external_fun_setApprovalForAll_Block8ssss",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 10,
+    "is_revert": false
+}

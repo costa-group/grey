@@ -1,0 +1,183 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v430 = add(v406,v426)\nv431 = mload(v430)\nsstore(v427,v431)\nv432 = add(v427,0x01)\nv433 = add(v426,0x20)\n143 = PUSH [tag]\nJUMP(143)",
+    "src_ws": [
+        "v425",
+        "v427",
+        "v418",
+        "v426",
+        "v408",
+        "v407",
+        "v406",
+        "out_copy_byte_array_to_storage_from_bytes_to_bytes"
+    ],
+    "tgt_ws": [
+        "143",
+        "v425",
+        "v432",
+        "v418",
+        "v433",
+        "v408",
+        "v407",
+        "v406",
+        "out_copy_byte_array_to_storage_from_bytes_to_bytes"
+    ],
+    "user_instrs": [
+        {
+            "id": "ADD_0",
+            "opcode": "01",
+            "disasm": "ADD",
+            "inpt_sk": [
+                "v406",
+                "v426"
+            ],
+            "outpt_sk": [
+                "v430"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "MLOAD_0",
+            "opcode": "51",
+            "disasm": "MLOAD",
+            "inpt_sk": [
+                "v430"
+            ],
+            "outpt_sk": [
+                "v431"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "SSTORE_0",
+            "opcode": "55",
+            "disasm": "SSTORE",
+            "inpt_sk": [
+                "v427",
+                "v431"
+            ],
+            "outpt_sk": [],
+            "gas": 5000,
+            "commutative": false,
+            "push": false,
+            "storage": true,
+            "size": 1
+        },
+        {
+            "id": "PUSH_0",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                1
+            ],
+            "outpt_sk": [
+                "s0"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "ADD_1",
+            "opcode": "01",
+            "disasm": "ADD",
+            "inpt_sk": [
+                "v427",
+                "s0"
+            ],
+            "outpt_sk": [
+                "v432"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH_1",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                32
+            ],
+            "outpt_sk": [
+                "s1"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "ADD_2",
+            "opcode": "01",
+            "disasm": "ADD",
+            "inpt_sk": [
+                "v426",
+                "s1"
+            ],
+            "outpt_sk": [
+                "v433"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "143"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "v431",
+        "v432",
+        "v430",
+        "v426",
+        "143",
+        "v406",
+        "s0",
+        "v433",
+        "s1",
+        "v427"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 17,
+    "max_progr_len": 17,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "copy_byte_array_to_storage_from_bytes_to_bytes_Block8",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 11,
+    "is_revert": false
+}

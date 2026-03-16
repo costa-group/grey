@@ -1,0 +1,67 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "89 = PUSH [tag]\n786 = PUSH [tag]\nv1783 = allocate_and_zero_memory_array_bytes(89,v1776,786)",
+    "src_ws": [
+        "v1778",
+        "v1777",
+        "v1776",
+        "out_fun_substring"
+    ],
+    "tgt_ws": [
+        "89",
+        "v1776",
+        "786",
+        "v1778",
+        "v1777",
+        "v1776",
+        "out_fun_substring"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "89"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "PUSH [TAG]_1",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "786"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "89",
+        "786"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 3,
+    "max_progr_len": 3,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_substring_Block5f",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 8,
+    "is_revert": false
+}

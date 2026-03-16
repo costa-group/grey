@@ -1,0 +1,143 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "109 = PUSH [tag]\n571 = PUSH [tag]\nv280 = sub(v279,v275)\nv281 = add(v275,0x40)\nmstore(v281,v280)\nv282 = abi_encode_string_memory_ptr(109,v272,v279,571)",
+    "src_ws": [
+        "v279",
+        "v275",
+        "v272",
+        "v271",
+        "v270",
+        "v269",
+        "out_abi_encode_uint16_bytes_bytes_address_payable_address_bytes"
+    ],
+    "tgt_ws": [
+        "109",
+        "v272",
+        "v279",
+        "571",
+        "v275",
+        "v271",
+        "v270",
+        "v269",
+        "out_abi_encode_uint16_bytes_bytes_address_payable_address_bytes"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "109"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "PUSH [TAG]_1",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "571"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "SUB_0",
+            "opcode": "03",
+            "disasm": "SUB",
+            "inpt_sk": [
+                "v279",
+                "v275"
+            ],
+            "outpt_sk": [
+                "v280"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH_0",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                64
+            ],
+            "outpt_sk": [
+                "s0"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "ADD_0",
+            "opcode": "01",
+            "disasm": "ADD",
+            "inpt_sk": [
+                "v275",
+                "s0"
+            ],
+            "outpt_sk": [
+                "v281"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "MSTORE_0",
+            "opcode": "52",
+            "disasm": "MSTORE",
+            "inpt_sk": [
+                "v281",
+                "v280"
+            ],
+            "outpt_sk": [],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": true,
+            "size": 1
+        }
+    ],
+    "variables": [
+        "109",
+        "s0",
+        "571",
+        "v279",
+        "v280",
+        "v281",
+        "v275"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 11,
+    "max_progr_len": 11,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "abi_encode_uint16_bytes_bytes_address_payable_address_bytes_Block0sf",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 11,
+    "is_revert": false
+}

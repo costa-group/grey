@@ -1,0 +1,193 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v91 = add(v22,v76)\nv92 = mload(v91)\nsstore(v77,v92)\nv93 = add(v77,0x01)\nv94 = add(v76,0x20)\n22 = PUSH [tag]\nJUMP(22)",
+    "src_ws": [
+        "v75",
+        "v58",
+        "v77",
+        "v76",
+        "v35",
+        "v33",
+        "v32",
+        "v27",
+        "v18",
+        "v22",
+        "v17",
+        "v8",
+        "v11"
+    ],
+    "tgt_ws": [
+        "22",
+        "v75",
+        "v58",
+        "v93",
+        "v94",
+        "v35",
+        "v33",
+        "v32",
+        "v27",
+        "v18",
+        "v22",
+        "v17",
+        "v8",
+        "v11"
+    ],
+    "user_instrs": [
+        {
+            "id": "ADD_0",
+            "opcode": "01",
+            "disasm": "ADD",
+            "inpt_sk": [
+                "v22",
+                "v76"
+            ],
+            "outpt_sk": [
+                "v91"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "MLOAD_0",
+            "opcode": "51",
+            "disasm": "MLOAD",
+            "inpt_sk": [
+                "v91"
+            ],
+            "outpt_sk": [
+                "v92"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "SSTORE_0",
+            "opcode": "55",
+            "disasm": "SSTORE",
+            "inpt_sk": [
+                "v77",
+                "v92"
+            ],
+            "outpt_sk": [],
+            "gas": 5000,
+            "commutative": false,
+            "push": false,
+            "storage": true,
+            "size": 1
+        },
+        {
+            "id": "PUSH_0",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                1
+            ],
+            "outpt_sk": [
+                "s0"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "ADD_1",
+            "opcode": "01",
+            "disasm": "ADD",
+            "inpt_sk": [
+                "v77",
+                "s0"
+            ],
+            "outpt_sk": [
+                "v93"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH_1",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                32
+            ],
+            "outpt_sk": [
+                "s1"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "ADD_2",
+            "opcode": "01",
+            "disasm": "ADD",
+            "inpt_sk": [
+                "v76",
+                "s1"
+            ],
+            "outpt_sk": [
+                "v94"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "22"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "s1",
+        "s0",
+        "v76",
+        "v93",
+        "v91",
+        "v92",
+        "v22",
+        "22",
+        "v94",
+        "v77"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 17,
+    "max_progr_len": 17,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "USDe_93_Block32",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 16,
+    "is_revert": false
+}

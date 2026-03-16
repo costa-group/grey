@@ -1,0 +1,87 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v483 = extcodesize(v423)\nv484 = iszero(v483)\n122 = PUSH [tag]\nJUMP(122)",
+    "src_ws": [
+        "v458",
+        "v423",
+        "v403",
+        "v407",
+        "v4"
+    ],
+    "tgt_ws": [
+        "122",
+        "v484",
+        "v423",
+        "v403",
+        "v407",
+        "v4"
+    ],
+    "user_instrs": [
+        {
+            "id": "EXTCODESIZE_0",
+            "opcode": "3b",
+            "disasm": "EXTCODESIZE",
+            "inpt_sk": [
+                "v423"
+            ],
+            "outpt_sk": [
+                "v483"
+            ],
+            "gas": 2600,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "ISZERO_0",
+            "opcode": "15",
+            "disasm": "ISZERO",
+            "inpt_sk": [
+                "v483"
+            ],
+            "outpt_sk": [
+                "v484"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "122"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "122",
+        "v423",
+        "v484",
+        "v483"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 5,
+    "max_progr_len": 5,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "ZamaERC20_9039_deployed_Block293",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": true,
+    "max_sk_sz": 7,
+    "is_revert": false
+}

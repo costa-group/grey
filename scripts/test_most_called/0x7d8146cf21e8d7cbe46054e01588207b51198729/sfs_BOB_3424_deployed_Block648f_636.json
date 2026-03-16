@@ -1,0 +1,72 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v1054 = PhiFunction(v1049,v1059)\n263 = PUSH [tag]\n479 = PUSH [tag]\nfinalize_allocation(263,v1018,v1054,479)",
+    "src_ws": [
+        "v1017",
+        "v1022",
+        "v1018",
+        "v1054",
+        "v997",
+        "v6"
+    ],
+    "tgt_ws": [
+        "263",
+        "v1018",
+        "v1054",
+        "479",
+        "v1017",
+        "v1022",
+        "v1018",
+        "v1054",
+        "v997",
+        "v6"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "263"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "PUSH [TAG]_1",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "479"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "263",
+        "479"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 4,
+    "max_progr_len": 4,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "BOB_3424_deployed_Block648f",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": true,
+    "max_sk_sz": 11,
+    "is_revert": false
+}

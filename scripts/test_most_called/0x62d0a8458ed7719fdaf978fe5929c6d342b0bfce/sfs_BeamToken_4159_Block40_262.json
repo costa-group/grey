@@ -1,0 +1,95 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v65 = add(v13,v44)\nv66 = mload(v65)\n17 = PUSH [tag]\nJUMP(17)",
+    "src_ws": [
+        "v48",
+        "v44",
+        "v26",
+        "v27",
+        "v25",
+        "v24",
+        "v20",
+        "v13"
+    ],
+    "tgt_ws": [
+        "17",
+        "v66",
+        "v44",
+        "v26",
+        "v27",
+        "v25",
+        "v24",
+        "v20",
+        "v13"
+    ],
+    "user_instrs": [
+        {
+            "id": "ADD_0",
+            "opcode": "01",
+            "disasm": "ADD",
+            "inpt_sk": [
+                "v13",
+                "v44"
+            ],
+            "outpt_sk": [
+                "v65"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "MLOAD_0",
+            "opcode": "51",
+            "disasm": "MLOAD",
+            "inpt_sk": [
+                "v65"
+            ],
+            "outpt_sk": [
+                "v66"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "17"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "v65",
+        "v44",
+        "17",
+        "v66",
+        "v13"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 6,
+    "max_progr_len": 6,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "BeamToken_4159_Block40",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": true,
+    "max_sk_sz": 10,
+    "is_revert": false
+}

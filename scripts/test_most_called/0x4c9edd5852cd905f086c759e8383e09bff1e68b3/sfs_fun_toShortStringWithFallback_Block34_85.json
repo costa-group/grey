@@ -1,0 +1,71 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v253 = PhiFunction(v239,v274)\nv254 = lt(v253,v237)\n59 = PUSH [tag]\nJUMPI(59,v254)",
+    "src_ws": [
+        "v253",
+        "v237",
+        "v219",
+        "v234"
+    ],
+    "tgt_ws": [
+        "59",
+        "v254",
+        "v253",
+        "v237",
+        "v219",
+        "v234"
+    ],
+    "user_instrs": [
+        {
+            "id": "LT_0",
+            "opcode": "10",
+            "disasm": "LT",
+            "inpt_sk": [
+                "v253",
+                "v237"
+            ],
+            "outpt_sk": [
+                "v254"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "59"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "v254",
+        "v253",
+        "v237",
+        "59"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 4,
+    "max_progr_len": 4,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_toShortStringWithFallback_Block34",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 7,
+    "is_revert": false
+}

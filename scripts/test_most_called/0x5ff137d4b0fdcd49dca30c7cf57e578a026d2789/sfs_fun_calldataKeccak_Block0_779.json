@@ -1,0 +1,120 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v1824 = mload(0x40)\ncalldatacopy(v1824,v1823,v1822)\nv1825 = keccak256(v1824,v1822)\nfunctionReturn(out_fun_calldataKeccak,v1825)",
+    "src_ws": [
+        "v1823",
+        "v1822",
+        "out_fun_calldataKeccak"
+    ],
+    "tgt_ws": [
+        "out_fun_calldataKeccak",
+        "v1825"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH_0",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                64
+            ],
+            "outpt_sk": [
+                "s0"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "MLOAD_0",
+            "opcode": "51",
+            "disasm": "MLOAD",
+            "inpt_sk": [
+                "s0"
+            ],
+            "outpt_sk": [
+                "v1824"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "CALLDATACOPY_0",
+            "opcode": "37",
+            "disasm": "CALLDATACOPY",
+            "inpt_sk": [
+                "v1824",
+                "v1823",
+                "v1822"
+            ],
+            "outpt_sk": [],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": true,
+            "size": 1
+        },
+        {
+            "id": "KECCAK256_0",
+            "opcode": "20",
+            "disasm": "KECCAK256",
+            "inpt_sk": [
+                "v1824",
+                "v1822"
+            ],
+            "outpt_sk": [
+                "v1825"
+            ],
+            "gas": 30,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        }
+    ],
+    "variables": [
+        "v1824",
+        "v1823",
+        "s0",
+        "v1822",
+        "v1825"
+    ],
+    "memory_dependences": [
+        [
+            "MLOAD_0",
+            "CALLDATACOPY_0"
+        ],
+        [
+            "CALLDATACOPY_0",
+            "KECCAK256_0"
+        ]
+    ],
+    "storage_dependences": [],
+    "init_progr_len": 9,
+    "max_progr_len": 9,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_calldataKeccak_Block0",
+    "transient_dependences": [],
+    "dependencies": [
+        [
+            "MLOAD_0",
+            "CALLDATACOPY_0"
+        ],
+        [
+            "CALLDATACOPY_0",
+            "KECCAK256_0"
+        ]
+    ],
+    "admits_junk": false,
+    "max_sk_sz": 7,
+    "is_revert": false
+}

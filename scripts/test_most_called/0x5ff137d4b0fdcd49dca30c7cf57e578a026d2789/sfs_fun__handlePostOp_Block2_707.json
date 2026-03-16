@@ -1,0 +1,119 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v1640 = mload(v1622)\nv1641 = iszero(v1640)\nv1642 = iszero(v1641)\n311 = PUSH [tag]\nJUMPI(311,v1642)",
+    "src_ws": [
+        "v1635",
+        "v1632",
+        "v1630",
+        "v1629",
+        "v1628",
+        "v1626",
+        "v1625",
+        "v1624",
+        "v1623",
+        "v1622",
+        "v1621",
+        "out_fun__handlePostOp"
+    ],
+    "tgt_ws": [
+        "311",
+        "v1642",
+        "v1635",
+        "v1632",
+        "v1630",
+        "v1629",
+        "v1628",
+        "v1626",
+        "v1625",
+        "v1624",
+        "v1623",
+        "v1622",
+        "v1621",
+        "out_fun__handlePostOp"
+    ],
+    "user_instrs": [
+        {
+            "id": "MLOAD_0",
+            "opcode": "51",
+            "disasm": "MLOAD",
+            "inpt_sk": [
+                "v1622"
+            ],
+            "outpt_sk": [
+                "v1640"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "ISZERO_0",
+            "opcode": "15",
+            "disasm": "ISZERO",
+            "inpt_sk": [
+                "v1640"
+            ],
+            "outpt_sk": [
+                "v1641"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "ISZERO_1",
+            "opcode": "15",
+            "disasm": "ISZERO",
+            "inpt_sk": [
+                "v1641"
+            ],
+            "outpt_sk": [
+                "v1642"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "311"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "v1640",
+        "v1622",
+        "v1641",
+        "311",
+        "v1642"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 5,
+    "max_progr_len": 5,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun__handlePostOp_Block2",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 15,
+    "is_revert": false
+}

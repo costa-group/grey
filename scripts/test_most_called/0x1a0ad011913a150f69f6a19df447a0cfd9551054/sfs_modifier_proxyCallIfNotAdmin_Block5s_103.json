@@ -1,0 +1,268 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v185 = mload(0x40)\ncalldatacopy(v185,v172,v171)\nv186 = add(v185,v171)\nmstore(v186,0x00)\nv187 = sub(v186,v185)\nv188 = gas\nv189 = delegatecall(v188,v173,v185,v187,0x00,0x00)\nv190 = LiteralAssignment(0x00)\nv191 = returndatasize\nv192 = eq(v191,0x00)\n53 = PUSH [tag]\nJUMPI(53,v192)",
+    "src_ws": [
+        "v173",
+        "v172",
+        "v171",
+        "out_modifier_proxyCallIfNotAdmin"
+    ],
+    "tgt_ws": [
+        "53",
+        "v192",
+        "v189",
+        "out_modifier_proxyCallIfNotAdmin"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH_0",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                64
+            ],
+            "outpt_sk": [
+                "s0"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "MLOAD_0",
+            "opcode": "51",
+            "disasm": "MLOAD",
+            "inpt_sk": [
+                "s0"
+            ],
+            "outpt_sk": [
+                "v185"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "CALLDATACOPY_0",
+            "opcode": "37",
+            "disasm": "CALLDATACOPY",
+            "inpt_sk": [
+                "v185",
+                "v172",
+                "v171"
+            ],
+            "outpt_sk": [],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": true,
+            "size": 1
+        },
+        {
+            "id": "ADD_0",
+            "opcode": "01",
+            "disasm": "ADD",
+            "inpt_sk": [
+                "v185",
+                "v171"
+            ],
+            "outpt_sk": [
+                "v186"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH0_0",
+            "opcode": "5f",
+            "disasm": "PUSH0",
+            "inpt_sk": [],
+            "value": [
+                0
+            ],
+            "outpt_sk": [
+                "s1"
+            ],
+            "gas": 2,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "MSTORE_0",
+            "opcode": "52",
+            "disasm": "MSTORE",
+            "inpt_sk": [
+                "v186",
+                "s1"
+            ],
+            "outpt_sk": [],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": true,
+            "size": 1
+        },
+        {
+            "id": "SUB_0",
+            "opcode": "03",
+            "disasm": "SUB",
+            "inpt_sk": [
+                "v186",
+                "v185"
+            ],
+            "outpt_sk": [
+                "v187"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "GAS_0",
+            "opcode": "5a",
+            "disasm": "GAS",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "v188"
+            ],
+            "gas": 2,
+            "commutative": false,
+            "push": false,
+            "storage": true,
+            "size": 1
+        },
+        {
+            "id": "DELEGATECALL_0",
+            "opcode": "f4",
+            "disasm": "DELEGATECALL",
+            "inpt_sk": [
+                "v188",
+                "v173",
+                "v185",
+                "v187",
+                "s1",
+                "s1"
+            ],
+            "outpt_sk": [
+                "v189"
+            ],
+            "gas": 100,
+            "commutative": false,
+            "push": false,
+            "storage": true,
+            "size": 1
+        },
+        {
+            "id": "RETURNDATASIZE_0",
+            "opcode": "3c",
+            "disasm": "RETURNDATASIZE",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "v191"
+            ],
+            "gas": 2,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "EQ_0",
+            "opcode": "14",
+            "disasm": "EQ",
+            "inpt_sk": [
+                "v191",
+                "s1"
+            ],
+            "outpt_sk": [
+                "v192"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "53"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "v171",
+        "s1",
+        "v188",
+        "v172",
+        "53",
+        "v192",
+        "s0",
+        "v186",
+        "v187",
+        "v173",
+        "v185",
+        "v189",
+        "v191"
+    ],
+    "memory_dependences": [
+        [
+            "MLOAD_0",
+            "CALLDATACOPY_0"
+        ],
+        [
+            "CALLDATACOPY_0",
+            "MSTORE_0"
+        ],
+        [
+            "MSTORE_0",
+            "DELEGATECALL_0"
+        ]
+    ],
+    "storage_dependences": [],
+    "init_progr_len": 30,
+    "max_progr_len": 30,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "modifier_proxyCallIfNotAdmin_Block5s",
+    "transient_dependences": [],
+    "dependencies": [
+        [
+            "MLOAD_0",
+            "CALLDATACOPY_0"
+        ],
+        [
+            "CALLDATACOPY_0",
+            "MSTORE_0"
+        ],
+        [
+            "MSTORE_0",
+            "DELEGATECALL_0"
+        ]
+    ],
+    "admits_junk": false,
+    "max_sk_sz": 12,
+    "is_revert": false
+}

@@ -1,0 +1,46 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "458 = PUSH [tag]\npanic_error_0x41(458)",
+    "src_ws": [
+        "v1394",
+        "out_finalize_allocation_16465"
+    ],
+    "tgt_ws": [
+        "458",
+        "v1394",
+        "out_finalize_allocation_16465"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "458"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "458"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 1,
+    "max_progr_len": 1,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "finalize_allocation_16465_Block1",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 4,
+    "is_revert": false
+}

@@ -1,0 +1,95 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "66 = PUSH [tag]\n859 = PUSH [tag]\nv2003 = add(v1984,v2002)\nv2004 = abi_decode_uint256_fromMemory(66,v1984,v2003,859)",
+    "src_ws": [
+        "v1991",
+        "v2002",
+        "v1984",
+        "v1980",
+        "v1976",
+        "v1978",
+        "v1974",
+        "out_fun_executeUserOp"
+    ],
+    "tgt_ws": [
+        "66",
+        "v1984",
+        "v2003",
+        "859",
+        "v1991",
+        "v1984",
+        "v1980",
+        "v1976",
+        "v1978",
+        "v1974",
+        "out_fun_executeUserOp"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "66"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "PUSH [TAG]_1",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "859"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "ADD_0",
+            "opcode": "01",
+            "disasm": "ADD",
+            "inpt_sk": [
+                "v1984",
+                "v2002"
+            ],
+            "outpt_sk": [
+                "v2003"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        }
+    ],
+    "variables": [
+        "v2002",
+        "66",
+        "859",
+        "v1984",
+        "v2003"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 7,
+    "max_progr_len": 7,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_executeUserOp_Block4sf",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 12,
+    "is_revert": false
+}

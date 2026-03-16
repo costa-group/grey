@@ -1,0 +1,62 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "471 = PUSH [tag]\nJUMP(471)",
+    "src_ws": [
+        "v2018",
+        "v2008",
+        "v2007",
+        "v2006",
+        "v2005",
+        "v2009",
+        "v2016",
+        "v2002",
+        "v2011",
+        "out_fun_sendAndCall"
+    ],
+    "tgt_ws": [
+        "471",
+        "v2018",
+        "v2008",
+        "v2007",
+        "v2006",
+        "v2005",
+        "v2009",
+        "v2016",
+        "v2002",
+        "v2011",
+        "out_fun_sendAndCall"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "471"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "471"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 1,
+    "max_progr_len": 1,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_sendAndCall_Block8ssss",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 12,
+    "is_revert": false
+}

@@ -1,0 +1,124 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v2871 = add(v2861,v2865)\nv2872 = mload(v2871)\nv2873 = gt(v2872,0xffffffffffffffff)\n519 = PUSH [tag]\nJUMPI(519,v2873)",
+    "src_ws": [
+        "v2861",
+        "v2865",
+        "out_try_decode_error_message"
+    ],
+    "tgt_ws": [
+        "519",
+        "v2873",
+        "v2871",
+        "v2872",
+        "v2861",
+        "v2865",
+        "out_try_decode_error_message"
+    ],
+    "user_instrs": [
+        {
+            "id": "ADD_0",
+            "opcode": "01",
+            "disasm": "ADD",
+            "inpt_sk": [
+                "v2861",
+                "v2865"
+            ],
+            "outpt_sk": [
+                "v2871"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "MLOAD_0",
+            "opcode": "51",
+            "disasm": "MLOAD",
+            "inpt_sk": [
+                "v2871"
+            ],
+            "outpt_sk": [
+                "v2872"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH_0",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                18446744073709551615
+            ],
+            "outpt_sk": [
+                "s0"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 9
+        },
+        {
+            "id": "GT_0",
+            "opcode": "11",
+            "disasm": "GT",
+            "inpt_sk": [
+                "v2872",
+                "s0"
+            ],
+            "outpt_sk": [
+                "v2873"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "519"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "v2865",
+        "v2871",
+        "v2861",
+        "v2873",
+        "519",
+        "s0",
+        "v2872"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 10,
+    "max_progr_len": 10,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "try_decode_error_message_Block5",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 8,
+    "is_revert": false
+}

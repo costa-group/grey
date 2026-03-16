@@ -1,0 +1,92 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v55 = gt(v51,0x1f)\n8 = PUSH [tag]\nJUMPI(8,v55)",
+    "src_ws": [
+        "v51",
+        "v20",
+        "v25",
+        "v41",
+        "v12",
+        "v9"
+    ],
+    "tgt_ws": [
+        "8",
+        "v55",
+        "v51",
+        "v20",
+        "v25",
+        "v41",
+        "v12",
+        "v9"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH_0",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                31
+            ],
+            "outpt_sk": [
+                "s0"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "GT_0",
+            "opcode": "11",
+            "disasm": "GT",
+            "inpt_sk": [
+                "v51",
+                "s0"
+            ],
+            "outpt_sk": [
+                "v55"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "8"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "v51",
+        "8",
+        "s0",
+        "v55"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 4,
+    "max_progr_len": 4,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "LBR_4023_Block16",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": true,
+    "max_sk_sz": 9,
+    "is_revert": false
+}

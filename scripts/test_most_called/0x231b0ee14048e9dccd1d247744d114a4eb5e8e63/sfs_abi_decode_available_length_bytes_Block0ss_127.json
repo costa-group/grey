@@ -1,0 +1,107 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "mstore(v56,v53)\nv57 = add(v54,v53)\nv58 = gt(v57,v52)\n40 = PUSH [tag]\nJUMPI(40,v58)",
+    "src_ws": [
+        "v56",
+        "v54",
+        "v53",
+        "v52",
+        "out_abi_decode_available_length_bytes"
+    ],
+    "tgt_ws": [
+        "40",
+        "v58",
+        "v54",
+        "v53",
+        "v56",
+        "out_abi_decode_available_length_bytes"
+    ],
+    "user_instrs": [
+        {
+            "id": "MSTORE_0",
+            "opcode": "52",
+            "disasm": "MSTORE",
+            "inpt_sk": [
+                "v56",
+                "v53"
+            ],
+            "outpt_sk": [],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": true,
+            "size": 1
+        },
+        {
+            "id": "ADD_0",
+            "opcode": "01",
+            "disasm": "ADD",
+            "inpt_sk": [
+                "v54",
+                "v53"
+            ],
+            "outpt_sk": [
+                "v57"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "GT_0",
+            "opcode": "11",
+            "disasm": "GT",
+            "inpt_sk": [
+                "v57",
+                "v52"
+            ],
+            "outpt_sk": [
+                "v58"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "40"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "v52",
+        "40",
+        "v53",
+        "v56",
+        "v57",
+        "v58",
+        "v54"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 9,
+    "max_progr_len": 9,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "abi_decode_available_length_bytes_Block0ss",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 8,
+    "is_revert": false
+}

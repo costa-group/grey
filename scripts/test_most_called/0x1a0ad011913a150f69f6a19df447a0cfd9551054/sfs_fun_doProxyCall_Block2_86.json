@@ -1,0 +1,212 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v153 = calldatasize\ncalldatacopy(0x00,0x00,v153)\nv154 = calldatasize\nv155 = gas\nv156 = delegatecall(v155,v148,0x00,v154,0x00,0x00)\nv157 = returndatasize\nreturndatacopy(0x00,0x00,v157)\nv158 = iszero(v156)\n47 = PUSH [tag]\nJUMPI(47,v158)",
+    "src_ws": [
+        "v148"
+    ],
+    "tgt_ws": [
+        "47",
+        "v158"
+    ],
+    "user_instrs": [
+        {
+            "id": "CALLDATASIZE_0",
+            "opcode": "36",
+            "disasm": "CALLDATASIZE",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "v153"
+            ],
+            "gas": 2,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH0_0",
+            "opcode": "5f",
+            "disasm": "PUSH0",
+            "inpt_sk": [],
+            "value": [
+                0
+            ],
+            "outpt_sk": [
+                "s0"
+            ],
+            "gas": 2,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "CALLDATACOPY_0",
+            "opcode": "37",
+            "disasm": "CALLDATACOPY",
+            "inpt_sk": [
+                "s0",
+                "s0",
+                "v153"
+            ],
+            "outpt_sk": [],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": true,
+            "size": 1
+        },
+        {
+            "id": "CALLDATASIZE_1",
+            "opcode": "36",
+            "disasm": "CALLDATASIZE",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "v154"
+            ],
+            "gas": 2,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "GAS_0",
+            "opcode": "5a",
+            "disasm": "GAS",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "v155"
+            ],
+            "gas": 2,
+            "commutative": false,
+            "push": false,
+            "storage": true,
+            "size": 1
+        },
+        {
+            "id": "DELEGATECALL_0",
+            "opcode": "f4",
+            "disasm": "DELEGATECALL",
+            "inpt_sk": [
+                "v155",
+                "v148",
+                "s0",
+                "v154",
+                "s0",
+                "s0"
+            ],
+            "outpt_sk": [
+                "v156"
+            ],
+            "gas": 100,
+            "commutative": false,
+            "push": false,
+            "storage": true,
+            "size": 1
+        },
+        {
+            "id": "RETURNDATASIZE_0",
+            "opcode": "3c",
+            "disasm": "RETURNDATASIZE",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "v157"
+            ],
+            "gas": 2,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "RETURNDATACOPY_0",
+            "opcode": "3e",
+            "disasm": "RETURNDATACOPY",
+            "inpt_sk": [
+                "s0",
+                "s0",
+                "v157"
+            ],
+            "outpt_sk": [],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": true,
+            "size": 1
+        },
+        {
+            "id": "ISZERO_0",
+            "opcode": "15",
+            "disasm": "ISZERO",
+            "inpt_sk": [
+                "v156"
+            ],
+            "outpt_sk": [
+                "v158"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "47"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "v154",
+        "v148",
+        "v158",
+        "s0",
+        "v156",
+        "v155",
+        "47",
+        "v157",
+        "v153"
+    ],
+    "memory_dependences": [
+        [
+            "CALLDATACOPY_0",
+            "DELEGATECALL_0"
+        ],
+        [
+            "DELEGATECALL_0",
+            "RETURNDATACOPY_0"
+        ]
+    ],
+    "storage_dependences": [],
+    "init_progr_len": 19,
+    "max_progr_len": 19,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_doProxyCall_Block2",
+    "transient_dependences": [],
+    "dependencies": [
+        [
+            "CALLDATACOPY_0",
+            "DELEGATECALL_0"
+        ],
+        [
+            "DELEGATECALL_0",
+            "RETURNDATACOPY_0"
+        ]
+    ],
+    "admits_junk": false,
+    "max_sk_sz": 8,
+    "is_revert": false
+}

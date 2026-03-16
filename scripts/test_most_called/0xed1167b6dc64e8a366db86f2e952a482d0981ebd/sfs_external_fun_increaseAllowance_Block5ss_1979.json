@@ -1,0 +1,103 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v825 = sload(v824)\nv826 = add(v825,v821)\nv827 = gt(v825,v826)\n233 = PUSH [tag]\nJUMPI(233,v827)",
+    "src_ws": [
+        "v824",
+        "v821",
+        "v819"
+    ],
+    "tgt_ws": [
+        "233",
+        "v827",
+        "v826",
+        "v819"
+    ],
+    "user_instrs": [
+        {
+            "id": "SLOAD_0",
+            "opcode": "54",
+            "disasm": "SLOAD",
+            "inpt_sk": [
+                "v824"
+            ],
+            "outpt_sk": [
+                "v825"
+            ],
+            "gas": 2100,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "ADD_0",
+            "opcode": "01",
+            "disasm": "ADD",
+            "inpt_sk": [
+                "v825",
+                "v821"
+            ],
+            "outpt_sk": [
+                "v826"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "GT_0",
+            "opcode": "11",
+            "disasm": "GT",
+            "inpt_sk": [
+                "v825",
+                "v826"
+            ],
+            "outpt_sk": [
+                "v827"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "233"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "233",
+        "v826",
+        "v821",
+        "v824",
+        "v825",
+        "v827"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 9,
+    "max_progr_len": 9,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "external_fun_increaseAllowance_Block5ss",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 5,
+    "is_revert": false
+}

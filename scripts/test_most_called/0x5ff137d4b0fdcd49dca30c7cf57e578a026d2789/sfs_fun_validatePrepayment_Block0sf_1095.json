@@ -1,0 +1,73 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "371 = PUSH [tag]\n976 = PUSH [tag]\nv2617 = fun_getUserOpHash(371,v2612,976)",
+    "src_ws": [
+        "v2616",
+        "v2614",
+        "v2615",
+        "v2613",
+        "v2612",
+        "v2611",
+        "out_fun_validatePrepayment"
+    ],
+    "tgt_ws": [
+        "371",
+        "v2612",
+        "976",
+        "v2616",
+        "v2614",
+        "v2615",
+        "v2613",
+        "v2612",
+        "v2611",
+        "out_fun_validatePrepayment"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "371"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "PUSH [TAG]_1",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "976"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "371",
+        "976"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 3,
+    "max_progr_len": 3,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_validatePrepayment_Block0sf",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 11,
+    "is_revert": false
+}

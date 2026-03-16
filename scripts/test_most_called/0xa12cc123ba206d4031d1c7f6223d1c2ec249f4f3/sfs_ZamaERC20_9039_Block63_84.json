@@ -1,0 +1,87 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v130 = lt(v98,v72)\n34 = PUSH [tag]\nJUMPI(34,v130)",
+    "src_ws": [
+        "v115",
+        "v98",
+        "v117",
+        "v116",
+        "v71",
+        "v72",
+        "v70",
+        "v69",
+        "v67",
+        "v32",
+        "v56",
+        "v20",
+        "v13"
+    ],
+    "tgt_ws": [
+        "34",
+        "v130",
+        "v117",
+        "v116",
+        "v71",
+        "v72",
+        "v70",
+        "v69",
+        "v67",
+        "v32",
+        "v56",
+        "v20",
+        "v13"
+    ],
+    "user_instrs": [
+        {
+            "id": "LT_0",
+            "opcode": "10",
+            "disasm": "LT",
+            "inpt_sk": [
+                "v98",
+                "v72"
+            ],
+            "outpt_sk": [
+                "v130"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "34"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "34",
+        "v98",
+        "v130",
+        "v72"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 5,
+    "max_progr_len": 5,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "ZamaERC20_9039_Block63",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": true,
+    "max_sk_sz": 14,
+    "is_revert": false
+}

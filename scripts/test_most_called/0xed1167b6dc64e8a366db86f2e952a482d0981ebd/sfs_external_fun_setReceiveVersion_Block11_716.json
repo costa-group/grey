@@ -1,0 +1,48 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "294 = PUSH [tag]\nJUMPI(294,v1169)",
+    "src_ws": [
+        "v1164",
+        "v1169",
+        "v1152"
+    ],
+    "tgt_ws": [
+        "294",
+        "v1169",
+        "v1164",
+        "v1152"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "294"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "294"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 2,
+    "max_progr_len": 2,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "external_fun_setReceiveVersion_Block11",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 5,
+    "is_revert": false
+}

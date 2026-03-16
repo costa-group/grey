@@ -1,0 +1,36 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "functionReturn(out_fun_decodeSendAndCallPayload,v1765,v1760,v1761,v1780,v1777)",
+    "src_ws": [
+        "v1780",
+        "v1765",
+        "v1761",
+        "v1760",
+        "v1777",
+        "out_fun_decodeSendAndCallPayload"
+    ],
+    "tgt_ws": [
+        "out_fun_decodeSendAndCallPayload",
+        "v1765",
+        "v1760",
+        "v1761",
+        "v1780",
+        "v1777"
+    ],
+    "user_instrs": [],
+    "variables": [],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 5,
+    "max_progr_len": 5,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_decodeSendAndCallPayload_Block5ss",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 7,
+    "is_revert": false
+}

@@ -1,0 +1,77 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v429 = lt(v418,v408)\n142 = PUSH [tag]\nJUMPI(142,v429)",
+    "src_ws": [
+        "v425",
+        "v427",
+        "v418",
+        "v426",
+        "v408",
+        "v407",
+        "v406",
+        "out_copy_byte_array_to_storage_from_bytes_to_bytes"
+    ],
+    "tgt_ws": [
+        "142",
+        "v429",
+        "v427",
+        "v426",
+        "v408",
+        "v407",
+        "v406",
+        "out_copy_byte_array_to_storage_from_bytes_to_bytes"
+    ],
+    "user_instrs": [
+        {
+            "id": "LT_0",
+            "opcode": "10",
+            "disasm": "LT",
+            "inpt_sk": [
+                "v418",
+                "v408"
+            ],
+            "outpt_sk": [
+                "v429"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "142"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "v418",
+        "v429",
+        "v408",
+        "142"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 6,
+    "max_progr_len": 6,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "copy_byte_array_to_storage_from_bytes_to_bytes_Block10",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 9,
+    "is_revert": false
+}

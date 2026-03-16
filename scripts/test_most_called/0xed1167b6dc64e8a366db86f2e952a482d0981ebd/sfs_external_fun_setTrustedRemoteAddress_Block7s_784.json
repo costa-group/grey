@@ -1,0 +1,104 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v1281 = sub(v1280,v1279)\nlog1(v1279,v1281,0x8c0400cfe2d1199b1a725c78960bcc2a344d869b80590d0f2bd005db15a572ce)\nreturn(0x00,0x00)",
+    "src_ws": [
+        "v1280",
+        "v1279"
+    ],
+    "tgt_ws": [
+        "0x00",
+        "0x00",
+        "v1280",
+        "v1279"
+    ],
+    "user_instrs": [
+        {
+            "id": "SUB_0",
+            "opcode": "03",
+            "disasm": "SUB",
+            "inpt_sk": [
+                "v1280",
+                "v1279"
+            ],
+            "outpt_sk": [
+                "v1281"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH_0",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                63330871794511964687030457555078022463696917588259069569209901239837680562894
+            ],
+            "outpt_sk": [
+                "s0"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 33
+        },
+        {
+            "id": "LOG1_0",
+            "opcode": "a1",
+            "disasm": "LOG1",
+            "inpt_sk": [
+                "v1279",
+                "v1281",
+                "s0"
+            ],
+            "outpt_sk": [],
+            "gas": 750,
+            "commutative": false,
+            "push": false,
+            "storage": true,
+            "size": 1
+        },
+        {
+            "id": "PUSH0_0",
+            "opcode": "5f",
+            "disasm": "PUSH0",
+            "inpt_sk": [],
+            "value": [
+                0
+            ],
+            "outpt_sk": [
+                "0x00"
+            ],
+            "gas": 2,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 1
+        }
+    ],
+    "variables": [
+        "v1279",
+        "s0",
+        "0x00",
+        "v1281",
+        "v1280"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 8,
+    "max_progr_len": 8,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "external_fun_setTrustedRemoteAddress_Block7s",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 6,
+    "is_revert": false
+}

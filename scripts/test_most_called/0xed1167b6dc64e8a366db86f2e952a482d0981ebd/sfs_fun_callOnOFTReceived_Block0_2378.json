@@ -1,0 +1,130 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v1662 = address\nv1663 = caller\nv1664 = eq(v1663,v1662)\nv1665 = iszero(v1664)\n407 = PUSH [tag]\nJUMPI(407,v1665)",
+    "src_ws": [
+        "v1661",
+        "v1660",
+        "v1659",
+        "v1658",
+        "v1657",
+        "v1656",
+        "v1655",
+        "v1654",
+        "v1653",
+        "v1652",
+        "out_fun_callOnOFTReceived"
+    ],
+    "tgt_ws": [
+        "407",
+        "v1665",
+        "v1661",
+        "v1660",
+        "v1659",
+        "v1658",
+        "v1657",
+        "v1656",
+        "v1655",
+        "v1654",
+        "v1653",
+        "v1652",
+        "out_fun_callOnOFTReceived"
+    ],
+    "user_instrs": [
+        {
+            "id": "ADDRESS_0",
+            "opcode": "30",
+            "disasm": "ADDRESS",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "v1662"
+            ],
+            "gas": 2,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "CALLER_0",
+            "opcode": "33",
+            "disasm": "CALLER",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "v1663"
+            ],
+            "gas": 2,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "EQ_0",
+            "opcode": "14",
+            "disasm": "EQ",
+            "inpt_sk": [
+                "v1663",
+                "v1662"
+            ],
+            "outpt_sk": [
+                "v1664"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "ISZERO_0",
+            "opcode": "15",
+            "disasm": "ISZERO",
+            "inpt_sk": [
+                "v1664"
+            ],
+            "outpt_sk": [
+                "v1665"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "407"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "v1665",
+        "407",
+        "v1662",
+        "v1664",
+        "v1663"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 11,
+    "max_progr_len": 11,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_callOnOFTReceived_Block0",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 14,
+    "is_revert": false
+}

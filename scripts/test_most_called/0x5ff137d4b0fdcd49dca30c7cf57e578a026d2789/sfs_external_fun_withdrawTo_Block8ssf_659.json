@@ -1,0 +1,67 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "162 = PUSH [tag]\n779 = PUSH [tag]\nv1518 = checked_sub_uint256(162,v1517,v1510,779)",
+    "src_ws": [
+        "v1517",
+        "v1512",
+        "v1510",
+        "v1509"
+    ],
+    "tgt_ws": [
+        "162",
+        "v1517",
+        "v1510",
+        "779",
+        "v1512",
+        "v1510",
+        "v1509"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "162"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "PUSH [TAG]_1",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "779"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "162",
+        "779"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 5,
+    "max_progr_len": 5,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "external_fun_withdrawTo_Block8ssf",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 8,
+    "is_revert": false
+}

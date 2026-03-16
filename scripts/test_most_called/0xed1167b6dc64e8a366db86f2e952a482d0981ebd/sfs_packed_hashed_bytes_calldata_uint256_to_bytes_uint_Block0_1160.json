@@ -1,0 +1,217 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v2278 = mload(0x40)\ncalldatacopy(v2278,v2277,v2276)\nv2279 = add(v2278,v2276)\nmstore(v2279,v2275)\nv2280 = sub(v2279,v2278)\nv2281 = add(v2280,0x20)\nv2282 = keccak256(v2278,v2281)\nfunctionReturn(out_packed_hashed_bytes_calldata_uint256_to_bytes_uint,v2282)",
+    "src_ws": [
+        "v2277",
+        "v2276",
+        "v2275",
+        "out_packed_hashed_bytes_calldata_uint256_to_bytes_uint"
+    ],
+    "tgt_ws": [
+        "out_packed_hashed_bytes_calldata_uint256_to_bytes_uint",
+        "v2282"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH_0",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                64
+            ],
+            "outpt_sk": [
+                "s0"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "MLOAD_0",
+            "opcode": "51",
+            "disasm": "MLOAD",
+            "inpt_sk": [
+                "s0"
+            ],
+            "outpt_sk": [
+                "v2278"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "CALLDATACOPY_0",
+            "opcode": "37",
+            "disasm": "CALLDATACOPY",
+            "inpt_sk": [
+                "v2278",
+                "v2277",
+                "v2276"
+            ],
+            "outpt_sk": [],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": true,
+            "size": 1
+        },
+        {
+            "id": "ADD_0",
+            "opcode": "01",
+            "disasm": "ADD",
+            "inpt_sk": [
+                "v2278",
+                "v2276"
+            ],
+            "outpt_sk": [
+                "v2279"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "MSTORE_0",
+            "opcode": "52",
+            "disasm": "MSTORE",
+            "inpt_sk": [
+                "v2279",
+                "v2275"
+            ],
+            "outpt_sk": [],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": true,
+            "size": 1
+        },
+        {
+            "id": "SUB_0",
+            "opcode": "03",
+            "disasm": "SUB",
+            "inpt_sk": [
+                "v2279",
+                "v2278"
+            ],
+            "outpt_sk": [
+                "v2280"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH_1",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                32
+            ],
+            "outpt_sk": [
+                "s1"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "ADD_1",
+            "opcode": "01",
+            "disasm": "ADD",
+            "inpt_sk": [
+                "v2280",
+                "s1"
+            ],
+            "outpt_sk": [
+                "v2281"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "KECCAK256_0",
+            "opcode": "20",
+            "disasm": "KECCAK256",
+            "inpt_sk": [
+                "v2278",
+                "v2281"
+            ],
+            "outpt_sk": [
+                "v2282"
+            ],
+            "gas": 30,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        }
+    ],
+    "variables": [
+        "v2276",
+        "v2279",
+        "v2280",
+        "v2282",
+        "s0",
+        "s1",
+        "v2278",
+        "v2275",
+        "v2281",
+        "v2277"
+    ],
+    "memory_dependences": [
+        [
+            "MLOAD_0",
+            "CALLDATACOPY_0"
+        ],
+        [
+            "CALLDATACOPY_0",
+            "MSTORE_0"
+        ],
+        [
+            "MSTORE_0",
+            "KECCAK256_0"
+        ]
+    ],
+    "storage_dependences": [],
+    "init_progr_len": 21,
+    "max_progr_len": 21,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "packed_hashed_bytes_calldata_uint256_to_bytes_uint_Block0",
+    "transient_dependences": [],
+    "dependencies": [
+        [
+            "MLOAD_0",
+            "CALLDATACOPY_0"
+        ],
+        [
+            "CALLDATACOPY_0",
+            "MSTORE_0"
+        ],
+        [
+            "MSTORE_0",
+            "KECCAK256_0"
+        ]
+    ],
+    "admits_junk": false,
+    "max_sk_sz": 8,
+    "is_revert": false
+}

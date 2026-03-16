@@ -1,0 +1,52 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v640 = sub(v639,v638)\nreturn(v638,v640)",
+    "src_ws": [
+        "v639",
+        "v638"
+    ],
+    "tgt_ws": [
+        "v638",
+        "v640",
+        "v639",
+        "v638"
+    ],
+    "user_instrs": [
+        {
+            "id": "SUB_0",
+            "opcode": "03",
+            "disasm": "SUB",
+            "inpt_sk": [
+                "v639",
+                "v638"
+            ],
+            "outpt_sk": [
+                "v640"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        }
+    ],
+    "variables": [
+        "v640",
+        "v638",
+        "v639"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 4,
+    "max_progr_len": 4,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "external_fun_dnsRecord_Block8ssss",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 5,
+    "is_revert": false
+}

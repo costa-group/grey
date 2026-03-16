@@ -1,0 +1,102 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v897 = PhiFunction(v882,v900)\nv898 = call(v897,v895,v891,v882,v882,v882,v882)\nv899 = iszero(v898)\n198 = PUSH [tag]\nJUMPI(198,v899)",
+    "src_ws": [
+        "v897",
+        "v895",
+        "v891",
+        "v723",
+        "v597",
+        "v882",
+        "v601",
+        "v591",
+        "out_fun_transfer"
+    ],
+    "tgt_ws": [
+        "198",
+        "v899",
+        "v723",
+        "v597",
+        "v882",
+        "v601",
+        "v591",
+        "out_fun_transfer"
+    ],
+    "user_instrs": [
+        {
+            "id": "CALL_0",
+            "opcode": "f1",
+            "disasm": "CALL",
+            "inpt_sk": [
+                "v897",
+                "v895",
+                "v891",
+                "v882",
+                "v882",
+                "v882",
+                "v882"
+            ],
+            "outpt_sk": [
+                "v898"
+            ],
+            "gas": 100,
+            "commutative": false,
+            "push": false,
+            "storage": true,
+            "size": 1
+        },
+        {
+            "id": "ISZERO_0",
+            "opcode": "15",
+            "disasm": "ISZERO",
+            "inpt_sk": [
+                "v898"
+            ],
+            "outpt_sk": [
+                "v899"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "198"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "198",
+        "v899",
+        "v898",
+        "v897",
+        "v882",
+        "v891",
+        "v895"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 14,
+    "max_progr_len": 14,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_transfer_Block92",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 17,
+    "is_revert": false
+}

@@ -1,0 +1,82 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "320 = PUSH [tag]\nJUMP(320)",
+    "src_ws": [
+        "v1630",
+        "v1629",
+        "v1628",
+        "v1632",
+        "v1625",
+        "v1624",
+        "v1623",
+        "v1653",
+        "v1621",
+        "out_fun__handlePostOp"
+    ],
+    "tgt_ws": [
+        "320",
+        "bottom",
+        "v1632",
+        "v1630",
+        "v1629",
+        "v1628",
+        "v1653",
+        "v1625",
+        "v1624",
+        "v1623",
+        "bottom",
+        "v1621",
+        "out_fun__handlePostOp"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "320"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "PUSH0_0",
+            "opcode": "5f",
+            "disasm": "PUSH0",
+            "inpt_sk": [],
+            "value": [
+                0
+            ],
+            "outpt_sk": [
+                "bottom"
+            ],
+            "gas": 2,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 1
+        }
+    ],
+    "variables": [
+        "bottom",
+        "320"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 5,
+    "max_progr_len": 5,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun__handlePostOp_Block12",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 14,
+    "is_revert": false
+}

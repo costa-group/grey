@@ -1,0 +1,52 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v813 = sub(v812,v811)\nreturn(v811,v813)",
+    "src_ws": [
+        "v812",
+        "v811"
+    ],
+    "tgt_ws": [
+        "v811",
+        "v813",
+        "v812",
+        "v811"
+    ],
+    "user_instrs": [
+        {
+            "id": "SUB_0",
+            "opcode": "03",
+            "disasm": "SUB",
+            "inpt_sk": [
+                "v812",
+                "v811"
+            ],
+            "outpt_sk": [
+                "v813"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        }
+    ],
+    "variables": [
+        "v813",
+        "v811",
+        "v812"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 4,
+    "max_progr_len": 4,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "external_fun_getTrustedRemoteAddress_Block11ss",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 5,
+    "is_revert": false
+}

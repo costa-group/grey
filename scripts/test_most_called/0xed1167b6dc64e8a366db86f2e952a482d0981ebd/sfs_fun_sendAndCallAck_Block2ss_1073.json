@@ -1,0 +1,66 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "454 = PUSH [tag]\nJUMPI(454,v2013)",
+    "src_ws": [
+        "v2013",
+        "v2009",
+        "v1998",
+        "v1999",
+        "v2006",
+        "v2001",
+        "v2002",
+        "v1997",
+        "v1996",
+        "v1995",
+        "v1994",
+        "out_fun_sendAndCallAck"
+    ],
+    "tgt_ws": [
+        "454",
+        "v2013",
+        "v2009",
+        "v1998",
+        "v1999",
+        "v2006",
+        "v2001",
+        "v2002",
+        "v1997",
+        "v1996",
+        "v1995",
+        "v1994",
+        "out_fun_sendAndCallAck"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "454"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "454"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 1,
+    "max_progr_len": 1,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_sendAndCallAck_Block2ss",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 14,
+    "is_revert": false
+}

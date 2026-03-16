@@ -1,0 +1,147 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "296 = PUSH [tag]\n420 = PUSH [tag]\nv1198 = shl(0x81,0x181899199a1a9b1b9c1cb0b131b232b3)\nv1199 = byte(v1170,v1198)\nv1200 = memory_array_index_access_bytes(296,v1134,v1165,420)",
+    "src_ws": [
+        "v1170",
+        "v1165",
+        "v1136",
+        "v1134",
+        "v1104",
+        "v1166",
+        "v1106"
+    ],
+    "tgt_ws": [
+        "296",
+        "v1134",
+        "v1165",
+        "420",
+        "v1199",
+        "v1165",
+        "v1136",
+        "v1134",
+        "v1104",
+        "v1166",
+        "v1106"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "296"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "PUSH [TAG]_1",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "420"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "PUSH_0",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                129
+            ],
+            "outpt_sk": [
+                "s0"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "PUSH_1",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                32029192260509094434872521098353849011
+            ],
+            "outpt_sk": [
+                "s1"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 17
+        },
+        {
+            "id": "SHL_0",
+            "opcode": "1b",
+            "disasm": "SHL",
+            "inpt_sk": [
+                "s0",
+                "s1"
+            ],
+            "outpt_sk": [
+                "v1198"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "BYTE_0",
+            "opcode": "1a",
+            "disasm": "BYTE",
+            "inpt_sk": [
+                "v1170",
+                "v1198"
+            ],
+            "outpt_sk": [
+                "v1199"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        }
+    ],
+    "variables": [
+        "v1199",
+        "v1198",
+        "420",
+        "s1",
+        "296",
+        "s0",
+        "v1170"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 9,
+    "max_progr_len": 9,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_checkRole_Block33f",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 12,
+    "is_revert": false
+}

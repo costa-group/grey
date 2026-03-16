@@ -1,0 +1,91 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v1215 = add(v1198,v1205)\nv1216 = calldataload(v1215)\n310 = PUSH [tag]\nJUMP(310)",
+    "src_ws": [
+        "v1208",
+        "v1205",
+        "v1201",
+        "v1197",
+        "v1198",
+        "v1199"
+    ],
+    "tgt_ws": [
+        "310",
+        "v1216",
+        "v1205",
+        "v1201",
+        "v1197",
+        "v1198",
+        "v1199"
+    ],
+    "user_instrs": [
+        {
+            "id": "ADD_0",
+            "opcode": "01",
+            "disasm": "ADD",
+            "inpt_sk": [
+                "v1198",
+                "v1205"
+            ],
+            "outpt_sk": [
+                "v1215"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "CALLDATALOAD_0",
+            "opcode": "35",
+            "disasm": "CALLDATALOAD",
+            "inpt_sk": [
+                "v1215"
+            ],
+            "outpt_sk": [
+                "v1216"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "310"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "v1198",
+        "v1205",
+        "v1215",
+        "v1216",
+        "310"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 6,
+    "max_progr_len": 6,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "external_fun_setTrustedRemote_Block16",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 8,
+    "is_revert": false
+}

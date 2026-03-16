@@ -1,0 +1,72 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v454 = LiteralAssignment(0x00)\n148 = PUSH [tag]\nJUMPI(148,v445)",
+    "src_ws": [
+        "v451",
+        "v447",
+        "v446",
+        "v445",
+        "out_copy_byte_array_to_storage_from_string_calldata_to_string"
+    ],
+    "tgt_ws": [
+        "148",
+        "v445",
+        "v454",
+        "v451",
+        "v447",
+        "v446",
+        "v445",
+        "out_copy_byte_array_to_storage_from_string_calldata_to_string"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH0_0",
+            "opcode": "5f",
+            "disasm": "PUSH0",
+            "inpt_sk": [],
+            "value": [
+                0
+            ],
+            "outpt_sk": [
+                "v454"
+            ],
+            "gas": 2,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "148"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "v454",
+        "148"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 3,
+    "max_progr_len": 3,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "copy_byte_array_to_storage_from_string_calldata_to_string_Block6",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 9,
+    "is_revert": false
+}

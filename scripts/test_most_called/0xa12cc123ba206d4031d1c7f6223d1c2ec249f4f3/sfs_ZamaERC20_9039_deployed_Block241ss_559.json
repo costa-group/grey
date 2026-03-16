@@ -1,0 +1,52 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v397 = sub(v396,v394)\nreturn(v394,v397)",
+    "src_ws": [
+        "v396",
+        "v394"
+    ],
+    "tgt_ws": [
+        "v394",
+        "v397",
+        "v396",
+        "v394"
+    ],
+    "user_instrs": [
+        {
+            "id": "SUB_0",
+            "opcode": "03",
+            "disasm": "SUB",
+            "inpt_sk": [
+                "v396",
+                "v394"
+            ],
+            "outpt_sk": [
+                "v397"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        }
+    ],
+    "variables": [
+        "v396",
+        "v394",
+        "v397"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 4,
+    "max_progr_len": 4,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "ZamaERC20_9039_deployed_Block241ss",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": true,
+    "max_sk_sz": 5,
+    "is_revert": false
+}

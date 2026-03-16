@@ -1,0 +1,73 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "532 = PUSH [tag]\n742 = PUSH [tag]\nwrite_to_memory_address(532,v1393,v1360,742)",
+    "src_ws": [
+        "v1393",
+        "v1392",
+        "v1377",
+        "v1339",
+        "v1357",
+        "v1360",
+        "v1342"
+    ],
+    "tgt_ws": [
+        "532",
+        "v1393",
+        "v1360",
+        "742",
+        "v1392",
+        "v1377",
+        "v1339",
+        "v1357",
+        "v1393",
+        "v1342"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "532"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "PUSH [TAG]_1",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "742"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "532",
+        "742"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 5,
+    "max_progr_len": 5,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "external_fun_simulateValidation_Block9ssf",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 11,
+    "is_revert": false
+}

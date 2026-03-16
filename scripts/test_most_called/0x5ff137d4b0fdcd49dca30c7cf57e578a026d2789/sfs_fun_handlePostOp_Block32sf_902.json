@@ -1,0 +1,73 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "528 = PUSH [tag]\n881 = PUSH [tag]\nvalidator_assert_enum_PostOpMode(528,v2155,881)",
+    "src_ws": [
+        "v2158",
+        "v2176",
+        "v2155",
+        "v2154",
+        "v2160",
+        "v2177",
+        "out_fun_handlePostOp"
+    ],
+    "tgt_ws": [
+        "528",
+        "v2155",
+        "881",
+        "v2158",
+        "v2176",
+        "v2155",
+        "v2154",
+        "v2160",
+        "v2177",
+        "out_fun_handlePostOp"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "528"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "PUSH [TAG]_1",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "881"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "881",
+        "528"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 3,
+    "max_progr_len": 3,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_handlePostOp_Block32sf",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 11,
+    "is_revert": false
+}

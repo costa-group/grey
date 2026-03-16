@@ -1,0 +1,64 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v1652 = PhiFunction(v1626,v1653)\n310 = PUSH [tag]\nJUMP(310)",
+    "src_ws": [
+        "b1",
+        "v1632",
+        "v1630",
+        "v1629",
+        "v1628",
+        "v1652",
+        "v1625",
+        "v1624",
+        "v1623",
+        "b0",
+        "v1621",
+        "out_fun__handlePostOp"
+    ],
+    "tgt_ws": [
+        "310",
+        "v1632",
+        "v1629",
+        "v1628",
+        "v1652",
+        "v1625",
+        "v1624",
+        "v1623",
+        "v1630",
+        "v1621",
+        "out_fun__handlePostOp"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "310"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "310"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 5,
+    "max_progr_len": 5,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun__handlePostOp_Block5",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 13,
+    "is_revert": false
+}

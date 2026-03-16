@@ -1,0 +1,53 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v2307 = PhiFunction(v2306,v2310)\n507 = PUSH [tag]\nJUMPI(507,v2307)",
+    "src_ws": [
+        "b0",
+        "v2307",
+        "v2300",
+        "v2299",
+        "v2298",
+        "out_fun_transferFrom"
+    ],
+    "tgt_ws": [
+        "507",
+        "v2307",
+        "v2300",
+        "v2299",
+        "v2298",
+        "out_fun_transferFrom"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "507"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "507"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 2,
+    "max_progr_len": 2,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_transferFrom_Block2",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 7,
+    "is_revert": false
+}

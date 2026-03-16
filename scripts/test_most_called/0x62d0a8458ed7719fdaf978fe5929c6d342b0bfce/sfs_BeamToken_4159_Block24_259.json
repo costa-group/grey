@@ -1,0 +1,56 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "14 = PUSH [tag]\nJUMP(14)",
+    "src_ws": [
+        "v37",
+        "v26",
+        "v27",
+        "v25",
+        "v24",
+        "v20",
+        "v13"
+    ],
+    "tgt_ws": [
+        "14",
+        "v37",
+        "v26",
+        "v27",
+        "v25",
+        "v24",
+        "v20",
+        "v13"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "14"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "14"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 1,
+    "max_progr_len": 1,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "BeamToken_4159_Block24",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": true,
+    "max_sk_sz": 9,
+    "is_revert": false
+}

@@ -1,0 +1,122 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v684 = add(v676,v677)\nv685 = calldataload(v684)\nv686 = gt(v685,0xffffffffffffffff)\n124 = PUSH [tag]\nJUMPI(124,v686)",
+    "src_ws": [
+        "v676",
+        "v677",
+        "out_access_calldata_tail_array_struct_UserOperation_calldata_dyn_calldata"
+    ],
+    "tgt_ws": [
+        "124",
+        "v686",
+        "v684",
+        "v685",
+        "out_access_calldata_tail_array_struct_UserOperation_calldata_dyn_calldata"
+    ],
+    "user_instrs": [
+        {
+            "id": "ADD_0",
+            "opcode": "01",
+            "disasm": "ADD",
+            "inpt_sk": [
+                "v676",
+                "v677"
+            ],
+            "outpt_sk": [
+                "v684"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "CALLDATALOAD_0",
+            "opcode": "35",
+            "disasm": "CALLDATALOAD",
+            "inpt_sk": [
+                "v684"
+            ],
+            "outpt_sk": [
+                "v685"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH_0",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                18446744073709551615
+            ],
+            "outpt_sk": [
+                "s0"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 9
+        },
+        {
+            "id": "GT_0",
+            "opcode": "11",
+            "disasm": "GT",
+            "inpt_sk": [
+                "v685",
+                "s0"
+            ],
+            "outpt_sk": [
+                "v686"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "124"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "v677",
+        "v686",
+        "124",
+        "v684",
+        "v685",
+        "s0",
+        "v676"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 8,
+    "max_progr_len": 8,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "access_calldata_tail_array_struct_UserOperation_calldata_dyn_calldata_Block2",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 6,
+    "is_revert": false
+}

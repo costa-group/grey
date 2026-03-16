@@ -1,0 +1,188 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v2134 = add(v2133,0x40)\nv2135 = mload(v2134)\nv2136 = and(v2135,0xffffffffffff)\nv2137 = timestamp\nv2138 = gt(v2137,v2136)\nv2139 = iszero(v2138)\n374 = PUSH [tag]\nJUMPI(374,v2139)",
+    "src_ws": [
+        "v2133",
+        "out_fun_getValidationData"
+    ],
+    "tgt_ws": [
+        "374",
+        "v2139",
+        "v2138",
+        "v2133",
+        "out_fun_getValidationData"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH_0",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                64
+            ],
+            "outpt_sk": [
+                "s0"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "ADD_0",
+            "opcode": "01",
+            "disasm": "ADD",
+            "inpt_sk": [
+                "v2133",
+                "s0"
+            ],
+            "outpt_sk": [
+                "v2134"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "MLOAD_0",
+            "opcode": "51",
+            "disasm": "MLOAD",
+            "inpt_sk": [
+                "v2134"
+            ],
+            "outpt_sk": [
+                "v2135"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH_1",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                281474976710655
+            ],
+            "outpt_sk": [
+                "s1"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 7
+        },
+        {
+            "id": "AND_0",
+            "opcode": "16",
+            "disasm": "AND",
+            "inpt_sk": [
+                "v2135",
+                "s1"
+            ],
+            "outpt_sk": [
+                "v2136"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "TIMESTAMP_0",
+            "opcode": "42",
+            "disasm": "TIMESTAMP",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "v2137"
+            ],
+            "gas": 2,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "GT_0",
+            "opcode": "11",
+            "disasm": "GT",
+            "inpt_sk": [
+                "v2137",
+                "v2136"
+            ],
+            "outpt_sk": [
+                "v2138"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "ISZERO_0",
+            "opcode": "15",
+            "disasm": "ISZERO",
+            "inpt_sk": [
+                "v2138"
+            ],
+            "outpt_sk": [
+                "v2139"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "374"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "v2135",
+        "v2138",
+        "s1",
+        "v2133",
+        "v2137",
+        "374",
+        "v2136",
+        "s0",
+        "v2139",
+        "v2134"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 11,
+    "max_progr_len": 11,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_getValidationData_Block2s",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 6,
+    "is_revert": false
+}

@@ -1,0 +1,84 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v96 = PhiFunction(v88,v21,v139)\n59 = PUSH [tag]\n81 = PUSH [tag]\nv97 = sub(v96,v0)\nfinalize_allocation(59,v0,v97,81)",
+    "src_ws": [
+        "b0",
+        "v96",
+        "v0"
+    ],
+    "tgt_ws": [
+        "59",
+        "v0",
+        "v97",
+        "81",
+        "v0"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "59"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "PUSH [TAG]_1",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "81"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "SUB_0",
+            "opcode": "03",
+            "disasm": "SUB",
+            "inpt_sk": [
+                "v96",
+                "v0"
+            ],
+            "outpt_sk": [
+                "v97"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        }
+    ],
+    "variables": [
+        "v96",
+        "v0",
+        "81",
+        "59",
+        "v97"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 7,
+    "max_progr_len": 7,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "ERC20_904_deployed_Block17f",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": true,
+    "max_sk_sz": 9,
+    "is_revert": false
+}

@@ -1,0 +1,46 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v1279 = PhiFunction(v1277,v1287)\n318 = PUSH [tag]\nJUMP(318)",
+    "src_ws": [
+        "v1260",
+        "v1279"
+    ],
+    "tgt_ws": [
+        "318",
+        "v1260",
+        "v1279"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "318"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "318"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 1,
+    "max_progr_len": 1,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "external_fun_supportsInterface_Block14",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 4,
+    "is_revert": false
+}

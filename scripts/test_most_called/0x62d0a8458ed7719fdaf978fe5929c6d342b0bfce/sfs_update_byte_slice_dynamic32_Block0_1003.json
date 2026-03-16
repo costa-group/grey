@@ -1,0 +1,195 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v1685 = shl(0x03,v1683)\nv1686 = shl(v1685,v1682)\nv1687 = not(0x00)\nv1688 = shl(v1685,v1687)\nv1689 = not(v1688)\nv1690 = and(v1684,v1689)\nv1691 = or(v1690,v1686)\nfunctionReturn(out_update_byte_slice_dynamic32,v1691)",
+    "src_ws": [
+        "v1684",
+        "v1683",
+        "v1682",
+        "out_update_byte_slice_dynamic32"
+    ],
+    "tgt_ws": [
+        "out_update_byte_slice_dynamic32",
+        "v1691"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH_0",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                3
+            ],
+            "outpt_sk": [
+                "s0"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "SHL_0",
+            "opcode": "1b",
+            "disasm": "SHL",
+            "inpt_sk": [
+                "s0",
+                "v1683"
+            ],
+            "outpt_sk": [
+                "v1685"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "SHL_1",
+            "opcode": "1b",
+            "disasm": "SHL",
+            "inpt_sk": [
+                "v1685",
+                "v1682"
+            ],
+            "outpt_sk": [
+                "v1686"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH0_0",
+            "opcode": "5f",
+            "disasm": "PUSH0",
+            "inpt_sk": [],
+            "value": [
+                0
+            ],
+            "outpt_sk": [
+                "s1"
+            ],
+            "gas": 2,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "NOT_0",
+            "opcode": "19",
+            "disasm": "NOT",
+            "inpt_sk": [
+                "s1"
+            ],
+            "outpt_sk": [
+                "v1687"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "SHL_2",
+            "opcode": "1b",
+            "disasm": "SHL",
+            "inpt_sk": [
+                "v1685",
+                "v1687"
+            ],
+            "outpt_sk": [
+                "v1688"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "NOT_1",
+            "opcode": "19",
+            "disasm": "NOT",
+            "inpt_sk": [
+                "v1688"
+            ],
+            "outpt_sk": [
+                "v1689"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "AND_0",
+            "opcode": "16",
+            "disasm": "AND",
+            "inpt_sk": [
+                "v1684",
+                "v1689"
+            ],
+            "outpt_sk": [
+                "v1690"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "OR_0",
+            "opcode": "17",
+            "disasm": "OR",
+            "inpt_sk": [
+                "v1690",
+                "v1686"
+            ],
+            "outpt_sk": [
+                "v1691"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        }
+    ],
+    "variables": [
+        "v1691",
+        "v1687",
+        "v1686",
+        "v1689",
+        "v1690",
+        "s1",
+        "v1684",
+        "v1682",
+        "s0",
+        "v1683",
+        "v1688",
+        "v1685"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 18,
+    "max_progr_len": 18,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "update_byte_slice_dynamic32_Block0",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 7,
+    "is_revert": false
+}

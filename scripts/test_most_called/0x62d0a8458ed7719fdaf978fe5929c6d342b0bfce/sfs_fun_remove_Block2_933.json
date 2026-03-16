@@ -1,0 +1,51 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v1433 = LiteralAssignment(0x00)\nfunctionReturn(out_fun_remove,v1433)",
+    "src_ws": [
+        "v1424",
+        "v1426",
+        "v1422",
+        "v1421",
+        "out_fun_remove"
+    ],
+    "tgt_ws": [
+        "out_fun_remove",
+        "v1433"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH0_0",
+            "opcode": "5f",
+            "disasm": "PUSH0",
+            "inpt_sk": [],
+            "value": [
+                0
+            ],
+            "outpt_sk": [
+                "v1433"
+            ],
+            "gas": 2,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 1
+        }
+    ],
+    "variables": [
+        "v1433"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 6,
+    "max_progr_len": 6,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_remove_Block2",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 6,
+    "is_revert": false
+}

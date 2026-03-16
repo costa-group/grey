@@ -1,0 +1,71 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v899 = PhiFunction(v898,v908)\nv900 = PhiFunction(v897,v907)\nv901 = lt(v899,v880)\n244 = PUSH [tag]\nJUMPI(244,v901)",
+    "src_ws": [
+        "v899",
+        "v880",
+        "v877",
+        "v900"
+    ],
+    "tgt_ws": [
+        "244",
+        "v901",
+        "v899",
+        "v880",
+        "v877",
+        "v900"
+    ],
+    "user_instrs": [
+        {
+            "id": "LT_0",
+            "opcode": "10",
+            "disasm": "LT",
+            "inpt_sk": [
+                "v899",
+                "v880"
+            ],
+            "outpt_sk": [
+                "v901"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "244"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "v901",
+        "v899",
+        "244",
+        "v880"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 4,
+    "max_progr_len": 4,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "external_fun_name_Block11",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 7,
+    "is_revert": false
+}

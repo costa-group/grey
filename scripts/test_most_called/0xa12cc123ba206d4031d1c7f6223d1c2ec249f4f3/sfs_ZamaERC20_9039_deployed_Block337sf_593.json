@@ -1,0 +1,110 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "222 = PUSH [tag]\n331 = PUSH [tag]\nv551 = mload(v541)\nv552 = keccak256(v542,v551)\nv553 = fun_domainSeparatorV4(222,331)",
+    "src_ws": [
+        "v542",
+        "v537",
+        "v504",
+        "v541",
+        "v502",
+        "v501",
+        "v500",
+        "v4"
+    ],
+    "tgt_ws": [
+        "222",
+        "331",
+        "v537",
+        "v504",
+        "v552",
+        "v502",
+        "v501",
+        "v500",
+        "v4"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "222"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "PUSH [TAG]_1",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "331"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "MLOAD_0",
+            "opcode": "51",
+            "disasm": "MLOAD",
+            "inpt_sk": [
+                "v541"
+            ],
+            "outpt_sk": [
+                "v551"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "KECCAK256_0",
+            "opcode": "20",
+            "disasm": "KECCAK256",
+            "inpt_sk": [
+                "v542",
+                "v551"
+            ],
+            "outpt_sk": [
+                "v552"
+            ],
+            "gas": 30,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        }
+    ],
+    "variables": [
+        "v542",
+        "v552",
+        "v541",
+        "222",
+        "v551",
+        "331"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 8,
+    "max_progr_len": 8,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "ZamaERC20_9039_deployed_Block337sf",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": true,
+    "max_sk_sz": 10,
+    "is_revert": false
+}

@@ -1,0 +1,137 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v710 = LiteralAssignment(0x60)\nv711 = eq(v709,0xff)\nv712 = iszero(v711)\nv713 = eq(v712,0x00)\n146 = PUSH [tag]\nJUMPI(146,v713)",
+    "src_ws": [
+        "v709",
+        "out_fun_toStringWithFallback"
+    ],
+    "tgt_ws": [
+        "146",
+        "v713",
+        "v709",
+        "out_fun_toStringWithFallback"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH_1",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                255
+            ],
+            "outpt_sk": [
+                "s0"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "EQ_0",
+            "opcode": "14",
+            "disasm": "EQ",
+            "inpt_sk": [
+                "v709",
+                "s0"
+            ],
+            "outpt_sk": [
+                "v711"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "ISZERO_0",
+            "opcode": "15",
+            "disasm": "ISZERO",
+            "inpt_sk": [
+                "v711"
+            ],
+            "outpt_sk": [
+                "v712"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH0_0",
+            "opcode": "5f",
+            "disasm": "PUSH0",
+            "inpt_sk": [],
+            "value": [
+                0
+            ],
+            "outpt_sk": [
+                "s1"
+            ],
+            "gas": 2,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "EQ_1",
+            "opcode": "14",
+            "disasm": "EQ",
+            "inpt_sk": [
+                "v712",
+                "s1"
+            ],
+            "outpt_sk": [
+                "v713"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "146"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "s1",
+        "s0",
+        "v712",
+        "v711",
+        "v709",
+        "v713",
+        "146"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 7,
+    "max_progr_len": 7,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_toStringWithFallback_Block0",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 5,
+    "is_revert": false
+}

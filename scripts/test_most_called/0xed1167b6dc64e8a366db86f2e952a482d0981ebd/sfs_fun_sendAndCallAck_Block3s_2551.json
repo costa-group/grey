@@ -1,0 +1,84 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v2092 = sub(v2091,v2090)\nlog1(v2090,v2092,0x9aedf5fdba8716db3b6705ca00150643309995d4f818a249ed6dde6677e7792d)\nfunctionReturn(out_fun_sendAndCallAck)",
+    "src_ws": [
+        "v2091",
+        "v2090",
+        "out_fun_sendAndCallAck"
+    ],
+    "tgt_ws": [
+        "out_fun_sendAndCallAck"
+    ],
+    "user_instrs": [
+        {
+            "id": "SUB_0",
+            "opcode": "03",
+            "disasm": "SUB",
+            "inpt_sk": [
+                "v2091",
+                "v2090"
+            ],
+            "outpt_sk": [
+                "v2092"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH_0",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                70076619204540630130782976316678217333114665916791138343183077571421060692269
+            ],
+            "outpt_sk": [
+                "s0"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 33
+        },
+        {
+            "id": "LOG1_0",
+            "opcode": "a1",
+            "disasm": "LOG1",
+            "inpt_sk": [
+                "v2090",
+                "v2092",
+                "s0"
+            ],
+            "outpt_sk": [],
+            "gas": 750,
+            "commutative": false,
+            "push": false,
+            "storage": true,
+            "size": 1
+        }
+    ],
+    "variables": [
+        "v2091",
+        "v2092",
+        "v2090",
+        "s0"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 8,
+    "max_progr_len": 8,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_sendAndCallAck_Block3s",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 6,
+    "is_revert": false
+}

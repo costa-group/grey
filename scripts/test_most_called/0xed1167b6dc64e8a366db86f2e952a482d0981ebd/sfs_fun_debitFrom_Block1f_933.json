@@ -1,0 +1,84 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "472 = PUSH [tag]\n742 = PUSH [tag]\nv1652 = caller\nfun_spendAllowance(472,v1644,v1652,v1643,742)",
+    "src_ws": [
+        "v1647",
+        "v1644",
+        "v1643",
+        "out_fun_debitFrom"
+    ],
+    "tgt_ws": [
+        "472",
+        "v1644",
+        "v1652",
+        "v1643",
+        "742",
+        "v1647",
+        "v1644",
+        "v1643",
+        "out_fun_debitFrom"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "472"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "PUSH [TAG]_1",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "742"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "CALLER_0",
+            "opcode": "33",
+            "disasm": "CALLER",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "v1652"
+            ],
+            "gas": 2,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        }
+    ],
+    "variables": [
+        "472",
+        "742",
+        "v1652"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 5,
+    "max_progr_len": 5,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_debitFrom_Block1f",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 10,
+    "is_revert": false
+}

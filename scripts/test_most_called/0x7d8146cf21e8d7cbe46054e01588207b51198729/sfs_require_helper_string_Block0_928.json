@@ -1,0 +1,66 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v1795 = iszero(v1794)\n400 = PUSH [tag]\nJUMPI(400,v1795)",
+    "src_ws": [
+        "v1794",
+        "v1793",
+        "out_require_helper_string"
+    ],
+    "tgt_ws": [
+        "400",
+        "v1795",
+        "v1793",
+        "out_require_helper_string"
+    ],
+    "user_instrs": [
+        {
+            "id": "ISZERO_0",
+            "opcode": "15",
+            "disasm": "ISZERO",
+            "inpt_sk": [
+                "v1794"
+            ],
+            "outpt_sk": [
+                "v1795"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "400"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "v1795",
+        "400",
+        "v1794"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 2,
+    "max_progr_len": 2,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "require_helper_string_Block0",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 5,
+    "is_revert": false
+}

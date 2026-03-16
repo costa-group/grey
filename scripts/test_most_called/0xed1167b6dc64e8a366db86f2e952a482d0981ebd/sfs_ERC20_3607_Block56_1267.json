@@ -1,0 +1,75 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v152 = PhiFunction(v142,v166)\nv153 = lt(v152,v141)\n45 = PUSH [tag]\nJUMPI(45,v153)",
+    "src_ws": [
+        "v152",
+        "v141",
+        "v138",
+        "v102",
+        "v73",
+        "v21"
+    ],
+    "tgt_ws": [
+        "45",
+        "v153",
+        "v152",
+        "v141",
+        "v138",
+        "v102",
+        "v73",
+        "v21"
+    ],
+    "user_instrs": [
+        {
+            "id": "LT_0",
+            "opcode": "10",
+            "disasm": "LT",
+            "inpt_sk": [
+                "v152",
+                "v141"
+            ],
+            "outpt_sk": [
+                "v153"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "45"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "v141",
+        "v152",
+        "v153",
+        "45"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 4,
+    "max_progr_len": 4,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "ERC20_3607_Block56",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 9,
+    "is_revert": false
+}

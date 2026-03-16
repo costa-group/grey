@@ -1,0 +1,170 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v843 = mul(v806,0x0de0b6b3a7640000)\nv844 = div(v843,v806)\nv845 = eq(0x0de0b6b3a7640000,v844)\nv846 = iszero(v806)\nv847 = or(v846,v845)\nv848 = iszero(v847)\n195 = PUSH [tag]\nJUMPI(195,v848)",
+    "src_ws": [
+        "v806"
+    ],
+    "tgt_ws": [
+        "195",
+        "v848",
+        "v843"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH_0",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                1000000000000000000
+            ],
+            "outpt_sk": [
+                "s0"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 9
+        },
+        {
+            "id": "MUL_0",
+            "opcode": "02",
+            "disasm": "MUL",
+            "inpt_sk": [
+                "v806",
+                "s0"
+            ],
+            "outpt_sk": [
+                "v843"
+            ],
+            "gas": 5,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "DIV_0",
+            "opcode": "04",
+            "disasm": "DIV",
+            "inpt_sk": [
+                "v843",
+                "v806"
+            ],
+            "outpt_sk": [
+                "v844"
+            ],
+            "gas": 5,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "EQ_0",
+            "opcode": "14",
+            "disasm": "EQ",
+            "inpt_sk": [
+                "s0",
+                "v844"
+            ],
+            "outpt_sk": [
+                "v845"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "ISZERO_0",
+            "opcode": "15",
+            "disasm": "ISZERO",
+            "inpt_sk": [
+                "v806"
+            ],
+            "outpt_sk": [
+                "v846"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "OR_0",
+            "opcode": "17",
+            "disasm": "OR",
+            "inpt_sk": [
+                "v846",
+                "v845"
+            ],
+            "outpt_sk": [
+                "v847"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "ISZERO_1",
+            "opcode": "15",
+            "disasm": "ISZERO",
+            "inpt_sk": [
+                "v847"
+            ],
+            "outpt_sk": [
+                "v848"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "195"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "195",
+        "v847",
+        "v846",
+        "v845",
+        "v843",
+        "s0",
+        "v848",
+        "v844",
+        "v806"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 14,
+    "max_progr_len": 14,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "BOB_3424_deployed_Block509",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": true,
+    "max_sk_sz": 6,
+    "is_revert": false
+}

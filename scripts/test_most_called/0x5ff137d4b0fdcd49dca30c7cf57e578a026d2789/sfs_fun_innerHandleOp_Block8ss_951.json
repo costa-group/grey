@@ -1,0 +1,118 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v2317 = sub(v2316,v2312)\nlog3(v2312,v2317,0x1c4fada7374c0a9ee8841fc38afe82932dc0f8e69012e927f061a8bae611a201,v2307,v2315)\n405 = PUSH [tag]\nJUMP(405)",
+    "src_ws": [
+        "v2316",
+        "v2312",
+        "v2315",
+        "v2307",
+        "v2301",
+        "v2268",
+        "v2272",
+        "v2266",
+        "v2265",
+        "v2264",
+        "out_fun_innerHandleOp"
+    ],
+    "tgt_ws": [
+        "405",
+        "v2301",
+        "v2268",
+        "v2272",
+        "v2266",
+        "v2265",
+        "v2264",
+        "out_fun_innerHandleOp"
+    ],
+    "user_instrs": [
+        {
+            "id": "SUB_0",
+            "opcode": "03",
+            "disasm": "SUB",
+            "inpt_sk": [
+                "v2316",
+                "v2312"
+            ],
+            "outpt_sk": [
+                "v2317"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH_0",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                12805539188701497113405772294394028637842369425345398187799062004237924934145
+            ],
+            "outpt_sk": [
+                "s0"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 33
+        },
+        {
+            "id": "LOG3_0",
+            "opcode": "a3",
+            "disasm": "LOG3",
+            "inpt_sk": [
+                "v2312",
+                "v2317",
+                "s0",
+                "v2307",
+                "v2315"
+            ],
+            "outpt_sk": [],
+            "gas": 1500,
+            "commutative": false,
+            "push": false,
+            "storage": true,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "405"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "v2307",
+        "v2316",
+        "s0",
+        "v2312",
+        "v2315",
+        "v2317",
+        "405"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 12,
+    "max_progr_len": 12,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_innerHandleOp_Block8ss",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 16,
+    "is_revert": false
+}

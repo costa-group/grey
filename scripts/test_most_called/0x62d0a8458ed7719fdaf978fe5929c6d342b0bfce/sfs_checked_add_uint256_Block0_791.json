@@ -1,0 +1,86 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v1013 = add(v1012,v1011)\nv1014 = gt(v1012,v1013)\n197 = PUSH [tag]\nJUMPI(197,v1014)",
+    "src_ws": [
+        "v1012",
+        "v1011",
+        "out_checked_add_uint256"
+    ],
+    "tgt_ws": [
+        "197",
+        "v1014",
+        "v1013",
+        "out_checked_add_uint256"
+    ],
+    "user_instrs": [
+        {
+            "id": "ADD_0",
+            "opcode": "01",
+            "disasm": "ADD",
+            "inpt_sk": [
+                "v1012",
+                "v1011"
+            ],
+            "outpt_sk": [
+                "v1013"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "GT_0",
+            "opcode": "11",
+            "disasm": "GT",
+            "inpt_sk": [
+                "v1012",
+                "v1013"
+            ],
+            "outpt_sk": [
+                "v1014"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "197"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "v1011",
+        "197",
+        "v1014",
+        "v1012",
+        "v1013"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 8,
+    "max_progr_len": 8,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "checked_add_uint256_Block0",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 5,
+    "is_revert": false
+}

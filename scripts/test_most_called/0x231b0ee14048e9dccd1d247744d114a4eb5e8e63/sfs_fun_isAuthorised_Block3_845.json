@@ -1,0 +1,48 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v1563 = LiteralAssignment(0x01)\nfunctionReturn(out_fun_isAuthorised,v1563)",
+    "src_ws": [
+        "v1535",
+        "out_fun_isAuthorised"
+    ],
+    "tgt_ws": [
+        "out_fun_isAuthorised",
+        "v1563"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH_0",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                1
+            ],
+            "outpt_sk": [
+                "v1563"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        }
+    ],
+    "variables": [
+        "v1563"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 3,
+    "max_progr_len": 3,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_isAuthorised_Block3",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 3,
+    "is_revert": false
+}

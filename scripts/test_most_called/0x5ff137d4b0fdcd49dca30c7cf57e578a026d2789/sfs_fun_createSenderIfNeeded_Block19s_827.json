@@ -1,0 +1,52 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v1964 = sub(v1963,v1960)\nrevert(v1960,v1964)",
+    "src_ws": [
+        "v1963",
+        "v1960"
+    ],
+    "tgt_ws": [
+        "v1960",
+        "v1964",
+        "v1963",
+        "v1960"
+    ],
+    "user_instrs": [
+        {
+            "id": "SUB_0",
+            "opcode": "03",
+            "disasm": "SUB",
+            "inpt_sk": [
+                "v1963",
+                "v1960"
+            ],
+            "outpt_sk": [
+                "v1964"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        }
+    ],
+    "variables": [
+        "v1964",
+        "v1960",
+        "v1963"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 4,
+    "max_progr_len": 4,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_createSenderIfNeeded_Block19s",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 5,
+    "is_revert": true
+}

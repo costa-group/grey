@@ -1,0 +1,52 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v128 = sub(v127,v102)\nreturn(v102,v128)",
+    "src_ws": [
+        "v127",
+        "v102"
+    ],
+    "tgt_ws": [
+        "v102",
+        "v128",
+        "v127",
+        "v102"
+    ],
+    "user_instrs": [
+        {
+            "id": "SUB_0",
+            "opcode": "03",
+            "disasm": "SUB",
+            "inpt_sk": [
+                "v127",
+                "v102"
+            ],
+            "outpt_sk": [
+                "v128"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        }
+    ],
+    "variables": [
+        "v102",
+        "v127",
+        "v128"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 4,
+    "max_progr_len": 4,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "ERC20_1129_deployed_Block26s",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": true,
+    "max_sk_sz": 5,
+    "is_revert": false
+}

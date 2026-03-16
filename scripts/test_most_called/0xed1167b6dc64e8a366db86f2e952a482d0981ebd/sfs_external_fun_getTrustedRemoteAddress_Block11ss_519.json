@@ -1,0 +1,52 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v774 = sub(v773,v772)\nreturn(v772,v774)",
+    "src_ws": [
+        "v773",
+        "v772"
+    ],
+    "tgt_ws": [
+        "v772",
+        "v774",
+        "v773",
+        "v772"
+    ],
+    "user_instrs": [
+        {
+            "id": "SUB_0",
+            "opcode": "03",
+            "disasm": "SUB",
+            "inpt_sk": [
+                "v773",
+                "v772"
+            ],
+            "outpt_sk": [
+                "v774"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        }
+    ],
+    "variables": [
+        "v774",
+        "v773",
+        "v772"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 4,
+    "max_progr_len": 4,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "external_fun_getTrustedRemoteAddress_Block11ss",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 5,
+    "is_revert": false
+}

@@ -1,0 +1,82 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "471 = PUSH [tag]\n665 = PUSH [tag]\nv1155 = memory_array_index_access_struct_UserOpInfo_dyn(471,v1078,v1149,665)",
+    "src_ws": [
+        "v1154",
+        "v1148",
+        "v1137",
+        "v1138",
+        "v1123",
+        "v1150",
+        "v1149",
+        "v1078",
+        "v1070",
+        "v1071",
+        "v1072"
+    ],
+    "tgt_ws": [
+        "471",
+        "v1078",
+        "v1149",
+        "665",
+        "v1154",
+        "v1148",
+        "v1137",
+        "v1138",
+        "v1123",
+        "v1150",
+        "v1149",
+        "v1078",
+        "v1070",
+        "v1071",
+        "v1072"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "471"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "PUSH [TAG]_1",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "665"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "665",
+        "471"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 4,
+    "max_progr_len": 4,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "external_fun_handleAggregatedOps_Block32sf",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 16,
+    "is_revert": false
+}

@@ -1,0 +1,85 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v637 = PhiFunction(v628,v549,v684)\n263 = PUSH [tag]\n447 = PUSH [tag]\nv638 = sub(v637,v548)\nfinalize_allocation(263,v548,v638,447)",
+    "src_ws": [
+        "b0",
+        "v548",
+        "v637"
+    ],
+    "tgt_ws": [
+        "263",
+        "v548",
+        "v638",
+        "447",
+        "v548",
+        "v637"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "263"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "PUSH [TAG]_1",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "447"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "SUB_0",
+            "opcode": "03",
+            "disasm": "SUB",
+            "inpt_sk": [
+                "v637",
+                "v548"
+            ],
+            "outpt_sk": [
+                "v638"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        }
+    ],
+    "variables": [
+        "447",
+        "v638",
+        "v548",
+        "263",
+        "v637"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 7,
+    "max_progr_len": 7,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "BOB_3424_deployed_Block368f",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": true,
+    "max_sk_sz": 7,
+    "is_revert": false
+}

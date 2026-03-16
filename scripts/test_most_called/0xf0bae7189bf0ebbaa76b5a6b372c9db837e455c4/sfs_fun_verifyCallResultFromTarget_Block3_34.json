@@ -1,0 +1,85 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v102 = mload(v98)\nv103 = iszero(v102)\n19 = PUSH [tag]\nJUMPI(19,v103)",
+    "src_ws": [
+        "v100",
+        "v98",
+        "v97",
+        "out_fun_verifyCallResultFromTarget"
+    ],
+    "tgt_ws": [
+        "19",
+        "v103",
+        "v98",
+        "v100",
+        "out_fun_verifyCallResultFromTarget"
+    ],
+    "user_instrs": [
+        {
+            "id": "MLOAD_0",
+            "opcode": "51",
+            "disasm": "MLOAD",
+            "inpt_sk": [
+                "v98"
+            ],
+            "outpt_sk": [
+                "v102"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "ISZERO_0",
+            "opcode": "15",
+            "disasm": "ISZERO",
+            "inpt_sk": [
+                "v102"
+            ],
+            "outpt_sk": [
+                "v103"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "19"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "v103",
+        "v98",
+        "v102",
+        "19"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 6,
+    "max_progr_len": 6,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_verifyCallResultFromTarget_Block3",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 6,
+    "is_revert": false
+}

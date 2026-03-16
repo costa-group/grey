@@ -1,0 +1,82 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v84 = LiteralAssignment(0x00)\n19 = PUSH [tag]\nJUMP(19)",
+    "src_ws": [
+        "v60",
+        "v62",
+        "v44",
+        "v33",
+        "v34",
+        "v32",
+        "v27",
+        "v18",
+        "v22",
+        "v17",
+        "v11"
+    ],
+    "tgt_ws": [
+        "19",
+        "v60",
+        "v84",
+        "v44",
+        "v33",
+        "v34",
+        "v32",
+        "v27",
+        "v18",
+        "v22",
+        "v17",
+        "v11"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH0_0",
+            "opcode": "5f",
+            "disasm": "PUSH0",
+            "inpt_sk": [],
+            "value": [
+                0
+            ],
+            "outpt_sk": [
+                "v84"
+            ],
+            "gas": 2,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "19"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "v84",
+        "19"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 4,
+    "max_progr_len": 4,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "KERNEL_34_Block22",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": true,
+    "max_sk_sz": 13,
+    "is_revert": false
+}

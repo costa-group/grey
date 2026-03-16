@@ -1,0 +1,209 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v215 = not(0x5f)\nv216 = sub(v208,v196)\nv217 = add(v216,v215)\nmstore(v209,v217)\nv218 = calldataload(v210)\nv219 = slt(v218,v206)\nv220 = iszero(v219)\n76 = PUSH [tag]\nJUMPI(76,v220)",
+    "src_ws": [
+        "v207",
+        "v209",
+        "v210",
+        "v206",
+        "v208",
+        "v196",
+        "v195",
+        "v194",
+        "v193",
+        "v192",
+        "out_abi_encode_array_struct_UserOperation_calldata_dyn_calldata_bytes_calldata"
+    ],
+    "tgt_ws": [
+        "76",
+        "v220",
+        "v218",
+        "v207",
+        "v209",
+        "v210",
+        "v206",
+        "v208",
+        "v196",
+        "v195",
+        "v194",
+        "v193",
+        "v192",
+        "out_abi_encode_array_struct_UserOperation_calldata_dyn_calldata_bytes_calldata"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH_0",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                95
+            ],
+            "outpt_sk": [
+                "s0"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "NOT_0",
+            "opcode": "19",
+            "disasm": "NOT",
+            "inpt_sk": [
+                "s0"
+            ],
+            "outpt_sk": [
+                "v215"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "SUB_0",
+            "opcode": "03",
+            "disasm": "SUB",
+            "inpt_sk": [
+                "v208",
+                "v196"
+            ],
+            "outpt_sk": [
+                "v216"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "ADD_0",
+            "opcode": "01",
+            "disasm": "ADD",
+            "inpt_sk": [
+                "v216",
+                "v215"
+            ],
+            "outpt_sk": [
+                "v217"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "MSTORE_0",
+            "opcode": "52",
+            "disasm": "MSTORE",
+            "inpt_sk": [
+                "v209",
+                "v217"
+            ],
+            "outpt_sk": [],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": true,
+            "size": 1
+        },
+        {
+            "id": "CALLDATALOAD_0",
+            "opcode": "35",
+            "disasm": "CALLDATALOAD",
+            "inpt_sk": [
+                "v210"
+            ],
+            "outpt_sk": [
+                "v218"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "SLT_0",
+            "opcode": "12",
+            "disasm": "SLT",
+            "inpt_sk": [
+                "v218",
+                "v206"
+            ],
+            "outpt_sk": [
+                "v219"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "ISZERO_0",
+            "opcode": "15",
+            "disasm": "ISZERO",
+            "inpt_sk": [
+                "v219"
+            ],
+            "outpt_sk": [
+                "v220"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "76"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "v215",
+        "v208",
+        "v196",
+        "v216",
+        "v217",
+        "v210",
+        "v220",
+        "s0",
+        "v209",
+        "v219",
+        "76",
+        "v218",
+        "v206"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 15,
+    "max_progr_len": 15,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "abi_encode_array_struct_UserOperation_calldata_dyn_calldata_bytes_calldata_Block2",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 15,
+    "is_revert": false
+}

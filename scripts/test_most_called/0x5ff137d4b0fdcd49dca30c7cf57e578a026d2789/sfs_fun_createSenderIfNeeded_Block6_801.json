@@ -1,0 +1,58 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "512 = PUSH [tag]\nrevert_forward(512)",
+    "src_ws": [
+        "v1901",
+        "v1910",
+        "v1894",
+        "v1890",
+        "v1889",
+        "v1888",
+        "v1887",
+        "out_fun_createSenderIfNeeded"
+    ],
+    "tgt_ws": [
+        "512",
+        "v1901",
+        "v1910",
+        "v1894",
+        "v1890",
+        "v1889",
+        "v1888",
+        "v1887",
+        "out_fun_createSenderIfNeeded"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "512"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "512"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 1,
+    "max_progr_len": 1,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_createSenderIfNeeded_Block6",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 10,
+    "is_revert": false
+}

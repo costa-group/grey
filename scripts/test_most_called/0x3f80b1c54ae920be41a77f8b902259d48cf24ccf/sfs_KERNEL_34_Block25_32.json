@@ -1,0 +1,119 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v113 = add(v79,v94)\nsstore(v113,0x00)\n27 = PUSH [tag]\nJUMP(27)",
+    "src_ws": [
+        "v94",
+        "v82",
+        "v79",
+        "v44",
+        "v33",
+        "v34",
+        "v32",
+        "v27",
+        "v18",
+        "v22",
+        "v17",
+        "v11"
+    ],
+    "tgt_ws": [
+        "27",
+        "v94",
+        "v82",
+        "v79",
+        "v44",
+        "v33",
+        "v34",
+        "v32",
+        "v27",
+        "v18",
+        "v22",
+        "v17",
+        "v11"
+    ],
+    "user_instrs": [
+        {
+            "id": "ADD_0",
+            "opcode": "01",
+            "disasm": "ADD",
+            "inpt_sk": [
+                "v79",
+                "v94"
+            ],
+            "outpt_sk": [
+                "v113"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH0_0",
+            "opcode": "5f",
+            "disasm": "PUSH0",
+            "inpt_sk": [],
+            "value": [
+                0
+            ],
+            "outpt_sk": [
+                "s0"
+            ],
+            "gas": 2,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "SSTORE_0",
+            "opcode": "55",
+            "disasm": "SSTORE",
+            "inpt_sk": [
+                "v113",
+                "s0"
+            ],
+            "outpt_sk": [],
+            "gas": 5000,
+            "commutative": false,
+            "push": false,
+            "storage": true,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "27"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "v79",
+        "v94",
+        "27",
+        "s0",
+        "v113"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 6,
+    "max_progr_len": 6,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "KERNEL_34_Block25",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 16,
+    "is_revert": false
+}

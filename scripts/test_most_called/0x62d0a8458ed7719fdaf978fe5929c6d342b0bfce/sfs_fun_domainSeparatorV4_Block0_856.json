@@ -1,0 +1,132 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v1227 = LiteralAssignment(0x00)\nv1228 = pushimmutable[2757]\nv1229 = chainid\nv1230 = eq(v1229,v1228)\nv1231 = eq(v1230,0x00)\n228 = PUSH [tag]\nJUMPI(228,v1231)",
+    "src_ws": [
+        "out_fun_domainSeparatorV4"
+    ],
+    "tgt_ws": [
+        "228",
+        "v1231",
+        "out_fun_domainSeparatorV4"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSHIMMUTABLE_0",
+            "opcode": "00",
+            "disasm": "PUSHIMMUTABLE",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "v1228"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 33,
+            "value": [
+                "2757"
+            ]
+        },
+        {
+            "id": "CHAINID_0",
+            "opcode": "46",
+            "disasm": "CHAINID",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "v1229"
+            ],
+            "gas": 2,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "EQ_0",
+            "opcode": "14",
+            "disasm": "EQ",
+            "inpt_sk": [
+                "v1229",
+                "v1228"
+            ],
+            "outpt_sk": [
+                "v1230"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH0_1",
+            "opcode": "5f",
+            "disasm": "PUSH0",
+            "inpt_sk": [],
+            "value": [
+                0
+            ],
+            "outpt_sk": [
+                "s0"
+            ],
+            "gas": 2,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "EQ_1",
+            "opcode": "14",
+            "disasm": "EQ",
+            "inpt_sk": [
+                "v1230",
+                "s0"
+            ],
+            "outpt_sk": [
+                "v1231"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "228"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "v1228",
+        "228",
+        "v1231",
+        "v1229",
+        "s0",
+        "v1230"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 6,
+    "max_progr_len": 6,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_domainSeparatorV4_Block0",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 4,
+    "is_revert": false
+}

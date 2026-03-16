@@ -1,0 +1,75 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v310 = lt(v282,v221)\n74 = PUSH [tag]\nJUMPI(74,v310)",
+    "src_ws": [
+        "v303",
+        "v282",
+        "v305",
+        "v304",
+        "v221",
+        "v219",
+        "out_fun_toShortStringWithFallback"
+    ],
+    "tgt_ws": [
+        "74",
+        "v310",
+        "v305",
+        "v304",
+        "v221",
+        "v219",
+        "out_fun_toShortStringWithFallback"
+    ],
+    "user_instrs": [
+        {
+            "id": "LT_0",
+            "opcode": "10",
+            "disasm": "LT",
+            "inpt_sk": [
+                "v282",
+                "v221"
+            ],
+            "outpt_sk": [
+                "v310"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "74"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "74",
+        "v310",
+        "v282",
+        "v221"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 5,
+    "max_progr_len": 5,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_toShortStringWithFallback_Block26",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 8,
+    "is_revert": false
+}

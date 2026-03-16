@@ -1,0 +1,123 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "508 = PUSH [tag]\n744 = PUSH [tag]\nv1654 = sload(v1653)\nv1655 = lt(v1654,v1643)\nv1656 = iszero(v1655)\nrequire_helper_stringliteral_149b(508,v1656,744)",
+    "src_ws": [
+        "v1653",
+        "v1647",
+        "v1644",
+        "v1643",
+        "out_fun_debitFrom"
+    ],
+    "tgt_ws": [
+        "508",
+        "v1656",
+        "744",
+        "v1654",
+        "v1647",
+        "v1644",
+        "v1643",
+        "out_fun_debitFrom"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "508"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "PUSH [TAG]_1",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "744"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "SLOAD_0",
+            "opcode": "54",
+            "disasm": "SLOAD",
+            "inpt_sk": [
+                "v1653"
+            ],
+            "outpt_sk": [
+                "v1654"
+            ],
+            "gas": 2100,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "LT_0",
+            "opcode": "10",
+            "disasm": "LT",
+            "inpt_sk": [
+                "v1654",
+                "v1643"
+            ],
+            "outpt_sk": [
+                "v1655"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "ISZERO_0",
+            "opcode": "15",
+            "disasm": "ISZERO",
+            "inpt_sk": [
+                "v1655"
+            ],
+            "outpt_sk": [
+                "v1656"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        }
+    ],
+    "variables": [
+        "508",
+        "v1643",
+        "v1653",
+        "v1656",
+        "v1655",
+        "744",
+        "v1654"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 7,
+    "max_progr_len": 7,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_debitFrom_Block4sf",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 9,
+    "is_revert": false
+}

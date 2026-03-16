@@ -1,0 +1,52 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v1916 = sub(v1915,v1912)\nrevert(v1912,v1916)",
+    "src_ws": [
+        "v1915",
+        "v1912"
+    ],
+    "tgt_ws": [
+        "v1912",
+        "v1916",
+        "v1915",
+        "v1912"
+    ],
+    "user_instrs": [
+        {
+            "id": "SUB_0",
+            "opcode": "03",
+            "disasm": "SUB",
+            "inpt_sk": [
+                "v1915",
+                "v1912"
+            ],
+            "outpt_sk": [
+                "v1916"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        }
+    ],
+    "variables": [
+        "v1915",
+        "v1912",
+        "v1916"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 4,
+    "max_progr_len": 4,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_createSenderIfNeeded_Block3s",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 5,
+    "is_revert": true
+}

@@ -1,0 +1,101 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v200 = add(v145,0x20)\n34 = PUSH [tag]\nJUMP(34)",
+    "src_ws": [
+        "v145",
+        "v128",
+        "v178",
+        "v179",
+        "v85",
+        "v32",
+        "v27",
+        "v18",
+        "v33",
+        "v17",
+        "v11"
+    ],
+    "tgt_ws": [
+        "34",
+        "v200",
+        "v128",
+        "v178",
+        "v179",
+        "v85",
+        "v32",
+        "v27",
+        "v18",
+        "v33",
+        "v17",
+        "v11"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH_0",
+            "opcode": "60",
+            "disasm": "PUSH",
+            "inpt_sk": [],
+            "value": [
+                32
+            ],
+            "outpt_sk": [
+                "s0"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": true,
+            "storage": false,
+            "size": 2
+        },
+        {
+            "id": "ADD_0",
+            "opcode": "01",
+            "disasm": "ADD",
+            "inpt_sk": [
+                "v145",
+                "s0"
+            ],
+            "outpt_sk": [
+                "v200"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "34"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "34",
+        "v145",
+        "s0",
+        "v200"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 3,
+    "max_progr_len": 3,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "KERNEL_34_Block62",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 13,
+    "is_revert": false
+}

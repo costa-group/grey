@@ -1,0 +1,64 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v2730 = iszero(v2729)\n482 = PUSH [tag]\nJUMPI(482,v2730)",
+    "src_ws": [
+        "v2729",
+        "out_require_helper_stringliteral_1dfd"
+    ],
+    "tgt_ws": [
+        "482",
+        "v2730",
+        "out_require_helper_stringliteral_1dfd"
+    ],
+    "user_instrs": [
+        {
+            "id": "ISZERO_0",
+            "opcode": "15",
+            "disasm": "ISZERO",
+            "inpt_sk": [
+                "v2729"
+            ],
+            "outpt_sk": [
+                "v2730"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "482"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "v2729",
+        "v2730",
+        "482"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 2,
+    "max_progr_len": 2,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "require_helper_stringliteral_1dfd_Block0",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 4,
+    "is_revert": false
+}

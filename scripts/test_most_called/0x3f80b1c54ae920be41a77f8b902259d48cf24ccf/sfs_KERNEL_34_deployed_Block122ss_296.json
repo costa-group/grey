@@ -1,0 +1,52 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v272 = sub(v271,v269)\nreturn(v269,v272)",
+    "src_ws": [
+        "v271",
+        "v269"
+    ],
+    "tgt_ws": [
+        "v269",
+        "v272",
+        "v271",
+        "v269"
+    ],
+    "user_instrs": [
+        {
+            "id": "SUB_0",
+            "opcode": "03",
+            "disasm": "SUB",
+            "inpt_sk": [
+                "v271",
+                "v269"
+            ],
+            "outpt_sk": [
+                "v272"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        }
+    ],
+    "variables": [
+        "v271",
+        "v272",
+        "v269"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 4,
+    "max_progr_len": 4,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "KERNEL_34_deployed_Block122ss",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": true,
+    "max_sk_sz": 5,
+    "is_revert": false
+}

@@ -1,0 +1,84 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "24 = PUSH [tag]\n808 = PUSH [tag]\nabi_decode(24,v1682,v1682,808)",
+    "src_ws": [
+        "v1653",
+        "v1632",
+        "v1630",
+        "v1629",
+        "v1628",
+        "v1688",
+        "v1625",
+        "v1624",
+        "v1623",
+        "v1682",
+        "v1621",
+        "out_fun__handlePostOp"
+    ],
+    "tgt_ws": [
+        "24",
+        "v1682",
+        "v1682",
+        "808",
+        "v1653",
+        "v1632",
+        "v1630",
+        "v1629",
+        "v1628",
+        "v1688",
+        "v1625",
+        "v1624",
+        "v1623",
+        "v1682",
+        "v1621",
+        "out_fun__handlePostOp"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "24"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "PUSH [TAG]_1",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "808"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "808",
+        "24"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 4,
+    "max_progr_len": 4,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun__handlePostOp_Block9sf",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 17,
+    "is_revert": false
+}

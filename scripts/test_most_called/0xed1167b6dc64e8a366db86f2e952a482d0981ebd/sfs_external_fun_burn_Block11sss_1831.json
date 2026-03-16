@@ -1,0 +1,52 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v553 = sub(v552,v551)\nreturn(v551,v553)",
+    "src_ws": [
+        "v552",
+        "v551"
+    ],
+    "tgt_ws": [
+        "v551",
+        "v553",
+        "v552",
+        "v551"
+    ],
+    "user_instrs": [
+        {
+            "id": "SUB_0",
+            "opcode": "03",
+            "disasm": "SUB",
+            "inpt_sk": [
+                "v552",
+                "v551"
+            ],
+            "outpt_sk": [
+                "v553"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        }
+    ],
+    "variables": [
+        "v552",
+        "v551",
+        "v553"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 4,
+    "max_progr_len": 4,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "external_fun_burn_Block11sss",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 5,
+    "is_revert": false
+}

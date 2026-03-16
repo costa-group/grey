@@ -1,0 +1,156 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "v410 = mul(v409,v408)\nv411 = div(v410,v409)\nv412 = eq(v408,v411)\nv413 = iszero(v409)\nv414 = or(v413,v412)\nv415 = iszero(v414)\n131 = PUSH [tag]\nJUMPI(131,v415)",
+    "src_ws": [
+        "v409",
+        "v408",
+        "out_checked_mul_uint256"
+    ],
+    "tgt_ws": [
+        "131",
+        "v415",
+        "v410",
+        "out_checked_mul_uint256"
+    ],
+    "user_instrs": [
+        {
+            "id": "MUL_0",
+            "opcode": "02",
+            "disasm": "MUL",
+            "inpt_sk": [
+                "v409",
+                "v408"
+            ],
+            "outpt_sk": [
+                "v410"
+            ],
+            "gas": 5,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "DIV_0",
+            "opcode": "04",
+            "disasm": "DIV",
+            "inpt_sk": [
+                "v410",
+                "v409"
+            ],
+            "outpt_sk": [
+                "v411"
+            ],
+            "gas": 5,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "EQ_0",
+            "opcode": "14",
+            "disasm": "EQ",
+            "inpt_sk": [
+                "v408",
+                "v411"
+            ],
+            "outpt_sk": [
+                "v412"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "ISZERO_0",
+            "opcode": "15",
+            "disasm": "ISZERO",
+            "inpt_sk": [
+                "v409"
+            ],
+            "outpt_sk": [
+                "v413"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "OR_0",
+            "opcode": "17",
+            "disasm": "OR",
+            "inpt_sk": [
+                "v413",
+                "v412"
+            ],
+            "outpt_sk": [
+                "v414"
+            ],
+            "gas": 3,
+            "commutative": true,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "ISZERO_1",
+            "opcode": "15",
+            "disasm": "ISZERO",
+            "inpt_sk": [
+                "v414"
+            ],
+            "outpt_sk": [
+                "v415"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 1
+        },
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "131"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "v414",
+        "v412",
+        "v410",
+        "v413",
+        "131",
+        "v408",
+        "v411",
+        "v415",
+        "v409"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 13,
+    "max_progr_len": 13,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "checked_mul_uint256_Block0",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 7,
+    "is_revert": false
+}

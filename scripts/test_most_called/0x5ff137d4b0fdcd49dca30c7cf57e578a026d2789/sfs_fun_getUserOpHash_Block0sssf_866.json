@@ -1,0 +1,70 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "332 = PUSH [tag]\n868 = PUSH [tag]\nv2089 = fun_calldataKeccak(332,v2087,v2088,868)",
+    "src_ws": [
+        "v2087",
+        "v2088",
+        "v2085",
+        "v2081",
+        "v2078",
+        "out_fun_getUserOpHash"
+    ],
+    "tgt_ws": [
+        "332",
+        "v2087",
+        "v2088",
+        "868",
+        "v2085",
+        "v2081",
+        "v2078",
+        "out_fun_getUserOpHash"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "332"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "PUSH [TAG]_1",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "868"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "332",
+        "868"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 4,
+    "max_progr_len": 4,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_getUserOpHash_Block0sssf",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 9,
+    "is_revert": false
+}

@@ -1,0 +1,48 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "501 = PUSH [tag]\npanic_error_0x12(501)",
+    "src_ws": [
+        "v1805",
+        "v1804",
+        "out_fun_ld2sd"
+    ],
+    "tgt_ws": [
+        "501",
+        "v1805",
+        "v1804",
+        "out_fun_ld2sd"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "501"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "501"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 1,
+    "max_progr_len": 1,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_ld2sd_Block1",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 5,
+    "is_revert": false
+}

@@ -1,0 +1,52 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "16 = PUSH [tag]\nJUMP(16)",
+    "src_ws": [
+        "v55",
+        "v24",
+        "v21",
+        "v14",
+        "v45"
+    ],
+    "tgt_ws": [
+        "16",
+        "v55",
+        "v24",
+        "v21",
+        "v14",
+        "v45"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "16"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "16"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 1,
+    "max_progr_len": 1,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "OFTV2_2477_Block30",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": true,
+    "max_sk_sz": 7,
+    "is_revert": false
+}

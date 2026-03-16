@@ -1,0 +1,50 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "233 = PUSH [tag]\nJUMP(233)",
+    "src_ws": [
+        "v1046",
+        "v6",
+        "v1017",
+        "v1022"
+    ],
+    "tgt_ws": [
+        "233",
+        "v1046",
+        "v6",
+        "v1017",
+        "v1022"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "233"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "233"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 1,
+    "max_progr_len": 1,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "BOB_3424_deployed_Block652s",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": true,
+    "max_sk_sz": 6,
+    "is_revert": false
+}

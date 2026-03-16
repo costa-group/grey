@@ -1,0 +1,70 @@
+{
+    "original_instrs": "",
+    "yul_expressions": "510 = PUSH [tag]\n773 = PUSH [tag]\nv1584 = mapping_index_access_mapping_address__uint256__of_address(510,v1567,773)",
+    "src_ws": [
+        "v1574",
+        "v1570",
+        "v1567",
+        "v1566",
+        "v1565",
+        "out_fun_approve"
+    ],
+    "tgt_ws": [
+        "510",
+        "v1567",
+        "773",
+        "v1570",
+        "v1574",
+        "v1566",
+        "v1565",
+        "out_fun_approve"
+    ],
+    "user_instrs": [
+        {
+            "id": "PUSH [TAG]_0",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "510"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        },
+        {
+            "id": "PUSH [TAG]_1",
+            "opcode": "00",
+            "disasm": "PUSH [TAG]",
+            "inpt_sk": [],
+            "outpt_sk": [
+                "773"
+            ],
+            "gas": 3,
+            "commutative": false,
+            "push": false,
+            "storage": false,
+            "size": 3
+        }
+    ],
+    "variables": [
+        "510",
+        "773"
+    ],
+    "memory_dependences": [],
+    "storage_dependences": [],
+    "init_progr_len": 4,
+    "max_progr_len": 4,
+    "min_length_instrs": 0,
+    "min_length_bounds": 0,
+    "min_length": 0,
+    "rules": "",
+    "name": "fun_approve_Block5f",
+    "transient_dependences": [],
+    "dependencies": [],
+    "admits_junk": false,
+    "max_sk_sz": 9,
+    "is_revert": false
+}
