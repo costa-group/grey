@@ -338,8 +338,22 @@ ins_cfg_sorted, time_solc_importer_sorted = zip(*paired)
 
 ins_cfg_sorted, times_solc_importer_sorted = list(ins_cfg_sorted), list(time_solc_importer_sorted)
 
-ys = [time_cfg_generation_sorted, time_cfg_parser_sorted, time_cfg_preprocess_sorted, time_layout_sorted, time_greedy_sorted, time_asm_generation_sorted, time_solc_importer_sorted]
-labels = ['CFG Generation', 'CFG Parser', 'CFG Preprocess', 'Layout Generation', 'Greedy', 'ASM Generation', 'solc Importer']
+time_cfg_all_sorted = [x + y for x, y in zip(time_cfg_generation_sorted, time_cfg_parser_sorted)]
+time_asm_generation_all_sorted = [x + y for x, y in zip(time_asm_generation_sorted, time_solc_importer_sorted)]
+ys = [time_cfg_all_sorted, time_cfg_preprocess_sorted, time_layout_sorted, time_greedy_sorted, time_asm_generation_all_sorted]
+labels = ['CFG Generation', 'Pre-analysis', 'Layout Generation', 'Greedy+repair', 'ASM Generation']
+
+print("TIME CFG: "+str(sum(time_cfg_generation_sorted)))
+print("IMPORTER: "+str(sum(time_solc_importer_sorted)))
+
+total = sum(time_cfg_generation_sorted)+ sum(time_cfg_parser_sorted)+ sum(time_cfg_preprocess_sorted)+ sum(time_layout_sorted)+ sum(time_greedy_sorted)+sum(time_asm_generation_sorted)+sum( time_solc_importer_sorted)
+
+solc = sum(time_cfg_generation_sorted)+ sum(time_solc_importer_sorted)
+print("TOTAL TIME: "+str(total))
+print("SOLC PHASES: "+str(solc))
+
+print("%: "+str(solc/total))
+
 
 plt.figure()
 
@@ -347,7 +361,7 @@ for y, label in zip(ys, labels):
     plt.plot(ins_cfg_sorted, y, label=label)
 
 # Personalizar gráfico
-plt.xlabel('Instructions in CFG')
+plt.xlabel('CFG Instructions')
 plt.ylabel('Time (s)')
 #plt.title('(c) Execution time of different phases')
 plt.legend()
