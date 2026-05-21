@@ -5,6 +5,7 @@ DIRECTORIO_BASE=/Users/pablo/Repositorios/ethereum/grey/scripts/test
 
 GREY_PATH=/Users/pablo/Repositorios/ethereum/grey/src/grey_main.py
 SOLC_PATH=/Users/pablo/Repositorios/ethereum/grey/examples/solc-moritz
+# SOLC_PATH=/Users/pablo/Repositorios/ethereum/grey/examples/solc-with-layout
 SOLX_PATH=/Users/pablo/Repositorios/ethereum/solx/solx-macosx-profiling
 TEST_SOLX_PATH=/Users/pablo/Repositorios/ethereum/grey/scripts/test_solx
 TESTRUNNER_PATH=/Users/pablo/Repositorios/ethereum/solidity/build/test/tools/testrunner
@@ -62,6 +63,7 @@ find "$DIRECTORIO_BASE" -type f -name "*standard_input.json" | while read -r yul
     
 
     start=$(gdate +%s.%N)
+    # python3 $GREY_PATH -s "$yul_file" -g -if standard-json --constants --no-inline -solc $SOLC_PATH -o "/tmp/$yul_base" &> "$yul_dir/$yul_base.log"
     python3 $GREY_PATH -s "$yul_file" -g -if standard-json -solc $SOLC_PATH -o "/tmp/$yul_base" &> "$yul_dir/$yul_base.log"
     end=$(gdate +%s.%N)
     popd
@@ -72,7 +74,8 @@ find "$DIRECTORIO_BASE" -type f -name "*standard_input.json" | while read -r yul
     echo "python3 $GREY_PATH -s $yul_file -g -v -if standard-json -solc $SOLC_PATH -o /tmp/$yul_base &> $yul_dir/$yul_base.log"
 
     cp "/tmp/$yul_base"/*/*_asm.json "$yul_dir/"
-
+    cp "/tmp/$yul_base"/*/*.json_solc "$yul_dir/"
+    
     # python3 extract_info.py "$yul_dir"
 
 

@@ -113,6 +113,8 @@ def split_evm_instructions(bytecode: str) -> List[str]:
     :param bytecode: Bytecode hexadecimal como una cadena.
     :return: Número total de instrucciones.
     """
+    bytecode.strip()
+    print(bytecode)
     i = 0
     count = 0
     split_init = 0
@@ -123,6 +125,8 @@ def split_evm_instructions(bytecode: str) -> List[str]:
             opcode = int(bytecode[i:i+2], 16)
             count += 1  # Contar la instrucción
 
+            print(bytecode[i:i+2])
+            
             # Manejar instrucciones PUSH (PUSH0 no requiere datos adicionales)
             if 0x60 <= opcode <= 0x7f:
                 push_size = opcode - 0x60 + 1
@@ -219,6 +223,7 @@ def generate_disasm(bytecode):
     code_regions = split_evm_instructions(bytecode)
     print("+*+*+*+*+*+*+*+*")
     print(code_regions)
+        
     return (disasm_code(remove_auxdata(region)) for region in code_regions)
 
 
@@ -281,12 +286,30 @@ def disasm_code(bytecode):
     return partitions
 
 
-def execute_script():
-    solx_file = sys.argv[1]
-    dir_blocks = sys.argv[2]
-    name = solx_file.split("/")[-1].split(".")[0].strip()
-    solx_block_dir = sys.argv[2]
+
+
+def get_evm_code(log_file):
+
+    f = open(log_file, "r")
+    all_lines = f.readlines()
+
+    lines = list(filter(lambda x: x.find("Contract") != -1 and x.find("EVM") != -1, all_lines))
+
+    res = {}
     
+    for l in lines:
+        elems = l.split("->")
+        c_name = elems[0].split(":")[-1]
+        evm_code = elems[-1].split(":")[-1]
+
+        res[c_name] = evm_code.strip()
+
+    return res
+
+
+
+
+def execute_for_solc(solx_file, dir_blocks,name):
     f_solx = open(solx_file, "r")
     
     evm_solx = f_solx.read()
@@ -317,7 +340,56 @@ def execute_script():
                 f.write(block_as_str)
                 f.close()
                 idx+=1
-                    
 
+
+def execute_for_greedy(greedy_file, dir_blocks):
+    contracts_bytecode = get_evm_code(greedy_file)
+    
+
+    
+    for c in contracts_bytecode:
+        bytecode = contracts_bytecode.get(c, [])
+
+        disasm = generate_disasm(bytecode)
+        print("HOLA")
+        print(disasm)
+
+        
+        idx = 0
+        for regions in disasm:
+            for region in regions:
+                cadena = " ".join(region)
+                opcodes = split_evm_opcodes(cadena)
+
+
+                blocks = split_basic_blocks(opcodes)
+                print(blocks)
+
+                for i, block in enumerate(blocks):
+                    print(f"Block {i}: {block}")
+                    block_as_str = " ".join(block)
+                    f = open(dir_blocks+"/"+c.strip()+"_block_"+str(idx),"w")
+                    f.write(block_as_str)
+                    f.close()
+                    idx+=1
+     
+
+                
+def execute_script():
+    solx_file = sys.argv[1]
+    dir_blocks = sys.argv[2]
+    type_blocks = sys.argv[3]
+    name = solx_file.split("/")[-1].split(".")[0].strip()
+    solx_block_dir = sys.argv[2]
+    
+    if type_blocks == "solc":
+        execute_for_solc(solx_file,dir_blocks,name)
+    elif type_blocks == "greedy":
+        execute_for_greedy(solx_file,dir_blocks)
+    elif type_blocks == "solx":
+        pass
+    else:
+        raise Exception("Unrecognize option")
+        
 if __name__ == '__main__':
     execute_script()
