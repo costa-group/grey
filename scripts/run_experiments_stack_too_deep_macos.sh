@@ -4,7 +4,8 @@
 DIRECTORIO_BASE=/Users/pablo/Repositorios/ethereum/grey/scripts/test_stack_too_deep
 
 GREY_PATH=/Users/pablo/Repositorios/ethereum/grey/src/grey_main.py
-SOLC_PATH=/Users/pablo/Repositorios/ethereum/grey/examples/solc
+#SOLC_PATH=/Users/pablo/Repositorios/ethereum/grey/examples/solc-without-opt
+SOLC_PATH=$HOME/Repositorios/ethereum/grey/examples/solc-with-layout
 SOLX_PATH=/Users/pablo/Repositorios/ethereum/solx/solx-macosx-profiling
 TEST_SOLX_PATH=/Users/pablo/Repositorios/ethereum/grey/scripts/test_solx
 #TESTRUNNER_PATH=/Users/pablo/Repositorios/ethereum/solidity/build/test/tools/testrunner
@@ -72,7 +73,7 @@ find "$DIRECTORIO_BASE" -type f -name "*standard_input.json" | while read -r yul
     echo "python3 $GREY_PATH -s $yul_file -g -v -if standard-json -solc $SOLC_PATH -o /tmp/$yul_base &> $yul_dir/$yul_base.log"
 
     cp "/tmp/$yul_base"/*/*_asm.json "$yul_dir/"
-
+    cp "/tmp/$yul_base"/repair*csv "$yul_dir/"
     # python3 extract_info.py "$yul_dir"
 
 
