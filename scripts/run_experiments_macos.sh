@@ -1,10 +1,12 @@
 #!/bin/bash
 
 # Directorio base (cambiar por la ruta deseada o pasar como argumento)
-DIRECTORIO_BASE=/Users/pablo/Repositorios/ethereum/grey/scripts/test
+DIRECTORIO_BASE=/Users/pablo/Repositorios/ethereum/grey/scripts/test_opttestnoconst
 
 GREY_PATH=/Users/pablo/Repositorios/ethereum/grey/src/grey_main.py
-SOLC_PATH=/Users/pablo/Repositorios/ethereum/grey/examples/solc-moritz
+#SOLC_PATH=$HOME/Repositorios/ethereum/grey/examples/solc-without-opt
+SOLC_PATH=$HOME/Repositorios/ethereum/grey/examples/solc-with-layout
+#SOLC_PATH=$HOME/Repositorios/ethereum/grey/examples/solc-moritz
 SOLX_PATH=/Users/pablo/Repositorios/ethereum/solx/solx-macosx-profiling
 TEST_SOLX_PATH=/Users/pablo/Repositorios/ethereum/grey/scripts/test_solx
 TESTRUNNER_PATH=/Users/pablo/Repositorios/ethereum/solidity/build/test/tools/testrunner
@@ -32,6 +34,8 @@ find "$DIRECTORIO_BASE" -type f -name "*standard_input.json" | while read -r yul
     yul_dir=$(dirname "$yul_file")
     yul_base=$(basename "$yul_file" _standard_input.json)
 
+    mkdir $yul_dir/sfs
+    
     test_dir_name=$(basename "$yul_dir")
 
     solx_test_file="$test_dir_name/${yul_base}_standard_input.json"
@@ -63,6 +67,7 @@ find "$DIRECTORIO_BASE" -type f -name "*standard_input.json" | while read -r yul
 
     start=$(gdate +%s.%N)
     python3 $GREY_PATH -s "$yul_file" -g -if standard-json -solc $SOLC_PATH -o "/tmp/$yul_base" &> "$yul_dir/$yul_base.log"
+    # python3 $GREY_PATH -s "$yul_file" -g -if standard-json -solc $SOLC_PATH -o "/tmp/$yul_base" &> "$yul_dir/$yul_base.log"
     end=$(gdate +%s.%N)
     popd
     elapsed=$(echo "$end - $start" | bc)
@@ -72,9 +77,10 @@ find "$DIRECTORIO_BASE" -type f -name "*standard_input.json" | while read -r yul
     echo "python3 $GREY_PATH -s $yul_file -g -v -if standard-json -solc $SOLC_PATH -o /tmp/$yul_base &> $yul_dir/$yul_base.log"
 
     cp "/tmp/$yul_base"/*/*_asm.json "$yul_dir/"
-
+    cp "/tmp/$yul_base"/repair*csv "$yul_dir/"
+    cp "/tmp/$yul_base"/*/sfs_*.json "$yul_dir/sfs/"
     # python3 extract_info.py "$yul_dir"
-
+    echo " cp /tmp/$yul_base/repair*csv/ $yul_dir/"
 
     if [ -f "$yul_dir/test" ]; then
     
