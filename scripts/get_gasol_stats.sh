@@ -1,7 +1,8 @@
 #!/bin/bash
 
+FORMATO=$1
 # Directorio base (cambiar por la ruta deseada o pasar como argumento)
-DIRECTORIO_BASE=/Users/pablo/Repositorios/ethereum/grey/scripts/test/
+DIRECTORIO_BASE=$PWD/test/
 
 # Comprobar si el directorio existe
 if [ ! -d "$DIRECTORIO_BASE" ]; then
@@ -27,10 +28,10 @@ find "$DIRECTORIO_BASE" -type f -name "*.output" | while read -r yul_file; do
 
     # solx_test_file="$test_dir_name/${yul_base}_standard_input.json"
     
-    echo "Ejecuto: $yul_dir/solc_blocks"
+    echo "Ejecuto: $yul_dir/solc_blocks_$FORMATO"
 
-    python3 compute_gasol_gains.py $yul_dir/solc_blocks
-    echo "python3 compute_gasol_gains.py $yul_dir/solc_blocks"
+    python3 compute_gasol_gains.py $yul_dir/solc_blocks_$FORMATO
+    echo "python3 compute_gasol_gains.py $yul_dir/solc_blocks_$FORMATO"
     # python3 $GASOL_PATH/gasol_asm.py -s "$block_file" -bl -greedy &> "$yul_dir/solx_blocks/$block_file.log"
     
     
