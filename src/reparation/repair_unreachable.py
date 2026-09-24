@@ -14,6 +14,8 @@ from reparation.insert_placeholders import repair_unreachable, PhiWebs
 from reparation.tree_scan import TreeScan, ColourAssignment
 from reparation.utils import extract_value_from_pseudo_instr
 from graphs.algorithms import information_on_graph
+from analysis.memory_slots_validation import validate_memory_slots
+import global_params.constants as constants
 
 
 def repair_cfg(cfg: CFG, path_to_files: Optional[Path]):
@@ -95,6 +97,10 @@ def repair_unreachable_blocklist(cfg_blocklist: CFGBlockList,
 
     if num_vals > 0:
         color_assignment, used_constants = TreeScan(cfg_blocklist, phi_webs, num_vals, forbidden_constants).executable_from_code()
+
+        # Safety check (debug mode only): every memory access reads the expected value in all paths
+        if constants.DEBUG:
+            validate_memory_slots(cfg_blocklist)
         max_constant = hex(int(used_constants, 16) + 32)[2:]
         return extract_statistics(cfg_blocklist.name, phi_webs, color_assignment, initial_fix), max_constant
     else:
