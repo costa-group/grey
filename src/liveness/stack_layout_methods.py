@@ -252,9 +252,10 @@ def generate_phi_func(target_block_id: block_id_T, predecessor_blocks: List[bloc
         live_vars_dict[target_block_id].union(phi_func.get(predecessor_block, {}).values()))
         for predecessor_block in predecessor_blocks}
 
-    # Then we combine them as new phi functions. We fill with bottom values if there are not enought values to combine
+    # Then we combine them as new phi functions. We fill with bottom values if there are not enought values to combine.
+    # The variables are sorted so that the pairing among predecessors does not depend on the set iteration order
     pseudo_phi_functions = {f"b{i}": in_args for i, in_args in
-                            enumerate(zip_longest(*(variables_to_remove[predecessor_block]
+                            enumerate(zip_longest(*(sorted(variables_to_remove[predecessor_block])
                                                     for predecessor_block in predecessor_blocks),
                                                   fillvalue="bottom"))}
     for out_arg, in_args in pseudo_phi_functions.items():

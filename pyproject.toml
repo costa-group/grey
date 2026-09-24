@@ -15,6 +15,7 @@ readme = "README.md"
 
 [tool.pytest.ini_options]
 pythonpath = "src"
+markers = ["slow: executes grey end to end (deselect with '-m \"not slow\"')"]
 log_cli = true
 log_cli_level = "DEBUG"
 log_cli_format = "%(asctime)s [%(levelname)s] %(message)s (%(filename)s:%(lineno)s)"

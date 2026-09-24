@@ -441,12 +441,13 @@ class CFGBlock:
         return block_json, jump_block
 
     def _get_vars_spec(self, uninter_instructions):
-        vars_spec = set()
+        # Dict used as an ordered set, so that the order of the variables is deterministic
+        vars_spec = dict()
 
         for i in uninter_instructions:
             all_vars = i["inpt_sk"] + i["outpt_sk"]
             for a in all_vars:
-                vars_spec.add(a)
+                vars_spec[a] = None
 
         return list(vars_spec)
 

@@ -245,8 +245,9 @@ def prune_cycles_topological_sort(function2call_info: function2call_info_T) -> \
         nx.nx_agraph.write_dot(function_deps, debug_file("functions.dot"))
 
     # We reverse the change
+    # Members of each strongly connected component are sorted to make the order deterministic
     original_topological_sort = [original_node for component in component_topological_sort
-                                 for original_node in condensed_deps.nodes[component]["members"]]
+                                 for original_node in sorted(condensed_deps.nodes[component]["members"])]
 
     # Update the function calls as well using the information from the cycles
     pruned_function2call_info = _prune_cycling_function_calls(function2call_info, [])

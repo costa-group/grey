@@ -603,8 +603,8 @@ class SMSgreedy:
             all_needed(o,self._opid_instr_map, self._var_instr_map,sn)
             need_ops[o] = sn.copy()
             # print(o,sn)
-        for o in depop_res:
-                for o1 in depop:
+        for o in sorted(depop_res):
+                for o1 in sorted(depop):
                     # if o != o1 and computed(self._opid_instr_map[o]['outpt_sk'][0], o1, self._opid_instr_map, self._var_instr_map):
                     if o != o1 and self._opid_instr_map[o]['outpt_sk'][0] in need_ops[o1]:
                         assert(self._opid_instr_map[o]['outpt_sk'][0] in need_ops[o1])

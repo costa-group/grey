@@ -69,7 +69,7 @@ def compute_loop_nesting_forest_graph(cfg: nx.DiGraph, back_edges: Optional[List
     already_analyzed = set()
     for parent_header in headers:
         child_body = loop_bodies[parent_header]
-        for child in child_body:
+        for child in sorted(child_body):
             # We ignore the header vertex to build the tree
             if child == parent_header:
                 continue

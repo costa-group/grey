@@ -64,7 +64,7 @@ def fix_inaccessible_phi_values(block_list: CFGBlockList,
     """
     atomic_merged_sets, color, handled_values = PhiWebs(), 0, set()
 
-    for element in phi_elements_to_fix:
+    for element in sorted(phi_elements_to_fix):
         definition = phi_def2block[element]
 
         pairs_to_traverse = [(element, definition)]
@@ -96,7 +96,7 @@ def fix_inaccessible_phi_values(block_list: CFGBlockList,
 
                 add_set.add(ai)
 
-            atomic_merged_sets.join_phi(current_var, add_set)
+            atomic_merged_sets.join_phi(current_var, sorted(add_set))
 
     return atomic_merged_sets
 
@@ -263,7 +263,8 @@ def store_stack_elements_block(current_block_id: block_id_T, block_list: CFGBloc
 
     vars_stored = set()
     reachable_info = current_greedy_info.reachable
-    for var in vars_to_introduce.intersection(reachable_info.keys()):
+    # Sorted to make the order of the DUP-VSET (and hence, of the colouring) deterministic
+    for var in sorted(vars_to_introduce.intersection(reachable_info.keys())):
         if within_loop(var, current_block_id,
                        block_list.loop_nesting_forest, var2header):
             current_greedy_info.insert_dup_vset(var)

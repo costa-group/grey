@@ -106,7 +106,7 @@ def insert_constants_block_dominant_preorder(block_name: block_id_T, cfg_block_l
                                  if decide_if_propagated(constant, total_uses))
 
     # The constants we need to add are the ones not added so far
-    for constant_value in constants_to_introduce:
+    for constant_value in sorted(constants_to_introduce):
         arg = f"c{free_idx}"
         introduced_so_far[constant_value] = arg
         free_idx += 1
@@ -132,7 +132,7 @@ def insert_constants_block_dominant_preorder(block_name: block_id_T, cfg_block_l
             next_block, cfg_block_list, constants_per_block, introduced_so_far, free_idx, total_uses)
 
     # Before exiting the block ,we pop the constant values
-    for constant_value in constants_to_introduce:
+    for constant_value in sorted(constants_to_introduce):
         introduced_so_far.pop(constant_value)
 
     return free_idx
