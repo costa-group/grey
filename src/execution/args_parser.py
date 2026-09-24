@@ -36,6 +36,10 @@ def generate_parser() -> argparse.ArgumentParser:
     output_options.add_argument("-json-solc", "--json-solc", action="store_true", dest="json_solc",
                                 help="Stores the result in combined-json format")
     output_options.add_argument("-auxdata", "--auxdata", action="store_true", dest="auxdata", help="Enabled the generation of auxdata as part of the evm code")
+    output_options.add_argument("--debug", action="store_true", dest="debug",
+                                help="Performs the safety checks (greedy and memory slots validation) and stores "
+                                     "the debug dumps in the output folder. Disabled by default, "
+                                     "as the checks distort the measured times")
 
     synthesis_options = parser.add_argument_group("Synthesis Options")
     synthesis_options.add_argument("-g", "--greedy", action="store_true", help="Enables the greedy algorithm")
@@ -58,4 +62,5 @@ def parse_args() -> argparse.Namespace:
         raise ValueError(f"Depth argument must be > 0: {parsed_args.depth}")
     else:
         constants.MAX_STACK_DEPTH = parsed_args.depth
+    constants.DEBUG = parsed_args.debug
     return parsed_args

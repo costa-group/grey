@@ -9,6 +9,9 @@ from collections import defaultdict
 import networkx as nx
 import numpy as np
 
+import global_params.constants as constants
+from global_params.debug import debug_file
+
 from global_params.types import block_id_T, component_name_T, function_name_T, block_list_id_T, var_id_T
 from parser.cfg_block import CFGBlock
 from parser.cfg_block_list import CFGBlockList
@@ -238,7 +241,8 @@ def prune_cycles_topological_sort(function2call_info: function2call_info_T) -> \
     # We compute the topological sort over the original function deps
     component_topological_sort = list(nx.topological_sort(condensed_deps))
 
-    nx.nx_agraph.write_dot(function_deps, "functions.dot")
+    if constants.DEBUG:
+        nx.nx_agraph.write_dot(function_deps, debug_file("functions.dot"))
 
     # We reverse the change
     original_topological_sort = [original_node for component in component_topological_sort

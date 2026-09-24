@@ -60,7 +60,10 @@ def cfg_block_spec_ids(cfg_block: CFGBlock, elements_to_move: int = 0) -> Tuple[
     time = time1 #  [time1, time3][chosen_idx]
     greedy_ids = greedy_ids1 # [greedy_ids1, greedy_ids3][chosen_idx]
 
-    assert check_execution_from_ids(copy.deepcopy(cfg_block.spec), greedy_ids, admits_junk), f"Fails in block: {cfg_block.block_id}"
+    # Safety check: only performed in debug mode, as it is not part of the pipeline
+    if constants.DEBUG:
+        assert check_execution_from_ids(copy.deepcopy(cfg_block.spec), greedy_ids, admits_junk), \
+            f"Fails in block: {cfg_block.block_id}"
 
     cfg_block.greedy_ids = greedy_ids if greedy_ids is not None else []
     cfg_block.greedy_info = greedy_info

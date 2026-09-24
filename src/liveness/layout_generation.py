@@ -16,6 +16,7 @@ from itertools import zip_longest
 from collections import defaultdict
 
 from global_params.types import SMS_T, component_name_T, var_id_T, block_id_T
+import global_params.constants as constants
 from parser.cfg import CFG
 from parser.cfg_block_list import CFGBlockList
 from parser.cfg_block import CFGBlock
@@ -115,9 +116,10 @@ class LayoutGeneration:
 
         self._loop_nesting_forest = compute_loop_nesting_forest_graph(self._cfg_graph)
 
-        _loop_nesting_dir = name.joinpath("loop-nesting")
-        _loop_nesting_dir.mkdir(exist_ok=True, parents=True)
-        nx.nx_agraph.write_dot(self._loop_nesting_forest, _loop_nesting_dir.joinpath(f"{object_id}.dot"))
+        if constants.DEBUG:
+            _loop_nesting_dir = name.joinpath("loop-nesting")
+            _loop_nesting_dir.mkdir(exist_ok=True, parents=True)
+            nx.nx_agraph.write_dot(self._loop_nesting_forest, _loop_nesting_dir.joinpath(f"{object_id}.dot"))
 
         # Guess: we need to traverse the code following the dominance tree in topological order
         # This is because in the dominance tree together with the SSA, all the nodes

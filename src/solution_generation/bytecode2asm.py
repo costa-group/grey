@@ -3,6 +3,8 @@ Module that translates the opcodes into assembly
 """
 from typing import Dict, Any, List
 import json
+import global_params.constants as constants
+from global_params.debug import debug_file
 
 
 def build_assembly_instruction(name: str, value: int = None) -> Dict[str, Any]:
@@ -63,8 +65,9 @@ def bytecode2asm(opcodes: List[str]) -> List[Dict[str, Any]]:
         i += 1
         pc += 1
 
-    with open("operations.json", 'w') as f:
-        json.dump(operations, f, indent=4)
+    if constants.DEBUG:
+        with open(debug_file("operations.json"), 'w') as f:
+            json.dump(operations, f, indent=4)
     return operations
 
 

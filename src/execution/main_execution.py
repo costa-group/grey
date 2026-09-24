@@ -20,6 +20,8 @@ from cfg_methods.preprocessing_methods import preprocess_cfg
 from solution_generation.bytecode2asm import asm_from_opcodes
 from reparation.repair_unreachable import repair_cfg
 from analysis.solution_analysis import function_frequency
+import global_params.constants as constants
+from global_params.debug import debug_file
 from solution_generation.store_sfs import sfs_from_cfg
 
 global times
@@ -121,8 +123,11 @@ def main(args):
 
     print("Yul CFG Generation", y - x)
 
-    if args.visualize:
-        with open('intermediate.json', 'w') as f:
+    final_dir = Path(args.folder)
+    constants.DEBUG_DIR = final_dir.joinpath("debug")
+
+    if constants.DEBUG:
+        with open(debug_file('intermediate.json'), 'w') as f:
             json.dump(json_dict, f, indent=4)
 
     x = dtimer()
@@ -131,8 +136,6 @@ def main(args):
 
     print("CFG Parser: " + str(y - x) + "s")
     times[1] += (y - x)
-
-    final_dir = Path(args.folder)
 
     final_dir.mkdir(exist_ok=True, parents=True)
     asm_contracts = defaultdict(lambda: dict())

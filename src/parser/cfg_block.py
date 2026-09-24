@@ -6,6 +6,8 @@ from parser.cfg_instruction import CFGInstruction, build_push_spec, build_pushta
 from parser.utils_parser import replace_pos_instrsid, replace_aliasing_spec, detect_unused_instructions, delete_unsued_instructions_from_deps
 from analysis.instruction_dependencies import compute_memory_dependences, compute_storage_dependences, compute_transient_dependences, compute_gas_dependences, simplify_dependences
 from greedy.greedy_info import GreedyInfo
+import global_params.constants as constants
+from global_params.debug import debug_file
 import json
 from parser.constants import split_block
 from enum import Enum, auto
@@ -640,8 +642,10 @@ class CFGBlock:
 
         spec, out_idx, map_positions, unused_ids = self._build_spec_for_sequence(self.instructions_to_synthesize, map_instructions, out_idx,
                                                                      initial_stack, final_stack)
-        with open("sms.json", 'w') as f:
-            json.dump(spec, f, indent=4)
+        # Debug dump: the last spec built (useful to reproduce a failure in later stages)
+        if constants.DEBUG:
+            with open(debug_file("sms.json"), 'w') as f:
+                json.dump(spec, f, indent=4)
 
         sto_deps, mem_deps, trans_deps, gas_deps = self._process_dependences(self.instructions_to_synthesize, map_positions)
         sto_deps, mem_deps, trans_deps, gas_deps = delete_unsued_instructions_from_deps(sto_deps, mem_deps, trans_deps, gas_deps, unused_ids)
