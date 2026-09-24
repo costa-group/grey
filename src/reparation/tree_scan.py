@@ -1,16 +1,64 @@
 """
 Module that implements an alternative version the Tree Scan algorithm from
-"SSA-based Compiler Design" (Page 309). The key difference is that we assume
+"SSA-based Compiler Design" (Algorithm 22.1, page 309). The key difference is that we assume
 an unbounded number of registers to colour, as the EVM memory can
-grow indefinitely (although dangerously in cost...). Moreover, the liveness sets
-are determined according to the last point in which a variable could be accessed
+grow indefinitely (although dangerously in cost...).
+
+The values stored in memory must have a single definition (see reparation.memory_values) and their
+liveness is computed beforehand (see reparation.memory_liveness), following the multiplexing mode for
+phi-functions (Definition 21.1): phi defs are live-in of their block and their arguments are live-out
+of the predecessors. Hence, the colours are released:
+  - At the entry of a block, for the values that are not live-in.
+  - After the last access within a block, for the values that are not live-out.
+The copies for the phi defs are placed at the end of the predecessors, before the jump, so they are
+executed in all the edges leaving the predecessor. Thus, a phi def cannot share the colour of any value
+live in another successor of its predecessors (lost-copy problem, Sect. 21.1).
 """
-from typing import List, Tuple, Dict
+from typing import List, Tuple, Dict, Set
 from global_params.types import block_id_T, constant_T, var_id_T, instr_id_T
 from parser.cfg_block_list import CFGBlockList
-from reparation.colour_assignment import ColourAssignment
+from reparation.colour_assignment import ColourAssignment, owners_T
 from reparation.phi_webs import PhiWebs
 from reparation.utils import extract_value_from_pseudo_instr, extract_dup_pos_from_dup_vset
+
+
+def phi_copy_interferences(block_list: CFGBlockList) -> Dict[var_id_T, Set[var_id_T]]:
+    """
+    For each phi def handled in memory, the values that are live when its slot is written by the copy at
+    the end of a predecessor, apart from the argument copied (which can share its slot). The relation is
+    symmetric, so it can be queried when colouring any of the two values
+    """
+    memory_values = set()
+    for block in block_list.blocks.values():
+        memory_values.update(block.greedy_info.phi_defs_to_solve)
+        for instr_id in block.greedy_info.greedy_ids:
+            if instr_id.startswith("VSET") or instr_id.startswith("DUP-VSET"):
+                memory_values.add(extract_value_from_pseudo_instr(instr_id))
+
+    interferences: Dict[var_id_T, Set[var_id_T]] = {}
+    for block_id, block in block_list.blocks.items():
+        # Values live after the parallel copy at the end of the block (not only used by the copies)
+        live_after_copies = set()
+        for successor_id in block.successors:
+            successor = block_list.get_block(successor_id)
+            live_after_copies |= successor.greedy_info.memory_live_in - successor.greedy_info.phi_defs_to_solve
+
+        # All the phi defs written at the end of the block (both from memory and through DUP)
+        for successor_id in block.successors:
+            successor = block_list.get_block(successor_id)
+            if not successor.entries:
+                continue
+            entry_idx = successor.entries.index(block_id)
+            for phi_instr in successor.phi_instructions():
+                phi_def = phi_instr.out_args[0]
+                if phi_def not in successor.greedy_info.phi_defs_to_solve:
+                    continue
+                argument = phi_instr.in_args[entry_idx]
+                for value in live_after_copies:
+                    if value != argument and value != phi_def:
+                        interferences.setdefault(phi_def, set()).add(value)
+                        interferences.setdefault(value, set()).add(phi_def)
+    return interferences
 
 
 class TreeScan:
@@ -37,84 +85,77 @@ class TreeScan:
         # From which constant the assignments can be performed
         self._max_constant = max_constant
 
-    def _assign_color(self, block_name: block_id_T, color_assignment: ColourAssignment, available: List[bool]):
+        # Extra interferences due to the placement of the phi copies
+        self._copy_interferences = phi_copy_interferences(block_list)
+
+    def _assign_color(self, block_name: block_id_T, color_assignment: ColourAssignment, owners: owners_T):
+        """
+        Colours the values defined in the block and returns the owners of the colours at the end of it
+        """
         block = self._block_list.get_block(block_name)
         greedy_info = block.greedy_info
 
-        # First, we process the phi instructions that we must handle
+        # Values that are not live-in are dead in the whole dominator subtree of the block
+        color_assignment.release_dead(owners, greedy_info.memory_live_in)
+
+        # The phi defs handled in memory are defined at the entry of the block
         for phi_instr in block.phi_instructions():
-            out_arg = phi_instr.out_args[0]
-            if out_arg in greedy_info.phi_defs_to_solve:
-                # First, we must check the arguments
-                for in_arg in phi_instr.in_args:
+            phi_def = phi_instr.out_args[0]
+            if phi_def in greedy_info.phi_defs_to_solve:
+                self._biased_pick_color(phi_def, color_assignment, owners)
 
-                    # Case -1: it corresponds to a phi argument
-                    # and it has a previous color (might not be if just initialized in the previous branch)
-                    if (-1, in_arg) in greedy_info.last_use and color_assignment.is_coloured(in_arg):
-                        color_assignment.release_colour(in_arg, available)
-
-                # Then we assign the generated value
-                self._biased_pick_color(phi_instr.out_args[0], color_assignment, available)
-
-        # Then, we update the greedy ids
         for i, instr_id in enumerate(greedy_info.greedy_ids):
-            # First process the values in
-            if instr_id.startswith("VGET"):
-                # Just release the colour if it is the last use
-                if i in greedy_info.last_use:
-                    var = extract_value_from_pseudo_instr(instr_id)
-                    color_assignment.release_colour(var, available)
+            # Both VSET and DUP-VSET define a new value (a single time)
+            if instr_id.startswith("VSET") or instr_id.startswith("DUP-VSET"):
+                self._biased_pick_color(extract_value_from_pseudo_instr(instr_id), color_assignment, owners)
 
-            # Both VSET and DUP-VSET are handled accordingly
-            elif "VSET" in instr_id:
-                var = extract_value_from_pseudo_instr(instr_id)
-                self._biased_pick_color(var, color_assignment, available)
+            # Release the colour after the last access to a value that is not live-out
+            if i in greedy_info.last_use:
+                color_assignment.release_colour(extract_value_from_pseudo_instr(instr_id), owners)
 
-        # Finally, we check the values that are passed to phi-functions
-        for value in greedy_info.virtual_copies:
-            # Case -2: PhiDefs
-            if (-2, value) in greedy_info.last_use:
-                color_assignment.release_colour(value, available)
-
-        # We invoke the call to the children
-        for successor in self._block_list.dominant_tree.successors(block_name):
-            self._assign_color(successor, color_assignment, available.copy())
+        return owners
 
     def _biased_pick_color(self, var: var_id_T, color_assignment: ColourAssignment,
-                           available: List[bool]):
+                           owners: owners_T):
         """
         Picks a colour for var. If var belongs to a phi web, it reuses the most recent colour
         of that web that is still available, so that the phi-related values share the same
-        memory slot and no copies are needed. Otherwise, it picks the first available colour
+        memory slot and no copies are needed. Otherwise, it picks the first available colour.
+        Colours of values that interfere due to the phi copies are never picked
         """
+        forbidden = {color_assignment.color(value) for value in self._copy_interferences.get(var, ())
+                     if color_assignment.is_coloured(value)}
+
         # Only try to bias the colouring for variables with conflicts
         if self._phi_webs.has_element(var):
             phi_class = self._phi_webs.find_set(var)
-            # We try to bias the assignment. Exactly one colour must be picked: marking several
-            # colours as taken would leave them unavailable for the rest of the subtree without
-            # any variable owning them (and thus, never released)
+            # Exactly one colour must be picked
             for biased_color in reversed(self._phi_class2colors[phi_class]):
-                # Colours created in a sibling subtree might not be in this copy of available.
-                # We conservatively skip them
-                if biased_color < len(available) and available[biased_color]:
-                    color_assignment.pick_specific_colour(var, available, biased_color)
+                if color_assignment.is_available(biased_color, owners) and biased_color not in forbidden:
+                    color_assignment.pick_specific_colour(var, owners, biased_color)
                     return
 
             # Otherwise, just pick a colour
             # TODO: heuristics for picking a color
-            new_color = color_assignment.pick_available_colour(var, available)
+            new_color = color_assignment.pick_available_colour(var, owners, forbidden)
             self._phi_class2colors[phi_class].append(new_color)
         else:
-            color_assignment.pick_available_colour(var, available)
+            color_assignment.pick_available_colour(var, owners, forbidden)
 
     def _tree_scan_with_last_uses(self) -> ColourAssignment:
         """
         Adapted from Algorithm 22.1: Tree scan in page 309. Given the block list,
-        and the list of program points, registers are assigned based on colours
+        and the list of program points, registers are assigned based on colours.
+        The dominator tree is traversed in preorder (iteratively, to avoid the recursion
+        limit), passing a copy of the owners of the colours to each child
         """
         color_assignment = ColourAssignment()
-        # Initial call with the start block and an empty list of available blocks
-        self._assign_color(self._block_list.start_block, color_assignment, [True] * self._num_colors_max)
+        pending = [(self._block_list.start_block, [None] * self._num_colors_max)]
+        while pending:
+            block_name, owners = pending.pop()
+            owners_at_exit = self._assign_color(block_name, color_assignment, owners)
+            for successor in sorted(self._block_list.dominant_tree.successors(block_name), reverse=True):
+                pending.append((successor, owners_at_exit.copy()))
         return color_assignment
 
     # Last step: replacing the corresponding values by colour
@@ -249,7 +290,9 @@ class TreeScan:
             # Finally, we solve the remaining values one by one, so that
             # they can always be dupped and assigned to the corresponding register
             constant_dst = color2constant[color_dst]
-            ids_for_copies.extend(self._emit_dup_vset(constant_dst, pos_to_dup + 1))
+            # pos_to_dup is the (0-based) position of the value at the end of the block, as in DUP-VSET
+            # (the stores of the previous copies leave the stack as it was)
+            ids_for_copies.extend(self._emit_dup_vset(constant_dst, pos_to_dup))
 
         return ids_for_copies
 

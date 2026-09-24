@@ -15,6 +15,8 @@ from reparation.tree_scan import TreeScan, ColourAssignment
 from reparation.utils import extract_value_from_pseudo_instr
 from graphs.algorithms import information_on_graph
 from analysis.memory_slots_validation import validate_memory_slots
+from reparation.memory_values import ensure_single_definitions
+from reparation.memory_liveness import compute_memory_liveness, validate_memory_liveness
 import global_params.constants as constants
 
 
@@ -90,6 +92,15 @@ def repair_unreachable_blocklist(cfg_blocklist: CFGBlockList,
 
     phi_webs, num_vals = repair_unreachable(cfg_blocklist, set(elements_to_fix.keys()))
 
+    # Every value stored in memory must have a single definition before computing its liveness:
+    # redundant stores are removed and the local ranges started by a VSET are renamed
+    num_redundant_stores = ensure_single_definitions(cfg_blocklist)
+
+    # Liveness of the memory values, which determines where their colours are released
+    compute_memory_liveness(cfg_blocklist)
+    if constants.DEBUG:
+        validate_memory_liveness(cfg_blocklist)
+
     if path_to_files is not None:
         repaired = path_to_files.joinpath("repaired_vget")
         repaired.mkdir(exist_ok=True, parents=True)
@@ -102,10 +113,12 @@ def repair_unreachable_blocklist(cfg_blocklist: CFGBlockList,
         if constants.DEBUG:
             validate_memory_slots(cfg_blocklist)
         max_constant = hex(int(used_constants, 16) + 32)[2:]
-        return extract_statistics(cfg_blocklist.name, phi_webs, color_assignment, initial_fix), max_constant
+        return extract_statistics(cfg_blocklist.name, phi_webs, color_assignment, initial_fix,
+                                  num_redundant_stores), max_constant
     else:
         return {"name": cfg_blocklist.name, "num_phi": 0, "num_assigned": 0, "num_colors": 0,
-                "memory_slots": 0, "before_constants": initial_fix}, forbidden_constants
+                "memory_slots": 0, "redundant_stores": num_redundant_stores,
+                "before_constants": initial_fix}, forbidden_constants
 
 
 def get_first_constant(cfg_blocklist: CFGBlockList):
@@ -255,9 +268,11 @@ def _represent_greedy_info(block_name: block_id_T, greedy_info: GreedyInfo) -> s
     return block_name + '\n' + '\n'.join(greedy_info.greedy_ids)
 
 
-def extract_statistics(name: str, phi_web: PhiWebs, color_assignment: ColourAssignment, initial_fix: int):
+def extract_statistics(name: str, phi_web: PhiWebs, color_assignment: ColourAssignment, initial_fix: int,
+                       num_redundant_stores: int):
     return {"name": name, "num_phi": phi_web.num_elements,
             "num_assigned": color_assignment.num_assigned,
             "num_colors": color_assignment.num_regs,
             "memory_slots": color_assignment.num_memory_slots,
+            "redundant_stores": num_redundant_stores,
             "before_constants": initial_fix}

@@ -58,15 +58,18 @@ class GreedyInfo:
         # is reachable or not (true or false)
         self.virtual_copies: Dict[var_id_T, bool] = dict()
 
-        # Position of VGETs s.t. it corresponds to the last use according
-        # to the dominator tree. Updated when inserting the DUP-VSETs
-        # Also contains values (-1, var) and (-2, var) to represent both that
-        # the last use corresponds to a phi-arg (-1) or a phi
-        self.last_use: Set[Union[int, Tuple[int, var_id_T]]] = set()
+        # Positions in the greedy ids after which the accessed memory value is no longer live
+        # (computed in reparation.memory_liveness)
+        self.last_use: Set[int] = set()
 
         # Phi defs defined in the block that must be solved as part
         # of the reparation process
         self.phi_defs_to_solve: Set[var_id_T] = set()
+
+        # Values stored in memory that are live at the entry and exit of the block
+        # (see reparation.memory_liveness)
+        self.memory_live_in: Set[var_id_T] = set()
+        self.memory_live_out: Set[var_id_T] = set()
 
     def _initial_get_count(self):
         """
