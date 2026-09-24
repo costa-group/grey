@@ -99,7 +99,7 @@ def repair_unreachable_blocklist(cfg_blocklist: CFGBlockList,
         return extract_statistics(cfg_blocklist.name, phi_webs, color_assignment, initial_fix), max_constant
     else:
         return {"name": cfg_blocklist.name, "num_phi": 0, "num_assigned": 0, "num_colors": 0,
-                "before_constants": initial_fix}, forbidden_constants
+                "memory_slots": 0, "before_constants": initial_fix}, forbidden_constants
 
 
 def get_first_constant(cfg_blocklist: CFGBlockList):
@@ -253,4 +253,5 @@ def extract_statistics(name: str, phi_web: PhiWebs, color_assignment: ColourAssi
     return {"name": name, "num_phi": phi_web.num_elements,
             "num_assigned": color_assignment.num_assigned,
             "num_colors": color_assignment.num_regs,
+            "memory_slots": color_assignment.num_memory_slots,
             "before_constants": initial_fix}

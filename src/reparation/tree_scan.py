@@ -83,15 +83,22 @@ class TreeScan:
     def _biased_pick_color(self, var: var_id_T, color_assignment: ColourAssignment,
                            available: List[bool]):
         """
-        Picks the class colour (if any) to favour the encoding
+        Picks a colour for var. If var belongs to a phi web, it reuses the most recent colour
+        of that web that is still available, so that the phi-related values share the same
+        memory slot and no copies are needed. Otherwise, it picks the first available colour
         """
         # Only try to bias the colouring for variables with conflicts
         if self._phi_webs.has_element(var):
             phi_class = self._phi_webs.find_set(var)
-            # We try to bias the assignment
+            # We try to bias the assignment. Exactly one colour must be picked: marking several
+            # colours as taken would leave them unavailable for the rest of the subtree without
+            # any variable owning them (and thus, never released)
             for biased_color in reversed(self._phi_class2colors[phi_class]):
-                if available[biased_color]:
+                # Colours created in a sibling subtree might not be in this copy of available.
+                # We conservatively skip them
+                if biased_color < len(available) and available[biased_color]:
                     color_assignment.pick_specific_colour(var, available, biased_color)
+                    return
 
             # Otherwise, just pick a colour
             # TODO: heuristics for picking a color

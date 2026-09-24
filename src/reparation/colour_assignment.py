@@ -26,6 +26,14 @@ class ColourAssignment:
         return len(set(self._var2color.values()))
 
     @property
+    def num_memory_slots(self) -> int:
+        """
+        Number of memory slots reserved, i.e. the highest colour used plus one. Differs from
+        num_regs when some intermediate colour ends up with no variable assigned
+        """
+        return max(self._var2color.values(), default=-1) + 1
+
+    @property
     def num_assigned(self):
         return len(self._var2color)
 
