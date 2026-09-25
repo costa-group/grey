@@ -209,6 +209,12 @@ def traverse_cfg_block_list(block_list: CFGBlockList, function_name2entry: Dict[
         next_block = pending_blocks.pop()
 
         block_id = next_block.get_block_id()
+
+        # A block can be pushed several times before being visited (e.g. when it is the jump target of
+        # several blocks), so we skip the ones already generated
+        if block_id in visited:
+            continue
+
         visited.append(block_id)
         
         asm_index = len(asm_instructions)
