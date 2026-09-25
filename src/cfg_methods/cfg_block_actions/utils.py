@@ -47,3 +47,25 @@ def modify_successors(block_to_modify: block_id_T, previous_successor_id: Option
         assert falls_to == previous_successor_id, \
             f"Incoherent CFG: the predecessor block {block_to_modify} must reach block {previous_successor_id}"
         pred_block.set_falls_to(new_successor_id)
+
+
+def remove_comes_from(block_to_modify: block_id_T, pred_id: block_id_T, cfg_block_list: CFGBlockList) -> None:
+    """
+    Removes the predecessor "pred_id" from the comes from and the entries of the block, together with the
+    argument of every phi-function associated to that entry
+    """
+    block = cfg_block_list.blocks[block_to_modify]
+    comes_from = block.get_comes_from()
+    assert pred_id in comes_from, f"Comes from list {comes_from} of {block_to_modify} does not contain {pred_id}"
+    block.set_comes_from([pred_block for pred_block in comes_from if pred_block != pred_id])
+
+    phi_instrs = block.phi_instructions()
+    if pred_id in block.entries:
+        assert block.entries.count(pred_id) == 1, f"Block {pred_id} appears several times in the entries " \
+                                                  f"of {block_to_modify}"
+        entry_idx = block.entries.index(pred_id)
+        for phi_instr in phi_instrs:
+            phi_instr.set_in_args(phi_instr.get_in_args()[:entry_idx] + phi_instr.get_in_args()[entry_idx + 1:])
+        block.entries = block.entries[:entry_idx] + block.entries[entry_idx + 1:]
+    else:
+        assert len(phi_instrs) == 0, f"Block {pred_id} must appear in the entries of {block_to_modify}"

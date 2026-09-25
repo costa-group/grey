@@ -14,6 +14,7 @@ from cfg_methods.jump_insertion import insert_jumps_tags_cfg
 from cfg_methods.variable_renaming import rename_variables_cfg
 from cfg_methods.constants_insertion import insert_variables_for_constants
 from cfg_methods.minimizing_constants_insertion import insert_variables_for_constants_propagated
+from cfg_methods.equivalent_blocks_merging import merge_equivalent_blocks_cfg
 
 
 def preprocess_cfg(cfg: CFG, dot_file_dir: Path, args: Namespace) -> Dict[str, Dict[str, int]]:
@@ -38,6 +39,13 @@ def preprocess_cfg(cfg: CFG, dot_file_dir: Path, args: Namespace) -> Dict[str, D
     combine_remove_blocks_cfg(cfg)
     if args.visualize:
         dot_from_analysis(cfg, dot_file_dir.joinpath("combined"))
+
+    if getattr(args, "merge_equivalent", True):
+        # We merge the equivalent blocks in the acyclic tails of the CFG. It must be done before
+        # introducing the jumps and tags, as the removed blocks would need no tag
+        merge_equivalent_blocks_cfg(cfg)
+        if args.visualize:
+            dot_from_analysis(cfg, dot_file_dir.joinpath("merged_equivalent"))
 
     # We introduce the jumps, tags and the stack requirements for each block
     tag_dict = insert_jumps_tags_cfg(cfg)
