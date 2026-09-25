@@ -116,6 +116,15 @@ class LayoutGeneration:
 
         self._loop_nesting_forest = compute_loop_nesting_forest_graph(self._cfg_graph)
 
+        # Blocks from which the function can return. The remaining ones end up in a terminal instruction
+        # (e.g. a revert) and never return to the caller, so they can leave junk in the stack as the
+        # main component does
+        function_return_blocks = [block_id for block_id, block in block_list.blocks.items()
+                                  if block.get_jump_type() == "FunctionReturn"]
+        self._reaches_function_return = set(function_return_blocks)
+        for block_id in function_return_blocks:
+            self._reaches_function_return.update(nx.ancestors(self._cfg_graph, block_id))
+
         if constants.DEBUG:
             _loop_nesting_dir = name.joinpath("loop-nesting")
             _loop_nesting_dir.mkdir(exist_ok=True, parents=True)
@@ -128,7 +137,13 @@ class LayoutGeneration:
         self._unification_dict = unification_block_dict(block_list)
 
     def _can_have_junk(self, block_id):
-        return self._is_main_component and block_id not in self._loop_nesting_forest and self._junk
+        """
+        Junk can be left in the stack in blocks that never return to a caller (all the blocks in the main
+        component and the blocks in functions that cannot reach a function return), except inside loops,
+        where it would accumulate across iterations
+        """
+        return self._junk and block_id not in self._loop_nesting_forest and \
+            (self._is_main_component or block_id not in self._reaches_function_return)
 
     def _construct_code_from_block(self, block: CFGBlock, input_stacks: Dict[str, List[str]],
                                    output_stacks: Dict[str, List[str]]):
