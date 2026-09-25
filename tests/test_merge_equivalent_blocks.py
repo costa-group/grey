@@ -258,3 +258,55 @@ class TestMergeEquivalentBlocks:
                                       [("start", "r1", "jumps_to"), ("start", "x", "falls_to"),
                                        ("x", "r2", "jumps_to"), ("x", "y", "falls_to")])
         assert merge(block_list) == 0
+
+    def test_whole_region_merged(self):
+        # Two identical functions: start -> (p1, p2), p_i -> (revert_i, cont_i), where revert_i is a
+        # revert(0, 0) and cont_i a long terminal block. Merging the reverts alone does not pay off, but it
+        # allows merging p1 and p2, so the whole region is merged
+        start = CFGBlock("start", [CFGInstruction("calldataload", ["0x00"], ["v0"])], "conditional", dict())
+        start.set_condition("v0")
+        q1 = CFGBlock("q1", [], "unconditional", dict())
+        q2 = CFGBlock("q2", [], "unconditional", dict())
+        p1 = CFGBlock("p1", [CFGInstruction("callvalue", [], ["v1"])], "conditional", dict())
+        p1.set_condition("v1")
+        p2 = CFGBlock("p2", [CFGInstruction("callvalue", [], ["v2"])], "conditional", dict())
+        p2.set_condition("v2")
+        revert_1 = CFGBlock("revert_1", [CFGInstruction("revert", ["0x00", "0x00"], [])], "terminal", dict())
+        revert_2 = CFGBlock("revert_2", [CFGInstruction("revert", ["0x00", "0x00"], [])], "terminal", dict())
+        block_list = build_block_list([start, q1, q2, p1, p2, revert_1, revert_2,
+                                       revert_block("cont_1", "v1"), revert_block("cont_2", "v2")],
+                                      [("start", "q1", "falls_to"), ("start", "q2", "jumps_to"),
+                                       ("q1", "p1", "jumps_to"), ("q2", "p2", "jumps_to"),
+                                       ("p1", "revert_1", "jumps_to"), ("p1", "cont_1", "falls_to"),
+                                       ("p2", "revert_2", "jumps_to"), ("p2", "cont_2", "falls_to")])
+        assert merge(block_list) == 3
+        merged_p = survivor(block_list, "p1", "p2")
+        survivor(block_list, "revert_1", "revert_2")
+        survivor(block_list, "cont_1", "cont_2")
+        assert sorted(block_list.get_block(merged_p).get_comes_from()) == ["q1", "q2"]
+        # The reverts and continuations only have the merged p as predecessor, so no edge block is needed
+        assert len(block_list.blocks) == 6
+        check_coherence(block_list)
+
+    def test_region_overhead_exceeds_saving(self):
+        # revert(0, 0) blocks reached from conditional jumps are not merged (their region has no other merge),
+        # whereas an independent profitable region in the same block list is
+        start = CFGBlock("start", [CFGInstruction("calldataload", ["0x00"], ["v0"])], "conditional", dict())
+        start.set_condition("v0")
+        x = CFGBlock("x", [CFGInstruction("calldataload", ["0x20"], ["v1"])], "conditional", dict())
+        x.set_condition("v1")
+        z = CFGBlock("z", [CFGInstruction("calldataload", ["0x40"], ["v2"])], "conditional", dict())
+        z.set_condition("v2")
+        r1 = CFGBlock("r1", [CFGInstruction("revert", ["0x00", "0x00"], [])], "terminal", dict())
+        r2 = CFGBlock("r2", [CFGInstruction("revert", ["0x00", "0x00"], [])], "terminal", dict())
+        block_list = build_block_list([start, x, z, r1, r2, revert_block("long_1", "v1"),
+                                       revert_block("long_2", "v1")],
+                                      [("start", "x", "falls_to"), ("start", "z", "jumps_to"),
+                                       ("x", "r1", "jumps_to"), ("x", "long_1", "falls_to"),
+                                       ("z", "r2", "jumps_to"), ("z", "long_2", "falls_to")])
+        # x and z are not equivalent (different constants), so each merge forms its own region
+        assert merge(block_list) == 1
+        assert "r1" in block_list.blocks and "r2" in block_list.blocks
+        survivor(block_list, "long_1", "long_2")
+        check_coherence(block_list)
+
