@@ -14,7 +14,7 @@ The results are stored in the GreedyInfo of each block:
   - last_use: positions in the greedy ids after which a value is no longer live (so its colour can
     be released within the block).
 """
-from typing import Dict, List, Set, Tuple
+from typing import Dict, List, Set, Tuple, Optional
 
 from global_params.types import block_id_T, var_id_T
 from parser.cfg_block_list import CFGBlockList
@@ -25,11 +25,43 @@ def _is_memory_def(instr_id: str) -> bool:
     return instr_id.startswith("VSET") or instr_id.startswith("DUP-VSET")
 
 
+def memory_definition_blocks(block_list: CFGBlockList) -> Dict[var_id_T, block_id_T]:
+    """
+    Block in which each memory value is defined: its (unique) VSET or DUP-VSET, or the block of the phi-function
+    for the phi defs handled in memory
+    """
+    definition_block: Dict[var_id_T, block_id_T] = {}
+    for block_id, block in block_list.blocks.items():
+        for phi_def in block.greedy_info.phi_defs_to_solve:
+            definition_block[phi_def] = block_id
+        for instr_id in block.greedy_info.greedy_ids:
+            if _is_memory_def(instr_id):
+                definition_block[extract_value_from_pseudo_instr(instr_id)] = block_id
+    return definition_block
+
+
+def _dominates(block_list: CFGBlockList, dominator_id: block_id_T, block_id: block_id_T) -> bool:
+    """
+    Whether dominator_id dominates block_id (reflexive), walking up the dominator tree
+    """
+    dominator_tree = block_list.dominant_tree
+    current: Optional[block_id_T] = block_id
+    while current is not None:
+        if current == dominator_id:
+            return True
+        immediate_dominators = list(dominator_tree.predecessors(current))
+        current = immediate_dominators[0] if immediate_dominators else None
+    return False
+
+
 def phi_copies_from_memory(block_list: CFGBlockList, block_id: block_id_T,
-                           memory_values: Set[var_id_T]) -> List[Tuple[block_id_T, var_id_T, var_id_T]]:
+                           definition_block: Dict[var_id_T, block_id_T]) -> List[Tuple[block_id_T, var_id_T, var_id_T]]:
     """
     Returns the copies (successor, phi def, argument) performed at the end of the block for the phi defs of
-    its successors handled in memory, whose argument is also stored in memory (i.e. read from its slot)
+    its successors handled in memory, whose argument is read from its memory slot. The argument must be in
+    memory at the end of the block, i.e. its memory definition must dominate the block. Otherwise (e.g. it is
+    stored later on, in another path), its slot might hold other values here and the argument is copied from
+    the stack instead
     """
     copies = []
     block = block_list.get_block(block_id)
@@ -42,7 +74,8 @@ def phi_copies_from_memory(block_list: CFGBlockList, block_id: block_id_T,
             phi_def = phi_instr.out_args[0]
             if phi_def in successor.greedy_info.phi_defs_to_solve:
                 argument = phi_instr.in_args[entry_idx]
-                if argument in memory_values:
+                argument_block = definition_block.get(argument)
+                if argument_block is not None and _dominates(block_list, argument_block, block_id):
                     copies.append((successor_id, phi_def, argument))
     return copies
 
@@ -99,7 +132,7 @@ def compute_memory_liveness(block_list: CFGBlockList) -> None:
     # Algorithm 9.9: values processed one by one (sorted, to be deterministic)
     phi_uses: Dict[block_id_T, Set[var_id_T]] = {block_id: set() for block_id in blocks}
     for block_id in blocks:
-        for _, _, argument in phi_copies_from_memory(block_list, block_id, memory_values):
+        for _, _, argument in phi_copies_from_memory(block_list, block_id, definition_block):
             phi_uses[block_id].add(argument)
 
     for value in sorted(memory_values):
@@ -137,11 +170,7 @@ def validate_memory_liveness(block_list: CFGBlockList) -> None:
     data-flow equations (Sect. 9.2) over the same definitions and uses
     """
     blocks = block_list.blocks
-    memory_values = {value for block in blocks.values() for value in block.greedy_info.phi_defs_to_solve}
-    for block in blocks.values():
-        for instr_id in block.greedy_info.greedy_ids:
-            if _is_memory_def(instr_id):
-                memory_values.add(extract_value_from_pseudo_instr(instr_id))
+    definition_blocks = memory_definition_blocks(block_list)
 
     defs, upward_exposed, phi_defs, phi_uses = {}, {}, {}, {}
     for block_id, block in blocks.items():
@@ -155,7 +184,7 @@ def validate_memory_liveness(block_list: CFGBlockList) -> None:
                 upward_exposed[block_id].add(value)
         phi_defs[block_id] = set(greedy_info.phi_defs_to_solve)
         phi_uses[block_id] = {argument for _, _, argument in
-                              phi_copies_from_memory(block_list, block_id, memory_values)}
+                              phi_copies_from_memory(block_list, block_id, definition_blocks)}
 
     live_in = {block_id: set() for block_id in blocks}
     live_out = {block_id: set() for block_id in blocks}

@@ -20,6 +20,7 @@ from parser.cfg_block_list import CFGBlockList
 from reparation.colour_assignment import ColourAssignment, owners_T
 from reparation.phi_webs import PhiWebs
 from reparation.utils import extract_value_from_pseudo_instr, extract_dup_pos_from_dup_vset
+from reparation.memory_liveness import memory_definition_blocks, phi_copies_from_memory
 
 
 def phi_copy_interferences(block_list: CFGBlockList) -> Dict[var_id_T, Set[var_id_T]]:
@@ -87,6 +88,12 @@ class TreeScan:
 
         # Extra interferences due to the placement of the phi copies
         self._copy_interferences = phi_copy_interferences(block_list)
+
+        # Phi arguments copied from memory at the end of each block (the same criterion as the memory liveness)
+        definition_blocks = memory_definition_blocks(block_list)
+        self._arguments_from_memory: Dict[block_id_T, Set[var_id_T]] = {
+            block_id: {argument for _, _, argument in phi_copies_from_memory(block_list, block_id, definition_blocks)}
+            for block_id in block_list.blocks}
 
     def _assign_color(self, block_name: block_id_T, color_assignment: ColourAssignment, owners: owners_T):
         """
@@ -225,16 +232,16 @@ class TreeScan:
                                 color_phi = color_assignment.color(phi_def)
                                 phi_arg = phi_instr.in_args[entry_idx]
 
-                                # The phi arg might not have a color
-                                # is we could just duplicate it
-                                if color_assignment.is_coloured(phi_arg):
+                                # The phi arg is read from memory only if it is stored in a block that dominates
+                                # the current one (otherwise, its slot might hold other values at this point)
+                                if phi_arg in self._arguments_from_memory[block_name]:
                                     color_phi_arg = color_assignment.color(phi_arg)
 
                                     # They have different colours, so we need to emit a copy.
                                     if color_phi_arg != color_phi:
                                         copies_to_manage_regs[phi_arg] = (color_phi, color_phi_arg)
 
-                                # Otherwise, we just need to duplicate it
+                                # Otherwise, it is reachable in the stack: we just need to duplicate it
                                 # and put it in their position. We store the position to dup
                                 else:
                                     dup_pos, _, is_last = greedy_info.reachable[phi_arg]
