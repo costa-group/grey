@@ -2,7 +2,7 @@
 Module that contains the methods to generate stack layouts from the liveness information.
 """
 import collections
-from typing import Dict, List, Set, Tuple, Counter
+from typing import Dict, List, Set, Tuple, Counter, Callable, Optional
 import networkx as nx
 from itertools import zip_longest
 
@@ -10,8 +10,12 @@ from global_params.types import var_id_T, block_id_T
 import global_params.constants as constants
 from parser.cfg_block_list import CFGBlockList
 from parser.cfg_instruction import CFGInstruction
+from parser.cfg_block import CFGBlock
 from liveness.liveness_analysis import LivenessAnalysisInfoSSA
-from liveness.utils import trim_none, combine_lists_with_order, combine_lists_with_junk
+from liveness.utils import trim_none, combine_lists_with_order, combine_lists_with_junk, merge_list_swapping_topmost
+
+# Event of the in-order simulation of a block: ("produce" | "use" | "last_use", variable)
+event_T = Tuple[str, var_id_T]
 
 
 def compute_variable_depth(liveness_info: Dict[str, LivenessAnalysisInfoSSA], topological_order: List) -> Dict[
@@ -97,12 +101,23 @@ def unification_block_dict(block_list: CFGBlockList) -> Dict[block_id_T, Tuple[b
 
 def output_stack_layout(input_stack: List[str], final_stack_elements: List[str],
                         live_vars: Set[str], variable_depth_info: Dict[str, Tuple],
-                        can_have_junk: bool) -> Tuple[List[str], int]:
+                        can_have_junk: bool, junk_strategy: str = "current",
+                        events: Optional[List[event_T]] = None,
+                        order_new_vars: Optional[Callable[[Set[var_id_T]], List[var_id_T]]] = None) -> Tuple[List[str], int]:
     """
     Generates the output stack layout before and after the last instruction
     (i.e. the one not optimized by the greedy algorithm), according to the variables
-    in live vars, the variables that must appear at the top of the stack and the information from the input stack
+    in live vars, the variables that must appear at the top of the stack and the information from the input stack.
+    The "simulated" junk strategy (only when junk is allowed and the events of the block are given) is described
+    in simulated_junk_layout. order_new_vars sorts the new variables from top to bottom (h1 by default)
     """
+    if order_new_vars is None:
+        def order_new_vars(variables):
+            return h1_order(variables, variable_depth_info)
+
+    if junk_strategy == "simulated" and can_have_junk and events is not None:
+        return simulated_junk_layout(input_stack, final_stack_elements, live_vars, variable_depth_info,
+                                     events, order_new_vars)
 
     # We keep the variables in the input stack in the same order if they appear in the variable vars (so that we
     # don't need to move them elsewhere). It might contain None variables if the corresponding variables are consumed
@@ -122,8 +137,8 @@ def output_stack_layout(input_stack: List[str], final_stack_elements: List[str],
 
     vars_to_place = live_vars.difference(set(final_stack_elements + bottom_output_stack))
 
-    # Sort the vars to place according to the variable depth info order in reversed order
-    vars_to_place_sorted = sorted(vars_to_place, key=lambda x: (variable_depth_info.get(x, (-1, )), x))
+    # Sort the vars to place (from top to bottom)
+    vars_to_place_sorted = order_new_vars(vars_to_place)
 
     # First case: there are more elements than gaps. Hence, we keep the
     # same order
@@ -462,3 +477,155 @@ def forget_values(input_stack: List[var_id_T], live_vars: Set[var_id_T]) -> List
     while i >= 0 and input_stack[i] not in live_vars:
         i -= 1
     return input_stack[:i+1]
+
+
+# Alternative strategies for placing the junk and ordering the new variables (see output_stack_layout).
+# They are experimental and selected with --junk-strategy and --new-vars-order
+JUNK_STRATEGIES = ["current", "simulated"]
+NEW_VARS_ORDERS = ["h1", "tiers"]
+
+# Estimated cost of a hole that cannot be filled for free (a SWAP to reach it and a POP) and of an
+# invalidated live variable (a DUP to place it again on top)
+UNFILLABLE_HOLE_COST = 2
+INVALIDATED_VARIABLE_COST = 1
+
+
+
+def block_events(block: CFGBlock, live_out: Set[var_id_T]) -> List[event_T]:
+    """
+    Sequence of events of a block assuming the instructions are computed in order (and then the split
+    instruction): ("produce", v) for each value computed, ("last_use", v) for the last use of a variable that
+    is not live at the exit, and ("use", v) for any other use. The arguments of an instruction appear in the
+    order of the stack (the first one is the topmost)
+    """
+    uses_and_produces: List[event_T] = []
+    for instr in block.instructions_to_synthesize:
+        uses_and_produces.extend(("use", in_arg) for in_arg in instr.get_in_args() if not in_arg.startswith("0x"))
+        uses_and_produces.extend(("produce", out_arg) for out_arg in instr.get_out_args())
+    if block.split_instruction is not None:
+        uses_and_produces.extend(("use", in_arg) for in_arg in block.split_instruction.get_in_args()
+                                 if not in_arg.startswith("0x"))
+
+    last_use_idx = {variable: i for i, (kind, variable) in enumerate(uses_and_produces) if kind == "use"}
+    return [("last_use", variable) if kind == "use" and last_use_idx[variable] == i and variable not in live_out
+            else (kind, variable) for i, (kind, variable) in enumerate(uses_and_produces)]
+
+
+def h1_order(variables: Set[var_id_T], variable_depth_info: Dict[str, Tuple]) -> List[var_id_T]:
+    """
+    Order of heuristics h1 from top to bottom: the variables used first are placed on top
+    """
+    return sorted(variables, key=lambda x: (variable_depth_info.get(x, (-1, )), x))
+
+
+def tiers_order(variables: Set[var_id_T], variable_depth_info: Dict[str, Tuple],
+                successor_events: Optional[List[event_T]], successor_live_out: Optional[Set[var_id_T]]) -> List[var_id_T]:
+    """
+    Order in three tiers from top to bottom, according to how the (single) successor uses the variables:
+    1. The ones the successor consumes first, in the order it consumes them (they are removed from the top,
+       with no swap and no hole).
+    2. The ones that remain live after the successor, following h1.
+    3. The ones that die in the successor but are not consumed from the top: as deep as possible, so that
+       their holes stay close to the junk.
+    Without a single successor, it is the h1 order
+    """
+    if successor_events is None:
+        return h1_order(variables, variable_depth_info)
+
+    first_consumed = []
+    for kind, variable in successor_events:
+        if kind == "last_use" and variable in variables and variable not in first_consumed:
+            first_consumed.append(variable)
+        else:
+            break
+
+    remaining = variables.difference(first_consumed)
+    long_lived = {variable for variable in remaining if variable in successor_live_out}
+    dying = remaining.difference(long_lived)
+    return first_consumed + h1_order(long_lived, variable_depth_info) + h1_order(dying, variable_depth_info)
+
+
+def simulated_junk_layout(input_stack: List[var_id_T], final_stack_elements: List[var_id_T],
+                          live_vars: Set[var_id_T], variable_depth_info: Dict[str, Tuple],
+                          events: List[event_T], order_new_vars: Callable[[Set[var_id_T]], List[var_id_T]]) \
+        -> Tuple[List[var_id_T], int]:
+    """
+    Output stack layout keeping the functional bottom of the input stack and leaving junk only at the bottom
+    ("simulated" strategy). A hole (an input position whose variable is not live at the exit) can be filled for
+    free with a new value if the value is produced before the hole variable is consumed for the last time: the
+    swap that brings the consumed variable to the top places the new value in its position. Holes that cannot be
+    paired this way are "unfillable". The stack below the junk boundary is kept as junk: the boundary is placed
+    below a live (or paired) element followed by an unfillable hole, choosing the cheapest one according to the
+    unfillable holes left above (a swap and a pop each) and the live variables invalidated below (placed again on
+    top, retrieved with a dup). Returns the output stack and the index where the junk starts
+    """
+    # Relative order (top first) keeping the deepest copy of each live variable. Holes keep the variable
+    # they contained, to know when it is consumed
+    kept_vars = set()
+    reversed_slots = []
+    for variable in reversed(input_stack):
+        if variable in live_vars and variable not in kept_vars:
+            reversed_slots.append((variable, None))
+            kept_vars.add(variable)
+        else:
+            reversed_slots.append((None, variable))
+    slots = list(reversed(reversed_slots))
+
+    # The holes at the top are removed directly
+    first_slot = 0
+    while first_slot < len(slots) and slots[first_slot][0] is None:
+        first_slot += 1
+    slots = slots[first_slot:]
+    stack_offset = first_slot
+
+    new_vars = live_vars.difference(set(final_stack_elements).union(kept_vars))
+    deepest_first = list(reversed(order_new_vars(new_vars)))
+    depth_rank = {variable: i for i, variable in enumerate(deepest_first)}
+
+    # Pairing of holes with new values, simulating the events in order
+    hole_positions = collections.defaultdict(list)
+    for position, (variable, hole_variable) in enumerate(slots):
+        if variable is None and hole_variable not in live_vars:
+            hole_positions[hole_variable].append(position)
+
+    paired: Dict[int, var_id_T] = dict()
+    pool = []
+    for kind, variable in events:
+        if kind == "produce" and variable in new_vars:
+            pool.append(variable)
+        elif kind == "last_use" and hole_positions.get(variable):
+            if pool:
+                # The new value that would be placed deepest is the one that benefits most from the swap
+                chosen = min(pool, key=lambda x: depth_rank[x])
+                pool.remove(chosen)
+                # The deepest copy is the one that remains in the stack
+                paired[hole_positions[variable].pop()] = chosen
+
+    def is_unfillable(position: int) -> bool:
+        return slots[position][0] is None and position not in paired
+
+    # Candidate boundaries: no junk, or starting at an unfillable hole below a live or paired element
+    candidates = [len(slots)] + [position for position in range(1, len(slots))
+                                 if is_unfillable(position) and not is_unfillable(position - 1)]
+
+    def cost(boundary: int) -> int:
+        unfillable_above = sum(1 for position in range(boundary) if is_unfillable(position))
+        live_below = sum(1 for position in range(boundary, len(slots)) if slots[position][0] is not None)
+        return UNFILLABLE_HOLE_COST * unfillable_above + INVALIDATED_VARIABLE_COST * live_below
+
+    # Ties go to the deepest boundary, which invalidates fewer variables
+    boundary = min(candidates, key=lambda position: (cost(position), -position))
+
+    invalidated = [slots[position][0] for position in range(boundary, len(slots)) if slots[position][0] is not None]
+    # The new values paired with holes below the boundary lose their position (it becomes junk)
+    paired = {position: variable for position, variable in paired.items() if position < boundary}
+    unpaired_new = set(new_vars).difference(paired.values())
+
+    upper = [paired.get(position, slots[position][0]) for position in range(boundary)]
+    to_top = order_new_vars(unpaired_new.union(invalidated))
+
+    # The remaining unfillable holes above the boundary are closed moving the topmost elements
+    combined = merge_list_swapping_topmost(to_top + upper)
+    junk = input_stack[stack_offset + boundary:]
+
+    return final_stack_elements + combined + junk, len(final_stack_elements) + len(combined)

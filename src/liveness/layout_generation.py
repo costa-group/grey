@@ -28,7 +28,7 @@ from liveness.liveness_analysis import LivenessAnalysisInfoSSA, construct_analys
 from liveness.utils import functions_inputs_from_components
 from liveness.stack_layout_methods import (compute_variable_depth, output_stack_layout, unify_stacks_brothers,
                                            compute_block_level, unification_block_dict, propagate_output_stack,
-                                           forget_values, unify_stacks_dominant)
+                                           forget_values, unify_stacks_dominant, block_events, tiers_order)
 
 from timeit import default_timer as dtimer
 
@@ -71,7 +71,8 @@ class LayoutGeneration:
 
     def __init__(self, object_id: str, block_list: CFGBlockList, liveness_info: Dict[str, LivenessAnalysisInfoSSA],
                  function_inputs: Dict[component_name_T, List[var_id_T]], name: Path, is_main_component: bool,
-                 cfg_graph: Optional[nx.DiGraph] = None, visualize:bool = False, junk: bool = True):
+                 cfg_graph: Optional[nx.DiGraph] = None, visualize:bool = False, junk: bool = True,
+                 junk_strategy: str = "current", new_vars_order: str = "h1"):
         self._component_id = object_id
         self._block_list = block_list
         self._liveness_info = liveness_info
@@ -79,6 +80,9 @@ class LayoutGeneration:
         # We store if it is the main component in order to preserve the stack elements
         self._is_main_component = is_main_component
         self._junk = junk
+        # Experimental strategies for the junk and the order of the new variables (see output_stack_layout)
+        self._junk_strategy = junk_strategy
+        self._new_vars_order = new_vars_order
 
         if cfg_graph is None:
             self._cfg_graph = digraph_from_block_info(liveness_analysis_state.block_info
@@ -135,6 +139,19 @@ class LayoutGeneration:
 
         self._block_depth = compute_block_level(self._dominance_tree, self._start)
         self._unification_dict = unification_block_dict(block_list)
+
+    def _new_vars_order_function(self, block: CFGBlock):
+        """
+        Function that sorts the new variables placed in the output stack of the block (from top to bottom),
+        or None for the default order (h1). The "tiers" order uses the events of the single successor
+        """
+        if self._new_vars_order != "tiers" or len(block.successors) != 1:
+            return None
+        successor_id = block.successors[0]
+        successor_live_out = self._liveness_info[successor_id].out_state.vars_to_introduce
+        successor_events = block_events(self._block_list.get_block(successor_id), successor_live_out)
+        variable_depth_info = self._variable_order[block.block_id]
+        return lambda variables: tiers_order(variables, variable_depth_info, successor_events, successor_live_out)
 
     def _can_have_junk(self, block_id):
         """
@@ -247,10 +264,14 @@ class LayoutGeneration:
                 junk_idx = len(output_stack)
 
             else:
+                live_out = liveness_info.out_state.vars_to_introduce
+                events = block_events(block, live_out) if self._junk_strategy == "simulated" else None
                 output_stack, junk_idx = output_stack_layout(input_stack, block.final_stack_elements,
-                                                             liveness_info.out_state.vars_to_introduce,
+                                                             live_out,
                                                              self._variable_order[block_id],
-                                                             self._can_have_junk(block_id)
+                                                             self._can_have_junk(block_id),
+                                                             self._junk_strategy, events,
+                                                             self._new_vars_order_function(block)
                                                              )
 
             # We store the output stack in the dict, as we have built a new element
@@ -433,7 +454,9 @@ def layout_generation_cfg(cfg: CFG, args: argparse.Namespace, final_dir: Path = 
         for component_name, component_liveness in object_liveness.items():
             layout = LayoutGeneration(component_name, component2block_list[object_name][component_name],
                                       component_liveness, component2inputs, final_dir, component_name == object_name,
-                                      visualize=args.visualize, junk=args.junk)
+                                      visualize=args.visualize, junk=args.junk,
+                                      junk_strategy=getattr(args, "junk_strategy", "current"),
+                                      new_vars_order=getattr(args, "new_vars_order", "h1"))
 
             layout.build_layout(args.visualize)
 

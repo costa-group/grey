@@ -50,6 +50,13 @@ def generate_parser() -> argparse.ArgumentParser:
                                    help="Set the maximum depth to access the stack (TESTING STACK-TOO-DEEP ONLY)")
     synthesis_options.add_argument("--no-inline", action="store_false",
                                    help="Disables the default inlining", dest="inline")
+    synthesis_options.add_argument("--junk-strategy", choices=["current", "simulated"], default="current",
+                                   dest="junk_strategy",
+                                   help="Experimental: how junk is placed in the output stacks. 'simulated' keeps junk only "
+                                        "at the bottom, choosing the boundary by simulating the block")
+    synthesis_options.add_argument("--new-vars-order", choices=["h1", "tiers"], default="h1", dest="new_vars_order",
+                                   help="Experimental: order of the new variables in the output stacks. 'tiers' places "
+                                        "first the values the successor consumes first")
     synthesis_options.add_argument("--no-merge-equivalent", action="store_false", dest="merge_equivalent",
                                    help="Disables merging the equivalent blocks in the acyclic tails of the CFG")
     synthesis_options.add_argument("--constants", action="store_false",
