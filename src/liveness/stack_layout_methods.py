@@ -2,7 +2,8 @@
 Module that contains the methods to generate stack layouts from the liveness information.
 """
 import collections
-from typing import Dict, List, Set, Tuple, Counter
+import itertools
+from typing import Dict, List, Set, Tuple, Counter, Callable, Optional
 import networkx as nx
 from itertools import zip_longest
 
@@ -10,6 +11,7 @@ from global_params.types import var_id_T, block_id_T
 import global_params.constants as constants
 from parser.cfg_block_list import CFGBlockList
 from parser.cfg_instruction import CFGInstruction
+from parser.cfg_block import CFGBlock
 from liveness.liveness_analysis import LivenessAnalysisInfoSSA
 from liveness.utils import trim_none, combine_lists_with_order, combine_lists_with_junk
 
@@ -462,3 +464,90 @@ def forget_values(input_stack: List[var_id_T], live_vars: Set[var_id_T]) -> List
     while i >= 0 and input_stack[i] not in live_vars:
         i -= 1
     return input_stack[:i+1]
+
+
+# Maximum number of elements of a fixed (canonical) layout, so that the canonical order cannot
+# cause stack-too-deep issues
+MAX_FIXED_LAYOUT = 8
+
+
+def canonical_input_layout(block: CFGBlock, live_in: Set[var_id_T], top_elements: List[var_id_T],
+                           successor_layout: List[var_id_T]) -> Optional[List[var_id_T]]:
+    """
+    Canonical input layout of a block, derived only from its own code: first the elements that must be on
+    top (the values returned by the function call of the predecessor), then the live-in variables in order
+    of first use in the block (instructions, then the split instruction) and finally the ones that are live
+    through the block, in the order of the layout of its successor. Equivalent blocks get positionally
+    corresponding layouts. Returns None if the order does not cover exactly the live-in variables
+    """
+    layout = list(top_elements)
+    already_placed = set(layout)
+
+    def place(variable: var_id_T) -> None:
+        if variable in live_in and variable not in already_placed:
+            layout.append(variable)
+            already_placed.add(variable)
+
+    split_args = block.split_instruction.get_in_args() if block.split_instruction is not None else []
+    for instr in block.instructions_to_synthesize:
+        for in_arg in instr.get_in_args():
+            place(in_arg)
+    for in_arg in itertools.chain(split_args, successor_layout):
+        place(in_arg)
+
+    # The top elements might include dead values returned by the call, but every live-in variable
+    # must be placed
+    if not live_in.issubset(already_placed):
+        return None
+    return layout
+
+
+def compute_fixed_layouts(block_list: CFGBlockList, liveness_info: Dict[block_id_T, LivenessAnalysisInfoSSA],
+                          can_have_junk: Callable[[block_id_T], bool]) -> Dict[block_id_T, List[var_id_T]]:
+    """
+    Computes the blocks with a fixed (canonical) input layout and their layouts. A block is fixed if it admits
+    junk (never returns to a caller and is not in a loop), has predecessors, has no successors or a single
+    fixed successor, and its layout is small enough. As a conditional jump has a single output stack, it can
+    only honour one fixed successor with a single predecessor: we keep the "jumps to" one. Joins are only
+    fixed if all their predecessors have a single successor
+    """
+    blocks = block_list.blocks
+    fixed_layouts: Dict[block_id_T, Optional[List[var_id_T]]] = dict()
+
+    def fixed_layout(block_id: block_id_T) -> Optional[List[var_id_T]]:
+        # Memoized recursion over the successors (candidates are not in loops, so it terminates)
+        if block_id in fixed_layouts:
+            return fixed_layouts[block_id]
+        fixed_layouts[block_id] = None
+        block = blocks[block_id]
+        comes_from = block.get_comes_from()
+        if not can_have_junk(block_id) or len(comes_from) == 0 or len(block.successors) > 1:
+            return None
+
+        successor_layout = []
+        if len(block.successors) == 1:
+            successor_layout = fixed_layout(block.successors[0])
+            if successor_layout is None:
+                return None
+
+        if len(comes_from) > 1 and any(len(blocks[pred].successors) > 1 for pred in comes_from):
+            return None
+        top_elements = blocks[comes_from[0]].final_stack_elements if len(comes_from) == 1 else []
+
+        layout = canonical_input_layout(block, liveness_info[block_id].in_state.vars_to_introduce,
+                                        top_elements, successor_layout)
+        if layout is not None and len(layout) <= MAX_FIXED_LAYOUT:
+            fixed_layouts[block_id] = layout
+        return fixed_layouts[block_id]
+
+    for block_id in blocks:
+        fixed_layout(block_id)
+
+    # Conditional jumps can only honour one of their fixed successors (the first one, "jumps to")
+    for block_id, block in blocks.items():
+        fixed_successors = [successor for successor in block.successors
+                            if fixed_layouts.get(successor) is not None and len(blocks[successor].get_comes_from()) == 1]
+        for successor in fixed_successors[1:]:
+            fixed_layouts[successor] = None
+
+    return {block_id: layout for block_id, layout in fixed_layouts.items() if layout is not None}

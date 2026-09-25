@@ -28,7 +28,8 @@ from liveness.liveness_analysis import LivenessAnalysisInfoSSA, construct_analys
 from liveness.utils import functions_inputs_from_components
 from liveness.stack_layout_methods import (compute_variable_depth, output_stack_layout, unify_stacks_brothers,
                                            compute_block_level, unification_block_dict, propagate_output_stack,
-                                           forget_values, unify_stacks_dominant)
+                                           forget_values, unify_stacks_dominant, compute_fixed_layouts,
+                                           generate_phi_func, unify_stack_joint)
 
 from timeit import default_timer as dtimer
 
@@ -71,7 +72,8 @@ class LayoutGeneration:
 
     def __init__(self, object_id: str, block_list: CFGBlockList, liveness_info: Dict[str, LivenessAnalysisInfoSSA],
                  function_inputs: Dict[component_name_T, List[var_id_T]], name: Path, is_main_component: bool,
-                 cfg_graph: Optional[nx.DiGraph] = None, visualize:bool = False, junk: bool = True):
+                 cfg_graph: Optional[nx.DiGraph] = None, visualize:bool = False, junk: bool = True,
+                 canonical_layouts: bool = True):
         self._component_id = object_id
         self._block_list = block_list
         self._liveness_info = liveness_info
@@ -136,6 +138,22 @@ class LayoutGeneration:
         self._block_depth = compute_block_level(self._dominance_tree, self._start)
         self._unification_dict = unification_block_dict(block_list)
 
+        # Blocks in terminal regions with a fixed (canonical) input layout, derived only from their code.
+        # Equivalent blocks get identical specifications, so the resulting assembly is identical and solc
+        # can deduplicate them (even across functions)
+        self._fixed_layouts: Dict[block_id_T, List[var_id_T]] = \
+            compute_fixed_layouts(block_list, liveness_info, self._can_have_junk) if canonical_layouts else dict()
+
+    def _fixed_successor(self, block: CFGBlock) -> Optional[block_id_T]:
+        """
+        Successor with a fixed layout whose single predecessor is the given block, if any. Its layout must be
+        placed on top of the output stack of the block
+        """
+        for successor in block.successors:
+            if successor in self._fixed_layouts and len(self._block_list.get_block(successor).get_comes_from()) == 1:
+                return successor
+        return None
+
     def _can_have_junk(self, block_id):
         """
         Junk can be left in the stack in blocks that never return to a caller (all the blocks in the main
@@ -175,8 +193,17 @@ class LayoutGeneration:
             # the function
             input_stack = self._function_inputs[self._block_list.name]
 
+        # Blocks with a fixed layout only consider their canonical layout (the elements below are junk that
+        # the block never accesses), so that equivalent blocks get the same specification. Note that the
+        # layout might start with dead values returned by a function call, which must not be forgotten
+        if block_id in self._fixed_layouts:
+            fixed_layout = self._fixed_layouts[block_id]
+            assert input_stack[:len(fixed_layout)] == fixed_layout, \
+                f"The input stack {input_stack} of {block_id} must start with its fixed layout {fixed_layout}"
+            input_stack = list(fixed_layout)
+
         # We forget the deepest elements in the main component
-        if self._can_have_junk(block_id):
+        elif self._can_have_junk(block_id):
             input_stack = forget_values(input_stack, self._liveness_info[block_id].in_state.vars_to_introduce)
 
         input_stacks[block.block_id] = input_stack
@@ -201,8 +228,18 @@ class LayoutGeneration:
                                           for element_to_unify in elements_to_unify}
                 combined_liveness_info[next_block_id] = self._liveness_info[next_block_id].in_state.vars_to_introduce
 
+                # Joins with a fixed layout: every predecessor places the fixed layout (with the phi-functions
+                # replaced by the corresponding arguments)
+                if next_block_id in self._fixed_layouts:
+                    combined_output_stack = self._fixed_layouts[next_block_id]
+                    phi_func, _ = generate_phi_func(next_block_id, elements_to_unify, combined_liveness_info,
+                                                    phi_instructions)
+                    output_stacks_unified = {predecessor: unify_stack_joint(predecessor, combined_output_stack,
+                                                                            phi_func, combined_liveness_info[predecessor])
+                                             for predecessor in elements_to_unify}
+
                 # We avoid going through loop headers because it can confuse the algorithm
-                if len(elements_to_unify) == 2 and ((
+                elif len(elements_to_unify) == 2 and ((
                         path := self._preserve_junk_dominance(elements_to_unify[0], elements_to_unify[1])) is not None):
                         # and all(self._loop_nesting_forest.successors(element) == 0
                         #         for element in path[1:] if element in self._loop_nesting_forest):
@@ -238,7 +275,20 @@ class LayoutGeneration:
                 input_stacks[next_block_id] = combined_output_stack
 
         if output_stack is None:
-            if block.get_jump_type() in ["terminal", "mainExit"] or block.previous_type in ["terminal", "mainExit"]:
+            # The fixed layout of the successor (which starts with the values generated by the split
+            # instruction) must be placed on top of the stack
+            fixed_successor = self._fixed_successor(block)
+            if fixed_successor is not None:
+                top_elements = self._fixed_layouts[fixed_successor]
+                # The variables in the fixed layout are already placed, so only the remaining ones (live in
+                # the other successor of a conditional jump) are placed below
+                output_stack, junk_idx = output_stack_layout(input_stack, top_elements,
+                                                             liveness_info.out_state.vars_to_introduce.difference(
+                                                                 top_elements),
+                                                             self._variable_order[block_id],
+                                                             self._can_have_junk(block_id))
+
+            elif block.get_jump_type() in ["terminal", "mainExit"] or block.previous_type in ["terminal", "mainExit"]:
                 # We just need to place the corresponding elements in the top of the stack
                 output_stack = propagate_output_stack(input_stack, block.final_stack_elements, liveness_info.in_state.vars_to_introduce,
                                                       liveness_info.out_state.vars_to_introduce, self._variable_order[block_id],
@@ -433,7 +483,8 @@ def layout_generation_cfg(cfg: CFG, args: argparse.Namespace, final_dir: Path = 
         for component_name, component_liveness in object_liveness.items():
             layout = LayoutGeneration(component_name, component2block_list[object_name][component_name],
                                       component_liveness, component2inputs, final_dir, component_name == object_name,
-                                      visualize=args.visualize, junk=args.junk)
+                                      visualize=args.visualize, junk=args.junk,
+                                      canonical_layouts=getattr(args, "canonical_layouts", True))
 
             layout.build_layout(args.visualize)
 
