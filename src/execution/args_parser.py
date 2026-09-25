@@ -57,6 +57,12 @@ def generate_parser() -> argparse.ArgumentParser:
     synthesis_options.add_argument("--new-vars-order", choices=["h1", "tiers"], default="h1", dest="new_vars_order",
                                    help="Experimental: order of the new variables in the output stacks. 'tiers' places "
                                         "first the values the successor consumes first")
+    synthesis_options.add_argument("--split-critical-edges", action="store_true", dest="split_critical_edges",
+                                   help="Experimental: splits the critical edges of the CFG with empty blocks, so that "
+                                        "the predecessors of a join always have a single successor")
+    synthesis_options.add_argument("--no-edge-dominance", action="store_false", dest="edge_dominance",
+                                   help="Experimental: with --split-critical-edges, do not preserve the stack of a "
+                                        "conditional block along the then-branch of an if without else")
     synthesis_options.add_argument("--no-merge-equivalent", action="store_false", dest="merge_equivalent",
                                    help="Disables merging the equivalent blocks in the acyclic tails of the CFG")
     synthesis_options.add_argument("--constants", action="store_false",

@@ -21,7 +21,7 @@ from parser.cfg_block import CFGBlock
 from parser.cfg_block_list import CFGBlockList
 import parser.opcodes as opcodes
 from cfg_methods.cfg_block_actions.merge_equivalent_blocks import MergeEquivalentBlocks
-from cfg_methods.cfg_block_actions.utils import modify_comes_from, modify_successors
+from cfg_methods.cfg_block_actions.edge_block import insert_edge_block
 from cfg_methods.utils import union_find_search
 
 
@@ -389,30 +389,14 @@ def _split_edges(block_list: CFGBlockList, merged_block_ids: List[block_id_T]) -
 
         for pred_block_id in list(merged_block.get_comes_from()):
             if len(block_list.get_block(pred_block_id).successors) > 1:
-                _insert_edge_block(block_list, pred_block_id, merged_block_id)
+                insert_edge_block(block_list, pred_block_id, merged_block_id)
 
         # Edge blocks reach the merged block with a jump, so only other blocks can fall to it
         falling_predecessors = [pred_block_id for pred_block_id in merged_block.get_comes_from()
                                 if block_list.get_block(pred_block_id).get_falls_to() == merged_block_id]
         # The first one keeps falling to the merged block
         for pred_block_id in falling_predecessors[1:]:
-            _insert_edge_block(block_list, pred_block_id, merged_block_id)
-
-
-def _insert_edge_block(block_list: CFGBlockList, pred_block_id: block_id_T, successor_id: block_id_T) -> None:
-    """
-    Inserts an empty block with an unconditional jump in the edge from pred_block_id to successor_id
-    """
-    edge_block_id = f"{pred_block_id}_to_{successor_id}"
-    assert edge_block_id not in block_list.blocks, f"Block {edge_block_id} already exists"
-    pred_block = block_list.get_block(pred_block_id)
-    edge_block = CFGBlock(edge_block_id, [], "unconditional", pred_block.assignment_dict)
-    edge_block.set_comes_from([pred_block_id])
-    edge_block.set_jump_to(successor_id)
-    block_list.add_block(edge_block)
-
-    modify_successors(pred_block_id, successor_id, edge_block_id, block_list)
-    modify_comes_from(successor_id, pred_block_id, edge_block_id, block_list)
+            insert_edge_block(block_list, pred_block_id, merged_block_id)
 
 
 def _acyclic_tail_blocks(block_list: CFGBlockList) -> Set[block_id_T]:

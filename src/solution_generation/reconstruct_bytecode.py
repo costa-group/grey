@@ -1,3 +1,4 @@
+import collections
 """
 Module that contains the methods for reconstructing the bytecode in different formats
 """
@@ -184,6 +185,46 @@ def generate_function_name2entry(functions: Iterable[CFGFunction]) -> Dict[funct
     return {function.name: function.blocks.start_block for function in functions}
 
 
+def removable_edge_blocks(blocks: Dict[block_id_T, CFGBlock],
+                          tags_dict: Dict[block_id_T, int]) -> Tuple[Dict[block_id_T, block_id_T], Dict[str, str]]:
+    """
+    Edge blocks (see cfg_methods.cfg_block_actions.edge_block) that end up doing nothing, i.e. their greedy ids
+    only push the tag of their jump, are not emitted: their predecessor goes directly to their successor.
+    - If the predecessor jumps to the edge block, the tag it pushes is replaced by the tag of the successor.
+    - If the predecessor falls to the edge block, it falls directly to the successor, provided no other block
+      falls to it (the reconstruction places a falls-to block right after its predecessor). Otherwise, the
+      edge block is kept.
+    Returns the redirections (edge block -> block reached instead) and the tag aliases
+    """
+    falling_predecessors = collections.Counter(block.get_falls_to() for block in blocks.values()
+                                               if block.get_falls_to() is not None)
+    empty_edge_blocks = [block_id for block_id, block in blocks.items()
+                         if block.is_edge_block and len(block.greedy_ids) <= 1
+                         and all(instr_id.startswith("PUSH [TAG]") for instr_id in block.greedy_ids)]
+
+    redirect: Dict[block_id_T, block_id_T] = dict()
+    for edge_id in empty_edge_blocks:
+        edge_block = blocks[edge_id]
+        pred_block = blocks[edge_block.get_comes_from()[0]]
+        successor_id = edge_block.get_jump_to()
+        if pred_block.get_falls_to() == edge_id:
+            if falling_predecessors[successor_id] > 0:
+                continue
+            falling_predecessors[successor_id] += 1
+        redirect[edge_id] = successor_id
+
+    # Chains of edge blocks are followed until a block that is emitted
+    def final_target(block_id: block_id_T) -> block_id_T:
+        while block_id in redirect:
+            block_id = redirect[block_id]
+        return block_id
+
+    redirect = {edge_id: final_target(edge_id) for edge_id in redirect}
+    tag_aliases = {str(tags_dict[edge_id]).upper(): str(tags_dict[target_id]).upper()
+                   for edge_id, target_id in redirect.items() if edge_id in tags_dict and target_id in tags_dict}
+    return redirect, tag_aliases
+
+
 def traverse_cfg_block_list(block_list: CFGBlockList, function_name2entry: Dict[function_name_T, block_id_T],
                             tags_dict: Dict[block_id_T, int], asm_dir: Optional[Path] = None) -> List[ASM_bytecode_T]:
     """
@@ -193,6 +234,9 @@ def traverse_cfg_block_list(block_list: CFGBlockList, function_name2entry: Dict[
 
     init_block = blocks[block_list.start_block]
     assert (init_block.get_block_id().find("Block0") != -1)
+
+    # Edge blocks that do nothing are skipped
+    redirect, tag_aliases = removable_edge_blocks(blocks, tags_dict)
 
     pending_blocks = [init_block]
     visited = []
@@ -258,8 +302,8 @@ def traverse_cfg_block_list(block_list: CFGBlockList, function_name2entry: Dict[
         falls_to, jump_to = None, None
         if jump_type == "conditional":
 
-            jump_to = next_block.get_jump_to()
-            falls_to = next_block.get_falls_to()
+            jump_to = redirect.get(next_block.get_jump_to(), next_block.get_jump_to())
+            falls_to = redirect.get(next_block.get_falls_to(), next_block.get_falls_to())
 
             if falls_to not in blocks or jump_to not in blocks:
                 raise Exception("[ERROR]:...")
@@ -275,7 +319,7 @@ def traverse_cfg_block_list(block_list: CFGBlockList, function_name2entry: Dict[
             asm_instructions += asm_block
             init_pos_dict += [block_id] * len(asm_block)
 
-            jump_to = next_block.get_jump_to()
+            jump_to = redirect.get(next_block.get_jump_to(), next_block.get_jump_to())
 
             if jump_to not in blocks:
                 raise Exception("[ERROR]:...")
@@ -285,7 +329,7 @@ def traverse_cfg_block_list(block_list: CFGBlockList, function_name2entry: Dict[
 
         elif jump_type == "falls_to" or jump_type == "sub_block":
             # Sub blocks now also fail into this case
-            falls_to = next_block.get_falls_to()
+            falls_to = redirect.get(next_block.get_falls_to(), next_block.get_falls_to())
             init_pos_dict, asm_instructions = locate_fallsto_block(block_id, blocks[falls_to], init_pos_dict, visited,
                                                                    asm_instructions, asm_block, pending_blocks)
 
@@ -315,6 +359,12 @@ def traverse_cfg_block_list(block_list: CFGBlockList, function_name2entry: Dict[
             relabel_dict[block_id] = '\n'.join([block_id] +
                                                [' '.join([instruction["name"], instruction.get("value", '')])
                                                 for instruction in asm_instructions[asm_index:]])
+
+    # The jumps to the skipped edge blocks go directly to their successors
+    if tag_aliases:
+        for instruction in asm_instructions:
+            if instruction["name"] == "PUSH [tag]" and instruction.get("value") in tag_aliases:
+                instruction["value"] = tag_aliases[instruction["value"]]
 
     if asm_dir is not None:
         renamed_digraph = nx.relabel_nodes(graph, relabel_dict)

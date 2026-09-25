@@ -93,6 +93,12 @@ class CFGBlock:
         self.function_calls = set()
         self._previous_type = None
 
+        # Edge blocks are empty blocks with a single jump inserted to split an edge of the CFG
+        # (see cfg_methods.cfg_block_actions.edge_block). splits_critical_edge distinguishes the ones inserted
+        # when splitting the critical edges of the input CFG from the ones inserted by the merge pass
+        self.is_edge_block = False
+        self.splits_critical_edge = False
+
         # Stack elements that must be placed in a specific order in the stack after performing
         self._final_stack_elements: List[str] = self._split_instruction.get_out_args() \
             if self._split_instruction is not None else []

@@ -72,7 +72,7 @@ class LayoutGeneration:
     def __init__(self, object_id: str, block_list: CFGBlockList, liveness_info: Dict[str, LivenessAnalysisInfoSSA],
                  function_inputs: Dict[component_name_T, List[var_id_T]], name: Path, is_main_component: bool,
                  cfg_graph: Optional[nx.DiGraph] = None, visualize:bool = False, junk: bool = True,
-                 junk_strategy: str = "current", new_vars_order: str = "h1"):
+                 junk_strategy: str = "current", new_vars_order: str = "h1", edge_dominance: bool = True):
         self._component_id = object_id
         self._block_list = block_list
         self._liveness_info = liveness_info
@@ -139,6 +139,14 @@ class LayoutGeneration:
 
         self._block_depth = compute_block_level(self._dominance_tree, self._start)
         self._unification_dict = unification_block_dict(block_list)
+
+        # Joins reached through an edge block whose predecessor dominates the other predecessor (an if without
+        # else once the critical edges are split). The stack of the conditional block is preserved along the
+        # then-branch, as it was done before splitting (see _dominant_through_edge_block)
+        self._dominant_edge_joins = self._compute_dominant_edge_joins() if edge_dominance else dict()
+        self._joins_by_conditional: Dict[block_id_T, List[block_id_T]] = defaultdict(list)
+        for join_id, (_, cond_id, _) in self._dominant_edge_joins.items():
+            self._joins_by_conditional[cond_id].append(join_id)
 
     def _new_vars_order_function(self, block: CFGBlock):
         """
@@ -218,6 +226,10 @@ class LayoutGeneration:
                                           for element_to_unify in elements_to_unify}
                 combined_liveness_info[next_block_id] = self._liveness_info[next_block_id].in_state.vars_to_introduce
 
+                # The joins reached through an edge block are unified when their conditional block is processed
+                assert next_block_id not in self._dominant_edge_joins, \
+                    f"The join {next_block_id} must have been unified when processing its conditional block"
+
                 # We avoid going through loop headers because it can confuse the algorithm
                 if len(elements_to_unify) == 2 and ((
                         path := self._preserve_junk_dominance(elements_to_unify[0], elements_to_unify[1])) is not None):
@@ -278,12 +290,85 @@ class LayoutGeneration:
             # We forget about the junk, because we propagate it assuming there is no garbage
             output_stacks[block_id] = output_stack[:junk_idx]
 
+        # If this block is the conditional block of a join reached through an edge block, the join is unified now,
+        # before the then-branch is processed, so that the values preserved along it are known in time
+        for join_id in self._joins_by_conditional.get(block_id, []):
+            self._unify_through_edge_block(join_id, input_stacks, output_stacks)
+
         # We build the corresponding specification and store it in the block
         block_json = block.build_spec(substitute_duplicates(input_stack), output_stack)
         block_json["admits_junk"] = self._can_have_junk(block_id)
         block.spec = block_json
 
         return block_json
+
+    def _compute_dominant_edge_joins(self) -> Dict[block_id_T, Tuple[block_id_T, block_id_T, List[block_id_T]]]:
+        """
+        Joins with two predecessors such that one of them is an edge block e (transparent for the stack) whose
+        predecessor cond dominates the other predecessor, while the two predecessors do not dominate each other.
+        Returns join -> (e, cond, path from cond to the other predecessor in the dominator tree). The liveness of
+        e is extended with the values live at the exit of cond, so that e forwards the stack of cond as is
+        """
+        dominant_edge_joins = dict()
+        for block_id, block in self._block_list.blocks.items():
+            if constants.DEBUG and block.is_edge_block:
+                # No edge block between a latch and its header: the successor does not dominate the edge block
+                assert not nx.has_path(self._dominance_tree, block.get_jump_to(), block_id), \
+                    f"Edge block {block_id} splits a back edge"
+
+            # Same order as the unification (see unification_block_dict): as before splitting, only the first
+            # predecessor can play the role of the dominating block
+            predecessors = block.entries if block.entries else block.get_comes_from()
+            if len(predecessors) != 2:
+                continue
+            edge_id, other_id = predecessors
+            edge_block = self._block_list.get_block(edge_id)
+            # Only the edge blocks that split a critical edge of the input CFG (an if without else). The ones
+            # inserted by the merge pass lead to merged blocks, for which preserving the stack does not pay off
+            if not edge_block.splits_critical_edge or self._preserve_junk_dominance(edge_id, other_id) is not None:
+                continue
+            cond_id = edge_block.get_comes_from()[0]
+            path = self._preserve_junk_dominance(cond_id, other_id)
+            if path is not None:
+                dominant_edge_joins[block_id] = (edge_id, cond_id, path)
+                cond_live_out = self._liveness_info[cond_id].out_state.vars_to_introduce
+                self._liveness_info[edge_id].in_state.extra_values.update(cond_live_out)
+                self._liveness_info[edge_id].out_state.extra_values.update(cond_live_out)
+        return dominant_edge_joins
+
+    def _unify_through_edge_block(self, join_id: block_id_T, input_stacks: Dict[str, List[str]],
+                                  output_stacks: Dict[str, List[str]]) -> None:
+        """
+        Unifies the predecessors of a join reached through an edge block e, whose conditional block cond (just
+        processed) dominates the other predecessor. As before splitting the critical edge, the stack of cond is
+        preserved along the then-branch: e plays the role of cond in unify_stacks_dominant (its input stack is
+        the output stack of cond and its liveness includes the values live at the exit of cond)
+        """
+        edge_id, cond_id, path = self._dominant_edge_joins[join_id]
+        _, elements_to_unify, phi_instructions = self._unification_dict[edge_id]
+        combined_liveness_info = {element: self._liveness_info[element].out_state.vars_to_introduce
+                                  for element in elements_to_unify}
+        combined_liveness_info[join_id] = self._liveness_info[join_id].in_state.vars_to_introduce
+
+        (combined_output_stack,
+         output_stacks_unified,
+         values_to_propagate) = unify_stacks_dominant(join_id, elements_to_unify, combined_liveness_info,
+                                                      phi_instructions, self._variable_order[join_id],
+                                                      edge_id, self._edge_block_input(edge_id, output_stacks),
+                                                      self._can_have_junk(edge_id))
+        self.preserve_stack_dominant_path(path, output_stacks_unified[path[-1]], values_to_propagate)
+        output_stacks.update(output_stacks_unified)
+        input_stacks[join_id] = combined_output_stack
+
+    def _edge_block_input(self, edge_id: block_id_T, output_stacks: Dict[str, List[str]]) -> List[var_id_T]:
+        """
+        Input stack of an edge block that has not been processed yet: the output stack of its predecessor
+        (processed before, as it dominates the edge block), forgetting the deepest dead values if junk is allowed
+        """
+        input_stack = output_stacks[self._block_list.get_block(edge_id).get_comes_from()[0]]
+        if self._can_have_junk(edge_id):
+            input_stack = forget_values(input_stack, self._liveness_info[edge_id].in_state.vars_to_introduce)
+        return input_stack
 
     def _preserve_junk_dominance(self, block1: block_id_T, block2: block_id_T) -> Optional[List[block_id_T]]:
         """
@@ -456,7 +541,8 @@ def layout_generation_cfg(cfg: CFG, args: argparse.Namespace, final_dir: Path = 
                                       component_liveness, component2inputs, final_dir, component_name == object_name,
                                       visualize=args.visualize, junk=args.junk,
                                       junk_strategy=getattr(args, "junk_strategy", "current"),
-                                      new_vars_order=getattr(args, "new_vars_order", "h1"))
+                                      new_vars_order=getattr(args, "new_vars_order", "h1"),
+                                      edge_dominance=getattr(args, "edge_dominance", True))
 
             layout.build_layout(args.visualize)
 

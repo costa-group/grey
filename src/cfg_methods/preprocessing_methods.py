@@ -15,6 +15,7 @@ from cfg_methods.variable_renaming import rename_variables_cfg
 from cfg_methods.constants_insertion import insert_variables_for_constants
 from cfg_methods.minimizing_constants_insertion import insert_variables_for_constants_propagated
 from cfg_methods.equivalent_blocks_merging import merge_equivalent_blocks_cfg
+from cfg_methods.critical_edges import split_critical_edges_cfg
 
 
 def preprocess_cfg(cfg: CFG, dot_file_dir: Path, args: Namespace) -> Dict[str, Dict[str, int]]:
@@ -46,6 +47,13 @@ def preprocess_cfg(cfg: CFG, dot_file_dir: Path, args: Namespace) -> Dict[str, D
         merge_equivalent_blocks_cfg(cfg)
         if args.visualize:
             dot_from_analysis(cfg, dot_file_dir.joinpath("merged_equivalent"))
+
+    if getattr(args, "split_critical_edges", False):
+        # No critical edges: the predecessors of a join have a single successor. It must be done before
+        # introducing the jumps and tags, so that the edge blocks get their jump
+        split_critical_edges_cfg(cfg)
+        if args.visualize:
+            dot_from_analysis(cfg, dot_file_dir.joinpath("no_critical_edges"))
 
     # We introduce the jumps, tags and the stack requirements for each block
     tag_dict = insert_jumps_tags_cfg(cfg)
