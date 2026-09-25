@@ -96,13 +96,13 @@ def check_codes(code_a: str, code_b: str, hevm_executable: str, timeout: int) ->
                                    capture_output=True, text=True, timeout=timeout)
     except subprocess.TimeoutExpired:
         return "timeout", None
-    # hevm prints "No discrepancies found" when the codes are proven equivalent and
-    # "Not equivalent" together with a counterexample otherwise
+    # hevm prints "No discrepancies found" when the codes are proven equivalent and "Not equivalent"
+    # (older versions) or "Not equal!" (newer versions) together with a counterexample otherwise
     output = completed.stdout + completed.stderr
     last_line = output.strip().splitlines()[-1] if output.strip() else None
     if completed.returncode == 0 and "No discrepancies found" in output:
         return "equivalent", None
-    if "Not equivalent" in output:
+    if "Not equivalent" in output or "Not equal!" in output:
         return "not_equivalent", last_line
     return "error", last_line
 
