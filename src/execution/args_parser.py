@@ -63,6 +63,12 @@ def generate_parser() -> argparse.ArgumentParser:
     synthesis_options.add_argument("--no-edge-dominance", action="store_false", dest="edge_dominance",
                                    help="Experimental: with --split-critical-edges, do not preserve the stack of a "
                                         "conditional block along the then-branch of an if without else")
+    synthesis_options.add_argument("--hoist-return-labels", nargs="?", const="shared", default=None,
+                                   choices=["shared", "branch", "max"], dest="hoist_return_labels",
+                                   help="Experimental: pushes the return label of each call earlier, in a block from "
+                                        "which every path reaches the call: the lowest one above the blocks that "
+                                        "have equivalent copies ('shared', the default), the nearest branch point "
+                                        "('branch') or the highest one ('max')")
     synthesis_options.add_argument("--no-merge-equivalent", action="store_false", dest="merge_equivalent",
                                    help="Disables merging the equivalent blocks in the acyclic tails of the CFG")
     synthesis_options.add_argument("--constants", action="store_false",

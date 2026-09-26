@@ -14,6 +14,7 @@ from cfg_methods.jump_insertion import insert_jumps_tags_cfg
 from cfg_methods.variable_renaming import rename_variables_cfg
 from cfg_methods.constants_insertion import insert_variables_for_constants
 from cfg_methods.minimizing_constants_insertion import insert_variables_for_constants_propagated
+from cfg_methods.return_labels import hoist_return_labels_cfg
 from cfg_methods.equivalent_blocks_merging import merge_equivalent_blocks_cfg
 from cfg_methods.critical_edges import split_critical_edges_cfg
 
@@ -66,6 +67,13 @@ def preprocess_cfg(cfg: CFG, dot_file_dir: Path, args: Namespace) -> Dict[str, D
     split_blocks_cfg(cfg, tag_dict)
     if args.visualize:
         dot_from_analysis(cfg, dot_file_dir.joinpath("split"))
+
+    if getattr(args, "hoist_return_labels", None) is not None:
+        # The return labels are pushed where all the paths towards the call are shared, as solc does, so that solc's
+        # block deduplicator merges the shared paths afterwards
+        hoist_return_labels_cfg(cfg, args.hoist_return_labels)
+        if args.visualize:
+            dot_from_analysis(cfg, dot_file_dir.joinpath("return_labels"))
 
     if args.constants:
         # We replace variables for constants
