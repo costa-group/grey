@@ -390,6 +390,11 @@ class SolidityCompilation:
             json_input["settings"] = self._json_input_set_settings()
         else:
             json_input["settings"]["outputSelection"] = {'*': {'*': ['yulCFGJson']}}
+            # The Yul optimizer always runs, even if the input disables it: grey is compared with solc's optimized
+            # code, and the importer always runs the legacy optimizer (see build_standard_json_settings)
+            optimizer = json_input["settings"].setdefault("optimizer", {})
+            optimizer["enabled"] = True
+            optimizer.setdefault("runs", 200)
 
         json_input["settings"]["metadata"] = {}
         json_input["settings"]["metadata"]["appendCBOR"] = False
