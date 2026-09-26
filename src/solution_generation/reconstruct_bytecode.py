@@ -440,6 +440,14 @@ def build_standard_json_settings(output_json, settings_opt):
     
         output_json["settings"] = settings_opt
 
+        # The Yul CFG is always generated with the optimizer enabled, so the importer must run the legacy optimizer
+        # (block deduplicator, peephole, CSE...) as well, even if the input disables it: otherwise the result is
+        # neither comparable with solc's optimized code nor consistent with the CFG
+        optimizer = settings_opt.get("optimizer", {})
+        optimizer["enabled"] = True
+        optimizer.setdefault("runs", 200)
+        settings_opt["optimizer"] = optimizer
+
     # opt = output_json["settings"].get("optimizer",{})
 
     # opt_details = opt.get("details",{})
