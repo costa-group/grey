@@ -4,12 +4,11 @@
 DIRECTORIO_BASE=/Users/pablo/Repositorios/ethereum/grey/scripts/test_stack_too_deep
 
 GREY_PATH=/Users/pablo/Repositorios/ethereum/grey/src/grey_main.py
-<<<<<<< HEAD
+
 #SOLC_PATH=/Users/pablo/Repositorios/ethereum/grey/examples/solc-without-opt
 SOLC_PATH=$HOME/Repositorios/ethereum/grey/examples/solc-with-layout
-=======
-SOLC_PATH=/Users/pablo/Repositorios/ethereum/grey/examples/solc-moritz
->>>>>>> 8ab79f68dbab0b0174d2a364ff5f03c4acdf5d61
+#SOLC_PATH=/Users/pablo/Repositorios/ethereum/grey/examples/solc-moritz
+
 SOLX_PATH=/Users/pablo/Repositorios/ethereum/solx/solx-macosx-profiling
 TEST_SOLX_PATH=/Users/pablo/Repositorios/ethereum/grey/scripts/test_solx
 #TESTRUNNER_PATH=/Users/pablo/Repositorios/ethereum/solidity/build/test/tools/testrunner
