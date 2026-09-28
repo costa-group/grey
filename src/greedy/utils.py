@@ -73,7 +73,13 @@ def detect_blocks_with_multiple_insertion(cfg_block_list: CFGBlockList) -> Dict[
         if (block.get_jump_type() == "sub_block" and block.split_instruction is not None
                 and len(block.split_instruction.out_args) > constants.MAX_STACK_DEPTH):
             assert len(block.successors) == 1, f"Sub_block {block_name} should only have one successor"
-            blocks_inaccessible_elements[block.successors[0]] = len(block.split_instruction.out_args) - constants.MAX_STACK_DEPTH
+            # The elements to move are those of the successor's initial stack beyond the reachable depth. It can be
+            # shorter than the outputs of the split instruction: dead outputs are left as junk below the stack
+            # handled by the successor (e.g. a call whose results are not used afterwards)
+            successor_block = cfg_block_list.get_block(block.successors[0])
+            num_unreachable = len(successor_block.spec["src_ws"]) - constants.MAX_STACK_DEPTH
+            if num_unreachable > 0:
+                blocks_inaccessible_elements[block.successors[0]] = num_unreachable
 
     return blocks_inaccessible_elements
 
