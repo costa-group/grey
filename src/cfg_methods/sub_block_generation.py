@@ -228,8 +228,11 @@ def _nodes_to_merge(graph: nx.DiGraph, block_list: CFGBlockList,
             second_block = block_list.get_block(target)
 
             # Condition: target node has exactly one incoming edge and they can be merged safely
-            # We don't allow situations where the latch is removed
+            # We don't allow situations where the latch is removed: the target jumps back to a predecessor of
+            # the node (mutual jumps) or to the node itself (a loop without exit, e.g. while (true) with a
+            # straight-line body, which would become a self-loop)
             if (graph.in_degree(target) == 1
+                    and node not in second_block.successors
                     and all([predecessor not in second_block.successors for predecessor in graph.predecessors(node)])
                     and (len(first_block.get_instructions()) == 0 or len(second_block.get_instructions()) == 0 or
                          first_block.get_instructions()[-1].get_op_name() not in chain(constants.split_block,
