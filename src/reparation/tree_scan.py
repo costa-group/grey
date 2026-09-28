@@ -19,7 +19,8 @@ from global_params.types import block_id_T, constant_T, var_id_T, instr_id_T
 from parser.cfg_block_list import CFGBlockList
 from reparation.colour_assignment import ColourAssignment, owners_T
 from reparation.phi_webs import PhiWebs
-from reparation.utils import extract_value_from_pseudo_instr, extract_dup_pos_from_dup_vset
+from reparation.utils import extract_value_from_pseudo_instr, extract_dup_pos_from_dup_vset, is_constant, \
+    PUSH_CONSTANT
 from reparation.memory_liveness import memory_definition_blocks, phi_copies_from_memory
 
 
@@ -209,11 +210,12 @@ class TreeScan:
 
             # If there are some virtual copies that need to be managed,
             # it means we have to emit copies for phi-functions
-            if len(greedy_info.virtual_copies) > 0:
-                # We separate values that must be loaded from registers
-                # and those that are duplicated
+            if len(greedy_info.virtual_copies) > 0 or len(greedy_info.constant_copies) > 0:
+                # We separate values that must be loaded from registers, those that are duplicated and the
+                # constants, which are pushed (keyed by the phi def, as several phis may receive the same one)
                 copies_to_manage_regs = dict()
                 copies_to_manage_dup = dict()
+                copies_to_manage_constants = dict()
 
                 for successor_name in block.successors:
                     successor_block = self._block_list.get_block(successor_name)
@@ -232,9 +234,13 @@ class TreeScan:
                                 color_phi = color_assignment.color(phi_def)
                                 phi_arg = phi_instr.in_args[entry_idx]
 
+                                # Constants need no memory nor stack access: they are pushed into the slot
+                                if is_constant(phi_arg):
+                                    copies_to_manage_constants[phi_def] = (color_phi, phi_arg)
+
                                 # The phi arg is read from memory only if it is stored in a block that dominates
                                 # the current one (otherwise, its slot might hold other values at this point)
-                                if phi_arg in self._arguments_from_memory[block_name]:
+                                elif phi_arg in self._arguments_from_memory[block_name]:
                                     color_phi_arg = color_assignment.color(phi_arg)
 
                                     # They have different colours, so we need to emit a copy.
@@ -248,9 +254,10 @@ class TreeScan:
                                     assert is_last, f"A variable that is duplicated must be reachable at that point: {phi_arg}"
                                     copies_to_manage_dup[phi_arg] = (color_phi, dup_pos)
 
-                if copies_to_manage_dup or copies_to_manage_regs:
+                if copies_to_manage_dup or copies_to_manage_regs or copies_to_manage_constants:
                     new_greedy_ids.extend(self._emit_copies(copies_to_manage_regs,
                                                             copies_to_manage_dup,
+                                                            copies_to_manage_constants,
                                                             color_to_constant))
 
             # FINALLY we assign the greedy ids corrected to the corresponding field
@@ -272,6 +279,7 @@ class TreeScan:
 
     def _emit_copies(self, copies_to_manage_regs: Dict[var_id_T, Tuple[int, int]],
                      copies_to_manage_dup: Dict[var_id_T, Tuple[int, int]],
+                     copies_to_manage_constants: Dict[var_id_T, Tuple[int, var_id_T]],
                      color2constant: List[constant_T]) -> List[instr_id_T]:
         """
         Emites instructions that ensure every value in a
@@ -300,6 +308,12 @@ class TreeScan:
             # pos_to_dup is the (0-based) position of the value at the end of the block, as in DUP-VSET
             # (the stores of the previous copies leave the stack as it was)
             ids_for_copies.extend(self._emit_dup_vset(constant_dst, pos_to_dup))
+
+        # The constant arguments are pushed into the slots of their phi defs. Every value read from a slot has
+        # already been loaded and stored, so overwriting a slot here cannot clobber a value still to be copied
+        for color_dst, constant_value in copies_to_manage_constants.values():
+            ids_for_copies.append(f"{PUSH_CONSTANT} {constant_value}")
+            ids_for_copies.extend(self._emit_vset(color2constant[color_dst]))
 
         return ids_for_copies
 

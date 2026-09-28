@@ -58,6 +58,10 @@ class GreedyInfo:
         # is reachable or not (true or false)
         self.virtual_copies: Dict[var_id_T, bool] = dict()
 
+        # Constant arguments of the phi defs handled in memory in the successors. They need no memory: the parallel
+        # copy at the end of the block pushes them directly into the slot of the phi def
+        self.constant_copies: Set[var_id_T] = set()
+
         # Positions in the greedy ids after which the accessed memory value is no longer live
         # (computed in reparation.memory_liveness)
         self.last_use: Set[int] = set()
@@ -119,6 +123,12 @@ class GreedyInfo:
         # we need to load the GET the instruction elsewhere
         if not last_accessible:
             self.get_count.update([v])
+
+    def add_constant_copy(self, constant: var_id_T):
+        """
+        Introduces a constant argument of a phi def handled in memory, pushed directly at the end of the block
+        """
+        self.constant_copies.add(constant)
 
     def insert_dup_vset(self, var: var_id_T):
         """

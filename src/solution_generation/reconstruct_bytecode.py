@@ -12,6 +12,7 @@ from parser.cfg_block_list import CFGBlockList
 from parser.cfg_block import CFGBlock
 from parser.cfg_instruction import CFGInstruction
 from cfg_methods.jump_insertion import tag_from_tag_dict
+from reparation.utils import PUSH_CONSTANT
 from pathlib import Path
 import networkx as nx
 
@@ -58,6 +59,10 @@ def id_to_asm_bytecode(uf_instrs: Dict[str, Dict[str, Any]], instr_id: str) -> A
             return asm_from_op_info(associated_instr['disasm'],
                                     None if 'value' not in associated_instr else associated_instr['value'][0])
 
+    # Constants pushed by the reparation ("PUSH-CONSTANT 0x20"): the asm JSON values have no 0x prefix
+    elif instr_id.startswith(PUSH_CONSTANT):
+        value = instr_id.split(' ')[1]
+        return asm_from_op_info("PUSH", value[2:] if value.startswith("0x") else value)
     elif "PUSH" in instr_id:
         value = instr_id.split(' ')[1]
         return asm_from_op_info("PUSH", value)

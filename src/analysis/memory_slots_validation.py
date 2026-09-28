@@ -20,6 +20,7 @@ from typing import Dict, FrozenSet, List, Optional, Set, Tuple, Union
 from global_params.types import block_id_T, var_id_T, instr_id_T, instr_JSON_T
 from parser.cfg_block_list import CFGBlockList
 from parser.cfg_block import CFGBlock
+from reparation.utils import PUSH_CONSTANT
 
 slot_T = str
 memory_state_T = Dict[slot_T, FrozenSet[var_id_T]]
@@ -103,6 +104,10 @@ def execute_block(block: CFGBlock, memory: memory_state_T, strict: bool) -> memo
 
         elif instr_id.startswith("DUP"):
             stack.insert(0, stack[int(instr_id[3:]) - 1])
+
+        # Constant copied into the slot of a phi def by the reparation: the constant itself is the value
+        elif instr_id.startswith(PUSH_CONSTANT):
+            stack.insert(0, instr_id.split(" ")[1])
 
         # Slot addresses introduced by the reparation ("PUSH <hex>", not an instruction of the spec)
         elif instr_id.startswith("PUSH ") and instr_id not in user_instrs:

@@ -3,6 +3,18 @@ Utils module
 """
 
 
+# Final id of the constants pushed by the reparation (e.g. "PUSH-CONSTANT 0x20"), distinct from the "PUSH <hex>"
+# of the memory slot addresses
+PUSH_CONSTANT = "PUSH-CONSTANT"
+
+
+def is_constant(value: str) -> bool:
+    """
+    Whether a stack value is a constant (hexadecimal strings starting with 0x, as in the block specifications)
+    """
+    return value.startswith("0x")
+
+
 def extract_value_from_pseudo_instr(instruction: str) -> str:
     if instruction.startswith("VGET"):
         return instruction[5:-1]
