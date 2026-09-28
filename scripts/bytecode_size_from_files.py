@@ -27,7 +27,7 @@ def run_and_measure_command(cmd):
     return solution, err, usage_stop.ru_utime + usage_stop.ru_stime - usage_start.ru_utime - usage_start.ru_stime
 
 
-def compile_json_input(source_code_dict):
+def compile_json_input(source_code_dict, source_file):
     optimization_settings = {"enabled": True}
 
     # Output selection is legacyAssembly
@@ -43,13 +43,14 @@ def compile_json_input(source_code_dict):
 
     source_code_dict["settings"]["viaIR"] = True
 
-    fd, tmp_file = tempfile.mkstemp(".json")
+    tmp_file = source_file
 
     with open(tmp_file, 'w') as f:
-        f.write(json.dumps(source_code_dict))
+        f.write(json.dumps(source_code_dict, indent=4))
 
     command = f"solc --standard-json {tmp_file}"
     output, error, total_time = run_and_measure_command(command)
+    print(total_time)
     # print(command)
 
     output_dict = json.loads(output)
@@ -57,15 +58,15 @@ def compile_json_input(source_code_dict):
     # Check no field errors appear when parsing as a json and one of the messages is indeed an error
     # (see https://docs.soliditylang.org/en/v0.8.17/using-the-compiler.html)
     if "errors" in output_dict and any(error_msg["severity"] == "error" for error_msg in output_dict["errors"]):
-        print(f"Error {output_dict}")
+        print(f"Error {str(output_dict)[:200]}")
     else:
         if error != "":
             print(f"Warning error")
             print(error)
             print("")
 
-    os.close(fd)
-    os.remove(tmp_file)
+    # os.close(fd)
+    # os.remove(tmp_file)
 
     return output_dict, total_time
 
@@ -99,7 +100,7 @@ def compile_files(initial_folder: Path, final_folder: Path):
         with open(json_file, 'r') as f:
             contract_dict = json.load(f)
         try:
-            output, total_time = compile_json_input(contract_dict)
+            output, total_time = compile_json_input(contract_dict, json_file)
             contract_info = extract_info(output)
             pd.DataFrame(contract_info).to_csv(final_folder.joinpath(str(path_file) + ".csv"))
         except Exception as e:

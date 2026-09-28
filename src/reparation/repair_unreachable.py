@@ -113,12 +113,12 @@ def repair_unreachable_blocklist(cfg_blocklist: CFGBlockList,
         if constants.DEBUG:
             validate_memory_slots(cfg_blocklist)
         max_constant = hex(int(used_constants, 16) + 32)[2:]
-        return extract_statistics(cfg_blocklist.name, phi_webs, color_assignment, initial_fix,
-                                  num_redundant_stores), max_constant
+        return {**extract_statistics(cfg_blocklist.name, phi_webs, color_assignment, initial_fix,
+                                     num_redundant_stores), **count_memory_accesses(cfg_blocklist)}, max_constant
     else:
         return {"name": cfg_blocklist.name, "num_phi": 0, "num_assigned": 0, "num_colors": 0,
                 "memory_slots": 0, "redundant_stores": num_redundant_stores,
-                "before_constants": initial_fix}, forbidden_constants
+                "before_constants": initial_fix, **count_memory_accesses(cfg_blocklist)}, forbidden_constants
 
 
 def get_first_constant(cfg_blocklist: CFGBlockList):
@@ -266,6 +266,24 @@ def _debug_reparation(cfg_blocklist: CFGBlockList, path_to_files: Path):
 
 def _represent_greedy_info(block_name: block_id_T, greedy_info: GreedyInfo) -> str:
     return block_name + '\n' + '\n'.join(greedy_info.greedy_ids)
+
+
+def count_memory_accesses(cfg_blocklist: CFGBlockList) -> Dict[str, int]:
+    """
+    Number of memory accesses of the reparation in the block list, from the pseudo-instructions (after the
+    redundant stores have been turned into POPs): VGET (load), VSET (store of the value on top) and DUP-VSET
+    (store of a copy of a value in the stack). The parallel copies of the phi defs are not included
+    """
+    counts = {"num_vget": 0, "num_vset": 0, "num_dup_vset": 0}
+    for block in cfg_blocklist.blocks.values():
+        for instr_id in block.greedy_info.greedy_ids:
+            if instr_id.startswith("VGET"):
+                counts["num_vget"] += 1
+            elif instr_id.startswith("DUP-VSET"):
+                counts["num_dup_vset"] += 1
+            elif instr_id.startswith("VSET"):
+                counts["num_vset"] += 1
+    return counts
 
 
 def extract_statistics(name: str, phi_web: PhiWebs, color_assignment: ColourAssignment, initial_fix: int,

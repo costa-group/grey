@@ -69,6 +69,10 @@ def generate_parser() -> argparse.ArgumentParser:
                                         "which every path reaches the call: the lowest one above the blocks that "
                                         "have equivalent copies ('shared', the default), the nearest branch point "
                                         "('branch') or the highest one ('max')")
+    synthesis_options.add_argument("--solc-dedup", choices=["auto", "on", "off"], default="auto", dest="solc_dedup",
+                                   help="Whether solc's block deduplicator runs on the generated assembly, which the "
+                                        "merging of equivalent blocks takes into account. 'auto' (the default) "
+                                        "detects it by importing a small assembly with the given solc")
     synthesis_options.add_argument("--no-merge-equivalent", action="store_false", dest="merge_equivalent",
                                    help="Disables merging the equivalent blocks in the acyclic tails of the CFG")
     synthesis_options.add_argument("--constants", action="store_false",

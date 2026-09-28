@@ -3,6 +3,7 @@ Compiles a smart contract (in either of the formats used in Etherscan)
 into the yul representation
 """
 
+import functools
 import glob
 import json
 import shutil
@@ -49,6 +50,61 @@ def change_pragma(initial_contract: str, pragma_name: str = "0.8.17"):
     pattern = re.compile("pragma solidity .*?;")
     contract_with_pragma = re.sub(pattern, f"pragma solidity ^{pragma_name};",initial_contract)
     return contract_with_pragma
+
+
+def _probe_assembly(second_constant: str) -> Dict[str, Any]:
+    """
+    Standard JSON input of the assembly importer for the deduplication probe:
+    calldataload(0) ? jump tag 1 : jump tag 2; tag 1: revert(1, 0); tag 2: revert(second_constant, 0)
+    """
+    def item(name: str, value: Optional[str] = None) -> Dict[str, Any]:
+        return {"name": name, "begin": -1, "end": -1, "source": -1, **({"value": value} if value is not None else {})}
+
+    code = [item("PUSH", "0"), item("CALLDATALOAD"), item("PUSH [tag]", "1"), item("JUMPI"),
+            item("PUSH [tag]", "2"), item("JUMP"),
+            item("tag", "1"), item("JUMPDEST"), item("PUSH", "0"), item("PUSH", "1"), item("REVERT"),
+            item("tag", "2"), item("JUMPDEST"), item("PUSH", "0"), item("PUSH", second_constant), item("REVERT")]
+    return {"language": "EVMAssembly", "sources": {"probe": {"assemblyJson": {".code": code, "sourceList": []}}},
+            "settings": {"optimizer": {"enabled": True, "runs": 200},
+                         "outputSelection": {"*": {"": ["evm.bytecode.object"]}}}}
+
+
+def _probe_size(solc_executable: str, standard_json: Dict[str, Any]) -> int:
+    """
+    Size of the bytecode that the importer generates for the probe (retrying with the experimental settings if
+    the build requires them)
+    """
+    for experimental in (False, True):
+        if experimental:
+            standard_json["settings"]["experimental"] = True
+        completed = subprocess.run([solc_executable, "--standard-json"], input=json.dumps(standard_json),
+                                   capture_output=True, text=True)
+        output = json.loads(completed.stdout)
+        if not any(error_msg.get("severity") == "error" for error_msg in output.get("errors", [])):
+            return sum(len(contract["evm"]["bytecode"]["object"]) // 2
+                       for file_contracts in output["contracts"].values() for contract in file_contracts.values())
+        if not _requires_experimental_settings(output):
+            break
+    raise ValueError(f"The deduplication probe failed with {solc_executable}: {output.get('errors')}")
+
+
+@functools.lru_cache(maxsize=None)
+def importer_deduplicates_blocks(solc_executable: str) -> bool:
+    """
+    Whether the assembly importer of the given solc binary runs the block deduplicator (builds with the legacy
+    optimizer disabled, such as examples/solc-without-opt, do not). It imports two assemblies with two blocks of
+    the same size, identical in the first one and different in the second one: only the deduplicator makes the
+    first one smaller
+    """
+    return _probe_size(solc_executable, _probe_assembly("1")) < _probe_size(solc_executable, _probe_assembly("2"))
+
+
+def _requires_experimental_settings(output_dict: Dict) -> bool:
+    """
+    Whether solc rejected the compilation because the requested outputs (yulCFGJson) are experimental
+    """
+    return any(error_msg.get("severity") == "error" and "settings.experimental" in error_msg.get("message", "")
+               for error_msg in output_dict.get("errors", []))
 
 
 def yul_close_compilation_settings() -> Dict:
@@ -415,6 +471,14 @@ class SolidityCompilation:
         # Compile it using the corresponding options
         output_dict, error = self._compile_json_input(tmp_file)
 
+        # Release builds only generate the yulCFGJson with the experimental settings enabled (and older or custom
+        # builds reject that key), so they are enabled only when the compiler asks for them
+        if _requires_experimental_settings(output_dict):
+            json_input["settings"]["experimental"] = True
+            with open(tmp_file, 'w') as f:
+                f.write(json.dumps(json_input))
+            output_dict, error = self._compile_json_input(tmp_file)
+
         os.remove(tmp_file)
 
         # We restore the file afterward
@@ -433,6 +497,17 @@ class SolidityCompilation:
     def _compile_sol_command(self, sol_file: str):
         command = f"{self._solc_command} {self.flags} {sol_file}"
         output, error = run_command(command)
+        # Release builds only accept --yul-cfg-json in experimental mode (older or custom builds reject the flag)
+        if "only available in experimental mode" in error:
+            output, error = run_command(f"{self._solc_command} --experimental {self.flags} {sol_file}")
+        # Likewise, the EVMAssembly input of the importer (standard JSON) needs settings.experimental in release builds
+        elif "--standard-json" in self.flags and "settings.experimental" in output:
+            with open(sol_file) as f:
+                standard_json = json.load(f)
+            standard_json.setdefault("settings", {})["experimental"] = True
+            with open(sol_file, 'w') as f:
+                json.dump(standard_json, f)
+            output, error = run_command(command)
         return output, error
 
     def _process_sol_command(self, output: str, error: str) -> bool:

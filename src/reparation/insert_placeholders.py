@@ -20,7 +20,7 @@ from greedy.greedy_info import GreedyInfo
 from parser.cfg_block import CFGBlock
 from parser.cfg_block_list import CFGBlockList
 from reparation.phi_webs import PhiWebs
-from reparation.utils import extract_value_from_pseudo_instr
+from reparation.utils import extract_value_from_pseudo_instr, is_constant
 
 
 def repair_unreachable(block_list: CFGBlockList, elements_to_fix: Set[var_id_T]) -> Tuple[PhiWebs, int]:
@@ -83,13 +83,17 @@ def fix_inaccessible_phi_values(block_list: CFGBlockList,
             for ai, Bi in zip(phi_instruction.get_in_args(), current_block.entries):
                 Bi_greedy_info = block_list.get_block(Bi).greedy_info
 
-                # We iterate if the value is unreachable
-                # (i.e it can be reached at no point)
-                if ai in Bi_greedy_info.unreachable and ai not in handled_values:
-                    B_def = phi_def2block[ai]
-                    # We need to find in which block ai is
-                    # defined to perform the same process (if needed)
-                    pairs_to_traverse.append((ai, B_def))
+                # Constants are pushed directly into the slot of the phi def at the end of Bi: they are neither
+                # stored in memory nor part of the phi web (they have no colour)
+                if is_constant(ai):
+                    Bi_greedy_info.add_constant_copy(ai)
+                    continue
+
+                # We iterate if the value is unreachable (i.e it can be reached at no point) and it is another phi
+                # def: it is repaired in the block that defines it. Values defined by other instructions are
+                # stored where they are reachable (store_stack_elements_tree), through the virtual copy
+                if ai in Bi_greedy_info.unreachable and ai not in handled_values and ai in phi_def2block:
+                    pairs_to_traverse.append((ai, phi_def2block[ai]))
 
                 # For all cases, we need to add a virtual copy
                 Bi_greedy_info.add_virtual_copy(ai)

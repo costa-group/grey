@@ -52,27 +52,29 @@ class FreshVariables:
         return fresh_copy
 
 
-def merge_equivalent_blocks_cfg(cfg: CFG) -> int:
+def merge_equivalent_blocks_cfg(cfg: CFG, solc_deduplicates: bool = True) -> int:
     """
-    Merges the equivalent blocks in the acyclic tails of every block list in the CFG.
+    Merges the equivalent blocks in the acyclic tails of every block list in the CFG. solc_deduplicates tells
+    whether solc's block deduplicator runs on the generated assembly (see _merge_record).
     Returns the number of removed blocks
     """
     fresh_variables = FreshVariables(_variables_cfg(cfg))
-    return _merge_equivalent_blocks_cfg(cfg, fresh_variables)
+    return _merge_equivalent_blocks_cfg(cfg, fresh_variables, solc_deduplicates)
 
 
-def _merge_equivalent_blocks_cfg(cfg: CFG, fresh_variables: FreshVariables) -> int:
+def _merge_equivalent_blocks_cfg(cfg: CFG, fresh_variables: FreshVariables, solc_deduplicates: bool) -> int:
     removed_blocks = 0
     for object_id, cfg_object in cfg.objectCFG.items():
-        removed_blocks += merge_equivalent_blocks_block_list(cfg_object.blocks, fresh_variables)
+        removed_blocks += merge_equivalent_blocks_block_list(cfg_object.blocks, fresh_variables, solc_deduplicates)
 
         for function_name, cfg_function in cfg_object.functions.items():
-            removed_blocks += merge_equivalent_blocks_block_list(cfg_function.blocks, fresh_variables)
+            removed_blocks += merge_equivalent_blocks_block_list(cfg_function.blocks, fresh_variables,
+                                                                 solc_deduplicates)
 
         sub_object = cfg_object.get_subobject()
 
         if sub_object is not None:
-            removed_blocks += _merge_equivalent_blocks_cfg(sub_object, fresh_variables)
+            removed_blocks += _merge_equivalent_blocks_cfg(sub_object, fresh_variables, solc_deduplicates)
     return removed_blocks
 
 
@@ -99,7 +101,8 @@ def _variables_cfg(cfg: CFG) -> Set[var_id_T]:
     return variables
 
 
-def merge_equivalent_blocks_block_list(block_list: CFGBlockList, fresh_variables: FreshVariables) -> int:
+def merge_equivalent_blocks_block_list(block_list: CFGBlockList, fresh_variables: FreshVariables,
+                                       solc_deduplicates: bool = True) -> int:
     """
     Merges the equivalent blocks in the acyclic tails of the block list, traversing the blocks bottom-up.
     The decision is taken per region (a set of merges that depend on each other) rather than per merge:
@@ -116,7 +119,8 @@ def merge_equivalent_blocks_block_list(block_list: CFGBlockList, fresh_variables
     original_successors = {block_id: list(block.successors) for block_id, block in block_list.blocks.items()}
 
     trial_block_list = copy.deepcopy(block_list)
-    trial_records, _, _ = _merge_bottom_up(trial_block_list, fresh_variables.copy(), lambda *_: True)
+    trial_records, _, _ = _merge_bottom_up(trial_block_list, fresh_variables.copy(), lambda *_: True,
+                                           solc_deduplicates)
     if len(trial_records) == 0:
         return 0
 
@@ -127,7 +131,8 @@ def merge_equivalent_blocks_block_list(block_list: CFGBlockList, fresh_variables
 
     records, merged_representatives, reduced_successors = _merge_bottom_up(
         block_list, fresh_variables,
-        lambda duplicate_id, representative_id: (duplicate_id, representative_id) in selected_merges)
+        lambda duplicate_id, representative_id: (duplicate_id, representative_id) in selected_merges,
+        solc_deduplicates)
 
     if len(records) != len(selected_merges):
         logging.warning(f"Only {len(records)} of the {len(selected_merges)} selected merges were performed "
@@ -163,7 +168,7 @@ class MergeRecord:
 
 
 def _merge_bottom_up(block_list: CFGBlockList, fresh_variables: FreshVariables,
-                     allowed: Callable[[block_id_T, block_id_T], bool]) \
+                     allowed: Callable[[block_id_T, block_id_T], bool], solc_deduplicates: bool = True) \
         -> Tuple[List[MergeRecord], List[block_id_T], List[block_id_T]]:
     """
     Traverses the candidates bottom-up and merges each block into the first visited block with the same
@@ -205,6 +210,7 @@ def _merge_bottom_up(block_list: CFGBlockList, fresh_variables: FreshVariables,
             continue
 
         records.append(_merge_record(representative, representative_inputs, block, block_inputs, block_list,
+                                     solc_deduplicates,
                                      representative_id not in merged_representatives))
         reduced_successors.update(dict.fromkeys(block.successors))
         MergeEquivalentBlocks(representative, representative_inputs, block, block_inputs,
@@ -248,7 +254,7 @@ def _estimated_size(block: CFGBlock) -> int:
 
 
 def _merge_record(representative: CFGBlock, representative_inputs: List[var_id_T], duplicate: CFGBlock,
-                  duplicate_inputs: List[var_id_T], block_list: CFGBlockList,
+                  duplicate_inputs: List[var_id_T], block_list: CFGBlockList, solc_deduplicates: bool,
                   first_into_representative: bool) -> MergeRecord:
     """
     Collects the information of a merge before performing it
@@ -262,9 +268,10 @@ def _merge_record(representative: CFGBlock, representative_inputs: List[var_id_T
         return "falling" if pred_block.get_falls_to() in merged_ids else "jump"
 
     # Terminal blocks with no variable inputs produce the same assembly regardless of the stack (junk is
-    # allowed in blocks that never return), so solc already deduplicates them: merging them saves nothing
-    # by itself, but it can enable merging their predecessors
-    is_constant_terminal = duplicate.get_jump_type() in ["terminal", "mainExit"] and \
+    # allowed in blocks that never return), so solc's block deduplicator already merges them, if it runs:
+    # merging them saves nothing by itself, but it can enable merging their predecessors. Without it (e.g.
+    # builds with the legacy optimizer disabled), only this merge removes the copy
+    is_constant_terminal = solc_deduplicates and duplicate.get_jump_type() in ["terminal", "mainExit"] and \
         len(duplicate.successors) == 0 and len(representative_inputs) == 0
 
     return MergeRecord(duplicate.block_id, representative.block_id,

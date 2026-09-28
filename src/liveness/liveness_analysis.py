@@ -77,7 +77,24 @@ def construct_analysis_info_from_cfgblocklist(block_list: CFGBlockList) -> cfg_i
     # if any(block_id.startswith("extract_byte_array_length") for block_id in block_info.keys()):
     #     print("HERE")
     terminal_blocks = block_list.terminal_blocks.copy()
-    return {"block_info": block_info, "terminal_blocks": terminal_blocks}
+    return {"block_info": block_info, "terminal_blocks": terminal_blocks + _blocks_without_exit(block_info,
+                                                                                               terminal_blocks)}
+
+
+def _blocks_without_exit(block_info: Dict[str, LivenessBlockInfoSSA], terminal_blocks: List[str]) -> List[str]:
+    """
+    Blocks from which no terminal block can be reached (loops without exit, e.g. while (true) with a body that
+    never breaks, and the blocks that only lead to them). The backwards analysis only visits the blocks that reach
+    the initial ones, so these blocks are also used as initial blocks (nothing is live after them)
+    """
+    reaches_exit = set(terminal_blocks)
+    pending = list(terminal_blocks)
+    while pending:
+        for predecessor in block_info[pending.pop()].comes_from:
+            if predecessor in block_info and predecessor not in reaches_exit:
+                reaches_exit.add(predecessor)
+                pending.append(predecessor)
+    return [block_id for block_id in block_info if block_id not in reaches_exit]
 
 
 def construct_analysis_info(cfg: CFG) -> Dict[cfg_object_T, Dict[component_name_T, cfg_info_T]]:

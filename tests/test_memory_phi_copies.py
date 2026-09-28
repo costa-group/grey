@@ -47,3 +47,47 @@ class TestMemoryPhiCopies:
         definitions = memory_definition_blocks(block_list)
         assert definitions["a2"] == "after"
         assert phi_copies_from_memory(block_list, "right", definitions) == []
+
+
+class TestConstantPhiArguments:
+
+    def build(self):
+        """
+        start -> (left, right) -> join, with v9 = phi(0x20: left, a2: right) handled in memory. The constant 0x20 is
+        unreachable at the end of left and a2 is reachable at the end of right
+        """
+        block_list = CFGBlockList("object")
+        for block_id in ["start", "left", "right", "join"]:
+            instructions = [CFGInstruction("PhiFunction", ["0x20", "a2"], ["v9"])] if block_id == "join" else []
+            block = CFGBlock(block_id, instructions, "terminal", dict())
+            block.greedy_info = GreedyInfo([], "non_optimal", 0, [])
+            block_list.add_block(block)
+        for u, v in [("start", "left"), ("start", "right"), ("left", "join"), ("right", "join")]:
+            block_list.blocks[v].add_comes_from(u)
+            if block_list.blocks[u].get_jump_to() is None:
+                block_list.blocks[u].set_jump_to(v)
+            else:
+                block_list.blocks[u].set_falls_to(v)
+        block_list.get_block("join").entries = ["left", "right"]
+        block_list.get_block("left").greedy_info.unreachable.add("0x20")
+        block_list.get_block("right").greedy_info.reachable["a2"] = (0, 0, True)
+        return block_list
+
+    def test_constant_argument_is_pushed_not_stored(self):
+        # The constant has no definition to repair: it is only recorded as a constant copy of left, it gets no
+        # virtual copy (no VGET to place) and it does not join the phi web (it has no colour)
+        from reparation.insert_placeholders import fix_inaccessible_phi_values
+        block_list = self.build()
+        phi_web = fix_inaccessible_phi_values(block_list, {"v9"}, {"v9": "join"})
+        left, right = block_list.get_block("left").greedy_info, block_list.get_block("right").greedy_info
+        assert left.constant_copies == {"0x20"}
+        assert "0x20" not in left.virtual_copies and left.get_count["0x20"] == 0
+        assert "a2" in right.virtual_copies
+        assert "0x20" not in phi_web._var2class
+        assert "v9" in block_list.get_block("join").greedy_info.phi_defs_to_solve
+
+    def test_constant_copy_is_a_push_in_the_assembly(self):
+        from solution_generation.reconstruct_bytecode import id_to_asm_bytecode
+        assert id_to_asm_bytecode({}, "PUSH-CONSTANT 0x20")["value"] == "20"
+        # The slot addresses keep their format
+        assert id_to_asm_bytecode({}, "PUSH 80")["value"] == "80"

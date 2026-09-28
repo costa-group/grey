@@ -310,3 +310,35 @@ class TestMergeEquivalentBlocks:
         survivor(block_list, "long_1", "long_2")
         check_coherence(block_list)
 
+
+    def test_constant_terminals_merged_only_without_solc_deduplication(self):
+        # Two identical reverts of a constant message (no inputs), each reached from a conditional jump. With solc's
+        # deduplicator they would be merged anyway, so merging them only adds the edge blocks; without it, merging
+        # them is the only way to remove the copy and it saves more than the edge blocks cost
+        def build():
+            start = CFGBlock("start", [CFGInstruction("calldataload", ["0x00"], ["v0"])], "conditional", dict())
+            start.set_condition("v0")
+            x = CFGBlock("x", [CFGInstruction("calldataload", ["0x20"], ["v1"])], "conditional", dict())
+            x.set_condition("v1")
+            z = CFGBlock("z", [CFGInstruction("calldataload", ["0x40"], ["v2"])], "conditional", dict())
+            z.set_condition("v2")
+            message = "0x" + "ab" * 32
+
+            def constant_revert(block_id):
+                return CFGBlock(block_id, [CFGInstruction("mstore", ["0x00", message], []),
+                                           CFGInstruction("revert", ["0x00", "0x20"], [])], "terminal", dict())
+            return build_block_list([start, x, z, constant_revert("r1"), constant_revert("r2"),
+                                     revert_block("end_1", "v1"), revert_block("end_2", "v2")],
+                                    [("start", "x", "falls_to"), ("start", "z", "jumps_to"),
+                                     ("x", "r1", "jumps_to"), ("x", "end_1", "falls_to"),
+                                     ("z", "r2", "jumps_to"), ("z", "end_2", "falls_to")])
+
+        fresh = {"v0", "v1", "v2", "v3", "v4"}
+        with_deduplication = build()
+        merge_equivalent_blocks_block_list(with_deduplication, FreshVariables(fresh), solc_deduplicates=True)
+        assert "r1" in with_deduplication.blocks and "r2" in with_deduplication.blocks
+
+        without_deduplication = build()
+        merge_equivalent_blocks_block_list(without_deduplication, FreshVariables(fresh), solc_deduplicates=False)
+        survivor(without_deduplication, "r1", "r2")
+        check_coherence(without_deduplication)
