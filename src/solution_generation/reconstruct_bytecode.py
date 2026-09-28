@@ -241,7 +241,7 @@ def traverse_cfg_block_list(block_list: CFGBlockList, function_name2entry: Dict[
             if asm_block == [] and next_block.get_jump_type() == "terminal":
 
                 relevant_ins = [ins for ins in next_block.get_instructions()
-                                if ins.get_op_name() in ["PhiFunction", "pop"]]
+                                if ins.get_op_name() not in ["PhiFunction", "pop"]]
                 assert len(relevant_ins) == 1, f"Reconstruction from next block fails: {next_block.get_instructions()}"
                 ins = relevant_ins[0]
 
