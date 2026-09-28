@@ -51,6 +51,14 @@ def change_pragma(initial_contract: str, pragma_name: str = "0.8.17"):
     return contract_with_pragma
 
 
+def _requires_experimental_settings(output_dict: Dict) -> bool:
+    """
+    Whether solc rejected the compilation because the requested outputs (yulCFGJson) are experimental
+    """
+    return any(error_msg.get("severity") == "error" and "settings.experimental" in error_msg.get("message", "")
+               for error_msg in output_dict.get("errors", []))
+
+
 def yul_close_compilation_settings() -> Dict:
     """
     Configuration to use in order test that the Yul code matches the one from the JSON representation
@@ -415,6 +423,14 @@ class SolidityCompilation:
         # Compile it using the corresponding options
         output_dict, error = self._compile_json_input(tmp_file)
 
+        # Release builds only generate the yulCFGJson with the experimental settings enabled (and older or custom
+        # builds reject that key), so they are enabled only when the compiler asks for them
+        if _requires_experimental_settings(output_dict):
+            json_input["settings"]["experimental"] = True
+            with open(tmp_file, 'w') as f:
+                f.write(json.dumps(json_input))
+            output_dict, error = self._compile_json_input(tmp_file)
+
         os.remove(tmp_file)
 
         # We restore the file afterward
@@ -433,6 +449,17 @@ class SolidityCompilation:
     def _compile_sol_command(self, sol_file: str):
         command = f"{self._solc_command} {self.flags} {sol_file}"
         output, error = run_command(command)
+        # Release builds only accept --yul-cfg-json in experimental mode (older or custom builds reject the flag)
+        if "only available in experimental mode" in error:
+            output, error = run_command(f"{self._solc_command} --experimental {self.flags} {sol_file}")
+        # Likewise, the EVMAssembly input of the importer (standard JSON) needs settings.experimental in release builds
+        elif "--standard-json" in self.flags and "settings.experimental" in output:
+            with open(sol_file) as f:
+                standard_json = json.load(f)
+            standard_json.setdefault("settings", {})["experimental"] = True
+            with open(sol_file, 'w') as f:
+                json.dump(standard_json, f)
+            output, error = run_command(command)
         return output, error
 
     def _process_sol_command(self, output: str, error: str) -> bool:
