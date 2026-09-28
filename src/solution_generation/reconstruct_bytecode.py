@@ -240,11 +240,10 @@ def traverse_cfg_block_list(block_list: CFGBlockList, function_name2entry: Dict[
 
             if asm_block == [] and next_block.get_jump_type() == "terminal":
 
-                if len(next_block.get_instructions()) == 2 and next_block.get_instructions()[0].get_op_name() == "PhiFunction":
-                    ins = next_block.get_instructions()[1]
-                else:
-                    assert len(next_block.get_instructions()) == 1, f"Falla { next_block.get_instructions()}"
-                    ins = next_block.get_instructions()[0]
+                relevant_ins = [ins for ins in next_block.get_instructions()
+                                if ins.get_op_name() in ["PhiFunction", "pop"]]
+                assert len(relevant_ins) == 1, f"Reconstruction from next block fails: {next_block.get_instructions()}"
+                ins = relevant_ins[0]
 
                 # Terminal blocks might contain calls to terminal functions (i.e. not so terminal...)
                 asm_block = asm_for_split_instruction(ins, function_name2entry)
