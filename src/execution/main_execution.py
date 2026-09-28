@@ -11,7 +11,7 @@ from parser.utils_parser import split_json
 from global_params.types import Yul_CFG_T
 from parser.parser import parse_CFG_from_json_dict
 from parser.cfg import CFG
-from execution.sol_compilation import SolidityCompilation
+from execution.sol_compilation import SolidityCompilation, importer_deduplicates_blocks
 from solution_generation.reconstruct_bytecode import asm_from_cfg, store_asm_output, store_binary_output, \
     store_asm_standard_json_output
 from greedy.ids_from_spec import cfg_spec_ids
@@ -122,6 +122,11 @@ def main(args):
     times[0] += (y - x)
 
     print("Yul CFG Generation", y - x)
+
+    # Whether solc's block deduplicator runs on the generated assembly (used by the merging of equivalent blocks)
+    args.solc_deduplicates = args.solc_dedup == "on" or \
+        (args.solc_dedup == "auto" and importer_deduplicates_blocks(args.solc_executable))
+    print("solc deduplicates the blocks of the assembly:", args.solc_deduplicates)
 
     final_dir = Path(args.folder)
     constants.DEBUG_DIR = final_dir.joinpath("debug")

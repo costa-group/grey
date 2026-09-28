@@ -43,7 +43,7 @@ def preprocess_cfg(cfg: CFG, dot_file_dir: Path, args: Namespace) -> Dict[str, D
     if getattr(args, "merge_equivalent", True):
         # We merge the equivalent blocks in the acyclic tails of the CFG. It must be done before
         # introducing the jumps and tags, as the removed blocks would need no tag
-        merge_equivalent_blocks_cfg(cfg)
+        merge_equivalent_blocks_cfg(cfg, getattr(args, "solc_deduplicates", True))
         if args.visualize:
             dot_from_analysis(cfg, dot_file_dir.joinpath("merged_equivalent"))
 
