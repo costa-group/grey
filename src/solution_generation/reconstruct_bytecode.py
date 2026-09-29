@@ -391,6 +391,64 @@ def reuse_free_memory_pointer(code: List[ASM_bytecode_T]) -> List[ASM_bytecode_T
     return code
 
 
+BLOCK_END_INSTRUCTIONS = {"JUMP", "JUMPI", "STOP", "RETURN", "REVERT", "INVALID", "SELFDESTRUCT"}
+
+
+def restrict_importer_inlining(asm_contract: ASM_contract_T) -> None:
+    """
+    solc's inliner copies the body of the single-block functions (called with JUMP [in] and returning with
+    JUMP [out]) in every call site whenever it saves gas according to "runs", even if the code grows. In solc's code
+    most of these copies are merged afterwards by the block deduplicator, but in grey's code the copies are mixed with
+    different code in each call site and remain. Hence, the [in]/[out] annotations are only kept for the functions in
+    which inlining reduces the number of instructions. For a single-block function with k call sites and B
+    instructions (without its JUMP [out]):
+      - not inlined: 4k (PUSH ret, PUSH f, JUMP [in] and the JUMPDEST of ret per call site) + B + 2 (JUMPDEST, body
+        and JUMP [out] once)
+      - inlined: k * B
+    The number of PUSH [tag] of the function approximates k, as solc does. The code does not change: solc treats
+    the jumps without annotations as ordinary jumps, so it does not copy the function
+    """
+    code = asm_contract.get(".code", [])
+    tag_positions = {instruction["value"]: i for i, instruction in enumerate(code) if instruction["name"] == "tag"}
+    push_tags = collections.Counter(instruction["value"] for instruction in code if instruction["name"] == "PUSH [tag]")
+
+    call_sites = collections.defaultdict(list)
+    for i, instruction in enumerate(code):
+        if (instruction["name"] == "JUMP" and instruction.get("jumpType") == "[in]" and i > 0
+                and code[i - 1]["name"] == "PUSH [tag]"):
+            call_sites[code[i - 1]["value"]].append(i)
+
+    for function_tag, sites in call_sites.items():
+        if function_tag not in tag_positions:
+            continue
+
+        # First block of the function: from its tag to the first instruction that ends the block
+        body_size, block_end = 0, None
+        for j in range(tag_positions[function_tag] + 1, len(code)):
+            name = code[j]["name"]
+            if name == "tag":
+                break
+            if name in BLOCK_END_INSTRUCTIONS:
+                block_end = j
+                break
+            if name != "JUMPDEST":
+                body_size += 1
+
+        single_block = (block_end is not None and code[block_end]["name"] == "JUMP"
+                        and code[block_end].get("jumpType") == "[out]")
+        k = push_tags[function_tag]
+
+        if not (single_block and k * body_size < 4 * k + body_size + 2):
+            for i in sites:
+                code[i].pop("jumpType", None)
+            if single_block:
+                code[block_end].pop("jumpType", None)
+
+    for sub_object in asm_contract.get(".data", {}).values():
+        if isinstance(sub_object, dict):
+            restrict_importer_inlining(sub_object)
+
+
 def traverse_cfg(cfg_object: CFGObject, tags_dict: Dict[block_id_T, int], asm_dir: Optional[Path] = None) -> List[ASM_bytecode_T]:
     """
     Traverses the blocks in the CFG to generate the serialized assembly code
