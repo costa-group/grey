@@ -14,7 +14,7 @@ from parser.parser import parse_CFG_from_json_dict
 from parser.cfg import CFG
 from execution.sol_compilation import SolidityCompilation, importer_deduplicates_blocks
 from solution_generation.reconstruct_bytecode import asm_from_cfg, store_asm_output, store_binary_output, \
-    store_asm_standard_json_output
+    store_asm_standard_json_output, restrict_importer_inlining
 from greedy.ids_from_spec import cfg_spec_ids
 from liveness.layout_generation import layout_generation
 from cfg_methods.preprocessing_methods import preprocess_cfg
@@ -245,6 +245,11 @@ def main(args):
 
         if args.visualize:
             assembly_path = store_asm_output(asm_contract, cfg_name, cfg_dir)
+
+        if args.inline:
+            # solc's inliner is only allowed to copy the functions in which inlining reduces the number of
+            # instructions. With --no-inline the importer keeps its standard behaviour
+            restrict_importer_inlining(asm_contract)
 
         std_assembly_path = store_asm_standard_json_output(asm_contract, cfg_name, cfg_dir, settings)
         # print(std_assembly_path)
