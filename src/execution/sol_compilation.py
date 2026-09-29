@@ -6,6 +6,7 @@ into the yul representation
 import functools
 import glob
 import json
+from collections import defaultdict
 import shutil
 import sys
 import os
@@ -422,6 +423,16 @@ class SolidityCompilation:
                 logging.warning(error)
 
             json_dict = dict()
+            # Several source files can define contracts with the same name (e.g. flattened sources). In that case,
+            # each definition is identified by the name of its Yul object, which solc builds from the contract name
+            # and its AST id (e.g. Token_809), and the correspondence with its source file is recorded
+            name_count = defaultdict(int)
+            for current_file in output_dict["contracts"].values():
+                for contract_name, contract_output in current_file.items():
+                    if contract_output["yulCFGJson"] is not None:
+                        name_count[contract_name] += 1
+            self.contract_sources = dict()
+
             # Produce a json file for each contract
             for filename in output_dict["contracts"]:
                 current_file = output_dict["contracts"][filename]
@@ -429,7 +440,12 @@ class SolidityCompilation:
                     yul_cfg_current = current_file[contract_name]["yulCFGJson"]
 
                     if yul_cfg_current is not None:
-                        json_dict[contract_name] = yul_cfg_current
+                        key = contract_name
+                        if name_count[contract_name] > 1:
+                            key = next(object_name for object_name in yul_cfg_current if object_name != "type")
+                            self.contract_sources[key] = {"source": filename, "contract": contract_name}
+                            print(f"Contract source: {key} -> {filename}:{contract_name}")
+                        json_dict[key] = yul_cfg_current
                         # Only store the contract that matches the specification
                         if self._final_file is not None and deployed_contract is not None \
                                 and contract_name == deployed_contract:
