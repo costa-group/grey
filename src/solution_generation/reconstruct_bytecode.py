@@ -197,8 +197,9 @@ def removable_edge_blocks(blocks: Dict[block_id_T, CFGBlock],
     only push the tag of their jump, are not emitted: their predecessor goes directly to their successor.
     - If the predecessor jumps to the edge block, the tag it pushes is replaced by the tag of the successor.
     - If the predecessor falls to the edge block, it falls directly to the successor, provided no other block
-      falls to it (the reconstruction places a falls-to block right after its predecessor). Otherwise, the
-      edge block is kept.
+      falls to it (the reconstruction places a falls-to block right after its predecessor) and no block falls to
+      the predecessor either: if the successor has already been placed, the predecessor is moved right before it,
+      which would break the fall from its own predecessor. Otherwise, the edge block is kept.
     Returns the redirections (edge block -> block reached instead) and the tag aliases
     """
     falling_predecessors = collections.Counter(block.get_falls_to() for block in blocks.values()
@@ -213,7 +214,8 @@ def removable_edge_blocks(blocks: Dict[block_id_T, CFGBlock],
         pred_block = blocks[edge_block.get_comes_from()[0]]
         successor_id = edge_block.get_jump_to()
         if pred_block.get_falls_to() == edge_id:
-            if falling_predecessors[successor_id] > 0:
+            # (falling_predecessors also counts the links between split sub-blocks and the falls already redirected)
+            if falling_predecessors[successor_id] > 0 or falling_predecessors[pred_block.block_id] > 0:
                 continue
             falling_predecessors[successor_id] += 1
         redirect[edge_id] = successor_id
@@ -377,12 +379,25 @@ def traverse_cfg_block_list(block_list: CFGBlockList, function_name2entry: Dict[
     return asm_instructions
 
 
+def reuse_free_memory_pointer(code: List[ASM_bytecode_T]) -> List[ASM_bytecode_T]:
+    """
+    The code of each object starts by storing the free memory pointer (mstore(0x40, 0x80)) and, if it uses 0x80
+    again right away, pushes it again. Duplicating it instead saves one byte, and leaves the same stack ([0x80]):
+    PUSH 80 PUSH 40 MSTORE PUSH 80  ->  PUSH 80 DUP1 PUSH 40 MSTORE
+    """
+    names = [(instruction["name"], instruction.get("value")) for instruction in code[:4]]
+    if names == [("PUSH", "80"), ("PUSH", "40"), ("MSTORE", None), ("PUSH", "80")]:
+        return [code[0], asm_from_op_info("DUP1"), code[1], code[2]] + code[4:]
+    return code
+
+
 def traverse_cfg(cfg_object: CFGObject, tags_dict: Dict[block_id_T, int], asm_dir: Optional[Path] = None) -> List[ASM_bytecode_T]:
     """
     Traverses the blocks in the CFG to generate the serialized assembly code
     """
     function_name2entry = generate_function_name2entry(cfg_object.functions.values())
     object_code = traverse_cfg_block_list(cfg_object.blocks, function_name2entry, tags_dict, asm_dir)
+    object_code = reuse_free_memory_pointer(object_code)
 
     function_code_list = []
     # TODO: devise better strategies to decide in which order the functions are included in the code
@@ -497,10 +512,10 @@ def build_standard_json_settings(output_json, settings_opt):
         # The Yul CFG is always generated with the optimizer enabled, so the importer must run the legacy optimizer
         # (block deduplicator, peephole, CSE...) as well, even if the input disables it: otherwise the result is
         # neither comparable with solc's optimized code nor consistent with the CFG
-        optimizer = settings_opt.get("optimizer", {})
-        optimizer["enabled"] = True
-        optimizer.setdefault("runs", 200)
-        settings_opt["optimizer"] = optimizer
+        # optimizer = settings_opt.get("optimizer", {})
+        # optimizer["enabled"] = True
+        # optimizer.setdefault("runs", 200)
+        # settings_opt["optimizer"] = optimizer
 
     # opt = output_json["settings"].get("optimizer",{})
 
@@ -509,6 +524,12 @@ def build_standard_json_settings(output_json, settings_opt):
     # opt["details"] = opt_details
     
     # output_json["settings"]["optimizer"] = opt
+
+    # solc's inliner copies the body of functions called from several places (it optimises gas according to
+    # "runs"), which increases the number of instructions of grey's code, so it is disabled in the importer.
+    # The rest of the optimizer steps keep their standard configuration
+    optimizer = output_json["settings"].setdefault("optimizer", {})
+    optimizer.setdefault("details", {})["inliner"] = False
     
     output = build_output_selection()
     output_json["settings"]["outputSelection"] = output
