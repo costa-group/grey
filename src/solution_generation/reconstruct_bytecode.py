@@ -528,8 +528,8 @@ def build_standard_json_settings(output_json, settings_opt):
     # solc's inliner copies the body of functions called from several places (it optimises gas according to
     # "runs"), which increases the number of instructions of grey's code, so it is disabled in the importer.
     # The rest of the optimizer steps keep their standard configuration
-    optimizer = output_json["settings"].setdefault("optimizer", {})
-    optimizer.setdefault("details", {})["inliner"] = False
+    # optimizer = output_json["settings"].setdefault("optimizer", {})
+    # optimizer.setdefault("details", {})["inliner"] = False
     
     output = build_output_selection()
     output_json["settings"]["outputSelection"] = output
