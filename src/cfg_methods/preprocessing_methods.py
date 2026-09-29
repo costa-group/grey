@@ -17,6 +17,7 @@ from cfg_methods.minimizing_constants_insertion import insert_variables_for_cons
 from cfg_methods.return_labels import hoist_return_labels_cfg
 from cfg_methods.equivalent_blocks_merging import merge_equivalent_blocks_cfg
 from cfg_methods.critical_edges import split_critical_edges_cfg
+from cfg_methods.cse_rules import apply_cse_rules_cfg
 
 
 def preprocess_cfg(cfg: CFG, dot_file_dir: Path, args: Namespace) -> Dict[str, Dict[str, int]]:
@@ -29,6 +30,12 @@ def preprocess_cfg(cfg: CFG, dot_file_dir: Path, args: Namespace) -> Dict[str, D
 
     if args.visualize:
         dot_from_analysis(cfg, dot_file_dir.joinpath("renamed"))
+
+    if args.cse:
+        # Simplifications that solc's optimizer does not apply to grey's code (e.g. return(literal, 0) -> stop())
+        apply_cse_rules_cfg(cfg)
+        if args.visualize:
+            dot_from_analysis(cfg, dot_file_dir.joinpath("cse"))
 
     if args.inline:
         # We inline the functions
