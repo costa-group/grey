@@ -77,6 +77,9 @@ def generate_parser() -> argparse.ArgumentParser:
                                    help="Disables merging the equivalent blocks in the acyclic tails of the CFG")
     synthesis_options.add_argument("--constants", action="store_false",
                                    help="Disables constant propagation", dest="constants")
+    synthesis_options.add_argument("--cse", action="store_true", dest="cse",
+                                   help="Applies on the CFG the simplifications that solc's optimizer does not apply "
+                                        "to grey's code (e.g. return(literal, 0) -> stop())")
     return parser
 
 
