@@ -1,5 +1,6 @@
 import argparse
 import json
+import re
 from typing import Dict, Optional, List
 from pathlib import Path
 from timeit import default_timer as dtimer
@@ -110,6 +111,53 @@ def analyze_single_cfg(cfg: CFG, final_dir: Path, args: argparse.Namespace, time
     return json_asm_contract, info_colouring
 
 
+# The Yul code refers to AST ids (e.g. object names such as Token_809, function names or the ids of the immutables),
+# which differ between the copies of the same contract defined in several source files
+AST_ID_SUFFIX_REGEX = re.compile(r"(?<=[A-Za-z0-9_$])_(\d+)(?!\d)")
+
+
+def canonical_yul_cfg(yul_cfg: Yul_CFG_T) -> str:
+    """
+    Representation of a Yul CFG in which the AST ids are renamed consistently (in order of appearance), so that two
+    copies of the same contract that only differ in the ids have the same representation
+    """
+    renaming = dict()
+
+    def rename_ids(text: str) -> str:
+        return AST_ID_SUFFIX_REGEX.sub(lambda match: f"_#{renaming.setdefault(match.group(1), len(renaming))}", text)
+
+    def walk(node, immutable_ids: bool = False):
+        if isinstance(node, dict):
+            op = node.get("op")
+            return {rename_ids(key): walk(value, key == "literalArgs" and op in ("setimmutable", "loadimmutable"))
+                    for key, value in node.items()}
+        elif isinstance(node, list):
+            return [walk(value, immutable_ids) for value in node]
+        elif isinstance(node, str):
+            if immutable_ids and node.isdigit():
+                return f"#{renaming.setdefault(node, len(renaming))}"
+            return rename_ids(node)
+        return node
+
+    return json.dumps(walk(yul_cfg))
+
+
+def find_contract_copies(json_dict: Dict[str, Yul_CFG_T]) -> Dict[str, str]:
+    """
+    Detects the contracts whose Yul CFGs only differ in the AST ids. Returns the representative (the first
+    appearance) of each copy
+    """
+    representative = dict()
+    copy_of = dict()
+    for contract_name, yul_cfg in json_dict.items():
+        canonical = canonical_yul_cfg(yul_cfg)
+        if canonical in representative:
+            copy_of[contract_name] = representative[canonical]
+        else:
+            representative[canonical] = contract_name
+    return copy_of
+
+
 def main(args):
     print("Grey Main")
     
@@ -123,6 +171,13 @@ def main(args):
 
     print("Yul CFG Generation", y - x)
 
+    # Copies of the same contract (e.g. flattened sources) are optimized once and their result is reused. The
+    # contracts are still reported in their original order
+    contract_order = list(json_dict.keys())
+    copy_of = find_contract_copies(json_dict)
+    for copy_name, contract_name in copy_of.items():
+        print(f"Contract copy: {copy_name} -> {contract_name}")
+
     # Whether solc's block deduplicator runs on the generated assembly (used by the merging of equivalent blocks)
     args.solc_deduplicates = args.solc_dedup == "on" or \
         (args.solc_dedup == "auto" and importer_deduplicates_blocks(args.solc_executable))
@@ -134,6 +189,10 @@ def main(args):
     if constants.DEBUG:
         with open(debug_file('intermediate.json'), 'w') as f:
             json.dump(json_dict, f, indent=4)
+
+    # The copies are not parsed nor optimized (the result of their representative is reused)
+    json_dict = {contract_name: yul_cfg for contract_name, yul_cfg in json_dict.items()
+                 if contract_name not in copy_of}
 
     x = dtimer()
     cfgs = parse_CFG_from_json_dict(json_dict, args.builtin)
@@ -152,8 +211,22 @@ def main(args):
     contract_info = []
     call_freq = []
     info_repair = []
-    for cfg_name, cfg in cfgs.items():
+    # Results of each optimized contract, reused for its copies
+    results = dict()
+    for cfg_name in contract_order:
+        if cfg_name in copy_of:
+            asm_contract, importer_result = results[copy_of[cfg_name]]
+            asm_contracts[cfg_name]["asm"] = asm_contract
+            if not args.json_solc:
+                print("Contract: " + cfg_name + " -> EVM Code: " + importer_result)
+                contract_info.append({"contract": cfg_name, "bin_code": importer_result,
+                                      "num_bytes": len(importer_result) // 2})
+            else:
+                contract_info.append({"contract": cfg_name, "bin_code": importer_result})
+                asm_contracts_after_importer[cfg_name]["asm"] = asm_from_opcodes(importer_result)
+            continue
 
+        cfg = cfgs[cfg_name]
         blocks, ins = cfg.get_stats()
         
         total_blocks_cfg+=blocks
@@ -187,6 +260,7 @@ def main(args):
             print("Contract: " + cfg_name + " -> EVM Code: " + synt_binary_stdjson)
             contract_info.append({"contract": cfg_name, "bin_code": synt_binary_stdjson,
                                    "num_bytes": len(synt_binary_stdjson) // 2})
+            results[cfg_name] = (asm_contract, synt_binary_stdjson)
 
             if args.visualize:
                 store_binary_output(cfg_name, synt_binary_stdjson, cfg_dir)
@@ -199,6 +273,7 @@ def main(args):
             contract_info.append({"contract": cfg_name, "bin_code": synt_opcodes_stdjson})
 
             asm_contracts_after_importer[cfg_name]["asm"] = asm_from_opcodes(synt_opcodes_stdjson)
+            results[cfg_name] = (asm_contract, synt_opcodes_stdjson)
 
         y = dtimer()
 
