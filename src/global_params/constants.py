@@ -11,3 +11,7 @@ THREAD_EMPTY_BLOCKS = False
 # distorting the measured times) and stores the debug dumps in DEBUG_DIR
 DEBUG = False
 DEBUG_DIR: Optional[Path] = None
+
+# Disabled with --no-push-dup: once the greedy has decided the code of a block, the PUSHes of values that are
+# already in the stack are replaced by DUPs (fewer bytes, same number of instructions and gas)
+PUSH_DUP = True

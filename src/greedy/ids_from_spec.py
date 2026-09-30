@@ -27,6 +27,56 @@ def _length_or_zero(l, outcome):
     return len(l) if l is not None and outcome != "error" else 10000
 
 
+def push_to_dup(greedy_ids: List[instr_id_T], initial_stack: List[var_id_T],
+                instr_map: Dict[instr_id_T, Dict[str, Any]]) -> List[instr_id_T]:
+    """
+    Replaces the PUSHes (except PUSH0) of values that are already in the stack within the reach of DUP by the
+    corresponding DUP: same number of instructions and gas, fewer bytes. The stack is simulated from the initial
+    stack of the block, tracking the values pushed; the simulation stops at an unknown id
+    """
+    new_ids = list(greedy_ids)
+    stack = [("initial", var) for var in initial_stack]    # top at position 0
+    for i, instr_id in enumerate(greedy_ids):
+        if instr_id.startswith("DUP") and instr_id[3:].isdigit():
+            depth = int(instr_id[3:])
+            if depth > len(stack):
+                break
+            stack.insert(0, stack[depth - 1])
+        elif instr_id.startswith("SWAP") and instr_id[4:].isdigit():
+            depth = int(instr_id[4:])
+            if depth >= len(stack):
+                break
+            stack[0], stack[depth] = stack[depth], stack[0]
+        elif instr_id == "POP":
+            if not stack:
+                break
+            stack.pop(0)
+        elif instr_id.startswith("PUSH") and " 0x" in instr_id:
+            # Constant pushed directly by the greedy (e.g. "PUSH2 0x100")
+            value = int(instr_id.split(" 0x")[1], 16)
+            key = ("value", "PUSH", str([value]))
+            if value != 0 and key in stack[:constants.MAX_STACK_DEPTH]:
+                new_ids[i] = "DUP" + str(stack.index(key) + 1)
+            stack.insert(0, key)
+        elif instr_id in instr_map:
+            instr = instr_map[instr_id]
+            if instr.get("push", False) and instr["disasm"] != "PUSH0" and "value" in instr:
+                key = ("value", instr["disasm"], str(instr["value"]))
+                if key in stack[:constants.MAX_STACK_DEPTH] and instr.get("size", 2) > 1:
+                    new_ids[i] = "DUP" + str(stack.index(key) + 1)
+                stack.insert(0, key)
+            else:
+                num_inputs = len(instr["inpt_sk"])
+                if num_inputs > len(stack):
+                    break
+                del stack[:num_inputs]
+                for out in instr["outpt_sk"]:
+                    stack.insert(0, ("computed", out))
+        else:
+            break
+    return new_ids
+
+
 def cfg_block_spec_ids(cfg_block: CFGBlock, elements_to_move: int = 0) -> Tuple[str, float, List[instr_id_T], Counter[var_id_T]]:
     cfg_block.get_liveness()
     # Retrieve the information from each of the executions
@@ -64,6 +114,12 @@ def cfg_block_spec_ids(cfg_block: CFGBlock, elements_to_move: int = 0) -> Tuple[
     if constants.DEBUG:
         assert check_execution_from_ids(copy.deepcopy(cfg_block.spec), greedy_ids, admits_junk), \
             f"Fails in block: {cfg_block.block_id}"
+
+    if constants.PUSH_DUP and greedy_ids is not None:
+        # Once the code of the block is decided (and checked), the PUSHes of values already in the stack are replaced
+        # by DUPs. It is done afterwards, as the checks compare variables, not values
+        greedy_ids = push_to_dup(greedy_ids, cfg_block.spec["src_ws"],
+                                 {instr["id"]: instr for instr in cfg_block.spec["user_instrs"]})
 
     cfg_block.greedy_ids = greedy_ids if greedy_ids is not None else []
     cfg_block.greedy_info = greedy_info
