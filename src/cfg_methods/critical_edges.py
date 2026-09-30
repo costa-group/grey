@@ -11,6 +11,7 @@ then-branch (see LayoutGeneration._dominant_through_edge_block), and the edge bl
 are not emitted (see solution_generation.reconstruct_bytecode)
 """
 import logging
+import networkx as nx
 from parser.cfg import CFG
 from parser.cfg_block_list import CFGBlockList
 from cfg_methods.cfg_block_actions.edge_block import insert_edge_block
@@ -56,3 +57,74 @@ def split_critical_edges_block_list(block_list: CFGBlockList) -> int:
         block_list._loop_nesting_forest = None
         logging.info(f"Split {len(critical_edges)} critical edges in {block_list.name}")
     return len(critical_edges)
+
+
+def split_call_join_edges_cfg(cfg: CFG) -> int:
+    """
+    Inserts an edge block after every block whose last instruction is a function call with outputs and whose
+    successor is a join. Otherwise, the call returns directly into the join, and the unification of the stacks of
+    the predecessors of the join does not place the outputs of the call at the top of the stack, where the
+    function leaves them (the output stack of a block ending in a call is the stack after the call). Such blocks
+    appear mainly when the merge pass merges the blocks that follow the calls. Returns the number of edge blocks
+    inserted
+    """
+    num_edge_blocks = 0
+    for cfg_object in cfg.objectCFG.values():
+        function_names = set(cfg_object.functions.keys())
+        num_edge_blocks += split_call_join_edges_block_list(cfg_object.blocks, function_names)
+        for cfg_function in cfg_object.functions.values():
+            num_edge_blocks += split_call_join_edges_block_list(cfg_function.blocks, function_names)
+
+        sub_object = cfg_object.get_subobject()
+        if sub_object is not None:
+            num_edge_blocks += split_call_join_edges_cfg(sub_object)
+    return num_edge_blocks
+
+
+def split_call_join_edges_block_list(block_list: CFGBlockList, function_names: set) -> int:
+    """
+    Inserts an edge block between the blocks of the block list that end in a function call with outputs and
+    their successor, when the latter has several predecessors. Returns the number of edge blocks inserted
+    """
+    immediate_dominators = None
+    call_join_edges = []
+    for block_id, block in block_list.blocks.items():
+        instructions = block.get_instructions()
+        if len(block.successors) != 1 or not instructions:
+            continue
+        last_instruction = instructions[-1]
+        successor_id = block.successors[0]
+        if last_instruction.get_op_name() not in function_names or not last_instruction.get_out_args() or \
+                len(block_list.get_block(successor_id).get_comes_from()) <= 1:
+            continue
+        # Back edges (the call is the latch of a loop) are not split: the layout generation assumes the latches
+        # jump directly to their header
+        if immediate_dominators is None:
+            block_list.graph = None
+            immediate_dominators = nx.immediate_dominators(block_list.to_graph(), block_list.start_block)
+        if not _dominates(immediate_dominators, successor_id, block_id):
+            call_join_edges.append((block_id, successor_id))
+
+    for pred_block_id, successor_id in call_join_edges:
+        insert_edge_block(block_list, pred_block_id, successor_id)
+
+    if call_join_edges:
+        # Invalidate the cached graph structures
+        block_list.graph = None
+        block_list._dominant_tree = None
+        block_list._loop_nesting_forest = None
+        logging.info(f"Split {len(call_join_edges)} edges from a call into a join in {block_list.name}")
+    return len(call_join_edges)
+
+
+def _dominates(immediate_dominators: dict, dominator_id: str, block_id: str) -> bool:
+    """
+    Whether dominator_id dominates block_id, following the immediate dominators up to the start block
+    """
+    while True:
+        if block_id == dominator_id:
+            return True
+        parent_id = immediate_dominators.get(block_id)
+        if parent_id is None or parent_id == block_id:
+            return False
+        block_id = parent_id

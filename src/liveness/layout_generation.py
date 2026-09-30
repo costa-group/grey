@@ -538,7 +538,8 @@ def layout_generation_cfg(cfg: CFG, args: argparse.Namespace, final_dir: Path = 
     for object_name, object_liveness in results.items():
         for component_name, component_liveness in object_liveness.items():
             layout = LayoutGeneration(component_name, component2block_list[object_name][component_name],
-                                      component_liveness, component2inputs, final_dir, component_name == object_name,
+                                      component_liveness, component2inputs[object_name], final_dir,
+                                      component_name == object_name,
                                       visualize=args.visualize, junk=args.junk,
                                       junk_strategy=getattr(args, "junk_strategy", "current"),
                                       new_vars_order=getattr(args, "new_vars_order", "h1"),
