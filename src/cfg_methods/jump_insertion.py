@@ -7,11 +7,15 @@ from parser.cfg import CFG
 from parser.cfg_function import CFGFunction
 from parser.cfg_block_list import CFGBlockList
 from parser.cfg_block import CFGBlock
+from parser.cfg_object import CFGObject
 
 
-def insert_jumps_tags_cfg(cfg: CFG) -> Dict[cfg_object_T, Dict[block_id_T, int]]:
+def insert_jumps_tags_cfg(cfg: CFG) -> Dict[CFGObject, Dict[block_id_T, int]]:
     """
-    Introduces the JUMP, JUMPI and PUSH [tag] instructions in the blocks according to the CFG structure
+    Introduces the JUMP, JUMPI and PUSH [tag] instructions in the blocks according to the CFG structure.
+    Returns the tags of each object (and of its sub-objects, recursively), keyed by the object itself: the same
+    contract can appear several times at different levels (e.g. a contract deployed by both the creation and the
+    deployed code of another one), with the same object name, and each copy needs its own tags
     """
     combined_tags = dict()
     for object_id, cfg_object in cfg.objectCFG.items():
@@ -36,7 +40,7 @@ def insert_jumps_tags_cfg(cfg: CFG) -> Dict[cfg_object_T, Dict[block_id_T, int]]
             # Insert the tags and jumps of the block list
             insert_jumps_tags_block_list(cfg_function.blocks, tags_object, return_value)
 
-        combined_tags[object_id] = tags_object
+        combined_tags[cfg_object] = tags_object
 
         sub_object = cfg_object.get_subobject()
 
