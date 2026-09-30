@@ -21,7 +21,7 @@ def split_blocks_cfg(cfg: CFG, tags_object: Dict[cfg_object_T, Dict[block_id_T, 
     Splits the blocks in the cfg (identifying the split instructions) and updates the tags dict accordingly
     """
     for object_id, cfg_object in cfg.objectCFG.items():
-        tag_dict = tags_object[object_id]
+        tag_dict = tags_object[cfg_object]
         function2tag = {}
         for function_name, function in cfg_object.functions.items():
             # We obtain the tag from the initial block (generate a new one)

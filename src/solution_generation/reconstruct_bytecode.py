@@ -566,7 +566,7 @@ def recursive_asm_from_cfg_object(cfg_object: CFGObject, tags_dict: Dict, asm_di
     Returns the level of the form {.code: ..., .auxdata: ..., [.data: ...]}
     """
     # Represents the structure
-    tags = tags_dict[cfg_object.name]
+    tags = tags_dict[cfg_object]
     asm = traverse_cfg(cfg_object, tags, asm_dir)
 
     # 83 bytes of 0 + 0053 in CBOR encoding (see https://playground.sourcify.dev/)
