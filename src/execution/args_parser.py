@@ -77,6 +77,12 @@ def generate_parser() -> argparse.ArgumentParser:
                                    help="Disables merging the equivalent blocks in the acyclic tails of the CFG")
     synthesis_options.add_argument("--constants", action="store_false",
                                    help="Disables constant propagation", dest="constants")
+    synthesis_options.add_argument("--combine-functions", action="store_true", dest="combine_functions",
+                                   help="Experimental: combines the functions with equivalent bodies before inlining "
+                                        "(as solc's EquivalentFunctionCombiner does before its inliner)")
+    synthesis_options.add_argument("--prune-unused-arguments", action="store_true", dest="prune_unused_arguments",
+                                   help="Experimental: removes the arguments a function never uses, from the function "
+                                        "and its calls, before inlining (as solc's UnusedFunctionParameterPruner)")
     synthesis_options.add_argument("--cse", action="store_true", dest="cse",
                                    help="Applies on the CFG the simplifications that solc's optimizer does not apply "
                                         "to grey's code (e.g. return(literal, 0) -> stop())")

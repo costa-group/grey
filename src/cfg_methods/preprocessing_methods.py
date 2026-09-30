@@ -15,6 +15,7 @@ from cfg_methods.variable_renaming import rename_variables_cfg
 from cfg_methods.constants_insertion import insert_variables_for_constants
 from cfg_methods.minimizing_constants_insertion import insert_variables_for_constants_propagated
 from cfg_methods.return_labels import hoist_return_labels_cfg
+from cfg_methods.function_combining import combine_equivalent_functions_cfg, prune_unused_arguments_cfg
 from cfg_methods.equivalent_blocks_merging import merge_equivalent_blocks_cfg
 from cfg_methods.critical_edges import split_critical_edges_cfg
 from cfg_methods.cse_rules import apply_cse_rules_cfg
@@ -36,6 +37,15 @@ def preprocess_cfg(cfg: CFG, dot_file_dir: Path, args: Namespace) -> Dict[str, D
         apply_cse_rules_cfg(cfg)
         if args.visualize:
             dot_from_analysis(cfg, dot_file_dir.joinpath("cse"))
+
+    # solc runs these before its own inliner (p, then v before each i); grey's inliner is one more inlining step,
+    # so they are repeated here (see function_combining)
+    if getattr(args, "prune_unused_arguments", False):
+        prune_unused_arguments_cfg(cfg)
+    if getattr(args, "combine_functions", False):
+        combine_equivalent_functions_cfg(cfg)
+        if args.visualize:
+            dot_from_analysis(cfg, dot_file_dir.joinpath("combined_functions"))
 
     if args.inline:
         # We inline the functions
