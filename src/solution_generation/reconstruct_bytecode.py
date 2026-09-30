@@ -15,6 +15,7 @@ from parser.cfg_instruction import CFGInstruction
 from cfg_methods.jump_insertion import tag_from_tag_dict
 from reparation.utils import PUSH_CONSTANT
 import parser.opcodes as opcodes
+import global_params.constants as constants
 from pathlib import Path
 import networkx as nx
 
@@ -205,29 +206,46 @@ def removable_edge_blocks(blocks: Dict[block_id_T, CFGBlock],
     """
     falling_predecessors = collections.Counter(block.get_falls_to() for block in blocks.values()
                                                if block.get_falls_to() is not None)
-    empty_edge_blocks = [block_id for block_id, block in blocks.items()
-                         if block.is_edge_block and len(block.greedy_ids) <= 1
-                         and all(instr_id.startswith("PUSH [TAG]") for instr_id in block.greedy_ids)]
+
+    def only_jumps(block: CFGBlock) -> bool:
+        return len(block.greedy_ids) <= 1 and all(instr_id.startswith("PUSH [TAG]") for instr_id in block.greedy_ids)
+
+    # With THREAD_EMPTY_BLOCKS, every unconditional block whose code is only its jump is a candidate (its input and
+    # output stacks are the same, so its successor can be reached directly), except the entry of the block list
+    # (referenced by the calls of other block lists) and self-loops
+    start_blocks = {block_id for block_id, block in blocks.items() if not block.get_comes_from()}
+    empty_blocks = [block_id for block_id, block in blocks.items()
+                    if only_jumps(block) and (block.is_edge_block or
+                                              (constants.THREAD_EMPTY_BLOCKS and block.get_jump_type() == "unconditional"
+                                               and block_id not in start_blocks and block.get_jump_to() != block_id))]
 
     redirect: Dict[block_id_T, block_id_T] = dict()
-    for edge_id in empty_edge_blocks:
+    for edge_id in empty_blocks:
         edge_block = blocks[edge_id]
-        pred_block = blocks[edge_block.get_comes_from()[0]]
         successor_id = edge_block.get_jump_to()
-        if pred_block.get_falls_to() == edge_id:
+        falling_predecessor = next((pred_id for pred_id in edge_block.get_comes_from()
+                                    if blocks[pred_id].get_falls_to() == edge_id), None)
+        if falling_predecessor is not None:
             # (falling_predecessors also counts the links between split sub-blocks and the falls already redirected)
-            if falling_predecessors[successor_id] > 0 or falling_predecessors[pred_block.block_id] > 0:
+            if falling_predecessors[successor_id] > 0 or falling_predecessors[falling_predecessor] > 0:
                 continue
             falling_predecessors[successor_id] += 1
         redirect[edge_id] = successor_id
 
-    # Chains of edge blocks are followed until a block that is emitted
+    # Chains of skipped blocks are followed until a block that is emitted (a cycle of empty blocks is an infinite
+    # loop, which keeps one of its blocks)
     def final_target(block_id: block_id_T) -> block_id_T:
-        while block_id in redirect:
+        seen = set()
+        while block_id in redirect and block_id not in seen:
+            seen.add(block_id)
             block_id = redirect[block_id]
         return block_id
 
+    # A skipped block must lead to an emitted block with a tag (the pushes of its tag are replaced by it): cycles of
+    # empty blocks and targets without a tag keep the block
     redirect = {edge_id: final_target(edge_id) for edge_id in redirect}
+    redirect = {edge_id: target_id for edge_id, target_id in redirect.items()
+                if target_id not in redirect and (edge_id not in tags_dict or target_id in tags_dict)}
     tag_aliases = {str(tags_dict[edge_id]).upper(): str(tags_dict[target_id]).upper()
                    for edge_id, target_id in redirect.items() if edge_id in tags_dict and target_id in tags_dict}
     return redirect, tag_aliases

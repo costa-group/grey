@@ -77,6 +77,9 @@ def generate_parser() -> argparse.ArgumentParser:
                                    help="Disables merging the equivalent blocks in the acyclic tails of the CFG")
     synthesis_options.add_argument("--constants", action="store_false",
                                    help="Disables constant propagation", dest="constants")
+    synthesis_options.add_argument("--thread-empty-blocks", action="store_true", dest="thread_empty_blocks",
+                                   help="Experimental: skips at emission every block whose code is only its jump "
+                                        "(jump threading), not only grey's edge blocks")
     synthesis_options.add_argument("--reinline-after-merge", action="store_true", dest="reinline_after_merge",
                                    help="Experimental: inlines again, after merging the equivalent blocks, the "
                                         "functions that are now called from a single place")
@@ -100,4 +103,5 @@ def parse_args() -> argparse.Namespace:
     else:
         constants.MAX_STACK_DEPTH = parsed_args.depth
     constants.DEBUG = parsed_args.debug
+    constants.THREAD_EMPTY_BLOCKS = getattr(parsed_args, "thread_empty_blocks", False)
     return parsed_args
