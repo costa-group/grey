@@ -14,6 +14,7 @@ from parser.cfg_block import CFGBlock
 from parser.cfg_instruction import CFGInstruction
 from cfg_methods.jump_insertion import tag_from_tag_dict
 from reparation.utils import PUSH_CONSTANT
+import parser.opcodes as opcodes
 from pathlib import Path
 import networkx as nx
 
@@ -393,6 +394,84 @@ def reuse_free_memory_pointer(code: List[ASM_bytecode_T]) -> List[ASM_bytecode_T
 
 BLOCK_END_INSTRUCTIONS = {"JUMP", "JUMPI", "STOP", "RETURN", "REVERT", "INVALID", "SELFDESTRUCT"}
 
+# Instructions without side effects whose result only depends on their operands (number of operands)
+PURE_INSTRUCTIONS = {"ADD": 2, "MUL": 2, "SUB": 2, "DIV": 2, "SDIV": 2, "MOD": 2, "SMOD": 2, "EXP": 2,
+                     "SIGNEXTEND": 2, "LT": 2, "GT": 2, "SLT": 2, "SGT": 2, "EQ": 2, "ISZERO": 1, "AND": 2, "OR": 2,
+                     "XOR": 2, "NOT": 1, "BYTE": 2, "SHL": 2, "SHR": 2, "SAR": 2}
+
+
+def inlined_copy_size(body: List[ASM_bytecode_T]) -> int:
+    """
+    Estimation of the number of instructions of each copy of a function body once inlined. After inlining, solc's CSE
+    analyses the copy together with the code of the call site, so:
+      - A constant computed from pushes (e.g. the address mask PUSH 1 PUSH 1 PUSH A0 SHL SUB) counts as a single
+        instruction when it is an operand of a pure operation whose other operands come from the caller (the function
+        arguments or pure computations over them): the CSE can reuse the constant if it is already in the stack of the
+        call site, or remove the operation if it is redundant (e.g. and(and(x, mask), mask)). Otherwise (operand of a
+        memory/storage/calldata access or of an operation over a value computed from them), it counts all its
+        instructions, as the call site cannot simplify it
+      - The SWAPs at the end of the body only place the return address and disappear
+    """
+    trailing_swaps = 0
+    for instruction in reversed(body):
+        if not instruction["name"].startswith("SWAP"):
+            break
+        trailing_swaps += 1
+
+    # Stack of (kind, instructions needed to compute it), with kind "constant", "argument" (from the caller),
+    # "argument_pure" (pure computation over arguments and constants) or "opaque"
+    stack = []
+    size = 0
+
+    def pop_operands(n: int) -> List[Tuple[str, int]]:
+        while len(stack) < n:
+            stack.insert(0, ("argument", 0))
+        return [stack.pop() for _ in range(n)]
+
+    def constants_size(operands: List[Tuple[str, int]], simplifiable: bool) -> int:
+        return sum(1 if simplifiable else cost for kind, cost in operands if kind == "constant")
+
+    for instruction in body[:len(body) - trailing_swaps]:
+        name = instruction["name"]
+        if name in ("PUSH", "PUSH0"):
+            stack.append(("constant", 1))
+        elif name.startswith("PUSH"):
+            # PUSH [tag], PUSHIMMUTABLE, PUSH [$]...
+            stack.append(("opaque", 0))
+            size += 1
+        elif name.startswith("DUP"):
+            position = int(name[3:])
+            while len(stack) < position:
+                stack.insert(0, ("argument", 0))
+            kind, cost = stack[-position]
+            if kind == "constant":
+                # The copy of a constant is pushed again
+                stack.append(("constant", 1))
+            else:
+                stack.append((kind, cost))
+                size += 1
+        elif name.startswith("SWAP"):
+            position = int(name[4:])
+            while len(stack) < position + 1:
+                stack.insert(0, ("argument", 0))
+            stack[-1], stack[-1 - position] = stack[-1 - position], stack[-1]
+            size += 1
+        elif name in PURE_INSTRUCTIONS:
+            operands = pop_operands(PURE_INSTRUCTIONS[name])
+            if all(kind == "constant" for kind, _ in operands):
+                stack.append(("constant", sum(cost for _, cost in operands) + 1))
+            else:
+                simplifiable = all(kind in ("argument", "argument_pure") for kind, _ in operands if kind != "constant")
+                size += 1 + constants_size(operands, simplifiable)
+                stack.append(("argument_pure" if simplifiable else "opaque", 0))
+        else:
+            num_inputs, num_outputs = opcodes.opcodes.get(name, [0, 0, 0])[1:3]
+            size += 1 + constants_size(pop_operands(num_inputs), False)
+            stack.extend([("opaque", 0)] * num_outputs)
+
+    # Constants returned by the function
+    return size + sum(1 for kind, _ in stack if kind == "constant")
+
 
 def restrict_importer_inlining(asm_contract: ASM_contract_T) -> None:
     """
@@ -404,7 +483,7 @@ def restrict_importer_inlining(asm_contract: ASM_contract_T) -> None:
     instructions (without its JUMP [out]):
       - not inlined: 4k (PUSH ret, PUSH f, JUMP [in] and the JUMPDEST of ret per call site) + B + 2 (JUMPDEST, body
         and JUMP [out] once)
-      - inlined: k * B
+      - inlined: k * B', where B' is the estimated size of each copy (see inlined_copy_size)
     The number of PUSH [tag] of the function approximates k, as solc does. The code does not change: solc treats
     the jumps without annotations as ordinary jumps, so it does not copy the function
     """
@@ -423,7 +502,7 @@ def restrict_importer_inlining(asm_contract: ASM_contract_T) -> None:
             continue
 
         # First block of the function: from its tag to the first instruction that ends the block
-        body_size, block_end = 0, None
+        body, block_end = [], None
         for j in range(tag_positions[function_tag] + 1, len(code)):
             name = code[j]["name"]
             if name == "tag":
@@ -432,13 +511,13 @@ def restrict_importer_inlining(asm_contract: ASM_contract_T) -> None:
                 block_end = j
                 break
             if name != "JUMPDEST":
-                body_size += 1
+                body.append(code[j])
 
         single_block = (block_end is not None and code[block_end]["name"] == "JUMP"
                         and code[block_end].get("jumpType") == "[out]")
         k = push_tags[function_tag]
 
-        if not (single_block and k * body_size < 4 * k + body_size + 2):
+        if not (single_block and k * inlined_copy_size(body) < 4 * k + len(body) + 2):
             for i in sites:
                 code[i].pop("jumpType", None)
             if single_block:
