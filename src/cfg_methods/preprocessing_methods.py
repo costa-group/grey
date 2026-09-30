@@ -17,7 +17,7 @@ from cfg_methods.minimizing_constants_insertion import insert_variables_for_cons
 from cfg_methods.return_labels import hoist_return_labels_cfg
 from cfg_methods.function_combining import combine_equivalent_functions_cfg, prune_unused_arguments_cfg
 from cfg_methods.equivalent_blocks_merging import merge_equivalent_blocks_cfg
-from cfg_methods.critical_edges import split_critical_edges_cfg
+from cfg_methods.critical_edges import split_critical_edges_cfg, split_call_join_edges_cfg
 from cfg_methods.cse_rules import apply_cse_rules_cfg
 
 
@@ -80,6 +80,9 @@ def preprocess_cfg(cfg: CFG, dot_file_dir: Path, args: Namespace) -> Dict[str, D
         split_critical_edges_cfg(cfg)
         if args.visualize:
             dot_from_analysis(cfg, dot_file_dir.joinpath("no_critical_edges"))
+
+    # A function call cannot return directly into a join (see split_call_join_edges_cfg)
+    split_call_join_edges_cfg(cfg)
 
     # We introduce the jumps, tags and the stack requirements for each block
     tag_dict = insert_jumps_tags_cfg(cfg)

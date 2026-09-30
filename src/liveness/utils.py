@@ -6,20 +6,24 @@ from parser.cfg import CFG
 from global_params.types import component_name_T, var_id_T
 
 
-def functions_inputs_from_components(cfg: CFG) -> Dict[component_name_T, List[var_id_T]]:
+def functions_inputs_from_components(cfg: CFG) -> Dict[str, Dict[component_name_T, List[var_id_T]]]:
     """
-    Generates a dict that contains the input parameters of all the objects and functions inside a cfg
-    (excluding subObjects). The arguments are returned from the top to bottom
+    Generates a dict that contains, for each object inside a cfg (excluding subObjects), the input parameters of
+    the object and of its functions. The arguments are returned from the top to bottom. The dict is per object:
+    several objects at the same level (e.g. the deployed code and the creation code of a contract deployed with
+    "new") may define functions with the same name and different arguments
     """
     component2input_param = dict()
     for object_id, cfg_object in cfg.objectCFG.items():
 
         # CFG objects have empty arguments
-        component2input_param[object_id] = []
+        object_inputs = {object_id: []}
 
         # We also consider the information per function
         for function_name, cfg_function in cfg_object.functions.items():
-            component2input_param[function_name] = list(reversed(cfg_function.arguments))
+            object_inputs[function_name] = list(reversed(cfg_function.arguments))
+
+        component2input_param[object_id] = object_inputs
 
     return component2input_param
 

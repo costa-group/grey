@@ -351,9 +351,14 @@ def hoist_return_labels_block_list(block_list: CFGBlockList, function_names: Set
         if target_id != call_block_id:
             moves.append((call_block_id, label_info[0], target_id, crossed))
 
-    for call_block_id, push_idx, target_id, _ in moves:
-        call_block = block_list.get_block(call_block_id)
-        push_instruction = call_block.get_instructions().pop(push_idx)
+    # The push instructions are taken before moving any of them: a call block can also be the target of another
+    # move, and inserting into it would shift the positions computed above
+    push_instructions = [block_list.get_block(call_block_id).get_instructions()[push_idx]
+                         for call_block_id, push_idx, _, _ in moves]
+    for (call_block_id, _, target_id, _), push_instruction in zip(moves, push_instructions):
+        call_instructions = block_list.get_block(call_block_id).get_instructions()
+        call_instructions.pop(next(idx for idx, instruction in enumerate(call_instructions)
+                                   if instruction is push_instruction))
         target_block = block_list.get_block(target_id)
         target_instructions = target_block.get_instructions()
         # Before the split instruction of the target block (the last one), after its phi-functions
