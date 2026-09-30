@@ -66,6 +66,14 @@ def preprocess_cfg(cfg: CFG, dot_file_dir: Path, args: Namespace) -> Dict[str, D
         if args.visualize:
             dot_from_analysis(cfg, dot_file_dir.joinpath("merged_equivalent"))
 
+        if args.inline and getattr(args, "reinline_after_merge", False):
+            # Merging two equivalent blocks that call the same function leaves a single call site: the functions
+            # that are now called from just one place are inlined as well, with the same rule as before
+            inline_functions(cfg)
+            combine_remove_blocks_cfg(cfg)
+            if args.visualize:
+                dot_from_analysis(cfg, dot_file_dir.joinpath("reinlined"))
+
     if getattr(args, "split_critical_edges", False):
         # No critical edges: the predecessors of a join have a single successor. It must be done before
         # introducing the jumps and tags, so that the edge blocks get their jump

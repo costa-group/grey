@@ -77,6 +77,9 @@ def generate_parser() -> argparse.ArgumentParser:
                                    help="Disables merging the equivalent blocks in the acyclic tails of the CFG")
     synthesis_options.add_argument("--constants", action="store_false",
                                    help="Disables constant propagation", dest="constants")
+    synthesis_options.add_argument("--reinline-after-merge", action="store_true", dest="reinline_after_merge",
+                                   help="Experimental: inlines again, after merging the equivalent blocks, the "
+                                        "functions that are now called from a single place")
     synthesis_options.add_argument("--combine-functions", action="store_true", dest="combine_functions",
                                    help="Experimental: combines the functions with equivalent bodies before inlining "
                                         "(as solc's EquivalentFunctionCombiner does before its inliner)")
