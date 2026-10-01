@@ -15,3 +15,7 @@ DEBUG_DIR: Optional[Path] = None
 # Disabled with --no-push-dup: once the greedy has decided the code of a block, the PUSHes of values that are
 # already in the stack are replaced by DUPs (fewer bytes, same number of instructions and gas)
 PUSH_DUP = True
+
+# Disabled with --no-fallthrough: the unconditional jumps to the block placed right after (PUSH [tag] t JUMP tag t)
+# are removed, as solc's code generator does (it generates the target in place when it has not been generated yet)
+FALLTHROUGH = True
