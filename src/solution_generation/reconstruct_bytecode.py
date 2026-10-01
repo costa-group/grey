@@ -202,11 +202,9 @@ def removable_edge_blocks(blocks: Dict[block_id_T, CFGBlock],
       falls to it (the reconstruction places a falls-to block right after its predecessor) and no block falls to
       the predecessor either: if the successor has already been placed, the predecessor is moved right before it,
       which would break the fall from its own predecessor. Otherwise, the edge block is kept.
+    Chains of skipped blocks are followed, and the conditions are checked on the block finally reached.
     Returns the redirections (edge block -> block reached instead) and the tag aliases
     """
-    falling_predecessors = collections.Counter(block.get_falls_to() for block in blocks.values()
-                                               if block.get_falls_to() is not None)
-
     def only_jumps(block: CFGBlock) -> bool:
         return len(block.greedy_ids) <= 1 and all(instr_id.startswith("PUSH [TAG]") for instr_id in block.greedy_ids)
 
@@ -219,33 +217,90 @@ def removable_edge_blocks(blocks: Dict[block_id_T, CFGBlock],
                                               (constants.THREAD_EMPTY_BLOCKS and block.get_jump_type() == "unconditional"
                                                and block_id not in start_blocks and block.get_jump_to() != block_id))]
 
-    redirect: Dict[block_id_T, block_id_T] = dict()
-    for edge_id in empty_blocks:
-        edge_block = blocks[edge_id]
-        successor_id = edge_block.get_jump_to()
-        falling_predecessor = next((pred_id for pred_id in edge_block.get_comes_from()
-                                    if blocks[pred_id].get_falls_to() == edge_id), None)
-        if falling_predecessor is not None:
-            # (falling_predecessors also counts the links between split sub-blocks and the falls already redirected)
-            if falling_predecessors[successor_id] > 0 or falling_predecessors[falling_predecessor] > 0:
-                continue
-            falling_predecessors[successor_id] += 1
-        redirect[edge_id] = successor_id
+    # Every candidate is skipped at first. Keeping a candidate only changes the block reached from the candidates
+    # that lead to it, never the one reached from itself, so the conditions are decided from the end of the chains
+    # backwards, in two linear passes, and no decision is revisited
+    candidate_order = {block_id: position for position, block_id in enumerate(empty_blocks)}
+    redirect: Dict[block_id_T, block_id_T] = {block_id: blocks[block_id].get_jump_to() for block_id in empty_blocks}
 
-    # Chains of skipped blocks are followed until a block that is emitted (a cycle of empty blocks is an infinite
-    # loop, which keeps one of its blocks)
-    def final_target(block_id: block_id_T) -> block_id_T:
-        seen = set()
-        while block_id in redirect and block_id not in seen:
-            seen.add(block_id)
+    # 1. Chains: a skipped block must lead to an emitted block with a tag (the pushes of its tag are replaced by it).
+    # Each chain is resolved once, from the emitted block backwards, recording the emitted block reached and the
+    # distance to it (depth):
+    # * a cycle of empty blocks (an infinite loop without code; self-loops are not candidates) keeps the block where
+    #   the cycle closes, and the others lead to it;
+    # * a tagged block whose chain ends in a block without a tag is kept, and the blocks leading to it end there
+    chain_target: Dict[block_id_T, block_id_T] = dict()
+    depth: Dict[block_id_T, int] = dict()
+    for start_id in empty_blocks:
+        path, in_path = [], set()
+        block_id = start_id
+        while block_id in redirect and block_id not in depth:
+            if block_id in in_path:
+                del redirect[block_id]
+                break
+            in_path.add(block_id)
+            path.append(block_id)
             block_id = redirect[block_id]
-        return block_id
 
-    # A skipped block must lead to an emitted block with a tag (the pushes of its tag are replaced by it): cycles of
-    # empty blocks and targets without a tag keep the block
-    redirect = {edge_id: final_target(edge_id) for edge_id in redirect}
-    redirect = {edge_id: target_id for edge_id, target_id in redirect.items()
-                if target_id not in redirect and (edge_id not in tags_dict or target_id in tags_dict)}
+        for block_id in reversed(path):
+            # The block that closes a cycle is no longer skipped
+            if block_id not in redirect:
+                continue
+            successor_id = redirect[block_id]
+            if successor_id in depth:
+                target_id, target_depth = chain_target[successor_id], depth[successor_id] + 1
+            else:
+                target_id, target_depth = successor_id, 1
+            if block_id in tags_dict and target_id not in tags_dict:
+                del redirect[block_id]
+            else:
+                chain_target[block_id], depth[block_id] = target_id, target_depth
+
+    # Emitted block reached from a block following the skipped blocks. The results are cached (path compression):
+    # the falls below only keep blocks closer to the emitted block than the ones already resolved, so a cached
+    # result is never invalidated by them
+    resolved: Dict[block_id_T, block_id_T] = dict()
+
+    def resolve(block_id: block_id_T) -> block_id_T:
+        path = []
+        while block_id in redirect and block_id not in resolved:
+            path.append(block_id)
+            block_id = redirect[block_id]
+        target_id = resolved.get(block_id, block_id)
+        for path_block_id in path:
+            resolved[path_block_id] = target_id
+        return target_id
+
+    # 2. Falls: the reconstruction places a falls-to block right after its predecessor, so every emitted block can be
+    # fallen into by a single emitted block, and a block whose fall is redirected (moved right before its new target
+    # if that one has already been placed) cannot be fallen into, or that fall would break. The falls into blocks
+    # that are not skipped (including the links between split sub-blocks) are fixed. The redirected ones are granted
+    # one by one, counting only the fixed falls and the ones already granted; a denied fall keeps the skipped block
+    # the predecessor falls into, which then becomes a fixed fall into that block. They are decided closest to the
+    # emitted block first: when a fall is decided, every block kept in its chain has already been kept, so its
+    # target is final. E.g. B0 falls -> edge -> B2 and B1 falls -> edge' -> B4 (empty) -> B2: B0's fall (depth 1)
+    # is granted, and B1's (depth 2) reaches B2, already fallen into, so edge' is kept (checking only the immediate
+    # successor B4 moved B1 right before B2, breaking the fall from B0). Deciding the falls in the order of the
+    # candidates could also deny every fall into the same block: if P1 falls -> F1 -> F2 -> T and P2 falls -> F2,
+    # granting P1 first denies P2 (keeping F2), which turns P1's target into F2, already fallen into by P2
+    falls_to = {block_id: block.get_falls_to() for block_id, block in blocks.items()
+                if block_id not in redirect and block.get_falls_to() is not None}
+    fallen_into = collections.Counter(target_id for target_id in falls_to.values() if target_id not in redirect)
+    moved = set()
+    redirected_falls = sorted((block_id for block_id, target_id in falls_to.items() if target_id in redirect),
+                              key=lambda block_id: (depth[falls_to[block_id]], candidate_order[falls_to[block_id]]))
+    for block_id in redirected_falls:
+        skipped_id = falls_to[block_id]
+        target_id = resolve(skipped_id)
+        if fallen_into[target_id] > 0 or fallen_into[block_id] > 0 or target_id in moved:
+            del redirect[skipped_id]
+            resolved.pop(skipped_id, None)
+            fallen_into[skipped_id] += 1
+        else:
+            fallen_into[target_id] += 1
+            moved.add(block_id)
+
+    redirect = {block_id: resolve(block_id) for block_id in redirect}
     tag_aliases = {str(tags_dict[edge_id]).upper(): str(tags_dict[target_id]).upper()
                    for edge_id, target_id in redirect.items() if edge_id in tags_dict and target_id in tags_dict}
     return redirect, tag_aliases

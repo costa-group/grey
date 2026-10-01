@@ -114,3 +114,75 @@ class TestCriticalEdges:
         edge_block.greedy_ids = ["SWAP1", "PUSH [TAG]_0"]
         redirect, _ = removable_edge_blocks(block_list.blocks, tags)
         assert redirect == {}
+
+
+def empty_block(block_id, greedy_ids=("PUSH [TAG]_0",), is_edge_block=False):
+    """
+    Unconditional block whose code is only the push of its jump tag
+    """
+    block = CFGBlock(block_id, [], "unconditional", dict())
+    block.greedy_ids = list(greedy_ids)
+    block.is_edge_block = is_edge_block
+    return block
+
+
+def conditional_block(block_id):
+    block = CFGBlock(block_id, [], "conditional", dict())
+    block.set_condition("0x01")
+    block.greedy_ids = ["SWAP1"]
+    return block
+
+
+def terminal_block(block_id):
+    block = CFGBlock(block_id, [CFGInstruction("stop", [], [])], "terminal", dict())
+    block.greedy_ids = ["SWAP1"]
+    return block
+
+
+class TestThreadEmptyBlocks:
+
+    def test_two_falls_into_the_same_block_through_a_chain(self, monkeypatch):
+        # Shape of storage_array_ref's find: Block0 falls -> E0 -> Block2 and Block1 falls -> E1 -> Block4 (empty)
+        # -> Block2. E0 (depth 1) is granted; E1 (depth 2) also reaches Block2, already fallen into, so it is kept
+        monkeypatch.setattr("global_params.constants.THREAD_EMPTY_BLOCKS", True)
+        blocks = [conditional_block("Block0"), conditional_block("Block1"),
+                  empty_block("E0", is_edge_block=True), empty_block("E1", is_edge_block=True),
+                  empty_block("Block4"), terminal_block("Block2"), terminal_block("Block3")]
+        block_list = build_block_list(blocks, [("Block0", "Block1", "jumps_to"), ("Block0", "E0", "falls_to"),
+                                               ("E0", "Block2", "jumps_to"), ("Block1", "Block3", "jumps_to"),
+                                               ("Block1", "E1", "falls_to"), ("E1", "Block4", "jumps_to"),
+                                               ("Block4", "Block2", "jumps_to")])
+        tags = {"Block1": 1, "Block2": 2, "Block3": 3, "Block4": 4}
+        redirect, aliases = removable_edge_blocks(block_list.blocks, tags)
+        assert redirect == {"E0": "Block2", "Block4": "Block2"} and aliases == {"4": "2"}
+
+    def test_fall_closest_to_the_target_is_granted_first(self, monkeypatch):
+        # P1 falls -> F1 -> F2 -> T and P2 falls -> F2. Granting P1 first (F1 comes first) would deny P2, keeping F2,
+        # and P1 would then reach F2, already fallen into by P2: nothing would be skipped. F2 is closer to T
+        monkeypatch.setattr("global_params.constants.THREAD_EMPTY_BLOCKS", True)
+        blocks = [conditional_block("P1"), empty_block("F1", is_edge_block=True), conditional_block("P2"),
+                  empty_block("F2"), terminal_block("T"), terminal_block("X")]
+        block_list = build_block_list(blocks, [("P1", "P2", "jumps_to"), ("P1", "F1", "falls_to"),
+                                               ("F1", "F2", "jumps_to"), ("P2", "X", "jumps_to"),
+                                               ("P2", "F2", "falls_to"), ("F2", "T", "jumps_to")])
+        tags = {"P2": 1, "F2": 2, "T": 3, "X": 4}
+        redirect, _ = removable_edge_blocks(block_list.blocks, tags)
+        assert redirect == {"F2": "T"}
+
+    def test_cycle_of_empty_blocks_keeps_one_block(self, monkeypatch):
+        monkeypatch.setattr("global_params.constants.THREAD_EMPTY_BLOCKS", True)
+        blocks = [conditional_block("S"), empty_block("A"), empty_block("B"), terminal_block("T")]
+        block_list = build_block_list(blocks, [("S", "A", "jumps_to"), ("S", "T", "falls_to"),
+                                               ("A", "B", "jumps_to"), ("B", "A", "jumps_to")])
+        redirect, aliases = removable_edge_blocks(block_list.blocks, {"A": 1, "B": 2})
+        assert redirect == {"B": "A"} and aliases == {"2": "1"}
+
+    def test_tagged_block_leading_to_an_untagged_one_is_kept(self, monkeypatch):
+        monkeypatch.setattr("global_params.constants.THREAD_EMPTY_BLOCKS", True)
+        blocks = [conditional_block("S"), empty_block("A"), empty_block("B"), terminal_block("T"),
+                  terminal_block("U")]
+        block_list = build_block_list(blocks, [("S", "A", "jumps_to"), ("S", "U", "falls_to"),
+                                               ("A", "B", "jumps_to"), ("B", "T", "jumps_to")])
+        # B leads to T, which has no tag: B is kept and A leads to it
+        redirect, aliases = removable_edge_blocks(block_list.blocks, {"A": 1, "B": 2})
+        assert redirect == {"A": "B"} and aliases == {"1": "2"}
