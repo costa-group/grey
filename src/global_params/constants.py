@@ -19,3 +19,8 @@ PUSH_DUP = True
 # Disabled with --no-fallthrough: the unconditional jumps to the block placed right after (PUSH [tag] t JUMP tag t)
 # are removed, as solc's code generator does (it generates the target in place when it has not been generated yet)
 FALLTHROUGH = True
+
+# Set with --solc-cfg-fallback: solc executable used to generate the yulCFGJson when the main one (-solc) fails with an
+# internal error (e.g. builds that also compute their own stack layouts, whose stack shuffler can throw "stack too
+# deep"). The main solc is still used for the importer
+SOLC_CFG_FALLBACK: Optional[str] = None

@@ -6,6 +6,7 @@ into the yul representation
 import functools
 import glob
 import json
+import global_params.constants as constants
 from collections import defaultdict
 import shutil
 import sys
@@ -105,6 +106,14 @@ def _requires_experimental_settings(output_dict: Dict) -> bool:
     Whether solc rejected the compilation because the requested outputs (yulCFGJson) are experimental
     """
     return any(error_msg.get("severity") == "error" and "settings.experimental" in error_msg.get("message", "")
+               for error_msg in output_dict.get("errors", []))
+
+
+def _has_internal_error(output_dict: Dict) -> bool:
+    """
+    Whether solc failed with an internal error (an uncaught exception), not with an error in the input
+    """
+    return any(error_msg.get("severity") == "error" and "Uncaught exception" in error_msg.get("formattedMessage", "")
                for error_msg in output_dict.get("errors", []))
 
 
@@ -494,6 +503,20 @@ class SolidityCompilation:
             with open(tmp_file, 'w') as f:
                 f.write(json.dumps(json_input))
             output_dict, error = self._compile_json_input(tmp_file)
+
+        # Some solc builds also compute their own stack layouts when generating the yulCFGJson and can fail there
+        # with an internal error (e.g. "stack too deep" in their stack shuffler). The CFG is the same with a build that
+        # does not compute them, so it is generated with the fallback compiler instead
+        if _has_internal_error(output_dict) and constants.SOLC_CFG_FALLBACK is not None:
+            print(f"solc failed generating the Yul CFG with an internal error: using {constants.SOLC_CFG_FALLBACK}")
+            main_command, self._solc_command = self._solc_command, constants.SOLC_CFG_FALLBACK
+            output_dict, error = self._compile_json_input(tmp_file)
+            if _requires_experimental_settings(output_dict):
+                json_input["settings"]["experimental"] = True
+                with open(tmp_file, 'w') as f:
+                    f.write(json.dumps(json_input))
+                output_dict, error = self._compile_json_input(tmp_file)
+            self._solc_command = main_command
 
         os.remove(tmp_file)
 

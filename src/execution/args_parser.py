@@ -21,6 +21,9 @@ def generate_parser() -> argparse.ArgumentParser:
                                     "If no contract is specified, all contracts synthesized.")
     input_options.add_argument("-solc", "--solc", type=str, dest="solc_executable", default="solc",
                                help="Solc executable. By default, it assumes it can invoke 'solc'")
+    input_options.add_argument("--solc-cfg-fallback", type=str, dest="solc_cfg_fallback", default=None,
+                               help="Solc executable used to generate the Yul CFG when the one given with -solc fails "
+                                    "with an internal error. The importer still uses the one given with -solc")
     
     input_options.add_argument("-solc-layouts", "--solc-layouts", action="store_true", dest="solc_layouts",
                                help="Solc executable. By default, it assumes it can invoke 'solc'")
@@ -111,5 +114,6 @@ def parse_args() -> argparse.Namespace:
     constants.DEBUG = parsed_args.debug
     constants.THREAD_EMPTY_BLOCKS = getattr(parsed_args, "thread_empty_blocks", False)
     constants.PUSH_DUP = parsed_args.push_dup
+    constants.SOLC_CFG_FALLBACK = parsed_args.solc_cfg_fallback
     constants.FALLTHROUGH = parsed_args.fallthrough
     return parsed_args
