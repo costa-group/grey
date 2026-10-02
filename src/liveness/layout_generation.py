@@ -26,6 +26,7 @@ from graphs.cfg import compute_loop_nesting_forest_graph
 from liveness.liveness_analysis import LivenessAnalysisInfoSSA, construct_analysis_info, \
     perform_liveness_analysis_from_cfg_info
 from liveness.utils import functions_inputs_from_components
+from liveness.calling_convention import apply_calling_conventions, validate_calling_conventions
 from liveness.stack_layout_methods import (compute_variable_depth, output_stack_layout, unify_stacks_brothers,
                                            compute_block_level, unification_block_dict, propagate_output_stack,
                                            forget_values, unify_stacks_dominant, block_events, tiers_order)
@@ -523,18 +524,24 @@ class LayoutGeneration:
                         json.dump(specification, f, indent=4)
 
 
-def layout_generation_cfg(cfg: CFG, args: argparse.Namespace, final_dir: Path = Path(".")) -> None:
+def layout_generation_cfg(cfg: CFG, args: argparse.Namespace, final_dir: Path = Path(".")) -> Tuple[float, float]:
     """
     Generates the layout for all the blocks in the objects inside the CFG level, excluding sub-objects
     """
     x = dtimer()
     cfg_info = construct_analysis_info(cfg)
-    component2inputs = functions_inputs_from_components(cfg)
     results = perform_liveness_analysis_from_cfg_info(cfg_info)
+
+    # The calling conventions permute the arguments of the functions, so the inputs are computed afterwards
+    call_convention = getattr(args, "call_convention", "fixed")
+    if call_convention != "fixed":
+        for object_name, object_liveness in results.items():
+            apply_calling_conventions(cfg.objectCFG[object_name], object_liveness, call_convention)
+    component2inputs = functions_inputs_from_components(cfg)
     y = dtimer()
 
     component2block_list = cfg.generate_id2block_list()
-    
+
     for object_name, object_liveness in results.items():
         for component_name, component_liveness in object_liveness.items():
             layout = LayoutGeneration(component_name, component2block_list[object_name][component_name],
@@ -547,11 +554,15 @@ def layout_generation_cfg(cfg: CFG, args: argparse.Namespace, final_dir: Path = 
 
             layout.build_layout(args.visualize)
 
+    if constants.DEBUG:
+        for object_name in results:
+            validate_calling_conventions(cfg.objectCFG[object_name])
+
     return x, y
 
 
 def layout_generation(cfg: CFG, args: argparse.Namespace,
-                      final_dir: Path = Path("."), positions: List[str] = None) -> None:
+                      final_dir: Path = Path("."), positions: List[str] = None) -> Tuple[float, float]:
     """
     Returns the information from the liveness analysis and also stores a dot file for each analyzed structure
     in "final_dir"
