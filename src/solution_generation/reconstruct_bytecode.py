@@ -602,6 +602,39 @@ def restrict_importer_inlining(asm_contract: ASM_contract_T) -> None:
             restrict_importer_inlining(sub_object)
 
 
+def remove_jumps_to_next(code: List[ASM_bytecode_T]) -> List[ASM_bytecode_T]:
+    """
+    The target of an unconditional jump is placed right after it whenever possible, but the jump is kept:
+    PUSH [tag] t JUMP tag t JUMPDEST. solc's code generator falls through instead (it generates the target in place
+    when it has not been generated yet, see OptimizedEVMCodeTransform), so the PUSH [tag] and the JUMP are removed.
+    The tag and its JUMPDEST are removed too if no other PUSH [tag] refers to them. The jumps into and out of
+    functions are kept (solc's inliner relies on them)
+    """
+    changed = True
+    while changed:
+        changed = False
+        references = collections.Counter(instruction["value"] for instruction in code
+                                         if instruction["name"] == "PUSH [tag]")
+        new_code = []
+        i = 0
+        while i < len(code):
+            if (i + 2 < len(code) and code[i]["name"] == "PUSH [tag]" and code[i + 1]["name"] == "JUMP"
+                    and code[i + 1].get("jumpType", "[jump]") not in ("[in]", "[out]")
+                    and code[i + 2]["name"] == "tag" and code[i + 2].get("value") == code[i]["value"]):
+                tag = code[i]["value"]
+                references[tag] -= 1
+                changed = True
+                if references[tag] == 0 and i + 3 < len(code) and code[i + 3]["name"] == "JUMPDEST":
+                    i += 4
+                else:
+                    i += 2
+                continue
+            new_code.append(code[i])
+            i += 1
+        code = new_code
+    return code
+
+
 def traverse_cfg(cfg_object: CFGObject, tags_dict: Dict[block_id_T, int], asm_dir: Optional[Path] = None) -> List[ASM_bytecode_T]:
     """
     Traverses the blocks in the CFG to generate the serialized assembly code
@@ -614,7 +647,10 @@ def traverse_cfg(cfg_object: CFGObject, tags_dict: Dict[block_id_T, int], asm_di
     # TODO: devise better strategies to decide in which order the functions are included in the code
     for function_name, function in cfg_object.functions.items():
         function_code_list.extend(traverse_cfg_block_list(function.blocks, function_name2entry, tags_dict, asm_dir))
-    return object_code + function_code_list
+    code = object_code + function_code_list
+    if constants.FALLTHROUGH:
+        code = remove_jumps_to_next(code)
+    return code
 
 
 def recursive_asm_from_cfg_object(cfg_object: CFGObject, tags_dict: Dict, asm_dir: Optional[Path] = None, auxdata: Optional[bool] = False) -> ASM_contract_T:
