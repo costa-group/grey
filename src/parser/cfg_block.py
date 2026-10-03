@@ -4,7 +4,7 @@ import logging
 from global_params.types import instr_id_T, dependencies_T, var_id_T, block_id_T, function_name_T, SMS_T
 from parser.cfg_instruction import CFGInstruction, build_push_spec, build_pushtag_spec
 from parser.utils_parser import replace_pos_instrsid, replace_aliasing_spec, detect_unused_instructions, delete_unsued_instructions_from_deps
-from analysis.instruction_dependencies import compute_memory_dependences, compute_storage_dependences, compute_transient_dependences, compute_gas_dependences, compute_event_dependences, simplify_dependences
+from analysis.instruction_dependencies import compute_memory_dependences, compute_storage_dependences, compute_transient_dependences, compute_gas_dependences, compute_event_dependences, compute_call_state_dependences, simplify_dependences
 from greedy.greedy_info import GreedyInfo
 import global_params.constants as constants
 from global_params.debug import debug_file
@@ -373,7 +373,8 @@ class CFGBlock:
         Given the list of instructions and a dict that maps each position in a sequence to the instruction id, generates
         a list of dependencies
         """
-        sto_dep = compute_storage_dependences(instructions)
+        # The reads that calls may change (balances, return data size) are ordered like SLOADs
+        sto_dep = compute_storage_dependences(instructions) + compute_call_state_dependences(instructions)
         sto_dep = simplify_dependences(sto_dep)
         sto_deps = replace_pos_instrsid(sto_dep, map_positions)
 

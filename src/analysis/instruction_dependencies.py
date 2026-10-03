@@ -265,6 +265,34 @@ def compute_event_dependences(instructions: List[CFGInstruction]) -> List[List[i
             for first_position, second_position in zip(event_positions, event_positions[1:])]
 
 
+# Values read from the state that calls and creates may change: the balances (a call/create can transfer value; a
+# static frame cannot) and the size of the return data (updated by every call or create)
+CALL_STATE_READS = {"selfbalance": ["call", "callcode", "delegatecall", "create", "create2"],
+                    "balance": ["call", "callcode", "delegatecall", "create", "create2"],
+                    "returndatasize": ["call", "callcode", "delegatecall", "staticcall", "create", "create2"]}
+
+
+def compute_call_state_dependences(instructions: List[CFGInstruction]) -> List[List[int]]:
+    """
+    Returns the dependencies that keep each read of CALL_STATE_READS between the same calls/creates: the previous
+    writer before the read and the read before the next writer (the writers are already ordered among themselves by
+    the storage dependences)
+    """
+    deps = []
+    for i, ins in enumerate(instructions):
+        writers = CALL_STATE_READS.get(ins.get_op_name())
+        if writers is None:
+            continue
+        writer_positions = [j for j, other in enumerate(instructions) if other.get_op_name() in writers]
+        previous_writers = [j for j in writer_positions if j < i]
+        next_writers = [j for j in writer_positions if j > i]
+        if previous_writers:
+            deps.append([previous_writers[-1], i])
+        if next_writers:
+            deps.append([i, next_writers[0]])
+    return deps
+
+
 def compute_gas_dependences(instructions: List[CFGInstruction]):
 
     gas_ins = []
