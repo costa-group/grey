@@ -15,7 +15,7 @@ from parser.cfg import CFG
 from execution.sol_compilation import SolidityCompilation, importer_deduplicates_blocks
 from solution_generation.reconstruct_bytecode import asm_from_cfg, store_asm_output, store_binary_output, \
     store_asm_standard_json_output, restrict_importer_inlining
-from greedy.ids_from_spec import cfg_spec_ids
+from greedy.ids_from_spec import cfg_spec_ids, cfg_push_to_dup
 from liveness.layout_generation import layout_generation
 from cfg_methods.preprocessing_methods import preprocess_cfg
 from solution_generation.bytecode2asm import asm_from_opcodes
@@ -94,6 +94,13 @@ def analyze_single_cfg(cfg: CFG, final_dir: Path, args: argparse.Namespace, time
         times[4] += repair_time
 
     print("Repair algorithm: " + str(repair_time) + "s")
+
+    if constants.PUSH_DUP:
+        # Once the final code of every block is known (after the reparation), PUSHes of values already in the stack
+        # become DUPs
+        x = dtimer()
+        cfg_push_to_dup(cfg)
+        times[4] += dtimer() - x
 
     if args.visualize:
         asm_code = final_dir.joinpath("asm")
