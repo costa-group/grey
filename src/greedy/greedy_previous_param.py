@@ -543,6 +543,13 @@ class SMSgreedy:
         # self.extend_dependencies(self._sto_order, SWRITE_OPERATIONS, self._sto_order)
         # self.extend_dependencies(self._tsto_order, TWRITE_OPERATIONS, self._tsto_order)
         all_memory_deps = self._mem_order + self._sto_order + self._tsto_order
+        # Values whose instruction is placed in the order of the memory/storage/transient accesses (e.g. SELFBALANCE or
+        # RETURNDATASIZE around calls): they depend on their position, so they cannot be recomputed (see small_zeroary)
+        self._ordered_zeroary_vars = set(self._opid_instr_map[instr_id]['outpt_sk'][0]
+                                         for dependence in all_memory_deps for instr_id in dependence
+                                         if instr_id in self._opid_instr_map
+                                         and len(self._opid_instr_map[instr_id]['outpt_sk']) == 1
+                                         and len(self._opid_instr_map[instr_id]['inpt_sk']) == 0)
         self.extend_dependencies(self._mem_order, MWRITE_OPERATIONS, all_memory_deps)
         self.extend_dependencies(self._sto_order, SWRITE_OPERATIONS, all_memory_deps)
         self.extend_dependencies(self._tsto_order, TWRITE_OPERATIONS, all_memory_deps)
@@ -1716,7 +1723,9 @@ class SMSgreedy:
         # uses_per_val = compute_uses(lm++self._variables)
 
     def small_zeroary(self, op):
-        return op in self._var_instr_map and len(self._var_instr_map[op]['inpt_sk']) == 0 and (op not in self._dup_pushes or self._var_instr_map[op]['size'] <= 1)
+        # A zero-ary value can be recomputed instead of duplicated, unless its position is fixed by the dependences
+        return op in self._var_instr_map and len(self._var_instr_map[op]['inpt_sk']) == 0 and (op not in self._dup_pushes or self._var_instr_map[op]['size'] <= 1) \
+            and op not in self._ordered_zeroary_vars
     #self._var_instr_map[op]['size'] <= 2
     #(self._var_instr_map[op]['disasm'] == 'PUSH0' or self._var_instr_map[op]['size'] <= 1)
     #(op not in self._dup_pushes or self._var_instr_map[op]['size'] <= 1)
