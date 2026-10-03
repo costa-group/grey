@@ -1308,6 +1308,17 @@ class SMSgreedy:
                         # print("memory1:", op)
                         (opcodes, opcodeids, cstack) = self.compute_memory_op(op, cstack, cneeded_in_stack_map, solved,
                                                                               max_to_swap)
+                        # The dead values left on top (e.g. the unused result of a call) are removed after each
+                        # operation, as in the main loop: otherwise they stay until the end of the block
+                        while len(cstack) > 0 and (
+                                cstack[0] not in cneeded_in_stack_map or cneeded_in_stack_map[cstack[0]] == 0) \
+                                and cstack.count(cstack[0]) > self._final_stack.count(cstack[0]):
+                            if (len(self._final_stack) - len(cstack)) in solved:
+                                break
+                            opcodes += ['POP']
+                            opcodeids += ['POP']
+                            cstack.pop(0)
+                            if verbose: print('POP', cstack, len(cstack))
                         topcodes += opcodes
                         topcodeids += opcodeids
                     instr = instr[p:]
