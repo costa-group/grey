@@ -152,7 +152,8 @@ def compute_storage_dependences(instructions: List[CFGInstruction]) -> List[List
             # We store the position of the store access, the position accessed and the type (whether write or read)
             sto_ins.append([i, interval, ins.get_type_mem_op()])
 
-        elif ins.get_op_name() in ["call", "delegatecall", "staticcall", "callcode"]:
+        # A CREATE runs the constructor, which can call back into this contract: an unknown access, like calls
+        elif ins.get_op_name() in ["call", "delegatecall", "staticcall", "callcode", "create", "create2"]:
             sto_ins.append([i, ["inf"], "write"])
 
     deps = [[first_sto_access[0], second_sto_access[0]]
@@ -183,7 +184,8 @@ def compute_transient_dependences(instructions: List[CFGInstruction]) -> List[Li
             # We store the position of the store access, the position accessed and the type (whether write or read)
             trans_ins.append([i, interval, ins.get_type_mem_op()])
 
-        elif ins.get_op_name() in ["call", "delegatecall", "staticcall", "callcode"]:
+        # A CREATE runs the constructor, which can call back into this contract: an unknown access, like calls
+        elif ins.get_op_name() in ["call", "delegatecall", "staticcall", "callcode", "create", "create2"]:
             trans_ins.append([i, ["inf"], "write"])
 
     deps = [[first_sto_access[0], second_sto_access[0]]

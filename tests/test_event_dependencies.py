@@ -1,12 +1,14 @@
 """
-Dependencies that keep the order of the logs (LOGx and the calls/creates that can emit them in their own frame), which
-the memory dependences miss
+Dependencies that keep the order of the observable effects the memory dependences miss: the logs (LOGx and the
+calls/creates that can emit them in their own frame) and the storage accesses around a CREATE (its constructor can
+call back into the contract)
 """
 from typing import List, Tuple
 
 from parser.parser import parse_instruction
 from parser.cfg_block import CFGBlock
-from analysis.instruction_dependencies import compute_event_dependences
+from analysis.instruction_dependencies import compute_event_dependences, compute_storage_dependences, \
+    compute_transient_dependences
 from greedy.greedy_previous_param import greedy_standalone
 
 
@@ -60,3 +62,17 @@ def test_staticcall_is_not_an_event():
                     instruction("log0", ["0xc0", "0x20"])]
     assert compute_event_dependences(instructions) == [[0, 2]]
 
+
+def test_create_is_ordered_with_storage_accesses():
+    # The constructor can call back into the contract and access its storage
+    instructions = [instruction("sstore", ["0x00", "v"]),
+                    instruction("create", ["0x00", "0x40", "0x20"], ["c"]),
+                    instruction("sload", ["0x01"], ["w"])]
+    assert compute_storage_dependences(instructions) == [[0, 1], [1, 2]]
+
+
+def test_create2_is_ordered_with_transient_accesses():
+    instructions = [instruction("tstore", ["0x00", "v"]),
+                    instruction("create2", ["0x00", "0x40", "0x20", "salt"], ["c"]),
+                    instruction("tload", ["0x01"], ["w"])]
+    assert compute_transient_dependences(instructions) == [[0, 1], [1, 2]]
