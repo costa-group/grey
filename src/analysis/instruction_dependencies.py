@@ -248,6 +248,21 @@ def compute_memory_dependences(instructions: List[CFGInstruction]):
     return deps
 
 
+# Instructions that emit logs, either directly or in the frame they open (the callee or the constructor)
+EVENT_INSTRUCTIONS = ["log0", "log1", "log2", "log3", "log4", "call", "callcode", "delegatecall", "create", "create2"]
+
+
+def compute_event_dependences(instructions: List[CFGInstruction]) -> List[List[int]]:
+    """
+    Returns the dependencies that keep the order of the emitted logs: the event instructions of the block are totally
+    ordered (consecutive pairs are enough). The memory dependences do not cover it, as a LOG only reads memory.
+    STATICCALL is excluded: a static frame can neither emit nor observe logs
+    """
+    event_positions = [i for i, ins in enumerate(instructions) if ins.get_op_name() in EVENT_INSTRUCTIONS]
+    return [[first_position, second_position]
+            for first_position, second_position in zip(event_positions, event_positions[1:])]
+
+
 def compute_gas_dependences(instructions: List[CFGInstruction]):
 
     gas_ins = []

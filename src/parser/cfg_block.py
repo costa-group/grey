@@ -4,7 +4,7 @@ import logging
 from global_params.types import instr_id_T, dependencies_T, var_id_T, block_id_T, function_name_T, SMS_T
 from parser.cfg_instruction import CFGInstruction, build_push_spec, build_pushtag_spec
 from parser.utils_parser import replace_pos_instrsid, replace_aliasing_spec, detect_unused_instructions, delete_unsued_instructions_from_deps
-from analysis.instruction_dependencies import compute_memory_dependences, compute_storage_dependences, compute_transient_dependences, compute_gas_dependences, simplify_dependences
+from analysis.instruction_dependencies import compute_memory_dependences, compute_storage_dependences, compute_transient_dependences, compute_gas_dependences, compute_event_dependences, simplify_dependences
 from greedy.greedy_info import GreedyInfo
 import global_params.constants as constants
 from global_params.debug import debug_file
@@ -377,7 +377,9 @@ class CFGBlock:
         sto_dep = simplify_dependences(sto_dep)
         sto_deps = replace_pos_instrsid(sto_dep, map_positions)
 
-        mem_dep = compute_memory_dependences(instructions)
+        # The order of the logs goes with the memory dependences: the greedy sorts LOGs among the memory writes, and
+        # a dependency outside the memory/storage/transient lists is treated as functional (it needs outputs)
+        mem_dep = compute_memory_dependences(instructions) + compute_event_dependences(instructions)
         mem_dep = simplify_dependences(mem_dep)
         mem_deps = replace_pos_instrsid(mem_dep, map_positions)
 
