@@ -125,6 +125,7 @@ def insert_constants_block_dominant_preorder(block_name: block_id_T, cfg_block_l
     #         cfg_block.assignment_dict[introduced_so_far[constant]] = constant
 
     insert_constants_block(cfg_block, introduced_so_far)
+    insert_constants_successor_phis(cfg_block, cfg_block_list, introduced_so_far)
 
     # We traverse the tree in preorder, updating the free index
     for next_block in cfg_block_list.dominant_tree.successors(block_name):
@@ -138,17 +139,34 @@ def insert_constants_block_dominant_preorder(block_name: block_id_T, cfg_block_l
     return free_idx
 
 
+def insert_constants_successor_phis(cfg_block: CFGBlock, cfg_block_list: CFGBlockList,
+                                    constants_per_block: Dict[constant_T, var_id_T]) -> None:
+    """
+    Replaces the constants in the phi-functions of the successors of cfg_block that come from cfg_block. A phi
+    argument is read at the end of its predecessor, so it must use the variables introduced in the predecessor or
+    in its dominators (the ones in constants_per_block when visiting cfg_block), not the ones of the phi block: a
+    constant introduced in the phi block itself is not defined at the end of a predecessor it does not dominate
+    """
+    for successor_id in cfg_block.successors:
+        successor = cfg_block_list.get_block(successor_id)
+        phi_instructions = successor.phi_instructions()
+        if not phi_instructions:
+            continue
+        position = successor.entries.index(cfg_block.block_id)
+        for phi_instruction in phi_instructions:
+            in_arg = phi_instruction.in_args[position]
+            phi_instruction.in_args[position] = constants_per_block.get(in_arg, in_arg)
+
+
 def insert_constants_block(cfg_block: CFGBlock, constants_per_block: Dict[constant_T, var_id_T]) -> None:
     """
-    Inserts constants in a concrete block
+    Inserts constants in a concrete block. The arguments of the phi-functions are replaced when visiting the
+    corresponding predecessor (see insert_constants_successor_phis)
     """
     first_non_phi = None
     for idx, instruction in enumerate(cfg_block.get_instructions()):
         if instruction.get_op_name() == "PhiFunction":
-            # Phi functions are handled slightly different, as we have to retrieve the
-            # assigned variables from the predecessor blocks
-            instruction.in_args = [constants_per_block.get(in_arg, in_arg)
-                                   for in_arg, predecessor_id in zip(instruction.in_args, cfg_block.entries)]
+            continue
 
         elif instruction.get_op_name() != "LiteralAssignment":
             # We detect the first non phi instruction, as we are introducing variables in this point
