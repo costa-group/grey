@@ -202,7 +202,8 @@ def removable_edge_blocks(blocks: Dict[block_id_T, CFGBlock],
       falls to it (the reconstruction places a falls-to block right after its predecessor) and no block falls to
       the predecessor either: if the successor has already been placed, the predecessor is moved right before it,
       which would break the fall from its own predecessor. Otherwise, the edge block is kept.
-    Chains of skipped blocks are followed, and the conditions are checked on the block finally reached.
+    Chains of skipped blocks are followed, and the conditions are checked on the block finally reached; a block never
+    falls into itself (a loop whose back edge is made of empty blocks keeps one of them).
     Returns the redirections (edge block -> block reached instead) and the tag aliases
     """
     def only_jumps(block: CFGBlock) -> bool:
@@ -292,7 +293,11 @@ def removable_edge_blocks(blocks: Dict[block_id_T, CFGBlock],
     for block_id in redirected_falls:
         skipped_id = falls_to[block_id]
         target_id = resolve(skipped_id)
-        if fallen_into[target_id] > 0 or fallen_into[block_id] > 0 or target_id in moved:
+        # A block cannot fall into itself either (a fall places the target right after the faller): e.g. MegaSale's
+        # Strings.toString loop, Block755 (the loop with its exit test) falls -> Block759 (empty) -> Block756 (empty)
+        # -> Block755; skipping both made the emission drop the back edge. Longer cycles of falls are already excluded
+        # by the condition on the faller (in a cycle, every faller is fallen into)
+        if fallen_into[target_id] > 0 or fallen_into[block_id] > 0 or target_id in moved or target_id == block_id:
             del redirect[skipped_id]
             resolved.pop(skipped_id, None)
             fallen_into[skipped_id] += 1

@@ -186,3 +186,31 @@ class TestThreadEmptyBlocks:
         # B leads to T, which has no tag: B is kept and A leads to it
         redirect, aliases = removable_edge_blocks(block_list.blocks, {"A": 1, "B": 2})
         assert redirect == {"A": "B"} and aliases == {"1": "2"}
+
+    def test_loop_back_edge_through_empty_blocks_is_kept(self, monkeypatch):
+        # Shape of MegaSale's Strings.toString loop: L (the loop with its exit test) falls -> E1 (empty) -> E2 (empty)
+        # -> L. Skipping both would make L fall into itself: E1 is kept, and E2 can still be skipped
+        monkeypatch.setattr("global_params.constants.THREAD_EMPTY_BLOCKS", True)
+        blocks = [conditional_block("S"), conditional_block("L"), empty_block("E1"), empty_block("E2"),
+                  terminal_block("X")]
+        # Nobody falls into L (as in MegaSale, both of its predecessors jump to it)
+        block_list = build_block_list(blocks, [("S", "L", "jumps_to"), ("S", "X", "falls_to"),
+                                               ("L", "X", "jumps_to"), ("L", "E1", "falls_to"),
+                                               ("E1", "E2", "jumps_to"), ("E2", "L", "jumps_to")])
+        tags = {"L": 1, "E2": 2, "X": 3}
+        redirect, aliases = removable_edge_blocks(block_list.blocks, tags)
+        assert "E1" not in redirect and redirect.get("E2", "L") == "L"
+
+    def test_two_blocks_falling_into_each_other(self, monkeypatch):
+        # A falls -> E1 -> B and B falls -> E2 -> A: granting both would be a cycle of falls. The second one is denied
+        # because its faller is already fallen into (the rule that excludes every cycle longer than a self-fall)
+        monkeypatch.setattr("global_params.constants.THREAD_EMPTY_BLOCKS", True)
+        blocks = [conditional_block("S"), conditional_block("A"), conditional_block("B"), empty_block("E1"),
+                  empty_block("E2"), terminal_block("X")]
+        block_list = build_block_list(blocks, [("S", "A", "jumps_to"), ("S", "X", "falls_to"),
+                                               ("A", "X", "jumps_to"), ("A", "E1", "falls_to"),
+                                               ("E1", "B", "jumps_to"), ("B", "X", "jumps_to"),
+                                               ("B", "E2", "falls_to"), ("E2", "A", "jumps_to")])
+        tags = {"A": 1, "B": 2, "X": 3}
+        redirect, _ = removable_edge_blocks(block_list.blocks, tags)
+        assert ("E1" in redirect) != ("E2" in redirect)
