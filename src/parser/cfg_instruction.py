@@ -133,11 +133,10 @@ class CFGInstruction:
         self.translate_literal_args = None
         self.assignments = None
 
-        # The outputs of verbatims and function calls keep the order of the JSON. Function calls cannot be
-        # identified here, as their names are only known once the functions of the object are parsed: they are
-        # reversed back in CFGObject.identify_function_calls_in_blocks
+        # The outputs of function calls keep the order of the JSON. They cannot be identified here, as their names
+        # are only known once the functions of the object are parsed: they are reversed back in
+        # CFGObject.identify_function_calls_in_blocks. Verbatims behave as the builtins: the last output is on top
         if op.startswith("verbatim"):
-            self.out_args = self.out_args[::-1]
             constants.add_verbatim_to_split_block(op)
 
         

@@ -108,7 +108,10 @@ def asm_for_split_instruction(split_ins: CFGInstruction, function_name2entry: Di
         asm_subblock = [asm_from_op_info("JUMP", jump_type="[out]")]
 
     elif split_ins.get_op_name().startswith("verbatim"):
-        asm_subblock =[asm_from_op_info("VERBATIM", 0)] #WARNING: Value assigned to verbatim is 0
+        # The literal argument holds the bytes to insert, one character per byte (as solc writes it in the Yul CFG),
+        # and the assembly item expects them in hexadecimal
+        verbatim_data = split_ins.get_literal_args()[0].encode("latin-1").hex()
+        asm_subblock = [asm_from_op_info("VERBATIM", verbatim_data)]
 
     elif split_ins.get_op_name().startswith("assignimmutable"):
         literal_args = split_ins.get_literal_args()
