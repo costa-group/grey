@@ -524,7 +524,8 @@ class LayoutGeneration:
                         json.dump(specification, f, indent=4)
 
 
-def layout_generation_cfg(cfg: CFG, args: argparse.Namespace, final_dir: Path = Path(".")) -> Tuple[float, float]:
+def layout_generation_cfg(cfg: CFG, args: argparse.Namespace, final_dir: Path = Path("."),
+                          components: Optional[Dict[str, set]] = None) -> Tuple[float, float]:
     """
     Generates the layout for all the blocks in the objects inside the CFG level, excluding sub-objects
     """
@@ -536,7 +537,15 @@ def layout_generation_cfg(cfg: CFG, args: argparse.Namespace, final_dir: Path = 
     call_convention = getattr(args, "call_convention", "fixed")
     if call_convention != "fixed":
         for object_name, object_liveness in results.items():
-            apply_calling_conventions(cfg.objectCFG[object_name], object_liveness, call_convention)
+            if call_convention == "best":
+                # Only the functions in which the "orders" convention was cheaper (see main_execution)
+                selected = getattr(args, "call_convention_selected", {}).get(object_name, set())
+                conventions = apply_calling_conventions(cfg.objectCFG[object_name], object_liveness, "orders", selected)
+                # The applied conventions are recorded to undo them (see main_execution.generate_with_best_conventions)
+                if getattr(args, "record_conventions", None) is not None:
+                    args.record_conventions[object_name] = conventions
+            else:
+                apply_calling_conventions(cfg.objectCFG[object_name], object_liveness, call_convention)
     component2inputs = functions_inputs_from_components(cfg)
     y = dtimer()
 
@@ -544,6 +553,9 @@ def layout_generation_cfg(cfg: CFG, args: argparse.Namespace, final_dir: Path = 
 
     for object_name, object_liveness in results.items():
         for component_name, component_liveness in object_liveness.items():
+            # Only some components (see main_execution.generate_with_best_conventions)
+            if components is not None and component_name not in components.get(object_name, ()):
+                continue
             layout = LayoutGeneration(component_name, component2block_list[object_name][component_name],
                                       component_liveness, component2inputs[object_name], final_dir,
                                       component_name == object_name,
