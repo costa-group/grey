@@ -1,4 +1,6 @@
-split_block = {} # {'calldatacopy', 'create', 'codecopy', 'call', 'log4', 'gas', 'delegatecall', 'extcodecopy', 'create2',
+# Operations that end a sub-block (besides the function calls): the verbatims found while parsing.
+# It must be a set: {} is an empty dict
+split_block = set() # {'calldatacopy', 'create', 'codecopy', 'call', 'log4', 'gas', 'delegatecall', 'extcodecopy', 'create2',
                  #  'assignimmutable', 'returndatacopy', 'log2', 'log1', 'log3', 'log0', 'datacopy', 'staticcall','tstore','tload','mcopy'}
 
 terminal_ops = {"functionReturn", "functionReturn", "return", "revert", "stop", "selfdestruct"}
