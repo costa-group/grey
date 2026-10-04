@@ -60,10 +60,12 @@
 #   CONFIRM=1     do not ask before the paid step
 #   REMOTE        ssh host of the remote steps (grey-remote; localhost also works); REMOTE_DIR its work folder
 #                 (grey_eval, relative to the remote home), prepared by the step `setup`
-#   RESULTS_NAME  name of the compilation under $REMOTE_DIR/results (gas_<grey commit>_most_called by default)
-#   SOLC_VERSION, FALLBACK_VERSION, GREY_FLAGS, PROPAGATION, DEPTH: the configuration of the compared code (see
-#                 compile_variants.sh; the defaults are the evaluated configuration). They are passed to the remote
-#                 compilation, and SOLC_VERSION is also used by the codes and immutables steps
+#   SOLC          the solc of both sides: an official version (e.g. 0.8.35, the default; downloaded on the work
+#                 machine), or a path to a local binary (e.g. examples/solc-without-opt; copied to the work machine)
+#   FALLBACK_VERSION, GREY_FLAGS, PROPAGATION, DEPTH: the rest of the configuration (see compile_variants.sh; the
+#                 defaults are the evaluated configuration)
+#   RESULTS_NAME  name of the run under $REMOTE_DIR/results and $DATA_DIR/results; by default
+#                 gas_<grey commit>_<solc>_<hash of the configuration>, so that two configurations never share one
 set -euo pipefail
 
 REPO_ROOT=$(git rev-parse --show-toplevel)
@@ -83,7 +85,31 @@ replay() { PYTHONDONTWRITEBYTECODE=1 python3 "$SCRIPTS/gas_mainnet_replay.py" "$
 REMOTE=${REMOTE:-grey-remote}
 REMOTE_DIR=${REMOTE_DIR:-grey_eval}
 COMMIT=$(git rev-parse --short HEAD)
-RESULTS_NAME=${RESULTS_NAME:-gas_${COMMIT}_most_called}
+# Uncommitted changes in src/ are evaluated too: they get another name, so that cached codes are never reused
+git diff --quiet HEAD -- src || COMMIT=${COMMIT}-dirty
+# The configuration of the compared code
+DEFAULT_GREY_FLAGS="--split-critical-edges --hoist-return-labels --cse --prune-unused-arguments --combine-functions \
+--reinline-after-merge --thread-empty-blocks --call-convention orders"
+GREY_FLAGS=${GREY_FLAGS:-$DEFAULT_GREY_FLAGS}
+PROPAGATION=${PROPAGATION:-off}
+DEPTH=${DEPTH:-16}
+SEMANTIC_DEPTHS=${SEMANTIC_DEPTHS:-16,8}
+FALLBACK_VERSION=${FALLBACK_VERSION-0.8.37}
+SOLC=${SOLC:-${SOLC_VERSION:-0.8.35}}
+if [ -f "$SOLC" ]; then
+    # A local binary: copied to the work machine as bin/<its name>
+    LOCAL_SOLC=${LOCAL_SOLC:-$(realpath "$SOLC")}
+    SOLC_LABEL=$(basename "$SOLC")
+    REMOTE_SOLC=bin/$SOLC_LABEL
+    SOLC_SETTING="SOLC_BINARY=$REMOTE_SOLC"
+else
+    SOLC_LABEL=solc-$SOLC
+    REMOTE_SOLC=bin/solc-$SOLC
+    SOLC_SETTING="SOLC_VERSION=$SOLC"
+fi
+CONFIGURATION_ID=$(printf '%s|%s|%s|%s|%s' "$SOLC_LABEL" "$GREY_FLAGS" "$PROPAGATION" "$DEPTH" "$FALLBACK_VERSION" |
+    sha256sum | cut -c1-8)
+RESULTS_NAME=${RESULTS_NAME:-gas_${COMMIT}_${SOLC_LABEL}_${CONFIGURATION_ID}}
 REMOTE_DATA=$REMOTE_DIR/gas/$(basename "$DATA_DIR")
 # Runs a command on the remote work folder (PYTHONPATH with pyshim, as the other runs there)
 # On the remote, every Python script is in one folder ($REMOTE_DIR/scripts) and the Etherscan data in $REMOTE_DIR/data
@@ -100,6 +126,20 @@ sync_scripts() {
     rsync -a evaluation/data/etherscan "$REMOTE:$REMOTE_DIR/data/"
 }
 sync_data() { rsync -a "$DATA_DIR"/txs "$DATA_DIR"/codes "$DATA_DIR"/deploy "$REMOTE:$REMOTE_DATA/"; }
+# A local solc binary is copied to the work machine (official versions are downloaded there by compile_variants.sh)
+sync_solc() {
+    if [ -n "${LOCAL_SOLC:-}" ] && [ -f "$SOLC" ]; then
+        on_remote "mkdir -p bin"
+        rsync -a "$LOCAL_SOLC" "$REMOTE:$REMOTE_DIR/$REMOTE_SOLC"
+        on_remote "chmod +x $REMOTE_SOLC"
+    fi
+}
+# The grey src/ of the working tree, copied to the work machine
+sync_src() {
+    on_remote "mkdir -p near_src/$COMMIT"
+    rsync -a --delete --exclude __pycache__ src/ "$REMOTE:$REMOTE_DIR/near_src/$COMMIT/src/"
+    git rev-parse HEAD | ssh "$REMOTE" "cat > $REMOTE_DIR/near_src/$COMMIT/COMMIT"
+}
 
 require_project() {
     if [ -z "${BQ_PROJECT:-}" ]; then
@@ -168,8 +208,13 @@ step_resolve() {
 }
 
 step_immutables() {
-    PYTHONDONTWRITEBYTECODE=1 python3 "$SCRIPTS/gas_offline_replay.py" resolve-immutables "$DATA_DIR" \
-        --solc "${LOCAL_SOLC:-$HOME/.solc-select/artifacts/solc-${SOLC_VERSION:-0.8.35}/solc-${SOLC_VERSION:-0.8.35}}"
+    # The AST ids of the corpus inputs are those of the configured solc (an official version is downloaded if needed)
+    local solc=${LOCAL_SOLC:-}
+    if [ -z "$solc" ]; then
+        solc=$(cd "$SCRIPTS" && python3 -c "from pathlib import Path; from gas_offline_replay import solc_binary; \
+print(solc_binary('$SOLC', Path.home().joinpath('.cache', 'grey', 'solc')))")
+    fi
+    PYTHONDONTWRITEBYTECODE=1 python3 "$SCRIPTS/gas_offline_replay.py" resolve-immutables "$DATA_DIR" --solc "$solc"
 }
 
 step_setup() {
@@ -178,22 +223,21 @@ step_setup() {
     rsync -a examples/test/semanticTests/ "$REMOTE:$REMOTE_DIR/corpus/semanticTests/"
     rsync -a "$SCRIPTS"/pyshim/sitecustomize.py "$REMOTE:$REMOTE_DIR/pyshim/"
     on_remote "find corpus/most_called -name '*_standard_input.json' | sort > inputs_most_called.txt && \
-        find corpus/semanticTests -name '*_standard_input.json' | sort > inputs_semantic.txt && \
+        find corpus/semanticTests -name '*_standard_input.json' ! -name asm_standard_input.json | sort > inputs_semantic.txt && \
         wc -l inputs_most_called.txt inputs_semantic.txt"
     sync_scripts
 }
 
 # The configuration of the compared code, passed to the remote compilation
 configuration() {
-    printf 'SOLC_VERSION=%q FALLBACK_VERSION=%q GREY_FLAGS=%q PROPAGATION=%q DEPTH=%q' "${SOLC_VERSION:-0.8.35}" \
-        "${FALLBACK_VERSION-0.8.37}" "${GREY_FLAGS:-}" "${PROPAGATION:-off}" "${DEPTH:-16}"
+    printf '%s FALLBACK_VERSION=%q GREY_FLAGS=%q PROPAGATION=%q DEPTH=%q' "$SOLC_SETTING" "$FALLBACK_VERSION" \
+        "$GREY_FLAGS" "$PROPAGATION" "$DEPTH"
 }
 
 step_compile() {
     sync_scripts
-    on_remote "mkdir -p near_src/$COMMIT"
-    rsync -a --delete --exclude __pycache__ src/ "$REMOTE:$REMOTE_DIR/near_src/$COMMIT/src/"
-    git rev-parse HEAD | ssh "$REMOTE" "cat > $REMOTE_DIR/near_src/$COMMIT/COMMIT"
+    sync_solc
+    sync_src
     on_remote "$(configuration) gas/scripts/compile_variants.sh \$PWD \$PWD/near_src/$COMMIT/src \$PWD/results/$RESULTS_NAME ${JOBS:-}"
 }
 
@@ -201,7 +245,7 @@ step_codes() {
     sync_scripts
     sync_data
     on_remote "python3 scripts/gas_offline_replay.py codes gas/$(basename "$DATA_DIR") results/$RESULTS_NAME \
-        --inputs-from inputs_most_called.txt --solc bin/solc-${SOLC_VERSION:-0.8.35} --variant solc=solc_solc --variant grey=grey \
+        --inputs-from inputs_most_called.txt --solc $REMOTE_SOLC --variant solc=solc_solc --variant grey=grey \
         --variants-dir results/$RESULTS_NAME/codes ${JOBS:+--jobs $JOBS}"
 }
 
@@ -218,20 +262,26 @@ step_report() {
     mkdir -p "$DATA_DIR/results/${RESULTS_NAME}"
     rsync -a "$REMOTE:$REMOTE_DIR/results/${RESULTS_NAME}_replay/" "$DATA_DIR/results/${RESULTS_NAME}/"
     rsync -a "$REMOTE:$REMOTE_DIR/results/$RESULTS_NAME/settings.txt" "$DATA_DIR/results/${RESULTS_NAME}/compile_settings.txt"
+    rsync -a "$REMOTE:$REMOTE_DIR/results/$RESULTS_NAME.log" "$DATA_DIR/results/${RESULTS_NAME}/compile_bytes.txt"
     echo "Results in $DATA_DIR/results/${RESULTS_NAME}"
 }
 
 step_semantic() {
     sync_scripts
+    sync_solc
+    sync_src
     rsync -a "$SCRIPTS"/run_semantic_gas_evaluation.sh "$SCRIPTS"/build_testrunner.sh "$SCRIPTS"/testrunner_logs.patch \
         "$REMOTE:$REMOTE_DIR/gas/scripts/"
-    on_remote "mkdir -p near_src/$COMMIT"
-    rsync -a --delete --exclude __pycache__ src/ "$REMOTE:$REMOTE_DIR/near_src/$COMMIT/src/"
-    git rev-parse HEAD | ssh "$REMOTE" "cat > $REMOTE_DIR/near_src/$COMMIT/COMMIT"
     on_remote "[ -x gas/build/solidity/build/test/tools/testrunner ] || gas/scripts/build_testrunner.sh gas/build; \
-        $(configuration) DEPTH=${SEMANTIC_DEPTHS:-16,8} gas/scripts/run_semantic_gas_evaluation.sh \$PWD \
-        \$PWD/near_src/$COMMIT/src \$PWD/results/semantic_$COMMIT ${JOBS:-}"
-    rsync -a "$REMOTE:$REMOTE_DIR/results/semantic_${COMMIT}_semantic_d*" "$DATA_DIR/results/" 2>/dev/null || true
+        $(configuration) DEPTH=$SEMANTIC_DEPTHS gas/scripts/run_semantic_gas_evaluation.sh \$PWD \
+        \$PWD/near_src/$COMMIT/src \$PWD/results/${RESULTS_NAME}_semantic ${JOBS:-}"
+    local local_dir=$DATA_DIR/results/${RESULTS_NAME}/semantic
+    mkdir -p "$local_dir"
+    rsync -a "$REMOTE:$REMOTE_DIR/results/${RESULTS_NAME}_semantic.log" "$local_dir/compile_bytes.txt"
+    for depth in ${SEMANTIC_DEPTHS//,/ }; do
+        rsync -a "$REMOTE:$REMOTE_DIR/results/${RESULTS_NAME}_semantic_semantic_d$depth/summary.txt" \
+            "$local_dir/summary_d$depth.txt"
+    done
 }
 
 step_blockhashes() {
@@ -250,6 +300,7 @@ step_diagnosis() {
 run_step() {
     case "$1" in
         setup) step_setup ;;
+        results-dir) echo "$DATA_DIR/results/$RESULTS_NAME" ;;
         query) step_query ;;
         dry-run) step_dry_run ;;
         run) step_run ;;

@@ -17,7 +17,9 @@ configuration of grey and solc, and how the transactions are compared.
 ```
 evaluation/
   scripts/
-    run_mainnet_gas_evaluation.sh   driver of the whole pipeline, step by step
+    evaluate.sh                     the whole evaluation of one configuration, printing the final results
+    run_mainnet_gas_evaluation.sh   driver of the pipeline, step by step
+    summarize_evaluation.py         the final results of a run, from its results folder
     compile_variants.sh             compiles a corpus with grey and with solc, for a configuration of both
     run_semantic_gas_evaluation.sh  semantic tests: size, correctness and gas
     gas_mainnet_replay.py           data collection: Etherscan, BigQuery sample, Sourcify/Etherscan deployment data,
@@ -167,6 +169,37 @@ those receipts. Run `replay report` again afterwards.
 
 ## 4. Running an evaluation
 
+### 4.0 One command: the whole evaluation of a configuration
+
+    GREY_FLAGS="<grey options>" SOLC=<solc version or binary> evaluation/scripts/evaluate.sh
+
+For example:
+
+    evaluation/scripts/evaluate.sh                                     # the default configuration (section 5)
+    SOLC=examples/solc-without-opt evaluation/scripts/evaluate.sh      # both sides with solc-without-opt
+    GREY_FLAGS="--split-critical-edges --hoist-return-labels" SOLC=0.8.37 FALLBACK_VERSION= evaluation/scripts/evaluate.sh
+
+It runs every step below in order:
+1. `setup`;
+2. the RPC data if it is missing (`load prestate`);
+3. `immutables`, then `compile codes replay report`;
+4. `blockhashes`, and `replay report` again only if new hashes were fetched;
+5. `diagnosis`, then `semantic` (skipped with `SKIP_SEMANTIC=1`).
+
+It ends by printing the final results, also written to `final_results.txt` in the run's results folder:
+- the configuration;
+- the bytecode size of grey vs solc on the 1,000 contracts and on the semantic tests;
+- the mainnet gas of grey vs solc, plainly and weighted by frequency;
+- the mismatch classes, the number of unexplained mismatches and where every sampled transaction goes;
+- the semantic test classes, including tests where grey fails and solc passes, and the gas of constructors and calls.
+
+`evaluation/scripts/summarize_evaluation.py <results folder>` prints them again from a results folder.
+
+The run's results folder is `data/mainnet/results/<RESULTS_NAME>`. By default the name is
+`gas_<grey commit>_<solc>_<hash of the configuration>`; `-dirty` is added to the commit when `src/` has uncommitted
+changes. Two configurations therefore never share cached codes. `run_mainnet_gas_evaluation.sh results-dir` prints the
+folder of the current configuration.
+
 ### 4.1 Once: prepare the work machine
 
     export REMOTE=grey-remote REMOTE_DIR=grey_eval          # an ssh host; localhost works too
@@ -191,8 +224,7 @@ the copy is evaluated, and the working tree is never modified.
 | `report` | remote → local | gas totals, plain and weighted by function frequency; copied to `data/mainnet/results/<RESULTS_NAME>/` |
 | `diagnosis` | remote → local | every mismatch with the original classified (gas-dependent, code-dependent, unexplained), and `accounting.txt`: where every sampled transaction goes |
 
-`RESULTS_NAME` defaults to `gas_<grey commit>_most_called`. Change it when evaluating several configurations of the
-same commit.
+The results go to `data/mainnet/results/<RESULTS_NAME>/` (section 4.0 for the default name).
 
 With fresh RPC data, run `blockhashes replay report` after the first `report` (section 3.6).
 
@@ -249,13 +281,13 @@ testrunner the first time, then runs each test's trace with solc's and grey's cr
 
 ## 5. Configuring the compared code
 
-`compile_variants.sh` (and through it `compile` and `semantic`) takes the configuration from the environment. The
-defaults are the evaluated configuration:
+`evaluate.sh` and `run_mainnet_gas_evaluation.sh` take the configuration from the environment. They pass it to
+`compile_variants.sh`, `codes`, `immutables` and `semantic`. The defaults are the evaluated configuration:
 
 | variable | default | meaning |
 |---|---|---|
-| `SOLC_VERSION` | `0.8.35` | official solc for the Yul CFG, the assembly importer and the reference: the same binary on both sides |
-| `FALLBACK_VERSION` | `0.8.37` | solc that generates the Yul CFG when `SOLC_VERSION` fails there with an internal error; empty: none |
+| `SOLC` | `0.8.35` | the solc of both sides: Yul CFG and assembly importer for grey, and solc's reference compilation. An official version is downloaded (sha256-checked) on the work machine. A path to a local binary (e.g. `examples/solc-without-opt`, without the legacy optimizer) is copied there |
+| `FALLBACK_VERSION` | `0.8.37` | official solc that generates the Yul CFG when `SOLC` fails there with an internal error; empty: none |
 | `GREY_FLAGS` | `--split-critical-edges --hoist-return-labels --cse --prune-unused-arguments --combine-functions --reinline-after-merge --thread-empty-blocks --call-convention orders` | grey's options; `--debug` is always added |
 | `PROPAGATION` | `off` | grey's constant propagation (`off`: `decide_if_propagated` returns False in the evaluated copy) |
 | `DEPTH` | `16` | maximum stack depth reachable by DUP/SWAP |
@@ -263,15 +295,12 @@ defaults are the evaluated configuration:
 The grey version is the working tree's `src/`: check out the branch or commit to evaluate. solc's side is the corpus
 input compiled via-IR with the optimizer enabled. `runs` comes from the input (200), and the metadata is disabled.
 
-Examples:
+| `SEMANTIC_DEPTHS` | `16,8` | depths of the semantic tests |
 
-    # grey without its newer options, against the same solc
-    GREY_FLAGS="--split-critical-edges --hoist-return-labels" RESULTS_NAME=gas_baseline_most_called \
-        evaluation/scripts/run_mainnet_gas_evaluation.sh compile codes replay report diagnosis
+The steps can also be run one by one with the same variables, e.g.:
 
-    # both sides with solc 0.8.37
-    SOLC_VERSION=0.8.37 FALLBACK_VERSION= RESULTS_NAME=gas_0837_most_called \
+    GREY_FLAGS="--split-critical-edges --hoist-return-labels" \
         evaluation/scripts/run_mainnet_gas_evaluation.sh immutables compile codes replay report diagnosis
 
-`immutables` is repeated for another solc version: the AST ids of the corpus inputs are taken from the parser of
-`SOLC_VERSION`. Point `LOCAL_SOLC` to that binary if it is not in solc-select's folder.
+`immutables` runs for each configuration: the AST ids of the corpus inputs are taken from the parser of `SOLC`. It
+rewrites `data/mainnet/deploy/`, which only changes when another solc numbers the declarations differently.

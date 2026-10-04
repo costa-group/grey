@@ -11,6 +11,7 @@
 # Configuration (environment variables; the defaults are the evaluated configuration, 2026-10-03/04):
 #   SOLC_VERSION      official solc of the Yul CFG, the importer and the reference, the same binary on both sides
 #                     (default 0.8.35; <work_dir>/bin/solc-<version>, downloaded and sha256-checked if missing)
+#   SOLC_BINARY       instead of SOLC_VERSION, a given binary (e.g. bin/solc-without-opt, relative to <work_dir>)
 #   FALLBACK_VERSION  solc that generates the Yul CFG when SOLC_VERSION fails there with an internal error (--solc-cfg-
 #                     fallback; default 0.8.37; empty: no fallback)
 #   GREY_FLAGS        grey's options (default: the evaluated ones below); --debug is always added
@@ -60,7 +61,11 @@ solc_binary() {
 }
 
 cd "$WORK_DIR"
-SOLC=$(solc_binary "$SOLC_VERSION")
+if [ -n "${SOLC_BINARY:-}" ]; then
+    SOLC=$(realpath "$SOLC_BINARY")
+else
+    SOLC=$(solc_binary "$SOLC_VERSION")
+fi
 FLAGS="$GREY_FLAGS"
 if [ -n "$FALLBACK_VERSION" ]; then
     FALLBACK_SOLC=$(solc_binary "$FALLBACK_VERSION")

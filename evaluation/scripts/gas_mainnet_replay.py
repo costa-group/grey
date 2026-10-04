@@ -70,7 +70,17 @@ ORIGINAL = "original"
 # ---------------------------------------------------------------- I/O helpers
 
 def write_json_gz(path: Path, data) -> None:
+    """
+    Writes data as gzipped JSON. An existing file with the same content is left untouched: gzip records the time of
+    writing, so rewriting it would change the bytes of committed data (e.g. deploy/) without changing its content
+    """
     path.parent.mkdir(parents=True, exist_ok=True)
+    if path.is_file():
+        try:
+            if read_json_gz(path) == json.loads(json.dumps(data, sort_keys=True)):
+                return
+        except (OSError, ValueError):
+            pass
     with gzip.open(path, "wt") as f:
         json.dump(data, f, sort_keys=True)
 

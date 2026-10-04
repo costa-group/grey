@@ -8,7 +8,8 @@
 #   2. gas_semantic_tests.py per depth: the testrunner of solidity's branch testExpectationExtraction on evmone
 #      (built by build_testrunner.sh into $TESTRUNNER_ROOT, default <work_dir>/gas/build) executes the traces with
 #      solc's and grey's creation codes: <results_dir>_semantic_d<depth>/summary.txt and entries.csv.gz.
-# Configuration: the variables of compile_variants.sh (SOLC_VERSION, FALLBACK_VERSION, GREY_FLAGS, PROPAGATION, DEPTH).
+# Configuration: the variables of compile_variants.sh (SOLC_VERSION or SOLC_BINARY, FALLBACK_VERSION, GREY_FLAGS,
+# PROPAGATION, DEPTH).
 set -euo pipefail
 
 WORK_DIR=$(realpath "${1:?work dir}")
@@ -24,7 +25,11 @@ EVMONE=$TESTRUNNER_ROOT/evmone-94582ffd/build/lib/libevmone.so
 export DEPTH=${DEPTH:-16,8}
 
 INPUTS=inputs_semantic.txt "$EVALUATION_SCRIPTS/compile_variants.sh" "$WORK_DIR" "$GREY_SRC" "$RESULTS_DIR" $JOBS
-SOLC=$WORK_DIR/bin/solc-${SOLC_VERSION:-0.8.35}
+if [ -n "${SOLC_BINARY:-}" ]; then
+    SOLC=$(cd "$WORK_DIR" && realpath "$SOLC_BINARY")
+else
+    SOLC=$WORK_DIR/bin/solc-${SOLC_VERSION:-0.8.35}
+fi
 # gas_semantic_tests.py is next to this script, or in SCRIPTS_DIR (on the remote every Python script is in one folder)
 SEMANTIC=$EVALUATION_SCRIPTS/gas_semantic_tests.py
 [ -f "$SEMANTIC" ] || SEMANTIC=$SCRIPTS_DIR/gas_semantic_tests.py
