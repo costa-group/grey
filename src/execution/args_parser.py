@@ -60,12 +60,14 @@ def generate_parser() -> argparse.ArgumentParser:
     synthesis_options.add_argument("--new-vars-order", choices=["h1", "tiers"], default="h1", dest="new_vars_order",
                                    help="Experimental: order of the new variables in the output stacks. 'tiers' places "
                                         "first the values the successor consumes first")
-    synthesis_options.add_argument("--call-convention", choices=["fixed", "args", "orders"], default="fixed",
+    synthesis_options.add_argument("--call-convention", choices=["fixed", "args", "orders", "best"], default="fixed",
                                    dest="call_convention",
                                    help="Experimental: order of the values at function calls and returns. 'fixed' "
                                         "follows the Yul order; 'args' orders the arguments by their next use in the "
                                         "callee; 'orders' also orders the return values by their definition in the "
-                                        "callee (the earliest at the bottom). The return label stays at the bottom")
+                                        "callee (the earliest at the bottom); 'best' keeps the 'orders' convention only "
+                                        "in the functions in which it generates less code. The return label stays at "
+                                        "the bottom")
     synthesis_options.add_argument("--split-critical-edges", action="store_true", dest="split_critical_edges",
                                    help="Experimental: splits the critical edges of the CFG with empty blocks, so that "
                                         "the predecessors of a join always have a single successor")
