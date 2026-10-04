@@ -40,8 +40,7 @@ def repair_cfg_objects(cfg: CFGObject, path_to_files: Path):
     """
     csvs_dicts, max_constant, original_max = [], None, None
     if cfg.blocks.needs_repair:
-        max_constant = get_first_constant(cfg.blocks)
-        original_max = max_constant
+        max_constant = original_max = spill_base(cfg)
         csv_dicts_block_list, max_constant = repair_unreachable_blocklist(cfg.blocks, cfg.blocks.to_fix,
                                                                           path_to_files.joinpath(cfg.name) if path_to_files is not None else None,
                                                                           max_constant)
@@ -52,8 +51,7 @@ def repair_cfg_objects(cfg: CFGObject, path_to_files: Path):
         if cfg_function.blocks.needs_repair:
             # Maybe the stack too deep is in some of the functions but no the main one
             if original_max is None:
-                max_constant = get_first_constant(cfg.blocks)
-                original_max = max_constant
+                max_constant = original_max = spill_base(cfg)
 
             csv_dicts_block_list, max_constant = repair_unreachable_blocklist(cfg_function.blocks, cfg_function.blocks.to_fix,
                                                                               path_to_files.joinpath(cfg.name) if path_to_files is not None else None,
@@ -119,6 +117,83 @@ def repair_unreachable_blocklist(cfg_blocklist: CFGBlockList,
         return {"name": cfg_blocklist.name, "num_phi": 0, "num_assigned": 0, "num_colors": 0,
                 "memory_slots": 0, "redundant_stores": num_redundant_stores,
                 "before_constants": initial_fix, **count_memory_accesses(cfg_blocklist)}, forbidden_constants
+
+
+# Memory operations that access a fixed number of bytes at their first argument
+FIXED_SIZE_ACCESSES = {"mload": 32, "mstore": 32, "mstore8": 1}
+# Memory operations with the positions (in the Yul order of their arguments) of the offset and the size of each memory
+# range they access
+MEMORY_RANGES = {"keccak256": [(0, 1)], "return": [(0, 1)], "revert": [(0, 1)], "log0": [(0, 1)], "log1": [(0, 1)],
+                 "log2": [(0, 1)], "log3": [(0, 1)], "log4": [(0, 1)], "calldatacopy": [(0, 2)], "codecopy": [(0, 2)],
+                 "datacopy": [(0, 2)], "returndatacopy": [(0, 2)], "extcodecopy": [(1, 3)], "mcopy": [(0, 2), (1, 2)],
+                 "create": [(1, 2)], "create2": [(1, 2)], "call": [(3, 4), (5, 6)], "callcode": [(3, 4), (5, 6)],
+                 "delegatecall": [(2, 3), (4, 5)], "staticcall": [(2, 3), (4, 5)]}
+# Larger constant offsets are not memory addresses that a program can use (they run out of gas)
+MAX_MEMORY_ADDRESS = 2 ** 32
+
+
+def largest_constant_memory_access(cfg: CFGObject) -> int:
+    """
+    End (exclusive) of the highest memory range accessed at a constant address in the object (main blocks and
+    functions): the fixed addresses used by inline assembly that is not memory-safe. A range with a constant offset
+    and a variable size counts as a word. Ranges with a variable offset cannot be bounded and are ignored
+    """
+    block_lists = [cfg.blocks] + [cfg_function.blocks for cfg_function in cfg.functions.values()]
+    instructions = [instruction for block_list in block_lists for block in block_list.blocks.values()
+                    for instruction in block.get_instructions()]
+    # Variables bound to a constant (propagated constants, literal assignments and copies of them)
+    constant_vars: Dict[str, int] = dict()
+    for instruction in instructions:
+        if instruction.op == "push" and instruction.literal_args:
+            constant_vars[instruction.out_args[0]] = int(instruction.literal_args[0], 16)
+        elif instruction.op == "LiteralAssignment" and instruction.in_args[0].startswith("0x"):
+            constant_vars[instruction.out_args[0]] = int(instruction.in_args[0], 16)
+    for instruction in instructions:
+        if instruction.op == "assignments":
+            for in_arg, out_arg in zip(instruction.in_args, instruction.out_args):
+                if in_arg in constant_vars:
+                    constant_vars[out_arg] = constant_vars[in_arg]
+
+    def constant_value(argument: str) -> Optional[int]:
+        return int(argument, 16) if argument.startswith("0x") else constant_vars.get(argument)
+
+    largest_end = 0
+    for instruction in instructions:
+        # in_args is in stack order (the first Yul argument on top), i.e. the Yul order of the arguments
+        accesses = [(instruction.in_args[0], FIXED_SIZE_ACCESSES[instruction.op])] \
+            if instruction.op in FIXED_SIZE_ACCESSES else \
+            [(instruction.in_args[offset_position], constant_value(instruction.in_args[size_position]))
+             for offset_position, size_position in MEMORY_RANGES.get(instruction.op, [])]
+        for offset_argument, size in accesses:
+            offset = constant_value(offset_argument)
+            if offset is None or offset >= MAX_MEMORY_ADDRESS or size == 0 or \
+                    (size is not None and size >= MAX_MEMORY_ADDRESS):
+                continue
+            largest_end = max(largest_end, offset + (size if size is not None else 32))
+    return largest_end
+
+
+def spill_base(cfg: CFGObject) -> constant_T:
+    """
+    First memory slot of the reparation: the slots grow upwards from it and, if any is used, the initial free memory
+    pointer (or the memoryguard) is raised above them. With a memoryguard, solc guarantees that every access
+    is memory-safe and the base is its value. Without it (inline
+    assembly that is not memory-safe), the program may use fixed addresses above the initial free memory pointer, so
+    the slots start above the largest constant memory access, rounded up to a word (as if a memoryguard reserved it)
+    """
+    first_constant = get_first_constant(cfg.blocks)
+    if has_memoryguard(cfg.blocks):
+        return first_constant
+    largest_end = largest_constant_memory_access(cfg)
+    return hex(max(int(first_constant, 16), (largest_end + 31) // 32 * 32))[2:]
+
+
+def has_memoryguard(cfg_blocklist: CFGBlockList) -> bool:
+    first_block = cfg_blocklist.get_block(cfg_blocklist.start_block)
+    # The parser translates the memoryguard into a push (unless the builtins are kept, -bt), keeping its name in
+    # builtin_op
+    return any("memoryguard" in (instruction.op, instruction.builtin_op)
+               for instruction in first_block.instructions_to_synthesize)
 
 
 def get_first_constant(cfg_blocklist: CFGBlockList):
