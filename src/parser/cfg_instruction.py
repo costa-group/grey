@@ -133,10 +133,11 @@ class CFGInstruction:
         self.translate_literal_args = None
         self.assignments = None
 
-        if self.op.find("_")!=-1:
-            self.out_args = self.out_args[::-1]
-        
+        # The outputs of verbatims and function calls keep the order of the JSON. Function calls cannot be
+        # identified here, as their names are only known once the functions of the object are parsed: they are
+        # reversed back in CFGObject.identify_function_calls_in_blocks
         if op.startswith("verbatim"):
+            self.out_args = self.out_args[::-1]
             constants.add_verbatim_to_split_block(op)
 
         
@@ -159,8 +160,10 @@ class CFGInstruction:
     def set_literal_args(self, literal: List[str]) -> None:
         self.literal_args = literal
 
-    #Only for function calls
     def reverse_out_args(self):
+        """
+        Restores the JSON order of the output arguments. Only for function calls, once per instruction
+        """
         self.out_args = self.out_args[::-1]
         
     def get_as_json(self):
