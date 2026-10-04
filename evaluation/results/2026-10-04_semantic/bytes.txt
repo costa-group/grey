@@ -1,0 +1,28 @@
+solc reference of stub_standard_input_197aff43: SyntaxError: Experimental pragmas can only be used if experimental mode is enabled. To enable experimental mode, use the --experimental flag.
+solc reference of type_class_standard_input_8c26b42b: SyntaxError: Experimental pragmas can only be used if experimental mode is enabled. To enable experimental mode, use the --experimental flag.
+solc reference of basefee_berlin_function_standard_input_6b023e73: ParserError: Cannot use builtin function name "basefee" as identifier name.; ParserError: Builtin function "basefee" must be called.
+solc reference of blobbasefee_shanghai_function_standard_input_58c7631e: ParserError: Cannot use builtin function name "blobbasefee" as identifier name.; ParserError: Builtin function "blobbasefee" must be called.
+solc reference of blobhash_pre_cancun_standard_input_704f9ca8: ParserError: Cannot use builtin function name "blobhash" as identifier name.; ParserError: Builtin function "blobhash" must be called.
+solc reference of difficulty_standard_input_8bbd04b2: DeclarationError: Function "difficulty" not found.; DeclarationError: Variable count for assignment to "ret" does not match number of values (1 vs. 0)
+solc reference of mcopy_as_identifier_pre_cancun_standard_input_4984c5b0: ParserError: Cannot use builtin function name "mcopy" as identifier name.; ParserError: Builtin function "mcopy" must be called.
+solc reference of tload_tstore_not_reserved_before_cancun_standard_input_bd4957b2: ParserError: Cannot use builtin function name "tload" as identifier name.; ParserError: Cannot use builtin function name "tstore" as identifier name.; ParserError: Builtin function "tload" must be cal
+solc reference of revert_return_area_standard_input_22b1ba5f: TypeError: The "extcall" instruction is only available in EOF.; DeclarationError: Variable count for assignment to "s" does not match number of values (1 vs. 0)
+Inputs: 1553 x depths ['16', '8'] x variants ['grey']
+== depth 16: 1553 inputs, succeeded in every variant: 1544
+  variant                      bytes   vs ref     b/w  vs prev     b/w  slots  vs ref  gap solc
+  grey                        783328                                        0      +0    -24584
+  (solc: 807912 bytes over 1941 contracts, grey on them: 783328)
+  statistics               instructions    blocks  terminal  jumpdest      jump dynamic_jump     jumpi       dup      swap       pop      vget      vset  dup_vset    colors
+  grey                        515549     61397     17195     29068     13466      2481     27868     75818     25004      7737         0         0         0         0
+  vs solc                      bytes instructions    blocks  terminal  jumpdest      jump dynamic_jump     jumpi       dup      swap       pop
+  solc                        807912    536925     61791     17332     30054     14241      2866     27965     77261     43277      8651
+  grey                        783328    515549     61397     17195     29068     13466      2481     27868     75818     25004      7737
+== depth 8: 1553 inputs, succeeded in every variant: 1544
+  variant                      bytes   vs ref     b/w  vs prev     b/w  slots  vs ref  gap solc
+  grey                        787881                                      149      +0    -20031
+  (solc: 807912 bytes over 1941 contracts, grey on them: 787881)
+  statistics               instructions    blocks  terminal  jumpdest      jump dynamic_jump     jumpi       dup      swap       pop      vget      vset  dup_vset    colors
+  grey                        518464     61629     17195     29417     13710      2464     27868     75667     25333      7350       375         6       222       149
+  vs solc                      bytes instructions    blocks  terminal  jumpdest      jump dynamic_jump     jumpi       dup      swap       pop
+  solc                        807912    536925     61791     17332     30054     14241      2866     27965     77261     43277      8651
+  grey                        787881    518464     61629     17195     29417     13710      2464     27868     75667     25333      7350

@@ -1,0 +1,6 @@
+date 2026-10-04T11:49:51Z
+grey src 341cc14ab63052cb78988a0840c36d7f8dff24d7, copied to /home/ahernandez/grey_eval/results/gas_341cc14a_spillbase_most_called/grey_src with constant propagation off
+solc Version: 0.8.35+commit.47b9dedd.Linux.g++
+fallback Version: 0.8.37+commit.f401782d.Linux.g++
+flags --split-critical-edges --hoist-return-labels --cse --prune-unused-arguments --combine-functions --reinline-after-merge --thread-empty-blocks --call-convention orders --solc-cfg-fallback /home/ahernandez/grey_eval/bin/solc-0.8.37
+jobs 60

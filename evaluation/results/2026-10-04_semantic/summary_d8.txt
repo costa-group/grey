@@ -1,0 +1,37 @@
+Semantic tests: 1402 tests with a trace; reference solc; testrunner gas/build/solidity/build/test/tools/testrunner; evmone gas/build/evmone-94582ffd/build/lib/libevmone.so
+
+grey vs solc: included 1377, excluded 18, side_effects_differ 6, memory_layout_differs 1
+  memory_layout_differs: semanticTests/externalContracts/strings.sol (entries 1: pointers shifted by +0x40)
+  side_effects_differ: semanticTests/functionCall/creation_function_call_with_salt.sol (entry 0)
+  side_effects_differ: semanticTests/inheritance/member_notation_ctor.sol (entry 1)
+  side_effects_differ: semanticTests/saltedCreate/prediction_example.sol (entry 1)
+  side_effects_differ: semanticTests/saltedCreate/salted_create_with_value.sol (entry 1)
+  side_effects_differ: semanticTests/various/code_access_content.sol (entry 1)
+  side_effects_differ: semanticTests/various/selfdestruct_post_cancun.sol (entry 11)
+ gas over the 1377 included tests:
+  constructor gas_used             solc:   218,716,370  grey:   215,641,013  diff  -3,075,357 (-1.406%)  better / worse / equal 728 / 281 / 368
+  constructor without deposit      solc:   102,492,770  grey:   102,213,013  diff    -279,757 (-0.273%)  better / worse / equal 716 / 292 / 369
+  constructor deposit              solc:   116,223,600  grey:   113,428,000  diff  -2,795,600 (-2.405%)  better / worse / equal 715 / 270 / 392
+  constructor + initcode calldata  solc:   229,336,508  grey:   225,973,713  diff  -3,362,795 (-1.466%)  better / worse / equal 729 / 280 / 368
+  call        gas_used             solc: 2,086,826,259  grey: 2,086,529,038  diff    -297,221 (-0.014%)  better / worse / equal 2924 / 877 / 739
+  largest call regressions (grey - solc):
+     +68,030  (1,406,025 -> 1,474,055)  semanticTests/externalContracts/base64.sol entry 15
+      +3,207  (167,569 -> 170,776)  semanticTests/array/push/byte_array_push_transition.sol entry 1
+      +2,231  (115,812 -> 118,043)  semanticTests/array/fixed_arrays_as_return_type.sol entry 1
+      +2,015  (122,717 -> 124,732)  semanticTests/array/byte_array_transitional_2.sol entry 1
+      +1,956  (111,917 -> 113,873)  semanticTests/abiEncoderV2/abi_encode_v2_in_function_inherited_in_v1_contract.sol entry 1
+      +1,443  (112,674 -> 114,117)  semanticTests/array/dynamic_arrays_in_storage.sol entry 2
+      +1,443  (136,664 -> 138,107)  semanticTests/array/create_memory_array.sol entry 1
+      +1,437  (85,152 -> 86,589)  semanticTests/functionCall/return_size_bigger_than_expected.sol entry 1
+      +1,201  (35,502 -> 36,703)  semanticTests/functionCall/calling_uninitialized_function_through_array.sol entry 1
+        +979  (60,483 -> 61,462)  semanticTests/viaYul/exp_neg.sol entry 20
+        +847  (91,240 -> 92,087)  semanticTests/abiEncoderV2/abi_encode_v2_in_modifier_used_in_v1_contract.sol entry 1
+        +779  (96,828 -> 97,607)  semanticTests/inheritance/inherited_function_calldata_memory_interface.sol entry 1
+        +767  (33,961 -> 34,728)  semanticTests/externalContracts/prbmath_unsigned.sol entry 10
+        +694  (208,415 -> 209,109)  semanticTests/array/copying/array_copy_different_packing.sol entry 1
+        +660  (192,828 -> 193,488)  semanticTests/structs/conversion/recursive_storage_memory.sol entry 1
+        +644  (67,832 -> 68,476)  semanticTests/array/arrayMemoryAllocation/array_array_static.sol entry 4
+        +635  (34,893 -> 35,528)  semanticTests/externalContracts/prbmath_signed.sol entry 10
+        +622  (181,778 -> 182,400)  semanticTests/array/push/push_no_args_bytes.sol entry 2
+        +516  (268,897 -> 269,413)  semanticTests/constructor/bytes_in_constructors_packer.sol entry 1
+        +503  (94,088 -> 94,591)  semanticTests/functionCall/mapping_internal_return.sol entry 1

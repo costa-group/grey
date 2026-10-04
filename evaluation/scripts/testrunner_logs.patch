@@ -1,0 +1,137 @@
+--- a/test/tools/testrunner.cpp
++++ b/test/tools/testrunner.cpp
+@@ -1,4 +1,5 @@
+ #include <test/EVMHost.h>
++#include <libsolutil/Keccak256.h>
+ #include <nlohmann/json.hpp>
+ #include <fmt/format.h>
+ #include <iostream>
+@@ -30,7 +31,9 @@
+ 		std::string const& _actual,
+ 		std::string const& _desired,
+ 		u256 const& _gasUsed,
+-		u256 const& _gasUsedForDeposit
++		u256 const& _gasUsedForDeposit,
++		std::string const& _logs = "",
++		std::string const& _storage = ""
+ 	)
+ 	{
+ 		if (m_outfile)
+@@ -40,7 +43,9 @@
+ 				{"actual", _actual},
+ 				{"desired", _desired},
+ 				{"gasUsed", _gasUsed.str()},
+-				{"gasUsedForDeposit", _gasUsedForDeposit.str()}
++				{"gasUsedForDeposit", _gasUsedForDeposit.str()},
++				{"logs", _logs},
++				{"storage", _storage}
+ 			};
+ 			m_outputContents[_file].push_back(status);
+ 		}
+@@ -50,6 +55,45 @@
+ 	std::map<std::string, std::vector<std::map<std::string, std::string>>> m_outputContents;
+ };
+ 
++/// Digest of the logs recorded from position _from on (creator, topics and data of each log, in order), as
++/// "<number of logs>:<keccak256>". Used to compare the side effects of two codes on the same test
++std::string logsDigest(EVMHost const& _host, size_t _from)
++{
++	bytes serialized;
++	auto append = [&](uint8_t const* _begin, size_t _size) { serialized.insert(serialized.end(), _begin, _begin + _size); };
++	for (size_t i = _from; i < _host.recorded_logs.size(); ++i)
++	{
++		auto const& log = _host.recorded_logs[i];
++		append(log.creator.bytes, sizeof(log.creator.bytes));
++		serialized.push_back(static_cast<uint8_t>(log.topics.size()));
++		for (auto const& topic: log.topics)
++			append(topic.bytes, sizeof(topic.bytes));
++		uint32_t const dataSize = static_cast<uint32_t>(log.data.size());
++		append(reinterpret_cast<uint8_t const*>(&dataSize), sizeof(dataSize));
++		append(log.data.data(), log.data.size());
++	}
++	return std::to_string(_host.recorded_logs.size() - _from) + ":" + util::keccak256(serialized).hex();
++}
++
++/// Digest of the non-zero storage of every account (accounts and slots are ordered maps), as
++/// "<number of non-zero slots>:<keccak256>"
++std::string storageDigest(EVMHost const& _host)
++{
++	bytes serialized;
++	size_t nonZeroSlots = 0;
++	auto append = [&](uint8_t const* _begin, size_t _size) { serialized.insert(serialized.end(), _begin, _begin + _size); };
++	for (auto const& [address, account]: _host.accounts)
++		for (auto const& [slot, value]: account.storage)
++			if (value.current != evmc::bytes32{})
++			{
++				++nonZeroSlots;
++				append(address.bytes, sizeof(address.bytes));
++				append(slot.bytes, sizeof(slot.bytes));
++				append(value.current.bytes, sizeof(value.current.bytes));
++			}
++	return std::to_string(nonZeroSlots) + ":" + util::keccak256(serialized).hex();
++}
++
+ int main(int argc, char** argv)
+ {
+ 	if (argc != 3 && argc != 4)
+@@ -125,11 +169,14 @@
+ 			message.gas = 100000000;
+ 
+ 			unsigned const refundRatio = evmVersion >= langutil::EVMVersion::london() ? 5 : 2;
++			size_t const logsBefore = evmcHost->recorded_logs.size();
+ 			evmc::Result result = evmcHost->call(message);
+ 			auto const totalGasUsed = message.gas - result.gas_left;
+ 			auto const gasRefund = std::min(u256(result.gas_refund), u256(totalGasUsed) / refundRatio);
+ 			auto const gasUsed = totalGasUsed - gasRefund;
+ 			auto const gasUsedForDeposit = evmcHost->totalCodeDepositGas();
++			std::string const logs = logsDigest(*evmcHost, logsBefore);
++			std::string const storage = storageDigest(*evmcHost);
+ 
+ 			auto output = bytes(result.output_data, result.output_data + result.output_size);
+ 			if (kind == "constructor")
+@@ -144,11 +191,11 @@
+ 				if (!status)
+ 				{
+ 					std::cerr << "Creation failed." << std::endl;
+-					resultRecorder.record(filename, "Creation failed for constructor test.", "", "", gasUsed, gasUsedForDeposit);
++					resultRecorder.record(filename, "Creation failed for constructor test.", "", "", gasUsed, gasUsedForDeposit, logs, storage);
+ 					hasTestFailure = true;
+ 					continue;
+ 				}
+-				resultRecorder.record(filename, "Creation succeeded.", "", "", gasUsed, gasUsedForDeposit);
++				resultRecorder.record(filename, "Creation succeeded.", "", "", gasUsed, gasUsedForDeposit, logs, storage);
+ 			}
+ 			else
+ 			{
+@@ -158,7 +205,7 @@
+ 					if (status)
+ 					{
+ 						std::cerr << "Expected failure but got success" << std::endl;
+-						resultRecorder.record(filename, "Expected test status failure but got success.", "success", expectedStatus, gasUsed, gasUsedForDeposit);
++						resultRecorder.record(filename, "Expected test status failure but got success.", "success", expectedStatus, gasUsed, gasUsedForDeposit, logs, storage);
+ 						hasTestFailure = true;
+ 						continue;
+ 					}
+@@ -168,7 +215,7 @@
+ 					if (!status)
+ 					{
+ 						std::cerr << "Expected success but got failure" << std::endl;
+-						resultRecorder.record(filename, "Expected test status success but got failure.", "failure", expectedStatus, gasUsed, gasUsedForDeposit);
++						resultRecorder.record(filename, "Expected test status success but got failure.", "failure", expectedStatus, gasUsed, gasUsedForDeposit, logs, storage);
+ 						hasTestFailure = true;
+ 						continue;
+ 					}
+@@ -177,11 +224,11 @@
+ 				if (output != util::fromHex(expectedOutput))
+ 				{
+ 					std::cerr << "Expected " << expectedOutput << " but got " << util::toHex(output) << std::endl;
+-					resultRecorder.record(filename, "Expected different output.", util::toHex(output), expectedOutput, gasUsed, gasUsedForDeposit);
++					resultRecorder.record(filename, "Expected different output.", util::toHex(output), expectedOutput, gasUsed, gasUsedForDeposit, logs, storage);
+ 					hasTestFailure = true;
+ 					continue;
+ 				}
+-				resultRecorder.record(filename, "Passed.", util::toHex(output), expectedOutput, gasUsed, gasUsedForDeposit);
++				resultRecorder.record(filename, "Passed.", util::toHex(output), expectedOutput, gasUsed, gasUsedForDeposit, logs, storage);
+ 			}
+ 		}
+ 		std::cout << "  => " << i << " tests performed." << std::endl;

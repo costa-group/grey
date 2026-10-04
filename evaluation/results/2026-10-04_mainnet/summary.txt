@@ -1,0 +1,8 @@
+Offline replay (evmone, uniform fork Prague, gas limit block): 1000 contracts, 87763 transactions
+  receipt check (own fork): 87762 valid of 87763; errors {}
+  solc: errors {'no code: no code': 2252, 'no code: immutables: internal function pointers in immutables (compile': 188, 'no code: the proxy delegates to another implementation in this transac': 163, 'no code: the recompiled code matches no candidate code': 64, 'no code: the address has no code in this transaction': 1}, mismatches with the original 393 (status 21, logs 270, state 361)
+  grey: errors {'no code: immutables: internal function pointers in immutables (compile': 188, 'no code: the proxy delegates to another implementation in this transac': 163, 'no code: the recompiled code matches no candidate code': 64, 'no code: the address has no code in this transaction': 1}, mismatches with the original 410 (status 21, logs 287, state 378)
+
+over 84701 transactions valid and matching for every variant (977 contracts):
+  original vs solc: plain +45,603,580 gas (+0.281%), weighted by frequency +0.140%; better / worse / equal 23998 / 59366 / 1337
+  grey vs solc: plain -5,351,257 gas (-0.033%), weighted by frequency -0.061%; better / worse / equal 56546 / 24991 / 3164

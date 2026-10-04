@@ -27,6 +27,7 @@ Usage:
 
 import argparse
 import csv
+import sys
 import json
 import shlex
 import subprocess
@@ -38,6 +39,9 @@ from typing import Dict, List, Optional, Tuple
 import pandas as pd
 
 from check_equivalence_hevm import link_placeholders
+
+# The bytecode of large contracts exceeds the default size of a CSV field
+csv.field_size_limit(sys.maxsize)
 
 CATEGORIES = ["stack", "jump", "push", "memory", "other"]
 METADATA_SETTINGS = {"appendCBOR": False, "useLiteralContent": False, "bytecodeHash": "none"}

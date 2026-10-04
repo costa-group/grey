@@ -30,6 +30,7 @@ import hashlib
 import os
 import shlex
 import shutil
+import signal
 import subprocess
 import xml.etree.ElementTree as ElementTree
 from concurrent.futures import ProcessPoolExecutor
@@ -95,10 +96,11 @@ def run_identifier(input_info: Dict) -> str:
 
 
 def run_grey(src_folder: Path, input_info: Dict, output_folder: Path, flags: str,
-             hash_seed: Optional[str], log_file: Path) -> Tuple[Path, Optional[str]]:
+             hash_seed: Optional[str], log_file: Path, timeout: Optional[float] = None) -> Tuple[Path, Optional[str]]:
     """
     Runs grey on a single input, storing the results in output_folder and the log in log_file.
-    Returns the output folder and the error message (None if the execution succeeded)
+    Returns the output folder and the error message (None if the execution succeeded). With a timeout (seconds),
+    grey and every process it started (e.g. solc) are killed when it is exceeded, and the run is an error
     """
     output_folder.mkdir(parents=True, exist_ok=True)
     log_file.parent.mkdir(parents=True, exist_ok=True)
@@ -112,10 +114,19 @@ def run_grey(src_folder: Path, input_info: Dict, output_folder: Path, flags: str
     if hash_seed is not None:
         environment["PYTHONHASHSEED"] = hash_seed
 
-    completed = subprocess.run(command, cwd=output_folder, capture_output=True, text=True, env=environment)
-    log_file.write_text(" ".join(command) + "\n" + completed.stdout + completed.stderr)
-    if completed.returncode != 0:
-        last_error_line = (completed.stderr.strip().splitlines() or ["unknown error"])[-1]
+    # grey runs in its own process group, so that a timeout also kills the solc processes it has started
+    process = subprocess.Popen(command, cwd=output_folder, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True,
+                               env=environment, start_new_session=True)
+    try:
+        stdout, stderr = process.communicate(timeout=timeout)
+    except subprocess.TimeoutExpired:
+        os.killpg(process.pid, signal.SIGKILL)
+        stdout, stderr = process.communicate()
+        log_file.write_text(" ".join(command) + "\n" + stdout + stderr + f"\nTimeout after {timeout} seconds\n")
+        return output_folder, f"Timeout after {timeout} seconds"
+    log_file.write_text(" ".join(command) + "\n" + stdout + stderr)
+    if process.returncode != 0:
+        last_error_line = (stderr.strip().splitlines() or ["unknown error"])[-1]
         return output_folder, last_error_line
     return output_folder, None
 
