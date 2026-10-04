@@ -59,16 +59,20 @@ class CFGObject:
         spec_list, self.block_tag_idx = self.blocks.build_spec(self.block_tag_idx)
         return spec_list
 
-    #It marks those blocks in self.blocks that have a function call stored in functions
     def identify_function_calls_in_blocks(self):
-        blocks_dict = self.blocks.get_blocks_dict()
-        for bl in blocks_dict:
-            blocks_dict[bl].process_function_calls(self.functions)
-
-        for f in self.functions:
-            f_blocks = self.functions[f].get_blocks_dict()
-            for bl in f_blocks:
-                f_blocks[bl].process_function_calls(self.functions)
+        """
+        Marks the blocks in self.blocks and in the functions that call a function of the object, and restores the
+        JSON order of the outputs of these calls (see CFGInstruction.__init__). Must be called exactly once per
+        object, right after parsing it: the calls are identified by the names of the functions, so that every
+        function gets the same treatment (with or without an underscore in its name, e.g. inline-assembly ones)
+        """
+        block_lists = [self.blocks] + [self.functions[f] for f in self.functions]
+        for block_list in block_lists:
+            for block in block_list.get_blocks_dict().values():
+                for instruction in block.get_instructions():
+                    if instruction.get_op_name() in self.functions:
+                        instruction.reverse_out_args()
+                block.process_function_calls(self.functions)
     
     def build_spec_for_functions(self):
         list_spec = {}
