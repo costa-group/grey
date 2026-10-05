@@ -1,3 +1,4 @@
+import collections
 import copy
 import argparse
 import json
@@ -112,8 +113,20 @@ def _called_candidates(block_list, candidates: set) -> set:
             if block.split_instruction is not None and block.split_instruction.get_op_name() in candidates}
 
 
+def _timed_layouts(phase_times: Dict[str, float], *layout_args, **layout_kwargs) -> None:
+    """
+    layout_generation_cfg, adding its time to phase_times: the liveness analysis (and the calling conventions) it
+    performs to "liveness", and the rest to "layouts", as layout_generation does for the other conventions
+    """
+    start = dtimer()
+    init_time_liveness, end_time_liveness = layout_generation_cfg(*layout_args, **layout_kwargs)
+    liveness_time = end_time_liveness - init_time_liveness
+    phase_times["liveness"] += liveness_time
+    phase_times["layouts"] += dtimer() - start - liveness_time
+
+
 def generate_with_best_conventions(cfg: CFG, layout_dir: Path, args: argparse.Namespace,
-                                   selected: Dict[str, set]) -> None:
+                                   selected: Dict[str, set], phase_times: Dict[str, float]) -> None:
     """
     --call-convention best: generates the layouts and the greedy code of the CFG (recursively), where each function
     keeps the "orders" convention only if its cost (see _candidate_costs) is lower than with the Yul order:
@@ -126,7 +139,10 @@ def generate_with_best_conventions(cfg: CFG, layout_dir: Path, args: argparse.Na
       (itself and the candidates it calls) are all selected recover the saved state, as it is the same; only the
       rest are generated again
     """
+    # The liveness is computed once and reused by every generation below (it does not depend on the conventions)
+    start = dtimer()
     results = perform_liveness_analysis_from_cfg_info(construct_analysis_info(cfg))
+    phase_times["liveness"] += dtimer() - start
     candidates, components = dict(), dict()
     for object_name, object_liveness in results.items():
         cfg_object = cfg.objectCFG[object_name]
@@ -142,8 +158,10 @@ def generate_with_best_conventions(cfg: CFG, layout_dir: Path, args: argparse.Na
         args_orders.call_convention = "best"
         args_orders.call_convention_selected = candidates
         args_orders.record_conventions = dict()
-        layout_generation_cfg(cfg, args_orders, layout_dir, components)
+        _timed_layouts(phase_times, cfg, args_orders, layout_dir, components, results=results)
+        start = dtimer()
         _greedy_components(cfg, components)
+        phase_times["greedy"] += dtimer() - start
         orders_costs = _candidate_costs(cfg, candidates, components)
         for object_name, object_components in components.items():
             cfg_object = cfg.objectCFG[object_name]
@@ -160,9 +178,11 @@ def generate_with_best_conventions(cfg: CFG, layout_dir: Path, args: argparse.Na
     # Usual generation, with the Yul order
     args_fixed = copy.copy(args)
     args_fixed.call_convention = "fixed"
-    layout_generation_cfg(cfg, args_fixed, layout_dir)
+    _timed_layouts(phase_times, cfg, args_fixed, layout_dir, results=results)
+    start = dtimer()
     for cfg_object in cfg.get_objects().values():
         cfg_object_spec_ids(cfg_object, False)
+    phase_times["greedy"] += dtimer() - start
 
     if candidates:
         fixed_costs = _candidate_costs(cfg, candidates, components)
@@ -196,8 +216,10 @@ def generate_with_best_conventions(cfg: CFG, layout_dir: Path, args: argparse.Na
             args_best = copy.copy(args)
             args_best.call_convention = "best"
             args_best.call_convention_selected = level_selected
-            layout_generation_cfg(cfg, args_best, layout_dir, regenerate)
+            _timed_layouts(phase_times, cfg, args_best, layout_dir, regenerate, results=results)
+            start = dtimer()
             _greedy_components(cfg, regenerate)
+            phase_times["greedy"] += dtimer() - start
             for object_name, component_name in reuse:
                 block_states, needs_repair, to_fix = saved[(object_name, component_name)]
                 block_list = _block_list_of(cfg.objectCFG[object_name], object_name, component_name)
@@ -208,7 +230,7 @@ def generate_with_best_conventions(cfg: CFG, layout_dir: Path, args: argparse.Na
     for cfg_object in cfg.get_objects().values():
         sub_object = cfg_object.get_subobject()
         if sub_object is not None:
-            generate_with_best_conventions(sub_object, layout_dir, args, selected)
+            generate_with_best_conventions(sub_object, layout_dir, args, selected, phase_times)
 
 
 def _needs_repair(cfg: CFG) -> bool:
@@ -234,13 +256,15 @@ def analyze_single_cfg(cfg: CFG, final_dir: Path, args: argparse.Namespace, time
 
     x = dtimer()
     best_conventions = getattr(args, "call_convention", "fixed") == "best"
+    best_phase_times = collections.Counter()
     if best_conventions:
-        # Layouts and greedy together (see generate_with_best_conventions)
+        # Layouts and greedy together (see generate_with_best_conventions): their times are split as in the other
+        # conventions (liveness to the preprocessing, then layouts, and the greedy below)
         layout_dir = final_dir.joinpath("stack_layouts")
         layout_dir.mkdir(parents=True, exist_ok=True)
         args.call_convention_selected = dict()
-        generate_with_best_conventions(cfg, layout_dir, args, args.call_convention_selected)
-        init_time_liveness = end_time_liveness = 0
+        generate_with_best_conventions(cfg, layout_dir, args, args.call_convention_selected, best_phase_times)
+        init_time_liveness, end_time_liveness = 0, best_phase_times["liveness"]
     else:
         init_time_liveness, end_time_liveness = layout_generation(cfg, args, final_dir.joinpath("stack_layouts"))
     y = dtimer()
@@ -249,7 +273,7 @@ def analyze_single_cfg(cfg: CFG, final_dir: Path, args: argparse.Namespace, time
     print("Preprocessing CFG: " + str(preprocess_time) + "s")
     times[2] += (preprocess_time)
 
-    layout_time = (y-x)-(end_time_liveness-init_time_liveness)
+    layout_time = (y-x)-(end_time_liveness-init_time_liveness)-best_phase_times["greedy"]
     print("Layout generation: " + str(layout_time) + "s")
     times[3] += (layout_time)
 
@@ -260,8 +284,9 @@ def analyze_single_cfg(cfg: CFG, final_dir: Path, args: argparse.Namespace, time
         needs_repair, _ = cfg_spec_ids(cfg, final_dir.joinpath("statistics.csv"), args.visualize)
     y = dtimer()
 
-    print("Greedy algorithm: " + str(y - x) + "s")
-    times[4] += (y - x)
+    greedy_time = (y - x) + best_phase_times["greedy"]
+    print("Greedy algorithm: " + str(greedy_time) + "s")
+    times[4] += greedy_time
 
     if args.sfs:
         sfs_from_cfg(cfg, final_dir)
