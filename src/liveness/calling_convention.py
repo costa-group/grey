@@ -213,13 +213,16 @@ def _call_sites(cfg_object: CFGObject) -> Dict[str, List[CFGInstruction]]:
 
 def apply_calling_conventions(cfg_object: CFGObject,
                               liveness_per_component: Dict[component_name_T, Dict[block_id_T, LivenessAnalysisInfoSSA]],
-                              mode: str) -> Dict[str, FunctionConvention]:
+                              mode: str, selected: Optional[set] = None) -> Dict[str, FunctionConvention]:
     """
     Computes and applies the convention ("args" or "orders") of every function in the object. All the conventions
     are computed before applying any of them, so that they only depend on the original code
     """
     conventions = dict()
     for function_name, cfg_function in cfg_object.functions.items():
+        # With a selection (--call-convention best), the other functions keep the Yul order
+        if selected is not None and function_name not in selected:
+            continue
         start_block = cfg_function.blocks.start_block
         live_in = liveness_per_component[function_name][start_block].in_state.live_vars
         conventions[function_name] = compute_function_convention(function_name, cfg_function, live_in, mode)
@@ -294,3 +297,37 @@ def validate_calling_conventions(cfg_object: CFGObject) -> None:
                 assert _matches(successor_spec["src_ws"], out_args, True), \
                     f"Continuation {successor_id} of {block.block_id}: {successor_spec['src_ws']} " \
                     f"does not start with {out_args}"
+
+
+def candidate_functions(cfg_object: CFGObject,
+                        liveness_per_component: Dict[component_name_T, Dict[block_id_T, LivenessAnalysisInfoSSA]],
+                        mode: str) -> set:
+    """
+    Functions whose convention in the given mode differs from the Yul order (the only ones it can change)
+    """
+    candidates = set()
+    for function_name, cfg_function in cfg_object.functions.items():
+        start_block = cfg_function.blocks.start_block
+        live_in = liveness_per_component[function_name][start_block].in_state.live_vars
+        convention = compute_function_convention(function_name, cfg_function, live_in, mode)
+        if convention.argument_permutation != list(range(len(convention.argument_permutation))) or \
+                convention.return_permutation != list(range(len(convention.return_permutation))):
+            candidates.add(function_name)
+    return candidates
+
+
+def undo_calling_conventions(cfg_object: CFGObject, conventions: Dict[str, FunctionConvention]) -> None:
+    """
+    Undoes the conventions applied to the functions of the object (applies the inverse permutations)
+    """
+    def inverse(permutation: List[int]) -> List[int]:
+        result = [0] * len(permutation)
+        for new_position, old_position in enumerate(permutation):
+            result[old_position] = new_position
+        return result
+
+    call_sites = _call_sites(cfg_object)
+    for function_name, convention in conventions.items():
+        inverse_convention = FunctionConvention(function_name, inverse(convention.argument_permutation),
+                                                inverse(convention.return_permutation))
+        apply_function_convention(inverse_convention, cfg_object.functions[function_name], call_sites[function_name])

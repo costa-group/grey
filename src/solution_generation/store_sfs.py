@@ -11,7 +11,10 @@ from parser.cfg_object import CFGObject
 from parser.cfg import CFG
 from analysis.greedy_validation import store_sfs_params_from_greedy
 
+idx = 0
+
 def cfg_block_spec_ids(cfg_block: CFGBlock, target_file: Path):
+    global idx
     # Retrieve the information from each of the executions
     sfs = copy.deepcopy(cfg_block._spec)
 
@@ -20,15 +23,20 @@ def cfg_block_spec_ids(cfg_block: CFGBlock, target_file: Path):
     store_sfs_params_from_greedy(sfs, cfg_block.greedy_info.greedy_ids,
                                  cfg_block.split_instruction.get_op_name().lower() == "revert")
 
+    include_vars_list(sfs)
+    sfs["vars"] = sfs["variables"]
     with open(target_file, 'w') as f:
         json.dump(sfs, f, indent=4)
 
 
+
 def sfs_from_cfg_blocklist(cfg_blocklist: CFGBlockList, final_folder: Path):
-
+    global idx
+    
     for block_name, block in cfg_blocklist.blocks.items():
-        cfg_block_spec_ids(block, final_folder.joinpath(f"sfs_{block_name}.json"))
-
+        cfg_block_spec_ids(block, final_folder.joinpath(f"sfs_{block_name}_{idx}.json"))
+        idx +=1
+        
 
 def sfs_from_cfg_object(cfg: CFGObject, final_folder: Path) -> None:
     final_folder.mkdir(parents=True, exist_ok=True)
@@ -42,11 +50,28 @@ def sfs_from_cfg_recursive(cfg: CFG, final_folder: Path, positions: List[str] = 
         positions = ["0"]
 
     for i, (object_id, cfg_object) in enumerate(cfg.get_objects().items()):
-        sfs_from_cfg_object(cfg_object, final_folder.joinpath('_'.join([str(position) for position in positions])).joinpath("sfs_gasol"))
+        sfs_from_cfg_object(cfg_object, final_folder)#.joinpath('_'.join([str(position) for position in positions])).joinpath("sfs_gasol"))
         sub_object = cfg_object.subObject
         if sub_object is not None:
             sfs_from_cfg_recursive(sub_object, final_folder, positions + [str(i)])
 
 
 def sfs_from_cfg(cfg: CFG, final_folder: Path, ) -> None:
-    sfs_from_cfg_recursive(cfg, final_folder.joinpath("stack_layouts").joinpath())
+    # sfs_from_cfg_recursive(cfg, final_folder.joinpath("stack_layouts").joinpath())
+    sfs_from_cfg_recursive(cfg, final_folder)
+
+def include_vars_list(sfs: dict) -> None:
+
+    vars_sfs = set()
+    in_stack = sfs["src_ws"]
+    #print(in_stack)
+    out_stack = sfs["tgt_ws"]
+    uninterpreted_functions = sfs["user_instrs"]
+    for u in uninterpreted_functions:
+        out_var = u["outpt_sk"]
+        vars_sfs = vars_sfs.union(set(out_var))
+
+    vars_sfs = vars_sfs.union(set(in_stack))
+    vars_sfs = vars_sfs.union(set(out_stack))
+    #print(vars_sfs)
+    #sfs["vars"] = list(vars_sfs)
