@@ -89,41 +89,64 @@ def tests_outcome(test_file):
             
     return has_failed
     
+# Intrinsic gas charged by the testrunner (EVMHost::call, depth 0) with its default EVM version (Cancun): it does not
+# depend on the code generation and is the same for solc and grey
+TX_GAS = 21000
+TX_CREATE_GAS = 53000
+TX_DATA_ZERO_GAS = 4
+TX_DATA_NON_ZERO_GAS = 16
+
+
+def data_gas(data: bytes) -> int:
+    return sum(TX_DATA_ZERO_GAS if b == 0 else TX_DATA_NON_ZERO_GAS for b in data)
+
+
+def gas_from_files(json_file, test_file):
+    """
+    Gas of the calls and of the creation of a test, without the calls that must fail (status "failure" in the test
+    file) and without the intrinsic gas: 21000 + calldata in the calls, 53000 + calldata of the constructor arguments
+    in the creation (the calldata of the creation bytecode and the code deposit depend on the code generation and are
+    kept). Each result corresponds to the entry of the test in the same position, constructor included.
+    Returns (execution, creation, execution with intrinsic gas, creation with intrinsic gas, execution without deposit,
+    creation without deposit)
+    """
+    with open(json_file, 'r') as f:
+        results = list(json.load(f).values())
+    with open(test_file, 'r') as f:
+        tests = list(json.load(f).values())
+    if not results or not tests:
+        return 0, 0, 0, 0, 0, 0
+    execution = creation = execution_raw = creation_raw = execution_no_deposit = creation_no_deposit = 0
+    for answer, test in zip(results[0], tests[0]["tests"]):
+        gas = int(answer.get("gasUsed", 0))
+        gas_deposit = int(answer.get("gasUsedForDeposit", 0))
+        calldata = bytes.fromhex(test["input"]["calldata"])
+        if test["kind"] == "constructor":
+            if answer.get("message", "").find("Creation succeeded") == -1:
+                continue
+            creation_raw += gas
+            creation += gas - TX_CREATE_GAS - data_gas(calldata)
+            creation_no_deposit += gas - gas_deposit
+        elif test.get("output", {}).get("status") != "failure":
+            execution_raw += gas
+            execution += gas - TX_GAS - data_gas(calldata)
+            execution_no_deposit += gas - gas_deposit
+    return execution, creation, execution_raw, creation_raw, execution_no_deposit, creation_no_deposit
+
+
 def compare_files_removing_failed_tests(json_file1, test_file1, json_file2, test_file2, original_name_file):
 
-    gas_json1_list, gas_json1_no_deposit_list, gas_json1_list_creation, gas_json1_no_deposit_list_creation, json1 = information_from_files(json_file1)
+    *_, json1 = information_from_files(json_file1)
+    *_, json2 = information_from_files(json_file2)
 
-    gas_json2_list, gas_json2_no_deposit_list,gas_json2_list_creation, gas_json2_no_deposit_list_creation, json2 = information_from_files(json_file2)
+    gas_json1, gas_json1_creation, gas_json1_raw, gas_json1_creation_raw, gas_json1_no_deposit, _ = \
+        gas_from_files(json_file1, test_file1)
+    gas_json2, gas_json2_creation, gas_json2_raw, gas_json2_creation_raw, gas_json2_no_deposit, _ = \
+        gas_from_files(json_file2, test_file2)
 
-    test_outcome1 = tests_outcome(test_file1)
-    test_outcome2 = tests_outcome(test_file2)
-
-    # print(gas_json1_list)
-    # print(gas_json2_list)
-
-    gas_json1 = sum([gas for gas, failed  in zip(gas_json1_list, test_outcome1) if not failed] + [0])
-    gas_json2 = sum([gas for gas, failed  in zip(gas_json2_list, test_outcome2) if not failed] + [0])
-
-    gas_json1_creation = sum([gas for gas, failed  in zip(gas_json1_list_creation, test_outcome1) if not failed] + [0])
-    gas_json2_creation = sum([gas for gas, failed  in zip(gas_json2_list_creation, test_outcome2) if not failed] + [0])
-
-    gas_json1_no_deposit = sum([gas for gas, failed  in zip(gas_json1_no_deposit_list, test_outcome1) if not failed] + [0])
-    gas_json2_no_deposit = sum([gas for gas, failed  in zip(gas_json2_no_deposit_list, test_outcome2) if not failed] + [0])
-
-    gas_json1_no_deposit_creation = sum([gas for gas, failed  in zip(gas_json1_no_deposit_list_creation, test_outcome1) if not failed] + [0])
-    gas_json2_no_deposit_creation = sum([gas for gas, failed  in zip(gas_json2_no_deposit_list_creation, test_outcome2) if not failed] + [0])
-
-    
-    # print(gas_json1_no_deposit_list)
-    # print(gas_json1_no_deposit)
-
-    # print(gas_json1_no_deposit_list_creation)
-    # print(gas_json1_no_deposit_creation)
-
-    
     if json1.keys() != json2.keys():
         print("JSONS have different contract fields")
-        return 1
+        return 1, 0, 0
 
     answer = diff(json1, json2)
 
@@ -132,10 +155,16 @@ def compare_files_removing_failed_tests(json_file1, test_file1, json_file2, test
 
     #print("FINAL", answer, type(answer))
 
+    # Without the intrinsic gas (sum_gas.py uses these lines)
     print(original_name_file+" ORIGINAL EXECUTION GAS: "+str(gas_json1))
     print(original_name_file+" OPT EXECUTION GAS: "+str(gas_json2))
     print(original_name_file+" ORIGINAL CREATION GAS: "+str(gas_json1_creation))
     print(original_name_file+" OPT CREATION GAS: "+str(gas_json2_creation))
+    # gasUsed as given by the testrunner, intrinsic gas included
+    print(original_name_file+" ORIGINAL RAW EXEC GAS: "+str(gas_json1_raw))
+    print(original_name_file+" OPT RAW EXEC GAS: "+str(gas_json2_raw))
+    print(original_name_file+" ORIGINAL RAW CREATE GAS: "+str(gas_json1_creation_raw))
+    print(original_name_file+" OPT RAW CREATE GAS: "+str(gas_json2_creation_raw))
     print("BLA BLA BLA", gas_json1_no_deposit, flush=True)
     # Empty diff means they are the same
     return 0 if len(answer) == 0 else 1, gas_json1_no_deposit, gas_json2_no_deposit
