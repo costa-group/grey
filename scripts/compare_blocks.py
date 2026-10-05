@@ -165,7 +165,16 @@ def process_pops(block, num_pops):
     npops = list(filter(lambda x: x.find("POP")!=-1, block))
     num_pops.append(len(npops))
 
+def process_jumps(block, num_jumps):
+    # jumps = list(filter(lambda x: x.find("JUMP")!=-1 and x.find("JUMPI")== -1 and x.find("JUMPDEST")== -1, block))
+    jumps = list(filter(lambda x: x.find("JUMP")!=-1 and x.find("JUMPDEST")== -1, block))
+    num_jumps.append(len(jumps))
 
+def process_jumpdest(block, num_jumps):
+    jumps = list(filter(lambda x: x.find("JUMPDEST")!= -1, block))
+    num_jumps.append(len(jumps))
+
+    
 def is_terminal(block):
     bl_set = set(block)
     terminal = set(["RETURN","REVERT","INVALID","STOP","SELFDESTRUCT"])
@@ -178,15 +187,20 @@ def process_terminal_blocks(blocks, num_pops):
     terminal_blocks = 0
     total_pops = []
     total_ins_terminal = 0
+    total_jumps = []
+    total_jumpdest = []
+
     
     for bl in blocks:
         process_pops(bl, total_pops)
+        process_jumps(bl, total_jumps)
+        process_jumpdest(bl, total_jumpdest)
         if is_terminal(bl):
             terminal_blocks+=1
             total_ins_terminal+=len(bl)
             process_pops(bl,num_pops)
 
-    return terminal_blocks, sum(total_pops), total_ins_terminal
+    return terminal_blocks, sum(total_pops), total_ins_terminal, sum(total_jumps), sum(total_jumpdest)
 
 def count_instructions(blocks, ins):
     total_num_ins = 0
@@ -210,12 +224,14 @@ def count_num_ins(evm: str):
     total_pops = 0
     total_ins_terminal = 0
     total_blocks = 0
-
+    total_jumps = 0
+    total_jumpdest = 0
+    
     num_ins = {}
     total_ins = 0
     for region in code_regions:
         blocks, num_ins_bytecode = get_blocks(remove_auxdata(region))
-        num_tblocks, numtotal_pops, ins_terminal = process_terminal_blocks(blocks, num_pop)
+        num_tblocks, numtotal_pops, ins_terminal, numtotal_jumps, numtotal_jumpdest = process_terminal_blocks(blocks, num_pop)
 
         num_ins["SWAP"]=num_ins.get("SWAP",0)+count_instructions(blocks, "SWAP")
         num_ins["DUP"]=num_ins.get("DUP",0)+count_instructions(blocks, "DUP")
@@ -237,9 +253,11 @@ def count_num_ins(evm: str):
         total_ins_terminal+=ins_terminal
         total_blocks+=len(blocks)
         total_ins+=num_ins_bytecode
+        total_jumps+=numtotal_jumps
+        total_jumpdest+=numtotal_jumpdest
     #print("TERMINAL BLOCKS: " +str(terminal_blocks))
     #print("NUM_POPS: "+ str(sum(num_pop)))
-    return (total_blocks, terminal_blocks, sum(num_pop), total_pops, total_ins_terminal, total_ins)
+    return (total_blocks, terminal_blocks, sum(num_pop), total_pops, total_ins_terminal, total_ins, total_jumps, total_jumpdest)
 
 
 def execute_function(origin_file, log_opt_file):
@@ -267,6 +285,12 @@ def execute_function(origin_file, log_opt_file):
 
     total_ins_solc = 0
     total_ins_opt = 0
+
+    total_jumps_opt = 0
+    total_jumps_solc = 0
+
+    total_jumpdest_opt = 0
+    total_jumpdest_solc = 0
     
     for c in evm_opt:
         evm = evm_opt[c]
@@ -279,6 +303,8 @@ def execute_function(origin_file, log_opt_file):
         all_pops_opt+=opt[3]
         total_ins_terminal_opt = opt[4]
         total_ins_opt+= opt[5]
+        total_jumps_opt+=opt[6]
+        total_jumpdest_opt+=opt[7]
         
         evm_dict = js.loads(evm_origin)
         contracts = evm_dict["contracts"]
@@ -299,8 +325,11 @@ def execute_function(origin_file, log_opt_file):
                 all_pops_sol+=origin_ins[3]
                 total_ins_terminal_sol+=origin_ins[4]
                 total_ins_solc+=origin_ins[5]
+                total_jumps_solc+= origin_ins[6]
+                total_jumpdest_solc+=origin_ins[7]
                 
-    return (total_terminal, total_pops, all_pops_opt, total_sol_terminal, total_sol_pops, all_pops_sol, total_ins_terminal_opt, total_ins_terminal_sol, total_blocks_solc, total_blocks_opt,total_ins_solc, total_ins_opt)
+                
+    return (total_terminal, total_pops, all_pops_opt, total_sol_terminal, total_sol_pops, all_pops_sol, total_ins_terminal_opt, total_ins_terminal_sol, total_blocks_solc, total_blocks_opt,total_ins_solc, total_ins_opt, total_jumps_solc, total_jumps_opt, total_jumpdest_solc, total_jumpdest_opt)
 
 if __name__ == '__main__':
     origin_file = sys.argv[1]
