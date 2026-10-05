@@ -49,6 +49,8 @@ list_times_grey = []
 list_times_solc = []
 list_ins_cfg = []
 list_blocks_cfg = []
+# Points of the STD set: only in the times per phase (solc fails on them, so they are not compared with solc)
+list_is_std = []
 
 
 time_cfg_generation = []
@@ -81,6 +83,7 @@ for i in range(len(f_names)):
         list_times_solc.append(time_solc)
         list_ins_cfg.append(ins_cfg)
         list_blocks_cfg.append(blocks_cfg)
+        list_is_std.append(False)
     
         f_scal_cfg.write(",".join([fname_without_ext[:-1],str(blocks_cfg), str(ins_cfg),str(time_grey),str(time_solc)])+"\n")
 
@@ -129,6 +132,7 @@ for i in range(len(stack_too_deep)):
         list_times_solc.append(time_solc)
         list_ins_cfg.append(ins_cfg)
         list_blocks_cfg.append(blocks_cfg)
+        list_is_std.append(True)
     
         f_scal_cfg.write(",".join([fname_without_ext[:-1],str(blocks_cfg), str(ins_cfg),str(time_grey),str(time_solc)])+"\n")
     except:
@@ -217,9 +221,15 @@ plt.savefig("figs/scatter-plot-solc-ins.png")
 
 plt.figure()
 
+# Only the Tests and MC sets (without STD)
+paired_no_std = sorted((ins, grey, solc) for ins, grey, solc, std in
+                       zip(list_ins_cfg, list_times_grey, list_times_solc, list_is_std) if not std)
+ins_no_std = [p[0] for p in paired_no_std]
+print("POINTS COMPARISON: " + str(len(paired_no_std)) + ", TIMES PER PHASE: " + str(len(list_ins_cfg)))
+
 # Dibujar ambos en el mismo gráfico
-sns.scatterplot(x=ins_cfg_sorted, y=times_grey_sorted, label="SATE")
-sns.scatterplot(x=ins_cfg_sorted, y=times_solc_sorted, label="solc")
+sns.scatterplot(x=ins_no_std, y=[p[1] for p in paired_no_std], label="SATE")
+sns.scatterplot(x=ins_no_std, y=[p[2] for p in paired_no_std], label="solc")
 
 plt.xlabel("CFG Instructions")
 plt.ylabel("Execution time (s)")
@@ -341,7 +351,7 @@ ins_cfg_sorted, times_solc_importer_sorted = list(ins_cfg_sorted), list(time_sol
 time_cfg_all_sorted = [x + y for x, y in zip(time_cfg_generation_sorted, time_cfg_parser_sorted)]
 time_asm_generation_all_sorted = [x + y for x, y in zip(time_asm_generation_sorted, time_solc_importer_sorted)]
 ys = [time_cfg_all_sorted, time_cfg_preprocess_sorted, time_layout_sorted, time_greedy_sorted, time_asm_generation_all_sorted]
-labels = ['CFG Generation', 'Pre-analysis', 'Layout Generation', 'Greedy+repair', 'ASM Generation']
+labels = ['CFG Generation', 'Pre-analysis', 'Layout Generation', 'Greedy+Repair', 'ASM Generation']
 
 print("TIME CFG: "+str(sum(time_cfg_generation_sorted)))
 print("IMPORTER: "+str(sum(time_solc_importer_sorted)))
