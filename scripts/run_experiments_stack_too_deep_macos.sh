@@ -1,10 +1,55 @@
 #!/bin/bash
 
-# Directorio base (cambiar por la ruta deseada o pasar como argumento)
-DIRECTORIO_BASE=/Users/pablo/Repositorios/ethereum/grey/scripts/test_stack_too_deep
+# Number of files processed concurrently: half of the available cores (it can be overridden with JOBS=n)
+if [ -z "$JOBS" ]; then
+    CORES=$( (nproc || sysctl -n hw.ncpu) 2>/dev/null )
+    JOBS=$(( ${CORES:-2} / 2 ))
+    [ "$JOBS" -lt 1 ] && JOBS=1
+fi
+# The variables defined below are exported to the parallel jobs
+set -a
+
+
+# Uso: ./run_experiments_stack_too_deep_macos.sh opt|noopt [junk] [profundidad]
+#   opt|noopt:   solc y opciones de grey de cada modo (las mismas que run_experiments_macos.sh)
+#   junk:        opcional, añade _junk al directorio y llama a grey con -j
+#   profundidad: opcional, se añade al directorio y se pasa a grey como -d <profundidad>
+#   Directorio: test_stack_too_deep_<modo>[<profundidad>][_junk], p.ej. test_stack_too_deep_opt
+MODE=$1
+shift
+if [ "$MODE" != "opt" ] && [ "$MODE" != "noopt" ]; then
+    echo "Uso: $0 opt|noopt [junk] [profundidad]"
+    exit 1
+fi
+DEPTH_FLAG=""
+DEPTH_SUFFIX=""
+JUNK_FLAG=""
+JUNK_SUFFIX=""
+for arg in "$@"; do
+    if [ "$arg" = "junk" ]; then
+        JUNK_FLAG="-j"
+        JUNK_SUFFIX="_junk"
+    elif [[ "$arg" =~ ^[0-9]+$ ]]; then
+        DEPTH_FLAG="-d $arg"
+        DEPTH_SUFFIX="$arg"
+    else
+        echo "Argumento desconocido: $arg"
+        echo "Uso: $0 opt|noopt [junk] [profundidad]"
+        exit 1
+    fi
+done
+
+# Directorio base
+DIRECTORIO_BASE=/Users/pablo/Repositorios/ethereum/grey/scripts/test_stack_too_deep_$MODE$DEPTH_SUFFIX$JUNK_SUFFIX
 
 GREY_PATH=/Users/pablo/Repositorios/ethereum/grey/src/grey_main.py
-SOLC_PATH=/Users/pablo/Repositorios/ethereum/grey/examples/solc-moritz
+if [ "$MODE" = "opt" ]; then
+    SOLC_PATH=/Users/pablo/Repositorios/ethereum/grey/examples/solc-with-layout
+    GREY_OPTIONS="--call-convention best --prune-unused-arguments --combine-functions --reinline-after-merge --thread-empty-blocks --cse --hoist-return-labels --solc-cfg-fallback /Users/pablo/Repositorios/ethereum/grey/examples/solc-without-opt"
+else
+    SOLC_PATH=/Users/pablo/Repositorios/ethereum/grey/examples/solc-without-opt
+    GREY_OPTIONS="--no-inline --constants --no-merge-equivalent --solc-dedup off"
+fi
 SOLX_PATH=/Users/pablo/Repositorios/ethereum/solx/solx-macosx-profiling
 TEST_SOLX_PATH=/Users/pablo/Repositorios/ethereum/grey/scripts/test_solx
 #TESTRUNNER_PATH=/Users/pablo/Repositorios/ethereum/solidity/build/test/tools/testrunner
@@ -24,7 +69,10 @@ fi
 # find "$DIRECTORIO_BASE" -type f -name "*standard_input.json" |  grep '/externalContract[^/]*/' | while read -r yul_file; do
 
 
-find "$DIRECTORIO_BASE" -type f -name "*standard_input.json" | while read -r yul_file; do
+process_file() {
+    yul_file="$1"
+    # Output directory of grey: the directory of the test is unique (several tests have files with the same name)
+    grey_out="/tmp/$(basename "$(dirname "$yul_file")")"
 
     
     # Obtener el directorio y el nombre base del archivo
@@ -62,16 +110,21 @@ find "$DIRECTORIO_BASE" -type f -name "*standard_input.json" | while read -r yul
     
 
     start=$(gdate +%s.%N)
-    python3 $GREY_PATH -s "$yul_file" --constants --no-inline -g -if standard-json -solc $SOLC_PATH -o "/tmp/$yul_base" &> "$yul_dir/$yul_base.log"
+    # The statistics of the reparation of an earlier run must not be copied if grey does not write them now
+    rm -f "$grey_out"/repair*csv
+    python3 $GREY_PATH -s "$yul_file" $DEPTH_FLAG $JUNK_FLAG $GREY_OPTIONS -g -if standard-json -solc $SOLC_PATH -o "$grey_out" &> "$yul_dir/$yul_base.log"
     end=$(gdate +%s.%N)
     popd
     elapsed=$(echo "$end - $start" | bc)
     echo "TIME GREY $yul_file : $elapsed"
     echo "TIME SOLC $yul_file : $elapsed_solc" >> "$yul_dir/$yul_base.log"
     
-    echo "python3 $GREY_PATH -s $yul_file -g -v -if standard-json -solc $SOLC_PATH -o /tmp/$yul_base &> $yul_dir/$yul_base.log"
+    echo "python3 $GREY_PATH -s $yul_file $DEPTH_FLAG $JUNK_FLAG $GREY_OPTIONS -g -v -if standard-json -solc $SOLC_PATH -o $grey_out &> $yul_dir/$yul_base.log"
 
-    cp "/tmp/$yul_base"/*/*_asm.json "$yul_dir/"
+    cp "$grey_out"/*/*_asm.json "$yul_dir/"
+    # Statistics of the reparation (repair_stats.py), replacing those of an earlier run
+    rm -f "$yul_dir"/repair_*.csv
+    cp "$grey_out"/repair*csv "$yul_dir/" 2>/dev/null
 
     # python3 extract_info.py "$yul_dir"
 
@@ -98,8 +151,8 @@ find "$DIRECTORIO_BASE" -type f -name "*standard_input.json" | while read -r yul
     #     # if diff $yul_dir/resultOriginal.json $yul_dir/resultGrey.json > /dev/null; then
     #     if [ $RES -eq 0 ]; then
     #         echo "[RES]: Test passed."
-    echo "python3 count_num_ins.py $yul_dir/$yul_base.output $yul_dir/$yul_base.log $yul_dir/$yul_base.solx_output"
-    python3 count_num_ins.py "$yul_dir/$yul_base.output" "$yul_dir/$yul_base.log" "$yul_dir/$yul_base.solx_output"
+    echo "python3 count_num_ins_fixed.py $yul_dir/$yul_base.output $yul_dir/$yul_base.log $yul_dir/$yul_base.solx_output"
+    python3 count_num_ins_fixed.py "$yul_dir/$yul_base.output" "$yul_dir/$yul_base.log" "$yul_dir/$yul_base.solx_output"
 
     echo "python3 compare_solx.py $yul_dir/$yul_base.log $yul_dir/$yul_base.solx_output $yul_dir/intermediate.json"
     python3 compare_solx.py "$yul_dir/$yul_base.log" "$yul_dir/$yul_base.solx_output" "$yul_dir/intermediate.json"
@@ -116,7 +169,25 @@ find "$DIRECTORIO_BASE" -type f -name "*standard_input.json" | while read -r yul
     echo "*************************************"
 
     
-done
+}
+
+# Runs process_file buffering its output, which is printed at once when it finishes (the lock keeps the output
+# of each file together)
+run_job() {
+    local out
+    out=$(mktemp)
+    process_file "$1" > "$out" 2>&1
+    until mkdir "$LOCK_DIR" 2>/dev/null; do sleep 0.1; done
+    cat "$out"
+    rmdir "$LOCK_DIR"
+    rm -f "$out"
+}
+export -f process_file run_job
+LOCK_DIR=$(mktemp -u "${TMPDIR:-/tmp}/run_experiments_lock.XXXXXX")
+
+echo "Processing with $JOBS parallel jobs"
+find "$DIRECTORIO_BASE" -type f -name "*standard_input.json" -print0 | xargs -0 -n 1 -P "$JOBS" bash -c 'run_job "$1"' _
+
 
 # end=$(date +%s.%N)
 # elapsed=$(echo "$end - $start" | bc)
