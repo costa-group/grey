@@ -46,7 +46,7 @@ evaluation/
       deploy/<address>.json.gz      deployment data: creator, constructor arguments, immutables (Sourcify,
                                     Etherscan), proxy resolution
       etherscan_resolution.csv, immutables_resolution.csv
-      txs/, codes/             RPC data: per transaction, its prestate, receipt and header (not committed)
+      txs/, codes/             RPC data: per transaction, its prestate, receipt and header
       results/<name>/          outputs of each run (not committed)
   results/                 results of earlier runs
 ```
@@ -93,9 +93,9 @@ transactions. Many cores help: the evaluation took ~25 min with 60 jobs on 128 c
 
 ## 3. The data: what is committed and how to regenerate it
 
-Everything needed to evaluate a new configuration is committed except the RPC data (prestates and block hashes),
-which is regenerated with
-a free RPC. The steps below are those of `evaluation/scripts/run_mainnet_gas_evaluation.sh <step>`, run from the repository root.
+Everything needed to evaluate a new configuration is committed, including the RPC data (prestates, receipts, headers,
+codes and block hashes). The steps below regenerate it from scratch, with the API keys and the RPC listed in the
+requirements. They are those of `evaluation/scripts/run_mainnet_gas_evaluation.sh <step>`, run from the repository root.
 
 ### 3.1 Contract sources (Etherscan): `data/etherscan/`
 
@@ -133,7 +133,7 @@ These print the sample size and split the export per contract into `data/mainnet
 
     ETHERSCAN_API_KEY=... evaluation/scripts/run_mainnet_gas_evaluation.sh deploy
 
-### 3.4 Prestates (RPC): `data/mainnet/txs/` and `codes/`, not committed
+### 3.4 Prestates (RPC): `data/mainnet/txs/` and `codes/`
 
 Per transaction, the RPC gives:
 - the signed transaction, its receipt and its block header;
@@ -181,7 +181,7 @@ For example:
 
 It runs every step below in order:
 1. `setup`;
-2. the RPC data if it is missing (`load prestate`);
+2. the RPC data if it is missing (`load prestate`; it is committed, so this only happens for a new sample);
 3. `immutables`, then `compile codes replay report`;
 4. `blockhashes`, and `replay report` again only if new hashes were fetched;
 5. `diagnosis`, then `semantic` (skipped with `SKIP_SEMANTIC=1`).
