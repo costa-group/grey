@@ -87,9 +87,65 @@ print()
 print(" ===== BYTES STATISTICS =====")
 print()
 
+import numpy
+print("MAXIMO GREY: "+str(max(opt_number)))
+print("MINIMO GREY: "+str(min(opt_number)))
+print("MEDIANA GREY: "+ str(float(numpy.median(opt_number))))
+
+
+# Calcular los percentiles 25 y 75
+q1 = numpy.percentile(opt_number, 25)
+q3 = numpy.percentile(opt_number, 75)
+
+# Calcular el IQR
+iqr_resultado = q3 - q1
+
+print(f"El IQR GREY es: {iqr_resultado}")
+
+print("MAXIMO SOLC: "+str(max(origin_number)))
+print("MINIMO SOLC: "+str(min(origin_number)))
+print("MEDIANA SOLC: "+ str(float(numpy.median(origin_number))))
+
+
+
+# Calcular los percentiles 25 y 75
+q1 = numpy.percentile(origin_number, 25)
+q3 = numpy.percentile(origin_number, 75)
+
+# Calcular el IQR
+iqr_resultado = q3 - q1
+
+print(f"El IQR SOLC es: {iqr_resultado}")
+
+diffs = []
+for i in range(len(origin_number)):
+    
+    o = origin_number[i]
+    g = opt_number[i]
+    diffs.append(o-g)
+
+print("MAXIMO DIFFS: "+str(max(diffs)))
+print("MINIMO DIFFS: "+str(min(diffs)))
+print("MEDIANA DIFFS: "+ str(float(numpy.median(diffs))))
+
+
+
+# Calcular los percentiles 25 y 75
+q1 = numpy.percentile(diffs, 25)
+q3 = numpy.percentile(diffs, 75)
+
+# Calcular el IQR
+iqr_resultado = q3 - q1
+
+print(f"El IQR DIFFS es: {iqr_resultado}")
+
+print()
+
+
 # print("CASOS EN EL QUE SOMOS MEJOR: "+str(menor))
 print("CASOS EN LOS QUE SOMOS IGUALES EN BYTES: "+str(igual))
 print("CASOS EN LOS QUE SOMOS PEORES EN BYTES: "+str(mayor))
+print("CASOS TOTALES: "+str(len(origin_number)))
 print()
 
 assert(len(origin_number) == len(opt_number))

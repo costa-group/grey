@@ -105,6 +105,7 @@ print(" ===== GAS STATISTICS EXECUTION =====")
 # print("CASOS EN EL QUE SOMOS MEJOR: "+str(menor))
 print("CASOS EN LOS QUE SOMOS IGUALES EN GAS: "+str(igual))
 print("CASOS EN LOS QUE SOMOS PEORES EN GAS: "+str(mayor))
+print("CASOS TOTALES: "+str(len(origin_number)))
 print()
 
 assert(len(origin_number) == len(opt_number))

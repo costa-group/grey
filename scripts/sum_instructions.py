@@ -86,6 +86,12 @@ all_pops_origin = 0
 total_ins_terminal_sol = 0
 total_ins_terminal_opt = 0
 
+total_sol_jumps = 0
+total_grey_jumps = 0
+
+total_sol_jumpdest = 0
+total_grey_jumpdest = 0
+
 total_blocks_solc = 0
 total_blocks_opt = 0
 
@@ -123,8 +129,16 @@ for i in range(len(origin_number)):
 
     if(fname_without_ext not in visited):
         
-        tsol, pops_sol, allpops, torigin, pops_origin , allpops_orig, inst_opt, inst_sol, blocks_solc, blocks_opt, total_ins_solc, total_ins_grey = compare_blocks.execute_function(fname_without_ext+"output", fname_without_ext+"log")
+        tsol, pops_sol, allpops, torigin, pops_origin , allpops_orig, inst_opt, inst_sol, blocks_solc, blocks_opt, total_ins_solc, total_ins_grey, jumps_solc, jumps_grey, jumpdest_solc, jumpdest_grey = compare_blocks.execute_function(fname_without_ext+"output", fname_without_ext+"log")
 
+        print(fname_without_ext)
+        print(jumpdest_solc)
+        print(jumpdest_grey)
+
+        # if(jumpdest_grey>jumpdest_solc):
+        #     print(fname_without_ext)
+        #     raise Exception
+        
         values = {}
         values["tsol"] = tsol
         values["pops_sol"] = pops_sol
@@ -144,6 +158,20 @@ for i in range(len(origin_number)):
 
         total_blocks_solc+=blocks_solc
         total_blocks_opt+=blocks_opt
+
+        total_sol_terminal+=tsol
+        total_sol_pops+=pops_sol
+        all_pops_sol+= allpops
+        total_origin_terminal+=torigin
+        total_origin_pops+=pops_origin
+        all_pops_origin+=allpops_orig
+        total_ins_terminal_sol+=inst_sol
+        total_ins_terminal_opt+=inst_opt
+        total_sol_jumps+=jumps_solc
+        total_grey_jumps+=jumps_grey
+        total_sol_jumpdest+=jumpdest_solc
+        total_grey_jumpdest+=jumpdest_grey
+
         
         try:
             time_grey, time_solc, blocks_cfg, ins_cfg = get_stats(fname_without_ext+"log")
@@ -238,14 +266,14 @@ for i in range(len(origin_number)):
         
         # print("CHECK: "+ str((torigin, pops_origin , allpops_orig, inst_sol, blocks_solc, blocks_opt)))
         
-        total_sol_terminal+=tsol
-        total_sol_pops+=pops_sol
-        all_pops_sol+= allpops
-        total_origin_terminal+=torigin
-        total_origin_pops+=pops_origin
-        all_pops_origin+=allpops_orig
-        total_ins_terminal_sol+=inst_sol
-        total_ins_terminal_opt+=inst_opt
+        # total_sol_terminal+=tsol
+        # total_sol_pops+=pops_sol
+        # all_pops_sol+= allpops
+        # total_origin_terminal+=torigin
+        # total_origin_pops+=pops_origin
+        # all_pops_origin+=allpops_orig
+        # total_ins_terminal_sol+=inst_sol
+        # total_ins_terminal_opt+=inst_opt
         
         worse_files[fname] = (original, optimizado)
         # print("PAREJA: ("+str(original)+","+str(optimizado)+")")
@@ -421,6 +449,68 @@ f_scal.close()
 f_scal_ins.close()
 f_scal_cfg.close()
 
+print(origin_number)
+print(sorted(origin_number))
+
+print(opt_number)
+print(sorted(opt_number))
+
+
+import numpy
+print("MAXIMO GREY: "+str(max(opt_number)))
+print("MINIMO GREY: "+str(min(opt_number)))
+print("MEDIANA GREY: "+ str(float(numpy.median(opt_number))))
+
+
+# Calcular los percentiles 25 y 75
+q1 = numpy.percentile(opt_number, 25)
+q3 = numpy.percentile(opt_number, 75)
+
+# Calcular el IQR
+iqr_resultado = q3 - q1
+
+print(f"El IQR GREY es: {iqr_resultado}")
+
+print("MAXIMO SOLC: "+str(max(origin_number)))
+print("MINIMO SOLC: "+str(min(origin_number)))
+print("MEDIANA SOLC: "+ str(float(numpy.median(origin_number))))
+
+
+
+# Calcular los percentiles 25 y 75
+q1 = numpy.percentile(origin_number, 25)
+q3 = numpy.percentile(origin_number, 75)
+
+# Calcular el IQR
+iqr_resultado = q3 - q1
+
+print(f"El IQR SOLC es: {iqr_resultado}")
+
+diffs = []
+for i in range(len(origin_number)):
+    
+    o = origin_number[i]
+    g = opt_number[i]
+    diffs.append(o-g)
+
+print("MAXIMO DIFFS: "+str(max(diffs)))
+print("MINIMO DIFFS: "+str(min(diffs)))
+print("MEDIANA DIFFS: "+ str(float(numpy.median(diffs))))
+
+
+
+# Calcular los percentiles 25 y 75
+q1 = numpy.percentile(diffs, 25)
+q3 = numpy.percentile(diffs, 75)
+
+# Calcular el IQR
+iqr_resultado = q3 - q1
+
+print(f"El IQR DIFFS es: {iqr_resultado}")
+
+    
+    
+
 print()
 print(" ===== OTHER STATISTICS =====")
 
@@ -436,8 +526,16 @@ print("TOTAL POPS IN SOLC: "+str(all_pops_origin))
 print("TOTAL INS TERMINAL BLOCKS IN GREY: "+str(total_ins_terminal_opt))
 print("TOTAL INS TERMINAL BLOCKS IN SOLC: "+str(total_ins_terminal_sol))
 print("TOTAL BLOCKS IN GREY: "+str(total_blocks_opt))
-print("TOTAL BLOCKS IN SOLC: "+str(total_blocks_solc)) 
+print("TOTAL BLOCKS IN SOLC: "+str(total_blocks_solc))
+
+print("TOTAL JUMPS IN GREY: "+str(total_sol_jumps))
+print("TOTAL JUMPS IN SOLC: "+str(total_grey_jumps))
 print()
+print("TOTAL JUMPDEST IN SOLC: "+str(total_sol_jumpdest))
+print("TOTAL JUMPDEST IN GREY: "+str(total_grey_jumpdest))
+print()
+
+
 
 print(" ===== NUM INSTRUCTIONS STATISTICS ===== ")
 print()
@@ -445,6 +543,7 @@ print()
 # print("CASOS EN EL QUE SOMOS MEJOR: "+str(menor))
 print("CASOS EN LOS QUE SOMOS IGUALES: "+str(igual))
 print("CASOS EN LOS QUE SOMOS PEORES: "+str(mayor))
+print("CASOS TOTALES: "+str(len(origin_number)))
 print()
 
 assert(len(origin_number) == len(opt_number))
