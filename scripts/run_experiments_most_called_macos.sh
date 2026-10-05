@@ -127,6 +127,11 @@ process_file() {
     echo "python3 $GREY_PATH -s $yul_file $DEPTH_FLAG $JUNK_FLAG $GREY_OPTIONS -g -v -if standard-json -solc $SOLC_PATH -o $grey_out &> $yul_dir/$yul_base.log"
 
     cp "$grey_out"/*/*_asm.json "$yul_dir/"
+    # grey's output read by the mainnet gas evaluation (evaluation/scripts/pack_local_codes.py): its CSVs (creation code
+    # per contract) and the assembly given to the importer (<contract>/<contract>_standard_json_output.json)
+    rm -rf "$yul_dir/grey"
+    rsync -a -m --include='/*.csv' --include='*/' --include='*_standard_json_output.json' --exclude='*' \
+        "$grey_out/" "$yul_dir/grey/"
     cp "$grey_out"/*/sfs_*.json "$yul_dir/sfs/"
     cp "$grey_out"/repair*csv "$yul_dir/"
     
