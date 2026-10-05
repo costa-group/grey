@@ -12,7 +12,8 @@ count_repair_stats.txt, y lo que usa el párrafo de las reparaciones de la secci
   - el programa con más variables por registro (el ejemplo del paper: "30 variables, 6 phi, 12 registros").
 
 Uso: python3 repair_stats.py <directorio> [<directorio> ...] [--only-tests] [--repair-from DIR]
-  --only-tests: solo los directorios que tienen fichero test (los semantic tests que se ejecutan)
+  --only-tests: solo los directorios que tienen fichero test (los semantic tests que se ejecutan); en los
+                conjuntos sin tests (most_called, STD) no filtra nada
   --repair-from DIR: lee los repair_*.csv de DIR/<programa> en vez de <directorio>/<programa>. run_experiments_macos.sh
                      no los copia al directorio del test: se quedan en la carpeta de salida de grey, /tmp/<test>, que
                      solo guarda los de la última configuración ejecutada (p. ej. --repair-from /private/tmp)
@@ -46,7 +47,10 @@ def read_program(directory: str):
 
 def summarize(base: str, only_tests: bool, repair_from: str = None) -> None:
     programs = {}
-    for directory in sorted(glob.glob(os.path.join(base, "*/"))):
+    directories = sorted(glob.glob(os.path.join(base, "*/")))
+    # --only-tests only applies to the sets with tests (most_called and STD have none)
+    only_tests = only_tests and any(os.path.exists(os.path.join(directory, "test")) for directory in directories)
+    for directory in directories:
         if only_tests and not os.path.exists(os.path.join(directory, "test")):
             continue
         name = os.path.basename(directory.rstrip("/"))
