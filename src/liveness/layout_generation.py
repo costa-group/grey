@@ -525,13 +525,17 @@ class LayoutGeneration:
 
 
 def layout_generation_cfg(cfg: CFG, args: argparse.Namespace, final_dir: Path = Path("."),
-                          components: Optional[Dict[str, set]] = None) -> Tuple[float, float]:
+                          components: Optional[Dict[str, set]] = None,
+                          results: Optional[Dict] = None) -> Tuple[float, float]:
     """
     Generates the layout for all the blocks in the objects inside the CFG level, excluding sub-objects
     """
     x = dtimer()
-    cfg_info = construct_analysis_info(cfg)
-    results = perform_liveness_analysis_from_cfg_info(cfg_info)
+    # The liveness can be given (see main_execution.generate_with_best_conventions): it does not depend on the order of
+    # the arguments, so it is the same before and after applying the calling conventions
+    if results is None:
+        cfg_info = construct_analysis_info(cfg)
+        results = perform_liveness_analysis_from_cfg_info(cfg_info)
 
     # The calling conventions permute the arguments of the functions, so the inputs are computed afterwards
     call_convention = getattr(args, "call_convention", "fixed")
