@@ -89,6 +89,7 @@ print()
 # print("CASOS EN EL QUE SOMOS MEJOR: "+str(menor))
 print("CASOS EN LOS QUE SOMOS IGUALES EN OWN GAS: "+str(igual))
 print("CASOS EN LOS QUE SOMOS PEORES EN OWN GAS: "+str(mayor))
+print("CASOS TOTALES: "+str(len(origin_number)))
 print()
 
 assert(len(origin_number) == len(opt_number))
