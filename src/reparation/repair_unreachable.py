@@ -139,8 +139,20 @@ def largest_constant_memory_access(cfg: CFGObject) -> int:
     and a variable size counts as a word. Ranges with a variable offset cannot be bounded and are ignored
     """
     block_lists = [cfg.blocks] + [cfg_function.blocks for cfg_function in cfg.functions.values()]
-    instructions = [instruction for block_list in block_lists for block in block_list.blocks.values()
-                    for instruction in block.get_instructions()]
+    largest_end = 0
+    # The variable names are local to each block list (the main blocks and each function: v0, v1... are reused), so
+    # the constants are bound per block list. With a single map, a variable bound to a constant in one function (e.g.
+    # an error selector) would be taken as the constant offset of an access to the same name in another one
+    for block_list in block_lists:
+        instructions = [instruction for block in block_list.blocks.values() for instruction in block.get_instructions()]
+        largest_end = max(largest_end, _largest_constant_access(instructions))
+    return largest_end
+
+
+def _largest_constant_access(instructions) -> int:
+    """
+    End (exclusive) of the highest memory range accessed at a constant address by the instructions of one block list
+    """
     # Variables bound to a constant (propagated constants, literal assignments and copies of them)
     constant_vars: Dict[str, int] = dict()
     for instruction in instructions:
