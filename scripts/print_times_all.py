@@ -8,7 +8,8 @@ def get_stats(file_name):
     f = open(file_name, "r")
     lines = f.readlines()
 
-    all_times_grey_line = list(filter(lambda x: x.find("Times /User") != -1 and x.find("Total") == -1, lines))[0]
+    # "Times <path of the input>: ..." (any path: /Users/... on the Mac, /home/... on Linux)
+    all_times_grey_line = list(filter(lambda x: x.startswith("Times ") and x.find("Total") == -1, lines))[0]
 
     all_times_aux = all_times_grey_line.split(":")[-1]
     all_times = list(map(lambda x: float(x.strip()), all_times_aux.split(",")))
@@ -28,7 +29,12 @@ def get_stats(file_name):
     return float(time_grey), float(time_solc), int(blocks_cfg), int(ins_cfg), all_times
 
 
+# Usage: python3 print_times_all.py <num_instructions_all.txt> [<stack-too-deep folder>]
+#   the stack-too-deep folder of the configuration (e.g. test_stack_too_deep_opt); by default test_stack_too_deep next to
+#   this script. The figures are written to figs/ in the current folder (see generate_figures.sh)
 f = sys.argv[1]
+std_folder = sys.argv[2] if len(sys.argv) > 2 else \
+    __import__("os").path.join(__import__("os").path.dirname(__import__("os").path.abspath(__file__)), "test_stack_too_deep")
 
 ff = open(f, "r")
 lines = ff.readlines()
@@ -111,7 +117,7 @@ stack_too_deep = ["0xae67c0f3b7dbad08a58f3185cc439c98aabcf773",
 
 for i in range(len(stack_too_deep)):
 
-    fname = "/Users/pablo/Repositorios/ethereum/grey/scripts/test_stack_too_deep/"+stack_too_deep[i]+"/"+stack_too_deep[i]
+    fname = __import__("os").path.join(std_folder, stack_too_deep[i], stack_too_deep[i])
     fname_without_ext = fname
 
     print("CHECK: " + str((fname_without_ext+".output", fname_without_ext+".log")))
