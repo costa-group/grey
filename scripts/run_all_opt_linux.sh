@@ -5,7 +5,7 @@ export GREY_ROOT=${GREY_ROOT:-$HOME/grey}
 export GREY_TOOLS=${GREY_TOOLS:-$HOME/grey_tools}
 # grey sin pygraphviz (solo lo usa para los .dot de depuración)
 export PYTHONPATH=$GREY_TOOLS/pyshim${PYTHONPATH:+:$PYTHONPATH}
-# Ejecuta todas las configuraciones de opt (normal, junk y -d 8) de los tests y de most_called, una detrás de otra,
+# Ejecuta todas las configuraciones (y stack too deep) de opt (normal, junk y -d 8) de los tests y de most_called, una detrás de otra,
 # y genera su tabla con generate_table.py (table-experiments-opt.tex)
 # Uso: ./run_all_opt_linux.sh
 # Con DRY_RUN=1 solo muestra lo que haría
@@ -38,6 +38,8 @@ run run_experiments_linux.sh "$PREFIX-test-${MODE}8" 8
 run run_experiments_most_called_linux.sh "$PREFIX-mostcalled-$MODE"
 run run_experiments_most_called_linux.sh "$PREFIX-mostcalled-$MODE-junk" junk
 run run_experiments_most_called_linux.sh "$PREFIX-mostcalled-${MODE}8" 8
+# Stack too deep (test_stack_too_deep_<modo>): no entra en la tabla, pero sí en las figuras de tiempos (generate_figures.sh)
+run run_experiments_stack_too_deep_linux.sh "$PREFIX-std-$MODE"
 
 echo "[$(date '+%d-%m %H:%M')] python3 generate_table.py $PREFIX $MODE -o $TABLE"
 [ -n "$DRY_RUN" ] && exit 0
